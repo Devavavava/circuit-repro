@@ -1,0 +1,12 @@
+diff --git a/eval_engines/ngspice/ngspice_inputs/netlist/two_stage_opamp.cir b/eval_engines/ngspice/ngspice_inputs/netlist/two_stage_opamp.cir
+--- a/eval_engines/ngspice/ngspice_inputs/netlist/two_stage_opamp.cir
++++ b/eval_engines/ngspice/ngspice_inputs/netlist/two_stage_opamp.cir
+@@ -1,7 +1,7 @@
+ two_stage_amp test
+ 
+ * Two stage OPAMP
+-.include "/home/ksettaluri6/AutoCkt/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt"
++.include "@@AUTOCKT_ROOT@@/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt"
+ 
+ .param wp1=0.5u lp1=90n mp1=10
+ .param wn1=0.5u ln1=90n mn1=38

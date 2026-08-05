@@ -1,0 +1,14 @@
+﻿diff --git a/layers/constants.py b/layers/constants.py
+index cfbe263..12c0e2a 100644
+--- a/layers/constants.py
++++ b/layers/constants.py
+@@ -1,7 +1,8 @@
+ import os
+ 
+ path = os.path.abspath(__file__)
+-path = path[:path.rindex("/")] + "/../"
++# os.sep instead of a hard-coded "/" so this resolves on Windows too
++path = os.path.join(os.path.dirname(path), os.pardir)
+ PATH = os.path.abspath(path)
+ 
+ # the latter are only default values used in config

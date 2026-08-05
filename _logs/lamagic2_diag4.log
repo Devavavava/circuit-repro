@@ -1,0 +1,41 @@
+﻿python.exe : Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+At line:3 char:1
++ & $py diag4_lamagic2.py *> "C:\Users\Devavrat\circuit-repro\_logs\lam ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Special tokens ...ned or trained.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+C:\Users\Devavrat\radioconda\envs\lamagic\lib\site-packages\transformers\generation\utils.py:1518: UserWarning: You have modified the pretrained model 
+configuration to control generation. This is a deprecated strategy to control generation and will be removed soon, in a future version. Please use and 
+modify the model generation configuration (see https://huggingface.co/docs/transformers/generation_strategies#default-text-generation-configuration )
+  warnings.warn(
+C:\Users\Devavrat\radioconda\envs\lamagic\lib\site-packages\transformers\modeling_utils.py:942: FutureWarning: The `device` argument is deprecated and 
+will be removed in v5 of Transformers.
+  warnings.warn(
+C:\Users\Devavrat\radioconda\envs\lamagic\lib\site-packages\transformers\modeling_utils.py:896: FutureWarning: The `device` argument is deprecated and 
+will be removed in v5 of Transformers.
+  warnings.warn(
+shared Embedding(32128, 768)
+weight torch.Size([32128, 768])
+### Init vout_linear
+GEN ids: [0, 32107, 32114, 32100, 301, 220, 3, 6, 32101, 301, 314, 3, 6, 32102, 32113, 204, 3, 6, 32112, 3, 632, 32112, 209, 32113, 204, 301, 220, 3, 6, 32112, 3, 632, 32112, 209, 301, 314, 32114, 1]
+GEN tok: ['<pad>', '<duty_0.5>', '<sep>', 'VIN', '▁L', '▁3', '▁', ',', 'VOUT', '▁L', '▁4', '▁', ',', 'GND', 'Sb', '▁2', '▁', ',', 'Sa', '▁', '0', 'Sa', '▁1', 'Sb', '▁2', '▁L', '▁3', '▁', ',', 'Sa', '▁', '0', 'Sa', '▁1', '▁L', '▁4', '<sep>', '</s>']
+
+REF ids: [32103, 32114, 32100, 32112, 632, 434, 519, 3, 6, 32101, 434, 591, 3, 6, 32102, 32113, 357, 3, 6, 32112, 632, 32112, 536, 434, 591, 3, 6, 32112, 536, 32113, 357, 434, 519, 32114, 1]
+REF tok: ['<duty_0.1>', '<sep>', 'VIN', 'Sa', '0', 'L', '3', '▁', ',', 'VOUT', 'L', '4', '▁', ',', 'GND', 'Sb', '2', '▁', ',', 'Sa', '0', 'Sa', '1', 'L', '4', '▁', ',', 'Sa', '1', 'Sb', '2', 'L', '3', '<sep>', '</s>']
+
+pos | ref token      | logprob | model's argmax
+  0 | <duty_0.1>     |   -5.583 | <duty_0.5>
+  1 | <sep>          |    0.000 | <sep>
+  2 | VIN            |    0.000 | VIN
+  3 | Sa             |   -0.626 | Sa
+  4 | 0              |  -13.605 | ▁
+  5 | L              |  -36.537 | ▁L
+  6 | 3              |  -22.588 | ▁3
+  7 | ▁              |   -0.000 | ▁
+  8 | ,              |    0.000 | ,
+  9 | VOUT           |    0.000 | VOUT
+ 10 | L              |  -38.289 | ▁L
+ 11 | 4              |  -30.469 | ▁4
+ 12 | ▁              |   -0.000 | ▁
+ 13 | ,              |    0.000 | ,

@@ -1,0 +1,24 @@
+﻿netlist : two_stage_opamp
+work dir: C:\Users\Devavrat\circuit-repro\AutoCkt\work\designs_two_stage_opamp
+sizing  : {'mp1': 10, 'mn1': 38, 'mp3': 4, 'mn3': 9, 'mn4': 20, 'mn5': 20, 'cc': 2.1e-12}
+two_stage_opamp_10_38_4_9_20_20_2.1e-12
+
+info (0 == no simulator error): 0
+--- SPECS FROM NGSPICE ---
+  ugbw   = 941478.4007624151
+  gain   = 2.036252200004996
+  phm    = 103.11090084872983
+  ibias  = 4.7277504e-05
+
+target specs: {'gain': 300, 'ugbw': 10000000.0, 'phm': 60, 'ibias': 0.001}
+
+SMOKE TEST: PASS - ngspice-in-the-loop evaluation returned all specs
+python.exe : C:\Users\Devavrat\circuit-repro\AutoCkt\repo\eval_engines\ngspice\ngspice_wrapper.py:27: YAMLLoadWarning: calling yaml.load() without 
+Loader=... is deprecated, as the default Loader is unsafe. Please read https://msg.pyyaml.org/load for full details.
+At line:4 char:1
++ & $py smoke_engine.py *> "C:\Users\Devavrat\circuit-repro\_logs\autoc ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\Devavr...r full details.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  yaml_data = yaml.load(f)

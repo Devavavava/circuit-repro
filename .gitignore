@@ -1,0 +1,33 @@
+# ─── Upstream clones ──────────────────────────────────────────────────────
+# These are unmodified public repositories, pinned by commit SHA in
+# UPSTREAM.md. They are deliberately NOT vendored here — re-create them with
+# scripts/fetch_upstream.sh. Local fixes live in patches/ instead.
+AnalogGenie/repo/
+AutoCkt/repo/
+CktGNN/repo/
+Krylov-ICML2023/repo/
+LaMAGIC2/repo/
+extensions/AnalogSAGE/
+extensions/CircuitSense/
+extensions/RoSE/
+extensions/ZeroSim/
+misc/AnalogGenie-Lite/
+misc/AnalogToBi/
+misc/ZOAF/
+
+# ─── Large binaries ───────────────────────────────────────────────────────
+# Over or near GitHub's 100 MB per-file limit, or re-downloadable.
+# See "Files not tracked" in README.md for where each one comes from.
+_wsl/*.wsl
+LaMAGIC2/ckpt/
+LaMAGIC2/data/
+
+# ─── Python / OS noise ────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+.venv/
+venv/
+Thumbs.db
+desktop.ini

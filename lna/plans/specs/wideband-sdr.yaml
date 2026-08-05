@@ -1,0 +1,52 @@
+# Wideband 0.5-3 GHz general-purpose front end (SDR / TV-tuner class).
+# Rationale: exercises the inductorless topology population — resistive
+# feedback, common-gate, noise-cancelling — i.e. the ~40% of real dataset LNAs
+# the old fixed screen rejected (H-Q4). allow_inductorless: true is the point
+# of this spec. Constraints hold across the whole band, not at a spot
+# frequency; gain ripple is an L2-only metric computed from the sweep.
+name: wideband-sdr
+description: 0.5-3 GHz wideband SDR front-end LNA, inductorless-friendly
+
+process:
+  models: AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt
+  vdd: 1.1
+  temp: 27
+
+band:
+  type: wideband
+  f0: 1.75e9          # geometric-ish centre, reporting frequency
+  f_lo: 0.5e9
+  f_hi: 3.0e9
+
+ports:
+  z0: 50
+  input: VIN1
+  output: VOUT1
+
+constraints:
+  nf_db:       {max: 3.5}
+  s11_db:      {max: -10}
+  s21_db:      {min: 12}
+  s21_ripple_db: {max: 2}   # max-min across band, L2 only
+  idd_ma:      {max: 8}
+  iip3_dbm:    {min: 0, status: unsupported}  # wideband -> linearity matters; harness TBD
+
+objectives:
+  - {metric: nf_db,  direction: min, weight: 1.0}
+  - {metric: s21_db, direction: max, weight: 0.5}
+  - {metric: idd_ma, direction: min, weight: 0.5}
+
+topology:
+  differential: false
+  device_budget: [3, 12]
+  max_inductors: 1          # area-constrained; shunt-peaking at most
+  l_min: 0.3e-9
+  l_max: 10e-9
+  allow_inductorless: true
+
+sizing:
+  w_um: [1, 200]
+  l_fixed: 45e-9
+  r_ohm: [50, 20e3]
+  c_f: [50e-15, 10e-12]
+  vb_v: [0.2, 0.9]

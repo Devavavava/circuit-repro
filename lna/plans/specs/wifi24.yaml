@@ -1,0 +1,49 @@
+# WiFi 2.4 GHz ISM-band front-end LNA (802.11b/g/n).
+# Rationale: published 45-65nm CMOS WiFi LNAs sit at NF 2-3 dB, gain 12-20 dB,
+# 2-6 mW. Narrowband tuned target; inductors expected. Primary bring-up spec —
+# the reference LNA (plans/02-REFERENCE-LNA.md) anchors this target.
+name: wifi24
+description: 2.4 GHz ISM-band WiFi front-end LNA (802.11b/g/n)
+
+process:
+  models: AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt
+  vdd: 1.1
+  temp: 27
+
+band:
+  type: narrowband
+  f0: 2.442e9        # channel 7 centre
+  f_lo: 2.400e9
+  f_hi: 2.4835e9
+
+ports:
+  z0: 50
+  input: VIN1
+  output: VOUT1
+
+constraints:
+  nf_db:    {max: 2.5}
+  s11_db:   {max: -10}
+  s21_db:   {min: 12}
+  idd_ma:   {max: 5}
+  iip3_dbm: {min: -5, status: unsupported}   # needs two-tone harness; declared, unmeasured
+
+objectives:
+  - {metric: s21_db, direction: max, weight: 1.0}
+  - {metric: idd_ma, direction: min, weight: 0.5}
+  - {metric: nf_db,  direction: min, weight: 0.5}
+
+topology:
+  differential: false
+  device_budget: [3, 12]
+  max_inductors: 3
+  l_min: 0.3e-9
+  l_max: 12e-9
+  allow_inductorless: false
+
+sizing:
+  w_um: [1, 200]
+  l_fixed: 45e-9
+  r_ohm: [50, 20e3]
+  c_f: [50e-15, 10e-12]
+  vb_v: [0.2, 0.9]

@@ -166,10 +166,22 @@ def _terminated_map(directory):
 
 
 def evaluate(directory, spec=None, iters=WL_ITERS):
-    """Frozen-protocol metrics for a directory of sampled seq*.txt (04-GEN §1)."""
+    """Frozen-protocol metrics for one or more directories of seq*.txt (04-GEN §1).
+
+    `directory` may be a single path or a list of paths; multiple paths are
+    concatenated (used to combine the seed-1337 and seed-2338 halves into the
+    256-sample protocol). Files are keyed (dir, basename) so same-named files
+    across dirs do not collide.
+    """
+    dirs = [directory] if isinstance(directory, str) else list(directory)
     corpus_hashes, corpus_feats = corpus_reference(iters=iters)
-    term = _terminated_map(directory)
-    files = sorted(glob.glob(os.path.join(directory, "seq*.txt")))
+    files = []
+    term = {}
+    for d in dirs:
+        tmap = _terminated_map(d)
+        for f in sorted(glob.glob(os.path.join(d, "seq*.txt"))):
+            files.append(f)
+            term[f] = tmap.get(os.path.basename(f))
     rows = []
     for f in files:
         topo = Topology(parse_arrow_file(f))
@@ -178,7 +190,7 @@ def evaluate(directory, spec=None, iters=WL_ITERS):
         rows.append({
             "gh": gh,
             "valid": topo.valid,
-            "terminated": term.get(os.path.basename(f)),
+            "terminated": term.get(f),
             "n_ind": topo.n_inductors,
             "ind_ratio": topo.inductor_ratio,
             "spec_pass": spec.structural_screen(topo)[0] if spec else None,
@@ -260,6 +272,8 @@ def main():
     ap.add_argument("--eval", help="directory -> one frozen-protocol metrics row")
     ap.add_argument("--rebaseline", action="store_true",
                     help="run the 4/8/12/24 prefix sweep under the frozen protocol")
+    ap.add_argument("--rebaseline256", action="store_true",
+                    help="full protocol: combine sweep{P} (1337) + sweep{P}_s2338")
     ap.add_argument("--sweep-dir", default=os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "out"))
     ap.add_argument("--spec", default=None)
@@ -284,6 +298,16 @@ def main():
             d = os.path.join(args.sweep_dir, f"sweep{p}")
             if os.path.isdir(d):
                 _print_row(f"prefix{p}", evaluate(d, spec, args.iters))
+
+    if args.rebaseline256:
+        print(f"FULL frozen protocol (256 = 128@1337 + 128@2338)  "
+              f"spec={spec.name if spec else None}")
+        for p in (4, 8, 12, 24):
+            dirs = [os.path.join(args.sweep_dir, f"sweep{p}"),
+                    os.path.join(args.sweep_dir, f"sweep{p}_s2338")]
+            dirs = [d for d in dirs if os.path.isdir(d)]
+            if dirs:
+                _print_row(f"prefix{p}", evaluate(dirs, spec, args.iters))
 
 
 if __name__ == "__main__":

@@ -325,24 +325,26 @@ corpus LNAs, plus a graded nearest-neighbour WL-kernel similarity so "how novel"
 is a number. "Novel" = WL hash not in the corpus set. Bias scaffolding is excluded
 by the naming contract.
 
-Re-baseline of the prefix sweep under the frozen protocol (128 samples @ seed
-1337 — the full protocol is 256 @ seeds 1337+2338, second half pending a GPU run):
+Re-baseline of the prefix sweep under the **full frozen protocol** (256 samples =
+128 @ seed 1337 + 128 @ seed 2338, batch 32, 256-token cap):
 
-| prefix | spec-pass@L0 (wifi24) | **NDL** (novel distinct, wifi24) | median NN-sim | inductor ratio | copies of any corpus |
+| prefix | spec-pass@L0 (wifi24) | **NDL@256** (novel distinct, wifi24) | median NN-sim | inductor ratio | copies of any corpus |
 |---|---|---|---|---|---|
-| 4 | 0.8% | 0 | 1.000 | 0.085 | 9.4% |
-| 8 | 14.1% | 2 | 1.000 | 0.107 | 23.4% |
-| **12** | **30.5%** | **10** | 1.000 | 0.145 | 47.7% |
-| 24 | 42.2% | 6 | 1.000 | 0.176 | 83.6% |
+| 4 | 1.6% | 2 | 0.917 | 0.087 | 9.0% |
+| 8 | 12.5% | 7 | 1.000 | 0.110 | 22.7% |
+| **12** | **26.6%** | **16** | 1.000 | 0.141 | 45.7% |
+| 24 | 39.5% | 7 | 1.000 | 0.175 | 82.8% |
 
-NDL still peaks at prefix 12 and collapses at 24 (the §5 story survives the
-stricter metric). Under the *legacy* screen the new whole-corpus NDL is 2/11/16/9
-— essentially the old 1/10/16/9, because with a prefix a copy is usually a copy of
-the *seed*; the whole-corpus fix will matter for the fine-tuned arms (P1/P2), which
-can copy a non-seed circuit the old metric would have flattered. `median NN-sim =
-1.000` among spec-passing samples is the honest read on copying pressure: over half
-of LNA-shaped outputs at prefix 12 are exact WL-copies. **Adoption rule for every
-future arm: beat NDL@256 at equal-or-better inductor ratio.**
+NDL@256 peaks at prefix 12 (**16** under wifi24, **26** under the legacy screen —
+the plan's "≈32" ball-park) and collapses at 24 (the §5 story survives the stricter
+metric and the larger sample). Under the *legacy* screen the new whole-corpus NDL
+(6/20/26/14) tracks the old seed-only 1/10/16/9 in shape, because with a prefix a
+copy is usually a copy of the *seed*; the whole-corpus fix will bite for the
+fine-tuned arms (P1/P2), which can copy a non-seed circuit the old metric would
+have flattered. `median NN-sim = 1.000` among spec-passing samples is the honest
+read on copying pressure: over half of LNA-shaped outputs at prefix 12 are exact
+WL-copies. **This is the frozen baseline. Adoption rule for every future arm: beat
+NDL@256 at equal-or-better inductor ratio.**
 
 ---
 

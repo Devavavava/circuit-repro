@@ -17,7 +17,11 @@ import tempfile
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from topology import Topology  # noqa: E402
 from to_spice import Netlist  # noqa: E402
-from genie_common import REPO  # noqa: E402
+
+# REPO defined locally (like screen.py / spec.py) so this stays torch-free and
+# runs under the Windows analysis Python, not only the WSL model env.
+REPO = os.path.abspath(os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "AnalogGenie", "repo"))
 
 NGSPICE = os.environ.get("NGSPICE", r"C:\msys64\ucrt64\bin\ngspice_con.exe")
 
@@ -77,8 +81,16 @@ def main():
                     help="directory of generated seq*.txt instead of the corpus")
     ap.add_argument("--min-score", type=int, default=0,
                     help="only evaluate topologies with at least this LNA score")
+    ap.add_argument("--spec", default=None,
+                    help="gate on the spec-driven L0 screen (lna/specs/<name>.yaml) "
+                         "instead of --min-score, and label output with the spec")
     ap.add_argument("--keep", default="", help="directory to keep netlists in")
     args = ap.parse_args()
+
+    spec = None
+    if args.spec:
+        from spec import Spec
+        spec = Spec.load(args.spec)
 
     workdir = args.keep or tempfile.mkdtemp(prefix="lna_yield_")
     os.makedirs(workdir, exist_ok=True)
@@ -94,7 +106,11 @@ def main():
             stats["no_corpus"].append(i)
             continue
         topo = Topology(toks)
-        if args.min_score and topo.lna_score()[0] < args.min_score:
+        if spec is not None:
+            if not spec.structural_screen(topo)[0]:
+                stats["below_score"].append(i)
+                continue
+        elif args.min_score and topo.lna_score()[0] < args.min_score:
             stats["below_score"].append(i)
             continue
         if not topo.valid:
@@ -116,11 +132,16 @@ def main():
             reasons[i] = why
 
     total = considered
+    gate = f"spec={spec.name}" if spec is not None else (
+        f"min-score={args.min_score}" if args.min_score else "no L0 gate")
     print(f"netlists in: {workdir}")
+    src = args.generated or f"corpus {args.indices}"
+    print(f"pipeline yield  source={src}  gate: {gate}")
     print(f"\n{'stage':<22}{'count':>7}   {'of total':>9}")
     print("-" * 42)
+    below_label = "fails spec L0" if spec is not None else "below --min-score"
     for k, label in (("no_corpus", "no preprocessed seq"),
-                     ("below_score", "below --min-score"),
+                     ("below_score", below_label),
                      ("invalid", "structurally invalid"),
                      ("not_emittable", "netlist not emittable"),
                      ("sim_fail", "ngspice failed"),

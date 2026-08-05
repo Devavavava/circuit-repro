@@ -1,6 +1,6 @@
 """Score circuits with the LNA structural screen.
 
-Two modes:
+Two input modes:
 
   --corpus    score preprocessed Sequence_total<i>.npy files. Used to calibrate
               the screen: real LNAs (461-492, 1081-1090) should score high and
@@ -8,8 +8,18 @@ Two modes:
 
   --generated score '->'-joined sequence files produced by sampling the model.
 
+And two screens:
+
+  (default)   the historical hard-coded 5-criterion screen (topology.lna_score).
+  --spec NAME the spec-driven L0 screen derived from lna/specs/NAME.yaml, whose
+              criteria vary per target (plans/01-SPEC.md D4). This is what makes
+              inductorless LNAs pass under an inductorless-friendly spec instead
+              of being rejected unconditionally (H-Q4). `--spec legacy-lna5`
+              reproduces the hard-coded screen's numbers exactly.
+
     python lna/screen.py --corpus --indices 461-492,1081-1090 --label LNA
-    python lna/screen.py --generated out/*.txt
+    python lna/screen.py --corpus --indices 461-492,1081-1090 --spec wifi24
+    python lna/screen.py --generated "out/*.txt" --spec wideband-sdr
 """
 import argparse
 import glob
@@ -89,6 +99,49 @@ def report(tagged, label):
     return scores
 
 
+def report_spec(tagged, label, spec):
+    """Spec-driven L0 screen: report per-criterion and overall pass rate.
+
+    Unlike the legacy 0-5 score, the criteria set is derived from the spec, so the
+    denominator question changes from "what fraction of all real LNAs pass" to
+    "what fraction of real LNAs *of this spec's class* pass" (plans/01-SPEC.md D4).
+    """
+    if not tagged:
+        print(f"{label}: nothing to score")
+        return []
+    passed = 0
+    crit_pass = {}
+    crit_seen = {}
+    order = []
+    devs, inds = [], []
+    results = []
+    for _, toks in tagged:
+        t = Topology(toks)
+        ok, crit = spec.structural_screen(t)
+        results.append(ok)
+        passed += int(ok)
+        devs.append(t.n_devices)
+        inds.append(t.n_inductors)
+        for k, v in crit.items():
+            if k not in crit_seen:
+                order.append(k)
+            crit_seen[k] = crit_seen.get(k, 0) + 1
+            crit_pass[k] = crit_pass.get(k, 0) + int(v)
+
+    n = len(results)
+    print(f"=== {label}  spec={spec.name} ({spec.band_type})  (n={n}) ===")
+    print(f"  devices/circuit    : min={min(devs)} max={max(devs)} "
+          f"mean={sum(devs)/n:.1f}")
+    print(f"  inductors/circuit  : mean={sum(inds)/n:.2f}")
+    print("  L0 criteria (derived from spec) pass rate :")
+    for k in order:
+        seen = crit_seen[k]
+        print(f"      {k:<16s} {100.0*crit_pass[k]/seen:5.1f}%")
+    print(f"  PASS (all criteria): {passed}/{n} ({100.0*passed/n:.1f}%)")
+    print()
+    return results
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--corpus", action="store_true")
@@ -97,18 +150,31 @@ def main():
                     help="cap sequences taken per circuit (augmentation makes many)")
     ap.add_argument("--label", default="corpus")
     ap.add_argument("--generated", nargs="*", default=[])
+    ap.add_argument("--spec", default=None,
+                    help="use the spec-driven L0 screen from lna/specs/<name>.yaml")
     args = ap.parse_args()
+
+    spec = None
+    if args.spec:
+        from spec import Spec
+        spec = Spec.load(args.spec)
+
+    def do(tagged, label):
+        if spec is not None:
+            report_spec(tagged, label, spec)
+        else:
+            report(tagged, label)
 
     if args.corpus:
         idx = parse_indices(args.indices)
-        report(load_corpus(idx, args.per_circuit), args.label)
+        do(load_corpus(idx, args.per_circuit), args.label)
 
     if args.generated:
         files = []
         for pat in args.generated:
             files.extend(glob.glob(pat))
         tagged = [(f, parse_arrow_file(f)) for f in sorted(files)]
-        report(tagged, args.label if not args.corpus else "generated")
+        do(tagged, args.label if not args.corpus else "generated")
 
 
 if __name__ == "__main__":

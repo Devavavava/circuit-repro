@@ -22,6 +22,21 @@ _wsl/*.wsl
 LaMAGIC2/ckpt/
 LaMAGIC2/data/
 
+# ─── Claude Code worktrees ────────────────────────────────────────────────
+# Session worktrees live here; they are checkouts of this same repo and must
+# never be committed into it.
+.claude/worktrees/
+
+# ─── ngspice run artefacts ────────────────────────────────────────────────
+# Rewritten on every run that touches a BSIM4 model, wherever ngspice is invoked.
+bsim4v5.out
+
+# ─── LNA experiment artefacts ─────────────────────────────────────────────
+# Regenerable: sampled sequences and emitted netlists. The meta.json files are
+# kept because they carry the timing and termination stats behind FINDINGS.md.
+lna/out/*/seq*.txt
+lna/work/
+
 # ─── Python / OS noise ────────────────────────────────────────────────────
 __pycache__/
 *.py[cod]

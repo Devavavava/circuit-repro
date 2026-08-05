@@ -5,6 +5,16 @@ Setup and smoke-test harness for 11 analog-circuit ML papers, plus 4 follow-up r
 **[STATUS.md](STATUS.md) is the main document** — per-work results, environment versions,
 every bug hit and how it was worked around, and Windows-vs-WSL-GPU timings.
 
+**`lna/`** goes deeper on one target: generating low-noise-amplifier topologies.
+
+* **[lna/FINDINGS.md](lna/FINDINGS.md)** — capability assessment, measured gaps,
+  profiling, and a phased plan. Prefix conditioning takes the LNA hit rate from
+  0% to 40.6% with no retraining.
+* **[lna/WORKLOG.md](lna/WORKLOG.md)** — what was tried, what failed, and the
+  ngspice traps worth not rediscovering.
+* **[lna/HANDOVER-FABLE.md](lna/HANDOVER-FABLE.md)** — open brief: improving
+  generation, and defining what LNA is actually being designed.
+
 Scope is deliberately narrow: get each published implementation to *run* and prove it with a
 smoke test. No paper results are reproduced and no long training run was launched.
 

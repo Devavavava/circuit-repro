@@ -1,0 +1,27 @@
+# Calibration shim — reproduces the historical hard-coded 5-criterion screen.
+#
+# This is NOT a design target. It exists so that `screen.py --spec legacy-lna5`
+# runs the *new* spec-driven derivation but lands on exactly the old criteria,
+# pinning the refactor (plans/01-SPEC.md §4.2): 59.4% of the corpus at 5 per
+# circuit, 40.6% LNA-shaped at the recommended generation operating point.
+#
+# The five legacy criteria (topology.py lna_score, now derived from fields):
+#   has_inductor     <- allow_inductorless: false
+#   inductor_ratio   <- min_inductor_ratio: 0.10
+#   has_transistor   <- always on
+#   has_ports        <- ports.input/output present (prefix VIN / VOUT)
+#   device_budget    <- device_budget: [2, 15]   (old lna_sized: 2..15 devices)
+# It deliberately omits `differential` and `max_inductors`, so the screen does
+# NOT add single_input / max_inductors criteria — keeping the count at 5.
+name: legacy-lna5
+description: Historical 5-criterion structural screen, as a spec (calibration only)
+
+ports:
+  z0: 50
+  input: VIN          # prefix match, mirrors the old has_net("VIN")
+  output: VOUT
+
+topology:
+  device_budget: [2, 15]
+  min_inductor_ratio: 0.10
+  allow_inductorless: false

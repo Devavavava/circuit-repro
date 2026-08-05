@@ -1,0 +1,51 @@
+# GPS L1 receiver LNA, 1.57542 GHz.
+# Rationale: GPS signals arrive at ~-130 dBm; LNA noise figure dominates
+# receiver sensitivity, so NF is the binding constraint (<= 1.8 dB). The L1
+# C/A band is ~2 MHz wide (20 MHz incl. P(Y)) — deeply narrowband, which is
+# what justifies inductive degeneration and stresses the l_min analysis
+# (plans/01-SPEC.md §6, plans/02-REFERENCE-LNA.md §3).
+name: gps-l1
+description: GPS L1 (1.57542 GHz) receiver front-end LNA, noise-first
+
+process:
+  models: AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt
+  vdd: 1.1
+  temp: 27
+
+band:
+  type: narrowband
+  f0: 1.57542e9
+  f_lo: 1.565e9
+  f_hi: 1.586e9
+
+ports:
+  z0: 50
+  input: VIN1
+  output: VOUT1
+
+constraints:
+  nf_db:    {max: 1.8}      # the constraint that actually binds
+  s11_db:   {max: -10}
+  s21_db:   {min: 15}
+  idd_ma:   {max: 3}
+  iip3_dbm: {min: -10, status: unsupported}  # GPS has no strong in-band interferers
+
+objectives:
+  - {metric: nf_db,  direction: min, weight: 1.0}   # noise-first
+  - {metric: s21_db, direction: max, weight: 0.5}
+  - {metric: idd_ma, direction: min, weight: 0.5}
+
+topology:
+  differential: false
+  device_budget: [3, 12]
+  max_inductors: 4          # matching + degeneration + load tank plausible
+  l_min: 0.3e-9
+  l_max: 15e-9              # lower frequency tolerates larger spirals
+  allow_inductorless: false
+
+sizing:
+  w_um: [1, 200]
+  l_fixed: 45e-9
+  r_ohm: [50, 20e3]
+  c_f: [50e-15, 10e-12]
+  vb_v: [0.2, 0.9]

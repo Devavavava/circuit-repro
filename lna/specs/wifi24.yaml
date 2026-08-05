@@ -35,6 +35,7 @@ objectives:
 
 topology:
   differential: false
+  reject_floating: true   # H-Q3: reject genuinely disconnected islands
   device_budget: [3, 16]    # upper bound widened from 12 after calibration:
                             # real single-ended corpus LNAs reach 14 devices
                             # (476/1090 @13, 1089 @14). Area is better a soft

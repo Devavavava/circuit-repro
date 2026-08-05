@@ -37,6 +37,7 @@ objectives:
 
 topology:
   differential: false
+  reject_floating: true   # H-Q3: reject genuinely disconnected islands
   device_budget: [3, 16]    # widened from 12 after corpus calibration (see wifi24)
   max_inductors: 4          # matching + degeneration + load tank plausible
   l_min: 0.3e-9

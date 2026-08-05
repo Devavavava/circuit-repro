@@ -23,6 +23,25 @@ DEV_PREFIXES = ("NM", "PM", "NPN", "PNP", "R", "C", "L", "DIO",
                 "XOR", "PFD", "INVERTER", "TRANSMISSION_GATE")
 PIN_RE = re.compile(r'^(?P<dev>[A-Z_]+\d+)_(?P<pin>[A-Z]+)$')
 BASE_RE = re.compile(r'^(?P<base>[A-Z_]+?)(?P<idx>\d+)$')
+
+# Inserted bias scaffolding (03-BIAS naming contract): excluded from the
+# floating-subcircuit check so inserted bias can neither mask a real flag nor
+# create a spurious one. No effect on un-biased corpus/generated circuits.
+SCAFFOLD_PREFIXES = ("RBIAS", "CBYP", "VBGEN")
+
+# Nets that tie a component to the outside world: supplies, ground, DC bias,
+# and the RF ports. A connected component of devices reaching none of these is
+# a genuinely floating sub-circuit (H-Q3 / WORKLOG F6, index 1081).
+_REF_EXACT = {"VDD", "VSS", "0"}
+_REF_PREFIX = ("VB", "VCM", "VREF", "VIN", "VOUT", "IB")
+
+
+def is_scaffold(tok):
+    return tok.startswith(SCAFFOLD_PREFIXES)
+
+
+def is_ref_net(net):
+    return net in _REF_EXACT or net.startswith(_REF_PREFIX)
 LEGAL = {"NM": {"D", "G", "S", "B"}, "PM": {"D", "G", "S", "B"},
          "NPN": {"C", "B", "E"}, "PNP": {"C", "B", "E"},
          "R": {"P", "N"}, "C": {"P", "N"}, "L": {"P", "N"}, "DIO": {"P", "N"}}
@@ -155,6 +174,69 @@ class Topology(object):
 
     def has_net(self, prefix):
         return any(n.startswith(prefix) for n in self.nets)
+
+    # ---------- floating sub-circuit (H-Q3 / F6) -----------------------------
+    def _device_pins(self):
+        by_dev = defaultdict(list)
+        for p in self.pins:
+            by_dev[PIN_RE.match(p).group("dev")].append(p)
+        return by_dev
+
+    def floating_devices(self):
+        """Devices that belong to a connected component reaching no driven net.
+
+        Builds components by linking the electrical nodes that a device spans
+        (its pins' nodes), then a component is "driven" iff it contains a supply,
+        ground, DC-bias or port net (`is_ref_net`). Devices in an undriven
+        component are floating -- the structural signature of index 1081, which
+        `.option rshunt` cannot rescue because it is a separate island, not a
+        capacitively-isolated node. Bias scaffolding is excluded (naming contract).
+
+        Returns the set of floating device tokens (empty for a healthy circuit).
+        """
+        pin2root, root_nets = {}, {}
+        for root, members in self.nodes.items():
+            root_nets[root] = {m for m in members if m in self.nets}
+            for m in members:
+                if PIN_RE.match(m):
+                    pin2root[m] = root
+
+        parent = {r: r for r in self.nodes}
+
+        def find(x):
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+
+        def union(a, b):
+            ra, rb = find(a), find(b)
+            if ra != rb:
+                parent[ra] = rb
+
+        by_dev = self._device_pins()
+        for d in self.devices:
+            if is_scaffold(d):
+                continue
+            roots = [pin2root[p] for p in by_dev[d] if p in pin2root]
+            for r in roots[1:]:
+                union(roots[0], r)
+
+        driven = {find(root) for root, nets in root_nets.items()
+                  if any(is_ref_net(n) for n in nets)}
+
+        floating = set()
+        for d in self.devices:
+            if is_scaffold(d):
+                continue
+            roots = [pin2root[p] for p in by_dev[d] if p in pin2root]
+            if roots and find(roots[0]) not in driven:
+                floating.add(d)
+        return floating
+
+    @property
+    def has_floating_subcircuit(self):
+        return bool(self.floating_devices())
 
     # ---------- LNA screen ---------------------------------------------------
     def lna_score(self):

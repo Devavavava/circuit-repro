@@ -134,10 +134,35 @@ Roughly 1 minute per circuit; the full 41-circuit LNA set took over 20 minutes.
 It is a one-time cost (output is cached as `Sequence_total<i>.npy`) but it is the
 bottleneck if the corpus is ever rebuilt or extended.
 
-### F6 — Two circuits are permanently lost
-Index **490** has no netlist in the dataset at all. Index **1081** fails with a
-singular matrix that `rshunt` does not rescue — a genuinely floating sub-circuit
-rather than a capacitively-isolated node.
+### F6 — Two circuits fail to simulate (one now resolved)
+Index **490** has no netlist in the dataset at all — permanently lost. Index
+**1081** fails with a singular matrix that `rshunt` does not rescue. It was
+*hypothesised* (F6 original, carried into H-Q3) to be a genuinely floating
+sub-circuit. **That diagnosis was wrong — see R1 below.**
+
+### R1 — 1081 is an ideal-inductor singularity, not a floating sub-circuit *(resolved)*
+Building the H-Q3 connected-component detector (`Topology.floating_devices`,
+`topology.py`) and running it over the corpus flagged **nothing**, including
+1081 — because 1081 is *fully connected*: every device traces to VIN1 / VSS /
+VDD / VB1 / VOUT1. The real fault surfaced in the ngspice diagnostic:
+`singular matrix: check node ll4#branch`. Node **VB1 is reached only through the
+ideal inductors LL4 (VDD–VB1) and LL5 (VB1–VOUT1) plus the MOS gate of NM2**
+(no DC current), so the inductor *branch current* is undetermined — a classic
+ideal-inductor singularity, not a connectivity or capacitive-isolation problem
+(which is why `rshunt` cannot help).
+
+**Fix, confirmed:** giving inductors a finite Q (series R = ω0·L/Q) makes the
+branch current determinable. 1081 simulates with Q as low as ~12, and the
+corpus pipeline yield rises **40/42 → 41/42** (only 490, the netlist-less one,
+remains). Implemented as an opt-in in `to_spice.py`
+(`Netlist(..., inductor_q=12)` / `--inductor-q 12`), default still ideal so
+existing reference/sizing baselines are unchanged. This is the 05-SIZE §4
+finite-Q upgrade, brought forward because it closes 1081. Enable it by default
+once WP-REF establishes the reference anchors.
+
+Lesson: the floating detector is still correct and worth keeping — a *generated*
+topology genuinely can emit a disconnected island (verified on a synthetic
+L–C loop) — but H-Q3's specific claim about 1081 was a mis-diagnosis.
 
 ---
 

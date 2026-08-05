@@ -51,7 +51,8 @@ _ALLOWED = {
     "band": {"type", "f0", "f_lo", "f_hi"},
     "ports": {"z0", "input", "output"},
     "topology": {"differential", "device_budget", "max_inductors",
-                 "min_inductor_ratio", "l_min", "l_max", "allow_inductorless"},
+                 "min_inductor_ratio", "l_min", "l_max", "allow_inductorless",
+                 "reject_floating"},
     "sizing": {"w_um", "l_fixed", "r_ohm", "c_f", "vb_v"},
     "_constraint": {"min", "max", "status"},
     "_objective": {"metric", "direction", "weight"},
@@ -176,15 +177,21 @@ class Spec(object):
           topology.device_budget [lo,hi]     -> device_budget   (lo<=n_dev<=hi)
           ports.input/output                 -> has_ports       (both nets present)
           topology.differential: false       -> single_input    (exactly one VIN net)
+          topology.reject_floating: true      -> not_floating    (no floating island)
           topology.allow_inductorless: false -> has_inductor    (>=1 L)
           topology.min_inductor_ratio: r     -> inductor_ratio  (ratio >= r)
           topology.max_inductors: N          -> max_inductors   (n_L <= N)
           topology.allow_inductorless: true  -> match_plausible (inductorless RF
                                                 input structure present)
 
-        Bias-insertability (03-BIAS R-checks) and the floating-subcircuit check
-        (H-Q3) are further "any spec" criteria in the plan; they depend on the
-        DC-graph analysis built in WP-BIAS and are wired in there, not here.
+        The floating-subcircuit check (H-Q3) is active when a spec sets
+        `reject_floating: true` (the three real targets do); it rejects
+        genuinely disconnected islands via topology.has_floating_subcircuit.
+        Note index 1081 is NOT such a case -- it is fully connected and fails on
+        an ideal-inductor branch singularity (see WORKLOG), which finite
+        inductor Q resolves, not a connectivity check. Bias-insertability
+        (03-BIAS R-checks) is the remaining "any spec" criterion and is wired in
+        WP-BIAS once the DC-graph exists.
         """
         topocfg = self.topology
         crit = OrderedDict()
@@ -205,6 +212,9 @@ class Spec(object):
             prefix = (inp or "VIN").rstrip("0123456789") or (inp or "VIN")
             n_in = len({n for n in topo.nets if n.startswith(prefix)})
             crit["single_input"] = n_in == 1
+
+        if topocfg.get("reject_floating"):
+            crit["not_floating"] = not topo.has_floating_subcircuit
 
         if topocfg.get("allow_inductorless") is False:
             crit["has_inductor"] = topo.n_inductors >= 1

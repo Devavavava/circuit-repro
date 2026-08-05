@@ -85,6 +85,8 @@ def main():
                     help="gate on the spec-driven L0 screen (lna/specs/<name>.yaml) "
                          "instead of --min-score, and label output with the spec")
     ap.add_argument("--keep", default="", help="directory to keep netlists in")
+    ap.add_argument("--inductor-q", type=float, default=None,
+                    help="finite inductor Q (series R = w0*L/Q); default ideal")
     args = ap.parse_args()
 
     spec = None
@@ -116,7 +118,7 @@ def main():
         if not topo.valid:
             stats["invalid"].append(i)
             continue
-        nl = Netlist(topo)
+        nl = Netlist(topo, inductor_q=args.inductor_q)
         bad = nl.missing_pins()
         if bad:
             stats["not_emittable"].append(i)

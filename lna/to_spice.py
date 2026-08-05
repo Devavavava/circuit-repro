@@ -42,12 +42,19 @@ DEFAULTS = {"NM": ("40u", "45n"), "PM": ("80u", "45n"),
 
 class Netlist(object):
     def __init__(self, topo, models=DEFAULT_MODELS, vdd=1.1, vbias=0.5,
-                 freq_lo=1e9, freq_hi=4e9, points=201):
+                 freq_lo=1e9, freq_hi=4e9, points=201, inductor_q=None):
         self.t = topo
         self.models = models
         self.vdd = vdd
         self.vbias = vbias
         self.freq = (freq_lo, freq_hi, points)
+        # inductor_q: None -> ideal inductors (default, preserves prior netlists).
+        # A finite Q (e.g. 12) gives each inductor a series R = w0*L/Q, which is
+        # both more physical (real spirals are Q~10-15) and the fix for the ideal-
+        # inductor branch singularity that makes index 1081 fail (WORKLOG F6/H-Q3):
+        # a node reached only through ideal inductors + a MOS gate has an
+        # undetermined branch current. Confirmed to resolve 1081. See 05-SIZE §4.
+        self.inductor_q = inductor_q
         self._label_nodes()
 
     def _label_nodes(self):
@@ -106,6 +113,10 @@ class Netlist(object):
 
         # ---- parameters -------------------------------------------------
         A(f".param pVDD={self.vdd} pVB={self.vbias}")
+        if self.inductor_q:
+            lo, hi, _ = self.freq
+            f0 = (lo * hi) ** 0.5                 # geometric band centre
+            A(f".param pINDQ={self.inductor_q} pINDW0={2 * 3.141592653589793 * f0:g}")
         for d in sorted(t.devices):
             b = base_of(d)
             if b in ("NM", "PM"):
@@ -162,7 +173,14 @@ class Netlist(object):
             elif b == "C":
                 A(f"C{d} {self._pin_node(d,'P')} {self._pin_node(d,'N')} {{p{d}V}}")
             elif b == "L":
-                A(f"L{d} {self._pin_node(d,'P')} {self._pin_node(d,'N')} {{p{d}V}}")
+                p, n = self._pin_node(d, 'P'), self._pin_node(d, 'N')
+                if self.inductor_q:
+                    # finite Q: series R = w0*L/Q, constant Q at band centre as
+                    # the sizer sweeps L. Breaks the ideal-inductor singularity.
+                    A(f"L{d} {p} nq{d} {{p{d}V}}")
+                    A(f"RQ{d} nq{d} {n} {{pINDW0*p{d}V/pINDQ}}")
+                else:
+                    A(f"L{d} {p} {n} {{p{d}V}}")
         A("")
 
         # ---- analyses -----------------------------------------------------
@@ -194,13 +212,17 @@ def main():
     ap.add_argument("sequence", help="'->'-joined token file")
     ap.add_argument("-o", "--out", required=True)
     ap.add_argument("--models", default=DEFAULT_MODELS)
+    ap.add_argument("--inductor-q", type=float, default=None,
+                    help="finite inductor Q (series R = w0*L/Q); default ideal. "
+                         "Use e.g. 12 to model real spirals / fix inductor-loop "
+                         "singularities (WORKLOG F6).")
     ap.add_argument("--force", action="store_true",
                     help="emit even if some device pins are unconnected")
     args = ap.parse_args()
 
     toks = parse_arrow_file(args.sequence)
     topo = Topology(toks)
-    nl = Netlist(topo, models=args.models)
+    nl = Netlist(topo, models=args.models, inductor_q=args.inductor_q)
 
     score, crit = topo.lna_score()
     print(f"devices {topo.n_devices}  inductors {topo.n_inductors}  "

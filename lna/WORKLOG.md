@@ -164,6 +164,21 @@ Lesson: the floating detector is still correct and worth keeping — a *generate
 topology genuinely can emit a disconnected island (verified on a synthetic
 L–C loop) — but H-Q3's specific claim about 1081 was a mis-diagnosis.
 
+### R2 — H-Q2 closed: a known-good reference LNA exists *(resolved)*
+Built a **common-gate** anchor (`lna/ref/ref24_cg.cir`) instead of fighting the
+inductively-degenerated match F1 failed at. CG `Zin ≈ 1/(gm+gmb)` needs no
+inductor, so it matches by construction. From the new device table
+(`lna/ref/device_char.py` → `device_tables.csv`), W=20 µm at Id ≈ 2.4 mA gives
+gm+gmb ≈ 20 mS. Measured: **S11 = −23.3 dB across 2.4–2.4835 GHz**, and
+**Re(Zin) = 49.8 Ω vs 1/(gm+gmb) = 49.7 Ω — 0.1% agreement.** The harness is
+validated end to end; `lna/ref/check_ref.py` locks it as a regression anchor.
+
+But **S21 ≈ 0 dB, not the planned ≥ 8 dB**, and this is the topology, not a
+tuning miss: VDD headroom caps RL near 300 Ω (Id·RL < VDD), and a 50 Ω port on
+the drain caps a matched CG's voltage gain at gm·50 ≈ 1. Gain (and hence NF)
+needs a tuned load — stage B. Full reasoning in `lna/ref/README.md`. The anchor's
+job is the match, and that passes; F1's mystery was never the harness.
+
 ---
 
 ## Fixes worth remembering

@@ -1,0 +1,55 @@
+* Stage-A common-gate 2.4 GHz reference LNA (WP-REF, plans/02-REFERENCE-LNA.md §2)
+*
+* PURPOSE: not a product -- the harness ANCHOR. One circuit the harness provably
+* measures correctly (genuine S11 well below -10 dB, stable under re-run, and a
+* measured Re(Zin) that matches theory), so every later measurement has a
+* regression reference and H-Q2 (no known-good LNA) is closed.
+*
+* Common-gate input: Zin ~ 1/(gm+gmb) needs no inductor in the match. Device and
+* bias picked from lna/ref/device_tables.csv: W=20um at Id~2.4mA gives
+* gm+gmb ~ 21.6 mS -> Zin ~ 46 ohm, so S11 is deep without any tuning.
+*
+* KNOWN LIMIT (a genuine finding, see lna/ref/README.md): with VDD=1.1 V the
+* resistive load is headroom-limited to RL ~ 300 ohm (Id*RL < VDD), and a 50 ohm
+* port hung on the drain caps the voltage gain of a matched CG near 0 dB. So
+* S21 ~ 0 dB and NF ~ 4 dB here -- gain and noise need the tuned load (stage B).
+* The anchor's job is the MATCH, and that is excellent.
+.include C:/Users/Devavrat/circuit-repro/AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt
+
+.param pW=20u pL=45n pVB=0.45 pRL=300 pIB=2.4m pF0=2.442e9
+
+Vdd  VDD 0 1.1
+Vb   VB  0 {pVB}
+Cbyp VB  0 10p                 ; gate AC-grounded (the H-Q1 lesson, up front)
+
+M1   VOUT VB SRC 0 nmos W={pW} L={pL}
+Ibias SRC 0 dc {pIB}           ; ideal source current sink sets Id
+RL   VDD VOUT {pRL}            ; resistive load
+
+Vp1  p1 0 dc 0 ac 1 portnum 1 z0 50
+Cin  p1 SRC 10p                ; DC-block: port bias not shorted to the source
+Cout VOUT p2 10p
+Vp2  p2 0 dc 0 ac 0 portnum 2 z0 50
+
+.option rshunt=1e12
+.control
+op
+let idd = -i(Vdd)
+print idd @m1[id] @m1[vgs] @m1[vds] @m1[gm] @m1[gmbs]
+sp lin 51 2.4e9 2.5e9 1
+let s11db = db(mag(S_1_1)+1e-30)
+let s21db = db(mag(S_2_1)+1e-30)
+let zre = real(50*(1+S_1_1)/(1-S_1_1))
+let zim = imag(50*(1+S_1_1)/(1-S_1_1))
+meas sp REF_S11_F0     find s11db at=2.442e9
+meas sp REF_S11_BANDMX max s11db from=2.4e9 to=2.4835e9
+meas sp REF_S21_F0     find s21db at=2.442e9
+meas sp REF_ZRE_F0     find zre at=2.442e9
+meas sp REF_ZIM_F0     find zim at=2.442e9
+noise v(p2) Vp1 lin 51 2.4e9 2.5e9
+setplot noise1
+let nfv = 10*log10((inoise_spectrum*inoise_spectrum)/8.283894e-19)
+let REF_NF_F0 = nfv[21]
+print REF_NF_F0
+.endc
+.end

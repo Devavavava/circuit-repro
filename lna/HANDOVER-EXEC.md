@@ -22,7 +22,9 @@ exactly where to resume. Read `WORKLOG.md` (entries R1/R2 are mine) and
 | **WP-REF day 4** (02-REF §3–4) | ✅ done | **stage-B CS+Cex — F1 FIXED** (S11 −21 dB, S21 +6.7 dB, Ls 1.35 nH); **H-Q1 resolved** |
 | **WP-BIAS** (03-BIAS) | ✅ done | `bias.py` R-GATE + monotonic guard; 461 Vgs 14 mV→302 mV; 54% on, **0 made worse** |
 | **WP-GEN P0–P2** (04-GEN) | ✅ done | P0 metric; **P2 fine-tune beats baseline NDL@256 16→24**; P1 class-token works |
-| WP-GEN P3/P4/P5, WP-SIZE | ⏳ next | not started (all unblocked) |
+| **WP-GEN P4** (04-GEN §5) | ✅ done | inductor logit bias measured **weak** (junk past λ≈12) → yields to P5 |
+| **WP-SIZE** (05-SIZING) | ◐ loop closes | extract.py+size.py; **anchor re-derivation validates ZOAF**; Gate G4 open |
+| WP-GEN P3/P5, WP-SIZE candidates | ⏳ next | not started |
 
 Everything below is committed. `main` is untouched; nothing was pushed.
 
@@ -52,6 +54,9 @@ lna/ref/README.md           NEW  reference-LNA writeup incl. the S21 finding
 lna/ref/ref24_csdeg.cir     NEW  stage-B CS+Cex reference (the F1 fix)
 lna/bias.py                 NEW  rule-based gate-bias insertion + L1 sweep + --validate
 lna/finetune.py             NEW  P1/P2 LNA fine-tune (checkpoint surgery, train, sample) -- WSL GPU
+lna/decode.py               NEW  P4 inductor logit bias (targeted to device positions)
+lna/extract.py              NEW  L2 metrics from one ngspice run (S11/S21/Idd; NF best-effort)
+lna/size.py                 NEW  ZOAF sizing driver + anchor re-derivation (--anchor)
 lna/screen.py               MOD  --spec (spec-driven L0 screen); default path byte-unchanged
 lna/pipeline_yield.py       MOD  --spec, --inductor-q, --bias; made torch-free (local REPO)
 lna/to_spice.py             MOD  inductor_q=/--inductor-q; set_extra()/value_overrides()/opcheck mode
@@ -161,28 +166,39 @@ task, never push to `main`.**
    off-MOS split — **15 source-no-DC-path, 16 drain-no-DC-path, 12 load/sizing** — says the v2
    escalation is R-SOURCE/R-DRAIN rules (03-BIAS R-DIAGNOSE-ONLY, decided by measurement), and the
    saturation gap is WP-SIZE's (unsized loads force triode). `bias.py --validate` reproduces this.
+10. **The sizing loop closes and validates itself; the block is the topology, not the sizer.** ZOAF
+    (`size.py --anchor`) re-derives the stage-B reference vs `wifi24` in 304 sims, reaching feasibility
+    on S11 (−10.9) / Idd (4.2) and driving S21 to 6.86 dB — within 0.16 dB of the hand-tuned 6.7 dB.
+    The lone infeasibility (S21 < 12) is the single-stage topology's real gain ceiling (~7 dB, 50 Ω
+    output loading), shared by all three specs' 12–15 dB floors. So Gate G4 needs a higher-gain
+    topology (output matching), not optimizer work. NF is `unsupported` in the sizer pending the
+    harness fix (finding #7).
 
 ---
 
 ## 6. Where to pick up (in order)
 
-Week 1 of the plan is done (WP-SPEC + WP-REF + H-Q3 + P0 measuring stick + WP-BIAS). Two work
-packages are now unblocked; **WP-SIZE is the higher-value next step** — it closes the loop and is
-"the program's first real result" (spec in → sized LNA out), and its three prerequisites all exist.
+Most of the plan is executed: WP-SPEC, WP-REF, H-Q3, WP-BIAS, WP-GEN P0/P1/P2/P4, and the WP-SIZE
+loop all land. **Gate G4** (≥1 novel generated topology sized to full feasibility) is the open
+milestone, and it is now blocked on two concrete things, not on missing infrastructure:
 
-**Recommended: WP-SIZE** (`plans/05-SIZING.md`, week 3). Prereqs ready: `spec.objective()`/`feasible()`
-(feasibility-first, done), the stage-A/B anchors (`lna/ref/`, done), conducting circuits (`bias.py`,
-done). Start with the **anchor re-derivation test** (§3.1): strip `ref24_csdeg.cir` to `.param`
-defaults, hand `size.py` its topology + `wifi24`, and check ZOAF lands within ~1 dB of the hand-tuned
-reference — it validates `extract.py`, the objective encoding, the bias params, and ZOAF's budget at
-once on a circuit whose answer is known. ZOAF lives in `misc/ZOAF`; mirror `examples/quickstart_10param.py`.
-Turn on finite inductor Q (`Netlist(inductor_q=12)`) for sizing runs, and fix the NF harness gap (§5.7)
-here since NF is a real objective.
+**1. A higher-gain topology + candidate sizing (the path to Gate G4).** The anchor re-derivation
+proved `size.py` works, but it also showed every spec's S21 floor (12–15 dB) exceeds what the
+single-stage reference can do (~7 dB, 50 Ω output loading — finding #10). So: add output impedance
+matching (tapped tank / source-follower buffer) to a reference so *some* topology is feasible, then
+wire **candidate sizing** — take the top L0+L1 topologies from the P2 arm (best generation), run each
+through `bias.insert_bias` → `size.py`, and score. `size.py` currently hardcodes the anchor's param
+map in `size_anchor`; generalise `sizable`/`fixed` from a to_spice deck's `p<dev>W/L/V` names (classify
+by `topology.base_of`). Turn on `Netlist(inductor_q=12)` for sizing. Fix the NF harness gap (finding
+#7) so NF becomes a real constraint rather than `unsupported`.
 
-**Also ready: WP-GEN P1–P5** (`plans/04-GEN.md`, week 2). Class-token fine-tune (P1) is highest
-leverage. The GPU path (WSL, §3) + frozen protocol are ready; **judge every arm with
-`novelty.py --eval <dir> --spec …` against the NDL@256 baseline** (finding #4). Gate G3 = an arm beats
-the prefix curve on NDL@256.
+**2. Generation P5 (breaks the memorization ceiling).** P1/P2 recite the 35 training graphs
+(median NN-sim 1.000) and under-produce inductors, and P4 confirmed decoding can't fix the inductor
+gap (finding #8). P5 = a `templates.py` archetype generator (CS-degenerated ±Cex, CG ±gm-boost,
+resistive-feedback, noise-cancelling × cascode/load/buffer options) → Eulerian-augmented → mixed into
+the fine-tune with per-class `<LNA_NB>`/`<LNA_WB>` tokens. ~150–400 labelled topologies; the WL-hash
+NDL metric already counts novelty against the *whole* training set (templates included), so it can't
+be gamed. This is the lever for both the inductor ratio and the copying ceiling.
 
 **WP-BIAS v2 (when it blocks sizing yield):** the measured off-MOS split (finding #8) says add R-SOURCE
 (source with no DC path → reference resistor/current sink) and R-DRAIN (drain with no DC path → load

@@ -9,6 +9,13 @@ the roadmap; this file is what has actually been *done*, what was *found*, and
 exactly where to resume. Read `WORKLOG.md` (entries R1/R2 are mine) and
 `FINDINGS.md` (§5 P0 block is mine) for the measured detail.
 
+> **Phase 2 (2026-08-06):** the pipeline is declared feature-complete; the next
+> objective is a learned critic + critic-guided search + self-improvement loop.
+> The phase-2 plan set lives in **`lna/plans2/`** (start at its
+> `00-OVERVIEW.md`, which contains the feasibility verdict). §6 below ("where
+> to pick up") is superseded: its two items — gain-capable topology and P5
+> templates — are absorbed into phase-2 **Stage 0** (plans2/05-SCHEDULE.md).
+
 ---
 
 ## 1. TL;DR — what shipped this session

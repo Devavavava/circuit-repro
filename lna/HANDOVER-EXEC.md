@@ -19,8 +19,8 @@ exactly where to resume. Read `WORKLOG.md` (entries R1/R2 are mine) and
 | **H-Q3** floating detector (03-BIAS/misc) | ✅ done | detector built; **1081 re-diagnosed** (not floating — ideal-inductor singularity), fixed by finite-Q |
 | **P0** novelty metric (04-GEN §1) | ✅ done | WL-hash whole-corpus metric; **NDL@256 = 16 (wifi24) / 26 (legacy)** at prefix 12 — the frozen baseline |
 | **WP-REF day 3** (02-REF §2) | ✅ done | device table + **stage-A CG anchor**; S11 −23.3 dB; **H-Q2 closed** (Re(Zin) 0.1%) |
-| WP-REF day 4 (stage-B + H-Q1) | ⏳ next | not started |
-| WP-BIAS, WP-GEN P1–P5, WP-SIZE | ⏳ later | not started |
+| **WP-REF day 4** (02-REF §3–4) | ✅ done | **stage-B CS+Cex — F1 FIXED** (S11 −21 dB, S21 +6.7 dB, Ls 1.35 nH); **H-Q1 resolved** |
+| WP-BIAS, WP-GEN P1–P5, WP-SIZE | ⏳ next | not started |
 
 Everything below is committed. `main` is untouched; nothing was pushed.
 
@@ -134,24 +134,31 @@ task, never push to `main`.**
    resistive-load CG into 50 Ω is gain-limited to ~0 dB (VDD headroom caps RL; the 50 Ω port
    caps a matched CG at gm·50≈1), which also pins NF ~4 dB. **Gain/NF need a tuned load →
    stage B.** Full reasoning in `lna/ref/README.md` + WORKLOG R2.
+6. **Stage-B (F1 fix) works; H-Q1 does not reproduce.** The Cex recipe gives a realizable match
+   (Ls 1.35 nH, Lg 8 nH) with S11 −21 dB and **real gain (S21 +6.7 dB)**. H-Q1's 1122 Ω was an
+   artifact of F1's broken peak-fT circuit: the cascode-bypass effect is modest (~5 Ω) and the
+   tank-detune effect is nil (Zin stable). See WORKLOG R3. S21 ≥ 12 / NF ≤ 2.5 are the sizer's job.
+7. **Harness gap — NF with gain.** `inoise_spectrum` from a *port* source gives a negative NF once
+   a stage has gain (the port z0 is not a noisy Rs). NF is left ungated on both ref decks and the
+   CG's stored 4.1 dB is a stability reference only. Fix = a proper series-Rs noise source; do it
+   in WP-SIZE where NF is finalized.
 
 ---
 
 ## 6. Where to pick up (in order)
 
-**Immediate: WP-REF day 4 — stage B + H-Q1** (`plans/02-REFERENCE-LNA.md` §3–4).
-- Build `lna/ref/ref24_csdeg.cir`: CS + explicit Cex + Ls + Lg, the F1 fix (effective ωT set by
-  `gm/(Cgs+Cex)` so Ls ≈ 1.1 nH is realizable). Use `device_tables.csv` for gm/Cgs at the bias.
-- H-Q1 (Zin=1122 Ω anomaly) falls out of the build order: the cascode-bypass test (step 2, with/
-  without the gate bypass cap) and the tank-detune test (step 3 vs 1). Write the outcome to WORKLOG.
-- `check_ref.py` is already structured to take a second deck — add `"ref24_csdeg.cir"` to `DECKS`,
-  add its expected metrics + a `check_gates` branch, then `--update`.
-- Gate G1 for the week: stage-A already passes S11 ≤ −10 dB, so the gate is met even if stage B stalls.
+**Immediate: WP-BIAS** (`plans/03-BIAS-INSERTION.md`, sched. week 1 day 5–6) — nothing downstream
+can be *scored* until generated topologies conduct.
+- `lna/bias.py`: DC-connectivity graph (caps open, MOS channels not DC edges) + R-GATE (attach
+  RBIAS+VBGEN+CBYP to un-driven gate nodes) and R-CASCODE-BYPASS. Reuse the connectivity shape from
+  `topology.floating_devices()` — the naming contract (`RBIAS/CBYP/VBGEN`, `is_scaffold`) is already
+  honored by the screen, the WL novelty metric, and the floating detector, so scaffolding is excluded
+  everywhere by construction.
+- `pipeline_yield.py --bias`, then the L1 feasibility sweep; Gate G2 = ≥80% of the 40 dataset LNAs
+  conducting. `spec.py` already exposes the L1 hook conceptually (structural_screen is L0).
+- Emit bias through `to_spice.py` (add an `extra_elements` hook) — do NOT text-patch netlists.
 
 **Then, per the schedule (`plans/06-SCHEDULE.md`):**
-- **WP-BIAS** (`03-BIAS`, week 1 day 5–6): `bias.py` DC-graph + R-GATE/R-CASCODE-BYPASS rules,
-  `pipeline_yield --bias`, validation ≥80% conducting on the 40 dataset LNAs (Gate G2). Note the
-  DC-connectivity graph there is a close cousin of `topology.floating_devices()` — reuse the shape.
 - **WP-GEN P1–P5** (`04-GEN`, week 2): class-token fine-tune (P1) is highest-leverage. The GPU
   path + frozen protocol are ready; **every arm is judged by `novelty.py --eval <dir> --spec …`
   against the NDL@256 baseline** (§5.4 above). Gate G3 = some arm beats the prefix curve on NDL.

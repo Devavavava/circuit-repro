@@ -179,6 +179,36 @@ the drain caps a matched CG's voltage gain at gm·50 ≈ 1. Gain (and hence NF)
 needs a tuned load — stage B. Full reasoning in `lna/ref/README.md`. The anchor's
 job is the match, and that passes; F1's mystery was never the harness.
 
+### R3 — F1 fixed and H-Q1 resolved (stage B) *(resolved)*
+Built the canonical CS + inductive-degeneration match off the peak-fT trap with
+the **Cex recipe** (`lna/ref/ref24_csdeg.cir`): an explicit gate–source cap makes
+wT_eff = gm/(Cgs+Cex), so `Ls = Z0·(Cgs+Cex)/gm ≈ 1.35 nH` and `Lg ≈ 8 nH` —
+both realizable, vs F1's unbuildable 12–27 pH. Measured **S11 = −21 dB,
+Re(Zin) = 50.4 Ω, S21 = +6.7 dB** (real gain), Idd 2.2 mA. **F1 is fixed.** (S21 ≥
+12 / NF ≤ 2.5 are the sizer's finishing job; this is the topology + starting
+values.)
+
+**H-Q1 (Re(Zin) = 1122 Ω) — both hypotheses tested on this circuit:**
+* *Cascode gate not AC-grounded* (my prime suspect): toggling the cascode-gate
+  bypass cap moves Zin only 37.6+j12 → 33.0+j16 Ω (S11 −14 → −11 dB). **Real but
+  modest (~5 Ω), not 1000 Ω.**
+* *Output tank in-band* (the WORKLOG's old hypothesis): detuning the tank 4×
+  (Ctnk 0.7→2.8 pF) leaves Zin@f0 essentially fixed (38.3 → 38.5 Ω). **Refuted** —
+  a properly bypassed cascode isolates the input, so the tank can't reshape Zin
+  through Cgd.
+
+**Resolution:** the 1122 Ω was an artifact of F1's *fundamentally broken* circuit
+(unmatchable peak-fT bias, 12–27 pH degeneration, plus the F1.1 gate-short) — not
+the harness and not a single clean mechanism. On a correctly-designed Cex cascode
+LNA, Zin is well-behaved (~50 Ω), stable under tank detune, and the harness reads
+it to 0.1% (R2). H-Q1 closed.
+
+**Harness gap noted:** NF extracted from `inoise_spectrum` with a *port* source
+goes unphysical (negative) once there is gain — the port's z0 is not modelled as
+a noisy source resistor. Both reference circuits only give a sane NF (~2.8 dB)
+under an ad-hoc gain re-normalization. A proper series-Rs noise source is needed;
+NF is therefore left ungated and deferred to WP-SIZE, where NF is finalized.
+
 ---
 
 ## Fixes worth remembering

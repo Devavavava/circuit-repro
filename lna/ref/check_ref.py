@@ -49,6 +49,7 @@ DEFAULT_TOL = ("abs", 0.5)   # dB quantities: +-0.5 dB
 
 DECKS = {
     "ref24_cg.cir": "stage-A common-gate match anchor",
+    "ref24_csdeg.cir": "stage-B CS+Cex inductive-degeneration match (F1 fix)",
 }
 
 
@@ -85,6 +86,15 @@ def check_gates(deck, m):
                       rel <= 0.25,
                       f"Re(Zin) = {m['re_zin']:.1f} ohm vs 1/(gm+gmb) = "
                       f"{z_pred:.1f} ohm ({100*rel:.1f}%)"))
+    if deck == "ref24_csdeg.cir":
+        gates.append(("S11 <= -12 dB across band (the F1-fix match holds)",
+                      m["s11_bandmax_db"] <= -12.0,
+                      f"S11_bandmax = {m['s11_bandmax_db']:.2f} dB"))
+        gates.append(("Re(Zin) within +-20% of 50 ohm",
+                      abs(m["re_zin"] - 50.0) / 50.0 <= 0.20,
+                      f"Re(Zin) = {m['re_zin']:.1f} ohm"))
+        # S21 >= 12 dB and NF <= 2.5 dB are NOT gated here -- deferred to the
+        # sizer (WP-SIZE); this deck ships the topology + starting values.
     return gates
 
 

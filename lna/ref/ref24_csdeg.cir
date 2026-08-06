@@ -1,0 +1,63 @@
+* Stage-B CS + inductive-degeneration + Cex 2.4 GHz reference (WP-REF, 02-REF §3)
+*
+* THE F1 FIX. F1 failed the canonical inductively-degenerated CS match because at
+* the device's natural fT (300-600 GHz) the required Ls is 12-27 pH -- unbuildable.
+* The escape is to lower the *effective* fT with an explicit gate-source cap Cex:
+* wT_eff = gm/(Cgs+Cex). With Cex ~ 440 fF dominating Ctot, the match becomes
+*   Ls = Z0*(Cgs+Cex)/gm   ~ 1.1-1.35 nH   (realizable!)
+*   Lg = 1/(w0^2*Ctot) - Ls ~ 8 nH
+* both inside [0.3, 12] nH. The match no longer depends on the tiny device Cgs.
+*
+* Measured here: S11 = -21 dB, Re(Zin) ~ 50 ohm, S21 ~ +6.7 dB (real GAIN, unlike
+* the resistive CG anchor), Idd ~ 2.2 mA. S21 >= 12 dB / NF <= 2.5 dB are NOT yet
+* met -- that final push is the sizer's job (WP-SIZE anchor re-derivation); this
+* deck is the topology + verified starting values (~90% of the value, 02-REF §3).
+*
+* H-Q1 (the 1122-ohm Zin anomaly) was investigated on this circuit and does NOT
+* reproduce -- see lna/ref/README.md and WORKLOG. The cascode gate is AC-grounded
+* (Cbyp2), which is the lesson F1 missed.
+.include C:/Users/Devavrat/circuit-repro/AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt
+
+.param pW=20u pL=45n pVB=0.38 pVB2=0.75
+.param pLs=1.35n pLg=8.0n pCex=440f pRB=10k
+.param pLd=4n pQ=10 pCtnk=0.7p pF0=2.442e9
+.param pRq={2*3.14159265*pF0*pLd/pQ}       ; finite-Q tank series R
+
+Vdd  VDD 0 1.1
+Vb   VB  0 {pVB}
+Cbyp VB  0 10p
+Vb2  VB2 0 {pVB2}
+RB2  VB2 cg {pRB}
+Cbyp2 cg 0 10p                             ; cascode gate AC-grounded (H-Q1 lesson)
+
+Vp1  p1 0 dc 0 ac 1 portnum 1 z0 50
+Cin  p1 gin 1u                             ; DC block
+Lg   gin g {pLg}                           ; gate series inductor
+RB   VB  g {pRB}                           ; gate bias feed
+M1   d1 g s 0 nmos W={pW} L={pL}           ; input CS device
+Cex  g  s {pCex}                           ; explicit gate-source cap -- the F1 fix
+Ls   s  0 {pLs}                            ; source degeneration
+M2   d cg d1 0 nmos W={pW} L={pL}          ; cascode
+Ld   VDD ltap {pLd}                        ; tuned load: L ...
+Rq   ltap d {pRq}                          ;   ... with finite Q
+Ctnk VDD d {pCtnk}                         ;   ... resonating with the drain
+Cout d p2 1u
+Vp2  p2 0 dc 0 ac 0 portnum 2 z0 50
+
+.option rshunt=1e12
+.control
+op
+let idd = -i(Vdd)
+print idd @m1[gm] @m1[vds] @m2[gm] @m2[vds]
+sp lin 101 2.35e9 2.55e9 1
+let s11db = db(mag(S_1_1)+1e-30)
+let s21db = db(mag(S_2_1)+1e-30)
+let zre = real(50*(1+S_1_1)/(1-S_1_1))
+let zim = imag(50*(1+S_1_1)/(1-S_1_1))
+meas sp REF_S11_F0     find s11db at=2.442e9
+meas sp REF_S11_BANDMX max s11db from=2.4e9 to=2.4835e9
+meas sp REF_S21_F0     find s21db at=2.442e9
+meas sp REF_ZRE_F0     find zre at=2.442e9
+meas sp REF_ZIM_F0     find zim at=2.442e9
+.endc
+.end

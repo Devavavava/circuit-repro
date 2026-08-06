@@ -60,9 +60,42 @@ with the specified resistive-load-into-50 Ω topology at VDD = 1.1 V. The anchor
 job — a provably correct, stable, deep match with Re(Zin) matching theory — is
 done, and that is what unblocks WP-SIZE and closes H-Q2.
 
-## Still open (Day 4)
+## Stage B — CS + Cex inductive degeneration (`ref24_csdeg.cir`) — the F1 fix
 
-Stage B (CS + Cex inductive-degeneration match, the F1 fix) and the H-Q1 Zin
-anomaly (1122 Ω) — staged so the cascode-bypass and tank-detune tests fall out
-of the stage-B build order (02-REF §3–4). `check_ref.py` and its baseline are
-structured to take a second deck (`ref24_csdeg.cir`) when it lands.
+F1 could not build the canonical inductively-degenerated CS match: at the device's
+natural fT (300–600 GHz) it needs Ls = 12–27 pH, unbuildable. The fix is to lower
+the *effective* fT with an explicit gate–source cap Cex, so wT_eff = gm/(Cgs+Cex)
+and the match lands on realizable values:
+
+| quantity | value | in range? |
+|---|---|---|
+| Ls = Z0·(Cgs+Cex)/gm | **1.35 nH** | ✓ [0.3, 12] nH |
+| Lg = 1/(ω0²·Ctot) − Ls | **8.0 nH** | ✓ |
+| tuned-load Ld (finite Q=10) | 4.0 nH | ✓ |
+
+Measured: **S11 = −21 dB (band-max −17.8 dB), Re(Zin) = 50.4 Ω, S21 = +6.7 dB**
+(real gain, unlike the CG anchor), Idd = 2.2 mA. **F1 is fixed.** S21 ≥ 12 dB and
+NF ≤ 2.5 dB are *not* yet met — that final push is the sizer's job (WP-SIZE anchor
+re-derivation); this deck is the topology + verified starting values (~90% of the
+value, which is what 02-REF §3 asks for if the hand-match doesn't fully close).
+
+### H-Q1 (Re(Zin) = 1122 Ω) — resolved, does not reproduce
+
+Both candidate mechanisms were tested on this circuit (WORKLOG R3):
+
+* **Cascode gate not AC-grounded** — toggling the bypass cap moves Zin only
+  37.6+j12 → 33.0+j16 Ω. Real but ~5 Ω, not 1000 Ω.
+* **Output tank in-band** — detuning the tank 4× leaves Zin@f0 fixed (38.3 → 38.5
+  Ω). Refuted: a bypassed cascode isolates the input from the tank.
+
+The 1122 Ω was an artifact of F1's fundamentally broken circuit (unmatchable
+peak-fT bias + the F1.1 gate short), not the harness — which reads Zin to 0.1%
+(the CG anchor). The cascode gate is bypassed here (`Cbyp2`), the lesson F1 missed.
+
+### Known harness gap: NF with gain
+
+NF from `inoise_spectrum` with a *port* source goes negative once the stage has
+gain — the port z0 is not modelled as a noisy source resistor, so the source-noise
+reference is wrong. A proper series-Rs noise source is needed. NF is left ungated
+on both decks (the CG's stored 4.1 dB is a stability reference, not validated as
+absolute) and is finalized in WP-SIZE.

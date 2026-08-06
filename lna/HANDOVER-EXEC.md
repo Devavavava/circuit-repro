@@ -21,7 +21,8 @@ exactly where to resume. Read `WORKLOG.md` (entries R1/R2 are mine) and
 | **WP-REF day 3** (02-REF §2) | ✅ done | device table + **stage-A CG anchor**; S11 −23.3 dB; **H-Q2 closed** (Re(Zin) 0.1%) |
 | **WP-REF day 4** (02-REF §3–4) | ✅ done | **stage-B CS+Cex — F1 FIXED** (S11 −21 dB, S21 +6.7 dB, Ls 1.35 nH); **H-Q1 resolved** |
 | **WP-BIAS** (03-BIAS) | ✅ done | `bias.py` R-GATE + monotonic guard; 461 Vgs 14 mV→302 mV; 54% on, **0 made worse** |
-| WP-GEN P1–P5, WP-SIZE | ⏳ next | not started (both unblocked) |
+| **WP-GEN P0–P2** (04-GEN) | ✅ done | P0 metric; **P2 fine-tune beats baseline NDL@256 16→24**; P1 class-token works |
+| WP-GEN P3/P4/P5, WP-SIZE | ⏳ next | not started (all unblocked) |
 
 Everything below is committed. `main` is untouched; nothing was pushed.
 
@@ -50,6 +51,7 @@ lna/ref/check_ref.py        NEW  reference regression runner (+ ref_baseline.jso
 lna/ref/README.md           NEW  reference-LNA writeup incl. the S21 finding
 lna/ref/ref24_csdeg.cir     NEW  stage-B CS+Cex reference (the F1 fix)
 lna/bias.py                 NEW  rule-based gate-bias insertion + L1 sweep + --validate
+lna/finetune.py             NEW  P1/P2 LNA fine-tune (checkpoint surgery, train, sample) -- WSL GPU
 lna/screen.py               MOD  --spec (spec-driven L0 screen); default path byte-unchanged
 lna/pipeline_yield.py       MOD  --spec, --inductor-q, --bias; made torch-free (local REPO)
 lna/to_spice.py             MOD  inductor_q=/--inductor-q; set_extra()/value_overrides()/opcheck mode
@@ -145,7 +147,15 @@ task, never push to `main`.**
    a stage has gain (the port z0 is not a noisy Rs). NF is left ungated on both ref decks and the
    CG's stored 4.1 dB is a stability reference only. Fix = a proper series-Rs noise source; do it
    in WP-SIZE where NF is finalized.
-8. **WP-BIAS: gate rules top out at 54% conducting; the plan's next rule is data-chosen.** R-GATE
+8. **WP-GEN P2 beats the baseline; P1 works but the inductor ratio regressed.** The plain fine-tune
+   (`finetune.py`, bare-VSS sampling) gets **NDL@256 = 24 vs 16 baseline** (+50%) with copies 46%→29%
+   — Gate G3's NDL bar cleared. The `<LNA>` class-token arm (P1) generates LNAs from *no seed* (copies
+   →37%) but NDL stayed flat. **Not a clean adopt yet:** both dropped the inductor ratio 0.141→~0.10,
+   and `median NN-sim = 1.000` shows they recite the 35 training graphs. Next levers are therefore
+   **P4 (inductor logit bias, composes on P2 to fix the ratio)** and **P5 (template corpus, breaks the
+   memorization ceiling)** — both sampling/data-side, no new training loop. Checkpoints are gitignored
+   (198 MB); `finetune.py --arm p1/p2 --do sample` regenerates from them (they exist on disk).
+9. **WP-BIAS: gate rules top out at 54% conducting; the plan's next rule is data-chosen.** R-GATE
    biases un-driven gates (461 Vgs 14 mV→302 mV) and a monotonic guard guarantees 0 circuits made
    worse. But only **22/41 (54%)** get all MOS ON at default sizing (34% saturated). The measured
    off-MOS split — **15 source-no-DC-path, 16 drain-no-DC-path, 12 load/sizing** — says the v2
@@ -205,6 +215,7 @@ python lna/novelty.py --rebaseline256 --spec wifi24       # full 256 baseline
 python lna/bias.py --index 461 --sweep                    # bias one circuit + L1 sweep
 python lna/bias.py --validate                             # WP-BIAS §4 table (~15s)
 python lna/pipeline_yield.py --generated dir --bias       # biased+conducting yield
+# WSL GPU: python lna/finetune.py --arm p1 --do sample --device cuda --seed 1337 --n 128 --out ...
 python lna/calibrate_specs.py                             # WP-SPEC acceptance
 python lna/ref/device_char.py --plot                      # device table
 python lna/ref/check_ref.py [--update]                    # reference regression

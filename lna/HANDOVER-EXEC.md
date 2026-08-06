@@ -20,7 +20,8 @@ exactly where to resume. Read `WORKLOG.md` (entries R1/R2 are mine) and
 | **P0** novelty metric (04-GEN §1) | ✅ done | WL-hash whole-corpus metric; **NDL@256 = 16 (wifi24) / 26 (legacy)** at prefix 12 — the frozen baseline |
 | **WP-REF day 3** (02-REF §2) | ✅ done | device table + **stage-A CG anchor**; S11 −23.3 dB; **H-Q2 closed** (Re(Zin) 0.1%) |
 | **WP-REF day 4** (02-REF §3–4) | ✅ done | **stage-B CS+Cex — F1 FIXED** (S11 −21 dB, S21 +6.7 dB, Ls 1.35 nH); **H-Q1 resolved** |
-| WP-BIAS, WP-GEN P1–P5, WP-SIZE | ⏳ next | not started |
+| **WP-BIAS** (03-BIAS) | ✅ done | `bias.py` R-GATE + monotonic guard; 461 Vgs 14 mV→302 mV; 54% on, **0 made worse** |
+| WP-GEN P1–P5, WP-SIZE | ⏳ next | not started (both unblocked) |
 
 Everything below is committed. `main` is untouched; nothing was pushed.
 
@@ -47,9 +48,11 @@ lna/ref/device_char.py      NEW  device characterization sweep -> device_tables.
 lna/ref/ref24_cg.cir        NEW  stage-A common-gate reference (the match anchor)
 lna/ref/check_ref.py        NEW  reference regression runner (+ ref_baseline.json)
 lna/ref/README.md           NEW  reference-LNA writeup incl. the S21 finding
+lna/ref/ref24_csdeg.cir     NEW  stage-B CS+Cex reference (the F1 fix)
+lna/bias.py                 NEW  rule-based gate-bias insertion + L1 sweep + --validate
 lna/screen.py               MOD  --spec (spec-driven L0 screen); default path byte-unchanged
-lna/pipeline_yield.py       MOD  --spec, --inductor-q; made torch-free (local REPO)
-lna/to_spice.py             MOD  inductor_q= / --inductor-q (finite-Q, default off = ideal)
+lna/pipeline_yield.py       MOD  --spec, --inductor-q, --bias; made torch-free (local REPO)
+lna/to_spice.py             MOD  inductor_q=/--inductor-q; set_extra()/value_overrides()/opcheck mode
 lna/topology.py             MOD  floating_devices()/has_floating_subcircuit (H-Q3)
 lna/novelty.py              REWRITE  WL-hash whole-corpus metric + frozen-protocol harness
 lna/WORKLOG.md              MOD  R1 (1081), R2 (H-Q2) resolution entries
@@ -142,29 +145,39 @@ task, never push to `main`.**
    a stage has gain (the port z0 is not a noisy Rs). NF is left ungated on both ref decks and the
    CG's stored 4.1 dB is a stability reference only. Fix = a proper series-Rs noise source; do it
    in WP-SIZE where NF is finalized.
+8. **WP-BIAS: gate rules top out at 54% conducting; the plan's next rule is data-chosen.** R-GATE
+   biases un-driven gates (461 Vgs 14 mV→302 mV) and a monotonic guard guarantees 0 circuits made
+   worse. But only **22/41 (54%)** get all MOS ON at default sizing (34% saturated). The measured
+   off-MOS split — **15 source-no-DC-path, 16 drain-no-DC-path, 12 load/sizing** — says the v2
+   escalation is R-SOURCE/R-DRAIN rules (03-BIAS R-DIAGNOSE-ONLY, decided by measurement), and the
+   saturation gap is WP-SIZE's (unsized loads force triode). `bias.py --validate` reproduces this.
 
 ---
 
 ## 6. Where to pick up (in order)
 
-**Immediate: WP-BIAS** (`plans/03-BIAS-INSERTION.md`, sched. week 1 day 5–6) — nothing downstream
-can be *scored* until generated topologies conduct.
-- `lna/bias.py`: DC-connectivity graph (caps open, MOS channels not DC edges) + R-GATE (attach
-  RBIAS+VBGEN+CBYP to un-driven gate nodes) and R-CASCODE-BYPASS. Reuse the connectivity shape from
-  `topology.floating_devices()` — the naming contract (`RBIAS/CBYP/VBGEN`, `is_scaffold`) is already
-  honored by the screen, the WL novelty metric, and the floating detector, so scaffolding is excluded
-  everywhere by construction.
-- `pipeline_yield.py --bias`, then the L1 feasibility sweep; Gate G2 = ≥80% of the 40 dataset LNAs
-  conducting. `spec.py` already exposes the L1 hook conceptually (structural_screen is L0).
-- Emit bias through `to_spice.py` (add an `extra_elements` hook) — do NOT text-patch netlists.
+Week 1 of the plan is done (WP-SPEC + WP-REF + H-Q3 + P0 measuring stick + WP-BIAS). Two work
+packages are now unblocked; **WP-SIZE is the higher-value next step** — it closes the loop and is
+"the program's first real result" (spec in → sized LNA out), and its three prerequisites all exist.
 
-**Then, per the schedule (`plans/06-SCHEDULE.md`):**
-- **WP-GEN P1–P5** (`04-GEN`, week 2): class-token fine-tune (P1) is highest-leverage. The GPU
-  path + frozen protocol are ready; **every arm is judged by `novelty.py --eval <dir> --spec …`
-  against the NDL@256 baseline** (§5.4 above). Gate G3 = some arm beats the prefix curve on NDL.
-- **WP-SIZE** (`05-SIZE`, week 3): needs WP-SPEC objective (done), the anchor (done), and WP-BIAS.
-  The anchor re-derivation test (§3.1) is the highest-value first check. Note `spec.objective()`/
-  `feasible()` are already implemented and feasibility-first.
+**Recommended: WP-SIZE** (`plans/05-SIZING.md`, week 3). Prereqs ready: `spec.objective()`/`feasible()`
+(feasibility-first, done), the stage-A/B anchors (`lna/ref/`, done), conducting circuits (`bias.py`,
+done). Start with the **anchor re-derivation test** (§3.1): strip `ref24_csdeg.cir` to `.param`
+defaults, hand `size.py` its topology + `wifi24`, and check ZOAF lands within ~1 dB of the hand-tuned
+reference — it validates `extract.py`, the objective encoding, the bias params, and ZOAF's budget at
+once on a circuit whose answer is known. ZOAF lives in `misc/ZOAF`; mirror `examples/quickstart_10param.py`.
+Turn on finite inductor Q (`Netlist(inductor_q=12)`) for sizing runs, and fix the NF harness gap (§5.7)
+here since NF is a real objective.
+
+**Also ready: WP-GEN P1–P5** (`plans/04-GEN.md`, week 2). Class-token fine-tune (P1) is highest
+leverage. The GPU path (WSL, §3) + frozen protocol are ready; **judge every arm with
+`novelty.py --eval <dir> --spec …` against the NDL@256 baseline** (finding #4). Gate G3 = an arm beats
+the prefix curve on NDL@256.
+
+**WP-BIAS v2 (when it blocks sizing yield):** the measured off-MOS split (finding #8) says add R-SOURCE
+(source with no DC path → reference resistor/current sink) and R-DRAIN (drain with no DC path → load
+feed) rules. `bias.py`'s report already classifies every such node; the monotonic guard makes new rules
+safe to add. Don't build them speculatively — only if WP-SIZE's conducting denominator is too thin.
 
 ---
 
@@ -189,6 +202,9 @@ python lna/screen.py --generated "dir/seq*.txt" --spec wifi24
 python lna/pipeline_yield.py --generated dir --spec wifi24 [--inductor-q 12]
 python lna/novelty.py --eval dir --spec wifi24            # one frozen-protocol row
 python lna/novelty.py --rebaseline256 --spec wifi24       # full 256 baseline
+python lna/bias.py --index 461 --sweep                    # bias one circuit + L1 sweep
+python lna/bias.py --validate                             # WP-BIAS §4 table (~15s)
+python lna/pipeline_yield.py --generated dir --bias       # biased+conducting yield
 python lna/calibrate_specs.py                             # WP-SPEC acceptance
 python lna/ref/device_char.py --plot                      # device table
 python lna/ref/check_ref.py [--update]                    # reference regression

@@ -381,6 +381,37 @@ So the verdict is real movement (more novel, less copying) plus a precise next
 step (P2 + P4 for the inductor ratio; P5 for the memorization ceiling), rather
 than a finished win.
 
+### P4 — the inductor logit bias is a weak lever; the gap is data, not decoding
+
+`lna/decode.py` adds +λ to unused L-device logits while a sequence's running
+inductor ratio is below target (P2 model, 128 @ seed 1337, wifi24; real ratio
+0.188, P2 baseline 0.091):
+
+| λ (targeted to the model's own device positions) | validity | inductor ratio | NDL | copies |
+|---|---|---|---|---|
+| 0 | 98% | 0.091 | 8 | 30% |
+| 8 | 98% | 0.095 | 8 | 30% |
+| 12 | 88% | 0.108 | 12 | 26% |
+| 20 | **9%** | 0.327 | junk | 9% |
+
+First lesson: an *un-targeted* bias does nothing below λ≈6 (the model assigns ~0
+probability to an L-device at almost every position, so the nudge can't overcome
+its grammar prior) and at λ=15 forces inductors everywhere (ratio 0.32) but
+craters structural validity to 2% — the plan's exact "structurally valid but
+electrically pointless / junk" warning. Gating the bias to positions where the
+model's *own* argmax is a device token (a cheap proxy for the grammar mask)
+preserves validity but only buys a small window: λ=12 lifts the ratio 0.091 →
+**0.108** (NDL 8→12, copies 30→26%) at a 10-point validity cost, and λ=20
+collapses again. It never reaches even the prefix baseline's 0.141, let alone
+0.188.
+
+Conclusion, matching 04-GEN's own escalation rule: **the inductor gap is a
+distribution problem** (inductors are 0.8% of the pretraining corpus), and a
+decoding nudge cannot manufacture what the weights disprefer without producing
+junk. The lever yields to **P5** (an archetype/template corpus that actually
+contains inductor-bearing LNAs). A true grammar-masked P4 might do better than
+the argmax proxy, but the ceiling here is data.
+
 ---
 
 ## 6. Profiling

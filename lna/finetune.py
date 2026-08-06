@@ -196,7 +196,7 @@ def load_ft(arm, device):
 
 
 def sample(arm, device, n=256, batch=32, max_tokens=256, temperature=0.7,
-           seed=1337, out=None):
+           seed=1337, out=None, inductor_bias=0.0):
     torch.manual_seed(seed)
     devs, stoi, _ = ext_vocab(arm)
     itos = {i: d for i, d in enumerate(devs)}
@@ -204,14 +204,21 @@ def sample(arm, device, n=256, batch=32, max_tokens=256, temperature=0.7,
     prefix = ([stoi["<LNA>"], VSS_ID] if arm == "p1" else [VSS_ID])
     out = out or os.path.join(HERE, "out", f"ft_{arm}_s{seed}")
     os.makedirs(out, exist_ok=True)
+    if inductor_bias:
+        from decode import generate_inductor_biased
 
     meta, produced = [], 0
     t0 = time.time()
     for start in range(0, n, batch):
         b = min(batch, n - start)
-        rows, steps = generate_batch(model, [list(prefix)] * b,
-                                     max_new_tokens=max_tokens,
-                                     temperature=temperature, device=device)
+        if inductor_bias:
+            rows, steps = generate_inductor_biased(
+                model, [list(prefix)] * b, lambda_L=inductor_bias,
+                max_new_tokens=max_tokens, temperature=temperature, device=device)
+        else:
+            rows, steps = generate_batch(model, [list(prefix)] * b,
+                                         max_new_tokens=max_tokens,
+                                         temperature=temperature, device=device)
         for row in rows:
             ids = [int(x) for x in row.tolist()]
             ids = [x for x in ids if x < VOCAB_SIZE]      # drop class token(s)
@@ -239,12 +246,16 @@ def main():
     ap.add_argument("--seed", type=int, default=1337)
     ap.add_argument("--n", type=int, default=256)
     ap.add_argument("--out", default=None)
+    ap.add_argument("--inductor-bias", type=float, default=0.0,
+                    help="P4: add this logit bias to unused L-device tokens while "
+                         "the running inductor ratio is below target")
     args = ap.parse_args()
 
     if args.do in ("train", "both"):
         train(args.arm, args.device, epochs=args.epochs, seed=args.seed)
     if args.do in ("sample", "both"):
-        sample(args.arm, args.device, n=args.n, seed=args.seed, out=args.out)
+        sample(args.arm, args.device, n=args.n, seed=args.seed, out=args.out,
+               inductor_bias=args.inductor_bias)
 
 
 if __name__ == "__main__":

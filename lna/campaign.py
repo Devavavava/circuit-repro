@@ -198,15 +198,17 @@ def write_report(tasks, results, spec_name):
     for s in ("T", "G", "M", "R"):
         a, sz, fe = per.get(s, [0, 0, 0])
         lines.append(f"| {s} | {a} | {sz} | {fe} |")
+    notes = ["full stratum T awaits templates.py (P5)",
+             "M awaits the mutation move set (03-SEARCH §3)"]
+    if per.get("G", [0])[0] == 0:
+        notes.insert(0, "stratum G had no tasks (no seq*.txt in this checkout — "
+                        "gitignored; pass --gen-glob at the main checkout)")
     lines += ["",
               f"repeat-probe sigma(S21): "
               + (f"**{sigma:.3f} dB** over {n_sig} keys "
                  f"(expect ≲0.5; larger => label budget too small)"
                  if sigma is not None else "not enough repeats yet"),
-              "",
-              "notes: G empty here means no seq*.txt in this checkout (gitignored);"
-              " full stratum T awaits templates.py (P5); M awaits the mutation"
-              " move set (03-SEARCH §3)."]
+              "", "notes: " + "; ".join(notes) + "."]
     with open(path, "w", encoding="utf-8", newline="\n") as fh:
         fh.write("\n".join(lines) + "\n")
     return path, sigma, n_sig

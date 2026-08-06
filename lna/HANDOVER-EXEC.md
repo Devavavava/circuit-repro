@@ -11,13 +11,22 @@ exactly where to resume. Read `WORKLOG.md` (entries R1/R2 are mine) and
 
 ---
 
-## Session 2 — Phase 2 begins (learned critic); plans2 Stage-0 days 1–2 DONE
+## Session 2 — Phase 2 begins (learned critic); plans2 Stage-0 days 1–4 DONE, Gate G4 CLOSED
 
 **New roadmap:** `.claude/worktrees/lna-plans/lna/plans2/` (start at
 `00-OVERVIEW.md`) — the generate→size pipeline is now feature-complete; Phase 2
 adds a learned critic + guided search. Branch **`lna-data`** (off `lna-exec` @
-`00cd32e`), through commit `27db7b5`, never pushed. Run `python lna/datastore.py
---summary` to see the store.
+`00cd32e`), through commit `67f6867`, never pushed. Run `python lna/datastore.py
+--summary` to see the store (**28 L2, 1 feasible**; 41 L1).
+
+**User decisions this session (remote-control):** gain stage = tapped-C output
+match; NF advisory (Gate G4 gates S11/S21/Idd, NF logged not gated); branch stays
+local; run autonomously through Stage 0 to Gate C0.
+
+**🎯 Gate G4 CLOSED by hand (day 3):** the tapped-C reference sizes to full
+feasibility vs wifi24 — **S11 −20.1, S21 18.6 dB, Idd 3.15 mA, NF 2.0 dB**. The
+store's feasible class now exists (was 0/N). The generated-topology half of G4
+(Stage 2) is still open.
 
 **Landed day 1 (WP-DATA, 01-DATA §2–4):**
 - `lna/datastore.py` — append-only JSONL label store (py-3.14, no new deps):
@@ -47,6 +56,28 @@ adds a learned critic + guided search. Branch **`lna-data`** (off `lna-exec` @
 - Regression quartet green throughout (vocab MATCH, screen 59.4%, pipeline 40/42,
   check_ref GREEN, calibrate met).
 
+**Landed day 3 (tapped-C gain reference → Gate G4):**
+- `lna/ref/ref24_tapped.cir` — stage-B cascode core + tapped-C output transformer.
+  The cascode isolates the input (H-Q1), so stepping the 50 Ω load up to a high R
+  at the drain lifts S21 without disturbing S11. Hand-feasible point found by grid
+  search, then ZOAF (`size.py --tapped`) refines to S21 18.6 dB.
+- `size.py`: `_size_ref()` generalizes the reference sizer; `size_tapped()` sizes
+  {W, Ld, Ct2, VB, VB2} with the input match FIXED (keeps ZOAF out of the
+  degenerate "collapse the transformer" basin — it has no warm start).
+- **BUG FIXED**: reference rows were all keyed `(None, spec)` → collided; the
+  tapped label was skipped as a dup of the anchor. Now keyed `ref:<deck>`.
+
+**Landed day 4 (`campaign.py` + repeat-probe σ):**
+- `lna/campaign.py` — nightly labeling runner (01-DATA §5): stratified quota
+  T/G/M/R, dedup-aware, sequential/unattended-safe, morning report to
+  `lna/data/reports/`. `--dry-run` / `--night` / `--limit`.
+- **Repeat-probe σ(S21) = 0.323 dB over 6 keys** — under the ≲0.5 target, so the
+  candidate-v1 ZOAF budget is an acceptable label-noise floor (a Gate C0 item).
+  σ is topology-dependent (stable ~0 dB, one pathological corpus LNA swings 3.5 dB
+  between seeds) — a real signal for the critic's rank-loss margin.
+- `size.py`: `_size_ref` guards `m=None` (a ref that fails to size logs a failed
+  row, doesn't crash the campaign).
+
 **⚠ SETUP TRAP that cost this session ~20 min — read before running anything in a
 worktree.** The pipeline's runtime deps `misc/ZOAF/`, `AnalogGenie/` (Dataset
 .npy), and `AutoCkt/repo/` (the 45nm model include) are **untracked** — present
@@ -63,18 +94,26 @@ Junctions don't show in `git status` and won't be committed. (Or: just work in t
 main checkout on `lna-exec`.) These dirs probably belong in `.gitignore` +
 a setup note, but that's a repo-hygiene call left to the user.
 
-**Next (plans2/05-SCHEDULE Stage 0):**
-- **day 3 = gain-capable reference** (output match / source-follower buffer on
-  stage-B so *some* topology reaches S21 ≥ 12 hand-feasible vs wifi24). This is
-  the crux: it creates the **feasible class** the critic needs (store is 0/20
-  feasible now) and closes **Gate G4**. Note WORKLOG F1 — hand-designing a good
-  LNA was the hard failure; budget for it. Then `--corpus-l2` / a candidate pass
-  will start logging feasible rows.
-- **day 4 = `templates.py`** (P5 archetype corpus incl. buffered/matched
-  families) + **`campaign.py`** first night. Campaign needs concurrency-safe
-  store appends (current `append` is single-writer; parallel ngspice jobs must
-  not interleave-corrupt the JSONL — write per-job then merge, or lock).
-- Gate C0 needs ≥150 L2 rows (≥25% templates) over 3 unattended nights.
+**Next — remaining path to Gate C0** (C0 = ≥150 L2 rows, ≥25% stratum T, 3
+unattended nights, σ measured ✓). The campaign runs but three sources are thin:
+1. **`templates.py` (P5) — the biggest lever, do first.** Full stratum-T
+   diversity + the 25% target. Must emit valid AnalogGenie `Topology` objects
+   (token sequences), which go via connection-matrix → Eulerian augmentation
+   (see `build_lna_corpus.py stage_augment`) — a real sub-project, not a one-liner.
+   The tapped-C archetype (`ref24_tapped.cir`) is the "matched" family's template;
+   generalize it + CS-degen/CG/resistive-fb/noise-cancelling × cascode/load/buffer.
+   Then register the template topologies as a stratum-T source in `campaign.py`
+   (currently T = the 3 hand ref decks only).
+2. **Stratum G needs the generated `seq*.txt`** — gitignored, so absent in a fresh
+   worktree. Regenerate (`finetune.py --do sample`, WSL GPU) or run the campaign
+   from the main checkout. `campaign.py --gen-glob` points it at a dir.
+3. **Stratum M** — the 1-edit mutation move set (03-SEARCH §3); reused later by
+   evolutionary search. Not built.
+- **Then accumulate**: `campaign.py --night` for 3 nights (it's idempotent /
+  dedup-aware). Optional speedup: parallelize (per-job isolated `LNA_DATA_DIR`
+  stores + a `datastore.merge`); v1 is sequential to stay unattended-safe. Once
+  ≥150 rows land, **Stage 1 (02-CRITIC)** starts: `family_split` + baselines,
+  then the MPNN. `margins_for` rows are the target; σ=0.32 dB sets the rank margin.
 
 **Deferred (deliberate, not blocking — 00-OVERVIEW #3 "don't block on NF"):**
 un-gating NF as a *hard constraint* in the objective (changes sizing; validate

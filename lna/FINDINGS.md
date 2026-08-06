@@ -412,6 +412,34 @@ junk. The lever yields to **P5** (an archetype/template corpus that actually
 contains inductor-bearing LNAs). A true grammar-masked P4 might do better than
 the argmax proxy, but the ceiling here is data.
 
+### The sizing loop closes (WP-SIZE, 05-SIZING)
+
+`lna/extract.py` (metrics from one ngspice op/sp/noise run) + `lna/size.py` (ZOAF
+driver over the `.param` surface, feasibility-first via `spec.objective`, log-scale
+W/R/C/L and linear bias, normalised to [0,1]^d) close the spec→sized-circuit loop.
+
+**Anchor re-derivation** (§3.1, the single most informative test): strip
+`ref24_csdeg.cir` to defaults, hand ZOAF the topology + `wifi24`. In 304
+simulations it reaches feasibility on the achievable constraints and reproduces
+the hand-tuned reference's gain ceiling:
+
+| metric | ZOAF sized | hand-tuned | wifi24 | verdict |
+|---|---|---|---|---|
+| S11 | −10.9 dB | −21 dB | ≤ −10 | PASS |
+| Idd | 4.2 mA | 2.2 mA | ≤ 5 | PASS |
+| **S21** | **6.86 dB** | 6.7 dB | ≥ 12 | **FAIL** |
+
+The lone infeasibility is not a sizer bug — S21 lands within 0.16 dB of the
+hand-tuned value, i.e. ZOAF *validated itself* on a circuit whose answer is known
+(extract.py, the objective encoding, the bias params and ZOAF's budget all check
+out). It also surfaces a real **spec-vs-topology gap**: the single-stage reference
+caps at ~7 dB (WP-REF R3 — a 50 Ω output port loads the drain) while all three
+specs want S21 ≥ 12–15 dB, which needs output impedance matching (tapped tank /
+buffer), not more optimizer budget. NF is gated off here (the port-noise harness
+gap, R3). Remaining: candidate sizing over the best generation arm, the NF harness
+fix, and a higher-gain topology — Gate G4 (≥1 novel topology sized to full
+feasibility) is still open, now blocked on the topology, not the loop.
+
 ---
 
 ## 6. Profiling

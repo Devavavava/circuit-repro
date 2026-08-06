@@ -121,14 +121,26 @@ def classify_params(nl):
          else fixed.__setitem__(p, v))
     fixed["pVDD"] = "1.1"
     fixed["pVB"] = "0.5"
+    # Finite-Q constants (pINDQ/pINDW0) are emitted into the netlist's own .param
+    # block by to_spice, but E.body_of() strips every .param line, so they must be
+    # re-declared here as fixed or the RQ series-R expression evaluates undefined
+    # ("Undefined parameter [pindw0]"). Recompute w0 exactly as to_spice.emit does.
+    if nl.inductor_q:
+        lo, hi = nl.freq[0], nl.freq[1]
+        f0 = (lo * hi) ** 0.5
+        fixed["pINDQ"] = str(nl.inductor_q)
+        fixed["pINDW0"] = f"{2 * math.pi * f0:g}"
     return sizable, fixed
 
 
-def _zoaf_cfg(seed, n_candidates, sgd_iters, cgd_iters, recipe="anchor-v1"):
+def _zoaf_cfg(seed, n_candidates, sgd_iters, cgd_iters, recipe="anchor-v1",
+             inductor_q=None):
     """The fixed label budget (01-DATA §5): labels are only comparable at equal
-    ZOAF budget, so the knobs that define it are stamped on every row."""
+    ZOAF budget, so the knobs that define it are stamped on every row. inductor_q
+    is a deck/harness setting that changes the metrics, so it is stamped too."""
     return {"recipe": recipe, "seed": seed, "n_candidates": n_candidates,
-            "n_starts": 4, "sgd_iters": sgd_iters, "cgd_iters": cgd_iters}
+            "n_starts": 4, "sgd_iters": sgd_iters, "cgd_iters": cgd_iters,
+            "inductor_q": inductor_q}
 
 
 def _log_l2(spec, metrics, feasible, n_evals, points, best_x, best_params,
@@ -152,15 +164,19 @@ def _log_l2(spec, metrics, feasible, n_evals, points, best_x, best_params,
 
 
 def size_topology(topo, spec, seed=1, n_candidates=6, sgd_iters=6, cgd_iters=1,
-                  provenance=None, log=True, repeat_probe=False):
+                  provenance=None, log=True, repeat_probe=False, inductor_q=None):
     """Bias-insert, then ZOAF-size a generated topology against `spec`.
 
     With `log=True` (default for CLI paths) the completed sizing run is appended
     to the label store as one L2 row; pass `log=False` for throwaway experiments
-    (`size.py --no-log`) and from callers that only want the score."""
+    (`size.py --no-log`) and from callers that only want the score. `inductor_q`
+    (default None = ideal, unchanged) gives inductors finite Q so real
+    inductor-bearing topologies do not hit the ideal-branch singularity that
+    finding #10 / R1 flagged -- HANDOVER-EXEC §6.1's "size with inductor_q=12"."""
     import bias
     from novelty import wl_features
-    nl, inserter, rep, swept = bias.insert_bias(topo, sweep=True)
+    kw = {"inductor_q": inductor_q} if inductor_q else {}
+    nl, inserter, rep, swept = bias.insert_bias(topo, sweep=True, **kw)
     if rep.get("skipped") or not nl.two_port:
         return None
     body = E.body_of(nl.emit())
@@ -178,7 +194,8 @@ def size_topology(topo, spec, seed=1, n_candidates=6, sgd_iters=6, cgd_iters=1,
     if log:
         _log_l2(spec, m, feas, n_evals, points, best_x, decode(best_x), best_obj,
                 topo, wl_features(topo)[0], provenance,
-                _zoaf_cfg(seed, n_candidates, sgd_iters, cgd_iters, "candidate-v1"),
+                _zoaf_cfg(seed, n_candidates, sgd_iters, cgd_iters, "candidate-v1",
+                          inductor_q=inductor_q),
                 repeat_probe=repeat_probe)
     if m is None:
         return {"metrics": None, "feasible": False, "n_evals": n_evals}
@@ -241,6 +258,56 @@ def scoreboard(directory, spec_name="wifi24", seed=1, max_candidates=4, log=True
     return n_feas
 
 
+def backfill_corpus(spec_name="wifi24", indices=None, seed=1, inductor_q=12,
+                    limit=None, log=True):
+    """Backfill L2 rows for the in-scope corpus LNAs (01-DATA §4 item 1).
+
+    Sizes every screen-passing corpus LNA vs `spec` and logs one L2 row each.
+    Idempotent: a (wl_hash, spec) key already in the store is skipped, so an
+    interrupted run resumes cleanly on relaunch. Inductors get finite Q by
+    default (real corpus LNAs need it -- HANDOVER-EXEC §6.1)."""
+    from bias import topo_from_index, REPO
+    from novelty import wl_features
+    spec = _spec_for_sizing(spec_name)
+    if indices is None:
+        indices = list(range(461, 493)) + list(range(1081, 1091))
+    done = ds.existing_l2_keys()
+    print(f"corpus L2 backfill vs {spec_name} (inductor_q={inductor_q}, nf gated "
+          f"off): {len(indices)} candidate indices\n")
+    print(f"{'idx':>5} {'scr':>4} {'dev':>3} {'sims':>5} {'S11':>7} {'S21':>7} "
+          f"{'Idd':>6} {'feasible':>9}")
+    n_sized = n_feas = n_skip = 0
+    for i in indices:
+        p = os.path.join(REPO, "Dataset", str(i), f"Sequence_total{i}.npy")
+        if not os.path.exists(p):
+            continue
+        topo = topo_from_index(i)
+        if not spec.structural_screen(topo)[0]:
+            print(f"{i:>5} {'no':>4} {topo.n_devices:>3}   (screen reject)")
+            continue
+        if (wl_features(topo)[0], spec.name) in done:
+            n_skip += 1
+            print(f"{i:>5} {'yes':>4} {topo.n_devices:>3}   (already labeled, skip)")
+            continue
+        res = size_topology(topo, spec, seed=seed, inductor_q=inductor_q, log=log,
+                            provenance={"source_arm": "corpus", "index": i,
+                                        "inductor_q": inductor_q})
+        n_sized += 1
+        if res is None or res["metrics"] is None:
+            print(f"{i:>5} {'yes':>4} {topo.n_devices:>3}   {'-':>5}  (bias/sim failed)")
+        else:
+            m = res["metrics"]
+            n_feas += int(res["feasible"])
+            print(f"{i:>5} {'yes':>4} {topo.n_devices:>3} {res['n_evals']:>5} "
+                  f"{m['s11_db']:>7.1f} {m['s21_db']:>7.1f} {m.get('idd_ma') or 0:>6.2f} "
+                  f"{'FEASIBLE' if res['feasible'] else 'no':>9}")
+        if limit and n_sized >= limit:
+            print(f"  (limit {limit} reached)")
+            break
+    print(f"\nsized {n_sized} new, {n_feas} feasible, {n_skip} already-present")
+    return n_sized
+
+
 def size_anchor(spec_name="wifi24", seed=1, log=True):
     spec = _spec_for_sizing(spec_name)
     print("note: nf_db treated as unsupported (port-noise harness gap); "
@@ -283,8 +350,14 @@ def main():
                     help="run the stage-B anchor re-derivation test")
     ap.add_argument("--scoreboard", metavar="DIR",
                     help="size the top spec-passing candidates in a generation dir")
+    ap.add_argument("--corpus-l2", action="store_true",
+                    help="backfill L2 rows for the in-scope corpus LNAs (01-DATA §4)")
     ap.add_argument("--spec", default="wifi24")
-    ap.add_argument("--n", type=int, default=4, help="max candidates for --scoreboard")
+    ap.add_argument("--n", type=int, default=0,
+                    help="max candidates (--scoreboard, default 4) / max new "
+                         "labels (--corpus-l2, default all)")
+    ap.add_argument("--inductor-q", type=int, default=12,
+                    help="finite inductor Q for --corpus-l2 sizing (0 = ideal)")
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--no-log", action="store_true",
                     help="do not append L2/point rows to the label store")
@@ -294,9 +367,14 @@ def main():
         return 0 if size_anchor(args.spec, seed=args.seed, log=log) else 1
     if args.scoreboard:
         scoreboard(args.scoreboard, args.spec, seed=args.seed,
-                   max_candidates=args.n, log=log)
+                   max_candidates=(args.n or 4), log=log)
         return 0
-    ap.error("give --anchor or --scoreboard DIR")
+    if args.corpus_l2:
+        backfill_corpus(args.spec, seed=args.seed, log=log,
+                        inductor_q=(args.inductor_q or None),
+                        limit=(args.n or None))
+        return 0
+    ap.error("give --anchor, --scoreboard DIR, or --corpus-l2")
 
 
 if __name__ == "__main__":

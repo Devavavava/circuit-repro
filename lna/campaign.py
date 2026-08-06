@@ -214,7 +214,9 @@ def write_report(tasks, results, spec_name):
 
 # ------------------------------------------------------------------------ CLI
 def run_night(spec_name="wifi24", limit=None, dry_run=False, quota=None,
-              gen_glob=None):
+              gen_glob=None, gen_quota=None):
+    if gen_quota is not None:
+        quota = dict(quota or QUOTA, G=gen_quota)   # overnight: label many G
     tasks = pick_quota(spec_name, quota=quota, gen_glob=gen_glob)
     if limit:
         # keep the stratum mix under a small limit: round-robin by stratum
@@ -262,11 +264,13 @@ def main():
     ap.add_argument("--spec", default="wifi24")
     ap.add_argument("--limit", type=int, help="cap tasks (testing)")
     ap.add_argument("--gen-glob", help="override the generated-topology glob")
+    ap.add_argument("--gen-quota", type=int,
+                    help="stratum-G quota for one run (overnight: e.g. 300)")
     args = ap.parse_args()
     if not (args.night or args.dry_run):
         ap.error("give --night or --dry-run")
     return run_night(args.spec, limit=args.limit, dry_run=args.dry_run,
-                     gen_glob=args.gen_glob)
+                     gen_glob=args.gen_glob, gen_quota=args.gen_quota)
 
 
 if __name__ == "__main__":

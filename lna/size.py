@@ -341,16 +341,22 @@ def _size_ref(deck, sizable, fixed, spec_name, recipe, label, seed=1, log=True):
     print(f"{label} vs {spec_name}: {len(names)} params, ZOAF (feasibility-first).")
     best_x, best_obj, n_evals = run_zoaf(obj, names, seed=seed)
     m = evaluate(best_x)
+    prov = {"source_arm": recipe.split("-")[0], "ref_deck": deck, "seed": seed}
+    # reference decks have no token topology, so key them by deck name -- otherwise
+    # every ref row hashes to (None, spec) and they collide.
+    if m is None:
+        print(f"\nZOAF: {n_evals} sims -- sizing FAILED (no metrics; deck params?)")
+        if log:
+            _log_l2(spec, None, False, n_evals, points, best_x, decode(best_x),
+                    best_obj, None, f"ref:{deck}", prov,
+                    _zoaf_cfg(seed, 8, 8, 2, recipe))
+        return False, None
     if log:
         m = _enrich_nf(body, decode(best_x), spec, m)   # physical NF for the row
     feas, viol = spec.feasible(m)
     if log:
-        # reference decks have no token topology, so key them by deck name --
-        # otherwise every ref row hashes to (None, spec) and they collide.
         _log_l2(spec, m, feas, n_evals, points, best_x, decode(best_x), best_obj,
-                None, f"ref:{deck}",
-                {"source_arm": recipe.split("-")[0], "ref_deck": deck, "seed": seed},
-                _zoaf_cfg(seed, 8, 8, 2, recipe))
+                None, f"ref:{deck}", prov, _zoaf_cfg(seed, 8, 8, 2, recipe))
     print(f"\nZOAF: {n_evals} sims, best objective {best_obj:.4f}")
     print(spec.report(m))
     print("\nsized values:")

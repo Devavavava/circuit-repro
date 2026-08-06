@@ -103,11 +103,12 @@ def run_and_extract(body, params, spec):
     return metrics
 
 
-def body_of(deck_path):
-    """Strip a reference deck to its body (drop .param and .control..end)."""
+def body_of(deck):
+    """Strip a deck (text, or a path) to its body (drop .param and .control..end)."""
+    text = deck if "\n" in deck else open(deck, encoding="utf-8").read()
     body = []
     skip = False
-    for ln in open(deck_path, encoding="utf-8"):
+    for ln in text.splitlines():
         s = ln.strip()
         if s.lower().startswith(".control"):
             skip = True

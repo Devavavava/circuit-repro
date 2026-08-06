@@ -436,9 +436,18 @@ out). It also surfaces a real **spec-vs-topology gap**: the single-stage referen
 caps at ~7 dB (WP-REF R3 — a 50 Ω output port loads the drain) while all three
 specs want S21 ≥ 12–15 dB, which needs output impedance matching (tapped tank /
 buffer), not more optimizer budget. NF is gated off here (the port-noise harness
-gap, R3). Remaining: candidate sizing over the best generation arm, the NF harness
-fix, and a higher-gain topology — Gate G4 (≥1 novel topology sized to full
-feasibility) is still open, now blocked on the topology, not the loop.
+gap, R3).
+
+**Candidate sizing, end to end** (`size.py --scoreboard`): the full pipeline —
+spec → generated topology (P2 arm) → `bias.insert_bias` → ZOAF over the `.param`
+surface → scored — runs on real generated circuits. A P2 candidate sizes through
+234 simulations. But **0 of the sampled candidates reach feasibility**: the
+gain ceiling (S21 ≤ ~7 dB) caps them all, and the larger 13-device topologies are
+hard to impedance-match (best S11 ≈ −2 dB) — arbitrary generated tangles are not
+matchable the way an archetype is. So the machinery is proven end to end, but
+**Gate G4 needs both a gain-capable topology and cleaner (archetype-like)
+candidates** — i.e. it waits on a higher-gain reference *and* P5's template corpus,
+not on any missing pipeline stage.
 
 ---
 

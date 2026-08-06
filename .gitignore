@@ -38,6 +38,10 @@ lna/out/*/seq*.txt
 lna/out/*.pth
 lna/work/
 
+# Label store (plans2/01-DATA §2): L2/L1 tables + snapshots are precious and
+# stay in git; the point-row table is a bulky, regenerable-ish byproduct.
+lna/data/sim_points.jsonl
+
 # ─── Python / OS noise ────────────────────────────────────────────────────
 __pycache__/
 *.py[cod]

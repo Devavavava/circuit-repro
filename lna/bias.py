@@ -303,11 +303,12 @@ def baseline_conducts(topo):
     return sum(per.values()), len(per)
 
 
-def validate(indices):
+def validate(indices, log=False):
     """WP-BIAS §4 validation table over the dataset LNAs.
 
     'on' = |Id| >= 50 uA (what bias controls); 'sat' additionally needs
-    |Vds| >= 1.5|Vdsat| (load-sizing dependent -> WP-SIZE)."""
+    |Vds| >= 1.5|Vdsat| (load-sizing dependent -> WP-SIZE). With `log=True` this
+    doubles as the corpus L1 backfill (01-DATA §4): one L1 row per index."""
     import numpy as np
     print(f"{'idx':>5} {'MOS':>3} {'bias':>4} {'on0':>4} {'onB':>4} {'satB':>4}  note")
     n_all_on = n_all_sat = n_worse = n_eval = 0
@@ -318,7 +319,9 @@ def validate(indices):
         if not os.path.exists(p):
             continue
         topo = Topology([str(t) for t in np.load(p, allow_pickle=True)[0]])
-        nl, inserter, rep, swept = insert_bias(topo, sweep=True)
+        nl, inserter, rep, swept = insert_bias(
+            topo, sweep=True, log=log,
+            provenance={"source_arm": "corpus", "index": i})
         if rep.get("skipped"):
             print(f"{i:>5} {rep['n_mos']:>3}   -    -    -    -   {rep['skipped']}")
             continue
@@ -365,9 +368,28 @@ def validate(indices):
     return n_all_on, n_eval, n_worse
 
 
-def insert_bias(topo, sweep=False, **kw):
+def _log_l1(topo, rep, swept, provenance=None):
+    """Append one L1 row to the label store (01-DATA §1). Import is lazy so
+    bias.py stays import-light for pipeline_yield/size; logging never raises."""
+    try:
+        import datastore as ds
+        from novelty import wl_features
+        row = ds.row_l1(topo, rep, swept, provenance=provenance)
+        row["wl_hash"] = wl_features(topo)[0]
+        ds.append("l1_labels", row)
+        return True
+    except Exception as e:
+        print(f"  [log] WARN: L1 logging failed: {e}")
+        return False
+
+
+def insert_bias(topo, sweep=False, log=False, provenance=None, **kw):
     """Convenience: (netlist, inserter, report, sweep_result). Netlist has the
-    winning (or default) scaffolding already set."""
+    winning (or default) scaffolding already set.
+
+    With `log=True` a completed sweep is appended to the label store as one L1
+    row. Defaults off so library callers (size.py, pipeline_yield) do not log;
+    the bias.py --sweep/--validate CLI paths turn it on (01-DATA §3)."""
     nl = Netlist(topo, **kw)
     inserter = BiasInserter(nl)
     rep = inserter.report()
@@ -386,6 +408,8 @@ def insert_bias(topo, sweep=False, **kw):
         nl.set_extra(elements, params, inserter.value_overrides())
         rep["bias_applied"] = True
         rep["operating_point"] = knobs
+    if log and swept is not None:
+        _log_l1(topo, rep, swept, provenance=provenance)
     return nl, inserter, rep, swept
 
 
@@ -400,23 +424,29 @@ def main():
                     help="run the L1 feasibility grid and use the winning point")
     ap.add_argument("--validate", action="store_true",
                     help="run the §4 validation table over the dataset LNAs")
+    ap.add_argument("--no-log", action="store_true",
+                    help="do not append L1 rows to the label store")
     args = ap.parse_args()
+    log = not args.no_log
 
     if args.validate:
         idx = list(range(461, 493)) + list(range(1081, 1091))
-        validate(idx)
+        validate(idx, log=log)
         return 0
 
     if args.index is not None:
         topo = topo_from_index(args.index)
         label = f"index {args.index}"
+        prov = {"source_arm": "corpus", "index": args.index}
     elif args.sequence:
         topo = Topology(parse_arrow_file(args.sequence))
         label = args.sequence
+        prov = {"source_arm": "cli", "token_file": args.sequence}
     else:
         ap.error("give a sequence file or --index")
 
-    nl, inserter, rep, swept = insert_bias(topo, sweep=args.sweep)
+    nl, inserter, rep, swept = insert_bias(
+        topo, sweep=args.sweep, log=(args.sweep and log), provenance=prov)
 
     print(f"=== bias insertion: {label} ===")
     print(f"  MOS devices        : {rep['n_mos']}")

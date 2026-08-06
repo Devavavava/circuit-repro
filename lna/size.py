@@ -33,6 +33,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.abspath(os.path.join(HERE, "..", "misc", "ZOAF")))
 import extract as E  # noqa: E402
+import datastore as ds  # noqa: E402  (append-only label store, 01-DATA)
 from spec import Spec  # noqa: E402
 from zoaf.zoaf_core import ZOAF  # noqa: E402  (generic core; the *param variants pull PySpice)
 
@@ -55,9 +56,14 @@ def kind_ranges(spec):
     }
 
 
-def make_objective(body, spec, sizable, fixed):
+def make_objective(body, spec, sizable, fixed, points=None):
     """sizable: {param_name: kind}; fixed: {param_name: literal}. Returns
-    (objective_func for ZOAF, names, decode(x)->metrics helper)."""
+    (objective_func for ZOAF, names, decode(x)->metrics helper).
+
+    If `points` (a list) is given, every ngspice eval appends `(x, metrics)` to
+    it -- the free point-row byproduct (01-DATA §1). This only *reads* x and the
+    metrics the objective already computed, so the returned objective value is
+    byte-for-byte unchanged (the additive-hook invariant)."""
     names = list(sizable)
     ranges = kind_ranges(spec)
 
@@ -76,6 +82,8 @@ def make_objective(body, spec, sizable, fixed):
 
     def objective_func(x):
         m = evaluate(x)
+        if points is not None:
+            points.append(([float(v) for v in x], m))
         return SIM_FAIL_PENALTY if m is None else spec.objective(m)
 
     return objective_func, names, decode, evaluate
@@ -116,9 +124,42 @@ def classify_params(nl):
     return sizable, fixed
 
 
-def size_topology(topo, spec, seed=1, n_candidates=6, sgd_iters=6, cgd_iters=1):
-    """Bias-insert, then ZOAF-size a generated topology against `spec`."""
+def _zoaf_cfg(seed, n_candidates, sgd_iters, cgd_iters, recipe="anchor-v1"):
+    """The fixed label budget (01-DATA §5): labels are only comparable at equal
+    ZOAF budget, so the knobs that define it are stamped on every row."""
+    return {"recipe": recipe, "seed": seed, "n_candidates": n_candidates,
+            "n_starts": 4, "sgd_iters": sgd_iters, "cgd_iters": cgd_iters}
+
+
+def _log_l2(spec, metrics, feasible, n_evals, points, best_x, best_params,
+            best_obj, topo, wl_hash, provenance, zoaf_cfg, repeat_probe=False):
+    """Append an L2 row (+ its point rows) to the label store. Logging must never
+    break a sizing run, so any failure is warned and swallowed."""
+    try:
+        row = ds.row_l2(spec, metrics, feasible, n_evals, best_x=best_x,
+                        best_params=best_params, best_obj=best_obj, topo=topo,
+                        wl_hash=wl_hash, provenance=provenance, zoaf_cfg=zoaf_cfg)
+        status, _ = ds.append_l2(row, repeat_probe=repeat_probe)
+        if status == "appended" and points:
+            ds.append_all("sim_points",
+                          [ds.row_point(wl_hash, spec.name, x, m) for x, m in points])
+        extra = f" +{len(points)} points" if status == "appended" and points else ""
+        print(f"  [log] L2 {status}: ({wl_hash}, {spec.name}){extra}")
+        return status
+    except Exception as e:                       # logging is additive, never fatal
+        print(f"  [log] WARN: L2 logging failed: {e}")
+        return "error"
+
+
+def size_topology(topo, spec, seed=1, n_candidates=6, sgd_iters=6, cgd_iters=1,
+                  provenance=None, log=True, repeat_probe=False):
+    """Bias-insert, then ZOAF-size a generated topology against `spec`.
+
+    With `log=True` (default for CLI paths) the completed sizing run is appended
+    to the label store as one L2 row; pass `log=False` for throwaway experiments
+    (`size.py --no-log`) and from callers that only want the score."""
     import bias
+    from novelty import wl_features
     nl, inserter, rep, swept = bias.insert_bias(topo, sweep=True)
     if rep.get("skipped") or not nl.two_port:
         return None
@@ -126,14 +167,21 @@ def size_topology(topo, spec, seed=1, n_candidates=6, sgd_iters=6, cgd_iters=1):
     sizable, fixed = classify_params(nl)
     if not sizable:
         return None
-    obj, names, decode, evaluate = make_objective(body, spec, sizable, fixed)
+    points = [] if log else None
+    obj, names, decode, evaluate = make_objective(body, spec, sizable, fixed,
+                                                  points=points)
     best_x, best_obj, n_evals = run_zoaf(obj, names, seed=seed,
                                          n_candidates=n_candidates,
                                          sgd_iters=sgd_iters, cgd_iters=cgd_iters)
     m = evaluate(best_x)
+    feas, viol = (spec.feasible(m) if m is not None else (False, None))
+    if log:
+        _log_l2(spec, m, feas, n_evals, points, best_x, decode(best_x), best_obj,
+                topo, wl_features(topo)[0], provenance,
+                _zoaf_cfg(seed, n_candidates, sgd_iters, cgd_iters, "candidate-v1"),
+                repeat_probe=repeat_probe)
     if m is None:
         return {"metrics": None, "feasible": False, "n_evals": n_evals}
-    feas, viol = spec.feasible(m)
     return {"metrics": m, "feasible": feas, "viol": viol, "n_evals": n_evals,
             "best_obj": best_obj, "n_params": len(names)}
 
@@ -146,11 +194,12 @@ def _spec_for_sizing(name):
     return spec
 
 
-def scoreboard(directory, spec_name="wifi24", seed=1, max_candidates=4):
+def scoreboard(directory, spec_name="wifi24", seed=1, max_candidates=4, log=True):
     """Size the top spec-passing candidates in a generation dir end-to-end.
 
     The program's headline: spec in, novel generated topology -> bias -> ZOAF
-    sized -> scored. (NF gated off pending the harness fix.)"""
+    sized -> scored. (NF gated off pending the harness fix.) Every candidate's
+    sizing run is logged as an L2 row unless `log=False` (--no-log)."""
     import glob
     from topology import Topology, parse_arrow_file
     from novelty import corpus_reference, wl_features
@@ -163,17 +212,21 @@ def scoreboard(directory, spec_name="wifi24", seed=1, max_candidates=4):
         if not spec.structural_screen(topo)[0]:
             continue
         novel = wl_features(topo)[0] not in corpus_hashes
-        cands.append((os.path.basename(f), topo, novel))
+        cands.append((f, topo, novel))
         if len(cands) >= max_candidates:
             break
 
+    arm = os.path.basename(os.path.normpath(directory))
     print(f"sizing {len(cands)} spec-passing candidates from {directory} vs "
           f"{spec_name} (nf gated off)\n")
     print(f"{'candidate':<12} {'novel':>5} {'dev':>3} {'sims':>5} "
           f"{'S11':>7} {'S21':>7} {'Idd':>6} {'feasible':>9}")
     n_feas = 0
-    for name, topo, novel in cands:
-        res = size_topology(topo, spec, seed=seed)
+    for f, topo, novel in cands:
+        name = os.path.basename(f)
+        prov = {"source_arm": arm, "seed": seed,
+                "token_file": os.path.relpath(f, HERE).replace("\\", "/")}
+        res = size_topology(topo, spec, seed=seed, provenance=prov, log=log)
         if res is None or res["metrics"] is None:
             print(f"{name:<12} {str(novel):>5} {topo.n_devices:>3}   "
                   f"{'-':>5}  (bias/sim failed)")
@@ -188,7 +241,7 @@ def scoreboard(directory, spec_name="wifi24", seed=1, max_candidates=4):
     return n_feas
 
 
-def size_anchor(spec_name="wifi24", seed=1):
+def size_anchor(spec_name="wifi24", seed=1, log=True):
     spec = _spec_for_sizing(spec_name)
     print("note: nf_db treated as unsupported (port-noise harness gap); "
           "gating on S11/S21/Idd.")
@@ -199,13 +252,20 @@ def size_anchor(spec_name="wifi24", seed=1):
     fixed = {"pL": "45n", "pRB": "10k", "pQ": "10", "pF0": "2.442e9",
              "pRq": "{2*3.14159265*pF0*pLd/pQ}"}
 
-    obj, names, decode, evaluate = make_objective(body, spec, sizable, fixed)
+    points = [] if log else None
+    obj, names, decode, evaluate = make_objective(body, spec, sizable, fixed,
+                                                  points=points)
     print(f"anchor re-derivation vs {spec_name}: {len(names)} params, "
           f"ZOAF (feasibility-first).")
     best_x, best_obj, n_evals = run_zoaf(obj, names, seed=seed)
 
     m = evaluate(best_x)
     feas, viol = spec.feasible(m)
+    if log:
+        _log_l2(spec, m, feas, n_evals, points, best_x, decode(best_x), best_obj,
+                None, None,
+                {"source_arm": "anchor", "ref_deck": "ref24_csdeg.cir", "seed": seed},
+                _zoaf_cfg(seed, 8, 8, 2, "anchor-v1"))
     print(f"\nZOAF: {n_evals} sims, best objective {best_obj:.4f}")
     print(spec.report(m))
     print("\nsized values:")
@@ -226,11 +286,15 @@ def main():
     ap.add_argument("--spec", default="wifi24")
     ap.add_argument("--n", type=int, default=4, help="max candidates for --scoreboard")
     ap.add_argument("--seed", type=int, default=1)
+    ap.add_argument("--no-log", action="store_true",
+                    help="do not append L2/point rows to the label store")
     args = ap.parse_args()
+    log = not args.no_log
     if args.anchor:
-        return 0 if size_anchor(args.spec, seed=args.seed) else 1
+        return 0 if size_anchor(args.spec, seed=args.seed, log=log) else 1
     if args.scoreboard:
-        scoreboard(args.scoreboard, args.spec, seed=args.seed, max_candidates=args.n)
+        scoreboard(args.scoreboard, args.spec, seed=args.seed,
+                   max_candidates=args.n, log=log)
         return 0
     ap.error("give --anchor or --scoreboard DIR")
 

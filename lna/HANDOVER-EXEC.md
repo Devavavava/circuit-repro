@@ -11,22 +11,41 @@ exactly where to resume. Read `WORKLOG.md` (entries R1/R2 are mine) and
 
 ---
 
-## Session 2 — Phase 2 begins (learned critic); plans2 Stage-0 day 1 DONE
+## Session 2 — Phase 2 begins (learned critic); plans2 Stage-0 days 1–2 DONE
 
 **New roadmap:** `.claude/worktrees/lna-plans/lna/plans2/` (start at
 `00-OVERVIEW.md`) — the generate→size pipeline is now feature-complete; Phase 2
 adds a learned critic + guided search. Branch **`lna-data`** (off `lna-exec` @
-`00cd32e`), commit `66bfeef`, never pushed.
+`00cd32e`), through commit `27db7b5`, never pushed. Run `python lna/datastore.py
+--summary` to see the store.
 
-**Landed (WP-DATA, 01-DATA §2–4, sched Stage-0 day 1):**
+**Landed day 1 (WP-DATA, 01-DATA §2–4):**
 - `lna/datastore.py` — append-only JSONL label store (py-3.14, no new deps):
   L2/L1/point tables + snapshots; `margins_for` (per-metric margin vector, the
   critic's target — R1), `family_split` (WL-cosine≥0.9 families, the *only*
   split fn — R2), `append_l2` key-dedup, sha256-pinned snapshots.
-- Logging hooks (additive, proven byte-identical): `size.py --anchor/--scoreboard`
-  → L2 + point rows; `bias.py --sweep/--validate` → L1 rows. `--no-log` opt-outs.
-- Backfill day-1: **41 corpus L1** (`bias.py --validate`) + **stage-B anchor L2**
-  (304 sims + 304 points) committed under `lna/data/`. Regression quartet green.
+- Logging hooks (additive, proven byte-identical): `size.py --anchor/--scoreboard/
+  --corpus-l2` → L2 + point rows; `bias.py --sweep/--validate` → L1 rows.
+  `--no-log` opt-outs. **41 corpus L1** + **stage-B anchor L2** backfilled.
+
+**Landed day 2 (NF harness + corpus L2 backfill):**
+- **Corpus L2 backfill**: `size.py --corpus-l2` sized the **19** wifi24-screen-
+  passing corpus LNAs (finite Q). Store now **20 L2** (19 corpus + anchor),
+  **0 feasible** — all hit the S21 ceiling (finding #10), so the margins carry
+  the signal, not a feasibility bool (confirms R1). S21 spans −35→+11.9 dB.
+- **BUG FIXED — finite-Q candidate sizing was fatally broken** ("Undefined
+  parameter [pindw0]"): `E.body_of` strips `.param` lines, so to_spice's finite-Q
+  constants died; `classify_params` now re-declares them. `size_topology` takes
+  `inductor_q` (default ideal, unchanged).
+- **NF harness (finding #7 fixed + validated)**: `extract.measure_nf` /
+  `build_noise_deck` drive the noise analysis through a real **series-Rs source**
+  instead of the noiseless S-param port (which read *negative* NF with gain —
+  corpus 464 was −4.5 dB). Golden-locked: `python lna/extract.py --selftest`
+  reads 3.012 dB vs analytic 3.0103. `size.py` now records the physical NF in
+  every L2 row (`nf_method:"series_rs"`); **additive — NF stays out of the
+  objective**, so sizing/feasibility are unchanged.
+- Regression quartet green throughout (vocab MATCH, screen 59.4%, pipeline 40/42,
+  check_ref GREEN, calibrate met).
 
 **⚠ SETUP TRAP that cost this session ~20 min — read before running anything in a
 worktree.** The pipeline's runtime deps `misc/ZOAF/`, `AnalogGenie/` (Dataset
@@ -44,11 +63,25 @@ Junctions don't show in `git status` and won't be committed. (Or: just work in t
 main checkout on `lna-exec`.) These dirs probably belong in `.gitignore` +
 a setup note, but that's a repo-hygiene call left to the user.
 
-**Next (plans2/05-SCHEDULE Stage 0):** day 2 = NF harness fix (series-Rs noise
-source, finding #7) + corpus L2 vs `wifi24` overnight backfill (~34×5min);
-day 3 = gain-capable reference (output match/buffer, also closes Gate G4);
-day 4 = `templates.py` (P5 archetypes) + `campaign.py` first night.
-Gate C0 needs ≥150 L2 rows (≥25% templates) over 3 unattended nights.
+**Next (plans2/05-SCHEDULE Stage 0):**
+- **day 3 = gain-capable reference** (output match / source-follower buffer on
+  stage-B so *some* topology reaches S21 ≥ 12 hand-feasible vs wifi24). This is
+  the crux: it creates the **feasible class** the critic needs (store is 0/20
+  feasible now) and closes **Gate G4**. Note WORKLOG F1 — hand-designing a good
+  LNA was the hard failure; budget for it. Then `--corpus-l2` / a candidate pass
+  will start logging feasible rows.
+- **day 4 = `templates.py`** (P5 archetype corpus incl. buffered/matched
+  families) + **`campaign.py`** first night. Campaign needs concurrency-safe
+  store appends (current `append` is single-writer; parallel ngspice jobs must
+  not interleave-corrupt the JSONL — write per-job then merge, or lock).
+- Gate C0 needs ≥150 L2 rows (≥25% templates) over 3 unattended nights.
+
+**Deferred (deliberate, not blocking — 00-OVERVIEW #3 "don't block on NF"):**
+un-gating NF as a *hard constraint* in the objective (changes sizing; validate
+separately, and it desyncs from the current NF-out-of-objective labels), and
+adding the series-Rs NF as a baselined value in `check_ref` for the two hand ref
+decks (their .cir port setup needs a noise variant; low value — they're match
+anchors, not critic data).
 
 ---
 

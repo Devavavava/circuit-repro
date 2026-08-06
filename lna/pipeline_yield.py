@@ -87,6 +87,8 @@ def main():
     ap.add_argument("--keep", default="", help="directory to keep netlists in")
     ap.add_argument("--inductor-q", type=float, default=None,
                     help="finite inductor Q (series R = w0*L/Q); default ideal")
+    ap.add_argument("--bias", action="store_true",
+                    help="insert rule-based bias (bias.py) and add a biased+conducting stage")
     args = ap.parse_args()
 
     spec = None
@@ -98,9 +100,11 @@ def main():
     os.makedirs(workdir, exist_ok=True)
 
     stats = {"no_corpus": [], "below_score": [], "invalid": [],
-             "not_emittable": [], "sim_fail": [], "ok": []}
+             "not_emittable": [], "floating": [], "biased_off": [],
+             "sim_fail": [], "ok": []}
     reasons = {}
     considered = 0
+    conducting_ok = 0
 
     for i, toks in iter_sources(args):
         considered += 1
@@ -124,6 +128,16 @@ def main():
             stats["not_emittable"].append(i)
             reasons[i] = bad[0][1]
             continue
+        if args.bias:
+            from bias import insert_bias
+            nl, _, rep, swept = insert_bias(topo, sweep=True, inductor_q=args.inductor_q)
+            if rep.get("skipped"):
+                stats["floating"].append(i)
+                continue
+            if swept and swept["all_conduct"]:
+                conducting_ok += 1
+            else:
+                stats["biased_off"].append(i)   # simulates, but not all MOS conduct
         path = os.path.join(workdir, f"c{i}.cir")
         open(path, "w").write(nl.emit())
         ok, why, _ = run_ngspice(path)
@@ -142,14 +156,23 @@ def main():
     print(f"\n{'stage':<22}{'count':>7}   {'of total':>9}")
     print("-" * 42)
     below_label = "fails spec L0" if spec is not None else "below --min-score"
-    for k, label in (("no_corpus", "no preprocessed seq"),
-                     ("below_score", below_label),
-                     ("invalid", "structurally invalid"),
-                     ("not_emittable", "netlist not emittable"),
-                     ("sim_fail", "ngspice failed"),
-                     ("ok", "SIMULATES")):
+    rows = [("no_corpus", "no preprocessed seq"),
+            ("below_score", below_label),
+            ("invalid", "structurally invalid"),
+            ("not_emittable", "netlist not emittable")]
+    if args.bias:
+        rows.append(("floating", "floating (R-FLOAT skip)"))
+    rows += [("sim_fail", "ngspice failed"), ("ok", "SIMULATES")]
+    for k, label in rows:
         n = len(stats[k])
         print(f"{label:<22}{n:>7}   {100.0*n/total:>8.1f}%")
+    if args.bias:
+        n_ok = len(stats["ok"])
+        print("-" * 42)
+        print(f"{'  biased+conducting':<22}{conducting_ok:>7}   "
+              f"{100.0*conducting_ok/max(n_ok,1):>7.1f}% of sim")
+        print(f"{'  biased but MOS off':<22}{len(stats['biased_off']):>7}   "
+              "(all MOS on is the sizer's L1 starting denominator)")
 
     for k in ("not_emittable", "sim_fail"):
         if stats[k]:

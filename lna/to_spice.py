@@ -55,7 +55,22 @@ class Netlist(object):
         # a node reached only through ideal inductors + a MOS gate has an
         # undetermined branch current. Confirmed to resolve 1081. See 05-SIZE §4.
         self.inductor_q = inductor_q
+        # bias scaffolding injected by bias.py: {param: default} and raw element
+        # lines (already using this Netlist's node names). Kept out of the device
+        # loop so scaffolding never changes the topology's device identity.
+        self.extra_params = {}
+        self.extra_elements = []
+        # {param_name: value} to override an existing device .param default -- used
+        # by bias.py to raise a gate's mis-referenced pull-down resistor (still a
+        # .param the sizer owns), never to change connectivity.
+        self.value_overrides = {}
         self._label_nodes()
+
+    def set_extra(self, elements, params, value_overrides=None):
+        self.extra_elements = list(elements or [])
+        self.extra_params = dict(params or {})
+        self.value_overrides = dict(value_overrides or {})
+        return self
 
     def _label_nodes(self):
         """Give every electrical node a SPICE name; VSS becomes ground (0)."""
@@ -101,7 +116,9 @@ class Netlist(object):
                     break
         return bad
 
-    def emit(self):
+    def emit(self, mode="sparam"):
+        """mode 'sparam' -> the full op/sp/noise deck; 'opcheck' -> op only, with
+        per-MOS Id/Vds/Vdsat printed (used by bias.py's L1 feasibility sweep)."""
         t = self.t
         L = []
         A = L.append
@@ -112,7 +129,7 @@ class Netlist(object):
         A("")
 
         # ---- parameters -------------------------------------------------
-        A(f".param pVDD={self.vdd} pVB={self.vbias}")
+        A(f".param pVDD={self.vdd} pVB={self.value_overrides.get('pVB', self.vbias)}")
         if self.inductor_q:
             lo, hi, _ = self.freq
             f0 = (lo * hi) ** 0.5                 # geometric band centre
@@ -123,7 +140,10 @@ class Netlist(object):
                 w, l = DEFAULTS[b]
                 A(f".param p{d}W={w} p{d}L={l}")
             elif b in ("R", "C", "L"):
-                A(f".param p{d}V={DEFAULTS[b]}")
+                pv = self.value_overrides.get(f"p{d}V", DEFAULTS[b])
+                A(f".param p{d}V={pv}")
+        for pname, pval in sorted(self.extra_params.items()):
+            A(f".param {pname}={pval}")
         A("")
 
         # ---- supplies and bias ------------------------------------------
@@ -183,6 +203,13 @@ class Netlist(object):
                     A(f"L{d} {p} {n} {{p{d}V}}")
         A("")
 
+        # ---- inserted bias scaffolding (bias.py) --------------------------
+        if self.extra_elements:
+            A("* rule-based bias scaffolding (bias.py); excluded from screen/novelty")
+            for line in self.extra_elements:
+                A(line)
+            A("")
+
         # ---- analyses -----------------------------------------------------
         lo, hi, pts = self.freq
         A("* Dataset topologies are textbook schematics: they show the signal path")
@@ -193,7 +220,16 @@ class Netlist(object):
         A(".option rshunt=1e12")
         A(".control")
         A("op")
-        if self.two_port:
+        if mode == "opcheck":
+            # one labelled line per MOS so bias.py can read the operating point
+            for d in sorted(t.devices):
+                if base_of(d) in ("NM", "PM"):
+                    A(f"let id_{d}=@M{d}[id]")
+                    A(f"let vds_{d}=@M{d}[vds]")
+                    A(f"let vdsat_{d}=@M{d}[vdsat]")
+                    A(f"let vgs_{d}=@M{d}[vgs]")
+                    A(f"print id_{d} vds_{d} vdsat_{d} vgs_{d}")
+        elif self.two_port:
             A(f"sp lin {pts} {lo:g} {hi:g} 1")
             # A generated topology can leave a port fully disconnected, making
             # |S21| exactly 0; db(0) then aborts with "argument out of range".

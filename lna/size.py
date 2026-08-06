@@ -327,33 +327,30 @@ def backfill_corpus(spec_name="wifi24", indices=None, seed=1, inductor_q=12,
     return n_sized
 
 
-def size_anchor(spec_name="wifi24", seed=1, log=True):
+def _size_ref(deck, sizable, fixed, spec_name, recipe, label, seed=1, log=True):
+    """Size a hand-written reference deck vs a spec with ZOAF and (optionally) log
+    the L2 row. Shared by the stage-B anchor re-derivation and the tapped-C
+    gain-capable reference; returns (feasible, metrics)."""
     spec = _spec_for_sizing(spec_name)
     print("note: nf_db treated as unsupported (port-noise harness gap); "
           "gating on S11/S21/Idd.")
-
-    body = E.body_of(os.path.join(HERE, "ref", "ref24_csdeg.cir"))
-    sizable = {"pW": "W", "pLs": "L", "pLg": "L", "pLd": "L",
-               "pCex": "C", "pCtnk": "C", "pVB": "VB", "pVB2": "VB"}
-    fixed = {"pL": "45n", "pRB": "10k", "pQ": "10", "pF0": "2.442e9",
-             "pRq": "{2*3.14159265*pF0*pLd/pQ}"}
-
+    body = E.body_of(os.path.join(HERE, "ref", deck))
     points = [] if log else None
     obj, names, decode, evaluate = make_objective(body, spec, sizable, fixed,
                                                   points=points)
-    print(f"anchor re-derivation vs {spec_name}: {len(names)} params, "
-          f"ZOAF (feasibility-first).")
+    print(f"{label} vs {spec_name}: {len(names)} params, ZOAF (feasibility-first).")
     best_x, best_obj, n_evals = run_zoaf(obj, names, seed=seed)
-
     m = evaluate(best_x)
     if log:
         m = _enrich_nf(body, decode(best_x), spec, m)   # physical NF for the row
     feas, viol = spec.feasible(m)
     if log:
+        # reference decks have no token topology, so key them by deck name --
+        # otherwise every ref row hashes to (None, spec) and they collide.
         _log_l2(spec, m, feas, n_evals, points, best_x, decode(best_x), best_obj,
-                None, None,
-                {"source_arm": "anchor", "ref_deck": "ref24_csdeg.cir", "seed": seed},
-                _zoaf_cfg(seed, 8, 8, 2, "anchor-v1"))
+                None, f"ref:{deck}",
+                {"source_arm": recipe.split("-")[0], "ref_deck": deck, "seed": seed},
+                _zoaf_cfg(seed, 8, 8, 2, recipe))
     print(f"\nZOAF: {n_evals} sims, best objective {best_obj:.4f}")
     print(spec.report(m))
     print("\nsized values:")
@@ -361,7 +358,37 @@ def size_anchor(spec_name="wifi24", seed=1, log=True):
         if k in sizable:
             print(f"    {k:<7} {v}")
     print(f"\n=> {'FEASIBLE' if feas else 'infeasible: ' + str({k: round(v,3) for k,v in viol.items()})}"
-          "  [anchor re-derivation]")
+          f"  [{label}]")
+    return feas, m
+
+
+def size_anchor(spec_name="wifi24", seed=1, log=True):
+    sizable = {"pW": "W", "pLs": "L", "pLg": "L", "pLd": "L",
+               "pCex": "C", "pCtnk": "C", "pVB": "VB", "pVB2": "VB"}
+    fixed = {"pL": "45n", "pRB": "10k", "pQ": "10", "pF0": "2.442e9",
+             "pRq": "{2*3.14159265*pF0*pLd/pQ}"}
+    feas, _ = _size_ref("ref24_csdeg.cir", sizable, fixed, spec_name,
+                        "anchor-v1", "anchor re-derivation", seed=seed, log=log)
+    return feas
+
+
+def size_tapped(spec_name="wifi24", seed=1, log=True):
+    """Size the tapped-C gain-capable reference (Stage-0 day 3). The tapped
+    transformer decouples gain from the 50 ohm load, so this is the deck expected
+    to reach S21 >= 12 -- the first *feasible* label (Gate G4 by hand).
+
+    The input match (Ls/Lg/Cex) and the series tap cap Ct1 are FIXED at the
+    reference's known-good values -- the cascode isolates the input from the
+    output tank, so the match does not need re-tuning per output-gain point, and
+    freezing them keeps ZOAF out of the degenerate 'collapse the transformer'
+    basin (Ct1->max, gain->0) it fell into when everything was free. ZOAF sizes
+    the gain/bias/transform knobs {W, Ld, Ct2, VB, VB2}."""
+    sizable = {"pW": "W", "pLd": "L", "pCt2": "C", "pVB": "VB", "pVB2": "VB"}
+    fixed = {"pL": "45n", "pRB": "10k", "pQ": "10", "pF0": "2.442e9",
+             "pRq": "{2*3.14159265*pF0*pLd/pQ}",
+             "pLs": "1.35n", "pLg": "8n", "pCex": "440f", "pCt1": "0.3p"}
+    feas, _ = _size_ref("ref24_tapped.cir", sizable, fixed, spec_name,
+                        "tapped-v1", "tapped-C gain reference", seed=seed, log=log)
     return feas
 
 
@@ -369,6 +396,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--anchor", action="store_true",
                     help="run the stage-B anchor re-derivation test")
+    ap.add_argument("--tapped", action="store_true",
+                    help="size the tapped-C gain-capable reference (Gate G4 by hand)")
     ap.add_argument("--scoreboard", metavar="DIR",
                     help="size the top spec-passing candidates in a generation dir")
     ap.add_argument("--corpus-l2", action="store_true",
@@ -386,6 +415,8 @@ def main():
     log = not args.no_log
     if args.anchor:
         return 0 if size_anchor(args.spec, seed=args.seed, log=log) else 1
+    if args.tapped:
+        return 0 if size_tapped(args.spec, seed=args.seed, log=log) else 1
     if args.scoreboard:
         scoreboard(args.scoreboard, args.spec, seed=args.seed,
                    max_candidates=(args.n or 4), log=log)

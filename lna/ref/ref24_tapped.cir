@@ -1,0 +1,67 @@
+* Stage-B core + tapped-C output match: the gain-capable reference (plans2 Stage-0 day 3)
+*
+* WHY: the stage-B CS+Cex cascode (ref24_csdeg.cir) sizes to S21 ~ 6.9 dB and no
+* higher -- the 50 ohm output port loads the drain directly (Cout ~ short at RF),
+* so the voltage gain gm*R_load is pinned by the 50 ohm (finding #10). Every real
+* spec's S21 floor (12-15 dB) is above that ceiling, which is why the store is
+* 0/N feasible.
+*
+* FIX: a tapped capacitor transformer at the drain. The cascode M2 isolates the
+* input from the drain (H-Q1: tank detune does NOT move Zin), so transforming the
+* output is independent of the S11 match -- exactly why the tapped approach is
+* clean here. The load 50 ohm sits at the tap node; looking from the drain it is
+* stepped up to ~50*(1+Ct2/Ct1)^2, so the drain sees a high R and the gain rises,
+* while the output is still matched to 50 ohm. Ct1/Ct2 also form (with Ld) the
+* tuned tank. Everything is a .param so the ZOAF sizer owns the final values;
+* this deck is the topology + realizable starting point.
+.include C:/Users/Devavrat/circuit-repro/AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt
+
+* Hand-feasible starting point (grid search, plans2 Stage-0 day 3): at these
+* values the deck is FEASIBLE vs wifi24 -- S11 = -16.6 dB, S21 = 14.7 dB,
+* Idd = 3.9 mA (Gate G4 by hand). ZOAF (size.py --tapped) refines from here.
+.param pW=30u pL=45n pVB=0.40 pVB2=0.8
+.param pLs=1.35n pLg=8.0n pCex=440f pRB=10k
+.param pLd=10n pQ=10 pF0=2.442e9
+.param pRq={2*3.14159265*pF0*pLd/pQ}       ; finite-Q tank series R
+.param pCt1=0.3p pCt2=0.5p                  ; tapped-C transformer (n = 1+Ct2/Ct1)
+
+Vdd  VDD 0 1.1
+Vb   VB  0 {pVB}
+Cbyp VB  0 10p
+Vb2  VB2 0 {pVB2}
+RB2  VB2 cg {pRB}
+Cbyp2 cg 0 10p                             ; cascode gate AC-grounded (H-Q1 lesson)
+
+Vp1  p1 0 dc 0 ac 1 portnum 1 z0 50
+Cin  p1 gin 1u                             ; DC block
+Lg   gin g {pLg}                           ; gate series inductor
+RB   VB  g {pRB}                           ; gate bias feed
+M1   d1 g s 0 nmos W={pW} L={pL}           ; input CS device
+Cex  g  s {pCex}                           ; explicit gate-source cap -- the F1 fix
+Ls   s  0 {pLs}                            ; source degeneration
+M2   d cg d1 0 nmos W={pW} L={pL}          ; cascode (drain = d, isolates input)
+
+Ld   VDD ltap {pLd}                        ; load inductor to VDD ...
+Rq   ltap d {pRq}                          ;   ... with finite Q
+Ct1  d  ttap {pCt1}                        ; tapped-C: series cap drain -> tap
+Ct2  ttap 0  {pCt2}                        ;   ... shunt cap tap -> ground
+Cout ttap p2 1u                            ; couple tap to the 50 ohm port
+Vp2  p2 0 dc 0 ac 0 portnum 2 z0 50
+
+.option rshunt=1e12
+.control
+op
+let idd = -i(Vdd)
+print idd @m1[gm] @m1[vds] @m2[gm] @m2[vds]
+sp lin 101 2.35e9 2.55e9 1
+let s11db = db(mag(S_1_1)+1e-30)
+let s21db = db(mag(S_2_1)+1e-30)
+let zre = real(50*(1+S_1_1)/(1-S_1_1))
+let zim = imag(50*(1+S_1_1)/(1-S_1_1))
+meas sp REF_S11_F0     find s11db at=2.442e9
+meas sp REF_S11_BANDMX max s11db from=2.4e9 to=2.4835e9
+meas sp REF_S21_F0     find s21db at=2.442e9
+meas sp REF_ZRE_F0     find zre at=2.442e9
+meas sp REF_ZIM_F0     find zim at=2.442e9
+.endc
+.end

@@ -143,6 +143,23 @@ def _zoaf_cfg(seed, n_candidates, sgd_iters, cgd_iters, recipe="anchor-v1",
             "inductor_q": inductor_q}
 
 
+def _enrich_nf(body, params, spec, m):
+    """Replace the port-based (unphysical, finding #7) nf_db with the series-Rs NF
+    measured at the sized point. Additive: NF is `unsupported` in the sizing spec,
+    so this changes only the logged metric, never sizing/feasibility/objective.
+    One extra ~1 s ngspice call per label; defensive (keeps the old value on
+    failure)."""
+    if m is None:
+        return m
+    try:
+        nf = E.measure_nf(body, params, spec)
+        if nf is not None:
+            return dict(m, nf_db=nf, nf_method="series_rs")
+    except Exception:
+        pass
+    return m
+
+
 def _log_l2(spec, metrics, feasible, n_evals, points, best_x, best_params,
             best_obj, topo, wl_hash, provenance, zoaf_cfg, repeat_probe=False):
     """Append an L2 row (+ its point rows) to the label store. Logging must never
@@ -190,6 +207,8 @@ def size_topology(topo, spec, seed=1, n_candidates=6, sgd_iters=6, cgd_iters=1,
                                          n_candidates=n_candidates,
                                          sgd_iters=sgd_iters, cgd_iters=cgd_iters)
     m = evaluate(best_x)
+    if log:
+        m = _enrich_nf(body, decode(best_x), spec, m)   # physical NF for the row
     feas, viol = (spec.feasible(m) if m is not None else (False, None))
     if log:
         _log_l2(spec, m, feas, n_evals, points, best_x, decode(best_x), best_obj,
@@ -327,6 +346,8 @@ def size_anchor(spec_name="wifi24", seed=1, log=True):
     best_x, best_obj, n_evals = run_zoaf(obj, names, seed=seed)
 
     m = evaluate(best_x)
+    if log:
+        m = _enrich_nf(body, decode(best_x), spec, m)   # physical NF for the row
     feas, viol = spec.feasible(m)
     if log:
         _log_l2(spec, m, feas, n_evals, points, best_x, decode(best_x), best_obj,

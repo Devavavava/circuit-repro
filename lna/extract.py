@@ -103,6 +103,82 @@ def run_and_extract(body, params, spec):
     return metrics
 
 
+def build_noise_deck(body, params, f0, f_lo, f_hi, rs=50.0, rl=50.0):
+    """Rewrite a port-driven DUT body into a **series-Rs noise deck**.
+
+    NF from `inoise_spectrum` with an S-parameter *port* source is unphysical
+    (goes negative) once the stage has gain, because the port's z0 is not
+    modelled as a noisy source resistor (WORKLOG R3 / finding #7). The fix is a
+    real series source resistance: swap the port-1 source for `Vnz -> Rns(50) ->
+    <p1 node>` (keeping the DC-block cap the port already had) and the port-2
+    source for a `Rnl(50)` load. DC is unchanged (both port sources were dc 0 and
+    the blocking caps are kept), so the op point -- and thus the device noise --
+    is identical to the sizing deck. Golden-validated: an ideal amp with an input
+    resistor Rn = Rs reads NF = 10*log10(1+Rn/Rs) = 3.01 dB.
+
+    Returns (deck_text, node_in, node_out) or (None, None, None) if the body has
+    no recognizable two-port (no portnum 1/2 lines)."""
+    lines, node_in, node_out = [], None, None
+    for ln in body.splitlines():
+        toks = ln.split()
+        low = ln.lower()
+        if "portnum" in low and len(toks) >= 2:
+            pnode = toks[1]
+            if re.search(r"portnum\s+1\b", low):
+                node_in = pnode
+                lines.append("Vnz nz 0 dc 0 ac 1")
+                lines.append(f"Rns nz {pnode} {rs:g}")
+                continue
+            if re.search(r"portnum\s+2\b", low):
+                node_out = pnode
+                lines.append(f"Rnl {pnode} 0 {rl:g}")
+                continue
+        lines.append(ln)
+    if node_in is None or node_out is None:
+        return None, None, None
+    deck = ["\n".join(lines)]
+    if params:
+        deck.append(".param " + " ".join(f"{k}={v}" for k, v in params.items()))
+    nf_idx = round((f0 - f_lo) / (f_hi - f_lo) * 50) if f_hi > f_lo else 0
+    nf_idx = max(0, min(50, nf_idx))
+    deck += [".control", "op",
+             f"noise v({node_out}) Vnz lin 51 {f_lo:g} {f_hi:g}",
+             "setplot noise1",
+             f"let nfv = 10*log10((inoise_spectrum*inoise_spectrum)/{K4TRS:.6e})",
+             f"let m_nf_f0 = nfv[{nf_idx}]", "print m_nf_f0",
+             ".endc", ".end"]
+    return "\n".join(deck) + "\n", node_in, node_out
+
+
+def measure_nf(body, params, spec, rs=50.0):
+    """Physical noise figure at f0 via a series-Rs source (finding #7 fix).
+
+    Returns nf_db (float) or None on failure. Separate from run_and_extract's
+    op/sp block: NF needs a different input drive (series-Rs, not a port), so it
+    is a second ~1 s ngspice call, made once per label at the sized point rather
+    than every ZOAF iteration."""
+    band = spec.band
+    f0 = float(band.get("f0", 2.442e9))
+    f_lo = float(band.get("f_lo", f0 * 0.98))
+    f_hi = float(band.get("f_hi", f0 * 1.02))
+    deck, _, _ = build_noise_deck(body, params, f0, f_lo, f_hi, rs=rs)
+    if deck is None:
+        return None
+    d = tempfile.mkdtemp(prefix="nf_")
+    p = os.path.join(d, "nf.cir")
+    open(p, "w").write(deck)
+    try:
+        r = subprocess.run([NGSPICE, "-b", p], capture_output=True,
+                           text=True, timeout=60)
+    except subprocess.TimeoutExpired:
+        return None
+    out = (r.stdout or "") + (r.stderr or "")
+    if "singular matrix" in out.lower():
+        return None
+    m = re.search(rf"m_nf_f0\s*=\s*{_NUM}", out, re.IGNORECASE)
+    return float(m.group(1)) if m else None
+
+
 def body_of(deck):
     """Strip a deck (text, or a path) to its body (drop .param and .control..end)."""
     text = deck if "\n" in deck else open(deck, encoding="utf-8").read()
@@ -120,3 +196,38 @@ def body_of(deck):
             continue
         body.append(ln.rstrip())
     return "\n".join(body)
+
+
+def nf_selftest():
+    """Golden analytic check of the series-Rs noise harness (finding #7 fix).
+
+    An ideal gain-10 VCVS with a noiseless everything except source Rs=50 and an
+    equal input resistor Rn=50 has NF = 10*log10(1 + Rn/Rs) = 3.0103 dB exactly.
+    Confirms the measurement + the inoise^2/4kTRs formula independent of any
+    device model. Returns (ok, measured_nf)."""
+    deck = "\n".join([
+        "* NF golden: ideal gain-10 VCVS, series Rs=50 noisy, input Rn=50",
+        "Vn nin 0 dc 0 ac 1", "Rs nin a 50", "Rn a b 50",
+        "Eamp out 0 b 0 10", "RL out 0 50",
+        ".control", "op", "noise v(out) Vn lin 51 1e9 4e9", "setplot noise1",
+        f"let nfv = 10*log10((inoise_spectrum*inoise_spectrum)/{K4TRS:.6e})",
+        "let m_nf_f0 = nfv[25]", "print m_nf_f0", ".endc", ".end"])
+    d = tempfile.mkdtemp(prefix="nfself_")
+    p = os.path.join(d, "nf.cir")
+    open(p, "w").write(deck)
+    r = subprocess.run([NGSPICE, "-b", p], capture_output=True, text=True, timeout=60)
+    out = (r.stdout or "") + (r.stderr or "")
+    m = re.search(rf"m_nf_f0\s*=\s*{_NUM}", out, re.IGNORECASE)
+    nf = float(m.group(1)) if m else None
+    ok = nf is not None and abs(nf - 3.0103) <= 0.05
+    return ok, nf
+
+
+if __name__ == "__main__":
+    import sys as _sys
+    if "--selftest" in _sys.argv:
+        ok, nf = nf_selftest()
+        print(f"NF harness self-test: measured {nf} dB, expected 3.0103 dB -- "
+              f"{'PASS' if ok else 'FAIL'}")
+        _sys.exit(0 if ok else 1)
+    print("extract.py: use --selftest for the NF golden check")

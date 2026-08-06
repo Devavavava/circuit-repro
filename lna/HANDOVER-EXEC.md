@@ -11,6 +11,47 @@ exactly where to resume. Read `WORKLOG.md` (entries R1/R2 are mine) and
 
 ---
 
+## Session 2 — Phase 2 begins (learned critic); plans2 Stage-0 day 1 DONE
+
+**New roadmap:** `.claude/worktrees/lna-plans/lna/plans2/` (start at
+`00-OVERVIEW.md`) — the generate→size pipeline is now feature-complete; Phase 2
+adds a learned critic + guided search. Branch **`lna-data`** (off `lna-exec` @
+`00cd32e`), commit `66bfeef`, never pushed.
+
+**Landed (WP-DATA, 01-DATA §2–4, sched Stage-0 day 1):**
+- `lna/datastore.py` — append-only JSONL label store (py-3.14, no new deps):
+  L2/L1/point tables + snapshots; `margins_for` (per-metric margin vector, the
+  critic's target — R1), `family_split` (WL-cosine≥0.9 families, the *only*
+  split fn — R2), `append_l2` key-dedup, sha256-pinned snapshots.
+- Logging hooks (additive, proven byte-identical): `size.py --anchor/--scoreboard`
+  → L2 + point rows; `bias.py --sweep/--validate` → L1 rows. `--no-log` opt-outs.
+- Backfill day-1: **41 corpus L1** (`bias.py --validate`) + **stage-B anchor L2**
+  (304 sims + 304 points) committed under `lna/data/`. Regression quartet green.
+
+**⚠ SETUP TRAP that cost this session ~20 min — read before running anything in a
+worktree.** The pipeline's runtime deps `misc/ZOAF/`, `AnalogGenie/` (Dataset
+.npy), and `AutoCkt/repo/` (the 45nm model include) are **untracked** — present
+only in the main checkout, absent from any fresh `git worktree`. Symptom: ngspice
+ops silently return None → "0 conducting" everywhere. Fix used here: junction them
+in (non-destructive, main copy untouched):
+```
+# PowerShell, from the worktree root
+New-Item -ItemType Junction misc         -Target C:\...\circuit-repro\misc
+New-Item -ItemType Junction AnalogGenie  -Target C:\...\circuit-repro\AnalogGenie
+New-Item -ItemType Junction AutoCkt\repo -Target C:\...\circuit-repro\AutoCkt\repo
+```
+Junctions don't show in `git status` and won't be committed. (Or: just work in the
+main checkout on `lna-exec`.) These dirs probably belong in `.gitignore` +
+a setup note, but that's a repo-hygiene call left to the user.
+
+**Next (plans2/05-SCHEDULE Stage 0):** day 2 = NF harness fix (series-Rs noise
+source, finding #7) + corpus L2 vs `wifi24` overnight backfill (~34×5min);
+day 3 = gain-capable reference (output match/buffer, also closes Gate G4);
+day 4 = `templates.py` (P5 archetypes) + `campaign.py` first night.
+Gate C0 needs ≥150 L2 rows (≥25% templates) over 3 unattended nights.
+
+---
+
 ## 1. TL;DR — what shipped this session
 
 | Plan item | Status | Key result |

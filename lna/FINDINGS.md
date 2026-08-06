@@ -346,6 +346,41 @@ read on copying pressure: over half of LNA-shaped outputs at prefix 12 are exact
 WL-copies. **This is the frozen baseline. Adoption rule for every future arm: beat
 NDL@256 at equal-or-better inductor ratio.**
 
+### P1/P2 — fine-tuning moves the curve, and shows the next lever (04-GEN §2-3)
+
+Two fine-tunes of the pretrained checkpoint (`lna/finetune.py`, WSL GPU): **P2**
+plain (bias the weights toward LNAs, sample from bare `VSS`) and **P1** a `<LNA>`
+class token appended after the 1005 upstream ids (sample from `<LNA> VSS` — *no
+seed prefix*). 3,531 in-training LNA augmentations + ~22% general-corpus replay,
+6 circuits held out, 128-token rows, lr 3e-5, best-val checkpoint (both overfit
+by ~epoch 1 — the 35-graph training set is tiny). Full 256-sample protocol:
+
+| arm | NDL@256 (wifi24) | inductor ratio | copies | median NN-sim |
+|---|---|---|---|---|
+| baseline prefix-12 | 16 | 0.141 | 46% | 1.000 |
+| P1 `<LNA>` token, no prefix | 16 | 0.102 | 37% | 1.000 |
+| **P2 plain, bare VSS** | **24** | 0.104 | **29%** | 1.000 |
+
+(legacy screen: baseline 26, P1 21, **P2 29**.)
+
+**P2 beats the baseline on the headline number** — 24 vs 16 novel-distinct LNAs
+(+50%), copies 46%→29% — clearing Gate G3. **P1 did its structural job** (LNAs
+from no seed, copies →37%) but NDL stayed flat. Two honest caveats decide what
+comes next, not a victory lap:
+
+* **Inductor ratio dropped** (0.141 → ~0.10) on both, so neither is a *clean*
+  adopt under the equal-or-better-inductor-ratio rule. The fine-tune learned the
+  corpus mix (which is 34% inductorless) and under-produces inductors even more
+  than prefixing did. → **P4 (inductor logit bias)** composes on top to fix this.
+* **median NN-sim = 1.000** everywhere: even the fine-tuned arms recite the 35
+  training graphs for >half their LNA-shaped output. The memorization ceiling is
+  the 41-graph corpus itself → **P5 (archetype/template corpus)** is the lever,
+  exactly as 04-GEN §6 predicted ("41 is not enough").
+
+So the verdict is real movement (more novel, less copying) plus a precise next
+step (P2 + P4 for the inductor ratio; P5 for the memorization ceiling), rather
+than a finished win.
+
 ---
 
 ## 6. Profiling

@@ -33,6 +33,7 @@ merge) is the documented v2 speedup; a night of ~30 labels still fits overnight.
 """
 import argparse
 import glob
+import json
 import os
 import statistics
 import sys
@@ -46,6 +47,7 @@ import datastore as ds  # noqa: E402
 # default per-night quota (01-DATA §5); scaled down by --limit for testing.
 QUOTA = {"T": 20, "G": 20, "M": 10, "R": 3}
 REFERENCE_DECKS = ["ref24_tapped.cir", "ref24_csdeg.cir", "ref24_cg.cir"]
+TEMPLATE_DIR = os.path.join(HERE, "out", "templates")   # templates.py --emit-dir
 REPORT_DIR = os.path.join(HERE, "data", "reports")
 
 
@@ -61,6 +63,25 @@ def _labeled_corpus_indices(spec_name):
     return sorted(set(out))
 
 
+def _template_tasks(spec_name, quota, done_keys, tmpl_dir=TEMPLATE_DIR):
+    """P5 archetypes (templates.py) matching this spec, not yet labeled. Stratum T
+    -- topology diversity + the near-feasible/gain-capable class (tapped family)."""
+    metaf = os.path.join(tmpl_dir, "meta.json")
+    if not os.path.exists(metaf):
+        return []
+    meta = json.load(open(metaf, encoding="utf-8")).get("meta", [])
+    tasks = []
+    for m in meta:
+        if m.get("spec") != spec_name or (m.get("wl_hash"), spec_name) in done_keys:
+            continue
+        tasks.append({"stratum": "T", "kind": "topo",
+                      "ref": os.path.join(tmpl_dir, m["file"]), "index": None,
+                      "spec": spec_name, "seed": 1, "repeat_probe": False})
+        if len(tasks) >= quota:
+            break
+    return tasks
+
+
 def _generated_tasks(spec, spec_name, quota, done_keys, gen_glob):
     """Screen+novel+WL-unique generated topologies not yet labeled vs spec."""
     from topology import Topology, parse_arrow_file
@@ -68,6 +89,8 @@ def _generated_tasks(spec, spec_name, quota, done_keys, gen_glob):
     corpus_hashes, _ = corpus_reference()
     seen, tasks = set(), []
     for f in sorted(glob.glob(gen_glob)):
+        if os.path.basename(os.path.dirname(f)) == "templates":
+            continue                              # templates are stratum T, not G
         try:
             topo = Topology(parse_arrow_file(f))
         except Exception:
@@ -95,14 +118,14 @@ def pick_quota(spec_name="wifi24", quota=None, gen_glob=None):
     done = ds.existing_l2_keys()
     tasks = []
 
-    # T -- reference decks not yet labeled vs spec
+    # T -- reference decks + P5 templates, not yet labeled vs spec
     for deck in REFERENCE_DECKS:
         if (f"ref:{deck}", spec_name) in done:
             continue
         tasks.append({"stratum": "T", "kind": "ref", "ref": deck, "index": None,
                       "spec": spec_name, "seed": 1, "repeat_probe": False})
-        if sum(t["stratum"] == "T" for t in tasks) >= quota["T"]:
-            break
+    remaining_t = max(0, quota["T"] - sum(t["stratum"] == "T" for t in tasks))
+    tasks += _template_tasks(spec_name, remaining_t, done)
 
     # G -- generated arms (empty if seq*.txt absent, e.g. fresh worktree)
     tasks += _generated_tasks(spec, spec_name, quota["G"], done, gen_glob)
@@ -216,9 +239,13 @@ def write_report(tasks, results, spec_name):
 
 # ------------------------------------------------------------------------ CLI
 def run_night(spec_name="wifi24", limit=None, dry_run=False, quota=None,
-              gen_glob=None, gen_quota=None):
-    if gen_quota is not None:
-        quota = dict(quota or QUOTA, G=gen_quota)   # overnight: label many G
+              gen_glob=None, gen_quota=None, tmpl_quota=None):
+    if gen_quota is not None or tmpl_quota is not None:
+        quota = dict(quota or QUOTA)               # overnight: label many G or T
+        if gen_quota is not None:
+            quota["G"] = gen_quota
+        if tmpl_quota is not None:
+            quota["T"] = tmpl_quota
     tasks = pick_quota(spec_name, quota=quota, gen_glob=gen_glob)
     if limit:
         # keep the stratum mix under a small limit: round-robin by stratum
@@ -268,11 +295,14 @@ def main():
     ap.add_argument("--gen-glob", help="override the generated-topology glob")
     ap.add_argument("--gen-quota", type=int,
                     help="stratum-G quota for one run (overnight: e.g. 300)")
+    ap.add_argument("--tmpl-quota", type=int,
+                    help="stratum-T quota for one run (label many templates)")
     args = ap.parse_args()
     if not (args.night or args.dry_run):
         ap.error("give --night or --dry-run")
     return run_night(args.spec, limit=args.limit, dry_run=args.dry_run,
-                     gen_glob=args.gen_glob, gen_quota=args.gen_quota)
+                     gen_glob=args.gen_glob, gen_quota=args.gen_quota,
+                     tmpl_quota=args.tmpl_quota)
 
 
 if __name__ == "__main__":

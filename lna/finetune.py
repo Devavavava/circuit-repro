@@ -45,14 +45,16 @@ from Models.GPT import GPTLanguageModel  # noqa: E402
 LNA_INDICES = list(range(461, 493)) + list(range(1081, 1091))
 # 6 held-out circuits (spread across both index blocks), validation only.
 HOLDOUT = [464, 471, 478, 485, 1083, 1089]
-CLASS_TOKENS = ["<LNA>", "<OTHER>"]
+# per-arm class tokens, appended AFTER the 1005 upstream ids (base vocab untouched)
+CLASS_TOKENS = {"p1": ["<LNA>", "<OTHER>"],
+                "p5": ["<LNA_NB>", "<LNA_WB>", "<OTHER>"]}
 PAD_L = 128
 IGNORE = -1
 PRETRAIN = os.path.join(REPO, "Pretrain.pth")
 
 
 def ext_vocab(arm):
-    devs = DEVICES + CLASS_TOKENS if arm == "p1" else list(DEVICES)
+    devs = DEVICES + CLASS_TOKENS.get(arm, [])
     stoi = {d: i for i, d in enumerate(devs)}
     return devs, stoi, len(devs)
 
@@ -75,7 +77,68 @@ def _rows_from_npy(path, cls_id):
     return out
 
 
+def _rows_from_seqs(seqs, cls_id):
+    """token-name sequences -> id lists [cls?, content..., TRUNCATE]."""
+    out = []
+    for toks in seqs:
+        if "TRUNCATE" in toks:
+            toks = toks[:toks.index("TRUNCATE")]
+        if not toks:
+            continue
+        ids = [STOI[t] for t in toks] + [TRUNCATE_ID]
+        if cls_id is not None:
+            ids = [cls_id] + ids
+        out.append(ids)
+    return out
+
+
+def _corpus_class(npy_path, nb_id, wb_id):
+    """NB (inductor-bearing) vs WB (inductorless) from the circuit's own graph."""
+    from topology import Topology
+    toks = [str(t) for t in np.load(npy_path, allow_pickle=True)[0]]
+    if "TRUNCATE" in toks:
+        toks = toks[:toks.index("TRUNCATE")]
+    return nb_id if Topology(toks).n_inductors >= 1 else wb_id
+
+
+def build_dataset_p5(stoi):
+    """Corpus LNAs (tagged NB/WB by inductor) + Eulerian-augmented templates.py
+    archetypes (tagged by class) + <OTHER> replay. This is the P5 lever: template
+    diversity breaks the 35-graph memorization ceiling, and the class tokens make
+    narrowband vs wideband a sampled channel (04-GEN §6)."""
+    nb, wb, oth = stoi["<LNA_NB>"], stoi["<LNA_WB>"], stoi["<OTHER>"]
+    train, val = [], []
+    for i in LNA_INDICES:
+        p = os.path.join(REPO, "Dataset", str(i), f"Sequence_total{i}.npy")
+        if not os.path.exists(p):
+            continue
+        rows = _rows_from_npy(p, _corpus_class(p, nb, wb))
+        (val if i in HOLDOUT else train).extend(rows)
+    n_corpus = len(train)
+    # pre-generated augmented template rows (templates.py --emit-train), so the
+    # GPU env needs no pandas; hold out every 8th archetype for val.
+    tf = os.path.join(HERE, "out", "templates_train.json")
+    tdata = json.load(open(tf, encoding="utf-8"))
+    n_arch, n_tmpl_tr = tdata["n_archetypes"], 0
+    for r in tdata["rows"]:
+        rows = _rows_from_seqs([r["seq"]], nb if r["cls"] == "nb" else wb)
+        if r["arch"] % 8 == 0:                # hold out every 8th archetype
+            val.extend(rows)
+        else:
+            train.extend(rows)
+            n_tmpl_tr += len(rows)
+    gen = _rows_from_npy(os.path.join(REPO, "Training.npy"), oth)
+    target = int(0.15 * len(train))
+    replay = [gen[j % len(gen)] for j in range(target)] if gen else []
+    train += replay
+    print(f"[p5] train: {n_corpus} corpus + {n_tmpl_tr} template ({n_arch} archetypes) "
+          f"+ {len(replay)} replay = {len(train)}; val: {len(val)}", flush=True)
+    return _pad(train), _pad(val)
+
+
 def build_dataset(arm, stoi):
+    if arm == "p5":
+        return build_dataset_p5(stoi)
     lna_cls = stoi.get("<LNA>") if arm == "p1" else None
     oth_cls = stoi.get("<OTHER>") if arm == "p1" else None
     train, val = [], []
@@ -196,13 +259,19 @@ def load_ft(arm, device):
 
 
 def sample(arm, device, n=256, batch=32, max_tokens=256, temperature=0.7,
-           seed=1337, out=None, inductor_bias=0.0):
+           seed=1337, out=None, inductor_bias=0.0, cls="nb"):
     torch.manual_seed(seed)
     devs, stoi, _ = ext_vocab(arm)
     itos = {i: d for i, d in enumerate(devs)}
     model = load_ft(arm, device)
-    prefix = ([stoi["<LNA>"], VSS_ID] if arm == "p1" else [VSS_ID])
-    out = out or os.path.join(HERE, "out", f"ft_{arm}_s{seed}")
+    if arm == "p1":
+        prefix = [stoi["<LNA>"], VSS_ID]
+    elif arm == "p5":
+        prefix = [stoi["<LNA_NB>" if cls == "nb" else "<LNA_WB>"], VSS_ID]
+    else:
+        prefix = [VSS_ID]
+    out = out or os.path.join(HERE, "out", f"ft_{arm}_{cls}_s{seed}"
+                              if arm == "p5" else f"ft_{arm}_s{seed}")
     os.makedirs(out, exist_ok=True)
     if inductor_bias:
         from decode import generate_inductor_biased
@@ -239,13 +308,15 @@ def sample(arm, device, n=256, batch=32, max_tokens=256, temperature=0.7,
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--arm", choices=["p1", "p2"], required=True)
+    ap.add_argument("--arm", choices=["p1", "p2", "p5"], required=True)
     ap.add_argument("--do", choices=["train", "sample", "both"], default="both")
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--epochs", type=int, default=40)
     ap.add_argument("--seed", type=int, default=1337)
     ap.add_argument("--n", type=int, default=256)
     ap.add_argument("--out", default=None)
+    ap.add_argument("--class", dest="cls", choices=["nb", "wb"], default="nb",
+                    help="p5 sampling class token (<LNA_NB> / <LNA_WB>)")
     ap.add_argument("--inductor-bias", type=float, default=0.0,
                     help="P4: add this logit bias to unused L-device tokens while "
                          "the running inductor ratio is below target")
@@ -255,7 +326,7 @@ def main():
         train(args.arm, args.device, epochs=args.epochs, seed=args.seed)
     if args.do in ("sample", "both"):
         sample(args.arm, args.device, n=args.n, seed=args.seed, out=args.out,
-               inductor_bias=args.inductor_bias)
+               inductor_bias=args.inductor_bias, cls=args.cls)
 
 
 if __name__ == "__main__":

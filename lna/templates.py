@@ -47,18 +47,31 @@ def _pipeline():
     return _FUNCS
 
 
-def emit_sequence(netlist, ports=PORTS):
-    """Netlist (read_netlist format) -> token list, via the upstream Eulerian
-    augmentation. Returns None if no covering path exists from VSS."""
+def emit_paths(netlist, ports=PORTS, max_solutions=1, run_num=1):
+    """Netlist (read_netlist format) -> list of token sequences, via the upstream
+    Eulerian augmentation (each path covers every edge once). Empty if none."""
     bcm, rcm, dfs = _pipeline()
     m, _ = bcm(netlist, ports)
     d = tempfile.mkdtemp(prefix="tmpl_")
     csv = os.path.join(d, "g.csv")
     m.to_csv(csv)
-    paths = dfs(rcm(csv), start_node="VSS", max_solutions=1, run_num=1)
-    if not paths:
-        return None
-    return [str(t) for t in paths[0]]
+    paths = dfs(rcm(csv), start_node="VSS", max_solutions=max_solutions,
+               run_num=run_num)
+    return [[str(t) for t in p] for p in paths] if paths else []
+
+
+def emit_sequence(netlist, ports=PORTS):
+    """One canonical token sequence (or None)."""
+    paths = emit_paths(netlist, ports, max_solutions=1, run_num=1)
+    return paths[0] if paths else None
+
+
+def augment(netlist, ports=PORTS, max_solutions=24, run_num=3):
+    """A handful of Eulerian augmentations of one archetype -- the P5 fine-tune's
+    training rows. Kept modest: the DFS augmentation is ~seconds/graph and ~20
+    varied traversals per archetype already balances the corpus's per-circuit
+    count without an hour of data prep."""
+    return emit_paths(netlist, ports, max_solutions=max_solutions, run_num=run_num)
 
 
 # --------------------------------------------------------------- net helper
@@ -219,7 +232,7 @@ def archetypes():
             continue
         seen.add(h)
         yield {"name": name, "cls": cls, "spec": specs[cls], "seq": seq,
-               "wl": h, "n_dev": topo.n_devices}
+               "wl": h, "n_dev": topo.n_devices, "netlist": nl}
 
 
 # ------------------------------------------------------------------------ CLI
@@ -241,11 +254,32 @@ def _emit_dir(directory):
     return len(arche)
 
 
+def _emit_train(path):
+    """Pre-generate Eulerian-augmented template rows for the P5 fine-tune (run
+    under a pandas-capable python; the GPU training env has torch but not pandas,
+    so augmentation and training are decoupled through this file)."""
+    rows, n_arch = [], 0
+    for k, a in enumerate(archetypes()):
+        n_arch += 1
+        for seq in augment(a["netlist"]):
+            rows.append({"arch": k, "cls": a["cls"], "seq": seq})
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    with open(path, "w", encoding="utf-8", newline="\n") as fh:
+        json.dump({"n_archetypes": n_arch, "rows": rows}, fh)
+    print(f"wrote {len(rows)} augmented rows from {n_arch} archetypes -> {path} "
+          f"(mean {len(rows)/max(n_arch,1):.1f} augmentations/archetype)")
+    return len(rows)
+
+
 def main():
     ap = argparse.ArgumentParser(description="P5 archetype generator (stratum T)")
     ap.add_argument("--list", action="store_true", help="print distinct archetypes")
     ap.add_argument("--emit-dir", metavar="DIR", help="write seq*.txt + meta.json")
+    ap.add_argument("--emit-train", metavar="PATH",
+                    help="write Eulerian-augmented rows (JSON) for the P5 fine-tune")
     args = ap.parse_args()
+    if args.emit_train:
+        return 0 if _emit_train(args.emit_train) else 1
     if args.emit_dir:
         return 0 if _emit_dir(args.emit_dir) else 1
     if args.list:

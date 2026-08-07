@@ -191,10 +191,22 @@ seed 1** (all-free failed them with 10 seeds). **Feasible-novel 1→3, curve
 967→367** (2.6× bend). §5 funnel in `loop.py` (--status/--iterate): near-feasible
 0.49, **90 one-constraint-off**, top-10 median viol 0.11. Labels `recipe:curated-v1`.
 
+**Cross-spec benchmark (`benchmark.py` → `data/benchmark.md`):** wifi24 **6/6**
+feasible (solved); **gps-l1 0/6, gain-limited** (S21≥15 binds 5/6 — cascode+tapped
+tops ~12–14 dB); **wideband-sdr 0/6, match-limited** (S11 over band binds 4/6). Both
+harder specs need **topology diversity** (gain-boosted + wideband-match archetypes in
+templates.py/P5), NOT sizing. Curve honest state: **3 distinct feasible designs, 370
+SPICE-min** (dedup fix — repeat-probes no longer inflate it); a broad curated --top 15
+sweep added no new distinct designs (candidates stall at S11 −10.0/S21 11.9).
+
 **Next, in priority:**
-1. **`g4_search --curated --top 90` across the one-constraint-off pool** — curated
-   converts ~2/3, so this likely lands many more feasible designs and bends the
-   curve decisively (2 consecutive improving turns → phase exit).
+1. **§2 polish is now the highest-value fix** — the benchmark + sweep show ~90
+   candidates stalled a hair from feasible (top-10 median violation 0.007, S11 −10.0
+   / S21 11.9). Min-margin ascent would convert them; debug the `size.polish`
+   start-point bug (run_and_extract None at stored best_params) first. Then a broad
+   `--curated`+polish pass lands many feasibles → decisive curve bend → phase exit.
+   Separately, **gain-boosted + wideband-match archetypes** (templates.py/P5) unlock
+   gps-l1 / wideband-sdr.
 2. **§2 polish** (`size.polish`) is coded but has a start-point bug: `run_and_extract`
    returns None at a stored `best_params` (body/param reconstruction mismatch vs the
    curated path which works) — debug, then it's the cheap complement for the last

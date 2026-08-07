@@ -868,3 +868,27 @@ validated. **§4 (σ best-of-3 relabel)** still open — σ = 1.02, capping ρ.
 relabel before the next critic retrain; then the exit criterion (two consecutive
 improving turns) is within reach. Plus `<LNA_WB>`, Loop A acquisition, the 02
 critic-interface leftovers.
+
+**Cross-spec benchmark (`benchmark.py` → `lna/data/benchmark.md`) — where the
+pipeline stands under *different requested constraints*.** Sized the best candidate
+topologies against three specs of rising/rotated difficulty:
+
+| spec | constraints | feasible | binds when not |
+|---|---|---|---|
+| wifi24 | S21≥12, Idd≤5, NF≤2.5 | **6/6** | — (curated solves all) |
+| gps-l1 | S21≥**15**, Idd≤**3**, NF≤1.8 | **0/6** | **S21 (5)**, Idd (1) |
+| wideband-sdr | broadband S11, ripple≤2 | **0/6** | **S11 (4)**, ripple, S21 |
+
+Reads straight into next steps: **wifi24-class is solved** (sizing is not the
+bottleneck); **gps-l1 is gain-limited** (cascode+tapped tops out ~12–14 dB, needs
+higher-gain archetypes for 15 dB @ 3 mA); **wideband-sdr is match-limited**
+(narrowband LC match can't hold 50 Ω over the band, needs wideband/resistive-
+feedback archetypes). The two levers to broaden capability are both **topology
+diversity** (templates.py + P5 generator: gain-boosted + wideband-match families),
+not the sizer. A broad `--curated --top 15` sweep confirmed the 3 feasible designs
+but added no new distinct ones (many stall at S11 −10.0 / S21 11.9 — the §2-polish
+sweet spot); repeat-probes don't inflate the curve now (dedup by wl_hash).
+
+**Curve honest state:** 3 distinct feasible novel designs, **370 SPICE-min/design**
+(967→367→370; the last sweep was breadth, not new designs). Median top-10 violation
+0.007 — a wall of candidates a hair from feasible, awaiting §2 polish / more seeds.

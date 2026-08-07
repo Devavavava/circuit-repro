@@ -72,8 +72,10 @@ def spice_curve():
     l2 = ds.load("topo_labels")
     sims = sum((r.get("n_evals") or 0) for r in l2)
     spice_min = sims * SEC_PER_SIM / 60.0
-    feasible = [r for r in l2 if r.get("feasible")]
-    feas_novel = [r for r in feasible if _is_novel(r)]
+    # count DISTINCT feasible novel designs (dedup by wl_hash -- repeat-probes and
+    # re-logs of the same design must not inflate the headline)
+    feas_novel = {r["wl_hash"] for r in l2 if r.get("feasible") and _is_novel(r)}
+    feasible = {r["wl_hash"] for r in l2 if r.get("feasible")}
     n = len(feas_novel)
     per = spice_min / n if n else float("inf")
     return {"spice_minutes": round(spice_min, 1), "sims": sims,

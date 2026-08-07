@@ -60,7 +60,7 @@ def main():
               f"S21={m['s21_db']:.1f} Idd={m.get('idd_ma') or 0:.2f}", flush=True)
 
     print(f"\nboosted sizing: {len(seeds)} seeds x budget {BUDGET}\n", flush=True)
-    winner = None
+    n_feasible = 0
     for tv0, f, m0, bp in top:
         name = os.path.basename(f)
         topo = Topology(parse_arrow_file(os.path.join(HERE, f)))
@@ -87,20 +87,17 @@ def main():
         print(f"  {name:<14} best(seed {s}): S11={m['s11_db']:.1f} "
               f"S21={m['s21_db']:.1f} Idd={m.get('idd_ma') or 0:.2f} "
               f"nf={m.get('nf_db') or 0:.1f} feasible={feas}{tag}", flush=True)
-        if feas and winner is None:
-            winner = (f, s, topo, m, bp)
+        if feas:                                  # log EVERY feasible design found
+            n_feasible += 1
+            prov = {"source_arm": "g4-generated", "seed": s,
+                    "token_file": f.replace("\\", "/"), "curated": bool(args.curated)}
+            size.size_topology(topo, spec, seed=s, inductor_q=12, log=True,
+                               provenance=prov, repeat_probe=True,
+                               curate=args.curated, prior_params=bp, **BUDGET)
 
-    if winner:
-        f, s, topo, m, bp = winner
-        # log the feasible generated design (repeat-probe: key already labeled)
-        prov = {"source_arm": "g4-generated", "seed": s,
-                "token_file": f.replace("\\", "/"),
-                "curated": bool(args.curated)}
-        res = size.size_topology(topo, spec, seed=s, inductor_q=12, log=True,
-                                 provenance=prov, repeat_probe=True,
-                                 curate=args.curated, prior_params=bp, **BUDGET)
-        print(f"\n*** GATE G4 CLOSED BY GENERATION: {os.path.basename(f)} "
-              f"sized to full feasibility, logged. ***", flush=True)
+    if n_feasible:
+        print(f"\n*** {n_feasible} FEASIBLE novel design(s) closed + logged this "
+              f"pass (GATE G4 BY GENERATION). ***", flush=True)
     else:
         print("\nG4 not closed this pass; report the closest per-candidate above.",
               flush=True)

@@ -823,9 +823,29 @@ the governance + the last mechanism:
   6011→6780 rows). Loop A (rerank) exists; Loop A acquisition-driven picks and the
   full auto-orchestrated `--iterate` execution are the remaining refinements.
 
-**Open (next):** *run* the loop turns (each: label ± acquisition → retrain critic
-adopt-only-if-better → expert-iterate the generator → rerank → gate on tripwires),
-watching the 967-curve bend; **exit** = two consecutive improving iterations,
-tripwires quiet. Cheaper wins along the way: bigger P5 pool + more `g4_search.py`
-(more feasible designs), lower σ (trim multimodal labels), `<LNA_WB>` wideband;
-plus the 02 critic-interface leftovers (`--score`/`--export-npz`, graph+L1, NF).
+**Iteration 2 ran (a full loop turn) — the self-improvement *mechanism* works, but
+this turn did not bend the curve.** Loop B expert-iterated the generator on its own
+winners (`finetune --arm p5 --winners`, warm-start ft_p5.pth→ft_p5_v2.pth), then
+labelled 35 v2 candidates and reranked. What improved, measured:
+* **Generator: better on every axis, no mode collapse** — NDL@256 60→73,
+  terminated 98.8%→100%, inductor ratio 0.179→0.209; all tripwires quiet.
+* **More critic-rankable** — GNN ρ(S21) on the v2 pool = **0.59** (vs v1 0.24, old
+  0.33), *clearing* the C1 0.5 bar on that pool (noisy, n=35). Base near-feasible
+  rate 57% (~2× old's 27%).
+What did not: **no new feasible design.** `g4_search` (2 passes, 10 seeds total on
+the 2 closest) kept landing 2/3 constraints with the third barely off (seq0009:
+S11 −9.3 / S21 12.4 / Idd 5.25; seq0220 similar) — these topologies sit on the
+feasibility boundary with a tight/empty feasible region under all-free ZOAF (seq0240
+got there; these don't). So **feasible-novel stays 1 and the curve went 967→1093
+SPICE-min/design (worse)** — an honest non-improving iteration (recorded as such;
+04-SELF-IMPROVE §5). Also: repeat-probe **σ climbed 0.32→1.02** over the session
+(multimodal-sizing topologies); still < the 2× drift tripwire but the next thing to
+address (it caps ρ and adds label noise).
+
+**Open (next):** the loop improves the *generator* reliably; converting that into
+new *feasible* designs is the stochastic step. Levers: **curated sizing** (fix the
+input match per candidate, as the tapped ref needed — the reliable path to feasible,
+vs. hoping all-free ZOAF lands it); a **bigger candidate pool** per turn; **σ
+reduction** (trim multimodal labels) to sharpen the critic. **Exit** still = two
+consecutive *improving* iterations, tripwires quiet — not yet met. Plus `<LNA_WB>`,
+Loop A acquisition picks, and the 02 critic-interface leftovers.

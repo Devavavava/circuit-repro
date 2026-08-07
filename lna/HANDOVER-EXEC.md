@@ -174,18 +174,26 @@ Loop B (generator←winners) built + validated: `templates.py --emit-winners` �
 `finetune.py --arm p5 --winners` (warm-start ft_p5.pth→ft_p5_v2.pth; dataset
 6011→6780). `topo_to_netlist` round-trips WL-exact. loop_state.json tracks iters.
 
-**Next, in priority — RUN the loop (Stage-3 is now cadence):**
-1. **Run a loop turn** and watch the 967-curve bend: `loop.py --iterate` prints the
-   ordered steps (label ± acquisition → retrain critic adopt-only-if-better →
-   `finetune --arm p5 --winners` on GPU → `search.py --rerank` → gate on tripwires).
-   **Exit = 2 consecutive improving iterations, tripwires quiet.**
-2. **Harden G4 / feed the loop:** more feasible designs via `g4_search.py` on a
-   bigger P5 pool (several candidates were one constraint away); **lower σ** (0.77 —
-   trim multimodal-sizing labels) so the critic reads cleaner.
-3. **Remaining refinements:** Loop A acquisition-driven picks (uncertainty/
-   disagreement, needs critic↔campaign coupling); `<LNA_WB>` wideband; rung-2
-   evolutionary (Gate S2 — may be moot, G4 fell out of rerank+refine); the 02
-   critic interface leftovers (`--score`/`--export-npz`, graph+L1, NF head).
+**Iteration 1 turn RUN (loop_state.json).** Loop B expert-iterated the generator on
+its winners → **v2 improved on every axis, no mode collapse**: NDL@256 60→73, term
+98.8→100%, inductor ratio 0.18→0.21; GNN rerank ρ(S21) on the v2 pool = **0.59**
+(vs v1 0.24 / old 0.33, clears C1's 0.5). BUT `g4_search` (2 passes, 10 seeds on the
+2 closest) found **no new feasible design** — 2/3 near-misses (seq0009: S11 −9.3 /
+S21 12.4 / Idd 5.25). So **feasible-novel stays 1; curve 967→1093 (worse)** — an
+honest non-improving iteration. **σ climbed 0.32→1.02** (multimodal topos; < 2×
+tripwire). `ft_p5_v2.pth` is the adopted generator; `g4_search.py` now takes
+`--top/--seeds/--seed-start`.
+
+**Next, in priority:**
+1. **Curated sizing is the reliable path to feasible** (not all-free ZOAF luck):
+   size a candidate with its input match FIXED (as `size_tapped` does the ref) —
+   generalize a per-candidate curated map. This is how iter-3 gets its new G4 design
+   and bends the curve. (Several candidates are one constraint away.)
+2. **σ reduction:** trim the multimodal-sizing labels (repeat-probe variance) so the
+   critic reads cleaner; σ is capping ρ.
+3. **Keep iterating** (`loop.py --iterate`); exit = 2 consecutive *improving* turns,
+   tripwires quiet — not yet met. Plus `<LNA_WB>`, Loop A acquisition picks, the 02
+   critic-interface leftovers (`--score`/`--export-npz`, graph+L1, NF head).
 2. **Cheap supporting probes** (no GPU): a **live** rung-1 on a fresh/bigger pool
    (does another draw clear 2×?); **curated feasible template sizing** (size the
    tapped archetypes with a curated sizable set like `size_tapped`, for a true

@@ -16,9 +16,9 @@ import datastore as ds
 import size
 from topology import Topology, parse_arrow_file
 
-SEEDS = [1, 2, 3, 4]
+import argparse
+
 BUDGET = dict(n_candidates=8, sgd_iters=8, cgd_iters=2)   # anchor-strength budget
-TOP_N = 6
 
 
 def total_viol(spec, m):
@@ -27,6 +27,13 @@ def total_viol(spec, m):
 
 
 def main():
+    ap = argparse.ArgumentParser(description="G4-by-generation refinement")
+    ap.add_argument("--top", type=int, default=6, help="how many closest candidates")
+    ap.add_argument("--seeds", type=int, default=4, help="how many ZOAF seeds")
+    ap.add_argument("--seed-start", type=int, default=1, help="first seed (use fresh)")
+    args = ap.parse_args()
+    seeds = list(range(args.seed_start, args.seed_start + args.seeds))
+    top_n = args.top
     spec = size._spec_for_sizing("wifi24")
     l2 = ds.load("topo_labels")
 
@@ -42,19 +49,19 @@ def main():
             continue
         cands.append((total_viol(spec, m)[1], tf(r), m))
     cands.sort(key=lambda c: c[0])
-    top = cands[:TOP_N]
+    top = cands[:top_n]
     print(f"top {len(top)} P5 candidates by closeness (total violation):", flush=True)
     for tv, f, m in top:
         print(f"  {os.path.basename(f):<14} viol={tv:.3f}  S11={m['s11_db']:.1f} "
               f"S21={m['s21_db']:.1f} Idd={m.get('idd_ma') or 0:.2f}", flush=True)
 
-    print(f"\nboosted sizing: {len(SEEDS)} seeds x budget {BUDGET}\n", flush=True)
+    print(f"\nboosted sizing: {len(seeds)} seeds x budget {BUDGET}\n", flush=True)
     winner = None
     for tv0, f, m0 in top:
         name = os.path.basename(f)
         topo = Topology(parse_arrow_file(os.path.join(HERE, f)))
         best = None
-        for s in SEEDS:
+        for s in seeds:
             try:
                 res = size.size_topology(topo, spec, seed=s, inductor_q=12,
                                          log=False, **BUDGET)

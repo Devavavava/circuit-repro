@@ -44,7 +44,8 @@ def _split(data, spec_name):
     def tf(d):
         return (d["row"].get("provenance") or {}).get("token_file", "")
     pools = {"old(P1/P2)": [d for d in gen if "ft_p5" not in tf(d)],
-             "p5": [d for d in gen if "ft_p5" in tf(d)]}
+             "p5-v1": [d for d in gen if "ft_p5_nb" in tf(d)],
+             "p5-v2": [d for d in gen if "ft_p5v2" in tf(d)]}
     return train, {k: v for k, v in pools.items() if v}
 
 

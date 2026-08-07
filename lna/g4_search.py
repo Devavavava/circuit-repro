@@ -35,7 +35,7 @@ def main():
 
     cands = []
     for r in l2:
-        if "ft_p5" not in tf(r):
+        if "ft_p5" not in tf(r) or r.get("feasible"):   # incl. v1 + v2; skip done
             continue
         m = r.get("metrics")
         if not m:

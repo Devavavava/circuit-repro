@@ -11,7 +11,7 @@ exactly where to resume. Read `WORKLOG.md` (entries R1/R2 are mine) and
 
 ---
 
-## Session 2 — Phase 2: Stage-0 + G4 + C0 + templates + Stage-1(baseline+GNN) + rung-1 + **P5 generator** DONE; C1 met, S1 1.74×, P5 breaks the memorization ceiling (NDL 24→60)
+## Session 2 — Phase 2: Stage-0→2 executed + **P5 generator** + **loop closed once**; C1 met, S1 1.74×, P5 breaks memorization (NDL 24→60) and yields 2.3× more near-feasible designs/SPICE
 
 **New roadmap:** `.claude/worktrees/lna-plans/lna/plans2/` (start at
 `00-OVERVIEW.md`) — the generate→size pipeline is now feature-complete; Phase 2
@@ -152,11 +152,24 @@ ratio 0.10→0.179** (FINDINGS §11). The memorization ceiling is broken.
   GPU training just reads it. `.pth` + `templates_train.json` are gitignored →
   regenerate, don't expect them in a fresh worktree.
 
-**CLOSE THE LOOP (next, the real test):** the P5 generation win is measured; does
-the new distribution rank better? Size a batch of P5 samples (`lna/out/ft_p5_nb_s1337`,
-256 seqs) via the campaign, then re-run `search.py --rerank` — if S1 enrichment
-climbs past the old 1.74×, the generator *was* the bottleneck and the phase thesis
-holds. Then: `<LNA_WB>` sampling, curated feasible sizing, σ reduction, rung-2.
+**LOOP CLOSED once — thesis confirmed via the distribution (FINDINGS §11).** Sized
+26 novel P5 samples; `search.py --rerank` splits old(P1/P2) vs p5 under one shared
+critic. **P5 base-rate near-feasible 62% vs old 27% → ~2.3× more near-feasible
+designs per SPICE, beating critic-rerank's 1.74×.** Enrichment on P5 falls to ~1.0
+(base-rate ceiling: a 62%-good pool has nothing to enrich), ρ mixed at n=26/σ=0.77.
+Snapshot `v3-p5` (293 L2). **G4-by-generation is CLOSE:** P5 hits S21=14.0 dB
+(seq0126) and S11=−21.9 dB (seq0009), not simultaneously.
+
+**Next, in priority:**
+1. **Curated feasible sizing → G4-by-generation** (the marquee gap): size the top
+   P5 candidates (seq0126/0240/0009 …) with a curated sizable set like `size_tapped`
+   (input match fixed) instead of all-params-free ZOAF — likely closes G4.
+2. **Stage-3 loop cadence** (04-SELF-IMPROVE): one turn (generate→size→rerank) is
+   now proven to move the yardstick; wire the repeat (retrain critic on the P5
+   labels → re-generate → re-size) + the tripwires. This is the remaining *stage*.
+3. Supporting: bigger P5 pool + **σ reduction** (0.77 now — trim multimodal labels);
+   `<LNA_WB>` wideband sampling; rung-2 evolutionary loop (Gate S2). The critic
+   interface leftovers (`--score`/`--export-npz`, graph+L1, NF head) remain from 02.
 2. **Cheap supporting probes** (no GPU): a **live** rung-1 on a fresh/bigger pool
    (does another draw clear 2×?); **curated feasible template sizing** (size the
    tapped archetypes with a curated sizable set like `size_tapped`, for a true

@@ -770,10 +770,33 @@ new best generation arm**, and it trains fast (overfits by epoch ~1 on this smal
 data — best-val checkpoint is early; CPU-free once `templates.py --emit-train`
 runs). The GNN training also runs on this machine's GPU under WSL (verified).
 
-**Open (next) — close the loop.** The generation win is measured; the *program*
-question is whether this new distribution is finally **critic-rankable**: size a
-batch of P5 samples and re-run `search.py --rerank` — does S1 enrichment climb
-past rerun on the old arm's 1.74×? If yes, the generator was the bottleneck and
-the phase's thesis holds; if not, the surrogate/search-trust rules bind. Also:
-per-class `<LNA_WB>` sampling for wideband; curated feasible sizing; σ reduction;
-the rung-2 evolutionary loop.
+**Loop closed — the generator is the bigger lever, and the win is in the
+distribution, not the ranking.** Sized 26 novel P5 samples and reran
+`search.py --rerank` splitting the generated pool into old(P1/P2) vs p5, ranked by
+the *same* critic (trained on non-generated). On `v3-p5` (σ=0.77):
+
+| pool | base rate near-feasible | enrich@20% (GNN) | ρ_S21 |
+|---|---|---|---|
+| old (P1/P2) | 0.27 | 1.60 | 0.35 |
+| **p5** | **0.62** | 0.97 | 0.18 (gnn) / 0.40 (knn) |
+
+The decisive number is the **base rate: P5 62% vs old 27% near-feasible** — the
+memorization-broken generator yields **~2.3× more near-feasible designs per SPICE
+budget, which exceeds what critic-rerank ever delivered (1.74×)**. Fixing the
+*distribution* beats filtering a bad one. P5's rerank enrichment falls to ~1.0
+precisely *because* the pool is already good — the base-rate ceiling leaves the
+critic little to enrich, so selective value drops on a good distribution (as it
+should); ρ is mixed/noisy at n=26, σ=0.77. So the program yardstick
+(SPICE-per-near-feasible-design) improved ~2.3× — from the generator, exactly as
+the source-shift analysis predicted, now confirmed end-to-end.
+
+**G4-by-generation is close but not closed:** P5 samples reach S21 = 14.0 dB
+(seq0126, S11 short) and S11 = −21.9 dB (seq0009, S21 short) — high gain and good
+match are both now *generated*, just not in one design under all-params-free ZOAF.
+Curated sizing of the top P5 candidates (as `size_tapped` does the ref) is the
+likely path to the phase's headline gate.
+
+**Open (next):** curated feasible sizing of top P5 candidates (→ G4-by-generation);
+a bigger P5 pool + lower σ (0.77 now — trim multimodal-sizing labels) to firm up
+the ρ read; per-class `<LNA_WB>` for wideband; the Stage-3 loop cadence
+(re-generate ← retrain ← re-size) now that one turn is proven to move the yardstick.

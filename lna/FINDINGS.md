@@ -707,7 +707,31 @@ family-holdout **WL-kNN still clears C1** (ρ_S21=0.77, 2.06×); but the
 diversity does not make the generated arms predictable, so the gap is the
 generated *distribution* itself, not training diversity.
 
-**Open (next):** the plain-torch MPNN (WSL GPU) vs these baselines **on the
-source-shift split** (the real bar); curated template sizing for a genuine
-feasible token class; then 03-SEARCH rerank only if a model clears C1 on the
-shift — else the de-scope ladder (rerank-by-L1 still cuts sizing waste).
+**GNN verdict (`critic_gnn.py`, plain-torch MPNN, CPU under the analoggenie env
+— the graphs are too small to need the GPU).** Bipartite device↔net message
+passing, pin-role-specific maps, 5-member ensemble. On v2-train (σ=0.61; ρ wobbles
+~±0.02 run-to-run from CPU nondeterminism):
+
+| split | GNN | best baseline |
+|---|---|---|
+| family-holdout (the **C1 gate**) | ρ_S21≈0.65, enrich 1.18 | **WL-kNN 0.77 / 2.06** |
+| source-shift (diagnostic) | **ρ_S21≈0.34, enrich 1.6** | WL-kNN/ridge 0.28 / 0.22 |
+
+Two clean results. (1) On the C1 gate the GNN **loses to WL-kNN** — which
+memorizes the corpus near-duplicates exactly as 02-CRITIC §2 warned — so per the
+de-scope ladder **WL-kNN ships as critic v1** (the brief prefers a GNN; it was
+tried and beaten on the gate). (2) On the source-shift diagnostic the **GNN wins**
+(0.34 vs 0.22–0.28): the graph inductive bias is the only thing that generalizes
+better to the peculiar generated distribution — but it still doesn't reach C1's
+0.5. Its ensemble uncertainty is usably calibrated (std↔|err| ρ≈0.3–0.5), which
+03-SEARCH's trust gate can use. **Gate C1 is met on held-out families; no model
+reaches it under the source-shift, for any architecture** — confirming the gap is
+the generated distribution, not the surrogate.
+
+**Open (next):** 03-SEARCH **rerank** is now unblocked (C1 met on the gate) — but
+gate it on the GNN's uncertainty, since the source-shift says the critic is
+unreliable on genuinely novel topologies. Deeper lever: the **generator** (a
+distribution the critic can actually predict) over more surrogate capacity.
+Also open: curated template sizing for a true feasible token class; stratum-M
+mutation contrast; lowering σ (trim multimodal-sizing labels) to lift the ρ
+ceiling.

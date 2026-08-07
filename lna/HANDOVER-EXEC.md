@@ -11,7 +11,7 @@ exactly where to resume. Read `WORKLOG.md` (entries R1/R2 are mine) and
 
 ---
 
-## Session 2 — Phase 2 (learned critic): Stage-0 + Gate G4 + Gate C0 + P5 templates DONE; Stage-1 baseline clears C1 (family split, not source-shift)
+## Session 2 — Phase 2 (learned critic): Stage-0 + Gate G4 + Gate C0 + P5 templates + Stage-1 (baseline **and** GNN) DONE; Gate C1 met by baseline
 
 **New roadmap:** `.claude/worktrees/lna-plans/lna/plans2/` (start at
 `00-OVERVIEW.md`) — the generate→size pipeline is now feature-complete; Phase 2
@@ -125,22 +125,23 @@ unattended nights, σ measured ✓). The campaign runs but three sources are thi
    from the main checkout. `campaign.py --gen-glob` points it at a dir.
 3. **Stratum M** — the 1-edit mutation move set (03-SEARCH §3); reused later by
    evolutionary search. Not built.
-**Stage-1 baseline + P5 templates are DONE; Gate C0 met.** Prioritized next:
-1. **The MPNN** (02-CRITIC §3, plain torch, WSL GPU) — now the biggest lever. Bar:
-   beat WL-kNN **on the source-shift split** (ρ≈0.28 today), not the family split.
-   `margins_for` rows are the target; σ=0.61 dB sets the rank-loss hinge margin
-   (note σ rose — some topologies are multimodal under ZOAF; consider trimming the
-   noisiest via repeat-probes). 5-member ensemble for the uncertainty search needs.
-   **Manage expectations:** templates already showed clean diversity doesn't fix
-   the shift, so the MPNN may not either — if it doesn't, that's the signal the
-   *generator* (P1/P5 fine-tune) or uncertainty-gated search is the real fix.
-2. **Curated template sizing for a true feasible token class** — the 88 templates
-   are near-feasible but 0 fully feasible under all-params-free ZOAF; size the
-   tapped archetypes with a curated sizable set (as `size_tapped` does the ref) to
-   get feasible token-bearing rows the graph critic can actually use.
-3. **03-SEARCH rerank** only once a model clears C1 on the *source-shift* split
-   (de-scope ladder: if nothing does, rerank-by-L1 still cuts sizing waste).
-   Stratum **M** (mutation move set, 03-SEARCH §3) is still unbuilt.
+**Stage-1 fully DONE (baseline + GNN); Gate C1 met by WL-kNN on the gate.** The
+GNN (`critic_gnn.py`, CPU under analoggenie torch — no WSL needed) loses to WL-kNN
+on the C1 gate (family-holdout ρ≈0.65 vs 0.77) but wins the source-shift
+diagnostic (ρ≈0.34 vs 0.22–0.28) with usable uncertainty. Prioritized next:
+1. **03-SEARCH rung-1 rerank is now unblocked** (C1 met): generate big, critic-rank
+   (WL-kNN as v1; or the GNN's `mean − β·std` for OOD candidates), size top-k,
+   measure enrichment vs random at equal SPICE budget (03-SEARCH §2, Gate S1).
+   **Gate the GNN on its uncertainty** — the source-shift result says it is
+   unreliable on genuinely novel topologies.
+2. **The generator is the deeper lever** — every model tops out sub-C1 on the
+   source-shift because the generated arms are a distribution nothing predicts
+   well. P1/P5 fine-tune toward a distribution the critic *can* rank likely beats
+   more surrogate capacity. (templates.py output can now feed the P5 fine-tune.)
+3. **Curated template sizing** for a true feasible token class (88 templates are
+   near-feasible, 0 fully feasible under all-params-free ZOAF); **σ reduction**
+   (trim multimodal-sizing labels via repeat-probes; σ rose 0.32→0.61) to lift the
+   ρ ceiling; stratum **M** mutation move set (03-SEARCH §3) still unbuilt.
 
 **Deferred (deliberate, not blocking — 00-OVERVIEW #3 "don't block on NF"):**
 un-gating NF as a *hard constraint* in the objective (changes sizing; validate

@@ -745,11 +745,35 @@ near-feasible designs per equal SPICE budget, and it surfaces the pool's single
 best-gain candidate. Per the de-scope ladder, search *waits* on S1 while rerank
 still cuts sizing waste; realized-vs-predicted ρ feeds the next critic retrain.
 
-**Open (next), in priority.** Every gate that's failed — source-shift C1, S1 —
-fails for the *same* reason: the generated arms are a distribution nothing ranks
-to 2×. So the lever is the **generator** (P1/P5 fine-tune toward a critic-rankable
-distribution; `templates.py` output can seed it), not more surrogate capacity.
-Cheaper supporting moves: a **live** rung-1 on a fresh/bigger pool (does a
-different draw clear 2×?); **curated feasible template sizing** (a true feasible
-token class); **lower σ** (trim multimodal-sizing labels — σ rose 0.32→0.61,
-capping ρ); the **evolutionary loop** (rung-2) and its stratum-M mutations.
+The lever every failed gate pointed to is the **generator**: the generated arms
+are a distribution nothing ranks to 2× because the generator, fine-tuned on 41
+corpus LNAs, memorized ~35 graphs (NN-sim 1.000). So P5 rebuilds that distribution.
+
+**WP-GEN P5 — template-augmented, class-token fine-tune (`finetune.py --arm p5`)
+works, decisively.** Mix the corpus LNAs (tagged NB/WB by inductor) with
+Eulerian-augmented `templates.py` archetypes (1696 rows) + `<OTHER>` replay, plus
+`<LNA_NB>`/`<LNA_WB>` class tokens; sample from `<LNA_NB> VSS`. On the frozen
+NDL@256 protocol:
+
+| metric | NDL baseline | P2 (prev best) | **P5** |
+|---|---|---|---|
+| NDL@256 (novel distinct LNAs) | 16 | 24 | **60** |
+| median NN-sim to corpus | — | 1.000 | **0.574** |
+| inductor ratio | — | ~0.10 | **0.179** |
+
+The **memorization ceiling is broken** (NN-sim 1.000 → 0.574 — output is no longer
+near-duplicate of training graphs), **NDL is 2.5× P2 / 3.75× the baseline**, and
+the **inductor ratio is restored** to near the corpus's 0.20 (P1/P2 had regressed
+it). 99.6% valid, 98.8% terminated, 57.4% clear the L0 screen (near the 59.4%
+ceiling). Per the adoption rule (beat NDL@256 at ≥ inductor ratio), **P5 is the
+new best generation arm**, and it trains fast (overfits by epoch ~1 on this small
+data — best-val checkpoint is early; CPU-free once `templates.py --emit-train`
+runs). The GNN training also runs on this machine's GPU under WSL (verified).
+
+**Open (next) — close the loop.** The generation win is measured; the *program*
+question is whether this new distribution is finally **critic-rankable**: size a
+batch of P5 samples and re-run `search.py --rerank` — does S1 enrichment climb
+past rerun on the old arm's 1.74×? If yes, the generator was the bottleneck and
+the phase's thesis holds; if not, the surrogate/search-trust rules bind. Also:
+per-class `<LNA_WB>` sampling for wideband; curated feasible sizing; σ reduction;
+the rung-2 evolutionary loop.

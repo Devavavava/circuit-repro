@@ -11,7 +11,7 @@ exactly where to resume. Read `WORKLOG.md` (entries R1/R2 are mine) and
 
 ---
 
-## Session 2 — Phase 2: Stage-0 + G4 + C0 + templates + Stage-1 (baseline+GNN) + Stage-2 rung-1 DONE; C1 met, S1 not (source-shift is the wall)
+## Session 2 — Phase 2: Stage-0 + G4 + C0 + templates + Stage-1(baseline+GNN) + rung-1 + **P5 generator** DONE; C1 met, S1 1.74×, P5 breaks the memorization ceiling (NDL 24→60)
 
 **New roadmap:** `.claude/worktrees/lna-plans/lna/plans2/` (start at
 `00-OVERVIEW.md`) — the generate→size pipeline is now feature-complete; Phase 2
@@ -131,20 +131,32 @@ diagnostic (ρ≈0.34) but loses the C1 gate to WL-kNN (0.65 vs 0.77). Rung-1 re
 (`search.py --rerank`, offline on the 142 sized generated pool): WL-kNN 1.37× /
 GNN 1.74× near-feasible enrichment vs random — below S1's 2×.
 
-**The wall, stated plainly:** source-shift C1 and S1 both fail for the *same*
-reason — the generated arms are a distribution no surrogate ranks to 2×. So:
-1. **The generator is the lever** (not more surrogate capacity). P1/P5 fine-tune
-   toward a critic-rankable distribution; `templates.py` output can seed the P5
-   set. **WSL GPU env VERIFIED functional this session** (torch 2.13+cu130, RTX
-   3050, 3.3 GB free): from PowerShell, `wsl -e bash <script.sh>` where the script
-   does `cd /mnt/c/Users/Devavrat/circuit-repro && /opt/miniconda/envs/gpu/bin/python
-   lna/finetune.py --arm p2 --do sample --device cuda ...` (smoke: 4 seqs in 12 s,
-   3/4 terminated). **Caveat:** the `.pth` checkpoints are gitignored, so they live
-   in the MAIN checkout, not the worktree — run generation from main, or copy
-   `lna/out/*.pth` into the worktree. Write scripts to a file (Git Bash mangles
-   `/opt/...`; PowerShell→wsl is the path). P5 = extend `finetune.py` to mix
-   `templates.py` archetypes (Eulerian-augmented) + per-class `<LNA_NB>/<LNA_WB>`
-   tokens; re-run the frozen NDL@256 protocol on the result (00-OVERVIEW rule 3).
+**The wall, and how P5 attacked it.** Source-shift C1 and S1 both failed because
+the generated arms are a distribution no surrogate ranks to 2× — the generator
+memorized ~35 corpus graphs (NN-sim 1.000). **P5 fixed the generator (DONE):**
+`finetune.py --arm p5` mixes corpus + Eulerian-augmented `templates.py` archetypes
++ `<LNA_NB>/<LNA_WB>` class tokens → **NDL@256 24→60, NN-sim 1.000→0.574, inductor
+ratio 0.10→0.179** (FINDINGS §11). The memorization ceiling is broken.
+
+**WSL GPU — verified + working recipe** (torch 2.13+cu130, RTX 3050, 3.3 GB free):
+- Run from PowerShell: `wsl -e bash <script.sh>`; write the script to a FILE (Git
+  Bash mangles `/opt/...`). Script: `cd /mnt/c/Users/Devavrat/circuit-repro/.claude/worktrees/lna-data
+  && /opt/miniconda/envs/gpu/bin/python lna/finetune.py --arm p5 --do sample
+  --device cuda --n 256 --class nb`.
+- **10-min tool timeout** kills a full 40-epoch train (~20s/epoch); it overfits
+  by epoch ~1 anyway, so best-val checkpoint is fine — but for a clean run either
+  cut epochs or launch detached (`nohup … &`) and poll. `--do sample` (~75 s) fits.
+- **Junctions resolve in WSL** (AnalogGenie→Pretrain.pth/Training.npy/Dataset). The
+  GPU env has **no pandas**, so template augmentation is pre-generated on Windows
+  (`templates.py --emit-train lna/out/templates_train.json`, gitignored) and the
+  GPU training just reads it. `.pth` + `templates_train.json` are gitignored →
+  regenerate, don't expect them in a fresh worktree.
+
+**CLOSE THE LOOP (next, the real test):** the P5 generation win is measured; does
+the new distribution rank better? Size a batch of P5 samples (`lna/out/ft_p5_nb_s1337`,
+256 seqs) via the campaign, then re-run `search.py --rerank` — if S1 enrichment
+climbs past the old 1.74×, the generator *was* the bottleneck and the phase thesis
+holds. Then: `<LNA_WB>` sampling, curated feasible sizing, σ reduction, rung-2.
 2. **Cheap supporting probes** (no GPU): a **live** rung-1 on a fresh/bigger pool
    (does another draw clear 2×?); **curated feasible template sizing** (size the
    tapped archetypes with a curated sizable set like `size_tapped`, for a true

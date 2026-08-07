@@ -31,6 +31,9 @@ def main():
     ap.add_argument("--top", type=int, default=6, help="how many closest candidates")
     ap.add_argument("--seeds", type=int, default=4, help="how many ZOAF seeds")
     ap.add_argument("--seed-start", type=int, default=1, help="first seed (use fresh)")
+    ap.add_argument("--curated", action="store_true",
+                    help="fix each candidate's input match at its prior best, size "
+                         "the rest (06-LAST-MILE §1 -- the reliable path to feasible)")
     args = ap.parse_args()
     seeds = list(range(args.seed_start, args.seed_start + args.seeds))
     top_n = args.top
@@ -47,24 +50,26 @@ def main():
         m = r.get("metrics")
         if not m:
             continue
-        cands.append((total_viol(spec, m)[1], tf(r), m))
+        cands.append((total_viol(spec, m)[1], tf(r), m, r.get("best_params")))
     cands.sort(key=lambda c: c[0])
     top = cands[:top_n]
-    print(f"top {len(top)} P5 candidates by closeness (total violation):", flush=True)
-    for tv, f, m in top:
+    print(f"top {len(top)} P5 candidates by closeness (total violation)"
+          f"{' [CURATED: fix input match]' if args.curated else ''}:", flush=True)
+    for tv, f, m, _bp in top:
         print(f"  {os.path.basename(f):<14} viol={tv:.3f}  S11={m['s11_db']:.1f} "
               f"S21={m['s21_db']:.1f} Idd={m.get('idd_ma') or 0:.2f}", flush=True)
 
     print(f"\nboosted sizing: {len(seeds)} seeds x budget {BUDGET}\n", flush=True)
     winner = None
-    for tv0, f, m0 in top:
+    for tv0, f, m0, bp in top:
         name = os.path.basename(f)
         topo = Topology(parse_arrow_file(os.path.join(HERE, f)))
         best = None
         for s in seeds:
             try:
                 res = size.size_topology(topo, spec, seed=s, inductor_q=12,
-                                         log=False, **BUDGET)
+                                         log=False, curate=args.curated,
+                                         prior_params=bp, **BUDGET)
             except Exception as e:
                 print(f"  {name} seed {s}: ERROR {e}", flush=True)
                 continue
@@ -83,16 +88,17 @@ def main():
               f"S21={m['s21_db']:.1f} Idd={m.get('idd_ma') or 0:.2f} "
               f"nf={m.get('nf_db') or 0:.1f} feasible={feas}{tag}", flush=True)
         if feas and winner is None:
-            winner = (f, s, topo, m)
+            winner = (f, s, topo, m, bp)
 
     if winner:
-        f, s, topo, m = winner
+        f, s, topo, m, bp = winner
         # log the feasible generated design (repeat-probe: key already labeled)
-        from novelty import wl_features
         prov = {"source_arm": "g4-generated", "seed": s,
-                "token_file": f.replace("\\", "/")}
+                "token_file": f.replace("\\", "/"),
+                "curated": bool(args.curated)}
         res = size.size_topology(topo, spec, seed=s, inductor_q=12, log=True,
-                                 provenance=prov, repeat_probe=True, **BUDGET)
+                                 provenance=prov, repeat_probe=True,
+                                 curate=args.curated, prior_params=bp, **BUDGET)
         print(f"\n*** GATE G4 CLOSED BY GENERATION: {os.path.basename(f)} "
               f"sized to full feasibility, logged. ***", flush=True)
     else:

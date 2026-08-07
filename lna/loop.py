@@ -81,6 +81,36 @@ def spice_curve():
             "spice_min_per_feasible_novel": round(per, 1) if n else None}
 
 
+def _totviol(r):
+    """Total normalized constraint violation (sum of negative margins)."""
+    mg = r.get("margins") or {}
+    return sum(max(0.0, -((mg.get(k) or {}).get("margin") or 0.0))
+               for k in ("s11_db", "s21_db", "idd_ma"))
+
+
+def funnel():
+    """Smooth companion metrics (06-LAST-MILE §5): the headline curve is a step
+    function (one lucky basin flips feasible_novel), so these show whether a turn
+    made progress even when it did not flip the headline. Store-wide over token
+    topologies with metrics."""
+    l2 = [r for r in ds.load("topo_labels")
+          if (r.get("graph") or {}).get("tokens") and r.get("metrics")]
+    near = [r for r in l2 if _near_feasible(r)]
+    one_off = [r for r in l2 if not r.get("feasible")
+               and sum(1 for k in ("s11_db", "s21_db", "idd_ma")
+                       if ((r.get("margins") or {}).get(k) or {}).get("margin", 0) <= 0) == 1]
+    top10 = sorted(l2, key=_totviol)[:10]
+    sims = sum((r.get("n_evals") or 0) for r in l2)
+    return {
+        "near_feasible_rate": round(len(near) / max(len(l2), 1), 3),
+        "near_feasible_count": len(near),
+        "one_constraint_off_count": len(one_off),
+        "spice_min_per_near_feasible": round((sims / 60.0) / max(len(near), 1), 1),
+        "median_topviol_top10": round(statistics.median(
+            [_totviol(r) for r in top10]) if top10 else 0.0, 3),
+    }
+
+
 def _sigma_s21():
     from collections import defaultdict
     by = defaultdict(list)
@@ -189,6 +219,7 @@ def cmd_status():
     print("iterations run:", len(st.get("iterations", [])))
     ds._summary()
     print("\nheadline curve:", json.dumps(spice_curve(), indent=2))
+    print("funnel (06-LAST-MILE §5):", json.dumps(funnel(), indent=2))
     if st.get("baseline"):
         print("\niteration-0 baseline:", json.dumps(st["baseline"]))
     print("\ntripwires:")
@@ -218,11 +249,14 @@ def cmd_iterate(note=""):
     c = curve.get("spice_min_per_feasible_novel")
     trend = ("n/a" if (p is None or c is None)
              else f"{p} -> {c} SPICE-min/design ({'IMPROVING' if c < p else 'worse' if c > p else 'flat'})")
+    fun = funnel()
     st["iterations"].append({"n": len(st["iterations"]) + 1, "date": date.today().isoformat(),
-                             "curve": curve, "tripwires_quiet": quiet, "note": note})
+                             "curve": curve, "funnel": fun,
+                             "tripwires_quiet": quiet, "note": note})
     save_state(st)
     print(f"\n=== loop iteration {len(st['iterations'])} recorded ===")
     print(f"headline curve: {trend}")
+    print(f"funnel (smooth companions): {json.dumps(fun)}")
     print(f"tripwires: {'quiet' if quiet else 'TRIPPED -- apply the response above before continuing'}")
     print(f"feasible-novel designs so far: {curve['feasible_novel']}")
     print(f"\n{CADENCE}")

@@ -180,8 +180,69 @@ def _log_l2(spec, metrics, feasible, n_evals, points, best_x, best_params,
         return "error"
 
 
+def match_devices(topo):
+    """Input-match passives (06-LAST-MILE §1): 2-terminal R/C/L on the path from the
+    input port to the first MOS gate, plus the input device's source (degeneration)
+    and gate-source passives. Fixing these -- not sizing them free -- is what let the
+    tapped reference reach feasibility (all-free ZOAF lands gain OR match, not both).
+    Returns (set of match device tokens, input device token or None)."""
+    from collections import defaultdict, deque
+    from topology import base_of, PIN_RE
+    pin2root = {m: r for r, members in topo.nodes.items() for m in members}
+    net2root = {m: r for r, members in topo.nodes.items()
+                for m in members if m in topo.nets}
+    devpin = defaultdict(dict)
+    for p in topo.pins:
+        mm = PIN_RE.match(p)
+        if mm and p in pin2root:
+            devpin[mm.group("dev")][mm.group("pin")] = pin2root[p]
+    adj = defaultdict(list)                       # passive adjacency over nodes
+    for d in topo.devices:
+        if base_of(d) in ("R", "C", "L"):
+            pp = devpin.get(d, {})
+            if "P" in pp and "N" in pp:
+                adj[pp["P"]].append((d, pp["N"]))
+                adj[pp["N"]].append((d, pp["P"]))
+    gate_node = {devpin[d].get("G"): d for d in topo.devices
+                 if base_of(d) in ("NM", "PM")}
+    vin = next((n for n in sorted(topo.nets) if n.startswith("VIN")), None)
+    start, match, input_dev = net2root.get(vin), set(), None
+    if start is not None:
+        seen, dq = {start}, deque([start])
+        while dq:
+            u = dq.popleft()
+            for dev, v in adj[u]:
+                match.add(dev)                    # passive on the input path
+                if v in gate_node and input_dev is None:
+                    input_dev = gate_node[v]
+                if v not in seen and v not in gate_node:
+                    seen.add(v)
+                    dq.append(v)
+    if input_dev:                                 # + source-degen / gate-source
+        snode = devpin[input_dev].get("S")
+        for d in topo.devices:
+            if base_of(d) in ("R", "C", "L") and snode in devpin.get(d, {}).values():
+                match.add(d)
+    return match, input_dev
+
+
+def _curate(topo, sizable, fixed, prior_params):
+    """Move the input-match passives from sizable to fixed at their prior best
+    values (06-LAST-MILE §1). Returns the match device set actually fixed."""
+    mdevs, _ = match_devices(topo)
+    fixed_now = set()
+    for d in mdevs:
+        p = f"p{d}V"                              # passive value param (R/C/L)
+        if p in sizable and prior_params and p in prior_params:
+            fixed[p] = prior_params[p]
+            del sizable[p]
+            fixed_now.add(d)
+    return fixed_now
+
+
 def size_topology(topo, spec, seed=1, n_candidates=6, sgd_iters=6, cgd_iters=1,
-                  provenance=None, log=True, repeat_probe=False, inductor_q=None):
+                  provenance=None, log=True, repeat_probe=False, inductor_q=None,
+                  curate=False, prior_params=None):
     """Bias-insert, then ZOAF-size a generated topology against `spec`.
 
     With `log=True` (default for CLI paths) the completed sizing run is appended
@@ -198,6 +259,10 @@ def size_topology(topo, spec, seed=1, n_candidates=6, sgd_iters=6, cgd_iters=1,
         return None
     body = E.body_of(nl.emit())
     sizable, fixed = classify_params(nl)
+    recipe = "candidate-v1"
+    if curate:
+        _curate(topo, sizable, fixed, prior_params)   # fix input match at prior best
+        recipe = "curated-v1"
     if not sizable:
         return None
     points = [] if log else None
@@ -213,7 +278,7 @@ def size_topology(topo, spec, seed=1, n_candidates=6, sgd_iters=6, cgd_iters=1,
     if log:
         _log_l2(spec, m, feas, n_evals, points, best_x, decode(best_x), best_obj,
                 topo, wl_features(topo)[0], provenance,
-                _zoaf_cfg(seed, n_candidates, sgd_iters, cgd_iters, "candidate-v1",
+                _zoaf_cfg(seed, n_candidates, sgd_iters, cgd_iters, recipe,
                           inductor_q=inductor_q),
                 repeat_probe=repeat_probe)
     if m is None:

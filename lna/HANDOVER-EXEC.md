@@ -11,7 +11,7 @@ exactly where to resume. Read `WORKLOG.md` (entries R1/R2 are mine) and
 
 ---
 
-## Session 2 — Phase 2 Stages 0–3 executed: P5 generator + loop closed + **★ G4 BY GENERATION** (seq0240) + **Stage-3 loop SET UP**; C1 met, NDL 24→60, 2.3× near-feasible yield
+## Session 2 — Phase 2 Stages 0–3 + last-mile: G4 by generation, Stage-3 loop run, **★ Gate I3 MET** (curated sizing → 3 feasible generated LNAs, curve 967→367)
 
 **New roadmap:** `.claude/worktrees/lna-plans/lna/plans2/` (start at
 `00-OVERVIEW.md`) — the generate→size pipeline is now feature-complete; Phase 2
@@ -184,16 +184,24 @@ honest non-improving iteration. **σ climbed 0.32→1.02** (multimodal topos; < 
 tripwire). `ft_p5_v2.pth` is the adopted generator; `g4_search.py` now takes
 `--top/--seeds/--seed-start`.
 
+**★ LAST-MILE (06-LAST-MILE) — §1 + §5 DONE; Gate I3 MET.** `g4_search --curated`
+fixes each candidate's input-match passives (`size.match_devices`+`_curate`) at
+their prior best, sizes the rest → **converted seq0009 + seq0220 to feasible on
+seed 1** (all-free failed them with 10 seeds). **Feasible-novel 1→3, curve
+967→367** (2.6× bend). §5 funnel in `loop.py` (--status/--iterate): near-feasible
+0.49, **90 one-constraint-off**, top-10 median viol 0.11. Labels `recipe:curated-v1`.
+
 **Next, in priority:**
-1. **Curated sizing is the reliable path to feasible** (not all-free ZOAF luck):
-   size a candidate with its input match FIXED (as `size_tapped` does the ref) —
-   generalize a per-candidate curated map. This is how iter-3 gets its new G4 design
-   and bends the curve. (Several candidates are one constraint away.)
-2. **σ reduction:** trim the multimodal-sizing labels (repeat-probe variance) so the
-   critic reads cleaner; σ is capping ρ.
-3. **Keep iterating** (`loop.py --iterate`); exit = 2 consecutive *improving* turns,
-   tripwires quiet — not yet met. Plus `<LNA_WB>`, Loop A acquisition picks, the 02
-   critic-interface leftovers (`--score`/`--export-npz`, graph+L1, NF head).
+1. **`g4_search --curated --top 90` across the one-constraint-off pool** — curated
+   converts ~2/3, so this likely lands many more feasible designs and bends the
+   curve decisively (2 consecutive improving turns → phase exit).
+2. **§2 polish** (`size.polish`) is coded but has a start-point bug: `run_and_extract`
+   returns None at a stored `best_params` (body/param reconstruction mismatch vs the
+   curated path which works) — debug, then it's the cheap complement for the last
+   0.1-dB near-misses (seq0079: S21 11.9).
+3. **§4 σ** best-of-3 relabel of high-spread keys before the next critic retrain
+   (σ=1.02 caps ρ); store `label_sigma`, critic downweights by 1/σ. Then `<LNA_WB>`,
+   Loop A acquisition, the 02 critic-interface leftovers.
 2. **Cheap supporting probes** (no GPU): a **live** rung-1 on a fresh/bigger pool
    (does another draw clear 2×?); **curated feasible template sizing** (size the
    tapped archetypes with a curated sizable set like `size_tapped`, for a true

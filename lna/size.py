@@ -240,6 +240,61 @@ def _curate(topo, sizable, fixed, prior_params):
     return fixed_now
 
 
+def polish(topo, spec, prior_params, budget=80, inductor_q=12):
+    """Boundary polish (06-LAST-MILE §2): coordinate pattern search from the stored
+    best point that maximizes the **minimum normalized margin** -- which, unlike the
+    feasibility-first scalar, has a gradient right at the boundary (it trades a
+    near-miss's slack on a passing constraint for the one it violates). Perturbs
+    only the sizable device/bias params (match held via prior values); ~budget sims.
+    Returns {metrics, feasible, best_params, n_evals, min_margin} or None."""
+    import bias
+    from datastore import margins_for
+    kw = {"inductor_q": inductor_q} if inductor_q else {}
+    nl, _, rep, _ = bias.insert_bias(topo, sweep=True, **kw)
+    if rep.get("skipped") or not nl.two_port:
+        return None
+    body = E.body_of(nl.emit())
+    sizable, _ = classify_params(nl)
+
+    def min_margin(p):
+        m = E.run_and_extract(body, p, spec)
+        if m is None:
+            return -1e9, None
+        mg = margins_for(spec, m)
+        vals = [(mg.get(k) or {}).get("margin") for k in ("s11_db", "s21_db", "idd_ma")]
+        vals = [v for v in vals if v is not None]
+        return (min(vals) if vals else -1e9), m
+
+    params = {k: v for k, v in (prior_params or {}).items()}
+    best_mm, best_m = min_margin(params)
+    n, step = 1, 0.15
+    while n < budget and step > 0.02:
+        improved = False
+        for name in list(sizable):
+            if name not in params:
+                continue
+            try:
+                base = float(params[name])
+            except (TypeError, ValueError):
+                continue
+            for factor in (1 - step, 1 + step):
+                trial = dict(params)
+                trial[name] = f"{base * factor:.6g}"
+                mm, m = min_margin(trial)
+                n += 1
+                if mm > best_mm:
+                    best_mm, best_m, params, improved = mm, m, trial, True
+                if n >= budget:
+                    break
+            if n >= budget:
+                break
+        if not improved:
+            step *= 0.6
+    feas = best_m is not None and spec.feasible(best_m)[0]
+    return {"metrics": best_m, "feasible": feas, "best_params": params,
+            "n_evals": n, "min_margin": best_mm}
+
+
 def size_topology(topo, spec, seed=1, n_candidates=6, sgd_iters=6, cgd_iters=1,
                   provenance=None, log=True, repeat_probe=False, inductor_q=None,
                   curate=False, prior_params=None):

@@ -842,10 +842,29 @@ SPICE-min/design (worse)** — an honest non-improving iteration (recorded as su
 (multimodal-sizing topologies); still < the 2× drift tripwire but the next thing to
 address (it caps ρ and adds label noise).
 
-**Open (next):** the loop improves the *generator* reliably; converting that into
-new *feasible* designs is the stochastic step. Levers: **curated sizing** (fix the
-input match per candidate, as the tapped ref needed — the reliable path to feasible,
-vs. hoping all-free ZOAF lands it); a **bigger candidate pool** per turn; **σ
-reduction** (trim multimodal labels) to sharpen the critic. **Exit** still = two
-consecutive *improving* iterations, tripwires quiet — not yet met. Plus `<LNA_WB>`,
-Loop A acquisition picks, and the 02 critic-interface leftovers.
+**★ WP-LAST-MILE (06-LAST-MILE) — curated sizing closes the conversion gap; the
+curve bends (Gate I3).** The iter-2 diagnosis was right: the broken funnel stage is
+near-feasible → feasible, and all-free ZOAF's multimodal landscape (the same thing
+σ measured) is why. **§1 curated final-mile sizing** (`size.match_devices` +
+`_curate`; `g4_search --curated`) fixes each candidate's input-match passives at
+their prior best and sizes only gain/bias/current — and it **converted 2 of the 3
+closest near-misses to fully feasible on seed 1**, where all-free ZOAF had failed
+them with 10 seeds:
+* **seq0009** (v1): S11 −10.9 / S21 12.8 / Idd 4.00 — feasible.
+* **seq0220** (v2): S11 −13.8 / S21 12.6 / Idd 2.46 — feasible.
+
+So **feasible-novel designs 1 → 3** and the **headline curve 1093 → 367
+SPICE-min/design (a 2.6× bend, Gate I3 met)**; all tripwires quiet. **§5 funnel
+instrumentation** makes it legible: near-feasible rate 0.49, **90 candidates one
+constraint off** (a large convertible pool — curated should close many), 6.7
+SPICE-min/near-feasible, top-10 median violation 0.14→0.11. Labels tagged
+`recipe: curated-v1` (never pooled with all-free). **§2 boundary polish**
+(`size.polish`, min-margin ascent) is coded but a start-point-reconstruction bug
+(run_and_extract None at a stored best_params) blocks it — implemented, not yet
+validated. **§4 (σ best-of-3 relabel)** still open — σ = 1.02, capping ρ.
+
+**Open (next):** run `g4_search --curated` across the 90 one-constraint-off pool
+(more feasible designs, decisive curve bend); debug §2 polish; **§4 σ** best-of-3
+relabel before the next critic retrain; then the exit criterion (two consecutive
+improving turns) is within reach. Plus `<LNA_WB>`, Loop A acquisition, the 02
+critic-interface leftovers.

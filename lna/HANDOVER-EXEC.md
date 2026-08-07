@@ -11,7 +11,7 @@ exactly where to resume. Read `WORKLOG.md` (entries R1/R2 are mine) and
 
 ---
 
-## Session 2 — Phase 2: Stage-0→2 executed + P5 generator + loop closed + **★ GATE G4 CLOSED BY GENERATION** (seq0240: novel, S11 −11.9 / S21 12.6 / Idd 1.19); C1 met, P5 breaks memorization (NDL 24→60) + 2.3× near-feasible yield
+## Session 2 — Phase 2 Stages 0–3 executed: P5 generator + loop closed + **★ G4 BY GENERATION** (seq0240) + **Stage-3 loop SET UP**; C1 met, NDL 24→60, 2.3× near-feasible yield
 
 **New roadmap:** `.claude/worktrees/lna-plans/lna/plans2/` (start at
 `00-OVERVIEW.md`) — the generate→size pipeline is now feature-complete; Phase 2
@@ -167,17 +167,25 @@ single-seed sizer, not the topology, had capped it — same all-free-ZOAF trap t
 tapped ref hit. Logged (`source_arm=g4-generated`); design tokens are in
 `topo_labels.jsonl` (seq file gitignored). Store now 2 feasible (hand + generated).
 
-**Next, in priority:**
-1. **Stage-3 loop cadence (04-SELF-IMPROVE) — the last untouched *stage*.** One
-   turn (generate → size → rerank/refine → G4 design) is proven; wire the repeat:
-   retrain critic on the new P5/g4 labels → re-generate → re-size, with the 5
-   tripwires + the exit criterion (2 iterations, SPICE-per-feasible improving).
-2. **Harden G4:** more feasible generated designs (run `g4_search.py` on a bigger
-   P5 pool / more seeds; several were within one constraint), and **lower σ** (0.77
-   — trim multimodal-sizing labels) so the critic reads cleaner.
-3. Supporting: `<LNA_WB>` wideband sampling; rung-2 evolutionary loop (Gate S2, may
-   now be moot given G4 fell out of rung-1+refine); the 02 critic interface
-   leftovers (`--score`/`--export-npz`, graph+L1, NF head).
+**STAGE-3 LOOP SET UP (`loop.py`).** Governance active: 5 tripwires + headline
+curve (SPICE-min per feasible-novel design = **967** at iter 1) + `--baseline` /
+`--status` / `--tripwires` / `--iterate` (records + gates + prints the cadence).
+Loop B (generator←winners) built + validated: `templates.py --emit-winners` →
+`finetune.py --arm p5 --winners` (warm-start ft_p5.pth→ft_p5_v2.pth; dataset
+6011→6780). `topo_to_netlist` round-trips WL-exact. loop_state.json tracks iters.
+
+**Next, in priority — RUN the loop (Stage-3 is now cadence):**
+1. **Run a loop turn** and watch the 967-curve bend: `loop.py --iterate` prints the
+   ordered steps (label ± acquisition → retrain critic adopt-only-if-better →
+   `finetune --arm p5 --winners` on GPU → `search.py --rerank` → gate on tripwires).
+   **Exit = 2 consecutive improving iterations, tripwires quiet.**
+2. **Harden G4 / feed the loop:** more feasible designs via `g4_search.py` on a
+   bigger P5 pool (several candidates were one constraint away); **lower σ** (0.77 —
+   trim multimodal-sizing labels) so the critic reads cleaner.
+3. **Remaining refinements:** Loop A acquisition-driven picks (uncertainty/
+   disagreement, needs critic↔campaign coupling); `<LNA_WB>` wideband; rung-2
+   evolutionary (Gate S2 — may be moot, G4 fell out of rerank+refine); the 02
+   critic interface leftovers (`--score`/`--export-npz`, graph+L1, NF head).
 2. **Cheap supporting probes** (no GPU): a **live** rung-1 on a fresh/bigger pool
    (does another draw clear 2×?); **curated feasible template sizing** (size the
    tapped archetypes with a curated sizable set like `size_tapped`, for a true

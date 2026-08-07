@@ -807,9 +807,25 @@ This is the end-to-end proof of the phase thesis: **P5's better distribution +
 critic/metric-guided selection of the closest candidates + a modest extra sizing
 budget = a novel feasible LNA the pipeline designed itself.**
 
-**Open (next):** the Stage-3 loop *cadence* (04-SELF-IMPROVE) — re-generate ←
-retrain critic on the new labels ← re-size, with tripwires — is the last untouched
-stage; one turn is now proven to both move the yardstick (2.3×) and yield a G4
-design. Supporting: bigger P5 pool + lower σ (0.77 — trim multimodal labels);
-`<LNA_WB>` wideband; rung-2 evolutionary loop; the 02 critic interface leftovers
-(`--score`/`--export-npz`, graph+L1, NF head).
+**Stage 3 — the self-improvement loop is SET UP (`loop.py`, 04-SELF-IMPROVE).**
+It is cadence, not construction; Stages 0-2 built every moving part, so this wired
+the governance + the last mechanism:
+* **Tripwires (5, numbers not vibes):** feasible-rate compression, repeat-probe σ
+  drift, frozen-NDL@256 drop, WL-family collapse (each with a scripted response);
+  critic-holdout regression is the automatic adopt-only-if-better gate. Iteration-0
+  baseline pinned (NDL 60 / families 59 / σ 0.73); all quiet.
+* **Headline curve:** SPICE-minutes per feasible *novel* design — **967 at
+  iteration 1** (1 design, seq0240). This is the number loop turns must bend down.
+* **Loop B (generator ← winners) built + validated:** `templates.py --emit-winners`
+  (feasible + top-quartile near-feasible token topologies from the store, TRUE
+  SPICE only, Eulerian-augmented via `topo_to_netlist`, round-trip WL-exact) →
+  `finetune.py --arm p5 --winners` (warm-start ft_p5.pth → ft_p5_v2.pth, dataset
+  6011→6780 rows). Loop A (rerank) exists; Loop A acquisition-driven picks and the
+  full auto-orchestrated `--iterate` execution are the remaining refinements.
+
+**Open (next):** *run* the loop turns (each: label ± acquisition → retrain critic
+adopt-only-if-better → expert-iterate the generator → rerank → gate on tripwires),
+watching the 967-curve bend; **exit** = two consecutive improving iterations,
+tripwires quiet. Cheaper wins along the way: bigger P5 pool + more `g4_search.py`
+(more feasible designs), lower σ (trim multimodal labels), `<LNA_WB>` wideband;
+plus the 02 critic-interface leftovers (`--score`/`--export-npz`, graph+L1, NF).

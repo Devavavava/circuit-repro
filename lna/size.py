@@ -360,7 +360,8 @@ def size_topology(topo, spec, seed=1, n_candidates=6, sgd_iters=6, cgd_iters=1,
     if m is None:
         return {"metrics": None, "feasible": False, "n_evals": n_evals}
     return {"metrics": m, "feasible": feas, "viol": viol, "n_evals": n_evals,
-            "best_obj": best_obj, "n_params": len(names)}
+            "best_obj": best_obj, "n_params": len(names),
+            "best_params": decode(best_x)}   # so callers can polish/curate from here
 
 
 def _spec_for_sizing(name):

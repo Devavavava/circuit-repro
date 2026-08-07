@@ -941,3 +941,45 @@ archetypes (activate `rfb_lna`/`cg_lna`, shunt-peaked loads, `<LNA_WB>` end-to-
 end, WB template count 4→≥30) to unlock wideband-sdr's broadband match — both are
 **topology work (`templates.py` + P5-v3), not sizing**, exactly as the benchmark
 diagnosed. Gate B1: ≥1 feasible on each of gps-l1 and wideband-sdr.
+
+**★ WP-BROADEN (07-EXIT §2) — constructors landed; the gps-l1 gain wall is BROKEN;
+Gate B1 confirmed a generator job, not a sizing job.** Added the topology families
+the benchmark named as missing (`templates.py`, 92→118 archetypes):
+* **Gain-boosted (nb):** `cs_cs_lna` (two-stage CS→CS, stage-1 resonant load →
+  coupling cap → stage 2), `current_reuse_lna` (complementary NMOS+PMOS sharing one
+  bias current, PMOS wired end-to-end through the pipeline). 20 new archetypes.
+* **Wideband (wb):** `rfb_lna` + buffer/cascode options, `_add_load` shunt-peaked
+  variant. The wideband screen (`max_inductors`, `match_plausible`) keeps this
+  family inductorless by construction — correct engineering (feedback match, not
+  LC), so it caps at 10 distinct wb archetypes rather than the aspirational ≥30.
+
+**Gate-B1 viability, measured (all-free ZOAF + polish + a 729-point match grid):**
+* **gps-l1 gain wall — broken.** `cs_cs_lna` reaches **S21 17.5 dB @ Idd 2.76 mA**
+  (both hard constraints — S21 ≥ 15, Idd ≤ 3 — met), where single-stage
+  cascode+tapped topped ~14 dB. This is the structural blocker the benchmark
+  diagnosed, removed. `current_reuse_lna` runs very lean (Idd ~2.4–2.9 mA) but the
+  complementary gm didn't stack enough gain in-range (S21 ~9) — the two-stage is
+  the gps-l1 gain path.
+* **But the input match won't co-close.** Across **all-free ZOAF (4 seeds — which
+  *is* joint gain+match co-sizing under a feasibility-first objective), local polish,
+  and a grid over just the match devices** (Cin/Lg/Ls, 9× each = 729 points holding
+  the gain point), **S11 never drops below ≈ −1 dB while S21 holds ≥ 15.** The
+  gain-rich basin and the matched basin don't overlap for these hand-built input
+  networks at 1.58 GHz / 15 dB (higher gain ⇒ bigger device ⇒ larger Cgs ⇒ harder
+  match — the real reason gps-l1 is the hard spec). **wideband-sdr** likewise:
+  `rfb` gets ripple < 2 and Idd < 8 but S21 ~8 unmatched; `cg` matches (S11 −15)
+  with no gain. No simultaneous gain+match+ripple point found.
+* **Conclusion (the wifi24 lesson, again):** hand-built templates + generic sizing
+  give the right *structure* but not the sizeable *parameterization* — the wifi24
+  feasibles came from the **P5 generator** + curated sizing (good match prior), not
+  from sizing raw templates. So Gate B1 closure is the plan's intended sequence:
+  **label these families vs both specs → P5-v3 fine-tune (`<LNA_NB>`/`<LNA_WB>`) →
+  generate variants → curated sizing with the generator's match as prior.** The
+  constructors are the necessary input to that; the generator is the closer. Gate B1
+  remains open, with the gain blocker measurably removed and the path narrowed to
+  one GPU-dependent step.
+* **Tooling fix (real, committed):** `size_topology` now returns `best_params`
+  (`decode(best_x)`) — it was logged but never returned, so every
+  polish/curate-from-a-sizing-result path silently ran on `None`. This is why the
+  first close-the-gap pass reported no movement past the all-free point; the fix
+  makes the "size → polish/curate from here" flow actually work.

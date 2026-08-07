@@ -215,21 +215,41 @@ MET.** Honest: only the closest ~5 were polish-convertible; the funnel's
 `one_constraint_off_count=90` overcounts (flags designs a match-network away).
 Store now **7 feasible (6 novel + tapped ref)**.
 
-**Next phase = WP-BROADEN (07-EXIT §2). Scoreboard rotates to `benchmark.md`
-(wifi24 solved; its curve no longer measures progress).** In priority:
-1. **Gain-boosted archetypes → gps-l1 (S21≥15 @ Idd≤3):** add `templates.py`
-   constructors for **two-stage CS→CS** (stage-1 tank load, stage-2 buffer/tapped)
-   + **current-reuse** (stacked gm at shared Idd — the 3 mA cap is the binding
-   constraint). Curated sizing must learn a two-stage match map (input match on
-   stage 1 only). Single-stage cascode+tapped tops ~12–14 dB, so it's out.
-2. **Wideband archetypes → wideband-sdr (broadband S11, ripple≤2):** activate the
-   existing `rfb_lna`/`cg_lna` constructors as first-class strata + **shunt-peaked
-   loads** + resistive-feedback+buffer; wire `<LNA_WB>` end-to-end (vocab token
-   exists; WB template count 4 → ≥30). These match by feedback, not LC resonance.
-3. **Sequence:** constructors → label stratum T vs *both* new specs → **P5-v3**
-   fine-tune (`<LNA_NB>`/`<LNA_WB>`, winners in) → NDL@256 + tripwires → curated
-   sizing per family. **Gate B1:** ≥1 feasible on each of gps-l1 and wideband-sdr.
-4. **Before any critic retrain (§1b/§4, deferred):** σ-drift is 1.27 and climbing
+**★ WP-BROADEN started (07-EXIT §2) — constructors DONE, gps-l1 gain wall BROKEN,
+Gate B1 confirmed a generator job.** Scoreboard rotated to `benchmark.md` (wifi24
+solved). Landed (`templates.py`, 92→118 archetypes, committed `a14959c`):
+* **Gain-boosted (nb, 20 new):** `cs_cs_lna` (two-stage CS→CS) + `current_reuse_lna`
+  (complementary NMOS+PMOS, one shared bias current; PMOS wired end-to-end).
+* **Wideband (wb, 10):** `rfb_lna` +buffer/+cascode, `_add_load` shunt-peaked.
+  The wb screen (`max_inductors`, `match_plausible`) keeps it inductorless by
+  construction — right engineering, so it caps ~10, not the aspirational ≥30.
+* **Measured (all-free ZOAF + polish + 729-pt match grid):** two-stage reaches
+  **S21 17.5 dB @ Idd 2.76 mA vs gps-l1** — both hard constraints met, the ~14 dB
+  single-stage gain wall gone. **But S11 won't co-close**: across joint ZOAF (4
+  seeds), polish, and a match-device grid, S11 never drops below ≈ −1 while S21
+  holds ≥ 15 (higher gain ⇒ bigger Cgs ⇒ harder match — why gps-l1 is *hard*).
+  wideband-sdr same shape (rfb: ripple<2/Idd<8 but S21~8 unmatched; cg: matched, no
+  gain). **This is the wifi24 lesson: templates give structure, the P5 generator
+  gives the sizeable parameterization.** Gate B1's blocker (gain) is measurably
+  removed; the closer is the generator, not the sizer.
+* **Tooling fix (`size.py`, this session):** `size_topology` now returns
+  `best_params` — it was logged but not returned, so polish/curate-from-a-result
+  silently ran on `None`. Needed for any "size → polish/curate" flow.
+
+**Next (the narrowed Gate-B1 path — one GPU-dependent sequence):**
+1. **Label the new families vs BOTH hard specs** (stratum T): size `cs_cs_*` /
+   `current_reuse_*` vs gps-l1 and `rfb_*` / `cg_*` vs wideband-sdr, log L2. (The
+   probe scripts in the job tmp — `broaden_probe.py`, `close_specs.py`,
+   `match_grid.py` — are the throwaway evidence; a durable `benchmark.py --specs`
+   sweep over the new archetypes is the clean way to record it.)
+2. **P5-v3 fine-tune** (WSL GPU `/opt/miniconda/envs/gpu`): `templates.py
+   --emit-train` (now includes the new archetypes) → `finetune.py --arm p5 --do
+   both --winners` with `<LNA_NB>`/`<LNA_WB>` → NDL@256 + tripwires (models overfit
+   by epoch ~1; use `--epochs 12-15`, best-val is early; 10-min PS timeout).
+3. **Generate + curated-size** the two-stage / wideband variants the generator
+   emits (it supplies matchable input networks; curated sizing fixes match at the
+   generator's prior). **Gate B1:** ≥1 feasible on gps-l1 AND wideband-sdr.
+4. **Before any critic retrain (§1b/§4, deferred):** σ-drift 1.27 and climbing
    (< 2× bar). Best-of-3 relabel of high-spread keys, store `label_sigma`, critic
    downweights 1/σ. Then Loop-A acquisition, 02 critic-interface leftovers.
 2. **Cheap supporting probes** (no GPU): a **live** rung-1 on a fresh/bigger pool

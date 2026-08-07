@@ -101,11 +101,13 @@ def _corpus_class(npy_path, nb_id, wb_id):
     return nb_id if Topology(toks).n_inductors >= 1 else wb_id
 
 
-def build_dataset_p5(stoi):
+def build_dataset_p5(stoi, winners=False):
     """Corpus LNAs (tagged NB/WB by inductor) + Eulerian-augmented templates.py
     archetypes (tagged by class) + <OTHER> replay. This is the P5 lever: template
     diversity breaks the 35-graph memorization ceiling, and the class tokens make
-    narrowband vs wideband a sampled channel (04-GEN §6)."""
+    narrowband vs wideband a sampled channel (04-GEN §6). With `winners=True` the
+    store's own feasible/near-feasible winners are mixed in -- Stage-3 Loop B
+    expert iteration (templates.py --emit-winners -> out/winners_train.json)."""
     nb, wb, oth = stoi["<LNA_NB>"], stoi["<LNA_WB>"], stoi["<OTHER>"]
     train, val = [], []
     for i in LNA_INDICES:
@@ -127,18 +129,25 @@ def build_dataset_p5(stoi):
         else:
             train.extend(rows)
             n_tmpl_tr += len(rows)
+    n_win = 0
+    if winners:
+        wf = os.path.join(HERE, "out", "winners_train.json")
+        for r in json.load(open(wf, encoding="utf-8"))["rows"]:
+            train.extend(_rows_from_seqs([r["seq"]], nb if r["cls"] == "nb" else wb))
+            n_win += 1
     gen = _rows_from_npy(os.path.join(REPO, "Training.npy"), oth)
     target = int(0.15 * len(train))
     replay = [gen[j % len(gen)] for j in range(target)] if gen else []
     train += replay
-    print(f"[p5] train: {n_corpus} corpus + {n_tmpl_tr} template ({n_arch} archetypes) "
-          f"+ {len(replay)} replay = {len(train)}; val: {len(val)}", flush=True)
+    print(f"[p5] train: {n_corpus} corpus + {n_tmpl_tr} template ({n_arch} arch) "
+          f"+ {n_win} winner + {len(replay)} replay = {len(train)}; val: {len(val)}",
+          flush=True)
     return _pad(train), _pad(val)
 
 
-def build_dataset(arm, stoi):
+def build_dataset(arm, stoi, winners=False):
     if arm == "p5":
-        return build_dataset_p5(stoi)
+        return build_dataset_p5(stoi, winners=winners)
     lna_cls = stoi.get("<LNA>") if arm == "p1" else None
     oth_cls = stoi.get("<OTHER>") if arm == "p1" else None
     train, val = [], []
@@ -176,8 +185,12 @@ def _pad(rows):
 
 
 # -------------------------------------------------------- checkpoint surgery
-def build_model(arm, vocab_size, device):
+def build_model(arm, vocab_size, device, warm=None):
     model = GPTLanguageModel(vocab_size, N_EMBD, BLOCK_SIZE, N_HEAD, N_LAYER, DROPOUT)
+    if warm and os.path.exists(warm):                # Stage-3 expert iteration:
+        model.load_state_dict(torch.load(warm, map_location=device))  # warm-start
+        print(f"[{arm}] warm-started from {warm}", flush=True)
+        return model.to(device)
     state = torch.load(PRETRAIN, map_location=device)
     if arm == "p2":
         model.load_state_dict(state, strict=False)
@@ -199,15 +212,18 @@ def build_model(arm, vocab_size, device):
 
 
 # ------------------------------------------------------------------ train
-def ckpt_path(arm):
-    return os.path.join(HERE, "out", f"ft_{arm}.pth")
+def ckpt_path(arm, winners=False):
+    # expert-iteration writes a distinct version so the base checkpoint is kept
+    # (revertability is a Stage-3 tripwire requirement, 04-SELF-IMPROVE §2).
+    return os.path.join(HERE, "out", f"ft_{arm}{'_v2' if winners else ''}.pth")
 
 
-def train(arm, device, epochs=40, batch=32, lr=3e-5, seed=1337):
+def train(arm, device, epochs=40, batch=32, lr=3e-5, seed=1337, winners=False):
     torch.manual_seed(seed)
     _, stoi, vocab_size = ext_vocab(arm)
-    (Xtr, Ytr), (Xva, Yva) = build_dataset(arm, stoi)
-    model = build_model(arm, vocab_size, device)
+    (Xtr, Ytr), (Xva, Yva) = build_dataset(arm, stoi, winners=winners)
+    warm = ckpt_path(arm) if (winners and os.path.exists(ckpt_path(arm))) else None
+    model = build_model(arm, vocab_size, device, warm=warm)
     opt = torch.optim.AdamW(model.parameters(), lr=lr)
     Xtr, Ytr, Xva, Yva = [t.to(device) for t in (Xtr, Ytr, Xva, Yva)]
     n = Xtr.size(0)
@@ -225,7 +241,7 @@ def train(arm, device, epochs=40, batch=32, lr=3e-5, seed=1337):
         model.train()
         return sum(losses) / max(len(losses), 1)
 
-    os.makedirs(os.path.dirname(ckpt_path(arm)), exist_ok=True)
+    os.makedirs(os.path.dirname(ckpt_path(arm, winners)), exist_ok=True)
     best = float("inf")
     t0 = time.time()
     for ep in range(epochs):
@@ -243,35 +259,37 @@ def train(arm, device, epochs=40, batch=32, lr=3e-5, seed=1337):
         flag = ""
         if vl < best:
             best = vl
-            torch.save(model.state_dict(), ckpt_path(arm))
+            torch.save(model.state_dict(), ckpt_path(arm, winners))
             flag = "  <- saved"
         print(f"[{arm}] epoch {ep:3d}  train {tot/(n//batch+1):.4f}  "
               f"val {vl:.4f}{flag}", flush=True)
-    print(f"[{arm}] done in {time.time()-t0:.0f}s; best val {best:.4f} -> {ckpt_path(arm)}")
+    print(f"[{arm}] done in {time.time()-t0:.0f}s; best val {best:.4f} "
+          f"-> {ckpt_path(arm, winners)}")
 
 
 # ------------------------------------------------------------------ sample
-def load_ft(arm, device):
+def load_ft(arm, device, winners=False):
     _, _, vocab_size = ext_vocab(arm)
     model = GPTLanguageModel(vocab_size, N_EMBD, BLOCK_SIZE, N_HEAD, N_LAYER, DROPOUT)
-    model.load_state_dict(torch.load(ckpt_path(arm), map_location=device))
+    model.load_state_dict(torch.load(ckpt_path(arm, winners), map_location=device))
     return model.to(device).eval()
 
 
 def sample(arm, device, n=256, batch=32, max_tokens=256, temperature=0.7,
-           seed=1337, out=None, inductor_bias=0.0, cls="nb"):
+           seed=1337, out=None, inductor_bias=0.0, cls="nb", winners=False):
     torch.manual_seed(seed)
     devs, stoi, _ = ext_vocab(arm)
     itos = {i: d for i, d in enumerate(devs)}
-    model = load_ft(arm, device)
+    model = load_ft(arm, device, winners=winners)
     if arm == "p1":
         prefix = [stoi["<LNA>"], VSS_ID]
     elif arm == "p5":
         prefix = [stoi["<LNA_NB>" if cls == "nb" else "<LNA_WB>"], VSS_ID]
     else:
         prefix = [VSS_ID]
-    out = out or os.path.join(HERE, "out", f"ft_{arm}_{cls}_s{seed}"
-                              if arm == "p5" else f"ft_{arm}_s{seed}")
+    tag = f"{arm}{'v2' if winners else ''}"
+    out = out or os.path.join(HERE, "out", f"ft_{tag}_{cls}_s{seed}"
+                              if arm == "p5" else f"ft_{tag}_s{seed}")
     os.makedirs(out, exist_ok=True)
     if inductor_bias:
         from decode import generate_inductor_biased
@@ -317,16 +335,20 @@ def main():
     ap.add_argument("--out", default=None)
     ap.add_argument("--class", dest="cls", choices=["nb", "wb"], default="nb",
                     help="p5 sampling class token (<LNA_NB> / <LNA_WB>)")
+    ap.add_argument("--winners", action="store_true",
+                    help="p5 Stage-3 expert iteration: mix store winners, warm-start "
+                         "from ft_p5.pth, write ft_p5_v2.pth (04-SELF-IMPROVE §2)")
     ap.add_argument("--inductor-bias", type=float, default=0.0,
                     help="P4: add this logit bias to unused L-device tokens while "
                          "the running inductor ratio is below target")
     args = ap.parse_args()
 
     if args.do in ("train", "both"):
-        train(args.arm, args.device, epochs=args.epochs, seed=args.seed)
+        train(args.arm, args.device, epochs=args.epochs, seed=args.seed,
+              winners=args.winners)
     if args.do in ("sample", "both"):
         sample(args.arm, args.device, n=args.n, seed=args.seed, out=args.out,
-               inductor_bias=args.inductor_bias, cls=args.cls)
+               inductor_bias=args.inductor_bias, cls=args.cls, winners=args.winners)
 
 
 if __name__ == "__main__":

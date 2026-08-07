@@ -66,6 +66,40 @@ def emit_sequence(netlist, ports=PORTS):
     return paths[0] if paths else None
 
 
+def topo_to_netlist(topo):
+    """Reconstruct a read_netlist-format netlist + ports from a parsed Topology,
+    so a *labeled* winner (Stage-3 expert iteration) can be Eulerian-augmented like
+    a template. Returns (netlist, ports) or (None, None) if a device is
+    incomplete. Round-trips WL-hash-exact on corpus + generated topologies."""
+    import re
+    from topology import base_of
+    TYPE = {"NM": "nmos4", "PM": "pmos4", "R": "resistor",
+            "C": "capacitor", "L": "inductor"}
+    PINS = {"NM": ["D", "G", "S", "B"], "PM": ["D", "G", "S", "B"],
+            "R": ["P", "N"], "C": ["P", "N"], "L": ["P", "N"]}
+    node_name, ic = {}, [0]
+    for root, members in topo.nodes.items():
+        nets = sorted(m for m in members if m in topo.nets)
+        if nets:
+            node_name[root] = nets[0]
+        else:
+            ic[0] += 1
+            node_name[root] = f"nn{ic[0]}"
+    pin2root = {m: root for root, members in topo.nodes.items() for m in members}
+    netlist = []
+    for d in sorted(topo.devices):
+        b = base_of(d)
+        if b not in TYPE:
+            continue
+        try:
+            nets = [node_name[pin2root[f"{d}_{p}"]] for p in PINS[b]]
+        except KeyError:
+            return None, None
+        netlist.append([d] + nets + [TYPE[b]])
+    ports = [n for n in ("VDD", "VSS", "VIN1", "VOUT1") if n in topo.nets]
+    return (netlist, ports or list(PORTS)) if netlist else (None, None)
+
+
 def augment(netlist, ports=PORTS, max_solutions=24, run_num=3):
     """A handful of Eulerian augmentations of one archetype -- the P5 fine-tune's
     training rows. Kept modest: the DFS augmentation is ~seconds/graph and ~20
@@ -254,6 +288,40 @@ def _emit_dir(directory):
     return len(arche)
 
 
+def emit_winners(path, spec_name="wifi24", top_q=0.25):
+    """Stage-3 Loop B (04-SELF-IMPROVE §2): the generator's own winners as training
+    rows. Winners = feasible + top-quartile-by-sized-scalar near-feasible token
+    topologies from the store (TRUE SPICE numbers only -- critic scores never
+    select training data). Eulerian-augmented; feasible ones oversampled 2x. Writes
+    JSON the GPU fine-tune reads (augmentation needs pandas; training does not)."""
+    sys.path.insert(0, HERE)
+    import datastore as ds
+    from spec import Spec
+    spec = Spec.load(spec_name)
+    scored = []
+    for r in ds.load("topo_labels"):
+        toks = (r.get("graph") or {}).get("tokens")
+        m = r.get("metrics")
+        if toks and m:
+            scored.append((spec.objective(m), bool(r.get("feasible")), toks))
+    scored.sort(key=lambda x: x[0])                       # lower objective = better
+    keep = scored[:max(1, int(top_q * len(scored)))]
+    rows, n_feas = [], 0
+    for _, feas, toks in keep:
+        nl, ports = topo_to_netlist(Topology(toks))
+        if nl is None:
+            continue
+        n_feas += int(feas)
+        for seq in augment(nl, ports, max_solutions=10, run_num=2) * (2 if feas else 1):
+            rows.append({"cls": "nb", "seq": seq, "feasible": feas})
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    with open(path, "w", encoding="utf-8", newline="\n") as fh:
+        json.dump({"rows": rows}, fh)
+    print(f"wrote {len(rows)} augmented winner rows ({len(keep)} winners, "
+          f"{n_feas} feasible) -> {path}")
+    return len(rows)
+
+
 def _emit_train(path):
     """Pre-generate Eulerian-augmented template rows for the P5 fine-tune (run
     under a pandas-capable python; the GPU training env has torch but not pandas,
@@ -277,7 +345,11 @@ def main():
     ap.add_argument("--emit-dir", metavar="DIR", help="write seq*.txt + meta.json")
     ap.add_argument("--emit-train", metavar="PATH",
                     help="write Eulerian-augmented rows (JSON) for the P5 fine-tune")
+    ap.add_argument("--emit-winners", metavar="PATH",
+                    help="write augmented winner rows (JSON) for Stage-3 Loop B")
     args = ap.parse_args()
+    if args.emit_winners:
+        return 0 if emit_winners(args.emit_winners) else 1
     if args.emit_train:
         return 0 if _emit_train(args.emit_train) else 1
     if args.emit_dir:

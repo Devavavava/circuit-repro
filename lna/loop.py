@@ -196,16 +196,56 @@ def cmd_status():
     return 0
 
 
+CADENCE = """cadence for one loop turn (04-SELF-IMPROVE; each is an existing tool):
+  A  label     python lna/campaign.py --night [--gen-glob <new P5 dir>]   # + acquisition picks (uncertainty/disagreement) for half the quota
+  A  critic    <analoggenie py> lna/critic.py --eval  &  critic_gnn.py --eval   # retrain; adopt-only-if-better on the family holdout
+  B  generator python lna/templates.py --emit-winners lna/out/winners_train.json ; <wsl gpu> lna/finetune.py --arm p5 --do both --winners --n 256
+  C  rerank    <analoggenie py> lna/search.py --rerank   # the curve's next point
+  gate         python lna/loop.py --tripwires --sample <new gen dir>   # must be quiet"""
+
+
+def cmd_iterate(note=""):
+    """Record a loop iteration: gate on tripwires, snapshot the curve + trend, and
+    print the cadence. The heavy steps are the existing tools; this is the
+    governance record + the tripwire gate (04-SELF-IMPROVE §5)."""
+    from datetime import date
+    st = load_state()
+    quiet = tripwires(sample_dir=os.path.join(HERE, "out", "ft_p5_nb_s1337"))
+    curve = spice_curve()
+    prev = (st["iterations"][-1]["curve"] if st["iterations"]
+            else (st.get("baseline") or {}).get("curve", {}))
+    p = prev.get("spice_min_per_feasible_novel")
+    c = curve.get("spice_min_per_feasible_novel")
+    trend = ("n/a" if (p is None or c is None)
+             else f"{p} -> {c} SPICE-min/design ({'IMPROVING' if c < p else 'worse' if c > p else 'flat'})")
+    st["iterations"].append({"n": len(st["iterations"]) + 1, "date": date.today().isoformat(),
+                             "curve": curve, "tripwires_quiet": quiet, "note": note})
+    save_state(st)
+    print(f"\n=== loop iteration {len(st['iterations'])} recorded ===")
+    print(f"headline curve: {trend}")
+    print(f"tripwires: {'quiet' if quiet else 'TRIPPED -- apply the response above before continuing'}")
+    print(f"feasible-novel designs so far: {curve['feasible_novel']}")
+    print(f"\n{CADENCE}")
+    print("\nexit criterion: two consecutive iterations with the curve improving "
+          "and all tripwires quiet.")
+    return 0 if quiet else 1
+
+
 def main():
     ap = argparse.ArgumentParser(description="Stage-3 self-improvement loop")
     ap.add_argument("--status", action="store_true")
     ap.add_argument("--tripwires", action="store_true")
     ap.add_argument("--curve", action="store_true")
     ap.add_argument("--baseline", action="store_true")
+    ap.add_argument("--iterate", action="store_true",
+                    help="record a loop iteration + gate on tripwires + print cadence")
+    ap.add_argument("--note", default="", help="note for the iteration record")
     ap.add_argument("--sample", help="generation dir for the NDL/family tripwires")
     args = ap.parse_args()
     if args.baseline:
         return cmd_baseline()
+    if args.iterate:
+        return cmd_iterate(note=args.note)
     if args.curve:
         print(json.dumps(spice_curve(), indent=2))
         return 0

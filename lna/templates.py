@@ -134,6 +134,11 @@ def _add_load(nl, N, d, load):
         nl.append(["Ct1", d, tap, "capacitor"])
         nl.append(["Ct2", tap, "VSS", "capacitor"])
         nl.append(["Cout", tap, "VOUT1", "capacitor"])
+    elif load == "shunt_peak":                   # RL + series L -> bandwidth extension
+        p = N.new()                              # (wideband family, WP-BROADEN)
+        nl.append(["RL", "VDD", p, "resistor"])
+        nl.append(["Lpk", p, d, "inductor"])     # shunt-peaking inductor in series w/ RL
+        nl.append(["Cout", d, "VOUT1", "capacitor"])
 
 
 def _maybe_cascode(nl, N, d, cascode):
@@ -210,15 +215,87 @@ def cg_lna(load, cascode):
     return nl
 
 
-def rfb_lna(load):
-    """Resistive shunt-feedback LNA (inductorless; wideband family)."""
+def rfb_lna(load, buffer=False, cascode=False):
+    """Resistive shunt-feedback LNA (inductorless; wideband family). Optional
+    source-follower buffer isolates the load from the feedback loop (WP-BROADEN)."""
     nl, N = [], Nets()
     g = N.new()
     nl.append(["Cin", "VIN1", g, "capacitor"])
     d = N.new()
     nl.append(["M1", d, g, "VSS", "VSS", "nmos4"])
-    nl.append(["Rf", d, g, "resistor"])                # shunt feedback
-    _add_load(nl, N, d, "R" if load == "tapped" else load)
+    d = _maybe_cascode(nl, N, d, cascode)
+    nl.append(["Rf", d, g, "resistor"])                # shunt feedback (around the gain core)
+    ld = "R" if load == "tapped" else load             # feedback matches, not LC resonance
+    if buffer:
+        _add_load_to_buffer(nl, N, d, ld)
+    else:
+        _add_load(nl, N, d, ld)
+    return nl
+
+
+# --------------------------------------------------- gain-boosted (gps-l1) family
+def cs_cs_lna(degen, load1, load2, buffer):
+    """Two-stage common-source LNA (WP-BROADEN gain-boosted family for gps-l1:
+    cascaded gm clears S21 >= 15 dB where single-stage cascode+tapped tops ~14 dB).
+    Input match on stage 1 only (gate inductor + optional degeneration); stage-1
+    resonant load feeds stage 2 through a coupling cap; stage 2 drives the output."""
+    nl, N = [], Nets()
+    gin = N.new()
+    nl.append(["Cin", "VIN1", gin, "capacitor"])
+    g1 = N.new()
+    nl.append(["Lg1", gin, g1, "inductor"])            # input match (gate inductor)
+    s1 = N.new() if degen else "VSS"
+    d1 = N.new()
+    nl.append(["M1", d1, g1, s1, "VSS", "nmos4"])
+    if degen:
+        nl.append(["Ls1", s1, "VSS", "inductor"])
+    if load1 == "tapped":                              # stage-1 load -> internal node n1
+        tap = N.new()
+        nl.append(["Ld1", "VDD", d1, "inductor"])
+        nl.append(["Ct1a", d1, tap, "capacitor"])
+        nl.append(["Ct1b", tap, "VSS", "capacitor"])
+        n1 = tap
+    else:                                              # "tank"
+        nl.append(["Ld1", "VDD", d1, "inductor"])
+        nl.append(["Ctnk1", "VDD", d1, "capacitor"])
+        n1 = d1
+    g2 = N.new()
+    nl.append(["Cc", n1, g2, "capacitor"])             # inter-stage coupling (DC block)
+    d2 = N.new()
+    nl.append(["M2", d2, g2, "VSS", "VSS", "nmos4"])   # stage-2 CS (g2 auto-biased)
+    if buffer:
+        _add_load_to_buffer(nl, N, d2, load2)
+    else:
+        _add_load(nl, N, d2, load2)
+    return nl
+
+
+def current_reuse_lna(load, degen):
+    """Complementary current-reuse LNA (WP-BROADEN gain-boosted family for gps-l1's
+    Idd <= 3 mA cap: NMOS and PMOS share one bias current with gm_n + gm_p summed at
+    the shared drain -> gain at half the current a single device would draw). The
+    output resonator is DC-blocked (Cblk) so it can't short the self-biased drain."""
+    nl, N = [], Nets()
+    gin = N.new()
+    nl.append(["Cin", "VIN1", gin, "capacitor"])
+    g = N.new()
+    nl.append(["Lg", gin, g, "inductor"])              # input match (shared gate)
+    out = N.new()
+    sN = N.new() if degen else "VSS"
+    nl.append(["Mn", out, g, sN, "VSS", "nmos4"])      # NMOS: drain=out, source=VSS
+    if degen:
+        nl.append(["Lsn", sN, "VSS", "inductor"])
+    nl.append(["Mp", out, g, "VDD", "VDD", "pmos4"])   # PMOS: drain=out, source=VDD
+    r = N.new()                                        # DC-isolated resonant output
+    nl.append(["Cblk", out, r, "capacitor"])
+    nl.append(["Lr", r, "VSS", "inductor"])
+    nl.append(["Cr", r, "VSS", "capacitor"])
+    if load == "tapped":
+        tap = N.new()
+        nl.append(["Cto", r, tap, "capacitor"])
+        nl.append(["Cout", tap, "VOUT1", "capacitor"])
+    else:                                              # "tank"
+        nl.append(["Cout", r, "VOUT1", "capacitor"])
     return nl
 
 
@@ -242,12 +319,28 @@ def archetypes():
                                 f"cs_gi{int(gate_ind)}_dg{int(degen)}_cx{int(cex)}"
                                 f"_cc{int(cascode)}_{load}_bf{int(buffer)}",
                                 cs_lna(gate_ind, degen, cex, cascode, load, buffer)))
-    # wideband inductorless family
-    for load in ("R", "tank"):
+    # gain-boosted narrowband family (WP-BROADEN, unlocks gps-l1: S21 >= 15 @ Idd <= 3)
+    for degen in (True, False):
+        for load1 in ("tank", "tapped"):
+            for load2 in ("R", "tank", "tapped"):
+                for buffer in (False, True):
+                    combos.append(("nb",
+                        f"cscs_dg{int(degen)}_{load1}-{load2}_bf{int(buffer)}",
+                        cs_cs_lna(degen, load1, load2, buffer)))
+    for load in ("tank", "tapped"):
+        for degen in (False, True):
+            combos.append(("nb", f"creuse_{load}_dg{int(degen)}",
+                           current_reuse_lna(load, degen)))
+    # wideband inductorless family (WP-BROADEN, unlocks wideband-sdr: broadband S11)
+    for load in ("R", "tank", "shunt_peak"):
         for cascode in (False, True):
             combos.append(("wb", f"cg_{load}_cc{int(cascode)}", cg_lna(load, cascode)))
-    for load in ("R", "tank"):
-        combos.append(("wb", f"rfb_{load}", rfb_lna(load)))
+    for load in ("R", "tank", "shunt_peak"):
+        for buffer in (False, True):
+            for cascode in (False, True):
+                combos.append(("wb",
+                    f"rfb_{load}_bf{int(buffer)}_cc{int(cascode)}",
+                    rfb_lna(load, buffer, cascode)))
 
     from spec import Spec
     screens = {k: Spec.load(v) for k, v in specs.items()}

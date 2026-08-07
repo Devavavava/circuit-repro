@@ -11,7 +11,7 @@ exactly where to resume. Read `WORKLOG.md` (entries R1/R2 are mine) and
 
 ---
 
-## Session 2 — Phase 2: Stage-0→2 executed + **P5 generator** + **loop closed once**; C1 met, S1 1.74×, P5 breaks memorization (NDL 24→60) and yields 2.3× more near-feasible designs/SPICE
+## Session 2 — Phase 2: Stage-0→2 executed + P5 generator + loop closed + **★ GATE G4 CLOSED BY GENERATION** (seq0240: novel, S11 −11.9 / S21 12.6 / Idd 1.19); C1 met, P5 breaks memorization (NDL 24→60) + 2.3× near-feasible yield
 
 **New roadmap:** `.claude/worktrees/lna-plans/lna/plans2/` (start at
 `00-OVERVIEW.md`) — the generate→size pipeline is now feature-complete; Phase 2
@@ -160,16 +160,24 @@ designs per SPICE, beating critic-rerank's 1.74×.** Enrichment on P5 falls to ~
 Snapshot `v3-p5` (293 L2). **G4-by-generation is CLOSE:** P5 hits S21=14.0 dB
 (seq0126) and S11=−21.9 dB (seq0009), not simultaneously.
 
+**★ GATE G4 CLOSED BY GENERATION (DONE).** `g4_search.py` (boosted multi-seed
+sizing: 4 seeds × anchor-budget on the 6 closest P5 candidates) sized **seq0240**
+to full feasibility (novel; S11 −11.9 / S21 12.6 dB / Idd 1.19 mA). The naive
+single-seed sizer, not the topology, had capped it — same all-free-ZOAF trap the
+tapped ref hit. Logged (`source_arm=g4-generated`); design tokens are in
+`topo_labels.jsonl` (seq file gitignored). Store now 2 feasible (hand + generated).
+
 **Next, in priority:**
-1. **Curated feasible sizing → G4-by-generation** (the marquee gap): size the top
-   P5 candidates (seq0126/0240/0009 …) with a curated sizable set like `size_tapped`
-   (input match fixed) instead of all-params-free ZOAF — likely closes G4.
-2. **Stage-3 loop cadence** (04-SELF-IMPROVE): one turn (generate→size→rerank) is
-   now proven to move the yardstick; wire the repeat (retrain critic on the P5
-   labels → re-generate → re-size) + the tripwires. This is the remaining *stage*.
-3. Supporting: bigger P5 pool + **σ reduction** (0.77 now — trim multimodal labels);
-   `<LNA_WB>` wideband sampling; rung-2 evolutionary loop (Gate S2). The critic
-   interface leftovers (`--score`/`--export-npz`, graph+L1, NF head) remain from 02.
+1. **Stage-3 loop cadence (04-SELF-IMPROVE) — the last untouched *stage*.** One
+   turn (generate → size → rerank/refine → G4 design) is proven; wire the repeat:
+   retrain critic on the new P5/g4 labels → re-generate → re-size, with the 5
+   tripwires + the exit criterion (2 iterations, SPICE-per-feasible improving).
+2. **Harden G4:** more feasible generated designs (run `g4_search.py` on a bigger
+   P5 pool / more seeds; several were within one constraint), and **lower σ** (0.77
+   — trim multimodal-sizing labels) so the critic reads cleaner.
+3. Supporting: `<LNA_WB>` wideband sampling; rung-2 evolutionary loop (Gate S2, may
+   now be moot given G4 fell out of rung-1+refine); the 02 critic interface
+   leftovers (`--score`/`--export-npz`, graph+L1, NF head).
 2. **Cheap supporting probes** (no GPU): a **live** rung-1 on a fresh/bigger pool
    (does another draw clear 2×?); **curated feasible template sizing** (size the
    tapped archetypes with a curated sizable set like `size_tapped`, for a true

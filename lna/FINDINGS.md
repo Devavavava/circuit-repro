@@ -790,13 +790,26 @@ should); ρ is mixed/noisy at n=26, σ=0.77. So the program yardstick
 (SPICE-per-near-feasible-design) improved ~2.3× — from the generator, exactly as
 the source-shift analysis predicted, now confirmed end-to-end.
 
-**G4-by-generation is close but not closed:** P5 samples reach S21 = 14.0 dB
-(seq0126, S11 short) and S11 = −21.9 dB (seq0009, S21 short) — high gain and good
-match are both now *generated*, just not in one design under all-params-free ZOAF.
-Curated sizing of the top P5 candidates (as `size_tapped` does the ref) is the
-likely path to the phase's headline gate.
+**★ GATE G4 CLOSED BY GENERATION — the phase's headline.** Boosted multi-seed
+sizing (`g4_search.py`: 4 seeds × an anchor-strength ZOAF budget, on the 6 closest
+P5 candidates) landed the first **novel generated topology sized to full
+feasibility** vs wifi24: **seq0240** (8 devices: 2 NMOS + 1 L + 2 R + 3 C, wl_hash
+novel) → **S11 −11.9 dB, S21 12.6 dB, Idd 1.19 mA** (feasible; NF advisory). It was
+the naive single-seed sizer, not the topology, that had capped these — the same
+all-free-ZOAF landscape trap the tapped reference hit; more seeds/budget on the
+promising few found the feasible basin (seq0240 went S11 −1.0→−11.9 while holding
+S21 ≥ 12). Several others came within one constraint (seq0009: S11 −14.6 / S21
+14.1, Idd 5.6 just over). Store now has **2 feasible** designs — the tapped
+reference (by hand) and seq0240 (by generation). The design lives in
+`topo_labels.jsonl` (its tokens), so it survives though the seq file is gitignored.
 
-**Open (next):** curated feasible sizing of top P5 candidates (→ G4-by-generation);
-a bigger P5 pool + lower σ (0.77 now — trim multimodal-sizing labels) to firm up
-the ρ read; per-class `<LNA_WB>` for wideband; the Stage-3 loop cadence
-(re-generate ← retrain ← re-size) now that one turn is proven to move the yardstick.
+This is the end-to-end proof of the phase thesis: **P5's better distribution +
+critic/metric-guided selection of the closest candidates + a modest extra sizing
+budget = a novel feasible LNA the pipeline designed itself.**
+
+**Open (next):** the Stage-3 loop *cadence* (04-SELF-IMPROVE) — re-generate ←
+retrain critic on the new labels ← re-size, with tripwires — is the last untouched
+stage; one turn is now proven to both move the yardstick (2.3×) and yield a G4
+design. Supporting: bigger P5 pool + lower σ (0.77 — trim multimodal labels);
+`<LNA_WB>` wideband; rung-2 evolutionary loop; the 02 critic interface leftovers
+(`--score`/`--export-npz`, graph+L1, NF head).

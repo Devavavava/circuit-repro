@@ -221,11 +221,12 @@ def write_report(tasks, results, spec_name):
     for s in ("T", "G", "M", "R"):
         a, sz, fe = per.get(s, [0, 0, 0])
         lines.append(f"| {s} | {a} | {sz} | {fe} |")
-    notes = ["full stratum T awaits templates.py (P5)",
-             "M awaits the mutation move set (03-SEARCH §3)"]
+    notes = ["M awaits the mutation move set (03-SEARCH §3)"]
     if per.get("G", [0])[0] == 0:
         notes.insert(0, "stratum G had no tasks (no seq*.txt in this checkout — "
                         "gitignored; pass --gen-glob at the main checkout)")
+    if not os.path.exists(os.path.join(TEMPLATE_DIR, "meta.json")):
+        notes.insert(0, "stratum T thin (no templates.py output yet)")
     lines += ["",
               f"repeat-probe sigma(S21): "
               + (f"**{sigma:.3f} dB** over {n_sig} keys "

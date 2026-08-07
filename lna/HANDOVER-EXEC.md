@@ -11,7 +11,7 @@ exactly where to resume. Read `WORKLOG.md` (entries R1/R2 are mine) and
 
 ---
 
-## Session 2 — Phase 2 (learned critic): Stage-0 + Gate G4 + Gate C0 + P5 templates + Stage-1 (baseline **and** GNN) DONE; Gate C1 met by baseline
+## Session 2 — Phase 2: Stage-0 + G4 + C0 + templates + Stage-1 (baseline+GNN) + Stage-2 rung-1 DONE; C1 met, S1 not (source-shift is the wall)
 
 **New roadmap:** `.claude/worktrees/lna-plans/lna/plans2/` (start at
 `00-OVERVIEW.md`) — the generate→size pipeline is now feature-complete; Phase 2
@@ -125,23 +125,26 @@ unattended nights, σ measured ✓). The campaign runs but three sources are thi
    from the main checkout. `campaign.py --gen-glob` points it at a dir.
 3. **Stratum M** — the 1-edit mutation move set (03-SEARCH §3); reused later by
    evolutionary search. Not built.
-**Stage-1 fully DONE (baseline + GNN); Gate C1 met by WL-kNN on the gate.** The
-GNN (`critic_gnn.py`, CPU under analoggenie torch — no WSL needed) loses to WL-kNN
-on the C1 gate (family-holdout ρ≈0.65 vs 0.77) but wins the source-shift
-diagnostic (ρ≈0.34 vs 0.22–0.28) with usable uncertainty. Prioritized next:
-1. **03-SEARCH rung-1 rerank is now unblocked** (C1 met): generate big, critic-rank
-   (WL-kNN as v1; or the GNN's `mean − β·std` for OOD candidates), size top-k,
-   measure enrichment vs random at equal SPICE budget (03-SEARCH §2, Gate S1).
-   **Gate the GNN on its uncertainty** — the source-shift result says it is
-   unreliable on genuinely novel topologies.
-2. **The generator is the deeper lever** — every model tops out sub-C1 on the
-   source-shift because the generated arms are a distribution nothing predicts
-   well. P1/P5 fine-tune toward a distribution the critic *can* rank likely beats
-   more surrogate capacity. (templates.py output can now feed the P5 fine-tune.)
-3. **Curated template sizing** for a true feasible token class (88 templates are
-   near-feasible, 0 fully feasible under all-params-free ZOAF); **σ reduction**
-   (trim multimodal-sizing labels via repeat-probes; σ rose 0.32→0.61) to lift the
-   ρ ceiling; stratum **M** mutation move set (03-SEARCH §3) still unbuilt.
+**Stage-1 + Stage-2 rung-1 DONE. C1 met (WL-kNN, family split); S1 NOT met.**
+The GNN (`critic_gnn.py`, CPU under analoggenie torch) wins the source-shift
+diagnostic (ρ≈0.34) but loses the C1 gate to WL-kNN (0.65 vs 0.77). Rung-1 rerank
+(`search.py --rerank`, offline on the 142 sized generated pool): WL-kNN 1.37× /
+GNN 1.74× near-feasible enrichment vs random — below S1's 2×.
+
+**The wall, stated plainly:** source-shift C1 and S1 both fail for the *same*
+reason — the generated arms are a distribution no surrogate ranks to 2×. So:
+1. **The generator is the lever** (not more surrogate capacity). P1/P5 fine-tune
+   toward a critic-rankable distribution; `templates.py` output can seed the P5
+   set. This needs the **WSL GPU env** (`/opt/miniconda/envs/gpu`, via PowerShell
+   → `wsl -e bash`) — the one place the GPU is actually required.
+2. **Cheap supporting probes** (no GPU): a **live** rung-1 on a fresh/bigger pool
+   (does another draw clear 2×?); **curated feasible template sizing** (size the
+   tapped archetypes with a curated sizable set like `size_tapped`, for a true
+   feasible token class); **σ reduction** (trim multimodal-sizing labels; σ rose
+   0.32→0.61, capping ρ).
+3. **Rung-2 evolutionary loop** (03-SEARCH §2) + its stratum-M mutation move set —
+   only worth it if a cheaper probe first nudges S1 toward 2×; else de-scope
+   ladder holds (rerank still cuts sizing waste at 1.74×).
 
 **Deferred (deliberate, not blocking — 00-OVERVIEW #3 "don't block on NF"):**
 un-gating NF as a *hard constraint* in the objective (changes sizing; validate

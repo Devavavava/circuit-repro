@@ -728,10 +728,28 @@ better to the peculiar generated distribution — but it still doesn't reach C1'
 reaches it under the source-shift, for any architecture** — confirming the gap is
 the generated distribution, not the surrogate.
 
-**Open (next):** 03-SEARCH **rerank** is now unblocked (C1 met on the gate) — but
-gate it on the GNN's uncertainty, since the source-shift says the critic is
-unreliable on genuinely novel topologies. Deeper lever: the **generator** (a
-distribution the critic can actually predict) over more surrogate capacity.
-Also open: curated template sizing for a true feasible token class; stratum-M
-mutation contrast; lowering σ (trim multimodal-sizing labels) to lift the ρ
-ceiling.
+**Stage 2 rung-1 — controlled best-of-N rerank (`search.py --rerank`).** Run
+retrospectively on the 142 already-sized generated candidates (real SPICE, §4
+rule 4): critic trained on non-generated rows only, rank the pool, "size top-30"
+= their true margins, control = 30 random. Pool near-feasible base rate 0.27:
+
+| arm | near-feasible @top-30 | random | **enrichment** | ρ_S21 |
+|---|---|---|---|---|
+| WL-kNN | 11 | 8 | 1.37× | 0.28 |
+| **GNN** (mean−σ) | 14 | 8 | **1.74×** | 0.34 |
+
+**Gate S1 (≥2×) not cleared** — the in-vivo confirmation of the source-shift
+result. But it is coherent and not worthless: the GNN's better OOD ρ turns into
+better selection (1.74× vs 1.37×, near the bar), sizing its top-30 finds 74% more
+near-feasible designs per equal SPICE budget, and it surfaces the pool's single
+best-gain candidate. Per the de-scope ladder, search *waits* on S1 while rerank
+still cuts sizing waste; realized-vs-predicted ρ feeds the next critic retrain.
+
+**Open (next), in priority.** Every gate that's failed — source-shift C1, S1 —
+fails for the *same* reason: the generated arms are a distribution nothing ranks
+to 2×. So the lever is the **generator** (P1/P5 fine-tune toward a critic-rankable
+distribution; `templates.py` output can seed it), not more surrogate capacity.
+Cheaper supporting moves: a **live** rung-1 on a fresh/bigger pool (does a
+different draw clear 2×?); **curated feasible template sizing** (a true feasible
+token class); **lower σ** (trim multimodal-sizing labels — σ rose 0.32→0.61,
+capping ρ); the **evolutionary loop** (rung-2) and its stratum-M mutations.

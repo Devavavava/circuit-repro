@@ -11,7 +11,7 @@ exactly where to resume. Read `WORKLOG.md` (entries R1/R2 are mine) and
 
 ---
 
-## Session 2 — Phase 2 Stages 0–3 + last-mile: G4 by generation, Stage-3 loop run, **★ Gate I3 MET** (curated sizing → 3 feasible generated LNAs, curve 967→367)
+## Session 2 — Phase 2 Stages 0–3 + last-mile + **★ STAGE 3 PHASE EXIT MET** (iter-4): polish-first convert → 6 feasible generated LNAs, curve 967→367→**187** SPICE-min/design. Next phase: WP-BROADEN (gps-l1 + wideband-sdr).
 
 **New roadmap:** `.claude/worktrees/lna-plans/lna/plans2/` (start at
 `00-OVERVIEW.md`) — the generate→size pipeline is now feature-complete; Phase 2
@@ -199,21 +199,39 @@ templates.py/P5), NOT sizing. Curve honest state: **3 distinct feasible designs,
 SPICE-min** (dedup fix — repeat-probes no longer inflate it); a broad curated --top 15
 sweep added no new distinct designs (candidates stall at S11 −10.0/S21 11.9).
 
-**Next, in priority:**
-1. **§2 polish is now the highest-value fix** — the benchmark + sweep show ~90
-   candidates stalled a hair from feasible (top-10 median violation 0.007, S11 −10.0
-   / S21 11.9). Min-margin ascent would convert them; debug the `size.polish`
-   start-point bug (run_and_extract None at stored best_params) first. Then a broad
-   `--curated`+polish pass lands many feasibles → decisive curve bend → phase exit.
-   Separately, **gain-boosted + wideband-match archetypes** (templates.py/P5) unlock
-   gps-l1 / wideband-sdr.
-2. **§2 polish** (`size.polish`) is coded but has a start-point bug: `run_and_extract`
-   returns None at a stored `best_params` (body/param reconstruction mismatch vs the
-   curated path which works) — debug, then it's the cheap complement for the last
-   0.1-dB near-misses (seq0079: S21 11.9).
-3. **§4 σ** best-of-3 relabel of high-spread keys before the next critic retrain
-   (σ=1.02 caps ρ); store `label_sigma`, critic downweights by 1/σ. Then `<LNA_WB>`,
-   Loop A acquisition, the 02 critic-interface leftovers.
+**★ EXIT (07-EXIT §1, iter-4) — Stage 3 phase exit MET; loop is an operating
+mode.** Fixed the `size.polish` start-point bug — root cause: `g4_search`
+re-parsed the candidate's `token_file`, but P5 arms reuse `seq*.txt` names for
+different topologies, so the parsed graph mismatched the stored `best_params`.
+Fix: reconstruct topology from the row's **own** `graph.tokens`; fence with
+**`size.replay_ok`** (re-eval at stored best must reproduce stored metrics within
+σ, else quarantine) + `size.log_l2_result` (record a win as-found, no re-size).
+`g4_search --curated --polish` is now **polish-first** (min-margin ascent from the
+stored best, ~100 sims, cheap) with curated-ZOAF fallback, wl_hash dedup. Convert
+pass → **3 new feasible novel: seq0079, seq0086 (S21 driven 7.3→15.3), seq0046**;
+**feasible-novel 3→6, curve 367→186.6 SPICE-min/design.** Two consecutive
+improving turns (iter-3 367, iter-4 187) + tripwires quiet ⇒ **exit criterion
+MET.** Honest: only the closest ~5 were polish-convertible; the funnel's
+`one_constraint_off_count=90` overcounts (flags designs a match-network away).
+Store now **7 feasible (6 novel + tapped ref)**.
+
+**Next phase = WP-BROADEN (07-EXIT §2). Scoreboard rotates to `benchmark.md`
+(wifi24 solved; its curve no longer measures progress).** In priority:
+1. **Gain-boosted archetypes → gps-l1 (S21≥15 @ Idd≤3):** add `templates.py`
+   constructors for **two-stage CS→CS** (stage-1 tank load, stage-2 buffer/tapped)
+   + **current-reuse** (stacked gm at shared Idd — the 3 mA cap is the binding
+   constraint). Curated sizing must learn a two-stage match map (input match on
+   stage 1 only). Single-stage cascode+tapped tops ~12–14 dB, so it's out.
+2. **Wideband archetypes → wideband-sdr (broadband S11, ripple≤2):** activate the
+   existing `rfb_lna`/`cg_lna` constructors as first-class strata + **shunt-peaked
+   loads** + resistive-feedback+buffer; wire `<LNA_WB>` end-to-end (vocab token
+   exists; WB template count 4 → ≥30). These match by feedback, not LC resonance.
+3. **Sequence:** constructors → label stratum T vs *both* new specs → **P5-v3**
+   fine-tune (`<LNA_NB>`/`<LNA_WB>`, winners in) → NDL@256 + tripwires → curated
+   sizing per family. **Gate B1:** ≥1 feasible on each of gps-l1 and wideband-sdr.
+4. **Before any critic retrain (§1b/§4, deferred):** σ-drift is 1.27 and climbing
+   (< 2× bar). Best-of-3 relabel of high-spread keys, store `label_sigma`, critic
+   downweights 1/σ. Then Loop-A acquisition, 02 critic-interface leftovers.
 2. **Cheap supporting probes** (no GPU): a **live** rung-1 on a fresh/bigger pool
    (does another draw clear 2×?); **curated feasible template sizing** (size the
    tapped archetypes with a curated sizable set like `size_tapped`, for a true

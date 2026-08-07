@@ -45,6 +45,26 @@
       },
       "tripwires_quiet": true,
       "note": "iter3 last-mile: curated final-mile sizing (fix input match) -> 2 NEW feasible generated designs seq0009 (S11 -10.9/S21 12.8/Idd 4.0) + seq0220 (S11 -13.8/S21 12.6/Idd 2.46); Gate I3 met"
+    },
+    {
+      "n": 4,
+      "date": "2026-08-07",
+      "curve": {
+        "spice_minutes": 1119.4,
+        "sims": 67164,
+        "feasible": 7,
+        "feasible_novel": 6,
+        "spice_min_per_feasible_novel": 186.6
+      },
+      "funnel": {
+        "near_feasible_rate": 0.5,
+        "near_feasible_count": 169,
+        "one_constraint_off_count": 90,
+        "spice_min_per_near_feasible": 6.5,
+        "median_topviol_top10": 0.0
+      },
+      "tripwires_quiet": true,
+      "note": "iter4 EXIT turn: polish-first convert-the-wall (07-EXIT 1a+1c). Fixed size.polish start-point bug (reconstruct topo from row's own graph.tokens) + added size.replay_ok provenance invariant. 3 new feasible novel: seq0079 (S11 -15.6/S21 13.5/Idd 3.63), seq0086 (S11 -12.6/S21 15.3/Idd 1.90; S21 driven 7.3->15.3 by min-margin ascent), seq0046 (S11 -11.0/S21 13.3/Idd 3.61). feasible-novel 3->6, curve 367->187 SPICE-min/design. Convertible wall was ~5 closest, not 90 (rest are 2-3 constraints off, need topology not sizing)."
     }
   ],
   "baseline": {

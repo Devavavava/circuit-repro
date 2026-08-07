@@ -892,3 +892,52 @@ sweet spot); repeat-probes don't inflate the curve now (dedup by wl_hash).
 **Curve honest state:** 3 distinct feasible novel designs, **370 SPICE-min/design**
 (967→367→370; the last sweep was breadth, not new designs). Median top-10 violation
 0.007 — a wall of candidates a hair from feasible, awaiting §2 polish / more seeds.
+
+**★ STAGE 3 PHASE EXIT — the self-improvement loop is now an operating mode
+(07-EXIT §1, iter-4).** The exit turn debugged and closed the polish path, then
+converted the closest wall:
+* **§1a — the polish start-point bug, root-caused and fenced.** `size.polish`
+  hit `run_and_extract → None` at a stored `best_params` because `g4_search`
+  re-parsed the candidate's `token_file`, and several P5 arms emit same-named
+  `seq*.txt` for *different* topologies — so the parsed graph didn't match the
+  stored params (undefined-parameter crash). Fix: reconstruct the topology from
+  the row's **own** `graph.tokens`, never the file. Fence: **`size.replay_ok`**
+  — before any polish, re-evaluating a stored `best_params` must reproduce the
+  stored metrics within repeat-probe σ, else the row is quarantined (label-
+  provenance fault, not polished). `size.log_l2_result` records a polish/curated
+  win exactly as found (no re-size), re-enriching physical NF.
+* **§1c — convert the wall, polish-first.** `g4_search --curated --polish`
+  now tries **min-margin ascent from the stored best point first (~100 sims,
+  cheap)** and only falls back to curated ZOAF if that doesn't close it — so the
+  sweep costs a fraction of the all-free passes that diluted the curve before.
+  Over the closest ~23 near-misses (sorted by total violation ascending, wl_hash
+  dedup so converted topologies aren't re-polished): **3 new distinct feasible
+  novel designs** — **seq0079** (S11 −15.6 / S21 13.5 / Idd 3.63), **seq0086**
+  (S11 −12.6 / **S21 driven 7.3→15.3** by ascent / Idd 1.90), **seq0046** (S11
+  −11.0 / S21 13.3 / Idd 3.61). **feasible-novel 3 → 6; headline curve 367 →
+  186.6 SPICE-min/design (IMPROVING).**
+* **Honest read on the "90-candidate wall."** Only the **closest ~5** were
+  polish-convertible; past those, candidates sit 2–3 constraints off (S11 ≈ −1
+  to −2 dB vs −10 needed, or S21 ~11.9 at Idd ~5) — real **topology/match-network
+  gaps**, not sizing slack. So the funnel's `one_constraint_off_count=90`
+  **overcounts convertibility** (it flags anything within one *normalized* margin,
+  including designs a match network away). The convertible pool on wifi24 is now
+  effectively drained — exactly the plan's prediction that further wifi24
+  feasibles stop measuring progress.
+* **Exit criterion — MET.** Two consecutive improving turns with all tripwires
+  quiet: **iter-3 1093→367** (curated last-mile) and **iter-4 367→187** (polish),
+  tripwires quiet both (feasible-rate 0.50, ndl@256 60, wl-families 59;
+  **σ-drift 1.27 < the 2× bar but climbing** — the one thing to fix before the
+  next critic retrain, §1b/§4 deferred into WP-BROADEN). **Stage 3 is declared an
+  operating mode**, not a one-shot. Store: **7 feasible (6 novel generated + the
+  tapped hand reference)**.
+
+**Scoreboard rotation (07-EXIT preamble).** wifi24 is a solved class; its curve
+no longer measures progress. From here the phase headline is the **cross-spec
+benchmark table** (`benchmark.md`): wifi24 6/6 · gps-l1 0/6 · wideband-sdr 0/6.
+**Next phase = WP-BROADEN (§2):** gain-boosted archetypes (two-stage CS→CS,
+current-reuse) to unlock gps-l1's 15 dB @ 3 mA, and wideband/resistive-feedback
+archetypes (activate `rfb_lna`/`cg_lna`, shunt-peaked loads, `<LNA_WB>` end-to-
+end, WB template count 4→≥30) to unlock wideband-sdr's broadband match — both are
+**topology work (`templates.py` + P5-v3), not sizing**, exactly as the benchmark
+diagnosed. Gate B1: ≥1 feasible on each of gps-l1 and wideband-sdr.

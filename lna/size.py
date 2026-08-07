@@ -240,6 +240,27 @@ def _curate(topo, sizable, fixed, prior_params):
     return fixed_now
 
 
+def replay_ok(topo, best_params, spec, stored_metrics, sigma=1.0, inductor_q=12):
+    """Replay invariant (07-EXIT §1a): re-evaluating a stored `best_params` on the
+    topology reconstructed from the *same* row's tokens must reproduce the stored
+    metrics within label noise. It fails when a (topo, params) pair is inconsistent
+    -- e.g. a token_file re-parsed from a different arm's same-named seq (the bug
+    that stalled polish). Such rows are quarantined, not sized. Returns bool."""
+    import bias
+    if not (best_params and stored_metrics):
+        return False
+    kw = {"inductor_q": inductor_q} if inductor_q else {}
+    nl, _, rep, _ = bias.insert_bias(topo, sweep=True, **kw)
+    if rep.get("skipped") or not nl.two_port:
+        return False
+    m = E.run_and_extract(E.body_of(nl.emit()), best_params, spec)
+    if m is None:
+        return False
+    s = max(sigma, 0.5)
+    return (abs((m.get("s21_db") or -1e9) - (stored_metrics.get("s21_db") or 1e9)) <= s
+            and abs((m.get("s11_db") or -1e9) - (stored_metrics.get("s11_db") or 1e9)) <= 2.0)
+
+
 def polish(topo, spec, prior_params, budget=80, inductor_q=12):
     """Boundary polish (06-LAST-MILE §2): coordinate pattern search from the stored
     best point that maximizes the **minimum normalized margin** -- which, unlike the
@@ -395,6 +416,25 @@ def scoreboard(directory, spec_name="wifi24", seed=1, max_candidates=4, log=True
     print(f"\n{n_feas}/{len(cands)} feasible (Gate G4 needs >=1 novel + feasible; "
           "S21 ceiling is the topology, finding #10)")
     return n_feas
+
+
+def log_l2_result(spec, topo, metrics, feasible, best_params, provenance, recipe,
+                  n_evals, inductor_q=12, repeat_probe=True):
+    """Append an already-computed sizing result (curated ZOAF or polish) as one L2
+    row without re-sizing -- so a boundary/polish win is recorded exactly as found.
+    Reconstructs the body only to enrich the physical NF."""
+    import bias
+    from novelty import wl_features
+    kw = {"inductor_q": inductor_q} if inductor_q else {}
+    nl, _, rep, _ = bias.insert_bias(topo, sweep=True, **kw)
+    m = metrics
+    if not rep.get("skipped") and nl.two_port:
+        m = _enrich_nf(E.body_of(nl.emit()), best_params, spec, metrics)
+    _log_l2(spec, m, feasible, n_evals, None, None, best_params, None, topo,
+            wl_features(topo)[0], provenance,
+            _zoaf_cfg(0, 0, 0, 0, recipe, inductor_q=inductor_q),
+            repeat_probe=repeat_probe)
+    return m
 
 
 def backfill_corpus(spec_name="wifi24", indices=None, seed=1, inductor_q=12,

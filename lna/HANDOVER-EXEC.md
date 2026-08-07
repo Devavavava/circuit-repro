@@ -135,8 +135,16 @@ GNN 1.74× near-feasible enrichment vs random — below S1's 2×.
 reason — the generated arms are a distribution no surrogate ranks to 2×. So:
 1. **The generator is the lever** (not more surrogate capacity). P1/P5 fine-tune
    toward a critic-rankable distribution; `templates.py` output can seed the P5
-   set. This needs the **WSL GPU env** (`/opt/miniconda/envs/gpu`, via PowerShell
-   → `wsl -e bash`) — the one place the GPU is actually required.
+   set. **WSL GPU env VERIFIED functional this session** (torch 2.13+cu130, RTX
+   3050, 3.3 GB free): from PowerShell, `wsl -e bash <script.sh>` where the script
+   does `cd /mnt/c/Users/Devavrat/circuit-repro && /opt/miniconda/envs/gpu/bin/python
+   lna/finetune.py --arm p2 --do sample --device cuda ...` (smoke: 4 seqs in 12 s,
+   3/4 terminated). **Caveat:** the `.pth` checkpoints are gitignored, so they live
+   in the MAIN checkout, not the worktree — run generation from main, or copy
+   `lna/out/*.pth` into the worktree. Write scripts to a file (Git Bash mangles
+   `/opt/...`; PowerShell→wsl is the path). P5 = extend `finetune.py` to mix
+   `templates.py` archetypes (Eulerian-augmented) + per-class `<LNA_NB>/<LNA_WB>`
+   tokens; re-run the frozen NDL@256 protocol on the result (00-OVERVIEW rule 3).
 2. **Cheap supporting probes** (no GPU): a **live** rung-1 on a fresh/bigger pool
    (does another draw clear 2×?); **curated feasible template sizing** (size the
    tapped archetypes with a curated sizable set like `size_tapped`, for a true

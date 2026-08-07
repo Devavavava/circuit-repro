@@ -11,21 +11,29 @@ exactly where to resume. Read `WORKLOG.md` (entries R1/R2 are mine) and
 
 ---
 
-## Session 2 — Phase 2 (learned critic): Stage-0 DONE + Gate G4 CLOSED + Stage-1 baseline clears C1 (family split)
+## Session 2 — Phase 2 (learned critic): Stage-0 + Gate G4 + Gate C0 + P5 templates DONE; Stage-1 baseline clears C1 (family split, not source-shift)
 
 **New roadmap:** `.claude/worktrees/lna-plans/lna/plans2/` (start at
 `00-OVERVIEW.md`) — the generate→size pipeline is now feature-complete; Phase 2
 adds a learned critic + guided search. Branch **`lna-data`** (off `lna-exec` @
 `00cd32e`), never pushed. Run `python lna/datastore.py --summary` to see the store
-(**173 L2, 1 feasible**; 41 L1; snapshot `v1-train` pins it). Full measured
-write-up in **FINDINGS.md §11**.
+(**264 L2, 1 feasible, ~35% stratum T**; 41 L1; snapshots `v1-train`=173,
+`v2-train`=264). Full measured write-up in **FINDINGS.md §11**.
 
-**🎯 Stage-1 baseline result (`lna/critic.py --eval --snapshot v1-train`):** the
-mandatory feature baselines (trivial / WL-kNN / ridge, torch-free numpy) predict
-the stored margin vector. **Gate C1 CLEARED on the family-holdout split** — ridge
-ρ(S21)=0.68, enrichment@20%=2.44×; WL-kNN ρ=0.65. **NOT cleared on the
-source-shift split** (corpus+ref→generated: ρ=0.34, 1.47×) — the honest number
-for ranking generated candidates, and the gap the GNN + P5 templates must close.
+**Gate C0 MET:** ≥150 L2 rows (264), ≥25% stratum-T (P5 templates, ~35%), σ
+measured. `templates.py` mints 92 archetypes as valid token topologies (reuses
+AnalogGenie `build_connection_matrix→dfs_all_paths`, round-trip-exact).
+
+**🎯 Stage-1 baseline result (`lna/critic.py --eval`):** the mandatory feature
+baselines (trivial / WL-kNN / ridge, torch-free numpy) predict the stored margin
+vector. On **v2-train (264 rows, σ=0.61)**: **Gate C1 CLEARED on the
+family-holdout split** — WL-kNN ρ(S21)=0.77, enrichment@20%=2.06×. **NOT cleared
+on the source-shift split** (corpus+ref+templates→generated: ρ≈0.22–0.28) — the
+honest number for ranking generated candidates. **Key finding: adding the 88 P5
+templates did NOT close the source-shift gap** (it was 0.34 on v1-train's smaller
+train set). Clean archetype diversity doesn't make the *generated* arms
+predictable — the gap is the generated distribution itself, so the next lever is
+the GNN / a better generator / uncertainty-gated search, not more templates.
 
 **User decisions this session (remote-control):** gain stage = tapped-C output
 match; NF advisory (Gate G4 gates S11/S21/Idd, NF logged not gated); branch stays
@@ -117,18 +125,22 @@ unattended nights, σ measured ✓). The campaign runs but three sources are thi
    from the main checkout. `campaign.py --gen-glob` points it at a dir.
 3. **Stratum M** — the 1-edit mutation move set (03-SEARCH §3); reused later by
    evolutionary search. Not built.
-**Stage-1 baseline is DONE** (`critic.py`, C1 cleared on family split, not
-source-shift — above). Prioritized next actions, in order:
-1. **P5 `templates.py` — the single biggest lever** (item 1 above). It attacks
-   three things at once: C0's ≥25%-T fraction, a real *feasible* class (only the
-   token-less tapped ref is feasible now, so the graph critic trains 0-feasible),
-   and the source-shift gap (train diversity). Do this before the GNN.
-2. **The MPNN** (02-CRITIC §3, plain torch, WSL GPU): must beat WL-kNN/ridge **on
-   the source-shift split** (ρ=0.34 today), not just the family split — that is
-   the real bar. `margins_for` rows are the target; σ=0.32 dB sets the rank-loss
-   hinge margin. Add the 5-member ensemble for the uncertainty search needs.
+**Stage-1 baseline + P5 templates are DONE; Gate C0 met.** Prioritized next:
+1. **The MPNN** (02-CRITIC §3, plain torch, WSL GPU) — now the biggest lever. Bar:
+   beat WL-kNN **on the source-shift split** (ρ≈0.28 today), not the family split.
+   `margins_for` rows are the target; σ=0.61 dB sets the rank-loss hinge margin
+   (note σ rose — some topologies are multimodal under ZOAF; consider trimming the
+   noisiest via repeat-probes). 5-member ensemble for the uncertainty search needs.
+   **Manage expectations:** templates already showed clean diversity doesn't fix
+   the shift, so the MPNN may not either — if it doesn't, that's the signal the
+   *generator* (P1/P5 fine-tune) or uncertainty-gated search is the real fix.
+2. **Curated template sizing for a true feasible token class** — the 88 templates
+   are near-feasible but 0 fully feasible under all-params-free ZOAF; size the
+   tapped archetypes with a curated sizable set (as `size_tapped` does the ref) to
+   get feasible token-bearing rows the graph critic can actually use.
 3. **03-SEARCH rerank** only once a model clears C1 on the *source-shift* split
    (de-scope ladder: if nothing does, rerank-by-L1 still cuts sizing waste).
+   Stratum **M** (mutation move set, 03-SEARCH §3) is still unbuilt.
 
 **Deferred (deliberate, not blocking — 00-OVERVIEW #3 "don't block on NF"):**
 un-gating NF as a *hard constraint* in the objective (changes sizing; validate

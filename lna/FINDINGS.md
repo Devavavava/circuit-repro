@@ -691,6 +691,23 @@ closing it is the point of the GNN, the P5 templates (topology diversity), and
 uncertainty-gated search. WL-kNN is "embarrassingly strong" exactly as
 02-CRITIC §2 warned, so the GNN must beat it, not just the trivial floor.
 
-**Open (next):** P5 `templates.py` for the ≥25%-template C0 fraction + a real
-feasible class; the plain-torch MPNN (WSL GPU) vs these baselines on the
-source-shift split; then 03-SEARCH rerank only if a model clears C1 there.
+**Update — P5 templates landed; Gate C0 met; the source-shift gap is not a data
+problem.** `templates.py` mints hand-designed archetypes as valid token
+topologies (reusing AnalogGenie's `build_connection_matrix → dfs_all_paths`,
+round-trip-exact on real 461): **92 distinct** (88 narrowband / 4 wideband) CS
+(±gate-L/±degen/±Cex/±cascode/±buffer) × {R, tank, tapped-C} loads + CG +
+resistive-feedback. Labeling the 88 NB archetypes took the store to **264 L2**,
+stratum T to ~35% — **Gate C0's ≥150-row + ≥25%-T fractions are met** (σ measured).
+The tapped-C family is densely *near*-feasible (S21 up to 12.8 dB, most rows 3/3
+margins > −1 scale unit) though none clears *full* feasibility under
+all-params-free ZOAF (curated sizing, as the tapped ref needed, is the lever for
+a true feasible token class). Re-eval on `v2-train` (261 rows, σ=0.61):
+family-holdout **WL-kNN still clears C1** (ρ_S21=0.77, 2.06×); but the
+**source-shift split did *not* improve** (ρ≈0.22–0.28) — clean archetype
+diversity does not make the generated arms predictable, so the gap is the
+generated *distribution* itself, not training diversity.
+
+**Open (next):** the plain-torch MPNN (WSL GPU) vs these baselines **on the
+source-shift split** (the real bar); curated template sizing for a genuine
+feasible token class; then 03-SEARCH rerank only if a model clears C1 on the
+shift — else the de-scope ladder (rerank-by-L1 still cuts sizing waste).

@@ -11,13 +11,21 @@ exactly where to resume. Read `WORKLOG.md` (entries R1/R2 are mine) and
 
 ---
 
-## Session 2 — Phase 2 begins (learned critic); plans2 Stage-0 days 1–4 DONE, Gate G4 CLOSED
+## Session 2 — Phase 2 (learned critic): Stage-0 DONE + Gate G4 CLOSED + Stage-1 baseline clears C1 (family split)
 
 **New roadmap:** `.claude/worktrees/lna-plans/lna/plans2/` (start at
 `00-OVERVIEW.md`) — the generate→size pipeline is now feature-complete; Phase 2
 adds a learned critic + guided search. Branch **`lna-data`** (off `lna-exec` @
-`00cd32e`), through commit `67f6867`, never pushed. Run `python lna/datastore.py
---summary` to see the store (**28 L2, 1 feasible**; 41 L1).
+`00cd32e`), never pushed. Run `python lna/datastore.py --summary` to see the store
+(**173 L2, 1 feasible**; 41 L1; snapshot `v1-train` pins it). Full measured
+write-up in **FINDINGS.md §11**.
+
+**🎯 Stage-1 baseline result (`lna/critic.py --eval --snapshot v1-train`):** the
+mandatory feature baselines (trivial / WL-kNN / ridge, torch-free numpy) predict
+the stored margin vector. **Gate C1 CLEARED on the family-holdout split** — ridge
+ρ(S21)=0.68, enrichment@20%=2.44×; WL-kNN ρ=0.65. **NOT cleared on the
+source-shift split** (corpus+ref→generated: ρ=0.34, 1.47×) — the honest number
+for ranking generated candidates, and the gap the GNN + P5 templates must close.
 
 **User decisions this session (remote-control):** gain stage = tapped-C output
 match; NF advisory (Gate G4 gates S11/S21/Idd, NF logged not gated); branch stays
@@ -109,11 +117,18 @@ unattended nights, σ measured ✓). The campaign runs but three sources are thi
    from the main checkout. `campaign.py --gen-glob` points it at a dir.
 3. **Stratum M** — the 1-edit mutation move set (03-SEARCH §3); reused later by
    evolutionary search. Not built.
-- **Then accumulate**: `campaign.py --night` for 3 nights (it's idempotent /
-  dedup-aware). Optional speedup: parallelize (per-job isolated `LNA_DATA_DIR`
-  stores + a `datastore.merge`); v1 is sequential to stay unattended-safe. Once
-  ≥150 rows land, **Stage 1 (02-CRITIC)** starts: `family_split` + baselines,
-  then the MPNN. `margins_for` rows are the target; σ=0.32 dB sets the rank margin.
+**Stage-1 baseline is DONE** (`critic.py`, C1 cleared on family split, not
+source-shift — above). Prioritized next actions, in order:
+1. **P5 `templates.py` — the single biggest lever** (item 1 above). It attacks
+   three things at once: C0's ≥25%-T fraction, a real *feasible* class (only the
+   token-less tapped ref is feasible now, so the graph critic trains 0-feasible),
+   and the source-shift gap (train diversity). Do this before the GNN.
+2. **The MPNN** (02-CRITIC §3, plain torch, WSL GPU): must beat WL-kNN/ridge **on
+   the source-shift split** (ρ=0.34 today), not just the family split — that is
+   the real bar. `margins_for` rows are the target; σ=0.32 dB sets the rank-loss
+   hinge margin. Add the 5-member ensemble for the uncertainty search needs.
+3. **03-SEARCH rerank** only once a model clears C1 on the *source-shift* split
+   (de-scope ladder: if nothing does, rerank-by-L1 still cuts sizing waste).
 
 **Deferred (deliberate, not blocking — 00-OVERVIEW #3 "don't block on NF"):**
 un-gating NF as a *hard constraint* in the objective (changes sizing; validate

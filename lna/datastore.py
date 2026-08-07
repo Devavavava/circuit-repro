@@ -287,7 +287,8 @@ def snapshot(name, tables=("topo_labels", "l1_labels")):
         rec[table] = {"lines": lines,
                       "sha256": hashlib.sha256(raw.encode("utf-8")).hexdigest()}
     snaps[name] = rec
-    with open(os.path.join(DATA_DIR, SNAPSHOTS), "w", encoding="utf-8") as fh:
+    with open(os.path.join(DATA_DIR, SNAPSHOTS), "w",
+              encoding="utf-8", newline="\n") as fh:
         json.dump(snaps, fh, indent=2, sort_keys=True)
     return rec
 

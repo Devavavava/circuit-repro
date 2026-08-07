@@ -647,3 +647,50 @@ python lna/screen.py --generated "lna/out/cond12/seq*.txt"
 python lna/to_spice.py lna/out/cond12/seq0003.txt -o lna/work/cand.cir
 C:/msys64/ucrt64/bin/ngspice_con.exe -b lna/work/cand.cir
 ```
+
+---
+
+## 11. Phase 2 — learned critic (plans2), Stage-0 + Stage-1 baseline
+
+Phase 2 turns "generate → size" into "generate → **predict feasibility** →
+search → size", minimizing SPICE by filtering candidates before a 5-minute
+sizing run. Stage 0 built the data plumbing; Stage 1's baseline gives the first
+measured verdict on whether a pre-SPICE surrogate is even possible here.
+
+**Stage 0 — the label store now exists and is full enough to train on.**
+Every ngspice/ZOAF result is training data (`lna/datastore.py`, append-only
+JSONL). Backfilled + one overnight campaign → **173 L2 rows** (per-metric
+*margin* labels, not a feasibility bool — R1), 41 L1 rows, 33.7k point rows.
+Two enablers landed with it: the **tapped-C gain reference**
+(`ref24_tapped.cir`) sizes to full feasibility (S11 −20, S21 18.6 dB, Idd 3.1
+mA, NF 2.0 dB) — **Gate G4 closed by hand**, and the store's only feasible row;
+and the **series-Rs NF harness** (finding #7) — the S-parameter port is
+noiseless, so NF went *negative* with gain (corpus 464: −4.5 dB); a real series
+source resistance fixes it (golden-locked to 3.01 dB, `extract.py --selftest`).
+Label noise is real and topology-dependent: repeat-probe **σ(S21) = 0.32 dB**
+(most topos ~0, one pathological corpus LNA swings 3.5 dB between ZOAF seeds).
+
+**Stage 1 — the baseline surrogate clears Gate C1 within-distribution, and
+does not across the shift that matters.** `lna/critic.py` predicts the stored
+S11/S21/Idd margin vector from hand features (graph stats + hand-rolled WL
+subtree vector); feasibility is *computed* from margins. On snapshot `v1-train`:
+
+| split | model | ρ(S21) | enrich@20% | Gate C1 |
+|---|---|---|---|---|
+| family-holdout | ridge | **0.68** | **2.44×** | **PASS** |
+| family-holdout | WL-kNN | 0.65 | 2.44× | PASS |
+| source-shift (corpus+ref→generated) | ridge | 0.34 | 1.47× | fail |
+
+So a *cheap* model predicts achievable S21 margin on held-out topology families
+(ρ ≈ 0.68, p < 0.01 at n=22) and enriches near-feasible candidates 2.4× — the
+pre-SPICE filter concept is real. But on the **source-shift split** — train on
+corpus/references, test on generated arms, a rehearsal of exactly the drift
+critic-guided search induces — it drops to ρ = 0.34 / 1.47×. That gap is the
+honest number for the critic's actual job (ranking generated candidates), and
+closing it is the point of the GNN, the P5 templates (topology diversity), and
+uncertainty-gated search. WL-kNN is "embarrassingly strong" exactly as
+02-CRITIC §2 warned, so the GNN must beat it, not just the trivial floor.
+
+**Open (next):** P5 `templates.py` for the ≥25%-template C0 fraction + a real
+feasible class; the plain-torch MPNN (WSL GPU) vs these baselines on the
+source-shift split; then 03-SEARCH rerank only if a model clears C1 there.

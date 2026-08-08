@@ -299,26 +299,32 @@ def current_reuse_lna(load, degen):
     return nl
 
 
-def rfb_cs_lna(load2, cascode1=False, buffer=False):
+def rfb_cs_lna(load2, cascode1=False, buffer=False, cascode2=False):
     """Blind-v1 (WP-DHRUVA rule-2, generic textbook): broadband-match + tuned-gain
     two-stage. Stage 1 is a resistive shunt-feedback CS, so the input match is set
     by feedback and holds S11 over a WIDE band (not just one f0); stage 2 is a
     tuned/tapped CS whose inductive tank peaks the gain at f0. The pair supplies the
     match-over-band + high-tuned-gain shape that every single-stage nb family misses
     (they all sized to s11_max ~ 0 on dhruva-l1). Chosen from the measured failure
-    mode -- NOT from any paper's circuit (blind protocol, 08-DHRUVA rule 2)."""
+    mode -- NOT from any paper's circuit (blind protocol, 08-DHRUVA rule 2).
+
+    cascode2 puts the cascode on STAGE 2 (gain boost that does NOT touch the stage-1
+    feedback match) -- the fix for the observed tradeoff where a stage-1 cascode
+    (cascode1) lifted gain but wrecked s11_max. Enable at most one of cascode1/
+    cascode2 (both name the device 'Mc')."""
     nl, N = [], Nets()
     g1 = N.new()
     nl.append(["Cin", "VIN1", g1, "capacitor"])
     d1 = N.new()
     nl.append(["M1", d1, g1, "VSS", "VSS", "nmos4"])
-    d1 = _maybe_cascode(nl, N, d1, cascode1)          # optional stage-1 cascode
+    d1 = _maybe_cascode(nl, N, d1, cascode1)          # optional stage-1 cascode (inside fb loop)
     nl.append(["Rf", d1, g1, "resistor"])             # shunt feedback -> broadband match + self-bias
     nl.append(["RL1", "VDD", d1, "resistor"])         # stage-1 R load (keeps match broadband)
     g2 = N.new()
     nl.append(["Cc", d1, g2, "capacitor"])            # inter-stage DC-block coupling
     d2 = N.new()
     nl.append(["M2", d2, g2, "VSS", "VSS", "nmos4"])  # stage-2 CS (g2 auto-biased)
+    d2 = _maybe_cascode(nl, N, d2, cascode2)          # stage-2 cascode: gain w/o disturbing match
     if buffer:
         _add_load_to_buffer(nl, N, d2, load2)         # load2 in {tank, tapped}
     else:
@@ -367,6 +373,13 @@ def archetypes():
                 combos.append(("nb",
                     f"rfbcs_{load2}_cc{int(cascode1)}_bf{int(buffer)}",
                     rfb_cs_lna(load2, cascode1, buffer)))
+    # stage-2 cascode variants: gain boost that leaves the stage-1 feedback match
+    # intact (the tradeoff fix -- stage-1 cascode wrecked s11_max). rfbcs_*_s2_*.
+    for load2 in ("tank", "tapped"):
+        for buffer in (False, True):
+            combos.append(("nb",
+                f"rfbcs_{load2}_s2_bf{int(buffer)}",
+                rfb_cs_lna(load2, cascode1=False, buffer=buffer, cascode2=True)))
     # wideband inductorless family (WP-BROADEN, unlocks wideband-sdr: broadband S11)
     for load in ("R", "tank", "shunt_peak"):
         for cascode in (False, True):

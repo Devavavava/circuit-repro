@@ -381,37 +381,62 @@ def _emit_dir(directory):
     return len(arche)
 
 
-def emit_winners(path, spec_name="wifi24", top_q=0.25):
+def emit_winners(path, spec_names=("wifi24",), top_q=0.25):
     """Stage-3 Loop B (04-SELF-IMPROVE §2): the generator's own winners as training
     rows. Winners = feasible + top-quartile-by-sized-scalar near-feasible token
     topologies from the store (TRUE SPICE numbers only -- critic scores never
     select training data). Eulerian-augmented; feasible ones oversampled 2x. Writes
-    JSON the GPU fine-tune reads (augmentation needs pandas; training does not)."""
+    JSON the GPU fine-tune reads (augmentation needs pandas; training does not).
+
+    Multi-spec (WP-D2 / HANDOVER pri-3): winners are ranked PER spec and drawn only
+    from rows sized against THAT spec -- a row's metrics live at its own spec's
+    frequency, so a wifi24 (2.44 GHz) row is never re-scored under, say, dhruva-l1's
+    1.575 GHz objective. Each winner's class token is the spec's band class
+    (`wb` if the spec allows inductorless input, else `nb`), so the `<LNA_WB>` /
+    `<LNA_NB>` channels are reinforced from the right pools. Sequences are deduped
+    across specs (first spec that yields a seq wins its class)."""
     sys.path.insert(0, HERE)
     import datastore as ds
     from spec import Spec
-    spec = Spec.load(spec_name)
-    scored = []
-    for r in ds.load("topo_labels"):
-        toks = (r.get("graph") or {}).get("tokens")
-        m = r.get("metrics")
-        if toks and m:
-            scored.append((spec.objective(m), bool(r.get("feasible")), toks))
-    scored.sort(key=lambda x: x[0])                       # lower objective = better
-    keep = scored[:max(1, int(top_q * len(scored)))]
-    rows, n_feas = [], 0
-    for _, feas, toks in keep:
-        nl, ports = topo_to_netlist(Topology(toks))
-        if nl is None:
-            continue
-        n_feas += int(feas)
-        for seq in augment(nl, ports, max_solutions=10, run_num=2) * (2 if feas else 1):
-            rows.append({"cls": "nb", "seq": seq, "feasible": feas})
+    if isinstance(spec_names, str):
+        spec_names = [s for s in spec_names.split(",") if s]
+    all_rows = list(ds.load("topo_labels"))
+    rows, n_feas, seen_seq, per_spec = [], 0, set(), {}
+    for spec_name in spec_names:
+        spec = Spec.load(spec_name)
+        cls = "wb" if spec.allow_inductorless else "nb"
+        scored = []
+        for r in all_rows:
+            if r.get("spec") != spec_name:            # only rows sized vs THIS spec
+                continue
+            toks = (r.get("graph") or {}).get("tokens")
+            m = r.get("metrics")
+            if toks and m:
+                scored.append((spec.objective(m), bool(r.get("feasible")), toks))
+        scored.sort(key=lambda x: x[0])               # lower objective = better
+        keep = scored[:max(1, int(top_q * len(scored)))] if scored else []
+        added = 0
+        for _, feas, toks in keep:
+            nl, ports = topo_to_netlist(Topology(toks))
+            if nl is None:
+                continue
+            n_feas += int(feas)
+            for seq in augment(nl, ports, max_solutions=10, run_num=2) * (2 if feas else 1):
+                key = tuple(seq)                      # augment yields token lists
+                if key in seen_seq:
+                    continue
+                seen_seq.add(key)
+                rows.append({"cls": cls, "seq": seq, "feasible": feas})
+                added += 1
+        per_spec[spec_name] = {"pool": len(scored), "winners": len(keep),
+                               "rows": added, "cls": cls}
     os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="\n") as fh:
         json.dump({"rows": rows}, fh)
-    print(f"wrote {len(rows)} augmented winner rows ({len(keep)} winners, "
-          f"{n_feas} feasible) -> {path}")
+    brk = "; ".join(f"{s}:{d['winners']}w->{d['rows']}r[{d['cls']}]"
+                    for s, d in per_spec.items())
+    print(f"wrote {len(rows)} augmented winner rows ({n_feas} feasible-derived) "
+          f"-> {path}\n  per-spec: {brk}")
     return len(rows)
 
 
@@ -440,9 +465,12 @@ def main():
                     help="write Eulerian-augmented rows (JSON) for the P5 fine-tune")
     ap.add_argument("--emit-winners", metavar="PATH",
                     help="write augmented winner rows (JSON) for Stage-3 Loop B")
+    ap.add_argument("--winners-specs", default="wifi24",
+                    help="comma list of specs to draw winners from (per-spec, "
+                         "correct-frequency; class token = band class)")
     args = ap.parse_args()
     if args.emit_winners:
-        return 0 if emit_winners(args.emit_winners) else 1
+        return 0 if emit_winners(args.emit_winners, args.winners_specs) else 1
     if args.emit_train:
         return 0 if _emit_train(args.emit_train) else 1
     if args.emit_dir:

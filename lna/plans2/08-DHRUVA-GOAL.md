@@ -9,9 +9,11 @@ silicon). The user sets its LNA's **performance numbers** as the goal.
 pipeline (generator + critic + curated sizing) reaches these specs **without
 help**. Rules for every executor session:
 
-1. **Do not open the PDF** (repo root) beyond confirming a spec number cited
-   here. Do not summarize, sketch, or transcribe its figures or circuit
-   sections anywhere in the repo (FINDINGS, HANDOVER, comments, templates).
+1. **The PDF has been removed from the repo** (the user holds it). Do not
+   fetch, request, or reconstruct the paper's circuit content; the spec
+   numbers cited here are the complete allowed excerpt. Do not summarize,
+   sketch, or transcribe its figures or circuit sections anywhere in the
+   repo (FINDINGS, HANDOVER, comments, templates).
 2. **No paper-derived constructors.** `templates.py` may grow only families
    that are (a) already in the archetype set, or (b) generic textbook blocks
    chosen *without consulting the paper*. Anything added while this WP is

@@ -1091,10 +1091,18 @@ copy it.
     5 screen-passing variants, archetypes 130→135). `rfbcs3_tank_cc21_bf0` sizes to
     **s11_max −11.2 dB ✓ / S21 37.8 dB ✓ / Idd 12.93 mA ✓ — feasible** (wl
     `3ebaf08f9`, recipe `blind-v1`). The 3-stage headroom cleared 25.4 dB with room
-    to spare while the resistive-feedback input held the 1.1–2.5 GHz match. **The
-    blind pipeline reached the paper's tier-1 L1 numbers without any paper-derived
-    circuit knowledge** — the whole point of 08-DHRUVA. (Idd 12.93 is tight vs 13;
-    the 37.8 dB gain has ~12 dB of slack to trade back for current margin.)
+    to spare while the resistive-feedback input held the 1.1–2.5 GHz match. (Idd
+    12.93 is tight vs 13; the 37.8 dB gain has ~12 dB of slack to trade back for
+    current margin.) Reproduction artifacts: `lna/repro/` (netlist + params +
+    `recreate_dhruva_l1.py`).
+  * **★ Honest attribution (blind protocol integrity).** The feasible *topology* is
+    the **assistant-authored** generic-textbook archetype `rfb_cs3` — designed under
+    rule 2 (no paper), guided by the automated sizer's measurements, NOT discovered
+    by the P5 neural generator (its P5-v4/v5 pools reached only viol 0.318). What
+    the automated pipeline supplied here is the **device sizing** (ZOAF + polish) and
+    evaluation. So this is "assistant-designed topology (blind, generic) + automated
+    sizing," not an autonomous generator result. A *generated* dhruva-l1 feasible
+    (P5-v6 on the rfb_cs3-bearing set) is the outstanding stronger claim.
   * **Caveats & next:** feasibility is on the gated tier-1 constraints
     (S11-over-band / S21 / Idd); NF is advisory/off (tier-2, WP-D1). Gate D2 (one
     family feasible on all four bands, warm-started from this L1 solution) and a

@@ -332,6 +332,33 @@ def rfb_cs_lna(load2, cascode1=False, buffer=False, cascode2=False):
     return nl
 
 
+def rfb_cs3_lna(load3, cascode2=False, buffer=False):
+    """Blind-v1 (WP-DHRUVA rule-2, generic textbook): 3-stage broadband-match +
+    tuned-gain. rfb input (S11 held over band) -> tuned CS -> tuned CS. The 2-stage
+    rfb_cs came within ~1.6 dB of dhruva-l1's 25.4 dB gain while holding s11_max
+    <= -10, but pushing that last gain out of ONE tuned stage loaded the stage-1
+    feedback match. A third tuned stage splits the gain (each stage ~10-12 dB), so
+    the match-setting stage-1 is left undisturbed. Chosen from the measured Pareto
+    edge -- NOT from any paper (08-DHRUVA rule 2)."""
+    nl, N = [], Nets()
+    g1 = N.new(); nl.append(["Cin", "VIN1", g1, "capacitor"])
+    d1 = N.new(); nl.append(["M1", d1, g1, "VSS", "VSS", "nmos4"])
+    nl.append(["Rf", d1, g1, "resistor"])             # broadband match + self-bias
+    nl.append(["RL1", "VDD", d1, "resistor"])
+    g2 = N.new(); nl.append(["Cc1", d1, g2, "capacitor"])
+    d2 = N.new(); nl.append(["M2", d2, g2, "VSS", "VSS", "nmos4"])
+    d2 = _maybe_cascode(nl, N, d2, cascode2)          # stage-2 gain (optional cascode)
+    nl.append(["Ld2", "VDD", d2, "inductor"])         # stage-2 tuned tank
+    nl.append(["Ctnk2", "VDD", d2, "capacitor"])
+    g3 = N.new(); nl.append(["Cc2", d2, g3, "capacitor"])
+    d3 = N.new(); nl.append(["M3", d3, g3, "VSS", "VSS", "nmos4"])  # stage-3 tuned
+    if buffer:
+        _add_load_to_buffer(nl, N, d3, load3)         # load3 in {tank, tapped} -> VOUT1
+    else:
+        _add_load(nl, N, d3, load3)
+    return nl
+
+
 # --------------------------------------------------------------- enumeration
 def archetypes():
     """Yield (name, netlist, spec, band) for every distinct valid, screen-passing
@@ -380,6 +407,15 @@ def archetypes():
             combos.append(("nb",
                 f"rfbcs_{load2}_s2_bf{int(buffer)}",
                 rfb_cs_lna(load2, cascode1=False, buffer=buffer, cascode2=True)))
+    # 3-stage rfb -> tuned -> tuned: gain headroom to clear dhruva-l1's 25.4 dB
+    # while stage-1 holds the broadband match (the 2-stage Pareto capped ~1.6 dB
+    # short). rfbcs3_*.
+    for load3 in ("tank", "tapped"):
+        for cascode2 in (False, True):
+            for buffer in (False, True):
+                combos.append(("nb",
+                    f"rfbcs3_{load3}_cc2{int(cascode2)}_bf{int(buffer)}",
+                    rfb_cs3_lna(load3, cascode2=cascode2, buffer=buffer)))
     # wideband inductorless family (WP-BROADEN, unlocks wideband-sdr: broadband S11)
     for load in ("R", "tank", "shunt_peak"):
         for cascode in (False, True):

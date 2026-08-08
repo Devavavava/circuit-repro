@@ -295,7 +295,7 @@ def replay_ok(topo, best_params, spec, stored_metrics, sigma=1.0, inductor_q=12)
             and abs((m.get("s11_db") or -1e9) - (stored_metrics.get("s11_db") or 1e9)) <= 2.0)
 
 
-def polish(topo, spec, prior_params, budget=80, inductor_q=12):
+def polish(topo, spec, prior_params, budget=80, inductor_q=12, exclude=()):
     """Boundary polish (06-LAST-MILE §2): coordinate pattern search from the stored
     best point that maximizes the **minimum normalized margin** -- which, unlike the
     feasibility-first scalar, has a gradient right at the boundary (it trades a
@@ -310,6 +310,8 @@ def polish(topo, spec, prior_params, budget=80, inductor_q=12):
         return None
     body = E.body_of(nl.emit())
     sizable, _ = classify_params(nl)
+    if exclude:                       # e.g. hold a solved input match fixed
+        sizable = {k: v for k, v in sizable.items() if k not in set(exclude)}
     nf_gated = nf_is_gated(spec)
     # ascend the minimum margin over every SUPPORTED hard constraint -- so when a
     # spec gates NF, polish trades gain slack for noise instead of ignoring it.
@@ -354,6 +356,168 @@ def polish(topo, spec, prior_params, budget=80, inductor_q=12):
     feas = best_m is not None and spec.feasible(best_m)[0]
     return {"metrics": best_m, "feasible": feas, "best_params": params,
             "n_evals": n, "min_margin": best_mm}
+
+
+def match_param_names(topo, sizable):
+    """The parameters that set the INPUT MATCH, for a match-first search.
+
+    `match_devices` finds the passives on the input path (Cin/Lg/Ls/Cex...), which
+    is the right set for a CS-degenerated input, where the match is purely passive
+    AND the input reaches a transistor GATE. It is blind to a COMMON-GATE input:
+    there the signal arrives at a transistor SOURCE, `match_devices` finds no input
+    device at all, and -- fatally -- Rin = 1/gm is set by that device's WIDTH, which
+    then never enters the match search. (Measured: the gm-boosted CG archetypes had
+    only {pCinV, pLinV} as match params and stalled at s11_max ~ -3 dB.)
+
+    So this walks the input net over 2-terminal passives itself and collects:
+      * every passive on that path (the DC block, gate/source inductors, Cex);
+      * every FET touching the reached nodes at its GATE **or its SOURCE** -> its W;
+      * for a gm-boosted CG, the auxiliary amplifier -- any FET whose gate sits on
+        the input node -- and the passives on that amp's drain, since the boost
+        gain (1+A) is what divides Rin.
+    Returns the subset that is actually sizable."""
+    from collections import defaultdict, deque
+    from topology import base_of, PIN_RE
+    pin2root = {m: r for r, members in topo.nodes.items() for m in members}
+    net2root = {m: r for r, members in topo.nodes.items()
+                for m in members if m in topo.nets}
+    devpin = defaultdict(dict)
+    for p in topo.pins:
+        mm = PIN_RE.match(p)
+        if mm and p in pin2root:
+            devpin[mm.group("dev")][mm.group("pin")] = pin2root[p]
+    adj = defaultdict(list)
+    for d in topo.devices:
+        if base_of(d) in ("R", "C", "L"):
+            pp = devpin.get(d, {})
+            if "P" in pp and "N" in pp:
+                adj[pp["P"]].append((d, pp["N"]))
+                adj[pp["N"]].append((d, pp["P"]))
+    fets = [d for d in topo.devices if base_of(d) in ("NM", "PM")]
+    touch = {}                       # node -> [(dev, pin)] for G/S pins of FETs
+    for d in fets:
+        for pin in ("G", "S"):
+            n = devpin[d].get(pin)
+            if n is not None:
+                touch.setdefault(n, []).append((d, pin))
+
+    vin = next((n for n in sorted(topo.nets) if n.startswith("VIN")), None)
+    start = net2root.get(vin)
+    names, in_dev = set(), None
+    if start is None:
+        return set()
+    seen, dq = {start}, deque([start])
+    reached = {start}
+    while dq:
+        u = dq.popleft()
+        for dev, v in adj[u]:
+            names.add(f"p{dev}V")                     # passive on the input path
+            for d, pin in touch.get(v, []):
+                names.add(f"p{d}W")                   # gate- OR source-driven input FET
+                if in_dev is None:
+                    in_dev = d
+            if v not in seen and v not in touch:
+                seen.add(v)
+                reached.add(v)
+                dq.append(v)
+    for d, pin in touch.get(start, []):               # FET right on the input net
+        names.add(f"p{d}W")
+        in_dev = in_dev or d
+    # supply rails are shared by every load in the circuit -- expanding through them
+    # would drag the whole netlist into the "match" set.
+    rails = {net2root.get(n) for n in ("VDD", "VSS") if net2root.get(n) is not None}
+    if in_dev:                                        # degeneration / gate-source passives
+        for pin in ("S", "G"):
+            nd = devpin[in_dev].get(pin)
+            if nd is None or nd in rails:
+                continue
+            for e in topo.devices:
+                if base_of(e) in ("R", "C", "L") and nd in devpin.get(e, {}).values():
+                    names.add(f"p{e}V")
+        # gm-boost auxiliary amp: a FET whose GATE is on the input node, plus its load
+        for d in fets:
+            if d == in_dev or devpin[d].get("G") not in reached:
+                continue
+            names.add(f"p{d}W")
+            dn = devpin[d].get("D")
+            if dn is not None and dn not in rails:
+                for e in topo.devices:
+                    if base_of(e) in ("R", "C", "L") and dn in devpin.get(e, {}).values():
+                        names.add(f"p{e}V")
+    return {n for n in names if n in sizable}
+
+
+def size_match_first(topo, spec, seed=1, inductor_q=12, budget=8,
+                     match_budget=10, polish_budget=400):
+    """Two-stage sizing: solve the INPUT MATCH first, freeze it, then optimize the
+    rest (06-LAST-MILE's curated idea, but self-starting -- no prior solution).
+
+    All-free ZOAF reliably lands gain OR match, never both: the feasibility-first
+    scalar is dominated by whichever constraint is furthest off, and the match is a
+    narrow basin in a 10-20 dimensional space. Stage 1 therefore optimizes ONLY the
+    match parameters against a pure match objective (worst-case S11 over the band,
+    saturating at -15 dB so it stops trading), with everything else pinned at the
+    middle of its range. Stage 2 freezes those and hands the remaining parameters
+    the real spec objective -- including NF when the spec gates it. Stage 3 is the
+    NF-aware min-margin polish over the non-match parameters.
+
+    Returns the same dict shape as size_topology (or None)."""
+    import bias
+    kw = {"inductor_q": inductor_q} if inductor_q else {}
+    nl, _, rep, _ = bias.insert_bias(topo, sweep=True, **kw)
+    if rep.get("skipped") or not nl.two_port:
+        return None
+    body = E.body_of(nl.emit())
+    sizable, fixed = classify_params(nl)
+    mnames = match_param_names(topo, sizable)
+    if not mnames or len(mnames) == len(sizable):
+        return size_topology(topo, spec, seed=seed, inductor_q=inductor_q, log=False,
+                             n_candidates=budget, sgd_iters=budget, cgd_iters=2)
+
+    # --- stage 1: match only, everything else at mid-range
+    rest = {k: v for k, v in sizable.items() if k not in mnames}
+    _, rnames, rdecode, _ = make_objective(body, spec, rest, {})
+    mid = rdecode([0.5] * len(rnames))
+    msizable = {k: v for k, v in sizable.items() if k in mnames}
+    mfixed = dict(fixed)
+    mfixed.update(mid)
+    _, m_names, m_decode, _ = make_objective(body, spec, msizable, mfixed)
+
+    def match_obj(x):
+        m = E.run_and_extract(body, m_decode(x), spec)
+        if m is None:
+            return SIM_FAIL_PENALTY
+        v = m.get("s11_max_db")
+        return SIM_FAIL_PENALTY if v is None else max(v, -15.0)
+
+    mx, mbest, n1 = run_zoaf(match_obj, m_names, seed=seed,
+                             n_candidates=match_budget, sgd_iters=match_budget,
+                             cgd_iters=2)
+    match_vals = {k: v for k, v in m_decode(mx).items() if k in mnames}
+
+    # --- stage 2: freeze the match, optimize the rest on the real objective
+    fixed2 = dict(fixed)
+    fixed2.update(match_vals)
+    obj, names2, decode2, evaluate2 = make_objective(body, spec, rest, fixed2)
+    x2, best_obj, n2 = run_zoaf(obj, names2, seed=seed, n_candidates=budget,
+                                sgd_iters=budget, cgd_iters=2)
+    params = decode2(x2)
+    m = evaluate2(x2)
+    n_evals = n1 + n2
+
+    # --- stage 3: NF-aware min-margin polish, match held
+    if polish_budget:
+        pol = polish(topo, spec, params, budget=polish_budget, inductor_q=inductor_q,
+                     exclude=mnames)
+        if pol and pol.get("metrics") and (m is None
+                                           or spec.objective(pol["metrics"]) < spec.objective(m)):
+            m, params, n_evals = pol["metrics"], pol["best_params"], n_evals + pol["n_evals"]
+    if m is None:
+        return None
+    feas, viol = spec.feasible(m)
+    return {"metrics": m, "feasible": feas, "viol": viol, "n_evals": n_evals,
+            "best_obj": spec.objective(m), "best_params": params,
+            "match_s11_max": mbest, "n_match_params": len(mnames)}
 
 
 def size_topology(topo, spec, seed=1, n_candidates=6, sgd_iters=6, cgd_iters=1,

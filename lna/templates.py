@@ -359,6 +359,115 @@ def rfb_cs3_lna(load3, cascode2=False, buffer=False):
     return nl
 
 
+# ------------------------------------------- low-noise families (blind-v1, WP-D3)
+# Motivation, from OUR measurements only (08-DHRUVA rule 2 -- generic textbook
+# blocks chosen from the measured failure mode, no paper content):
+# WP-D4 showed the whole feasible set collapses under gated NF, and the dhruva
+# rfb_cs3 winner misses by +5.4..+8.6 dB. Resistive shunt feedback at the INPUT is
+# inherently noisy (the feedback resistor and the low-gain first stage both sit in
+# front of everything), so the fix has to change the INPUT stage, not the sizing.
+# The two textbook input stages that hold a BROADBAND match without a feedback
+# resistor are the common gate (Rin = 1/gm, frequency-flat) and its two classic
+# noise fixes: gm-boosting and noise cancelling. Both are added here.
+
+def _tuned_chain(nl, N, node, n_stages, load):
+    """Cascade `n_stages` tuned common-source stages after `node`; return the last
+    drain. Each stage is AC-coupled (self-biased gate) with an LC tank load, which
+    is what turns a broadband-matched but low-gain input stage into a 22-30 dB
+    narrowband amplifier without touching the input match."""
+    d = node
+    for i in range(n_stages):
+        g = N.new()
+        nl.append([f"Cs{i}", d, g, "capacitor"])
+        d = N.new()
+        nl.append([f"Ms{i}", d, g, "VSS", "VSS", "nmos4"])
+        if load == "tank" or i < n_stages - 1:
+            nl.append([f"Lds{i}", "VDD", d, "inductor"])
+            nl.append([f"Cts{i}", "VDD", d, "capacitor"])
+        else:
+            nl.append([f"RLs{i}", "VDD", d, "resistor"])
+    return d
+
+
+def gmb_cg_lna(n_stages=1, load="tank", boost=True):
+    """gm-BOOSTED COMMON-GATE LNA (generic textbook, blind-v1).
+
+    A plain common gate matches broadband (Rin = 1/gm) but its noise factor floors
+    at F = 1 + gamma/alpha, because the SAME gm that sets the match sets the noise.
+    gm-boosting breaks that coupling: an inverting auxiliary amplifier of gain -A
+    from the source node back to the gate makes the effective transconductance
+    (1+A)*gm, so the match Rin = 1/((1+A)gm) is met with a much SMALLER gm --
+    less current and F = 1 + gamma/(alpha*(1+A)). Here the auxiliary amp is a
+    plain resistively-loaded CS stage (Mb/Rab), the textbook single-ended choice.
+    The broadband match is then followed by tuned CS stages for the dhruva gain.
+
+    BIASING (this is what makes or breaks a CG family, measured the hard way): the
+    source node X is DC-grounded through Lin, so a gate tied to VDD would sit at
+    Vgs = VDD and drive the device deep into triode. The CG gate is therefore left
+    UNDRIVEN with a bypass capacitor to VSS -- bias.py's R-GATE rule then feeds it
+    a sizable bias voltage, so the sizer owns the CG bias current, and the cap
+    AC-grounds it. The auxiliary amp is AC-coupled off X for the same reason: its
+    gate would otherwise sit at 0 V and the device would never conduct."""
+    nl, N = [], Nets()
+    x = N.new()
+    nl.append(["Cin", "VIN1", x, "capacitor"])
+    nl.append(["Lin", x, "VSS", "inductor"])           # source DC path / shunt peak
+    g1 = N.new()
+    if boost:
+        gb = N.new()
+        nl.append(["Cb", x, gb, "capacitor"])          # AC-couple the aux amp's gate
+        nl.append(["Mb", g1, gb, "VSS", "VSS", "nmos4"])   # inverting aux amp: -A
+        nl.append(["Rab", "VDD", g1, "resistor"])      # aux load -> sets A = gm*Rab
+    else:
+        nl.append(["Cbg", g1, "VSS", "capacitor"])     # plain CG: AC-ground the gate
+    d1 = N.new()
+    nl.append(["M1", d1, g1, x, "VSS", "nmos4"])       # the common-gate device
+    nl.append(["RL1", "VDD", d1, "resistor"])          # broadband (flat) first load
+    d = _tuned_chain(nl, N, d1, n_stages, load)
+    nl.append(["Cout", d, "VOUT1", "capacitor"])
+    return nl
+
+
+def nc_cgcs_lna(n_stages=1, load="tank"):
+    """NOISE-CANCELLING CG + CS LNA, single-ended (generic textbook, blind-v1).
+
+    The matching device's own channel noise appears at the input node X and at the
+    CG drain Y1 with OPPOSITE sign, while the SIGNAL appears at X and Y1 with the
+    SAME sign (both follow from KCL at a matched CG -- see FINDINGS). So a second
+    path that samples X and lands on a summing node with the opposite inversion
+    count adds the signal while subtracting the noise, and the matching device's
+    noise can be cancelled outright.
+
+    Single-ended realization used here (the differential CG/CS pair needs a
+    balanced output our harness does not have):
+        X --(CS aux, Ma)--> Yo            one inversion
+        X --(CG, M1)--> Y1 --(CS, Mc)--> Yo   non-inverting then inverting
+    Both paths reach the shared node Yo inverted, so signals add; the noise sign
+    flip at Y1 is what makes the noise subtract. Cancellation is exact at one
+    ratio of gm's and load resistances, which is exactly the kind of continuous
+    trade the ZOAF sizer is for -- nothing here is hand-tuned."""
+    nl, N = [], Nets()
+    x = N.new()
+    nl.append(["Cin", "VIN1", x, "capacitor"])
+    nl.append(["Lin", x, "VSS", "inductor"])            # source DC path
+    g1 = N.new()
+    nl.append(["Cbg", g1, "VSS", "capacitor"])          # CG gate: biased by bias.py,
+    y1 = N.new()                                        # AC-grounded by Cbg
+    nl.append(["M1", y1, g1, x, "VSS", "nmos4"])        # CG: sets the broadband match
+    nl.append(["RL1", "VDD", y1, "resistor"])
+    yo = N.new()
+    ga = N.new()
+    nl.append(["Cab", x, ga, "capacitor"])              # AC-couple the aux CS gate
+    nl.append(["Ma", yo, ga, "VSS", "VSS", "nmos4"])    # aux CS path off X
+    gc = N.new()
+    nl.append(["Cc", y1, gc, "capacitor"])
+    nl.append(["Mc", yo, gc, "VSS", "VSS", "nmos4"])    # CG output re-inverted onto Yo
+    nl.append(["RLo", "VDD", yo, "resistor"])           # shared summing load
+    d = _tuned_chain(nl, N, yo, n_stages, load)
+    nl.append(["Cout", d, "VOUT1", "capacitor"])
+    return nl
+
+
 # --------------------------------------------------------------- enumeration
 def archetypes():
     """Yield (name, netlist, spec, band) for every distinct valid, screen-passing
@@ -416,6 +525,25 @@ def archetypes():
                 combos.append(("nb",
                     f"rfbcs3_{load3}_cc2{int(cascode2)}_bf{int(buffer)}",
                     rfb_cs3_lna(load3, cascode2=cascode2, buffer=buffer)))
+    # blind-v1 LOW-NOISE families (WP-D3 / Gate D3): gm-boosted CG and
+    # noise-cancelling CG+CS input stages, each followed by 0-2 tuned CS stages so
+    # the broadband match can carry dhruva-class gain. Added because WP-D4 measured
+    # the rfb-input family missing NF by +5.4..+8.6 dB -- chosen from that failure,
+    # not from any paper (08-DHRUVA rule 2). Both are emitted as nb (tuned/tank,
+    # inductor-bearing) and as wb (inductorless R loads, for wideband-sdr).
+    for n_stages in (1, 2):
+        for load in ("tank", "R"):
+            for boost in (True, False):
+                combos.append(("nb",
+                    f"gmbcg_s{n_stages}_{load}_b{int(boost)}",
+                    gmb_cg_lna(n_stages, load, boost)))
+            combos.append(("nb", f"nccgcs_s{n_stages}_{load}",
+                           nc_cgcs_lna(n_stages, load)))
+    for n_stages in (0, 1):
+        for boost in (True, False):
+            combos.append(("wb", f"gmbcg_wb_s{n_stages}_b{int(boost)}",
+                           gmb_cg_lna(n_stages, "R", boost)))
+        combos.append(("wb", f"nccgcs_wb_s{n_stages}", nc_cgcs_lna(n_stages, "R")))
     # wideband inductorless family (WP-BROADEN, unlocks wideband-sdr: broadband S11)
     for load in ("R", "tank", "shunt_peak"):
         for cascode in (False, True):

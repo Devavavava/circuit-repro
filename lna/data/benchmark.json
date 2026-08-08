@@ -1,19 +1,38 @@
 {
   "yields": {
-    "wifi24": 6,
+    "wifi24": 4,
     "gps-l1": 0,
-    "wideband-sdr": 0
+    "wideband-sdr": 0,
+    "dhruva-l5": 0,
+    "dhruva-l2": 0,
+    "dhruva-l1": 0,
+    "dhruva-s": 0
   },
   "binding": {
-    "wifi24": {},
+    "wifi24": {
+      "s21": 2
+    },
     "gps-l1": {
-      "s21": 5,
-      "idd": 1
+      "s11": 4,
+      "s21": 2
     },
     "wideband-sdr": {
       "s11": 4,
-      "s21": 1,
-      "s21_ripple": 1
+      "s21": 2
+    },
+    "dhruva-l5": {
+      "s11x": 5,
+      "s21": 1
+    },
+    "dhruva-l2": {
+      "s11x": 6
+    },
+    "dhruva-l1": {
+      "s11x": 6
+    },
+    "dhruva-s": {
+      "s11x": 4,
+      "s21": 2
     }
   },
   "table": [
@@ -24,28 +43,64 @@
         "wifi24": {
           "feasible": true,
           "binding": "-",
-          "S11": -14.9,
-          "S21": 14.5,
-          "Idd": 2.17,
+          "S11": -10.0,
+          "S21": 13.4,
+          "Idd": 1.74,
           "NF": -0.4,
           "curated": true
         },
         "gps-l1": {
           "feasible": false,
-          "binding": "s21",
-          "S11": -7.7,
-          "S21": 9.6,
-          "Idd": 3.48,
-          "NF": 5.5,
+          "binding": "s11",
+          "S11": -0.5,
+          "S21": 8.5,
+          "Idd": 0.47,
+          "NF": 6.5,
           "curated": false
         },
         "wideband-sdr": {
           "feasible": false,
           "binding": "s11",
+          "S11": -0.0,
+          "S21": 7.2,
+          "Idd": 2.01,
+          "NF": 11.0,
+          "curated": false
+        },
+        "dhruva-l5": {
+          "feasible": false,
+          "binding": "s11x",
+          "S11": -0.6,
+          "S21": 8.3,
+          "Idd": 0.66,
+          "NF": 7.7,
+          "curated": false
+        },
+        "dhruva-l2": {
+          "feasible": false,
+          "binding": "s11x",
+          "S11": -0.7,
+          "S21": 8.8,
+          "Idd": 0.7,
+          "NF": 7.4,
+          "curated": false
+        },
+        "dhruva-l1": {
+          "feasible": false,
+          "binding": "s11x",
           "S11": -0.3,
-          "S21": 12.0,
-          "Idd": 4.32,
+          "S21": 12.3,
+          "Idd": 2.82,
           "NF": 5.1,
+          "curated": false
+        },
+        "dhruva-s": {
+          "feasible": false,
+          "binding": "s11x",
+          "S11": -4.8,
+          "S21": 14.8,
+          "Idd": 0.91,
+          "NF": -0.7,
           "curated": false
         }
       }
@@ -57,28 +112,64 @@
         "wifi24": {
           "feasible": true,
           "binding": "-",
-          "S11": -10.9,
-          "S21": 12.8,
-          "Idd": 4.0,
-          "NF": -1.4,
+          "S11": -10.1,
+          "S21": 12.2,
+          "Idd": 2.67,
+          "NF": -1.6,
           "curated": true
         },
         "gps-l1": {
           "feasible": false,
           "binding": "s21",
-          "S11": -11.0,
-          "S21": 5.3,
-          "Idd": 2.75,
-          "NF": 4.3,
+          "S11": -13.2,
+          "S21": -2.4,
+          "Idd": 1.41,
+          "NF": 6.4,
           "curated": false
         },
         "wideband-sdr": {
           "feasible": false,
           "binding": "s11",
-          "S11": -0.4,
-          "S21": 6.4,
-          "Idd": 6.68,
-          "NF": 5.2,
+          "S11": -0.3,
+          "S21": 1.2,
+          "Idd": 3.54,
+          "NF": 4.8,
+          "curated": false
+        },
+        "dhruva-l5": {
+          "feasible": false,
+          "binding": "s11x",
+          "S11": -1.3,
+          "S21": 13.2,
+          "Idd": 7.75,
+          "NF": 6.8,
+          "curated": false
+        },
+        "dhruva-l2": {
+          "feasible": false,
+          "binding": "s11x",
+          "S11": -1.4,
+          "S21": 13.2,
+          "Idd": 7.44,
+          "NF": 6.4,
+          "curated": false
+        },
+        "dhruva-l1": {
+          "feasible": false,
+          "binding": "s11x",
+          "S11": -1.9,
+          "S21": 10.7,
+          "Idd": 7.58,
+          "NF": 6.1,
+          "curated": false
+        },
+        "dhruva-s": {
+          "feasible": false,
+          "binding": "s11x",
+          "S11": -4.2,
+          "S21": 9.9,
+          "Idd": 4.86,
+          "NF": 2.2,
           "curated": false
         }
       }
@@ -90,127 +181,271 @@
         "wifi24": {
           "feasible": true,
           "binding": "-",
-          "S11": -13.8,
-          "S21": 12.6,
-          "Idd": 2.46,
-          "NF": -2.6,
+          "S11": -13.6,
+          "S21": 15.4,
+          "Idd": 4.89,
+          "NF": -1.7,
           "curated": true
         },
         "gps-l1": {
           "feasible": false,
           "binding": "s21",
-          "S11": -12.4,
-          "S21": 5.3,
-          "Idd": 3.01,
-          "NF": 4.3,
+          "S11": -12.7,
+          "S21": -7.1,
+          "Idd": 1.59,
+          "NF": 11.0,
+          "curated": false
+        },
+        "wideband-sdr": {
+          "feasible": false,
+          "binding": "s21",
+          "S11": -10.7,
+          "S21": -0.6,
+          "Idd": 12.34,
+          "NF": 10.6,
+          "curated": false
+        },
+        "dhruva-l5": {
+          "feasible": false,
+          "binding": "s21",
+          "S11": -6.5,
+          "S21": -1.8,
+          "Idd": 3.11,
+          "NF": 13.2,
+          "curated": false
+        },
+        "dhruva-l2": {
+          "feasible": false,
+          "binding": "s11x",
+          "S11": -1.1,
+          "S21": 8.1,
+          "Idd": 12.48,
+          "NF": 11.2,
+          "curated": false
+        },
+        "dhruva-l1": {
+          "feasible": false,
+          "binding": "s11x",
+          "S11": -1.2,
+          "S21": 8.5,
+          "Idd": 9.57,
+          "NF": 9.5,
+          "curated": false
+        },
+        "dhruva-s": {
+          "feasible": false,
+          "binding": "s21",
+          "S11": -11.6,
+          "S21": 3.7,
+          "Idd": 4.59,
+          "NF": 7.0,
+          "curated": false
+        }
+      }
+    },
+    {
+      "candidate": "seq0079.txt",
+      "n_dev": 10,
+      "results": {
+        "wifi24": {
+          "feasible": false,
+          "binding": "s21",
+          "S11": -11.8,
+          "S21": 11.5,
+          "Idd": 2.02,
+          "NF": -0.9,
+          "curated": true
+        },
+        "gps-l1": {
+          "feasible": false,
+          "binding": "s11",
+          "S11": -0.3,
+          "S21": 2.8,
+          "Idd": 0.98,
+          "NF": 5.3,
           "curated": false
         },
         "wideband-sdr": {
           "feasible": false,
           "binding": "s11",
-          "S11": -0.8,
-          "S21": 8.4,
-          "Idd": 7.78,
-          "NF": 9.0,
+          "S11": -1.0,
+          "S21": 5.2,
+          "Idd": 8.16,
+          "NF": 8.3,
+          "curated": false
+        },
+        "dhruva-l5": {
+          "feasible": false,
+          "binding": "s11x",
+          "S11": -0.2,
+          "S21": 6.8,
+          "Idd": 3.25,
+          "NF": 4.8,
+          "curated": false
+        },
+        "dhruva-l2": {
+          "feasible": false,
+          "binding": "s11x",
+          "S11": -0.2,
+          "S21": 6.7,
+          "Idd": 3.23,
+          "NF": 4.7,
+          "curated": false
+        },
+        "dhruva-l1": {
+          "feasible": false,
+          "binding": "s11x",
+          "S11": -0.6,
+          "S21": 5.2,
+          "Idd": 2.95,
+          "NF": 6.6,
+          "curated": false
+        },
+        "dhruva-s": {
+          "feasible": false,
+          "binding": "s21",
+          "S11": -6.1,
+          "S21": 4.0,
+          "Idd": 4.1,
+          "NF": 3.8,
           "curated": false
         }
       }
     },
     {
-      "candidate": "seq0009.txt",
-      "n_dev": 12,
-      "results": {
-        "wifi24": {
-          "feasible": true,
-          "binding": "-",
-          "S11": -11.5,
-          "S21": 17.1,
-          "Idd": 3.72,
-          "NF": 3.0,
-          "curated": true
-        },
-        "gps-l1": {
-          "feasible": false,
-          "binding": "s21",
-          "S11": -8.1,
-          "S21": 9.2,
-          "Idd": 3.05,
-          "NF": 3.7,
-          "curated": false
-        },
-        "wideband-sdr": {
-          "feasible": false,
-          "binding": "s21",
-          "S11": -0.1,
-          "S21": -12.4,
-          "Idd": 6.04,
-          "NF": 16.0,
-          "curated": false
-        }
-      }
-    },
-    {
-      "candidate": "seq0001.txt",
+      "candidate": "seq0086.txt",
       "n_dev": 10,
       "results": {
         "wifi24": {
           "feasible": true,
           "binding": "-",
-          "S11": -12.0,
-          "S21": 13.0,
-          "Idd": 3.09,
-          "NF": 1.3,
+          "S11": -11.2,
+          "S21": 16.6,
+          "Idd": 2.26,
+          "NF": -1.2,
           "curated": true
         },
         "gps-l1": {
           "feasible": false,
-          "binding": "s21",
-          "S11": -12.2,
-          "S21": 13.8,
-          "Idd": 2.84,
-          "NF": 0.2,
+          "binding": "s11",
+          "S11": -0.2,
+          "S21": 10.3,
+          "Idd": 1.55,
+          "NF": 8.2,
           "curated": false
         },
         "wideband-sdr": {
           "feasible": false,
           "binding": "s11",
-          "S11": -0.3,
-          "S21": 7.8,
-          "Idd": 0.96,
-          "NF": 5.8,
+          "S11": -0.1,
+          "S21": 6.4,
+          "Idd": 0.73,
+          "NF": 8.4,
+          "curated": false
+        },
+        "dhruva-l5": {
+          "feasible": false,
+          "binding": "s11x",
+          "S11": -0.4,
+          "S21": 13.4,
+          "Idd": 2.47,
+          "NF": 6.6,
+          "curated": false
+        },
+        "dhruva-l2": {
+          "feasible": false,
+          "binding": "s11x",
+          "S11": -0.4,
+          "S21": 13.4,
+          "Idd": 2.54,
+          "NF": 6.4,
+          "curated": false
+        },
+        "dhruva-l1": {
+          "feasible": false,
+          "binding": "s11x",
+          "S11": -0.6,
+          "S21": 13.9,
+          "Idd": 2.26,
+          "NF": 4.8,
+          "curated": false
+        },
+        "dhruva-s": {
+          "feasible": false,
+          "binding": "s11x",
+          "S11": -1.8,
+          "S21": 15.4,
+          "Idd": 2.2,
+          "NF": 1.2,
           "curated": false
         }
       }
     },
     {
-      "candidate": "seq0008.txt",
-      "n_dev": 9,
+      "candidate": "seq0046.txt",
+      "n_dev": 12,
       "results": {
         "wifi24": {
-          "feasible": true,
-          "binding": "-",
-          "S11": -10.4,
-          "S21": 15.0,
-          "Idd": 4.07,
-          "NF": 3.4,
+          "feasible": false,
+          "binding": "s21",
+          "S11": -9.8,
+          "S21": 0.7,
+          "Idd": 2.45,
+          "NF": 6.0,
           "curated": true
         },
         "gps-l1": {
           "feasible": false,
-          "binding": "idd",
-          "S11": -12.9,
-          "S21": 18.3,
-          "Idd": 4.56,
-          "NF": -0.3,
+          "binding": "s11",
+          "S11": -0.9,
+          "S21": 18.8,
+          "Idd": 2.72,
+          "NF": 6.2,
           "curated": false
         },
         "wideband-sdr": {
           "feasible": false,
-          "binding": "s21_ripple",
-          "S11": -1.2,
-          "S21": 13.1,
-          "Idd": 6.44,
-          "NF": 7.0,
+          "binding": "s21",
+          "S11": -1.0,
+          "S21": -22.4,
+          "Idd": 7.55,
+          "NF": 27.6,
+          "curated": false
+        },
+        "dhruva-l5": {
+          "feasible": false,
+          "binding": "s11x",
+          "S11": -0.5,
+          "S21": 18.7,
+          "Idd": 11.67,
+          "NF": 8.7,
+          "curated": false
+        },
+        "dhruva-l2": {
+          "feasible": false,
+          "binding": "s11x",
+          "S11": -0.4,
+          "S21": 18.3,
+          "Idd": 11.52,
+          "NF": 8.4,
+          "curated": false
+        },
+        "dhruva-l1": {
+          "feasible": false,
+          "binding": "s11x",
+          "S11": -0.5,
+          "S21": 23.7,
+          "Idd": 3.86,
+          "NF": 6.9,
+          "curated": false
+        },
+        "dhruva-s": {
+          "feasible": false,
+          "binding": "s11x",
+          "S11": -1.8,
+          "S21": 24.1,
+          "Idd": 8.51,
+          "NF": 4.9,
           "curated": false
         }
       }

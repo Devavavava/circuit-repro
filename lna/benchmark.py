@@ -77,7 +77,11 @@ def size_vs(topo, spec_name, bp, seeds=(1, 2), budget=(8, 8, 2)):
 def _binding(spec, viol):
     if not viol:
         return "-"
-    return max(viol.items(), key=lambda kv: kv[1])[0].replace("_db", "").replace("_ma", "")
+    name = max(viol.items(), key=lambda kv: kv[1])[0]
+    for suf in ("_db", "_ma"):        # strip only a trailing unit suffix; a naive
+        if name.endswith(suf):        # .replace mangled s11_max_db -> "s11x"
+            return name[: -len(suf)]
+    return name
 
 
 def run(n, spec_names, seeds=(1, 2), budget=(8, 8, 2)):

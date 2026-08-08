@@ -137,6 +137,91 @@ measured detail in **FINDINGS §13**; Track B's own report is
    families in `templates.py`; `emit_winners` + a P5-v7 fine-tune on the NF-gated
    domain is the natural expert-iteration step.
 
+### Track C — consolidation (σ relabel · critic retrain · benchmark refresh · hygiene)
+
+Ran after A and B, alone in the worktree. Full detail in **FINDINGS §14**.
+
+* **σ(S21): the "drift" was mostly a measurement artefact, and best-of-3 halves
+  what is left.** Two defects: `_sigma_from_repeats` grouped by `(wl_hash, spec)`
+  only, pooling *different recipes* and *different NF gating* — **81 of 89
+  multi-row keys were mixed that way** — and it estimated a stdev from n=2. On the
+  same 19 wifi24 repeat-probe keys, 9 seeds/key gives **σ_single = 1.478 dB**
+  where 2 seeds/key gives 0.570; **best-of-3 → σ = 0.726 dB** (2.0× quieter, 3×
+  the sims). So σ was always ≈1.5 dB here; the 0.32/1.02/1.27 series was
+  under-sampled and contaminated. **06-LAST-MILE's ≲0.5 dB bar is still NOT met.**
+  `campaign.sigma_key` now conditions on `(wl_hash, spec, recipe, nf_gated)`;
+  `size.size_best_of_k` is the new label definition (`recipe candidate-v1+bo3`,
+  stamps `zoaf_cfg.seeds` + per-metric `label_sigma`).
+* **Critic retrain on `v4-train` (734 rows; 730 usable, was 261).** A bug first:
+  `_margins` read `s11_db` only, so **every dhruva row — ~240, including the whole
+  Track-B corpus — was silently dropped** (broadband specs gate `s11_max_db`).
+  Fixed, plus spec conditioning everywhere and a provenance-based source-shift
+  split (420 generated rows, was 142). **★ The source-shift gap closed: ρ(S21)
+  0.221 → 0.585 (ridge) / 0.609 (GNN)** — and the *same code on the old v2-train
+  snapshot reproduces the old numbers exactly, so it is the data, not the code.
+  Within-spec: ridge **0.753** on the 200-row Track-B dhruva-l1 pool, where
+  **WL-kNN collapses to 0.003** (that baseline lived on duplicate structure; the
+  Track-B samples are novel by construction). **★ The GNN now ships as critic v1**
+  (02-CRITIC §2 rule) — it takes ρ(S21) and rank accuracy on both splits (family
+  **0.851** vs 0.790 ridge / 0.687 kNN; source-shift **0.609** vs 0.585 / 0.370)
+  and is the only arm with usable uncertainty (ensemble std ranks |error|, ρ 0.54 /
+  0.53 — what 03-SEARCH's `mean − β·std` needs). **Not a sweep:** ridge ties its
+  source-shift prec@20% (0.655) and beats its ρ(S11) there. NF is a trained head
+  now (711 labelled rows; ρ 0.66–0.70 on the family split, better than S11).
+* **⚠ Gate C1 verdict, honestly: the Spearman half passes on BOTH splits for the
+  first time; the enrichment half is no longer reachable by any model.**
+  Enrichment = precision@20% / base-rate ≤ **1/base-rate**, and as the pool
+  improved the base rate went 0.27 → 0.46 on source-shift, so the ceiling fell
+  3.74× → **2.20×** (family: 2.02×). "≥2×" now silently means "*perfect*
+  precision@20%" — which is exactly what the v2-train pass was. **This needs an
+  explicit rebaseline decision from the user, same shape as the NDL gap.**
+* **Benchmark refreshed at full budget** (`seeds=1,2`, `budget=8,8,2`), candidate
+  set taken from the feasible record (in-box rows preferred) so it now includes the
+  generated dhruva-l1 feasible `seq0192` and the 4-band `rfbcs3` archetype, with
+  **tier-1 / tier-2 reported separately** and `K_min` per cell.
+  **Result (tier-1 / tier-2 of 12):** wifi24 **10/12 · 1/12** · gps-l1 2/12 · 0 ·
+  wideband-sdr **0/12** · 0 · dhruva-l5 1/12 · 0 · dhruva-l2 1/12 · 0 · dhruva-l1
+  **2/12** · 0 · dhruva-s 1/12 · 0. wifi24 is the solved class at full budget
+  (4/6 lean → 10/12; the only misses are the two dhruva-native designs).
+  **Tier-2 is one cell in 84** — `seq0220` on wifi24, NF 2.34 — so with the hand
+  `ref24_tapped` reference (a netlist, not in this table) the program's tier-2
+  record is two designs, one generated. The dhruva wall is `s11_max` on 10–11 of
+  12 per band. **8 of 84 cells read in-band K_min < 1, one of them tier-1
+  feasible** (`seq0009` on wifi24, K_min **0.242**, curated) and `seq0046` on
+  dhruva-l1 at **−2.04**.
+* **Hygiene.** `.gitignore` gained `lna/out/_*`, `*.pre_*.json`, `*_train_*.json`
+  and a junction setup note (verified: junctioned `misc`/`AnalogGenie`/`AutoCkt`
+  do **not** appear in `git status`). Four generator run dirs tracked by
+  `meta.json` only. On `lna-exec` (the other checkout) the 10 concluded P4
+  logit-bias sweep dirs are committed, `meta.json` only. Both branches pushed.
+* **Regression quartet green** after everything: vocab **MATCH**, screen **59.4%**
+  (114/192), pipeline_yield **40/42** (95.2%, the one failure is 1081's known
+  singular matrix), `check_ref` / `check_nf` / `check_stab` **GREEN**,
+  `calibrate_specs` **ALL ACCEPTANCE CRITERIA MET**.
+* ⚠ **A Track-A `d3_campaign.py` was still running when Track C started** and
+  appended rows 735–772 interleaved with the σ probe. Nothing broke — that is what
+  the append-only store and sha256-pinned snapshots are for, and `v4-train` still
+  verifies at 734 lines — but it is why `_sigma_from_repeats` and both eval drivers
+  now take `snapshot=`: **a number computed against a live store is not
+  reproducible once anyone else is writing.**
+
+**Queued for the next session (measured, not executed tonight):**
+
+1. **Gate D3 is ~0.9 dB away on dhruva-s.** The lever is a cancellation-aware
+   start or an **NF-only inner optimization stage** for the noise-cancelling CG+CS
+   family — Track A measured that the blended feasibility-first search never sits
+   on the cancellation locus. Not more seeds.
+2. **Put stability in the polish/curated objective** (K ≥ 1, advisory → gated).
+   Polish walked `seq0220` into K_min 0.832 because nothing penalised it.
+3. **NDL metric gap:** the novelty reference is the 41-circuit corpus only, not the
+   148 archetypes, so ~51% of screen-passing samples are archetype regenerations
+   scored as novel. Extending the reference changes a frozen protocol → **explicit
+   rebaseline decision by the user.**
+4. **Gate C1's enrichment bar** (above) — same class of decision.
+5. **`wideband-sdr` still has no feasible.** The fixed-bias noise-cancelling
+   families are the obvious candidates (they match to −19.7 dB after the bias fix).
+
+
 ### Tools added this session
 
 ```bash
@@ -146,6 +231,12 @@ python lna/ref/check_stab.py                  # stability harness validation + w
 python lna/d3_campaign.py --spec dhruva-s --cls nb --seeds 2 --polish   # NF-gated labeling
 python lna/trackb_g4.py                       # Track B's generated-candidate driver
 LNA_NF_GATE=0 python ...                      # session-wide escape hatch to tier-1 gating
+# Track C
+python lna/campaign.py --sigma-probe [--gen] --k 3 --reps 2      # best-of-k label-noise probe
+python lna/critic.py --eval --snapshot v4-train --sigma-recipe candidate-v1+bo3
+"<analoggenie py>" lna/critic_gnn.py --eval --snapshot v4-train --sigma-recipe candidate-v1+bo3
+python lna/benchmark.py --all-feasible --seeds 1,2 --budget 8,8,2 --out-json <ckpt> [--resume <ckpt>]
+python lna/datastore.py --snapshot v4-train   # pin a training set (sha256 + line count)
 ```
 
 

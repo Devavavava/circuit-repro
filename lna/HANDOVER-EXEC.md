@@ -71,8 +71,10 @@ measured detail in **FINDINGS §13**; Track B's own report is
   VDD, deep triode) and the aux amp's gate on a DC-grounded node (Vgs = 0, never
   conducts). Undriven+bypassed CG gate (bias.py owns the current) + AC-coupled aux
   gate took s11_max from ≈ −3 dB to **−19.7 dB**.
-  **Best measured dhruva-s candidate: `nccgcs_s1_tank` → s11_max −14.8 ✓ / S21 28.6 /
-  Idd 12.99 ✓ / NF 5.68, total viol 0.669** (vs the incumbent's 1.537 on NF alone).
+  **Best measured dhruva-s points (two ends of the family's NF↔gain Pareto):**
+  `nccgcs_s1_tank` → s11_max −14.8 ✓ / **S21 28.6** / Idd 12.99 ✓ / NF 5.68 (viol 0.669);
+  `nccgcs_s1_R` → s11_max −9.4 / S21 22.4 / Idd 6.75 ✓ / **NF 4.38** (viol **0.566**).
+  Incumbent for comparison: viol 1.537 on NF alone.
 * **★★ TRACK B MET ITS GOAL — a *generated* dhruva-l1 tier-1 feasible.**
   `ft_p5v6_nb_s1337/seq0192`, wl `20bca9a7c3a5f263`: **S11max −11.49 / S21 29.19 /
   Idd 11.09**, replay-verified, in-box, matching none of the 148 archetypes or 41
@@ -88,7 +90,7 @@ measured detail in **FINDINGS §13**; Track B's own report is
 |---|---|---|
 | D0 / D1 / D2 | MET (unchanged, tier-1) | 4-band family `rfbcs3_tank_cc21_bf0`, stability-clean |
 | D1 "generated" | **MET (Track B)** | `seq0192`: S11max −11.49 / S21 29.19 / Idd 11.09 |
-| **D3 (tier-2 NF)** | **NOT MET** | best dhruva-s viol **0.669** (`nccgcs_s1_tank`, NF 5.68 vs 3.5) |
+| **D3 (tier-2 NF)** | **NOT MET** | best dhruva-s viol **0.566** (`nccgcs_s1_R`, NF **4.38** vs 3.5, from the incumbent's 8.88) |
 | wifi24 tier-2 | **MET** (not a numbered gate) | `seq0220` NF 2.43 + `ref24_tapped` NF 2.00 |
 | B1 wideband-sdr | still 0 | best `nccgcs_wb_s0`: S21 9.9, NF 5.42, viol 1.551 |
 
@@ -112,12 +114,13 @@ measured detail in **FINDINGS §13**; Track B's own report is
 
 1. **The Gate-D3 blocker is now NOISE ALONE, and probably a *search* failure rather
    than a family limit.** `nc_cgcs` reads 5.68 dB where a noise-cancelling CG+CS
-   should reach ~2.5–3 dB, which says the sizer never lands on the cancellation locus
+   should reach ~2.5–3 dB (best measured 4.38), which says the sizer never lands on
+   the cancellation locus
    (it holds only at a specific gm/load ratio, and the blended feasibility-first
    objective has no reason to sit there). **Next lever: a cancellation-aware start or
    an explicit NF-only inner optimization stage — not more seeds.** Within the family
-   the measured trade is ~+0.75 dB NF per +7 dB gain, so the last 1.4 dB of gain is
-   cheap; the 2.2 dB of noise is the whole job.
+   the measured trade is ~+1.3 dB NF per +6 dB gain, so gain is cheap; ~0.9 dB of
+   noise (dhruva-s) to ~1.9 dB (the other three bands) is the whole remaining job.
 2. **Put stability in the objective (or at least in the polish guard).** It is
    measured and free now, and polish is demonstrably capable of walking a design into
    K < 1. Cheapest useful version: refuse a polish step that takes K_min below 1.

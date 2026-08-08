@@ -1324,15 +1324,18 @@ match-first + NF-aware polish:**
 | `gmbcg_s1_tank_b0` | −9.9 | 16.7 | 11.89 ✓ | 6.86 | 8.36 | 1.416 |
 
 versus the rfb_cs3 incumbent's dhruva-s violation of **1.537 on NF alone**. A second,
-2-seed pass with a larger ZOAF budget then pushed the same archetype much further:
+2-seed pass with a larger ZOAF budget then pushed the family much further, and mapped
+two distinct points on its NF↔gain Pareto:
 
-**`nccgcs_s1_tank` vs dhruva-s, best measured point: s11_max −14.8 ✓ / S21 28.6 /
-Idd 12.99 ✓ / NF 5.68 — total violation 0.669, of which NF is 0.623 and gain 0.047.**
+| point | s11_max | S21 | Idd | NF | total viol |
+|---|---|---|---|---|---|
+| `nccgcs_s1_tank` (gain end) | **−14.8 ✓** | **28.6** | 12.99 ✓ | 5.68 | 0.669 |
+| `nccgcs_s1_R` (noise end) | −9.4 | 22.4 | 6.75 ✓ | **4.38** | **0.566** |
 
 So the best dhruva-s candidate moved from *NF-only violation 1.54* (incumbent) to
-*total violation 0.669*, and — importantly — the noise-cancelling family now clears
-the broadband match with margin and comes within **1.4 dB of the hardest gain target
-in the whole spec set (30 dB)** while cutting NF from 8.88 to 5.68 dB. **Gate D3 is
+**0.566**, and the noise-cancelling family now either clears the broadband match with
+margin while coming within **1.4 dB of the hardest gain target in the whole spec set
+(30 dB)**, or cuts NF from 8.88 to **4.38 dB** — but not both at once. **Gate D3 is
 NOT met.** `wideband-sdr` also stays 0 (best `nccgcs_wb_s0`: S21 9.9, NF 5.42, viol
 1.551).
 
@@ -1348,11 +1351,12 @@ an optimizer shortfall:
   `nccgcs_s2_tank` at ~20 devices is rejected before it is ever simulated — turned out
   to be premature: one tuned stage plus the tuned summing node reaches 28.6 dB. The
   budget is a *latent* constraint, not the active one.)
-* NF: **the wall.** 5.68 dB measured against 3.5 (dhruva-s) / 2.5–2.7 (the other three
-  bands). And within the family there is a measured NF↔gain trade of roughly
-  **+0.75 dB NF per +7 dB gain** (4.93 dB at S21 21.5 → 5.68 dB at S21 28.6), so
-  buying the last 1.4 dB of gain costs ~0.15 dB more noise; extrapolated, the family
-  sits near **NF ≈ 5.9 dB at 30 dB gain — about 2.4 dB above dhruva-s's target**.
+* NF: **the wall.** Best 4.38 dB measured against 3.5 (dhruva-s) / 2.5–2.7 (the other
+  three bands) — and that point gives up gain and 0.6 dB of match to get there. Within
+  the family the measured NF↔gain trade is roughly **+1.3 dB NF per +6 dB gain**
+  (4.38 dB at S21 22.4 → 5.68 dB at S21 28.6), so the family's 30 dB corner sits near
+  **NF ≈ 5.9 dB, about 2.4 dB above dhruva-s's target** and ~3.3 dB above the other
+  three bands'.
 
 The interpretation to test next: 5.7 dB is far above what a noise-cancelling CG+CS
 should achieve (~2.5–3 dB), which says the sizer is **not finding the cancellation

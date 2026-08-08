@@ -983,3 +983,36 @@ the benchmark named as missing (`templates.py`, 92→118 archetypes):
   polish/curate-from-a-sizing-result path silently ran on `None`. This is why the
   first close-the-gap pass reported no movement past the all-free point; the fix
   makes the "size → polish/curate from here" flow actually work.
+
+**★★ WP-BROADEN Gate-B1 (07-EXIT §2, overnight P5-v3 run) — gps-l1 CLOSED by the
+generator; the thesis holds a second time.** Ran the full intended sequence as five
+checkpoints (`lna/BROADEN-PROGRESS.md` has the per-step log):
+* **P5-v3 fine-tune + generation (the lever).** Rebuilt `templates_train.json` with
+  the 118-archetype set (two-stage + wideband families in), warm-started `ft_p5.pth`
+  → `ft_p5_v2.pth` (winners), best val 0.2300 @ epoch 1. Sampling: **narrowband
+  NDL@256 73→100** (families 99, 256/256 terminated) — the expanded templates lifted
+  diversity by another third — and a **new wideband channel, NDL@256 35** (255/256
+  terminated). All tripwires quiet; adopt-only-if-better cleared, P5-v3 adopted.
+* **★ Gate B1 on gps-l1 — MET.** Sizing the generated narrowband pool vs gps-l1
+  (light scan → polish-first) yielded **2 novel feasible generated LNAs**:
+  **seq0089** (S11 −13.1 / S21 15.0 / Idd 2.88) and **seq0215** (S11 −14.4 / S21 15.4
+  / Idd 2.94). Decisive detail: seq0089 was generated **matched but gainless**
+  (S11 −13.7 / S21 2.4), and polish drove **S21 2.4→15.0 while holding the match** —
+  precisely the co-sizeable input network the hand-built two-stage templates lacked
+  (their S11 wouldn't leave ≈0 across ZOAF + a 729-point match grid). **The generator,
+  not the sizer, is what supplies matchable parameterizations** — the same lesson P5
+  taught on wifi24 (memorization ceiling), now re-confirmed on gps-l1 (gain wall).
+* **⚠ Honest caveat.** Feasibility is on the **gated** constraints (S11/S21/Idd).
+  NF is gated off pipeline-wide (port-noise harness gap, WORKLOG R3); these two
+  designs' enriched physical NF is **~4.5 dB, well above gps-l1's 1.8 dB target**.
+  So the identified *gain-limit* blocker is genuinely gone and the pipeline now
+  designs gps-l1-band match/gain/current-feasible LNAs — but gps-l1's demanding
+  noise figure is unmet and un-optimizable until the NF harness lands. Fixing the
+  port-noise harness is now the highest-value pipeline gap (it gates real gps-l1).
+* **wideband-sdr — still 0.** The generated wb pool's closest sized to S21 ~9.8
+  (unmatched) or matched with no gain; gain+match+ripple didn't co-close. The wb
+  training signal is thin (222 template rows, 0 winners, 10 archetypes) — the wb
+  family needs more archetypes (2-stage rfb / noise-cancelling CG-CS) and wb winners
+  before its generation channel is as strong as narrowband's.
+* **Gate B1 verdict: half-closed** — MET on gps-l1, open on wideband-sdr. Store is
+  now multi-spec (gps-l1 / wideband-sdr / wifi24), 13 feasible rows across specs.

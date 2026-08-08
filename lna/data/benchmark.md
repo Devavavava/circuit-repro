@@ -2,6 +2,15 @@
 
 6 candidate topologies (feasible + closest near-feasible), sized against each spec (curated on wifi24, all-free multi-seed else).
 
+> **★★ UPDATE (WP-BROADEN P5-v3, 2026-08-08):** the table below predates the
+> broadened generator. **gps-l1 is now CLOSED** — the P5-v3 two-stage family produced
+> **2 novel feasible generated LNAs** vs gps-l1 (`seq0089` S11 −13.1 / S21 15.0 /
+> Idd 2.88; `seq0215` S11 −14.4 / S21 15.4 / Idd 2.94), on the gated S11/S21/Idd
+> constraints. NF is advisory (~4.5 dB vs the 1.8 target — the port-noise harness gap).
+> **wideband-sdr is still open** (generated wb closest S21 ~9.8, unmatched). The
+> "gain-limited ⇒ needs topology" diagnosis was right, and the fix (two-stage
+> archetypes + P5-v3) worked. See `lna/BROADEN-PROGRESS.md` + FINDINGS §11.
+
 ## Per-spec yield (feasible / total)
 
 - **wifi24**: 6/6 feasible; binding when not: -

@@ -11,7 +11,7 @@ exactly where to resume. Read `WORKLOG.md` (entries R1/R2 are mine) and
 
 ---
 
-## Session 2 — Phase 2 Stages 0–3 + last-mile + **★ STAGE 3 PHASE EXIT MET** (iter-4): polish-first convert → 6 feasible generated LNAs, curve 967→367→**187** SPICE-min/design. Next phase: WP-BROADEN (gps-l1 + wideband-sdr).
+## Session 2 — Phase 2 Stages 0–3 + last-mile + **★ STAGE 3 PHASE EXIT MET** (curve 967→367→**187**, 6 feasible wifi24 LNAs) + **★★ WP-BROADEN: Gate B1 gps-l1 CLOSED** (P5-v3 → 2 novel feasible gps-l1 LNAs; NDL 73→100 + new wb channel). Remaining: wideband-sdr + the NF harness.
 
 **New roadmap:** `.claude/worktrees/lna-plans/lna/plans2/` (start at
 `00-OVERVIEW.md`) — the generate→size pipeline is now feature-complete; Phase 2
@@ -236,30 +236,37 @@ solved). Landed (`templates.py`, 92→118 archetypes, committed `a14959c`):
   `best_params` — it was logged but not returned, so polish/curate-from-a-result
   silently ran on `None`. Needed for any "size → polish/curate" flow.
 
-**Next (the narrowed Gate-B1 path — one GPU-dependent sequence):**
-1. **Label the new families vs BOTH hard specs** (stratum T): size `cs_cs_*` /
-   `current_reuse_*` vs gps-l1 and `rfb_*` / `cg_*` vs wideband-sdr, log L2. (The
-   probe scripts in the job tmp — `broaden_probe.py`, `close_specs.py`,
-   `match_grid.py` — are the throwaway evidence; a durable `benchmark.py --specs`
-   sweep over the new archetypes is the clean way to record it.)
-2. **P5-v3 fine-tune** (WSL GPU `/opt/miniconda/envs/gpu`): `templates.py
-   --emit-train` (now includes the new archetypes) → `finetune.py --arm p5 --do
-   both --winners` with `<LNA_NB>`/`<LNA_WB>` → NDL@256 + tripwires (models overfit
-   by epoch ~1; use `--epochs 12-15`, best-val is early; 10-min PS timeout).
-3. **Generate + curated-size** the two-stage / wideband variants the generator
-   emits (it supplies matchable input networks; curated sizing fixes match at the
-   generator's prior). **Gate B1:** ≥1 feasible on gps-l1 AND wideband-sdr.
-4. **Before any critic retrain (§1b/§4, deferred):** σ-drift 1.27 and climbing
-   (< 2× bar). Best-of-3 relabel of high-spread keys, store `label_sigma`, critic
-   downweights 1/σ. Then Loop-A acquisition, 02 critic-interface leftovers.
-2. **Cheap supporting probes** (no GPU): a **live** rung-1 on a fresh/bigger pool
-   (does another draw clear 2×?); **curated feasible template sizing** (size the
-   tapped archetypes with a curated sizable set like `size_tapped`, for a true
-   feasible token class); **σ reduction** (trim multimodal-sizing labels; σ rose
-   0.32→0.61, capping ρ).
-3. **Rung-2 evolutionary loop** (03-SEARCH §2) + its stratum-M mutation move set —
-   only worth it if a cheaper probe first nudges S1 toward 2×; else de-scope
-   ladder holds (rerank still cuts sizing waste at 1.74×).
+**★★ UPDATE — overnight P5-v3 run closed Gate B1 on gps-l1 (see BROADEN-PROGRESS.md
++ FINDINGS).** Ran the full sequence: labeled families (CP1), rebuilt training data
+with 118 archetypes (CP2), P5-v3 fine-tune (CP3, best val 0.2300 @ epoch 1),
+generate+NDL (CP4: **nb NDL@256 73→100**, new **wb channel NDL 35**, tripwires quiet,
+adopted), curated-size the generated pool (CP5). Result:
+* **Gate B1 gps-l1 MET — 2 novel feasible generated LNAs:** `seq0089`
+  (S11 −13.1 / S21 15.0 / Idd 2.88) + `seq0215` (S11 −14.4 / S21 15.4 / Idd 2.94),
+  recipe `p5v3-gen-v1`. seq0089 was generated matched-but-gainless (S11 −13.7 /
+  S21 2.4) and polish drove S21 2.4→15.0 holding the match — the generator supplies
+  the co-sizeable input network the hand templates lacked. Thesis re-confirmed.
+* **⚠ NF caveat:** feasible on the **gated** constraints (S11/S21/Idd); NF advisory
+  and **~4.5 dB vs gps-l1's 1.8 dB target**. gps-l1's gain wall is closed; its noise
+  spec is not (and can't be optimized until the port-noise harness lands).
+* **wideband-sdr still 0** (generated wb closest S21 ~9.8 unmatched). Store now
+  multi-spec (gps-l1 / wideband-sdr / wifi24), 13 feasible rows.
+
+**Next (in priority):**
+1. **★ Fix the port-noise NF harness (WORKLOG R3) — now the top pipeline gap.** It
+   gates real gps-l1 (1.8 dB) and real wifi24 (2.5 dB); today every "feasible" is
+   S11/S21/Idd-only with NF advisory (~2.5–4.5). Un-gate NF as a hard constraint in
+   `spec.objective` only after the harness is trustworthy (it desyncs current
+   NF-out-of-objective labels — re-label on the new harness).
+2. **Close wideband-sdr** (the other half of Gate B1): thicken the wb channel —
+   add 2-stage rfb / noise-cancelling CG-CS archetypes (more gain while inductorless),
+   get wb winners into `winners_train.json`, re-fine-tune. wb training signal is thin
+   (222 template rows, 0 winners) — that's why its generation channel underperforms nb.
+3. **Loop the gps-l1 win back:** the 2 gps-l1 feasibles are now winners — emit_winners
+   is wifi24-only; generalize it to multi-spec so gps-l1/wideband near-feasibles feed
+   the next fine-tune (expert iteration on the new specs).
+4. **Deferred:** σ-drift 1.27 (< 2× bar) best-of-3 relabel before any critic retrain;
+   Loop-A acquisition; 02 critic-interface leftovers; rung-2 evolutionary loop.
 
 **Deferred (deliberate, not blocking — 00-OVERVIEW #3 "don't block on NF"):**
 un-gating NF as a *hard constraint* in the objective (changes sizing; validate

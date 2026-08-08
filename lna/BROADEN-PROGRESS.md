@@ -69,5 +69,29 @@ Sampled 256 nb + 256 wb from P5-v3 (seed 1337).
 - **Tripwires all quiet:** feasible-rate 0.50, sigma-drift 1.27, ndl@256 100
   (base 60), wl-families 99 (base 59). P5-v3 is the adopted generator.
 
-## CP5 — Curated-size generated variants → Gate B1 attempt
-_pending_
+## CP5 — Curated-size generated variants → Gate B1 attempt ✅ (partial)
+Scanned + closed the P5-v3 generated pools (99 nb vs gps-l1, 34 wb vs wideband-sdr;
+light all-free scan → polish-first + curated fallback on the closest 10).
+- **gps-l1: 2 feasible — the generator closed the match the hand templates couldn't.**
+  - `seq0089`: S11 −13.1 / S21 15.0 / Idd 2.88 — started **matched but gainless**
+    (S11 −13.7 / S21 2.4), polish drove **S21 2.4→15.0 while holding S11**. This is
+    the whole thesis: the generator supplies an input network that co-sizes to 50 Ω,
+    then gain is added on top. Hand templates had gain-without-match; these have both.
+  - `seq0215`: S11 −14.4 / S21 15.4 / Idd 2.94 (polish). Both logged (recipe
+    `p5v3-gen-v1`), novel, distinct.
+- **wideband-sdr: 0 feasible.** Closest `seq0198` curated S21 9.8 (unmatched);
+  others match (S11 −14.9) but no gain. The wb channel is newer/thinner (34
+  screened-novel, 222 template rows, no wb winners) — gain+match+ripple didn't
+  co-close this pass.
+- **⚠ Honest caveat on gps-l1:** feasibility is on the **gated** constraints
+  (S11/S21/Idd). NF is gated off pipeline-wide (port-noise harness gap, WORKLOG R3);
+  the enriched physical NF of these two is **~4.5 dB, far above gps-l1's 1.8 dB
+  target**. So the pipeline now designs gps-l1-band LNAs that meet match/gain/current
+  — the identified *gain wall* is genuinely closed — but the demanding 1.8 dB noise
+  figure is not met and cannot currently be optimized against.
+
+**Gate B1 verdict:** MET on gps-l1 (2 novel generated feasibles, gated constraints),
+NOT on wideband-sdr → **Gate B1 half-closed.** The gain-limited spec, thought to
+need topology, is solved by the broadened generator — the plan's thesis, confirmed
+a second time (P5 broke wifi24's memorization ceiling; P5-v3's two-stage family
+broke gps-l1's gain wall). wideband-sdr + the NF harness are the remaining work.

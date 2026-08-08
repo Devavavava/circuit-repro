@@ -1,5 +1,15 @@
 # WP-BROADEN overnight run — progress log
 
+> **☀ MORNING TL;DR:** All 5 checkpoints ran clean. Headline: **Gate B1 on gps-l1 is
+> CLOSED** — the broadened generator (P5-v3) produced **2 novel feasible gps-l1 LNAs**
+> (seq0089, seq0215) meeting S11/S21/Idd, where the hand-built templates couldn't
+> co-close the match. P5-v3 also lifted narrowband diversity (NDL@256 **73→100**) and
+> opened a **new wideband generation channel** (NDL 35), all tripwires quiet. **Two
+> honest gaps:** (1) NF is advisory/gated-off, so these hit gain+match+current but
+> their noise (~4.5 dB) is over gps-l1's 1.8 dB target — the port-noise harness is now
+> the top pipeline gap; (2) **wideband-sdr is still 0** (its generation channel is
+> thin). Everything committed + pushed to `lna-data` (through `dfb77c3`).
+
 **Goal:** close Gate B1 (≥1 feasible on gps-l1 AND wideband-sdr) via the plan's
 intended sequence — label the new gain-boosted/wideband families → P5-v3 fine-tune
 → generate variants → curated-size. Branch `lna-data`, all work committed + pushed.

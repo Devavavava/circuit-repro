@@ -39,6 +39,24 @@ lna/out/*.pth
 lna/out/templates_train.json
 lna/out/winners_train.json
 lna/work/
+# Scratch driver logs + intermediate JSON from ad-hoc campaign runs (the `_`
+# prefix is the convention for "throwaway, reproducible from a committed
+# script"), the `.pre_*` backups the emitters write before overwriting a
+# training set, and the per-iteration training-set snapshots. The durable record
+# is the append-only label store (lna/data/*.jsonl) plus lna/data/reports/.
+lna/out/_*
+lna/out/*.pre_*.json
+lna/out/*_train_*.json
+
+# ─── Runtime deps junctioned into a worktree ──────────────────────────────
+# `misc/ZOAF`, `AnalogGenie` (Dataset .npy) and `AutoCkt/repo` (the 45 nm model
+# include) are untracked upstream clones that exist only in the main checkout,
+# so a fresh `git worktree` has none of them and every ngspice op silently
+# returns None ("0 conducting" everywhere). Junction them in — verified NOT to
+# appear in `git status`, so no ignore rule is needed for them:
+#   New-Item -ItemType Junction misc         -Target <repo>\misc
+#   New-Item -ItemType Junction AnalogGenie  -Target <repo>\AnalogGenie
+#   New-Item -ItemType Junction AutoCkt\repo -Target <repo>\AutoCkt\repo
 
 # Label store (plans2/01-DATA §2): L2/L1 tables + snapshots are precious and
 # stay in git; the point-row table is a bulky, regenerable-ish byproduct.

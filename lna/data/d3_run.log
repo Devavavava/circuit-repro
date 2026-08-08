@@ -1,1 +1,58 @@
 ########## dhruva-s
+D3 campaign vs dhruva-s (NF GATED <= 3.5 dB): 6 archetypes x 2 seed(s) + polish
+
+archetype                seed  sims    S11*     S21    Idd     NF   K_min    viol  verdict
+nccgcs_s1_tank              1   734   -12.1    30.0  12.74   5.96    19.2   0.705    [110s]
+nccgcs_s1_tank              2   734   -14.8    28.6  12.99   5.68    17.6   0.669    [108s]
+nccgcs_s1_R                 1  1102   -14.9    20.1   5.92   4.66    71.9   0.659    [104s]
+nccgcs_s1_R                 2  1070    -9.4    22.4   6.75   4.38    55.5   0.566    [100s]
+gmbcg_s2_tank_b1            1  1134    -9.1    36.5  10.11   6.55    23.2   0.957    [109s]
+gmbcg_s2_tank_b1            2   734   -10.3    35.2  12.39   9.06     109   1.589    [110s]
+gmbcg_s2_tank_b0            1     -   (bias/sim failed)
+gmbcg_s2_tank_b0            2     -   (bias/sim failed)
+gmbcg_s2_R_b1               1     -   (bias/sim failed)
+gmbcg_s2_R_b1               2     -   (bias/sim failed)
+gmbcg_s2_R_b0               1     -   (bias/sim failed)
+gmbcg_s2_R_b0               2     -   (bias/sim failed)
+
+best vs dhruva-s: nccgcs_s1_R  viol 0.566  NF 4.381685  S21 22.4
+0 feasible under gated NF
+########## dhruva-l5
+D3 campaign vs dhruva-l5 (NF GATED <= 2.5 dB): 6 archetypes x 2 seed(s) + polish
+
+archetype                seed  sims    S11*     S21    Idd     NF   K_min    viol  verdict
+nccgcs_s1_tank              1  1134   -11.6    27.2  15.37   5.20     111   1.261    [109s]
+nccgcs_s1_tank              2  1134   -11.7    27.8  15.45   5.13     116   1.241    [107s]
+nccgcs_s1_R                 1  1102    -9.7    20.0   6.28   4.66    75.1   1.003    [104s]
+nccgcs_s1_R                 2   702    -9.7    24.3   6.38   4.59    39.9   0.867    [99s]
+gmbcg_s2_tank_b1            1   734    -9.2    24.9   7.42   6.26     165   1.582    [108s]
+gmbcg_s2_tank_b1            2   734    -7.6    23.1   8.57   8.57     739   2.672    [110s]
+gmbcg_s2_tank_b0            1   702   -10.5    36.2  12.27   5.85    58.3   1.340    [108s]
+gmbcg_s2_tank_b0            2   702    -9.9    25.1  11.58   5.12    62.4   1.054    [103s]
+gmbcg_s2_R_b1               1   718    -8.7    21.5   9.70   6.39 3.57e+03   1.724    [97s]
+gmbcg_s2_R_b1               2   718   -10.2    24.5   7.91   8.70     935   2.480    [111s]
+gmbcg_s2_R_b0               1  1086   -12.4    32.4  10.78   5.61     166   1.245    [110s]
+gmbcg_s2_R_b0               2  1086   -10.1    32.8  10.50   5.08     119   1.034    [112s]
+
+best vs dhruva-l5: nccgcs_s1_R  viol 0.867  NF 4.587361  S21 24.3
+0 feasible under gated NF
+########## dhruva-l2
+D3 campaign vs dhruva-l2 (NF GATED <= 2.5 dB): 6 archetypes x 2 seed(s) + polish
+
+archetype                seed  sims    S11*     S21    Idd     NF   K_min    viol  verdict
+nccgcs_s1_tank              1  1134   -12.5    27.3  15.46   5.08    99.7   1.222    [127s]
+nccgcs_s1_tank              2  1134   -10.9    27.1  14.32   5.12     122   1.149    [116s]
+nccgcs_s1_R                 1  1102    -9.6    19.9   6.22   4.61    80.3   0.991    [115s]
+nccgcs_s1_R                 2   702    -9.9    23.5   2.68   4.59    24.7   0.852    [119s]
+gmbcg_s2_tank_b1            1   734   -11.1    26.3  10.52   6.40     353   1.559    [119s]
+gmbcg_s2_tank_b1            2   734    -9.0    33.2  11.87   8.54     117   2.522    [110s]
+gmbcg_s2_tank_b0            1   702   -12.8    25.5   9.31   5.74     387   1.295    [115s]
+gmbcg_s2_tank_b0            2  1102   -10.4    38.1  12.89   5.09    41.9   1.036    [121s]
+gmbcg_s2_R_b1               1  1118    -5.3    35.4   8.96   6.22      45   1.957    [121s]
+gmbcg_s2_R_b1               2   718   -10.3    24.5   8.07   8.73 1.06e+03   2.490    [126s]
+gmbcg_s2_R_b0               1  1086   -13.1    32.9  10.36   5.53     126   1.211    [119s]
+gmbcg_s2_R_b0               2  1086   -10.5    32.8  10.73   5.08     109   1.034    [118s]
+
+best vs dhruva-l2: nccgcs_s1_R  viol 0.852  NF 4.592654  S21 23.5
+0 feasible under gated NF
+########## dhruva-l1

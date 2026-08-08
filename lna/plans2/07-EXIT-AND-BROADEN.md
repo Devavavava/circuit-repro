@@ -61,6 +61,12 @@ work, exactly the lever that already broke the memorization ceiling once.
   with novelty reported under the frozen protocol. The benchmark table
   replaces the wifi24 curve as the phase headline from here on.
 
+> **Update (2026-08-08):** §1 executed — exit MET (curve 367→187). §2 half
+> executed — Gate B1 MET on gps-l1 via P5-v3; wideband-sdr still open. The
+> wideband thrust and the NF-harness priority now roll into
+> **08-DHRUVA-GOAL.md** (paper-target spec ladder; its NC-balun family serves
+> wideband-sdr and the new goal at once).
+
 ## 3. Deferred, explicit (so they don't leak into the turn)
 
 Loop-A acquisition picks, critic graph+L1 features + NF head, and the

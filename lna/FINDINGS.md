@@ -1566,3 +1566,84 @@ Three changes to `benchmark.py` were needed to make the table honest:
   *negative* noise figures — and after WP-D1 that path returns `None`, which would
   have rendered as 0.
 
+**Result — 12 candidates (the 10 distinct tier-1-feasible topologies plus the 2 closest near-feasible), 7 specs, 84 cells.**
+
+| spec | tier-1 | tier-2 | binding when infeasible |
+|---|---|---|---|
+| wifi24 | **10/12** | **1/12** | `s21` ×1, `s11` ×1 |
+| gps-l1 | **2/12** | **0/12** | `s21` ×5, `s11` ×4, `idd` ×1 |
+| wideband-sdr | **0/12** | **0/12** | `s11` ×6, `s21` ×4, `s21_ripple` ×2 |
+| dhruva-l5 | **1/12** | **0/12** | `s11_max` ×11 |
+| dhruva-l2 | **1/12** | **0/12** | `s11_max` ×10, `s21` ×1 |
+| dhruva-l1 | **2/12** | **0/12** | `s11_max` ×10 |
+| dhruva-s | **1/12** | **0/12** | `s11_max` ×11 |
+
+**Tier-2 cells (all four gated constraints at once):** `seq0220.txt` on **wifi24** (S11 -14.5 / S21 13.0 / Idd 2.73 / NF **2.34** / K_min 4.386)
+
+**Stability advisory — cells with in-band K_min < 1** (logged, never gated):
+
+| candidate | spec | K_min | tier-1 | sizing |
+|---|---|---|---|---|
+| seq0046.txt | dhruva-l1 | **-2.04** | no | all-free |
+| seq0009.txt | wideband-sdr | **0.231** | no | all-free |
+| seq0079.txt | wideband-sdr | **0.241** | no | all-free |
+| seq0009.txt | wifi24 | **0.242** | yes | curated |
+| seq0008.txt | dhruva-l5 | **0.522** | no | all-free |
+| seq0079.txt | dhruva-s | **0.591** | no | all-free |
+| seq0009.txt | dhruva-l1 | **0.61** | no | all-free |
+| seq0215.txt | dhruva-s | **0.949** | no | all-free |
+
+Reading:
+
+* **wifi24 is comfortably the solved class at full budget: 10/12 tier-1.** The only
+  two misses are the two *dhruva-native* designs (`seq0192` binds `s21`,
+  `rfbcs3_tank_cc21_bf0` binds `s11`) — every wifi24- and gps-l1-native candidate
+  clears wifi24. That is the budget artefact the old table warned about, resolved:
+  4/6 lean → 10/12 full.
+* **Tier-2 is still one cell in the whole matrix.** `seq0220` on wifi24 (NF 2.34
+  against ≤2.5) is the only (candidate, spec) pair in 84 that meets all four gated
+  constraints at once. The hand `ref24_tapped` reference is the other known tier-2
+  design and is *not* in this table — it is a netlist, not a token topology. So the
+  program's tier-2 record stands at exactly **two designs, one of them generated**.
+* **The dhruva wall is unchanged and it is `s11_max`:** 10–11 of the 12 candidates
+  bind on worst-case-over-band S11 on every dhruva column, and the sole passer is
+  the `rfbcs3` 4-band family (plus `seq0192` on L1). `wideband-sdr` remains 0/12,
+  binding on `s11` (6), `s21` (4), `s21_ripple` (2).
+* **The stability advisory is not decoration.** Eight of 84 cells read in-band
+  K_min < 1, one of them a *tier-1-feasible* cell: `seq0009` on wifi24 at
+  **K_min 0.242** under curated sizing (§13.2 measured 0.352 for the same design;
+  a different sized point, the same problem). `seq0046` on dhruva-l1 reaches
+  **K_min = −2.04**. Nothing in any objective penalises this, which is the
+  standing recommendation to put K ≥ 1 into the polish/curated guard.
+
+
+### 14.4 Housekeeping, and one thing worth knowing about concurrency
+
+* `.gitignore` now covers `lna/out/_*` (the `_`-prefix convention for "throwaway,
+  reproducible from a committed script"), `lna/out/*.pre_*.json` (the backups the
+  training-set emitters write before overwriting) and `lna/out/*_train_*.json`,
+  plus a setup note for the three junctioned runtime deps. **Verified: junctioned
+  `misc` / `AnalogGenie` / `AutoCkt\repo` do not appear in `git status`,** so they
+  need the note and not an ignore rule. Four new generator run dirs are tracked by
+  `meta.json` only; on `lna-exec`, the ten concluded P4 logit-bias sweep dirs the
+  same way.
+* **A Track-A `d3_campaign.py` was still running when Track C started** and
+  appended its dhruva-l1 chunk (rows 735–772, plus the tail of `d3_run.log`)
+  interleaved with the σ-probe rows. Nothing broke — that is exactly what the
+  append-only store plus sha256-pinned snapshots are for, and `v4-train` still
+  verifies at 734 lines — but it is the first time two writers overlapped, and it
+  is why `_sigma_from_repeats` and both eval drivers now take `snapshot=`: a number
+  computed against a live store is not reproducible once anyone else is writing.
+* Regression quartet green throughout (vocab MATCH, screen 59.4% = 114/192,
+  pipeline_yield 40/42 = 95.2%, check_ref / check_nf / check_stab GREEN,
+  calibrate_specs ALL ACCEPTANCE CRITERIA MET).
+
+**Tools added by Track C:**
+
+```bash
+python lna/campaign.py --sigma-probe [--gen] --k 3 --reps 2   # best-of-k label-noise probe
+python lna/critic.py --eval --snapshot v4-train --sigma-recipe candidate-v1+bo3
+"…/analoggenie/python.exe" lna/critic_gnn.py --eval --snapshot v4-train --sigma-recipe candidate-v1+bo3
+python lna/benchmark.py --all-feasible --seeds 1,2 --budget 8,8,2 --out-json <ckpt> [--resume <ckpt>]
+python lna/datastore.py --snapshot v4-train                    # pin a training set
+```

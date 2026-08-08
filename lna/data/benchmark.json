@@ -1,6 +1,15 @@
 {
-  "yields": {
-    "wifi24": 4,
+  "yields_tier1": {
+    "wifi24": 10,
+    "gps-l1": 2,
+    "wideband-sdr": 0,
+    "dhruva-l5": 1,
+    "dhruva-l2": 1,
+    "dhruva-l1": 2,
+    "dhruva-s": 1
+  },
+  "yields_tier2": {
+    "wifi24": 1,
     "gps-l1": 0,
     "wideband-sdr": 0,
     "dhruva-l5": 0,
@@ -10,443 +19,1144 @@
   },
   "binding": {
     "wifi24": {
-      "s21": 2
+      "s21": 1,
+      "s11": 1
     },
     "gps-l1": {
       "s11": 4,
-      "s21": 2
+      "s21": 5,
+      "idd": 1
     },
     "wideband-sdr": {
-      "s11": 4,
-      "s21": 2
+      "s21_ripple": 2,
+      "s21": 4,
+      "s11": 6
     },
     "dhruva-l5": {
-      "s11x": 5,
-      "s21": 1
+      "s11_max": 11
     },
     "dhruva-l2": {
-      "s11x": 6
+      "s21": 1,
+      "s11_max": 10
     },
     "dhruva-l1": {
-      "s11x": 6
+      "s11_max": 10
     },
     "dhruva-s": {
-      "s11x": 4,
-      "s21": 2
+      "s11_max": 11
     }
   },
+  "seeds": [
+    1,
+    2
+  ],
+  "budget": [
+    8,
+    8,
+    2
+  ],
   "table": [
     {
-      "candidate": "seq0240.txt",
-      "n_dev": 8,
+      "candidate": "seq0192.txt",
+      "n_dev": 12,
+      "native": "dhruva-l1",
+      "source": "lna/out/ft_p5v6_nb_s1337/seq0192.txt",
       "results": {
         "wifi24": {
-          "feasible": true,
-          "binding": "-",
-          "S11": -10.0,
-          "S21": 13.4,
-          "Idd": 1.74,
-          "NF": -0.4,
-          "curated": true
+          "feasible": false,
+          "tier2": false,
+          "binding": "s21",
+          "S11": -8.4,
+          "S11max": -8.4,
+          "S21": 5.2,
+          "Idd": 3.68,
+          "NF": 14.34,
+          "Kmin": 812.579,
+          "how": "all-free"
         },
         "gps-l1": {
           "feasible": false,
+          "tier2": false,
           "binding": "s11",
-          "S11": -0.5,
-          "S21": 8.5,
-          "Idd": 0.47,
-          "NF": 6.5,
-          "curated": false
+          "S11": -1.5,
+          "S11max": -1.5,
+          "S21": 18.5,
+          "Idd": 4.39,
+          "NF": 11.47,
+          "Kmin": 271.497,
+          "how": "all-free"
         },
         "wideband-sdr": {
           "feasible": false,
-          "binding": "s11",
-          "S11": -0.0,
-          "S21": 7.2,
-          "Idd": 2.01,
-          "NF": 11.0,
-          "curated": false
+          "tier2": false,
+          "binding": "s21_ripple",
+          "S11": -1.2,
+          "S11max": -0.6,
+          "S21": 4.5,
+          "Idd": 16.23,
+          "NF": 20.24,
+          "Kmin": 437.427,
+          "how": "all-free"
         },
         "dhruva-l5": {
           "feasible": false,
-          "binding": "s11x",
-          "S11": -0.6,
-          "S21": 8.3,
-          "Idd": 0.66,
-          "NF": 7.7,
-          "curated": false
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -6.1,
+          "S11max": -5.9,
+          "S21": 22.1,
+          "Idd": 12.33,
+          "NF": 7.94,
+          "Kmin": 50.968,
+          "how": "all-free"
         },
         "dhruva-l2": {
           "feasible": false,
-          "binding": "s11x",
-          "S11": -0.7,
-          "S21": 8.8,
-          "Idd": 0.7,
-          "NF": 7.4,
-          "curated": false
+          "tier2": false,
+          "binding": "s21",
+          "S11": -14.9,
+          "S11max": -11.8,
+          "S21": 18.5,
+          "Idd": 13.35,
+          "NF": 13.59,
+          "Kmin": 88.619,
+          "how": "all-free"
         },
         "dhruva-l1": {
-          "feasible": false,
-          "binding": "s11x",
-          "S11": -0.3,
-          "S21": 12.3,
-          "Idd": 2.82,
-          "NF": 5.1,
-          "curated": false
+          "feasible": true,
+          "tier2": false,
+          "binding": "-",
+          "S11": -12.7,
+          "S11max": -11.5,
+          "S21": 29.2,
+          "Idd": 11.09,
+          "NF": 9.63,
+          "Kmin": 105.646,
+          "how": "stored"
         },
         "dhruva-s": {
           "feasible": false,
-          "binding": "s11x",
-          "S11": -4.8,
-          "S21": 14.8,
-          "Idd": 0.91,
-          "NF": -0.7,
-          "curated": false
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -7.8,
+          "S11max": -6.7,
+          "S21": 28.6,
+          "Idd": 12.69,
+          "NF": 8.0,
+          "Kmin": 34.35,
+          "how": "all-free"
         }
       }
     },
     {
-      "candidate": "seq0009.txt",
-      "n_dev": 10,
+      "candidate": "rfbcs3_tank_cc21_bf0",
+      "n_dev": 14,
+      "native": "dhruva-l1",
+      "source": "rfbcs3_tank_cc21_bf0",
       "results": {
         "wifi24": {
-          "feasible": true,
-          "binding": "-",
-          "S11": -10.1,
-          "S21": 12.2,
-          "Idd": 2.67,
-          "NF": -1.6,
-          "curated": true
+          "feasible": false,
+          "tier2": false,
+          "binding": "s11",
+          "S11": -4.1,
+          "S11max": -4.1,
+          "S21": 8.9,
+          "Idd": 2.89,
+          "NF": 9.31,
+          "Kmin": 11738.63,
+          "how": "all-free"
         },
         "gps-l1": {
           "feasible": false,
-          "binding": "s21",
-          "S11": -13.2,
-          "S21": -2.4,
-          "Idd": 1.41,
-          "NF": 6.4,
-          "curated": false
+          "tier2": false,
+          "binding": "s11",
+          "S11": -5.9,
+          "S11max": -5.9,
+          "S21": 12.8,
+          "Idd": 2.21,
+          "NF": 9.21,
+          "Kmin": 22748.94,
+          "how": "all-free"
         },
         "wideband-sdr": {
           "feasible": false,
+          "tier2": false,
+          "binding": "s21",
+          "S11": -0.1,
+          "S11max": -0.0,
+          "S21": -20.5,
+          "Idd": 2.48,
+          "NF": 24.96,
+          "Kmin": 48.011,
+          "how": "all-free"
+        },
+        "dhruva-l5": {
+          "feasible": true,
+          "tier2": false,
+          "binding": "-",
+          "S11": -10.9,
+          "S11max": -10.4,
+          "S21": 29.2,
+          "Idd": 8.54,
+          "NF": 9.26,
+          "Kmin": 525.546,
+          "how": "all-free"
+        },
+        "dhruva-l2": {
+          "feasible": true,
+          "tier2": false,
+          "binding": "-",
+          "S11": -14.3,
+          "S11max": -12.7,
+          "S21": 23.2,
+          "Idd": 12.39,
+          "NF": 11.12,
+          "Kmin": 10.149,
+          "how": "stored"
+        },
+        "dhruva-l1": {
+          "feasible": true,
+          "tier2": false,
+          "binding": "-",
+          "S11": -15.3,
+          "S11max": -11.2,
+          "S21": 37.8,
+          "Idd": 12.93,
+          "NF": 9.95,
+          "Kmin": 28.412,
+          "how": "stored"
+        },
+        "dhruva-s": {
+          "feasible": true,
+          "tier2": false,
+          "binding": "-",
+          "S11": -11.1,
+          "S11max": -10.3,
+          "S21": 34.6,
+          "Idd": 8.7,
+          "NF": 8.88,
+          "Kmin": 21.317,
+          "how": "stored"
+        }
+      }
+    },
+    {
+      "candidate": "seq0089.txt",
+      "n_dev": 10,
+      "native": "gps-l1",
+      "source": "ft_p5v2_nb_s1337/seq0089.txt",
+      "results": {
+        "wifi24": {
+          "feasible": true,
+          "tier2": false,
+          "binding": "-",
+          "S11": -13.0,
+          "S11max": -11.9,
+          "S21": 12.2,
+          "Idd": 2.43,
+          "NF": 3.78,
+          "Kmin": 27.084,
+          "how": "all-free"
+        },
+        "gps-l1": {
+          "feasible": true,
+          "tier2": false,
+          "binding": "-",
+          "S11": -10.9,
+          "S11max": -10.5,
+          "S21": 15.1,
+          "Idd": 1.1,
+          "NF": 4.41,
+          "Kmin": 31.725,
+          "how": "curated"
+        },
+        "wideband-sdr": {
+          "feasible": false,
+          "tier2": false,
           "binding": "s11",
-          "S11": -0.3,
-          "S21": 1.2,
-          "Idd": 3.54,
-          "NF": 4.8,
-          "curated": false
+          "S11": -0.5,
+          "S11max": -0.0,
+          "S21": 11.9,
+          "Idd": 2.28,
+          "NF": 6.21,
+          "Kmin": 10.908,
+          "how": "all-free"
         },
         "dhruva-l5": {
           "feasible": false,
-          "binding": "s11x",
-          "S11": -1.3,
-          "S21": 13.2,
-          "Idd": 7.75,
-          "NF": 6.8,
-          "curated": false
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -3.3,
+          "S11max": -1.8,
+          "S21": 15.1,
+          "Idd": 2.69,
+          "NF": 5.32,
+          "Kmin": 27.054,
+          "how": "all-free"
         },
         "dhruva-l2": {
           "feasible": false,
-          "binding": "s11x",
-          "S11": -1.4,
-          "S21": 13.2,
-          "Idd": 7.44,
-          "NF": 6.4,
-          "curated": false
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -4.9,
+          "S11max": -1.6,
+          "S21": 15.3,
+          "Idd": 2.72,
+          "NF": 4.88,
+          "Kmin": 27.842,
+          "how": "all-free"
         },
         "dhruva-l1": {
           "feasible": false,
-          "binding": "s11x",
-          "S11": -1.9,
-          "S21": 10.7,
-          "Idd": 7.58,
-          "NF": 6.1,
-          "curated": false
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -5.0,
+          "S11max": -1.8,
+          "S21": 14.1,
+          "Idd": 3.32,
+          "NF": 5.34,
+          "Kmin": 18.769,
+          "how": "all-free"
         },
         "dhruva-s": {
           "feasible": false,
-          "binding": "s11x",
-          "S11": -4.2,
-          "S21": 9.9,
-          "Idd": 4.86,
-          "NF": 2.2,
-          "curated": false
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -6.8,
+          "S11max": -0.2,
+          "S21": 18.6,
+          "Idd": 3.13,
+          "NF": 2.52,
+          "Kmin": 14.014,
+          "how": "all-free"
+        }
+      }
+    },
+    {
+      "candidate": "seq0215.txt",
+      "n_dev": 12,
+      "native": "gps-l1",
+      "source": "ft_p5v2_nb_s1337/seq0215.txt",
+      "results": {
+        "wifi24": {
+          "feasible": true,
+          "tier2": false,
+          "binding": "-",
+          "S11": -12.7,
+          "S11max": -11.8,
+          "S21": 21.4,
+          "Idd": 4.2,
+          "NF": 4.17,
+          "Kmin": 13.95,
+          "how": "all-free"
+        },
+        "gps-l1": {
+          "feasible": true,
+          "tier2": false,
+          "binding": "-",
+          "S11": -14.4,
+          "S11max": -13.6,
+          "S21": 15.4,
+          "Idd": 2.94,
+          "NF": 4.43,
+          "Kmin": 276.288,
+          "how": "stored"
+        },
+        "wideband-sdr": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s21",
+          "S11": -0.1,
+          "S11max": -0.1,
+          "S21": -12.4,
+          "Idd": 6.04,
+          "NF": 18.92,
+          "Kmin": 18.6,
+          "how": "all-free"
+        },
+        "dhruva-l5": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -3.3,
+          "S11max": -2.3,
+          "S21": 22.6,
+          "Idd": 11.63,
+          "NF": 7.52,
+          "Kmin": 16.474,
+          "how": "all-free"
+        },
+        "dhruva-l2": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -3.3,
+          "S11max": -2.2,
+          "S21": 22.9,
+          "Idd": 10.18,
+          "NF": 7.12,
+          "Kmin": 7.39,
+          "how": "all-free"
+        },
+        "dhruva-l1": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -7.3,
+          "S11max": -3.2,
+          "S21": 31.2,
+          "Idd": 8.49,
+          "NF": 5.63,
+          "Kmin": 6.268,
+          "how": "all-free"
+        },
+        "dhruva-s": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -5.4,
+          "S11max": -1.0,
+          "S21": 35.1,
+          "Idd": 6.28,
+          "NF": 4.66,
+          "Kmin": 0.949,
+          "how": "all-free"
         }
       }
     },
     {
       "candidate": "seq0220.txt",
       "n_dev": 9,
+      "native": "wifi24",
+      "source": "out/ft_p5v2_nb_s1337/seq0220.txt",
       "results": {
         "wifi24": {
           "feasible": true,
+          "tier2": true,
           "binding": "-",
-          "S11": -13.6,
-          "S21": 15.4,
-          "Idd": 4.89,
-          "NF": -1.7,
-          "curated": true
+          "S11": -14.5,
+          "S11max": -13.2,
+          "S21": 13.0,
+          "Idd": 2.73,
+          "NF": 2.34,
+          "Kmin": 4.386,
+          "how": "curated"
         },
         "gps-l1": {
           "feasible": false,
+          "tier2": false,
           "binding": "s21",
-          "S11": -12.7,
-          "S21": -7.1,
-          "Idd": 1.59,
-          "NF": 11.0,
-          "curated": false
+          "S11": -12.4,
+          "S11max": -12.1,
+          "S21": 5.3,
+          "Idd": 3.01,
+          "NF": 6.68,
+          "Kmin": 16.179,
+          "how": "all-free"
         },
         "wideband-sdr": {
           "feasible": false,
-          "binding": "s21",
-          "S11": -10.7,
-          "S21": -0.6,
-          "Idd": 12.34,
-          "NF": 10.6,
-          "curated": false
+          "tier2": false,
+          "binding": "s11",
+          "S11": -0.8,
+          "S11max": -0.1,
+          "S21": 8.4,
+          "Idd": 7.78,
+          "NF": 9.68,
+          "Kmin": 4.368,
+          "how": "all-free"
         },
         "dhruva-l5": {
           "feasible": false,
-          "binding": "s21",
-          "S11": -6.5,
-          "S21": -1.8,
-          "Idd": 3.11,
-          "NF": 13.2,
-          "curated": false
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -3.3,
+          "S11max": -2.6,
+          "S21": 17.1,
+          "Idd": 12.01,
+          "NF": 7.44,
+          "Kmin": 1.657,
+          "how": "all-free"
         },
         "dhruva-l2": {
           "feasible": false,
-          "binding": "s11x",
-          "S11": -1.1,
-          "S21": 8.1,
-          "Idd": 12.48,
-          "NF": 11.2,
-          "curated": false
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -3.8,
+          "S11max": -2.6,
+          "S21": 16.8,
+          "Idd": 12.19,
+          "NF": 7.29,
+          "Kmin": 1.711,
+          "how": "all-free"
         },
         "dhruva-l1": {
           "feasible": false,
-          "binding": "s11x",
-          "S11": -1.2,
-          "S21": 8.5,
-          "Idd": 9.57,
-          "NF": 9.5,
-          "curated": false
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -8.1,
+          "S11max": -2.4,
+          "S21": 15.9,
+          "Idd": 8.33,
+          "NF": 5.34,
+          "Kmin": 1.138,
+          "how": "all-free"
         },
         "dhruva-s": {
           "feasible": false,
-          "binding": "s21",
-          "S11": -11.6,
-          "S21": 3.7,
-          "Idd": 4.59,
-          "NF": 7.0,
-          "curated": false
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -8.1,
+          "S11max": -0.6,
+          "S21": 15.1,
+          "Idd": 6.83,
+          "NF": 4.79,
+          "Kmin": 1.864,
+          "how": "all-free"
         }
       }
     },
     {
-      "candidate": "seq0079.txt",
-      "n_dev": 10,
+      "candidate": "seq0240.txt",
+      "n_dev": 8,
+      "native": "wifi24",
+      "source": "out/ft_p5_nb_s1337/seq0240.txt",
       "results": {
         "wifi24": {
-          "feasible": false,
-          "binding": "s21",
-          "S11": -11.8,
-          "S21": 11.5,
-          "Idd": 2.02,
-          "NF": -0.9,
-          "curated": true
+          "feasible": true,
+          "tier2": false,
+          "binding": "-",
+          "S11": -14.9,
+          "S11max": -12.4,
+          "S21": 14.5,
+          "Idd": 2.17,
+          "NF": 2.99,
+          "Kmin": 22.133,
+          "how": "curated"
         },
         "gps-l1": {
           "feasible": false,
-          "binding": "s11",
-          "S11": -0.3,
-          "S21": 2.8,
-          "Idd": 0.98,
-          "NF": 5.3,
-          "curated": false
+          "tier2": false,
+          "binding": "s21",
+          "S11": -7.7,
+          "S11max": -7.7,
+          "S21": 9.6,
+          "Idd": 3.48,
+          "NF": 6.63,
+          "Kmin": 73.866,
+          "how": "all-free"
         },
         "wideband-sdr": {
           "feasible": false,
+          "tier2": false,
           "binding": "s11",
-          "S11": -1.0,
-          "S21": 5.2,
-          "Idd": 8.16,
-          "NF": 8.3,
-          "curated": false
+          "S11": -0.3,
+          "S11max": -0.0,
+          "S21": 12.0,
+          "Idd": 4.32,
+          "NF": 6.31,
+          "Kmin": 7.956,
+          "how": "all-free"
         },
         "dhruva-l5": {
           "feasible": false,
-          "binding": "s11x",
-          "S11": -0.2,
-          "S21": 6.8,
-          "Idd": 3.25,
-          "NF": 4.8,
-          "curated": false
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -0.4,
+          "S11max": -0.3,
+          "S21": 13.4,
+          "Idd": 2.7,
+          "NF": 6.54,
+          "Kmin": 9.019,
+          "how": "all-free"
         },
         "dhruva-l2": {
           "feasible": false,
-          "binding": "s11x",
+          "tier2": false,
+          "binding": "s11_max",
           "S11": -0.2,
-          "S21": 6.7,
-          "Idd": 3.23,
-          "NF": 4.7,
-          "curated": false
+          "S11max": -0.2,
+          "S21": 13.8,
+          "Idd": 3.13,
+          "NF": 6.25,
+          "Kmin": 6.42,
+          "how": "all-free"
         },
         "dhruva-l1": {
           "feasible": false,
-          "binding": "s11x",
-          "S11": -0.6,
-          "S21": 5.2,
-          "Idd": 2.95,
-          "NF": 6.6,
-          "curated": false
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -0.4,
+          "S11max": -0.2,
+          "S21": 12.8,
+          "Idd": 2.23,
+          "NF": 6.4,
+          "Kmin": 8.041,
+          "how": "all-free"
         },
         "dhruva-s": {
           "feasible": false,
-          "binding": "s21",
-          "S11": -6.1,
-          "S21": 4.0,
-          "Idd": 4.1,
-          "NF": 3.8,
-          "curated": false
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -1.2,
+          "S11max": -0.2,
+          "S21": 12.8,
+          "Idd": 2.22,
+          "NF": 5.29,
+          "Kmin": 10.333,
+          "how": "all-free"
         }
       }
     },
     {
       "candidate": "seq0086.txt",
       "n_dev": 10,
+      "native": "wifi24",
+      "source": "out/ft_p5v2_nb_s1337/seq0086.txt",
       "results": {
         "wifi24": {
           "feasible": true,
+          "tier2": false,
           "binding": "-",
-          "S11": -11.2,
-          "S21": 16.6,
-          "Idd": 2.26,
-          "NF": -1.2,
-          "curated": true
+          "S11": -10.1,
+          "S11max": -9.5,
+          "S21": 16.1,
+          "Idd": 2.23,
+          "NF": 2.6,
+          "Kmin": 13.297,
+          "how": "curated"
         },
         "gps-l1": {
           "feasible": false,
+          "tier2": false,
           "binding": "s11",
-          "S11": -0.2,
-          "S21": 10.3,
-          "Idd": 1.55,
-          "NF": 8.2,
-          "curated": false
+          "S11": -2.1,
+          "S11max": -2.0,
+          "S21": 12.7,
+          "Idd": 1.97,
+          "NF": 5.79,
+          "Kmin": 26.438,
+          "how": "all-free"
         },
         "wideband-sdr": {
           "feasible": false,
+          "tier2": false,
           "binding": "s11",
-          "S11": -0.1,
-          "S21": 6.4,
-          "Idd": 0.73,
-          "NF": 8.4,
-          "curated": false
+          "S11": -0.3,
+          "S11max": -0.0,
+          "S21": 6.3,
+          "Idd": 2.86,
+          "NF": 8.95,
+          "Kmin": 26.661,
+          "how": "all-free"
         },
         "dhruva-l5": {
           "feasible": false,
-          "binding": "s11x",
-          "S11": -0.4,
-          "S21": 13.4,
-          "Idd": 2.47,
-          "NF": 6.6,
-          "curated": false
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -1.5,
+          "S11max": -1.2,
+          "S21": 15.1,
+          "Idd": 2.75,
+          "NF": 5.33,
+          "Kmin": 29.723,
+          "how": "all-free"
         },
         "dhruva-l2": {
           "feasible": false,
-          "binding": "s11x",
-          "S11": -0.4,
-          "S21": 13.4,
-          "Idd": 2.54,
-          "NF": 6.4,
-          "curated": false
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -2.3,
+          "S11max": -1.7,
+          "S21": 14.6,
+          "Idd": 1.93,
+          "NF": 6.27,
+          "Kmin": 13.801,
+          "how": "all-free"
         },
         "dhruva-l1": {
           "feasible": false,
-          "binding": "s11x",
-          "S11": -0.6,
-          "S21": 13.9,
-          "Idd": 2.26,
-          "NF": 4.8,
-          "curated": false
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -4.1,
+          "S11max": -1.0,
+          "S21": 16.9,
+          "Idd": 2.0,
+          "NF": 4.46,
+          "Kmin": 12.7,
+          "how": "all-free"
         },
         "dhruva-s": {
           "feasible": false,
-          "binding": "s11x",
-          "S11": -1.8,
-          "S21": 15.4,
-          "Idd": 2.2,
-          "NF": 1.2,
-          "curated": false
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -16.6,
+          "S11max": -0.2,
+          "S21": 19.2,
+          "Idd": 3.4,
+          "NF": 2.33,
+          "Kmin": 14.594,
+          "how": "all-free"
+        }
+      }
+    },
+    {
+      "candidate": "seq0009.txt",
+      "n_dev": 10,
+      "native": "wifi24",
+      "source": "out/ft_p5_nb_s1337/seq0009.txt",
+      "results": {
+        "wifi24": {
+          "feasible": true,
+          "tier2": false,
+          "binding": "-",
+          "S11": -12.5,
+          "S11max": -11.1,
+          "S21": 15.1,
+          "Idd": 4.42,
+          "NF": 2.82,
+          "Kmin": 0.242,
+          "how": "curated"
+        },
+        "gps-l1": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s21",
+          "S11": -11.0,
+          "S11max": -10.7,
+          "S21": 5.3,
+          "Idd": 2.75,
+          "NF": 6.5,
+          "Kmin": 28.675,
+          "how": "all-free"
+        },
+        "wideband-sdr": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s11",
+          "S11": -0.4,
+          "S11max": 0.0,
+          "S21": 6.4,
+          "Idd": 6.68,
+          "NF": 6.57,
+          "Kmin": 0.231,
+          "how": "all-free"
+        },
+        "dhruva-l5": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -3.1,
+          "S11max": -2.6,
+          "S21": 15.1,
+          "Idd": 8.22,
+          "NF": 6.03,
+          "Kmin": 1.019,
+          "how": "all-free"
+        },
+        "dhruva-l2": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -3.6,
+          "S11max": -2.6,
+          "S21": 15.1,
+          "Idd": 7.85,
+          "NF": 5.56,
+          "Kmin": 1.051,
+          "how": "all-free"
+        },
+        "dhruva-l1": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -10.0,
+          "S11max": -1.6,
+          "S21": 18.1,
+          "Idd": 8.09,
+          "NF": 4.3,
+          "Kmin": 0.61,
+          "how": "all-free"
+        },
+        "dhruva-s": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -12.0,
+          "S11max": -0.8,
+          "S21": 14.6,
+          "Idd": 5.93,
+          "NF": 3.09,
+          "Kmin": 2.181,
+          "how": "all-free"
         }
       }
     },
     {
       "candidate": "seq0046.txt",
       "n_dev": 12,
+      "native": "wifi24",
+      "source": "out/ft_p5v2_nb_s1337/seq0046.txt",
       "results": {
         "wifi24": {
-          "feasible": false,
-          "binding": "s21",
-          "S11": -9.8,
-          "S21": 0.7,
-          "Idd": 2.45,
-          "NF": 6.0,
-          "curated": true
+          "feasible": true,
+          "tier2": false,
+          "binding": "-",
+          "S11": -12.8,
+          "S11max": -7.5,
+          "S21": 15.0,
+          "Idd": 3.73,
+          "NF": 6.94,
+          "Kmin": 4.95,
+          "how": "stored"
         },
         "gps-l1": {
           "feasible": false,
+          "tier2": false,
           "binding": "s11",
-          "S11": -0.9,
-          "S21": 18.8,
-          "Idd": 2.72,
-          "NF": 6.2,
-          "curated": false
+          "S11": -4.9,
+          "S11max": -4.7,
+          "S21": 14.3,
+          "Idd": 2.26,
+          "NF": 6.89,
+          "Kmin": 133.86,
+          "how": "all-free"
         },
         "wideband-sdr": {
           "feasible": false,
+          "tier2": false,
           "binding": "s21",
-          "S11": -1.0,
-          "S21": -22.4,
-          "Idd": 7.55,
-          "NF": 27.6,
-          "curated": false
+          "S11": -1.3,
+          "S11max": -0.8,
+          "S21": -25.2,
+          "Idd": 10.24,
+          "NF": 30.27,
+          "Kmin": 94665.6,
+          "how": "all-free"
         },
         "dhruva-l5": {
           "feasible": false,
-          "binding": "s11x",
-          "S11": -0.5,
-          "S21": 18.7,
-          "Idd": 11.67,
-          "NF": 8.7,
-          "curated": false
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -1.3,
+          "S11max": -0.9,
+          "S21": 24.5,
+          "Idd": 10.2,
+          "NF": 8.1,
+          "Kmin": 20.502,
+          "how": "all-free"
         },
         "dhruva-l2": {
           "feasible": false,
-          "binding": "s11x",
-          "S11": -0.4,
-          "S21": 18.3,
-          "Idd": 11.52,
-          "NF": 8.4,
-          "curated": false
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -1.3,
+          "S11max": -0.8,
+          "S21": 20.9,
+          "Idd": 11.78,
+          "NF": 9.81,
+          "Kmin": 33.947,
+          "how": "all-free"
         },
         "dhruva-l1": {
           "feasible": false,
-          "binding": "s11x",
-          "S11": -0.5,
-          "S21": 23.7,
-          "Idd": 3.86,
-          "NF": 6.9,
-          "curated": false
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": 0.2,
+          "S11max": 0.3,
+          "S21": 24.6,
+          "Idd": 11.48,
+          "NF": 7.6,
+          "Kmin": -2.04,
+          "how": "all-free"
         },
         "dhruva-s": {
           "feasible": false,
-          "binding": "s11x",
-          "S11": -1.8,
-          "S21": 24.1,
-          "Idd": 8.51,
-          "NF": 4.9,
-          "curated": false
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -1.4,
+          "S11max": -0.7,
+          "S21": 30.0,
+          "Idd": 7.84,
+          "NF": 6.93,
+          "Kmin": 2.049,
+          "how": "all-free"
+        }
+      }
+    },
+    {
+      "candidate": "seq0079.txt",
+      "n_dev": 10,
+      "native": "wifi24",
+      "source": "out/ft_p5_nb_s1337/seq0079.txt",
+      "results": {
+        "wifi24": {
+          "feasible": true,
+          "tier2": false,
+          "binding": "-",
+          "S11": -10.2,
+          "S11max": -9.3,
+          "S21": 14.2,
+          "Idd": 3.33,
+          "NF": 2.53,
+          "Kmin": 1.093,
+          "how": "curated"
+        },
+        "gps-l1": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s21",
+          "S11": -11.4,
+          "S11max": -11.1,
+          "S21": 7.3,
+          "Idd": 2.03,
+          "NF": 5.88,
+          "Kmin": 2.994,
+          "how": "all-free"
+        },
+        "wideband-sdr": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s11",
+          "S11": -0.6,
+          "S11max": -0.1,
+          "S21": 7.7,
+          "Idd": 4.25,
+          "NF": 6.89,
+          "Kmin": 0.241,
+          "how": "all-free"
+        },
+        "dhruva-l5": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -2.4,
+          "S11max": -2.1,
+          "S21": 9.2,
+          "Idd": 7.57,
+          "NF": 8.14,
+          "Kmin": 2.027,
+          "how": "all-free"
+        },
+        "dhruva-l2": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -2.5,
+          "S11max": -2.0,
+          "S21": 9.5,
+          "Idd": 7.52,
+          "NF": 7.84,
+          "Kmin": 1.908,
+          "how": "all-free"
+        },
+        "dhruva-l1": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -8.5,
+          "S11max": -1.8,
+          "S21": 12.2,
+          "Idd": 7.76,
+          "NF": 4.86,
+          "Kmin": 1.601,
+          "how": "all-free"
+        },
+        "dhruva-s": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -5.3,
+          "S11max": -0.2,
+          "S21": 13.1,
+          "Idd": 5.76,
+          "NF": 3.59,
+          "Kmin": 0.591,
+          "how": "all-free"
+        }
+      }
+    },
+    {
+      "candidate": "seq0220.txt@ec5931",
+      "n_dev": 11,
+      "native": "wifi24",
+      "source": "out/ft_p5v2_nb_s1337/seq0220.txt",
+      "results": {
+        "wifi24": {
+          "feasible": true,
+          "tier2": false,
+          "binding": "-",
+          "S11": -10.5,
+          "S11max": -9.1,
+          "S21": 16.0,
+          "Idd": 2.34,
+          "NF": 2.61,
+          "Kmin": 25.401,
+          "how": "curated"
+        },
+        "gps-l1": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s21",
+          "S11": -10.0,
+          "S11max": -9.4,
+          "S21": 12.7,
+          "Idd": 2.83,
+          "NF": 5.32,
+          "Kmin": 67.402,
+          "how": "all-free"
+        },
+        "wideband-sdr": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s21",
+          "S11": -1.1,
+          "S11max": -0.1,
+          "S21": 0.1,
+          "Idd": 7.5,
+          "NF": 11.76,
+          "Kmin": 101.696,
+          "how": "all-free"
+        },
+        "dhruva-l5": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -3.5,
+          "S11max": -2.7,
+          "S21": 12.8,
+          "Idd": 2.22,
+          "NF": 6.01,
+          "Kmin": 37.437,
+          "how": "all-free"
+        },
+        "dhruva-l2": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -2.0,
+          "S11max": -1.6,
+          "S21": 13.5,
+          "Idd": 4.78,
+          "NF": 6.3,
+          "Kmin": 49.418,
+          "how": "all-free"
+        },
+        "dhruva-l1": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -3.7,
+          "S11max": -1.2,
+          "S21": 14.8,
+          "Idd": 3.17,
+          "NF": 5.2,
+          "Kmin": 17.638,
+          "how": "all-free"
+        },
+        "dhruva-s": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -4.2,
+          "S11max": -0.1,
+          "S21": 16.2,
+          "Idd": 2.07,
+          "NF": 3.1,
+          "Kmin": 27.435,
+          "how": "all-free"
+        }
+      }
+    },
+    {
+      "candidate": "seq0008.txt",
+      "n_dev": 9,
+      "native": "wifi24",
+      "source": "out/templates/seq0008.txt",
+      "results": {
+        "wifi24": {
+          "feasible": true,
+          "tier2": false,
+          "binding": "-",
+          "S11": -10.4,
+          "S11max": -9.5,
+          "S21": 15.0,
+          "Idd": 4.07,
+          "NF": 5.07,
+          "Kmin": 7.187,
+          "how": "curated"
+        },
+        "gps-l1": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "idd",
+          "S11": -12.9,
+          "S11max": -12.0,
+          "S21": 18.3,
+          "Idd": 4.56,
+          "NF": 2.91,
+          "Kmin": 2.098,
+          "how": "all-free"
+        },
+        "wideband-sdr": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s21_ripple",
+          "S11": -1.2,
+          "S11max": -0.1,
+          "S21": 13.1,
+          "Idd": 6.44,
+          "NF": 7.94,
+          "Kmin": 1.93,
+          "how": "all-free"
+        },
+        "dhruva-l5": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -2.0,
+          "S11max": -1.6,
+          "S21": 16.7,
+          "Idd": 9.54,
+          "NF": 6.8,
+          "Kmin": 0.522,
+          "how": "all-free"
+        },
+        "dhruva-l2": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -5.1,
+          "S11max": -2.6,
+          "S21": 20.0,
+          "Idd": 6.23,
+          "NF": 5.54,
+          "Kmin": 3.123,
+          "how": "all-free"
+        },
+        "dhruva-l1": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -2.1,
+          "S11max": -1.0,
+          "S21": 16.5,
+          "Idd": 7.44,
+          "NF": 7.93,
+          "Kmin": 1.786,
+          "how": "all-free"
+        },
+        "dhruva-s": {
+          "feasible": false,
+          "tier2": false,
+          "binding": "s11_max",
+          "S11": -18.8,
+          "S11max": -3.2,
+          "S21": 10.4,
+          "Idd": 5.36,
+          "NF": 12.17,
+          "Kmin": 1.774,
+          "how": "all-free"
         }
       }
     }

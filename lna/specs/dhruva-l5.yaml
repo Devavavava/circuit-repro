@@ -1,0 +1,53 @@
+# WP-DHRUVA blind-protocol spec (plans2/08-DHRUVA-GOAL.md). TIER-1 gateable
+# constraints only: S11-held-over-band / S21@f0 / Idd. Numbers are the paper's
+# published LNA figures (the ONLY allowed excerpt); no circuit detail is used.
+# Rows sized against this spec carry provenance recipe: blind-v1.
+# Rail: paper 1.2 V; harness fixes VDD=1.1 V (vdd:1.1 = evaluated condition).
+# Idd<=13 mA is generous (not expected to bind). NF/IIP3 are tier-2/tier-3,
+# carried `unsupported` until their harnesses land (08-DHRUVA §2).
+name: dhruva-l5
+description: NavIC/GPS L5 band (1.17645 GHz) LNA, paper-target tier-1 (blind)
+
+process:
+  models: AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt
+  vdd: 1.1
+  temp: 27
+
+band:
+  type: narrowband
+  f0: 1.17645e9
+  f_lo: 1.1e9        # S11-match sweep spans the whole reconfig range 1.1-2.5 GHz
+  f_hi: 2.5e9
+
+ports:
+  z0: 50
+  input: VIN1
+  output: VOUT1
+
+constraints:
+  s11_max_db: {max: -10}    # worst-case S11 over 1.1-2.5 GHz
+  s21_db:     {min: 22.3}   # gain at f0
+  idd_ma:     {max: 13}
+  nf_db:      {max: 2.5, status: unsupported}    # tier-2, after WP-D1 NF harness
+  iip3_dbm:   {min: -7.4, status: unsupported}   # tier-3, needs two-tone/HB
+
+objectives:
+  - {metric: s21_db,     direction: max, weight: 1.0}
+  - {metric: s11_max_db, direction: min, weight: 0.5}
+  - {metric: idd_ma,     direction: min, weight: 0.5}
+
+topology:
+  differential: false
+  reject_floating: true
+  device_budget: [3, 16]
+  max_inductors: 6
+  l_min: 0.3e-9
+  l_max: 15e-9
+  allow_inductorless: false
+
+sizing:
+  w_um: [1, 200]
+  l_fixed: 45e-9
+  r_ohm: [50, 20e3]
+  c_f: [50e-15, 10e-12]
+  vb_v: [0.2, 0.9]

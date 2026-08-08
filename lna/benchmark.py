@@ -52,15 +52,16 @@ def candidates(n):
     return out
 
 
-def size_vs(topo, spec_name, bp, seeds=(1, 2)):
+def size_vs(topo, spec_name, bp, seeds=(1, 2), budget=(8, 8, 2)):
     spec = size._spec_for_sizing(spec_name)
     curated = (spec_name == "wifi24" and bool(bp))
+    nc, sg, cg = budget
     best = None
     for s in seeds:
         try:
             res = size.size_topology(topo, spec, seed=s, inductor_q=12, log=False,
                                      curate=curated, prior_params=bp if curated else None,
-                                     n_candidates=8, sgd_iters=8, cgd_iters=2)
+                                     n_candidates=nc, sgd_iters=sg, cgd_iters=cg)
         except Exception:
             continue
         if not (res and res.get("metrics")):
@@ -79,17 +80,18 @@ def _binding(spec, viol):
     return max(viol.items(), key=lambda kv: kv[1])[0].replace("_db", "").replace("_ma", "")
 
 
-def run(n, spec_names):
+def run(n, spec_names, seeds=(1, 2), budget=(8, 8, 2)):
     cands = candidates(n)
     print(f"benchmark: {len(cands)} candidates x {len(spec_names)} specs "
-          f"(curated on wifi24, all-free elsewhere)\n", flush=True)
+          f"(curated on wifi24, all-free elsewhere; seeds={seeds} budget={budget})\n",
+          flush=True)
     table, yields = [], {s: 0 for s in spec_names}
     binding = {s: {} for s in spec_names}
     for name, tfp, topo, bp in cands:
         row = {"candidate": name, "n_dev": topo.n_devices, "results": {}}
         cells = []
         for sp in spec_names:
-            b = size_vs(topo, sp, bp)
+            b = size_vs(topo, sp, bp, seeds=seeds, budget=budget)
             if b is None:
                 cells.append(f"{sp}:sim-fail")
                 row["results"][sp] = {"feasible": None}
@@ -151,8 +153,13 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--n", type=int, default=6, help="how many candidate topologies")
     ap.add_argument("--specs", default="wifi24,gps-l1,wideband-sdr")
+    ap.add_argument("--seeds", default="1,2", help="comma list of ZOAF seeds per cell")
+    ap.add_argument("--budget", default="8,8,2",
+                    help="ZOAF n_candidates,sgd_iters,cgd_iters")
     args = ap.parse_args()
-    return run(args.n, args.specs.split(","))
+    seeds = tuple(int(s) for s in args.seeds.split(","))
+    budget = tuple(int(b) for b in args.budget.split(","))
+    return run(args.n, args.specs.split(","), seeds=seeds, budget=budget)
 
 
 if __name__ == "__main__":

@@ -1016,3 +1016,43 @@ checkpoints (`lna/BROADEN-PROGRESS.md` has the per-step log):
   before its generation channel is as strong as narrowband's.
 * **Gate B1 verdict: half-closed** — MET on gps-l1, open on wideband-sdr. Store is
   now multi-spec (gps-l1 / wideband-sdr / wifi24), 13 feasible rows across specs.
+
+## 12. Phase 3 — WP-DHRUVA blind-protocol campaign (paper-target spec ladder)
+
+Goal (plans2/08-DHRUVA-GOAL.md): reach a published multi-band GNSS-receiver LNA's
+performance numbers **without any knowledge of its circuit** — a fair test of
+whether generator + critic + curated sizing can *find* the topology class, not
+copy it.
+
+* **Blind protocol — logged at campaign start (acceptance item 1).** The paper's
+  PDF is not in the repo; the only allowed excerpt is its spec numbers. This
+  session added **no paper-derived circuit content** anywhere (specs, code,
+  comments, FINDINGS). Rule 2: `templates.py` may grow only families already in
+  the archetype set, or generic textbook blocks chosen *without* the paper, tagged
+  provenance **`recipe: blind-v1`**. Rule 3: a two-turn Gate stall is recorded and
+  stopped — unblinding is the **user's** decision, not the executor's.
+* **WP-D0 — spec plumbing (this entry).** Added four tier-1 specs
+  `dhruva-{l5,l2,l1,s}` (bands 1.176 / 1.228 / 1.575 / 2.492 GHz; S21 ≥
+  22.3 / 22.3 / 25.4 / 30 dB at f0; Idd ≤ 13 mA). NF (2.5–3.5 dB) and IIP3 are
+  carried `status: unsupported` (tier-2/tier-3 — pending the NF harness and a
+  two-tone/HB simulator).
+* **The over-band match, for free.** Tier-1's defining constraint — **S11 ≤ −10 dB
+  held across 1.1–2.5 GHz** (not just at f0) — maps onto the extractor's existing
+  `s11_max_db` (worst-case over `[f_lo,f_hi]`, already computed for wideband-sdr).
+  Setting `f_lo=1.1e9, f_hi=2.5e9` and constraining **`s11_max_db: {max: -10}`**
+  gives over-band enforcement with **zero harness change** — verified: a design
+  matched at f0 (−15) but −3 at a band edge is correctly rejected on `s11_max_db`.
+* **Rail note.** Paper rail is 1.2 V; the sizer fixes VDD=1.1 V, so the specs
+  document `vdd: 1.1` (the evaluated condition). Idd ≤ 13 mA is generous and not
+  expected to bind (08 §2).
+* **Gate D0 — evaluable end-to-end.** Smoke: a wifi-class candidate sized vs
+  `dhruva-l1` runs the full SPICE path and reports `s11_max=−0.5` / `s21=10.6`
+  (infeasible, binding on both `s11_max_db` and `s21_db`) — the honest baseline
+  (current single-stage families are nowhere near broadband-match + ≥25 dB gain,
+  exactly the hard pair 08 §5 flags). `benchmark.py` gains `--seeds`/`--budget`
+  knobs and grows four `dhruva-*` columns as the extended scoreboard.
+* **Next (WP-D2, not yet run):** label the archetype set vs `dhruva-l1`
+  (+ wideband-sdr — same S11-over-band constraint class), generalize
+  `emit_winners` to multi-spec, fine-tune **P5-v4** (adopt-only-if-better), then
+  curated-size polish-first for **Gate D1** (≥1 feasible dhruva-l1). NF harness
+  (WP-D1) remains priority-1 and gates tier-2.

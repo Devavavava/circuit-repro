@@ -1,0 +1,57 @@
+# WP-DHRUVA blind-protocol spec (plans2/08-DHRUVA-GOAL.md). TIER-1 gateable
+# constraints only: S11-held-over-band / S21@f0 / Idd. The numbers below are the
+# paper's published LNA performance figures -- the ONLY allowed excerpt; no
+# circuit detail from the paper is used anywhere. Any row sized against this
+# spec carries provenance recipe: blind-v1.
+#
+# Rail note: the paper reports 1.2 V; our sizing harness fixes VDD=1.1 V
+# (size.classify_params), so vdd:1.1 documents the *evaluated* condition. The
+# Idd<=13 mA budget is generous and is not expected to bind at either rail
+# (08-DHRUVA §2). NF/IIP3 are carried as `unsupported` (tier-2/tier-3): loaded
+# and reported UNMEASURED, ignored by feasibility until their harnesses land.
+name: dhruva-l1
+description: NavIC/GPS L1 band (1.57542 GHz) LNA, paper-target tier-1 (blind)
+
+process:
+  models: AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt
+  vdd: 1.1
+  temp: 27
+
+band:
+  type: narrowband
+  f0: 1.57542e9
+  f_lo: 1.1e9        # S11-match sweep spans the whole reconfig range 1.1-2.5 GHz
+  f_hi: 2.5e9        # (extract.py computes s11_max_db = worst case over this grid)
+
+ports:
+  z0: 50
+  input: VIN1
+  output: VOUT1
+
+constraints:
+  s11_max_db: {max: -10}    # worst-case S11 over 1.1-2.5 GHz (match must HOLD over band)
+  s21_db:     {min: 25.4}   # gain at f0
+  idd_ma:     {max: 13}
+  nf_db:      {max: 2.7, status: unsupported}    # tier-2, after WP-D1 NF harness
+  iip3_dbm:   {min: -7.6, status: unsupported}   # tier-3, needs two-tone/HB
+
+objectives:
+  - {metric: s21_db,     direction: max, weight: 1.0}   # gain-first
+  - {metric: s11_max_db, direction: min, weight: 0.5}   # deepen the over-band match
+  - {metric: idd_ma,     direction: min, weight: 0.5}
+
+topology:
+  differential: false       # single-ended RF in; balanced out is tier-3 (3-port harness)
+  reject_floating: true
+  device_budget: [3, 16]
+  max_inductors: 6          # broadband match + degeneration + tuned load(s), possibly 2-stage
+  l_min: 0.3e-9
+  l_max: 15e-9
+  allow_inductorless: false # >=25 dB tuned gain needs resonant/inductive structure
+
+sizing:
+  w_um: [1, 200]
+  l_fixed: 45e-9
+  r_ohm: [50, 20e3]
+  c_f: [50e-15, 10e-12]
+  vb_v: [0.2, 0.9]

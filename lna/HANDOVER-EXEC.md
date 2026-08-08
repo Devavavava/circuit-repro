@@ -13,7 +13,7 @@ exactly where to resume. Read `WORKLOG.md` (entries R1/R2 are mine) and
 
 ## Session 2 — Phase 2 Stages 0–3 + last-mile + **★ STAGE 3 PHASE EXIT MET** (curve 967→367→**187**, 6 feasible wifi24 LNAs) + **★★ WP-BROADEN: Gate B1 gps-l1 CLOSED** (P5-v3 → 2 novel feasible gps-l1 LNAs; NDL 73→100 + new wb channel). Remaining: wideband-sdr + the NF harness.
 
-## Session 3 — **WP-DHRUVA (blind protocol)** — paper-target spec ladder (plans2/08-DHRUVA-GOAL.md) — **★ Gate D0 + ★★ Gate D1 MET** (feasible dhruva-l1 via blind-v1 3-stage rfb_cs3: S11≤−10 over 1.1–2.5 GHz, S21 37.8, Idd 12.93)
+## Session 3 — **WP-DHRUVA (blind protocol)** — paper-target spec ladder (plans2/08-DHRUVA-GOAL.md) — **★ D0 + ★★ D1 + ★★ D2 MET** (one blind-v1 3-stage rfb_cs3 family feasible on ALL four bands L5/L2/L1/S; S11≤−10 over 1.1–2.5 GHz. Attribution: assistant-authored generic topology + automated sizing — NOT a P5-generator discovery. Repro: lna/repro/)
 
 **⚠ BLIND PROTOCOL is active — read plans2/08 §"Blind protocol" before touching
 templates.py.** No paper circuit content anywhere; new families only from the

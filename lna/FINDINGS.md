@@ -1103,8 +1103,26 @@ copy it.
     evaluation. So this is "assistant-designed topology (blind, generic) + automated
     sizing," not an autonomous generator result. A *generated* dhruva-l1 feasible
     (P5-v6 on the rfb_cs3-bearing set) is the outstanding stronger claim.
+  * **★★ Gate D2 MET — one family feasible on all four bands (the reconfigurable
+    essence).** The *same* topology `rfbcs3_tank_cc21_bf0` (wl `3ebaf08f9`), only
+    device values differing per band, is feasible on all four dhruva specs (recipe
+    `blind-v1`, each logged):
+
+    | band | f0 | s11_max | S21 (target) | Idd |
+    |---|---|---|---|---|
+    | dhruva-l5 | 1.176 GHz | −10.7 | 24.6 (≥22.3) | 11.78 |
+    | dhruva-l2 | 1.228 GHz | −12.7 | 23.2 (≥22.3) | 12.39 |
+    | dhruva-l1 | 1.575 GHz | −11.2 | 37.8 (≥25.4) | 12.93 |
+    | dhruva-s  | 2.492 GHz | −10.3 | 34.6 (≥30.0) | 8.70 |
+
+    The broadband resistive-feedback input holds S11 ≤ −10 over 1.1–2.5 GHz in every
+    band mode; only the two tuned stages retune to each f0 — exactly a
+    reconfigurable multi-band LNA at the topology level. Per-band sized params:
+    `lna/repro/dhruva-4band.params.json`.
   * **Caveats & next:** feasibility is on the gated tier-1 constraints
-    (S11-over-band / S21 / Idd); NF is advisory/off (tier-2, WP-D1). Gate D2 (one
-    family feasible on all four bands, warm-started from this L1 solution) and a
-    *generated* (not archetype) dhruva-l1 feasible (P5-v6 on the rfb_cs3 family) are
-    the natural follow-ups.
+    (S11-over-band / S21 / Idd); **NF is advisory/off** (tier-2, WP-D1) — the design
+    is not noise-optimized. Same attribution as D1 (assistant-authored blind-v1
+    topology + automated sizing). Outstanding: a *generated* (not archetype)
+    feasible (P5-v6 on the rfb_cs3 set) for the stronger claim; **WP-D1 NF harness**
+    → Gate D3; gain-programmability / differential-out / IIP3 are tier-2/3 (out of
+    the current harness).

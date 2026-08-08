@@ -16,7 +16,11 @@
 > dhruva-l1** — `rfbcs3_tank_cc21_bf0`: s11_max −11.2 (≤−10 over 1.1–2.5 GHz),
 > **S21 37.8 dB**, Idd 12.93 mA (recipe `blind-v1`). Splitting gain over two tuned
 > stages clears ≥25 dB while the feedback input holds the match — the exact pair
-> 08 §5 flagged. See FINDINGS §12.
+> 08 §5 flagged. **★★ Gate D2 also MET:** the *same* family (only device values
+> differ) is feasible on all four bands — L5 (−10.7/24.6), L2 (−12.7/23.2), L1
+> (−11.2/37.8), S (−10.3/34.6). See FINDINGS §12. (Attribution: the topology is an
+> assistant-authored generic blind-v1 archetype + automated sizing, not a
+> P5-generator output.)
 >
 > **Read caveats:** (1) this run used a *lean* budget (`seeds=1, budget=5,5,1`) to
 > produce the D0 rows quickly — **wifi24 shows 4/6 here vs 6/6 at full budget**

@@ -1,159 +1,131 @@
-# WP-DHRUVA — the paper target: Dhruva GNSS balun LNA as the goal spec
+# WP-DHRUVA — the paper target, specifications only (blind protocol)
 
 **Source:** Kanchetla et al., "A Compact, Reconfigurable CMOS RF Receiver for
-NavIC/GPS/Galileo/BeiDou," IEEE TMTT 70(7), July 2022 (Dhruva, IIT Bombay,
-65-nm CMOS, measured silicon). The user sets **its LNA** as the goal for what
-the pipeline must achieve. PDF in repo root; LNA is §III-A + Fig. 5, currents
-Table III (p. 7 — table is an image; values transcribed below).
+NavIC/GPS/Galileo/BeiDou," IEEE TMTT 70(7), July 2022 (65-nm CMOS, measured
+silicon). The user sets its LNA's **performance numbers** as the goal.
+
+**⚠ Blind protocol — read before executing.** This plan deliberately contains
+**no description of the paper's circuit**. The experiment is whether the
+pipeline (generator + critic + curated sizing) reaches these specs **without
+help**. Rules for every executor session:
+
+1. **Do not open the PDF** (repo root) beyond confirming a spec number cited
+   here. Do not summarize, sketch, or transcribe its figures or circuit
+   sections anywhere in the repo (FINDINGS, HANDOVER, comments, templates).
+2. **No paper-derived constructors.** `templates.py` may grow only families
+   that are (a) already in the archetype set, or (b) generic textbook blocks
+   chosen *without consulting the paper*. Anything added while this WP is
+   active gets labeled with provenance `recipe: blind-v1`.
+3. **If the loop stalls** (no Gate movement across two full turns), record the
+   stall in FINDINGS and stop — whether to unblind is the **user's decision**,
+   not the executor's.
 
 ---
 
-## 1. What their LNA is (extracted)
+## 1. The target specifications
 
-**Architecture (Fig. 5): single-to-differential noise-canceling balun LNA.**
+Four bands, one device: the LNA must be operable at each band (band selection
+by whatever means the pipeline finds — only the specs below are given).
 
-* **Matching stage** — complementary common-source pair (M1 NMOS + M2 PMOS,
-  one shared bias current = current-reuse inverter) with **resistive shunt
-  feedback** R_F from output V_X to input. Zin ≈ 1/(gm1+gm2) ≈ 50 Ω,
-  **wideband** (0.1–2.9 GHz). R_F = 9·R_S = 450 Ω; stage gain
-  A_m ≈ −R_F/R_S ≈ −9 (~19 dB).
-* **Noise-canceling / balun output pair** — M4 (CS off the *input* node) and
-  M3 (CS off the *feedback* node V_X), each cascoded (M5/M6) with 3 switchable
-  slices (Sw[2:0]) for gain programming. Balance condition **gm4 = |A_m|·gm3**
-  makes the matching-stage device noise cancel at the differential output and
-  produces the single→differential conversion.
-* **Load** — differential LC tank: center-tapped inductor to VDD +
-  **programmable capacitor bank** selecting the band (this is the whole
-  "reconfigurable" mechanism); inductor Q 9.5 (L5) → 14.5 (S).
-
-**Numbers (65-nm, 1.2 V; sim = paper simulation, meas = measured):**
-
-| parameter | L5 (1176.45 M) | L2 (1227.6 M) | L1 (1575.42 M) | S (2492.03 M) |
+| parameter | L5 (1176.45 MHz) | L2 (1227.6 MHz) | L1 (1575.42 MHz) | S (2492.03 MHz) |
 |---|---|---|---|---|
-| max voltage gain (sim) | 22.3 dB | 22.3 dB | 25.4 dB | 30 dB |
-| NF @ max gain (sim) | 2.5 dB | 2.5 dB | 2.7 dB | 3.5 dB |
-| IIP3 @ min gain (sim) | −7.4 dBm | −7.4 dBm | −7.6 dBm | −8.7 dBm |
+| gain at f0 | ≥ 22.3 dB | ≥ 22.3 dB | ≥ 25.4 dB | ≥ 30 dB |
+| NF at f0 | ≤ 2.5 dB | ≤ 2.5 dB | ≤ 2.7 dB | ≤ 3.5 dB |
+| IIP3 (min-gain setting) | ≥ −7.4 dBm | ≥ −7.4 dBm | ≥ −7.6 dBm | ≥ −8.7 dBm |
 
-* Input match: **S11 < −10 dB over 0.1–2.9 GHz** (receiver-level measured) —
-  one match network serves all four bands; only the load retunes.
-* Gain programmability: 10.6 dB range per band, 3 steps (cascode slices).
-* Balun balance: < 0.22 dB / < 0.9° across all bands and gain settings.
-* **LNA current: 13 mA @ 1.2 V** (Table III measured; ≈ 15.6 mW).
-* Context: whole receiver 38.35 mA, min receiver NF 3.8 dB, 1.96 mm².
+Common to all bands:
 
-**Mapping caveat:** the paper's "gain" is voltage gain A_v into the on-chip
-mixer, not S21 into 50 Ω. Our harness gates S21 in a 50-Ω 2-port. Adopt the
-paper numbers as S21 thresholds anyway (calibration decision — revisit only if
-it proves structurally unfair; a tuned tank driving 50 Ω sheds ~6 dB vs an
-on-chip load, so tier-1 may be *harder* than the paper's own bar).
+* **Input match:** S11 ≤ −10 dB **across 1.1–2.5 GHz** — the match must hold
+  over the whole range in every band configuration (evaluated on a sweep
+  grid, not only at f0).
+* **Supply current:** ≤ 13 mA @ 1.2 V (LNA block alone).
+* **Gain programmability:** ≥ 10.6 dB adjustable range per band, ≥ 3 steps.
+* **Output:** differential (single-ended RF in → balanced out), imbalance
+  ≤ 0.22 dB / ≤ 0.9° across bands and gain settings.
 
-## 2. The goal as a spec ladder (three tiers, staged by harness capability)
+**Mapping decision:** the paper reports voltage gain into an on-chip load;
+our harness gates S21 into 50 Ω. Adopt the numbers above as S21 thresholds
+as-is (revisit only if structurally unfair — record the argument first).
 
-**Tier 1 — gateable today (S11/S21/Idd, current harness).** Four new specs
-`dhruva-l5 / dhruva-l2 / dhruva-l1 / dhruva-s`:
+## 2. Spec ladder (staged by harness capability) and gates
 
-| constraint | value | note |
-|---|---|---|
-| S11 | ≤ −10 dB **across 1.1–2.5 GHz** (sweep grid, not @ f0) | the wideband match — same class as wideband-sdr's binding constraint |
-| S21 @ f0 | ≥ 22 (L5/L2) / ≥ 25 (L1) / ≥ 30 (S) dB | narrowband tuned gain is expected (LC load) |
-| Idd | ≤ 13 mA @ 1.2 V | paper's measured LNA current; generous vs gps-l1's 3 mA — current is *not* the binding constraint here |
+**Tier 1 — gateable today (S11/S21/Idd):** four specs
+`dhruva-l5 / dhruva-l2 / dhruva-l1 / dhruva-s`: per-band S21 threshold from
+the table, S11 ≤ −10 dB over 1.1–2.5 GHz, Idd ≤ 13 mA. Current is generous
+vs gps-l1's 3 mA — it is *not* expected to bind.
 
 **Tier 2 — after the NF port-noise harness lands (HANDOVER priority 1):**
-NF ≤ 2.5 / 2.5 / 2.7 / 3.5 dB per band, gated. Noise cancellation is the
-*mechanism* the paper uses to hit these — tier 2 is what makes the NC
-topology family matter, not just wideband match.
+the NF row, gated per band.
 
-**Tier 3 — deferred, explicitly out of the current harness:**
-* IIP3 ≥ −7.4…−8.7 dBm → needs two-tone/HB; the VACASK bookmark
-  (memory: vacask-open-rfic-flow) activates here, not before.
-* Balun balance ≤ 0.22 dB / 0.9° → needs a differential 3-port harness.
-* Gain programmability (switched cascode slices) → reconfigurability is a
-  sizing-DOF/switch question, out of scope for topology search.
+**Tier 3 — deferred, out of the current harness:** IIP3 (needs two-tone/HB —
+the VACASK bookmark activates here), output balance (needs a 3-port
+differential harness), gain programmability (switch/DOF question, out of
+scope for topology search).
 
 **Gates:**
-- **Gate D0:** harness + spec files evaluate all four tier-1 specs;
-  `benchmark.md` grows four dhruva rows (scoreboard extension, 07-EXIT rule).
-- **Gate D1:** ≥ 1 feasible tier-1 **dhruva-l1** (wideband S11 + 25 dB + ≤13 mA).
-- **Gate D2 (the "reconfigurable" essence):** **one topology family** feasible
-  on **all four bands**, where only load-bank values and sizing differ —
-  same wl_hash family across the four rows.
+- **Gate D0:** all four tier-1 specs evaluable end-to-end; `benchmark.md`
+  grows four dhruva rows (scoreboard extension, 07-EXIT rule).
+- **Gate D1:** ≥ 1 feasible tier-1 **dhruva-l1**.
+- **Gate D2 (the "reconfigurable" essence):** **one topology family**
+  feasible on **all four bands** — same wl_hash family, only parameter values
+  differ per band.
 - **Gate D3:** tier-2 NF met on ≥ 1 band under the trusted NF harness
   (≤ 3.5 first; ≤ 2.5 is the stretch).
 
-## 3. Why this goal composes with what's already open (not a new direction)
+## 3. Why this composes with what's open
 
-* **It subsumes wideband-sdr.** Tier-1's S11-over-band *is* wideband-sdr's
-  binding constraint; Gate B1's open half and Gate D1 share a bottleneck.
-  The NC-balun family below is exactly the "noise-cancelling archetypes"
-  HANDOVER priority 2 already calls for — one family serves both.
-* **It makes the NF harness (priority 1) mandatory, not optional.** The goal's
-  tier 2 cannot be evaluated without it, and the paper's architecture exists
-  *because of* noise: matching stages that present 50 Ω wideband are noisy;
-  cancellation is how Dhruva gets 2.5 dB anyway. Without tier 2 the pipeline
-  would happily "solve" tier 1 with a noisy rfb stage and learn nothing.
-* **The architecture decomposes into constructors we already have.** The
-  matching stage = `current_reuse_lna`'s complementary pair + `rfb_lna`'s
-  shunt feedback (both landed in the 118-archetype set). What's new is the
-  NC output pair + differential tank. The generator lesson (wifi24, then
-  gps-l1) predicts the templates won't size to feasibility by hand — they
-  seed P5, and generated variants close the gate.
+Tier-1's S11-over-band is the same constraint class wideband-sdr is stuck on
+(Gate B1's open half) — one campaign serves both scoreboard rows. Tier 2 is
+what makes the NF harness fix (already priority 1) mandatory rather than
+optional: without it the pipeline can "solve" tier 1 with an arbitrarily
+noisy front end and the goal loses its teeth.
 
 ## 4. Work packages (Opus-executable order)
 
 * **WP-D0 — spec plumbing (~½ day).** Add the four `dhruva-*` specs
-  (registry + `spec.objective`); S11 evaluated on a 1.1–2.5 GHz grid
-  (wideband-sdr already sweeps broadband S11 — reuse that path, don't write a
-  second one). Extend `benchmark.py` with the four rows. **Gate D0.**
+  (registry + `spec.objective`); S11 on a 1.1–2.5 GHz grid (wideband-sdr
+  already sweeps broadband S11 — reuse that path). Extend `benchmark.py`
+  with the four rows. **Gate D0.**
 * **WP-D1 — NF port-noise harness (WORKLOG R3; unchanged top priority).**
-  Fix, validate against the tapped reference + one rfb row, **re-label**
-  affected rows (new harness = new label domain — do not mix silently; bump
-  `recipe`), only then un-gate NF in `spec.objective`. Optional while in
-  there: finite-Q inductors (paper Q 9.5–14.5) as a spec-level knob —
-  ideal-L NF numbers will read optimistic vs the paper otherwise.
-* **WP-D2 — `nc_balun_lna` constructor family (`templates.py`, ~1–2 days).**
-  Matching stage (complementary CS + R_F ≈ 9·R_S shunt feedback) → two output
-  branches (CS off input node, CS off feedback node, cascoded) → differential
-  center-tapped tank with band-select cap parameter. Variants: ± cascode
-  slices, shunt-peaked tank, buffer. Target **8–15 archetypes**; wire into the
-  wb channel (they are inductor-bearing but wideband-*matched* — check the wb
-  screen's `max_inductors` doesn't reject the tank; the screen guards the
-  *match* mechanism, and here the match is feedback, so exempt load inductors).
-* **WP-D3 — label → multi-spec winners → P5-v4 → curated sizing (~2–3 days +
-  GPU overnight).** Label the new family vs `dhruva-l1` + `wideband-sdr`;
-  generalize `emit_winners` to multi-spec (HANDOVER priority 3 — gps-l1's two
-  winners feed in too); fine-tune P5-v4 under adopt-only-if-better
-  (NDL@256 + tripwires; σ best-of-3 relabel lands *before* any critic
-  retrain, per the deferred iter-4 item); curated-size the generated pool —
-  match prior from the generator, polish-first as in iter-4. **Gate D1.**
-* **WP-D4 — the four-band retune pass (~1 day).** Take every dhruva-l1
-  feasible; re-run curated sizing per band with the matching stage *fixed*
-  (it is band-independent by construction — that's the paper's point) and
-  only load bank + output stage free. **Gate D2.**
-* **WP-D5 — tier 2 (after WP-D1).** Re-benchmark all dhruva-feasible rows
-  under gated NF; expect the un-canceled rfb rows to fail and NC rows to
-  survive — that contrast is the result. **Gate D3.**
+  Fix, validate against the tapped reference + one stored wideband row,
+  **re-label** affected rows (new harness = new label domain — bump
+  `recipe`, never mix silently), only then un-gate NF in `spec.objective`.
+* **WP-D2 — blind campaign (~2–3 days + GPU overnight).** Label the existing
+  archetype set vs `dhruva-l1` (+ `wideband-sdr`); generalize `emit_winners`
+  to multi-spec (HANDOVER priority 3); fine-tune P5-v4 under
+  adopt-only-if-better (NDL@256 + tripwires; σ best-of-3 relabel lands
+  before any critic retrain); curated-size the generated pool polish-first,
+  as in iter-4. Diversity expansion is allowed only under blind-protocol
+  rule 2. **Gate D1.**
+* **WP-D3 — the four-band pass (~1 day).** Take every dhruva-l1 feasible;
+  re-run curated sizing against each remaining band, warm-started from the
+  l1 solution (standard curated recipe — fix what the recipe already fixes,
+  free the rest). **Gate D2.**
+* **WP-D4 — tier 2 (after WP-D1).** Re-benchmark all dhruva-feasible rows
+  under gated NF; report which families survive the NF gate and which die —
+  that contrast is a result either way. **Gate D3.**
 
-## 5. Honest expectations vs the paper
+## 5. Honest expectations
 
 Our labels are ideal-element behavioral ngspice, not 65-nm silicon: passive
-losses, parasitics, and the balun's phase problem are under-modeled, so tier-1
-feasibility here does **not** claim parity with Dhruva — it claims the
-pipeline *finds the architecture class* (wideband-matched, noise-cancelable,
-band-retunable) under the same constraint shape. The paper's binding
-difficulty — high tuned gain *while* the match stays wideband and noise
-cancels — is exactly reproducible at our fidelity, and it is the pair
-(S11-over-band + S21 ≥ 25) no current archetype family closes. NF parity
-(tier 2) becomes meaningful only after WP-D1, and IIP3 (tier 3) only under a
-different simulator (VACASK bookmark).
+loss, parasitics, and layout are unmodeled, so tier-1 feasibility does not
+claim parity with the paper — it claims the pipeline finds a topology class
+meeting the same constraint *shape* at our fidelity. The hard pair is
+S11-held-over-band together with ≥ 25–30 dB tuned gain — no current family
+closes it, which is exactly what makes this a fair blind test. NF parity
+(tier 2) is meaningful only after WP-D1; IIP3 (tier 3) only under a
+different simulator.
 
 ## Acceptance
 
-- [ ] Gate D0: four dhruva specs evaluable end-to-end; benchmark rows present
+- [ ] blind protocol logged in FINDINGS at campaign start; provenance
+      `recipe: blind-v1` on every new row
+- [ ] Gate D0: four dhruva specs evaluable; benchmark rows present
 - [ ] WP-D1: NF harness validated; affected rows re-labeled, recipe bumped;
       NF gated only after validation
-- [ ] WP-D2: ≥ 8 nc_balun archetypes; wb screen passes the tank exemption
-- [ ] WP-D3: P5-v4 adopted only if ≥ v3 on NDL@256 with tripwires quiet;
+- [ ] WP-D2: P5-v4 adopted only if ≥ v3 on NDL@256 with tripwires quiet;
       multi-spec emit_winners in place
 - [ ] Gate D1: ≥ 1 feasible dhruva-l1 (tier 1)
-- [ ] Gate D2: one family feasible on all four bands (retune-only)
-- [ ] Gate D3: tier-2 NF met on ≥ 1 band; NC-vs-rfb contrast reported
+- [ ] Gate D2: one family feasible on all four bands
+- [ ] Gate D3: tier-2 NF met on ≥ 1 band; NF-gate survivor contrast reported
+- [ ] any stall recorded, not unblinded (user decides)

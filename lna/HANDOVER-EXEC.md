@@ -13,6 +13,33 @@ exactly where to resume. Read `WORKLOG.md` (entries R1/R2 are mine) and
 
 ## Session 2 — Phase 2 Stages 0–3 + last-mile + **★ STAGE 3 PHASE EXIT MET** (curve 967→367→**187**, 6 feasible wifi24 LNAs) + **★★ WP-BROADEN: Gate B1 gps-l1 CLOSED** (P5-v3 → 2 novel feasible gps-l1 LNAs; NDL 73→100 + new wb channel). Remaining: wideband-sdr + the NF harness.
 
+## Session 3 — **WP-DHRUVA (blind protocol)** — paper-target spec ladder (plans2/08-DHRUVA-GOAL.md)
+
+**⚠ BLIND PROTOCOL is active — read plans2/08 §"Blind protocol" before touching
+templates.py.** No paper circuit content anywhere; new families only from the
+existing archetype set or generic textbook blocks chosen *without* the paper,
+tagged `recipe: blind-v1`; a two-turn Gate stall is recorded and **stopped** —
+unblinding is the user's call.
+
+- **★ Gate D0 MET (committed `3784644`, pushed).** Four tier-1 specs
+  `dhruva-{l5,l2,l1,s}` added (S21 22.3/22.3/25.4/30 dB @ 1.176/1.228/1.575/2.492
+  GHz; **S11 ≤ −10 dB over 1.1–2.5 GHz** via the extractor's existing `s11_max_db`,
+  zero harness change; Idd ≤ 13 mA; NF/IIP3 `unsupported`). Benchmark grows four
+  dhruva rows: **0/6 on every band**, binding almost entirely on `s11_max`. Sharp
+  point: `seq0046` hits **S21 23.7 dB on dhruva-l1** but f0 S11 ≈ −0.5 — gain
+  alone gets close, the broadband match is the wall (08 §5). FINDINGS §12 logs the
+  protocol + D0.
+- **Next — WP-D2 → Gate D1 (≥1 feasible dhruva-l1), the multi-day lift, NOT yet
+  started:** (1) label the existing archetype set vs `dhruva-l1` (+ `wideband-sdr`,
+  same over-band-S11 class) as stratum-T, recipe `blind-v1`; (2) **generalize
+  `emit_winners` to multi-spec** (HANDOVER pri-3) — note the honest subtlety: a
+  store row sized at wifi24's 2.44 GHz can't be re-scored under dhruva-l1's 1.575
+  GHz objective, so winner selection must key on the row's *own* spec, not re-score
+  cross-frequency; (3) fine-tune **P5-v4** (adopt-only-if-better: NDL@256 ≥ v3 +
+  tripwires; σ best-of-3 relabel before any critic retrain); (4) curated-size the
+  generated pool polish-first. Then WP-D3 (four-band pass → Gate D2) and
+  WP-D1 NF harness (priority-1, gates tier-2 → Gate D3).
+
 **New roadmap:** `.claude/worktrees/lna-plans/lna/plans2/` (start at
 `00-OVERVIEW.md`) — the generate→size pipeline is now feature-complete; Phase 2
 adds a learned critic + guided search. Branch **`lna-data`** (off `lna-exec` @

@@ -462,7 +462,15 @@ def nc_cgcs_lna(n_stages=1, load="tank"):
     gc = N.new()
     nl.append(["Cc", y1, gc, "capacitor"])
     nl.append(["Mc", yo, gc, "VSS", "VSS", "nmos4"])    # CG output re-inverted onto Yo
-    nl.append(["RLo", "VDD", yo, "resistor"])           # shared summing load
+    # Shared summing load. When the output is tuned we put the TANK here rather
+    # than adding a separate RLo on top of it: the [3,16] device budget is the
+    # binding constraint on how many tuned stages this family can carry, and one
+    # saved device is one more gain stage.
+    if load == "tank":
+        nl.append(["Ldo", "VDD", yo, "inductor"])
+        nl.append(["Cto", "VDD", yo, "capacitor"])
+    else:
+        nl.append(["RLo", "VDD", yo, "resistor"])
     d = _tuned_chain(nl, N, yo, n_stages, load)
     nl.append(["Cout", d, "VOUT1", "capacitor"])
     return nl

@@ -15,6 +15,137 @@ exactly where to resume. Read `WORKLOG.md` (entries R1/R2 are mine) and
 
 ## Session 3 — **WP-DHRUVA (blind protocol)** — paper-target spec ladder (plans2/08-DHRUVA-GOAL.md) — **★ D0 + ★★ D1 + ★★ D2 MET** (one blind-v1 3-stage rfb_cs3 family feasible on ALL four bands L5/L2/L1/S; S11≤−10 over 1.1–2.5 GHz. Attribution: assistant-authored generic topology + automated sizing — NOT a P5-generator discovery. Repro: lna/repro/)
 
+## Session 4 (2026-08-08/09) — **Track A: the NF harness goes live** (WP-D1 + WP-D4 + stability + Gate-D3 push) · **Track B: ★ a *generated* dhruva-l1 tier-1 feasible**
+
+Two agents, one worktree, branch `lna-data`, **never pushed**. Track A owned all
+commits; Track B worked in sidecars (`lna/trackb_g4.py`, `lna/_trackb_*`). Full
+measured detail in **FINDINGS §13**; Track B's own report is
+`lna/data/reports/trackb-p5v6-2026-08-08.md`.
+
+### What moved
+
+* **★ WP-D1 DONE — NF is a hard constraint.** The port-referred `noise` block is
+  deleted from the sizing deck (finding #7); the only NF in the store is the
+  golden-validated series-Rs one (`extract.py --selftest` → **3.012469 vs 3.0103**,
+  `ref/check_nf.py` GREEN). All **20** legacy rows relabelled (`lna/relabel_nf.py`,
+  replay-fenced, recipe bumped `<old>+nfrs-v1`): **20 relabelled, 0 quarantined**.
+  **The old port NF flattered every design without exception** — series_rs minus port
+  was min +0.55 / median +2.32 / mean +3.93 / max +12.58 dB, and two rows had read
+  *negative* NF. The four dhruva specs now gate `nf_db`; `size._spec_for_sizing`
+  honours the YAML (it used to force `unsupported` for every spec).
+  **NF is measured inside the sizing loop** — a supported-but-missing metric counts as
+  fully violated and flattens the objective. Measured cost 0.07 s on top of 0.07 s.
+* **★ WP-D4 DONE — the survivor contrast (`lna/nf_contrast.py`).** 14 distinct
+  feasible designs re-judged unchanged: **tier-1 14/14, tier-2 (NF gated) 2/14.**
+  **wifi24 is solved at tier-2** — `seq0220` (novel *generated*: S11 −13.8 / S21 12.6 /
+  Idd 2.46 / **NF 2.43**, the first design here to clear all four gated constraints)
+  and the hand `ref24_tapped` reference (NF 2.00). Everything else dies: **dhruva by
+  +5.4…+8.6 dB**, gps-l1 by +2.2/+2.6, four more wifi24 by +0.26…+0.92.
+* **★ NEW HARNESS — two-port stability, free.** K / |Δ| / μ / μ_src at f0 and worst
+  in-band, derived from the S-matrix `sp` already computes (zero extra sim time),
+  advisory only. Validated in `lna/ref/check_stab.py` against a closed-form series-R
+  two-port (K = μ = 1 exactly, the boundary case) + unilateral / negative-resistance
+  goldens. **Verdict: Gates D1/D2 are NOT qualified by oscillation risk** — the dhruva
+  4-band winner is unconditionally stable on all four bands in-band (K_min 10.1–28.4)
+  *and* over 0.1–20 GHz (K_min 12.9–29.0). **But two feasible wifi24 sizings are
+  potentially unstable in-band**: `seq0009` curated-v1 (K_min **0.352**) and `seq0220`
+  polish-v1 (K_min 0.832) — and the same `seq0220` topology sized by curated ZOAF is
+  fine (K_min 4.08), i.e. **the min-margin polish walked it into a potentially
+  unstable region because stability is in no objective.**
+* **⚠ BUG FIXED (found by Track B, landed by Track A) — `size.polish` ignored the
+  device box.** It scaled by (1±step) with no clamp to `kind_ranges`, so
+  polish-derived points left the spec's declared limits. **6 of 19 feasible rows were
+  out-of-box.** Now clamped (incoming point too; a coordinate on a bound cannot step
+  out). Re-deriving the 5 non-Track-B rows: **all five return FEASIBLE and IN-BOX** —
+  no tier-1 claim lost. **One tier-2 claim did die**: wifi24 `seq0079` passed NF at
+  2.48 only on an out-of-box 18.25 nH inductor; in-box it reads **2.57 → FAIL**
+  (tier-2 3/14 → 2/14).
+* **Gate D3 push — NOT met, but the front moved a long way and prong (a) is settled.**
+  *(a) Trading the winner's 12 dB of gain slack for NF does not work*: NF-aware polish
+  on the rfb_cs3 family buys 2.7–4.3 dB of NF (dhruva-s 8.88→6.17, l1 9.95→5.64) and
+  **pays with the broadband match** (s11_max → −2.6 / −0.4), not with gain — the
+  feedback resistor that sets the match is the element that sets the noise.
+  *(b) Two generic textbook low-noise families added* (`gmb_cg_lna`, `nc_cgcs_lna`;
+  archetypes 135→148, 13 screen-passing, all `blind-v1`). **The broadband-match wall
+  for these was a BIASING DEFECT, not a topology limit**: CG gate tied to VDD (Vgs =
+  VDD, deep triode) and the aux amp's gate on a DC-grounded node (Vgs = 0, never
+  conducts). Undriven+bypassed CG gate (bias.py owns the current) + AC-coupled aux
+  gate took s11_max from ≈ −3 dB to **−19.7 dB**.
+  **Best measured dhruva-s candidate: `nccgcs_s1_tank` → s11_max −14.8 ✓ / S21 28.6 /
+  Idd 12.99 ✓ / NF 5.68, total viol 0.669** (vs the incumbent's 1.537 on NF alone).
+* **★★ TRACK B MET ITS GOAL — a *generated* dhruva-l1 tier-1 feasible.**
+  `ft_p5v6_nb_s1337/seq0192`, wl `20bca9a7c3a5f263`: **S11max −11.49 / S21 29.19 /
+  Idd 11.09**, replay-verified, in-box, matching none of the 148 archetypes or 41
+  corpus circuits. This is the "the pipeline designed it" claim Gates D1/D2 could not
+  make (those were an assistant-authored archetype + automated sizing). NF 9.63 dB —
+  tier-2 not met, ~3.8 dB of S21 slack left to trade. **The P5-v6 checkpoint itself
+  was REJECTED** under adopt-only-if-better (NDL@256 93 vs baseline 100); the design
+  stands anyway because it is replay-verified SPICE truth, not a model claim.
+
+### Gate state after this session
+
+| gate | state | number |
+|---|---|---|
+| D0 / D1 / D2 | MET (unchanged, tier-1) | 4-band family `rfbcs3_tank_cc21_bf0`, stability-clean |
+| D1 "generated" | **MET (Track B)** | `seq0192`: S11max −11.49 / S21 29.19 / Idd 11.09 |
+| **D3 (tier-2 NF)** | **NOT MET** | best dhruva-s viol **0.669** (`nccgcs_s1_tank`, NF 5.68 vs 3.5) |
+| wifi24 tier-2 | **MET** (not a numbered gate) | `seq0220` NF 2.43 + `ref24_tapped` NF 2.00 |
+| B1 wideband-sdr | still 0 | best `nccgcs_wb_s0`: S21 9.9, NF 5.42, viol 1.551 |
+
+### Known metric gaps / caveats to carry forward
+
+1. **NDL overstates novelty** (Track B): its novelty reference is the 41-circuit
+   corpus only, **not** the archetype set, so ~**51%** of screen-passing generator
+   samples are verbatim `templates.py` regenerations that NDL scores as novel. Fix =
+   extend the novelty reference to include the archetypes; until then treat NDL as an
+   upper bound.
+2. **Stability is advisory and frequency-only** — no process corners, no load pulling,
+   ideal-element behavioral ngspice with no package/layout parasitics.
+3. **One superseded out-of-box Track-B row remains** in the append-only store: filter
+   `provenance.how == "polish-r0"`; the good row is `how == "bounded-polish"` /
+   `in_box_verified: true`. ~200 Track-B rows carry `provenance.trackb`.
+4. `zoaf_cfg.nf_gated` separates the two label domains. **Every row written before
+   this session is implicitly `nf_gated: false` (tier-1).** Do not train or rank
+   across the two without conditioning on it.
+
+### Where to pick up (highest value first)
+
+1. **The Gate-D3 blocker is now NOISE ALONE, and probably a *search* failure rather
+   than a family limit.** `nc_cgcs` reads 5.68 dB where a noise-cancelling CG+CS
+   should reach ~2.5–3 dB, which says the sizer never lands on the cancellation locus
+   (it holds only at a specific gm/load ratio, and the blended feasibility-first
+   objective has no reason to sit there). **Next lever: a cancellation-aware start or
+   an explicit NF-only inner optimization stage — not more seeds.** Within the family
+   the measured trade is ~+0.75 dB NF per +7 dB gain, so the last 1.4 dB of gain is
+   cheap; the 2.2 dB of noise is the whole job.
+2. **Put stability in the objective (or at least in the polish guard).** It is
+   measured and free now, and polish is demonstrably capable of walking a design into
+   K < 1. Cheapest useful version: refuse a polish step that takes K_min below 1.
+3. **Re-run the two K < 1 wifi24 designs** (`seq0009`, `seq0220`) through curated
+   sizing and record whether the tier-2 wifi24 claim survives a stability guard —
+   `seq0220`'s tier-2 PASS is the curated row (K_min 4.08), so it should, but say it
+   with a number.
+4. **Decide `device_budget`.** [3,16] is not currently binding but is one gain stage
+   away from being so for every low-noise family. If it is raised, justify it from
+   device counts in real published LNAs, exactly the way `[3,12] → [3,16]` was
+   justified by corpus calibration — do not raise it to close a gate.
+5. **Feed the D3 rows back to the generator.** There are now NF-gated labels
+   (recipe `blind-v1-nf`, `zoaf_cfg.nf_gated: true`) and two new blind-v1 low-noise
+   families in `templates.py`; `emit_winners` + a P5-v7 fine-tune on the NF-gated
+   domain is the natural expert-iteration step.
+
+### Tools added this session
+
+```bash
+python lna/relabel_nf.py --audit|--run        # NF label-domain migration (replay-fenced)
+python lna/nf_contrast.py [--md]              # NF-gate survivor contrast + in-box audit
+python lna/ref/check_stab.py                  # stability harness validation + winner audit
+python lna/d3_campaign.py --spec dhruva-s --cls nb --seeds 2 --polish   # NF-gated labeling
+python lna/trackb_g4.py                       # Track B's generated-candidate driver
+LNA_NF_GATE=0 python ...                      # session-wide escape hatch to tier-1 gating
+```
+
+
 **⚠ BLIND PROTOCOL is active — read plans2/08 §"Blind protocol" before touching
 templates.py.** No paper circuit content anywhere; new families only from the
 existing archetype set or generic textbook blocks chosen *without* the paper,

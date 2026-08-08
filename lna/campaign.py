@@ -190,13 +190,39 @@ def _ref_sizing(deck):
 
 
 # ------------------------------------------------------------------- report
-def _sigma_from_repeats():
-    """sigma(S21) over repeat-probe rows sharing a (wl_hash, spec) key."""
+def sigma_key(row):
+    """The label-domain key a repeat-probe sigma may be averaged over.
+
+    ⚠ This used to be just `(wl_hash, spec)`, and that was WRONG -- it pooled rows
+    produced by *different recipes* (candidate-v1 / curated-v1 / polish-v1 /
+    blind-v1 / the p5v5-p5v6 generator scans) and by *different NF gating*, which
+    are deliberate label-domain differences, not seed noise. 81 of the 89 multi-row
+    keys in the store are mixed that way, so the reported "sigma drift"
+    0.32 -> 1.02 -> 1.27 was measuring recipe churn as if it were label noise.
+    Conditioning on (recipe, nf_gated) is the same rule 01-DATA already applies to
+    training: never pool two label domains silently."""
+    z = row.get("zoaf_cfg") or {}
+    return (row.get("wl_hash"), row.get("spec"), z.get("recipe"),
+            bool(z.get("nf_gated")))
+
+
+def _sigma_from_repeats(recipe=None, rows=None, snapshot=None):
+    """sigma(S21) over rows sharing a full label-domain key (see `sigma_key`).
+
+    `recipe` restricts to one recipe -- e.g. `candidate-v1` for the historical
+    single-seed number, `candidate-v1+bo3` for the best-of-3 protocol (06-LAST-MILE
+    §4). `snapshot` pins the population: an eval run against a snapshot must use
+    the sigma measured *inside* that snapshot, or its rank-hinge margin (and hence
+    its numbers) drift every time the store grows. Returns (mean sigma, n keys)."""
     by_key = defaultdict(list)
-    for r in ds.load("topo_labels"):
+    for r in (ds.load("topo_labels", snapshot=snapshot) if rows is None else rows):
         m = r.get("metrics") or {}
-        if m.get("s21_db") is not None:
-            by_key[(r.get("wl_hash"), r.get("spec"))].append(m["s21_db"])
+        if m.get("s21_db") is None:
+            continue
+        k = sigma_key(r)
+        if recipe is not None and k[2] != recipe:
+            continue
+        by_key[k].append(m["s21_db"])
     sigmas = [statistics.pstdev(v) for v in by_key.values() if len(v) >= 2]
     return (statistics.mean(sigmas), len(sigmas)) if sigmas else (None, 0)
 
@@ -211,7 +237,8 @@ def write_report(tasks, results, spec_name):
         if res and res.get("metrics"):
             s[1] += 1
             s[2] += int(res.get("feasible"))
-    sigma, n_sig = _sigma_from_repeats()
+    sigma, n_sig = _sigma_from_repeats(recipe="candidate-v1")
+    sigma_bo, n_bo = _sigma_from_repeats(recipe="candidate-v1+bo3")
     total = ds.load("topo_labels")
     lines = [f"# campaign {date.today().isoformat()} — spec {spec_name}", "",
              f"store now: **{len(total)} L2 rows**, "
@@ -228,14 +255,123 @@ def write_report(tasks, results, spec_name):
     if not os.path.exists(os.path.join(TEMPLATE_DIR, "meta.json")):
         notes.insert(0, "stratum T thin (no templates.py output yet)")
     lines += ["",
-              f"repeat-probe sigma(S21): "
-              + (f"**{sigma:.3f} dB** over {n_sig} keys "
-                 f"(expect ≲0.5; larger => label budget too small)"
+              "repeat-probe sigma(S21), per label domain (recipes are never "
+              "pooled -- see `sigma_key`):",
+              f"- single-seed `candidate-v1`: "
+              + (f"**{sigma:.3f} dB** over {n_sig} keys"
                  if sigma is not None else "not enough repeats yet"),
+              f"- best-of-3 `candidate-v1+bo3`: "
+              + (f"**{sigma_bo:.3f} dB** over {n_bo} keys (06-LAST-MILE §4 target "
+                 "≲0.5)" if sigma_bo is not None else "not measured yet"),
               "", "notes: " + "; ".join(notes) + "."]
     with open(path, "w", encoding="utf-8", newline="\n") as fh:
         fh.write("\n".join(lines) + "\n")
     return path, sigma, n_sig
+
+
+# ------------------------------------------------------- sigma probe (06 §4)
+def _probe_keys(spec_name, arms=("corpus", "campaign-R")):
+    """The repeat-probe population: {wl_hash: corpus index} for keys that already
+    carry >=2 single-seed `candidate-v1` labels, i.e. the exact keys the historical
+    sigma(S21) was measured over."""
+    seen = {}
+    for r in ds.load("topo_labels"):
+        p = r.get("provenance") or {}
+        z = r.get("zoaf_cfg") or {}
+        if (r.get("spec") == spec_name and p.get("source_arm") in arms
+                and p.get("index") is not None and z.get("recipe") == "candidate-v1"):
+            seen.setdefault(r["wl_hash"], p["index"])
+    return seen
+
+
+def _gen_probe_keys(spec_name, limit=None):
+    """The *generated* probe population: {wl_hash: token file} for the near-feasible
+    `campaign-G` rows, ranked by how close they got.
+
+    The corpus keys measure label noise on circuits the pipeline did not design;
+    these measure it where it actually costs -- the generated pool is the critic's
+    source-shift test set and search's candidate stream, so its label noise caps
+    every rho reported against it."""
+    from spec import Spec
+    sp = Spec.load(spec_name)
+    best = {}
+    for r in ds.load("topo_labels"):
+        p, z = r.get("provenance") or {}, r.get("zoaf_cfg") or {}
+        tf, m = p.get("token_file"), r.get("metrics")
+        if (r.get("spec") != spec_name or p.get("source_arm") != "campaign-G"
+                or not tf or not m or z.get("recipe") != "candidate-v1"):
+            continue
+        feas, viol = sp.feasible(m)
+        v = sum(viol.values()) if viol else 0.0
+        if r["wl_hash"] not in best or v < best[r["wl_hash"]][0]:
+            best[r["wl_hash"]] = (v, os.path.join(HERE, tf))
+    order = sorted(best.items(), key=lambda kv: kv[1][0])[:limit]
+    return {h: f for h, (_v, f) in order}
+
+
+def run_sigma_probe(spec_name="wifi24", k=3, reps=2, seed0=11, limit=None,
+                    inductor_q=12, log=True, generated=False):
+    """Measure sigma(S21) under the best-of-k label definition (06-LAST-MILE §4).
+
+    For each repeat-probe key, run `reps` INDEPENDENT best-of-k labels on disjoint
+    seed blocks (k*reps sizings). Two numbers come out of the same sims:
+
+      sigma_single -- spread of all k*reps individual runs (the old label noise,
+                      now measured on many more samples per key), and
+      sigma_bo{k}  -- spread of the `reps` best-of-k labels: the noise the critic
+                      actually sees once best-of-k *is* the label.
+
+    Every best-of-k label is appended to the store (repeat-probe rows, recipe
+    `candidate-v1+bo{k}`), so `_sigma_from_repeats('candidate-v1+bo3')` recomputes
+    this from the store without re-simulating."""
+    sys.path.insert(0, HERE)
+    import size
+    from bias import topo_from_index
+    from topology import Topology, parse_arrow_file
+    spec = size._spec_for_sizing(spec_name)
+    if generated:
+        items = list(_gen_probe_keys(spec_name, limit=limit).items())
+    else:
+        items = sorted(_probe_keys(spec_name).items(), key=lambda kv: kv[1])[:limit]
+    print(f"sigma probe: spec={spec_name} stratum={'G' if generated else 'corpus'} "
+          f"keys={len(items)} best-of-{k} x {reps} reps = {len(items) * k * reps} "
+          f"sizings (nf_gated={size.nf_is_gated(spec)})")
+    per_key = []
+    for h, idx in items:
+        topo = (Topology(parse_arrow_file(idx)) if generated
+                else topo_from_index(idx))
+        labels, allruns = [], []
+        for rep in range(reps):
+            seeds = tuple(seed0 + rep * k + i for i in range(k))
+            prov = {"source_arm": "sigma-probe", "inductor_q": inductor_q,
+                    "rep": rep, "stratum": "G" if generated else "corpus"}
+            prov["token_file" if generated else "index"] = (
+                os.path.relpath(idx, HERE).replace("\\", "/") if generated else idx)
+            res = size.size_best_of_k(
+                topo, spec, seeds=seeds, inductor_q=inductor_q, log=log,
+                repeat_probe=True, provenance=prov)
+            if not res:
+                continue
+            labels.append(res["metrics"]["s21_db"])
+            allruns += res["seed_metrics"].get("s21_db", [])
+        if len(allruns) >= 2:
+            s_single = statistics.pstdev(allruns)
+            s_bok = statistics.pstdev(labels) if len(labels) >= 2 else None
+            per_key.append({"wl_hash": h, "index": str(idx), "sigma_single": s_single,
+                            "sigma_bok": s_bok, "labels": labels, "runs": allruns})
+            print(f"  {os.path.basename(str(idx)):>14}: single sd {s_single:5.3f} | bo{k} sd "
+                  + (f"{s_bok:5.3f}" if s_bok is not None else "  n/a ")
+                  + f" | labels {[round(x, 2) for x in labels]}")
+    if not per_key:
+        print("no keys probed")
+        return None
+    ms = statistics.mean([p["sigma_single"] for p in per_key])
+    bo = [p["sigma_bok"] for p in per_key if p["sigma_bok"] is not None]
+    mb = statistics.mean(bo) if bo else None
+    print(f"\nsigma(S21) over {len(per_key)} keys: single-seed {ms:.3f} dB"
+          + (f"  ->  best-of-{k} {mb:.3f} dB" if mb is not None else ""))
+    return {"spec": spec_name, "k": k, "reps": reps, "n_keys": len(per_key),
+            "sigma_single": ms, "sigma_bok": mb, "per_key": per_key}
 
 
 # ------------------------------------------------------------------------ CLI
@@ -298,9 +434,28 @@ def main():
                     help="stratum-G quota for one run (overnight: e.g. 300)")
     ap.add_argument("--tmpl-quota", type=int,
                     help="stratum-T quota for one run (label many templates)")
+    ap.add_argument("--sigma-probe", action="store_true",
+                    help="best-of-k label-noise probe (06-LAST-MILE §4)")
+    ap.add_argument("--k", type=int, default=3, help="best-of-k (default 3)")
+    ap.add_argument("--reps", type=int, default=2,
+                    help="independent best-of-k labels per key (default 2)")
+    ap.add_argument("--seed0", type=int, default=11,
+                    help="first seed of the disjoint seed blocks (default 11)")
+    ap.add_argument("--gen", action="store_true",
+                    help="probe the GENERATED stratum instead of the corpus keys")
+    ap.add_argument("--out", help="write the sigma-probe result JSON here")
     args = ap.parse_args()
+    if args.sigma_probe:
+        res = run_sigma_probe(args.spec, k=args.k, reps=args.reps,
+                              seed0=args.seed0, limit=args.limit,
+                              generated=args.gen)
+        if res and args.out:
+            with open(args.out, "w", encoding="utf-8") as fh:
+                json.dump(res, fh, indent=1)
+            print(f"wrote {args.out}")
+        return 0 if res else 1
     if not (args.night or args.dry_run):
-        ap.error("give --night or --dry-run")
+        ap.error("give --night, --dry-run or --sigma-probe")
     return run_night(args.spec, limit=args.limit, dry_run=args.dry_run,
                      gen_glob=args.gen_glob, gen_quota=args.gen_quota,
                      tmpl_quota=args.tmpl_quota)

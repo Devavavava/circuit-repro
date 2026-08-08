@@ -548,7 +548,7 @@ def size_match_first(topo, spec, seed=1, inductor_q=12, budget=8,
 
 def size_topology(topo, spec, seed=1, n_candidates=6, sgd_iters=6, cgd_iters=1,
                   provenance=None, log=True, repeat_probe=False, inductor_q=None,
-                  curate=False, prior_params=None):
+                  curate=False, prior_params=None, enrich_nf=None):
     """Bias-insert, then ZOAF-size a generated topology against `spec`.
 
     With `log=True` (default for CLI paths) the completed sizing run is appended
@@ -578,7 +578,9 @@ def size_topology(topo, spec, seed=1, n_candidates=6, sgd_iters=6, cgd_iters=1,
                                          n_candidates=n_candidates,
                                          sgd_iters=sgd_iters, cgd_iters=cgd_iters)
     m = evaluate(best_x)
-    if log:
+    # `enrich_nf` defaults to `log` (unchanged behaviour); pass True to get the
+    # physical NF on a throwaway run too (benchmark cells, best-of-k seeds).
+    if log if enrich_nf is None else enrich_nf:
         m = _enrich_nf(body, decode(best_x), spec, m)   # physical NF for the row
     feas, viol = (spec.feasible(m) if m is not None else (False, None))
     if log:
@@ -592,6 +594,76 @@ def size_topology(topo, spec, seed=1, n_candidates=6, sgd_iters=6, cgd_iters=1,
     return {"metrics": m, "feasible": feas, "viol": viol, "n_evals": n_evals,
             "best_obj": best_obj, "n_params": len(names),
             "best_params": decode(best_x)}   # so callers can polish/curate from here
+
+
+def size_best_of_k(topo, spec, seeds=(1, 2, 3), provenance=None, log=True,
+                   repeat_probe=False, **kw):
+    """Best-of-k ZOAF label (06-LAST-MILE §4) -- the low-noise label definition.
+
+    Single-seed all-free ZOAF is multimodal: the same (topology, spec) resized with
+    a fresh seed lands in a different basin, which is the whole of the repeat-probe
+    sigma(S21). Best-of-k runs k seeds and keeps the run with the best
+    feasibility-first objective (`spec.objective`, minimised), which is both a
+    *better* label (never worse than single-seed) and a *quieter* one. Measured on
+    the 19 wifi24 repeat-probe keys (FINDINGS §14.1): sigma(S21) **1.478 -> 0.726
+    dB** for k=3, i.e. 2.0x quieter for 3x the sim cost -- short of 06-LAST-MILE's
+    <=0.5 dB bar, so k=5 or a warm start is the next lever if that bar must hold.
+
+    The logged row carries:
+      * `zoaf_cfg.recipe` bumped with `+bo3` (k=3) / `+bo<k>` -- best-of-k and
+        single-seed labels are DIFFERENT label domains and must never be pooled
+        silently (01-DATA rule, same as curated-v1 vs candidate-v1);
+      * `zoaf_cfg.seeds` -- every seed tried, so the run is reproducible;
+      * `label_sigma` -- the per-key seed spread (population stdev over the k runs)
+        of each metric, so training can downweight by 1/sigma or drop spread>1 dB
+        rows without re-simulating.
+
+    Returns the winning `size_topology` result dict, with `label_sigma`,
+    `seed_metrics` and `winning_seed` added; None if every seed failed.
+    """
+    import statistics
+    from novelty import wl_features
+    runs = []
+    for s in seeds:
+        try:
+            r = size_topology(topo, spec, seed=s, log=False, enrich_nf=True, **kw)
+        except Exception as e:
+            print(f"  [bo{len(seeds)}] seed {s} FAILED: {e}")
+            continue
+        if r and r.get("metrics"):
+            runs.append((s, r))
+    if not runs:
+        return None
+    # feasibility-first: spec.objective is minimised (>=1 infeasible, <0 feasible)
+    seed_best, best = min(runs, key=lambda sr: spec.objective(sr[1]["metrics"]))
+    spread, seed_metrics = {}, {}
+    for name in ("s11_db", "s11_max_db", "s21_db", "idd_ma", "nf_db"):
+        vals = [r["metrics"].get(name) for _, r in runs]
+        vals = [v for v in vals if v is not None]
+        seed_metrics[name] = vals
+        if len(vals) >= 2:
+            spread[name] = statistics.pstdev(vals)
+    best = dict(best, label_sigma=spread, seed_metrics=seed_metrics,
+                winning_seed=seed_best, n_seeds=len(runs))
+    if log:
+        cfg = _zoaf_cfg(seed_best, kw.get("n_candidates", 6), kw.get("sgd_iters", 6),
+                        kw.get("cgd_iters", 1), f"candidate-v1+bo{len(seeds)}",
+                        inductor_q=kw.get("inductor_q"), spec=spec)
+        cfg["seeds"] = list(seeds)
+        # n_evals is the label's true SPICE cost: every seed, not just the winner
+        n_ev = sum(r["n_evals"] for _, r in runs)
+        try:
+            row = ds.row_l2(spec, best["metrics"], best["feasible"], n_ev,
+                            best_x=None, best_params=best["best_params"],
+                            best_obj=best.get("best_obj"), topo=topo,
+                            wl_hash=wl_features(topo)[0], provenance=provenance,
+                            zoaf_cfg=cfg)
+            row["label_sigma"] = spread
+            status, _ = ds.append_l2(row, repeat_probe=repeat_probe)
+            print(f"  [log] L2 {status} (bo{len(seeds)}, winner seed {seed_best})")
+        except Exception as e:                   # logging is additive, never fatal
+            print(f"  [log] WARN: bo{len(seeds)} logging failed: {e}")
+    return best
 
 
 def _nf_gate_default():

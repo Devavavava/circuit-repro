@@ -31,9 +31,10 @@ def _supply_name(body):
     return m.group(1) if m else "Vsup"
 
 
-def control_block(f0, f_lo, f_hi, supply, noise_src="Vp1", noise_out="p2"):
-    nf_idx = round((f0 - f_lo) / (f_hi - f_lo) * 50) if f_hi > f_lo else 0
-    nf_idx = max(0, min(50, nf_idx))
+def control_block(f0, f_lo, f_hi, supply):
+    """op + Idd + S-parameters only. NF is NOT taken from this (port-driven) deck:
+    inoise referred to the S-param port is unphysical with gain (finding #7). The
+    trusted NF comes from the separate series-Rs deck (measure_nf)."""
     return "\n".join([
         ".control", "op",
         f"let idd = -i({supply})", "print idd",
@@ -45,10 +46,6 @@ def control_block(f0, f_lo, f_hi, supply, noise_src="Vp1", noise_out="p2"):
         f"meas sp m_s21_f0 find s21db at={f0:g}",
         f"meas sp m_s21_min min s21db from={f_lo:g} to={f_hi:g}",
         f"meas sp m_s21_max max s21db from={f_lo:g} to={f_hi:g}",
-        f"noise v({noise_out}) {noise_src} lin 51 {f_lo:g} {f_hi:g}",
-        "setplot noise1",
-        f"let nfv = 10*log10((inoise_spectrum*inoise_spectrum)/{K4TRS:.6e})",
-        f"let m_nf_f0 = nfv[{nf_idx}]", "print m_nf_f0",
         ".endc", ".end"])
 
 

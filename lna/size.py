@@ -328,7 +328,30 @@ def polish(topo, spec, prior_params, budget=80, inductor_q=12, exclude=()):
             return -1e9, m
         return (min(vals) if vals else -1e9), m
 
+    # BOX CLAMP (bug found by Track B, 2026-08-08). This ascent scales each value by
+    # (1 +/- step); before the clamp it never consulted kind_ranges, so polish could
+    # -- and did -- walk parameters OUTSIDE the spec's declared device box (a
+    # dhruva-l1 candidate reached L = 18.1 nH against topology.l_max = 15 nH). ZOAF
+    # searches inside the box, so only polish-derived points were ever affected, and
+    # any "feasible" it produced out-of-box was an overstated claim. Every trial is
+    # now clamped, the incoming point is clamped before the first evaluation, and a
+    # coordinate already sitting on a bound cannot step further out.
+    rng = kind_ranges(spec)
+
+    def clamp(name, val):
+        kind = sizable.get(name)
+        if kind not in rng:
+            return val
+        lo, hi = rng[kind][0], rng[kind][1]
+        return min(max(val, lo), hi)
+
     params = {k: v for k, v in (prior_params or {}).items()}
+    for nm in list(sizable):
+        if nm in params:
+            try:
+                params[nm] = f"{clamp(nm, float(params[nm])):.6g}"
+            except (TypeError, ValueError):
+                pass
     best_mm, best_m = min_margin(params)
     n, step = 1, 0.15
     while n < budget and step > 0.02:
@@ -341,8 +364,11 @@ def polish(topo, spec, prior_params, budget=80, inductor_q=12, exclude=()):
             except (TypeError, ValueError):
                 continue
             for factor in (1 - step, 1 + step):
+                cand = clamp(name, base * factor)
+                if abs(cand - base) <= 1e-18:     # already pinned at a bound
+                    continue
                 trial = dict(params)
-                trial[name] = f"{base * factor:.6g}"
+                trial[name] = f"{cand:.6g}"
                 mm, m = min_margin(trial)
                 n += 1
                 if mm > best_mm:

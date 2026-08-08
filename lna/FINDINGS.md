@@ -1051,8 +1051,28 @@ copy it.
   (current single-stage families are nowhere near broadband-match + ≥25 dB gain,
   exactly the hard pair 08 §5 flags). `benchmark.py` gains `--seeds`/`--budget`
   knobs and grows four `dhruva-*` columns as the extended scoreboard.
-* **Next (WP-D2, not yet run):** label the archetype set vs `dhruva-l1`
-  (+ wideband-sdr — same S11-over-band constraint class), generalize
-  `emit_winners` to multi-spec, fine-tune **P5-v4** (adopt-only-if-better), then
-  curated-size polish-first for **Gate D1** (≥1 feasible dhruva-l1). NF harness
-  (WP-D1) remains priority-1 and gates tier-2.
+* **WP-D2 in progress — the s11_max wall and how it broke.**
+  * `emit_winners` generalized to **multi-spec, correct-frequency** (per-spec
+    selection from rows sized vs that spec; class token = band class). Committed.
+  * Labeled the existing archetype set vs `dhruva-l1` (recipe `blind-v1`): **20
+    single-stage rows, 0 feasible, all binding on `s11_max ≈ 0`** — the input match
+    holds at *no* frequency across 1.1–2.5 GHz. Diagnosis: the broadband-match
+    structure lives only in the inductorless **wb** channel, but `dhruva-l1`
+    (inductor-required) samples **nb** — so no nb topology carried both match and
+    tuned gain.
+  * **Acted (blind rule 2): added a generic textbook `rfb_cs` family** — stage-1
+    resistive shunt-feedback (S11 held over band) → stage-2 tuned/tapped CS (gain
+    peaked at f0). 8 variants, archetypes 118→126, all `nb`, tagged `blind-v1`.
+    Chosen from the *measured* failure mode, not from any paper.
+  * **★ The wall broke.** Hand-sizing rfb_cs vs `dhruva-l1`:
+    `rfbcs_tank_cc1_bf0` → **s11_max −8.9 dB** (near the −10 target, vs ≈0 for every
+    single-stage family); `rfbcs_tank_cc0_bf1` → **S21 27.0 dB ✓ + Idd 9.2 mA ✓**,
+    only s11_max (−5.9) short. So the RFB input can hold the band to ~−9 and the
+    tuned+buffered stage can exceed 27 dB — the pieces exist; a single *fixed*
+    archetype trades match against gain (structural), so co-closing all three is a
+    generator job (the gps-l1 lesson: the generator supplies the co-sizeable hybrid
+    the hand template can't).
+  * **Now building P5-v4:** `templates_train` regenerated with the 126-archetype
+    set (rfb_cs in), multi-spec winners incl. `dhruva-l1` near-feasibles, warm
+    fine-tune → generate → curated-size polish-first for **Gate D1**. NF harness
+    (WP-D1) remains priority-1, gates tier-2.

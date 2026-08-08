@@ -1072,7 +1072,31 @@ copy it.
     archetype trades match against gain (structural), so co-closing all three is a
     generator job (the gps-l1 lesson: the generator supplies the co-sizeable hybrid
     the hand template can't).
-  * **Now building P5-v4:** `templates_train` regenerated with the 126-archetype
-    set (rfb_cs in), multi-spec winners incl. `dhruva-l1` near-feasibles, warm
-    fine-tune → generate → curated-size polish-first for **Gate D1**. NF harness
-    (WP-D1) remains priority-1, gates tier-2.
+  * **Generator route (P5-v4, P5-v5):** re-fine-tuned on the rfb_cs-bearing
+    templates + multi-spec winners; pools carried 58–59 rfb-like candidates.
+    Curated-sizing the pools reached best viol 0.318 (single-seed) / the archetype
+    reached **viol 0.065** under heavy multi-seed (`rfbcs_tapped_s2_bf0`: s11_max
+    **−10.2 ✓**, S21 23.8, only **1.6 dB gain short**).
+  * **The remaining barrier, precisely characterized.** A stage-1 cascode
+    (`cascode1`) lifted gain but *wrecked* the match (it sits inside the feedback
+    loop); moving it to **stage 2** (`cascode2`) decoupled them (match −10.2 with
+    gain 23.8). But across **~135 archetype configs + P5-v4/v5 generated pools +
+    hundreds of multi-seed sizings**, the 2-stage rfb_cs Pareto front came within
+    ~1.6 dB of the feasible corner and would not cross: forcing ONE tuned stage to
+    ~20 dB loaded the stage-1 feedback match. (match ≤ −10 ⟹ gain ≤ ~24; gain ≥
+    25.4 ⟹ match ≥ ~−6.)
+  * **★★ Gate D1 MET — feasible dhruva-l1.** The fix implied by the barrier:
+    **split the gain over two tuned stages** so neither overloads the stage-1
+    match. Added generic blind-v1 **`rfb_cs3`** (rfb input → tuned CS → tuned CS,
+    5 screen-passing variants, archetypes 130→135). `rfbcs3_tank_cc21_bf0` sizes to
+    **s11_max −11.2 dB ✓ / S21 37.8 dB ✓ / Idd 12.93 mA ✓ — feasible** (wl
+    `3ebaf08f9`, recipe `blind-v1`). The 3-stage headroom cleared 25.4 dB with room
+    to spare while the resistive-feedback input held the 1.1–2.5 GHz match. **The
+    blind pipeline reached the paper's tier-1 L1 numbers without any paper-derived
+    circuit knowledge** — the whole point of 08-DHRUVA. (Idd 12.93 is tight vs 13;
+    the 37.8 dB gain has ~12 dB of slack to trade back for current margin.)
+  * **Caveats & next:** feasibility is on the gated tier-1 constraints
+    (S11-over-band / S21 / Idd); NF is advisory/off (tier-2, WP-D1). Gate D2 (one
+    family feasible on all four bands, warm-started from this L1 solution) and a
+    *generated* (not archetype) dhruva-l1 feasible (P5-v6 on the rfb_cs3 family) are
+    the natural follow-ups.

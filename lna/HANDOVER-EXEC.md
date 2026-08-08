@@ -13,7 +13,7 @@ exactly where to resume. Read `WORKLOG.md` (entries R1/R2 are mine) and
 
 ## Session 2 — Phase 2 Stages 0–3 + last-mile + **★ STAGE 3 PHASE EXIT MET** (curve 967→367→**187**, 6 feasible wifi24 LNAs) + **★★ WP-BROADEN: Gate B1 gps-l1 CLOSED** (P5-v3 → 2 novel feasible gps-l1 LNAs; NDL 73→100 + new wb channel). Remaining: wideband-sdr + the NF harness.
 
-## Session 3 — **WP-DHRUVA (blind protocol)** — paper-target spec ladder (plans2/08-DHRUVA-GOAL.md)
+## Session 3 — **WP-DHRUVA (blind protocol)** — paper-target spec ladder (plans2/08-DHRUVA-GOAL.md) — **★ Gate D0 + ★★ Gate D1 MET** (feasible dhruva-l1 via blind-v1 3-stage rfb_cs3: S11≤−10 over 1.1–2.5 GHz, S21 37.8, Idd 12.93)
 
 **⚠ BLIND PROTOCOL is active — read plans2/08 §"Blind protocol" before touching
 templates.py.** No paper circuit content anywhere; new families only from the
@@ -29,16 +29,24 @@ unblinding is the user's call.
   point: `seq0046` hits **S21 23.7 dB on dhruva-l1** but f0 S11 ≈ −0.5 — gain
   alone gets close, the broadband match is the wall (08 §5). FINDINGS §12 logs the
   protocol + D0.
-- **Next — WP-D2 → Gate D1 (≥1 feasible dhruva-l1), the multi-day lift, NOT yet
-  started:** (1) label the existing archetype set vs `dhruva-l1` (+ `wideband-sdr`,
-  same over-band-S11 class) as stratum-T, recipe `blind-v1`; (2) **generalize
-  `emit_winners` to multi-spec** (HANDOVER pri-3) — note the honest subtlety: a
-  store row sized at wifi24's 2.44 GHz can't be re-scored under dhruva-l1's 1.575
-  GHz objective, so winner selection must key on the row's *own* spec, not re-score
-  cross-frequency; (3) fine-tune **P5-v4** (adopt-only-if-better: NDL@256 ≥ v3 +
-  tripwires; σ best-of-3 relabel before any critic retrain); (4) curated-size the
-  generated pool polish-first. Then WP-D3 (four-band pass → Gate D2) and
-  WP-D1 NF harness (priority-1, gates tier-2 → Gate D3).
+- **★★ Gate D1 MET (committed, pushed) — feasible dhruva-l1.** The arc: labeled
+  the archetype set vs `dhruva-l1` (all single-stage bind on `s11_max≈0`, no
+  broadband match) → added generic blind-v1 **`rfb_cs`** (rfb input + tuned stage:
+  broke the match wall, s11_max→−10 and gain→27 *separately*) → **`cascode2`**
+  (stage-2 cascode decoupled match/gain, viol 0.065, 1.6 dB short) → **`rfb_cs3`**
+  (rfb → tuned → tuned; gain headroom). **`rfbcs3_tank_cc21_bf0` is feasible:
+  s11_max −11.2 / S21 37.8 / Idd 12.93** (wl `3ebaf08f9`, recipe `blind-v1`).
+  `emit_winners` generalized to multi-spec; P5-v4/v5 fine-tuned (NDL 89/84, rfb-like
+  pools) but the archetype route closed it first (generator pools reached viol
+  0.318; the co-optimum needs multi-seed heavy sizing). **Blind protocol honored
+  throughout — no paper circuit content anywhere.**
+- **Next:** (1) a *generated* dhruva-l1 feasible — re-fine-tune **P5-v6** on the
+  rfb_cs3-bearing 135-archetype set + winners (now incl. the feasible), sample,
+  curated-size (multi-seed heavy) — for the fuller "pipeline designed it" claim;
+  (2) **WP-D3 / Gate D2** — warm-start curated sizing from the L1 solution against
+  dhruva-l5/l2/s (one family, all four bands); (3) **WP-D1 NF harness** (priority-1,
+  gates tier-2 → Gate D3). Idd 12.93 is tight vs 13; 37.8 dB gain has ~12 dB slack
+  to trade for current margin.
 
 **New roadmap:** `.claude/worktrees/lna-plans/lna/plans2/` (start at
 `00-OVERVIEW.md`) — the generate→size pipeline is now feature-complete; Phase 2

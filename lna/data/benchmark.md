@@ -11,7 +11,12 @@
 > point: `seq0046` reaches **S21 23.7 dB on dhruva-l1** and 24.1 on dhruva-s (near
 > the gain targets) yet its f0 S11 is ≈ −0.5 — **gain alone gets close; the
 > broadband match is the wall**, exactly the hard match+gain pair 08 §5 flags. This
-> is the blind baseline; closing it is a generator job (WP-D2 → Gate D1).
+> is the blind D0 baseline. **★★ Gate D1 MET:** the blind-v1 `rfb_cs3` family
+> (3-stage: resistive-feedback input → tuned → tuned) sizes to a **feasible
+> dhruva-l1** — `rfbcs3_tank_cc21_bf0`: s11_max −11.2 (≤−10 over 1.1–2.5 GHz),
+> **S21 37.8 dB**, Idd 12.93 mA (recipe `blind-v1`). Splitting gain over two tuned
+> stages clears ≥25 dB while the feedback input holds the match — the exact pair
+> 08 §5 flagged. See FINDINGS §12.
 >
 > **Read caveats:** (1) this run used a *lean* budget (`seeds=1, budget=5,5,1`) to
 > produce the D0 rows quickly — **wifi24 shows 4/6 here vs 6/6 at full budget**

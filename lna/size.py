@@ -18,9 +18,13 @@ encoding, and ZOAF's budget at once on a circuit whose answer is known.
 
     python lna/size.py --anchor            # re-derive the stage-B reference vs wifi24
 
-NF is treated as `unsupported` here (the port-source noise reference is unreliable
-with gain -- WORKLOG R3); the sizer gates on S11 / S21 / Idd, which extract.py
-measures solidly. Enable finite inductor Q in the deck for physical inductors.
+NF: as of WP-D1 the sizer GATES nf_db whenever the spec asks it to (see
+`_spec_for_sizing` / `nf_is_gated`). The measurement is the golden-validated
+series-Rs one (`extract.measure_nf`), taken inside the loop -- one extra ~0.07 s
+ngspice call per evaluation -- because a supported-but-missing metric counts as
+fully violated and would flatten the objective. Everything logged BEFORE that is
+a tier-1 (S11/S21/Idd) claim; `zoaf_cfg.nf_gated` separates the two label
+domains. Enable finite inductor Q in the deck for physical inductors.
 """
 import argparse
 import math
@@ -56,6 +60,29 @@ def kind_ranges(spec):
     }
 
 
+def nf_is_gated(spec):
+    """Does this spec gate nf_db as a hard constraint? (WP-D1 step 4.)
+
+    When it does, NF must be measured INSIDE the sizing loop, not enriched once at
+    the end: spec.feasible() counts a missing supported metric as fully violated,
+    so an unmeasured NF would make every point infeasible and flatten the
+    objective. Costs one extra ngspice call per evaluation (~0.07 s, same order as
+    the op/sp call)."""
+    c = spec.constraints.get("nf_db")
+    return bool(c) and c.get("status") != "unsupported"
+
+
+def eval_metrics(body, params, spec, nf_gated=None):
+    """One full L2 evaluation: op/sp/stability, plus the series-Rs NF when gated."""
+    m = E.run_and_extract(body, params, spec)
+    if m is None:
+        return None
+    if nf_is_gated(spec) if nf_gated is None else nf_gated:
+        nf = E.measure_nf(body, params, spec)
+        m = dict(m, nf_db=nf, nf_method="series_rs" if nf is not None else None)
+    return m
+
+
 def make_objective(body, spec, sizable, fixed, points=None):
     """sizable: {param_name: kind}; fixed: {param_name: literal}. Returns
     (objective_func for ZOAF, names, decode(x)->metrics helper).
@@ -66,6 +93,7 @@ def make_objective(body, spec, sizable, fixed, points=None):
     byte-for-byte unchanged (the additive-hook invariant)."""
     names = list(sizable)
     ranges = kind_ranges(spec)
+    nf_gated = nf_is_gated(spec)
 
     def decode(x):
         params = dict(fixed)
@@ -78,7 +106,7 @@ def make_objective(body, spec, sizable, fixed, points=None):
         return params
 
     def evaluate(x):
-        return E.run_and_extract(body, decode(x), spec)
+        return eval_metrics(body, decode(x), spec, nf_gated=nf_gated)
 
     def objective_func(x):
         m = evaluate(x)
@@ -134,13 +162,19 @@ def classify_params(nl):
 
 
 def _zoaf_cfg(seed, n_candidates, sgd_iters, cgd_iters, recipe="anchor-v1",
-             inductor_q=None):
+             inductor_q=None, spec=None):
     """The fixed label budget (01-DATA §5): labels are only comparable at equal
     ZOAF budget, so the knobs that define it are stamped on every row. inductor_q
-    is a deck/harness setting that changes the metrics, so it is stamped too."""
-    return {"recipe": recipe, "seed": seed, "n_candidates": n_candidates,
-            "n_starts": 4, "sgd_iters": sgd_iters, "cgd_iters": cgd_iters,
-            "inductor_q": inductor_q}
+    is a deck/harness setting that changes the metrics, so it is stamped too --
+    and so is `nf_gated` (WP-D1 step 4), which changes what the optimizer is even
+    solving. Rows with nf_gated true/false are DIFFERENT label domains; every row
+    written before WP-D1 is implicitly nf_gated:false (tier-1)."""
+    cfg = {"recipe": recipe, "seed": seed, "n_candidates": n_candidates,
+           "n_starts": 4, "sgd_iters": sgd_iters, "cgd_iters": cgd_iters,
+           "inductor_q": inductor_q}
+    if spec is not None:
+        cfg["nf_gated"] = nf_is_gated(spec)
+    return cfg
 
 
 def _enrich_nf(body, params, spec, m):
@@ -276,14 +310,20 @@ def polish(topo, spec, prior_params, budget=80, inductor_q=12):
         return None
     body = E.body_of(nl.emit())
     sizable, _ = classify_params(nl)
+    nf_gated = nf_is_gated(spec)
+    # ascend the minimum margin over every SUPPORTED hard constraint -- so when a
+    # spec gates NF, polish trades gain slack for noise instead of ignoring it.
+    keys = [n for n, c in spec.constraints.items() if c.get("status") != "unsupported"]
 
     def min_margin(p):
-        m = E.run_and_extract(body, p, spec)
+        m = eval_metrics(body, p, spec, nf_gated=nf_gated)
         if m is None:
             return -1e9, None
         mg = margins_for(spec, m)
-        vals = [(mg.get(k) or {}).get("margin") for k in ("s11_db", "s21_db", "idd_ma")]
+        vals = [(mg.get(k) or {}).get("margin") for k in keys]
         vals = [v for v in vals if v is not None]
+        if len(vals) < len(keys):        # a supported constraint went unmeasured
+            return -1e9, m
         return (min(vals) if vals else -1e9), m
 
     params = {k: v for k, v in (prior_params or {}).items()}
@@ -355,7 +395,7 @@ def size_topology(topo, spec, seed=1, n_candidates=6, sgd_iters=6, cgd_iters=1,
         _log_l2(spec, m, feas, n_evals, points, best_x, decode(best_x), best_obj,
                 topo, wl_features(topo)[0], provenance,
                 _zoaf_cfg(seed, n_candidates, sgd_iters, cgd_iters, recipe,
-                          inductor_q=inductor_q),
+                          inductor_q=inductor_q, spec=spec),
                 repeat_probe=repeat_probe)
     if m is None:
         return {"metrics": None, "feasible": False, "n_evals": n_evals}
@@ -364,10 +404,31 @@ def size_topology(topo, spec, seed=1, n_candidates=6, sgd_iters=6, cgd_iters=1,
             "best_params": decode(best_x)}   # so callers can polish/curate from here
 
 
-def _spec_for_sizing(name):
-    """Load a spec with nf_db gated off (port-noise harness gap, WORKLOG R3)."""
+def _nf_gate_default():
+    """Global default for NF gating. True since WP-D1; set LNA_NF_GATE=0 in the
+    environment to run a whole session under the old tier-1 gating (an escape
+    hatch for reproducing/continuing a tier-1 campaign without editing code)."""
+    return os.environ.get("LNA_NF_GATE", "1").strip().lower() not in ("0", "false", "no")
+
+
+def _spec_for_sizing(name, nf_gate=None):
+    """Load a spec for the sizing loop.
+
+    HISTORY / LABEL DOMAIN (important when comparing rows): until WP-D1 this
+    function *forced* nf_db to `unsupported`, because the only NF the harness had
+    was the port-referred one that finding #7 retired. Every feasibility claim
+    logged before then -- the wifi24 six, the two gps-l1 generated feasibles, the
+    dhruva 4-band family -- is therefore a **tier-1** claim (S11/S21/Idd only)
+    and stays valid on its own terms.
+
+    Now that `extract.measure_nf` is golden-validated, nf_gate=True (the default)
+    honours whatever the YAML says, so NF is a real hard constraint. Pass
+    nf_gate=False to reproduce a tier-1 result exactly under the old gating --
+    that is history, not a fallback to be used for new labels."""
+    if nf_gate is None:
+        nf_gate = _nf_gate_default()
     spec = Spec.load(name)
-    if "nf_db" in spec.constraints:
+    if not nf_gate and "nf_db" in spec.constraints:
         spec.constraints["nf_db"]["status"] = "unsupported"
     return spec
 
@@ -433,7 +494,7 @@ def log_l2_result(spec, topo, metrics, feasible, best_params, provenance, recipe
         m = _enrich_nf(E.body_of(nl.emit()), best_params, spec, metrics)
     _log_l2(spec, m, feasible, n_evals, None, None, best_params, None, topo,
             wl_features(topo)[0], provenance,
-            _zoaf_cfg(0, 0, 0, 0, recipe, inductor_q=inductor_q),
+            _zoaf_cfg(0, 0, 0, 0, recipe, inductor_q=inductor_q, spec=spec),
             repeat_probe=repeat_probe)
     return m
 
@@ -510,14 +571,15 @@ def _size_ref(deck, sizable, fixed, spec_name, recipe, label, seed=1, log=True):
         if log:
             _log_l2(spec, None, False, n_evals, points, best_x, decode(best_x),
                     best_obj, None, f"ref:{deck}", prov,
-                    _zoaf_cfg(seed, 8, 8, 2, recipe))
+                    _zoaf_cfg(seed, 8, 8, 2, recipe, spec=spec))
         return False, None
     if log:
         m = _enrich_nf(body, decode(best_x), spec, m)   # physical NF for the row
     feas, viol = spec.feasible(m)
     if log:
         _log_l2(spec, m, feas, n_evals, points, best_x, decode(best_x), best_obj,
-                None, f"ref:{deck}", prov, _zoaf_cfg(seed, 8, 8, 2, recipe))
+                None, f"ref:{deck}", prov, _zoaf_cfg(seed, 8, 8, 2, recipe,
+                                                    spec=spec))
     print(f"\nZOAF: {n_evals} sims, best objective {best_obj:.4f}")
     print(spec.report(m))
     print("\nsized values:")

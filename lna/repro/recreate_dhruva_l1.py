@@ -38,20 +38,30 @@ def topo_of():
 
 
 def replay():
+    """Reproduce the Gate-D1 TIER-1 claim exactly: nf_gate=False is the gating this
+    result was recorded under (S11-over-band / S21 / Idd). NF is printed as the
+    advisory number it was at the time -- Gate D3 is a separate, later claim, and
+    reproducing history must not be silently re-judged by a newer harness."""
     params = json.load(open(os.path.join(HERE, "dhruva-l1-rfbcs3.params.json")))
     topo = topo_of()
-    spec = size._spec_for_sizing(SPEC)
+    spec = size._spec_for_sizing(SPEC, nf_gate=False)      # tier-1 gating, as recorded
     nl, _, rep, _ = bias.insert_bias(topo, sweep=True, inductor_q=12)
-    m = E.run_and_extract(E.body_of(nl.emit()), params, spec)
+    body = E.body_of(nl.emit())
+    m = E.run_and_extract(body, params, spec)
     feas, viol = spec.feasible(m)
+    nf = E.measure_nf(body, params, spec)
+    stab, why = E.stability_verdict(m)
     print(f"REPLAY {ARCH} vs {SPEC}: s11_max={m['s11_max_db']:.2f} "
-          f"S21={m['s21_db']:.2f} Idd={m.get('idd_ma') or 0:.2f}  feasible={feas}")
+          f"S21={m['s21_db']:.2f} Idd={m.get('idd_ma') or 0:.2f}  "
+          f"feasible(tier-1)={feas}")
+    print(f"  advisory: NF={nf:.2f} dB (series-Rs; tier-2 target <= 2.7)  "
+          f"stability {stab} ({why})")
     return feas
 
 
-def resize():
+def resize(nf_gate=False):
     topo = topo_of()
-    spec = size._spec_for_sizing(SPEC)
+    spec = size._spec_for_sizing(SPEC, nf_gate=nf_gate)
     print(f"re-sizing {ARCH} vs {SPEC} at seed 5 (heavy ZOAF + polish)...", flush=True)
     res = size.size_topology(topo, spec, seed=5, inductor_q=12, log=False,
                              curate=False, n_candidates=14, sgd_iters=14, cgd_iters=3)

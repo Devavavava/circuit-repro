@@ -32,13 +32,15 @@ constraints:
   s11_max_db: {max: -10}    # worst-case S11 over 1.1-2.5 GHz (match must HOLD over band)
   s21_db:     {min: 25.4}   # gain at f0
   idd_ma:     {max: 13}
-  nf_db:      {max: 2.7, status: unsupported}    # tier-2, after WP-D1 NF harness
+  nf_db:      {max: 2.7}   # TIER-2, GATED (WP-D1): series-Rs harness,
+                          # extract.measure_nf, golden-validated to 3.0103 dB
   iip3_dbm:   {min: -7.6, status: unsupported}   # tier-3, needs two-tone/HB
 
 objectives:
   - {metric: s21_db,     direction: max, weight: 1.0}   # gain-first
   - {metric: s11_max_db, direction: min, weight: 0.5}   # deepen the over-band match
   - {metric: idd_ma,     direction: min, weight: 0.5}
+  - {metric: nf_db,      direction: min, weight: 0.5}   # tier-2: keep pushing noise down
 
 topology:
   differential: false       # single-ended RF in; balanced out is tier-3 (3-port harness)

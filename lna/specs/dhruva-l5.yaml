@@ -3,8 +3,8 @@
 # published LNA figures (the ONLY allowed excerpt); no circuit detail is used.
 # Rows sized against this spec carry provenance recipe: blind-v1.
 # Rail: paper 1.2 V; harness fixes VDD=1.1 V (vdd:1.1 = evaluated condition).
-# Idd<=13 mA is generous (not expected to bind). NF/IIP3 are tier-2/tier-3,
-# carried `unsupported` until their harnesses land (08-DHRUVA §2).
+# Idd<=13 mA is generous (not expected to bind). NF is tier-2 and now GATED
+# (WP-D1 series-Rs harness); IIP3 stays `unsupported` (tier-3).
 name: dhruva-l5
 description: NavIC/GPS L5 band (1.17645 GHz) LNA, paper-target tier-1 (blind)
 
@@ -28,13 +28,15 @@ constraints:
   s11_max_db: {max: -10}    # worst-case S11 over 1.1-2.5 GHz
   s21_db:     {min: 22.3}   # gain at f0
   idd_ma:     {max: 13}
-  nf_db:      {max: 2.5, status: unsupported}    # tier-2, after WP-D1 NF harness
+  nf_db:      {max: 2.5}   # TIER-2, GATED (WP-D1): series-Rs harness,
+                          # extract.measure_nf, golden-validated to 3.0103 dB
   iip3_dbm:   {min: -7.4, status: unsupported}   # tier-3, needs two-tone/HB
 
 objectives:
   - {metric: s21_db,     direction: max, weight: 1.0}
   - {metric: s11_max_db, direction: min, weight: 0.5}
   - {metric: idd_ma,     direction: min, weight: 0.5}
+  - {metric: nf_db,      direction: min, weight: 0.5}   # tier-2: keep pushing noise down
 
 topology:
   differential: false

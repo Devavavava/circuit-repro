@@ -14,10 +14,18 @@ the analoggenie env (torch 2.0.1); the 3050 is unnecessary at this size:
     "C:/Users/Devavrat/radioconda/envs/analoggenie/python.exe" lna/critic_gnn.py --eval
 
 Bipartite device<->net message passing with pin-role-specific maps, sum+max
-device pooling -> margin head (S11/S21/Idd). Loss = Huber(margins) + rank-hinge
-on S21 (hinge margin from the repeat-probe sigma -- do not fit below label
-noise). Deep ensemble (5 seeds) -> mean prediction + std (uncertainty for
-03-SEARCH). Reported against the critic.py baselines on the same frozen splits.
+device pooling, the spec-conditioning vector concatenated at the readout
+(02-CRITIC §1) -> margin head (S11/S21/Idd/**NF**, the NF term masked on the rows
+that predate the series-Rs harness). Loss = Huber(margins) + rank-hinge on S21
+(hinge margin from the repeat-probe sigma -- do not fit below label noise). Deep
+ensemble (5 seeds) -> mean prediction + std (uncertainty for 03-SEARCH). Reported
+against the critic.py baselines on the same frozen splits.
+
+**Result on v4-train (FINDINGS §14.2): this arm ships as critic v1** -- it takes
+the headline rho(S21) on both splits (family **0.851** vs 0.790 ridge / 0.687 kNN;
+source-shift **0.609** vs 0.585 / 0.370) and, uniquely, its ensemble std ranks
+|error| (rho 0.54 / 0.53), which is what 03-SEARCH's `mean - beta*std` needs. Not a
+sweep: ridge ties its source-shift precision@20% and beats its rho(S11) there.
 """
 import argparse
 import os
@@ -72,8 +80,14 @@ def graph_tensors(topo):
     return dev_feat, net_feat, role_adj
 
 
+_SPEC_MU = None      # (mean, std) of the spec-conditioning vector, fit on train
+
+
 def build_batch(data):
-    """Pad graphs to batch-max device/net counts; return tensors + device mask."""
+    """Pad graphs to batch-max device/net counts; return tensors + device mask.
+
+    Y is the 4-vector (S11, S21, Idd, NF margins) with a companion mask: NF is
+    NaN on the pre-harness rows, so its loss term is masked rather than imputed."""
     tens = [graph_tensors(d["topo"]) for d in data]
     maxD = max(t[0].shape[0] for t in tens)
     maxN = max(t[1].shape[0] for t in tens)
@@ -88,14 +102,25 @@ def build_batch(data):
         net[k, :nN] = nf
         adj[k, :, :nD, :nN] = ra
         dmask[k, :nD] = 1.0
-    Y = np.array([d["y"] for d in data], np.float32)
+    Y = np.zeros((B, 4), np.float32)
+    M = np.ones((B, 4), np.float32)
+    for k, d in enumerate(data):
+        Y[k, :3] = d["y"]
+        if d.get("y_nf") is None:
+            M[k, 3] = 0.0
+        else:
+            Y[k, 3] = d["y_nf"]
+    # spec conditioning (02-CRITIC §1): one model, seven specs
+    S = np.array([critic.spec_vector(d["spec"]) for d in data], np.float32)
+    mu, sd = _SPEC_MU if _SPEC_MU is not None else (S.mean(0), S.std(0) + 1e-6)
+    S = (S - mu) / sd
     return (torch.tensor(dev), torch.tensor(net), torch.tensor(adj),
-            torch.tensor(dmask), torch.tensor(Y))
+            torch.tensor(dmask), torch.tensor(S), torch.tensor(Y), torch.tensor(M))
 
 
 # --------------------------------------------------------------- model
 class MPNN(nn.Module):
-    def __init__(self, h=64, rounds=3):
+    def __init__(self, h=64, rounds=3, n_spec=len(critic.SPEC_FEATS), n_out=4):
         super().__init__()
         self.rounds = rounds
         self.dev_in = nn.Linear(len(DEV_TYPES), h)
@@ -104,10 +129,10 @@ class MPNN(nn.Module):
         self.net_msg = nn.ModuleList([nn.Linear(h, h) for _ in ROLES])   # dev<-net
         self.dev_upd = nn.Linear(h, h)
         self.net_upd = nn.Linear(h, h)
-        self.head = nn.Sequential(nn.Linear(2 * h, h), nn.ReLU(),
-                                  nn.Linear(h, 3))
+        self.head = nn.Sequential(nn.Linear(2 * h + n_spec, h), nn.ReLU(),
+                                  nn.Linear(h, n_out))
 
-    def forward(self, dev, net, adj, dmask):
+    def forward(self, dev, net, adj, dmask, spec):
         hd = torch.relu(self.dev_in(dev))          # [B,nD,H]
         hn = torch.relu(self.net_in(net))          # [B,nN,H]
         for _ in range(self.rounds):
@@ -120,7 +145,7 @@ class MPNN(nn.Module):
         m = dmask.unsqueeze(-1)                     # [B,nD,1]
         s = (hd * m).sum(1)                         # masked sum pool
         mx = (hd + (1 - m) * -1e9).max(1).values    # masked max pool
-        return self.head(torch.cat([s, mx], -1))    # [B,3]
+        return self.head(torch.cat([s, mx, spec], -1))    # [B,4]
 
 
 # --------------------------------------------------------------- train / predict
@@ -136,25 +161,31 @@ def _rank_hinge(pred, true, sigma_norm, idx=1):
     return loss.sum() / n if n > 0 else pred.sum() * 0.0
 
 
+def _masked_huber(pred, true, mask, delta=1.0):
+    d = (pred - true).abs()
+    l = torch.where(d < delta, 0.5 * d * d, delta * (d - 0.5 * delta)) * mask
+    return l.sum() / mask.sum().clamp(min=1.0)
+
+
 def train_one(train, val, sigma_norm, seed=0, epochs=400, h=64, lr=3e-3):
     torch.manual_seed(seed)
     model = MPNN(h=h)
     opt = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=1e-4)
-    huber = nn.HuberLoss(delta=1.0)
     Xtr = build_batch(train)
     Xva = build_batch(val) if val else None
     best, best_state, patience = 1e9, None, 0
     for ep in range(epochs):
         model.train()
         opt.zero_grad()
-        pred = model(*Xtr[:4])
-        loss = huber(pred, Xtr[4]) + 0.5 * _rank_hinge(pred, Xtr[4], sigma_norm)
+        pred = model(*Xtr[:5])
+        loss = (_masked_huber(pred, Xtr[5], Xtr[6])
+                + 0.5 * _rank_hinge(pred, Xtr[5], sigma_norm))
         loss.backward()
         opt.step()
         if Xva is not None:
             model.eval()
             with torch.no_grad():
-                vloss = huber(model(*Xva[:4]), Xva[4]).item()
+                vloss = _masked_huber(model(*Xva[:5]), Xva[5], Xva[6]).item()
             if vloss < best - 1e-4:
                 best, best_state, patience = vloss, {k: v.clone() for k, v in
                                                      model.state_dict().items()}, 0
@@ -171,7 +202,7 @@ def predict(model, data):
     model.eval()
     with torch.no_grad():
         X = build_batch(data)
-        return model(*X[:4]).numpy()
+        return model(*X[:5]).numpy()
 
 
 def ensemble_predict(train, val, test, sigma_norm, n=5):
@@ -183,13 +214,20 @@ def ensemble_predict(train, val, test, sigma_norm, n=5):
 
 # --------------------------------------------------------------- eval
 def evaluate_gnn(train, val, test, label, sigma):
+    global _SPEC_MU
     sigma_norm = sigma / 12.0
+    S = np.array([critic.spec_vector(d["spec"]) for d in train], np.float32)
+    _SPEC_MU = (S.mean(0), S.std(0) + 1e-6)      # spec scaler fit on TRAIN only
     Yte = np.array([d["y"] for d in test])
     mean, std = ensemble_predict(train, val, test, sigma_norm, n=5)
     s21 = 1
     rhos = [critic.spearman(Yte[:, k], mean[:, k]) for k in range(3)]
+    nf_i = [i for i, d in enumerate(test) if d.get("y_nf") is not None]
+    rho_nf = (critic.spearman(np.array([test[i]["y_nf"] for i in nf_i]),
+                              mean[nf_i, 3]) if len(nf_i) >= 3 else float("nan"))
     racc = critic.pairwise_rank_acc(Yte[:, s21], mean[:, s21], sigma_norm)
-    enr, n_near = critic.enrichment_top20(Yte, critic._feasibility_score(mean))
+    enr, n_near, prec, ceil = critic.enrichment_top20(
+        Yte, critic._feasibility_score(mean[:, :3]))
     # uncertainty calibration: does ensemble std rank the |error|?
     err = np.abs(mean[:, s21] - Yte[:, s21])
     cal = critic.spearman(std[:, s21], err)
@@ -198,16 +236,23 @@ def evaluate_gnn(train, val, test, label, sigma):
     print(f"\n=== {label}: train {len(train)} / val {len(val)} / test {len(test)} "
           f"(sigma_S21={sigma:.3f}) ===")
     print(f"{'model':<10} {'rho_S11':>8} {'rho_S21':>8} {'rho_Idd':>8} "
-          f"{'rankacc':>8} {'enrich':>7} {'unc_cal':>8} {'C1?':>5}")
+          f"{'rho_NF':>8} {'rankacc':>8} {'prec@20':>8} {'enrich':>7} "
+          f"{'unc_cal':>8} {'C1?':>5}")
     print(f"{'gnn(ens5)':<10} {rhos[0]:>8.3f} {rhos[1]:>8.3f} {rhos[2]:>8.3f} "
-          f"{racc:>8.3f} {enr:>7.2f} {cal:>8.3f} {'YES' if c1 else 'no':>5}")
+          f"{rho_nf:>8.3f} {racc:>8.3f} {prec:>8.3f} {enr:>7.2f} {cal:>8.3f} "
+          f"{'YES' if c1 else 'no':>5}")
+    print(f"  near-feasible {n_near}/{len(test)} -> enrichment ceiling {ceil:.2f}x; "
+          f"NF-labeled {len(nf_i)}/{len(test)}")
+    critic._per_spec(test, Yte, {"trivial": mean, "gnn": mean}, s21)
 
 
-def run_eval(snapshot=None):
+def run_eval(snapshot=None, sigma_recipe=None):
     data = critic.load_dataset(snapshot=snapshot)
-    sigma = critic._sigma_s21()
+    sigma = critic._sigma_s21(recipe=sigma_recipe, snapshot=snapshot)
     import datastore as ds
-    print(f"GNN critic -- {len(data)} rows, sigma_S21={sigma:.3f}")
+    print(f"GNN critic -- {len(data)} rows, sigma_S21={sigma:.3f}, "
+          f"generated {sum(d['gen'] for d in data)}, "
+          f"NF-labeled {sum(d.get('y_nf') is not None for d in data)}")
     print("(baselines for comparison: run `python lna/critic.py --eval`)")
     sp = ds.family_split(k_holdout=0.25, rows=[d["row"] for d in data])
     id2d = {id(d["row"]): d for d in data}
@@ -216,8 +261,7 @@ def run_eval(snapshot=None):
     te = [id2d[id(r)] for r in sp["test"] if id(r) in id2d]
     if len(te) >= 3:
         evaluate_gnn(tr, va, te, "family-holdout split", sigma)
-    tr2 = [d for d in data if not d["arm"].startswith("campaign-G")]
-    te2 = [d for d in data if d["arm"].startswith("campaign-G")]
+    tr2, te2 = critic._source_shift(data)
     if len(te2) >= 3:
         # carve a small val off train2 for early stopping (identity-based split;
         # data dicts hold numpy arrays, so never compare them by ==)
@@ -233,9 +277,10 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--eval", action="store_true")
     ap.add_argument("--snapshot")
+    ap.add_argument("--sigma-recipe")
     args = ap.parse_args()
     if args.eval:
-        return run_eval(snapshot=args.snapshot)
+        return run_eval(snapshot=args.snapshot, sigma_recipe=args.sigma_recipe)
     ap.error("give --eval")
 
 

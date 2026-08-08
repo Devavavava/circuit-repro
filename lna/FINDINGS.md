@@ -1365,3 +1365,204 @@ blended feasibility-first objective has no reason to sit on it. That makes the n
 lever a *targeted* one (a cancellation-condition-aware start or an explicit NF-only
 inner stage), not more seeds. Raising `device_budget` is a **spec** change and was
 deliberately NOT made in order to close a gate.
+
+## 14. Phase 3 — Track C: what the label noise actually was, and what the enlarged store buys the critic (Session 4)
+
+Track C consolidates the night: fix the label-noise number that had been quoted
+three different ways, retrain the critic on a store that grew 264 → 734 rows, and
+refresh the cross-spec benchmark now that NF is gated. Two of the three headline
+results are *measurement* corrections — the kind that change what earlier numbers
+meant rather than what the circuits do.
+
+### 14.1 σ(S21) — the "drift" was mostly an artefact, and best-of-3 halves what is left
+
+`σ(S21)` had been reported as **0.32 → 1.02 → 1.27 dB** across sessions and was on
+the tripwire watchlist. Two defects in how it was computed:
+
+1. **Recipes were pooled.** `_sigma_from_repeats` grouped rows by `(wl_hash, spec)`
+   alone, so a `curated-v1` row, a `polish-v1` row, a `blind-v1` archetype row and a
+   `p5v6-gen-v1` sample of the same topology all counted as "repeats" of each other.
+   **81 of the 89 multi-row keys in the store were mixed that way.** Those
+   differences are deliberate — 01-DATA's own rule is that two recipes are two label
+   domains and are never pooled silently — so the estimator was reading recipe churn
+   as label noise. `campaign.sigma_key` now conditions on `(wl_hash, spec, recipe,
+   nf_gated)`.
+2. **Two samples per key.** A population stdev over n=2 is a very poor estimate of
+   spread, and it *under*-states it: on the same 19 keys, 2 samples/key gives
+   **0.570 dB** where 9 samples/key gives **1.478 dB**.
+
+**Measured, on the 19 wifi24 corpus repeat-probe keys** (recipe `candidate-v1`,
+`nf_gated=false`, `inductor_q=12`, 9 independent seeds per key, 171 sizings):
+
+| protocol | σ(S21) | samples |
+|---|---|---|
+| single-seed (the label definition until now) | **1.478 dB** (median 1.438) | 9 seeds/key |
+| single-seed, estimated from only 2 seeds/key | 0.570 dB | the old estimator |
+| **best-of-3** (06-LAST-MILE §4, 3 independent bo3 labels/key) | **0.726 dB** | 3 labels/key |
+
+**And it replicates on the stratum that matters.** The corpus keys measure noise on
+circuits the pipeline did not design; the *generated* pool is what the critic's
+source-shift split and 03-SEARCH's candidate stream are made of, so it was probed
+too — 16 near-feasible `campaign-G` wifi24 topologies, same protocol (96 sizings):
+
+| stratum | single-seed σ(S21) | best-of-3 σ(S21) | keys |
+|---|---|---|---|
+| corpus (`corpus` / `campaign-R`) | 1.478 dB | **0.726 dB** | 19 |
+| **generated (`campaign-G`)** | **1.522 dB** | **0.829 dB** | 16 |
+
+So the honest story is not "σ drifted 4×"; it is **σ was always ≈1.5 dB on both
+populations and the early estimates were too small and contaminated**. Best-of-3
+takes it to **0.73–0.83 dB — a 2.0× reduction for 3× the sim cost**, which does
+*not* clear 06-LAST-MILE's ≲0.5 dB acceptance bar. The noise is extremely
+topology-dependent — the *median* best-of-3 spread in the generated stratum is
+**0.148 dB** while its mean is 0.829: 6 of 19 corpus keys sit under 0.2 dB even
+single-seed, while corpus 1086/475/476 and generated `seq0152` run 3–4.3 dB (the
+multimodal all-free sizing landscape, unchanged diagnosis). **A few pathological
+topologies carry nearly all of the label noise**, which is exactly what the
+per-row `label_sigma` is for: drop or downweight those rather than pay 3× on every
+row. Best-of-3 is now available as `size.size_best_of_k` and stamps the row with
+`zoaf_cfg.recipe = candidate-v1+bo3`, `zoaf_cfg.seeds`, and per-metric
+`label_sigma` so training can downweight by 1/σ without re-simulating.
+
+```bash
+python lna/campaign.py --sigma-probe --spec wifi24 --k 3 --reps 2         # corpus
+python lna/campaign.py --sigma-probe --gen --spec wifi24 --limit 16       # generated
+```
+
+### 14.2 Critic retrain on v4-train (734 rows) — the source-shift gap closes, and Gate C1's enrichment half stops being reachable
+
+Snapshot **`v4-train`** pins 734 `topo_labels` / 41 `l1_labels`; 730 rows are
+token-bearing with a full margin vector (was 261 under `v2-train`).
+
+**A bug found while wiring it up: 240 of tonight's rows were invisible to the
+critic.** `_margins` read `s11_db` only, but the broadband specs (`dhruva-*`,
+`wideband-sdr`) gate **`s11_max_db`** — so every dhruva row, including the whole
+~200-row Track-B corpus, returned `None` and was silently dropped. The target is
+"the spec's S11 margin", whichever name that spec uses; fixed. Two other changes
+were forced by the store becoming multi-spec: **spec conditioning** (thresholds +
+band appended at the ridge features and at the GNN readout — the same topology has
+different margins against different specs and a graph-only vector just averages
+them), and a **spec-conditioned WL-kNN** (search the neighbour within the same spec
+first). `is_generated` now classifies the source-shift split by provenance rather
+than by the single arm name `campaign-G`, so the Track-B, g4 and p5v3 samples count
+as generated (420 generated rows vs 142 before).
+
+**Gate C1 verdict, per arm and per split** (σ_S21 = 0.726 dB, the best-of-3
+ceiling; C1 = enrichment@top-20% ≥ 2× **and** ρ(S21) ≥ 0.5):
+
+| split | arm | ρ(S11) | ρ(S21) | ρ(Idd) | ρ(NF) | rank-acc | prec@20% | enrich | C1 |
+|---|---|---|---|---|---|---|---|---|---|
+| family holdout (test 95) | trivial | – | – | – | – | 0.000 | 0.495 | 1.00 | no |
+| | WL-kNN | 0.361 | **0.687** | 0.462 | 0.676 | 0.784 | 0.842 | 1.70 | **no** |
+| | ridge | 0.429 | **0.790** | 0.486 | 0.700 | 0.816 | 0.737 | 1.49 | **no** |
+| | **GNN (ens-5)** | **0.594** | **0.851** | **0.596** | 0.660 | **0.854** | **0.895** | **1.81** | **no** |
+| source-shift (test 420) | trivial | – | – | – | – | 0.000 | 0.455 | 1.00 | no |
+| | WL-kNN | 0.313 | 0.370 | 0.268 | 0.403 | 0.629 | 0.512 | 1.13 | **no** |
+| | ridge | 0.603 | **0.585** | 0.346 | 0.392 | 0.710 | 0.655 | 1.44 | **no** |
+| | **GNN (ens-5)** | 0.554 | **0.609** | **0.464** | **0.422** | **0.740** | **0.655** | 1.44 | **no** |
+
+**★ The source-shift gap closed — and it was the data, not the code.** ρ(S21) on
+generated topologies goes **0.221 → 0.585** (ridge). Running the *same* code on the
+old `v2-train` snapshot reproduces the old numbers exactly (family split WL-kNN
+0.768 / enrich 2.06 / C1 **YES**; source-shift ridge 0.221, WL-kNN 0.282), so the
+improvement is attributable to tonight's rows — chiefly the ~200 Track-B dhruva-l1
+generated labels and the dhruva archetype stratum they can be learned from — and
+not to spec conditioning or the S11 fix on their own.
+
+**But read the within-spec numbers, because a multi-spec pool inflates pooled ρ.**
+A model that only learns "dhruva rows have worse gain margins than wifi24 rows"
+scores well pooled and is useless to search, which only ever ranks candidates
+*within* one spec. `critic._per_spec` now reports both:
+
+| split | spec | n | WL-kNN ρ(S21) | ridge ρ(S21) | GNN ρ(S21) |
+|---|---|---|---|---|---|
+| family holdout | dhruva-l1 | 24 | 0.567 | 0.821 | **0.841** |
+| | wifi24 | 67 | 0.701 | 0.806 | **0.877** |
+| source-shift | dhruva-l1 | 200 | **0.003** | 0.753 | 0.746 |
+| | wifi24 | 217 | 0.498 | 0.430 | **0.516** |
+
+So the pooled source-shift number is *not* an artefact: within the 200-row Track-B
+dhruva-l1 generated pool the ridge arm reaches **ρ = 0.753** and the GNN 0.746,
+while on generated wifi24 they sit at 0.430 / 0.516 — about where they always were.
+**WL-kNN collapses to ρ = 0.003 on the
+Track-B pool**, which is the clearest statement yet of what that baseline was
+living on: nearest-neighbour prediction works when the test topology has a near
+duplicate among the labels, and the Track-B samples are novel by construction (they
+match none of the 148 archetypes or 41 corpus circuits). **On genuinely novel
+generated topologies the hand-feature ridge is the arm that works and the
+duplicate-structure baseline has nothing.**
+
+**⚠ Gate C1's enrichment half has become unreachable, for a measurable reason.**
+Enrichment = precision@20% / base-rate, and precision ≤ 1, so the metric is capped
+at **1/base-rate**. As the pool got better the near-feasible base rate rose and the
+ceiling fell:
+
+| snapshot | split | base rate | enrichment ceiling | best arm |
+|---|---|---|---|---|
+| v2-train | family | 0.485 | 2.06× | WL-kNN 2.06× (prec@20% = **1.000**, perfect) |
+| v2-train | source-shift | 0.268 | 3.74× | WL-kNN 1.33× |
+| **v4-train** | family | 0.495 | **2.02×** | WL-kNN 1.70× (prec@20% 0.842) |
+| **v4-train** | source-shift | 0.455 | **2.20×** | ridge 1.44× (prec@20% 0.655) |
+
+C1's "≥2×" was set when most of the pool was far from feasible; at a base rate of
+0.5 it silently means "**perfect** precision@20%". The v2-train pass was exactly
+that — a perfect top-20%, not a 2× margin. **This is a frozen-protocol problem of
+the same shape as the NDL novelty-reference gap and it needs the same explicit
+rebaseline decision from the user** (candidate: gate on precision@20% ≥ 0.8, or
+tighten `NEAR_FEASIBLE` from −1.0 so the base rate stays low as the pool improves).
+Stated plainly for the record: **on the letter of C1, no arm passes on either split
+tonight; on the Spearman half, ridge passes both splits for the first time** (0.790
+family / 0.585 source-shift), and the enrichment half is not reachable by any model.
+
+**NF is now a predicted target.** 711 of 730 rows carry a `series_rs` NF, so the NF
+margin is trained and evaluated as a fourth head (masked in the GNN loss; a
+separate same-features arm in the baselines). It predicts *better* than the S11
+margin on the family split (ρ 0.676–0.700 vs 0.361–0.429) — unsurprising, since NF
+is a smooth function of the input device's size and current where S11 depends on a
+resonance. On the source-shift split it drops to ρ ≈ 0.39–0.40.
+
+**★ The GNN ships as critic v1 — but state the margin precisely.** 02-CRITIC §2's
+rule is that the GNN ships only if it beats `max(WL-kNN, ridge)` on the primary
+holdout metrics; last run it lost the C1 gate to WL-kNN (0.65 vs 0.77). Tonight it
+takes the headline metric on both splits: **ρ(S21) 0.851** family (vs 0.790 ridge /
+0.687 kNN) and **0.609** source-shift (vs 0.585 / 0.370), with the best rank
+accuracy on both and the best precision@20% on the family split (0.895 vs 0.842).
+It is **not** a clean sweep, and pretending otherwise would be the easy lie: on the
+source-shift split it *ties* ridge on precision@20% (0.655 both) and loses ρ(S11)
+to it (0.554 vs 0.603), and within the dhruva-l1 generated pool ridge is
+fractionally ahead (0.753 vs 0.746). What it does buy that the baselines cannot is
+**usable uncertainty** — ensemble std ranks |error| with ρ = 0.536 (family) / 0.528
+(source-shift) — which is precisely what 03-SEARCH's trust rule (`mean − β·std`)
+consumes. The graph inductive bias plus spec conditioning is what the crux
+experiment asked about, and on this data the answer is a qualified yes. Note the
+whole field is still below the ceiling a 0.726 dB label noise implies, so part of
+the residual is unlearnable rather than un-modelled.
+
+### 14.3 Cross-spec benchmark, refreshed at full budget and split by tier
+
+`lna/data/benchmark.md` had been carrying a lean-budget artefact (`seeds=1,
+budget=5,5,1`) with a self-declared caveat that wifi24 read 4/6 there vs 6/6 at
+full budget. It is re-run at the established full budget (**`seeds=1,2`,
+ZOAF `budget=8,8,2`**) over a candidate set that reflects tonight, and reports the
+two tiers separately.
+
+Three changes to `benchmark.py` were needed to make the table honest:
+
+* **Candidate set from the feasible record, not from wifi24 closeness.**
+  `--all-feasible` seeds the set from `nf_contrast.feasible_designs()` — every
+  distinct topology that has ever been tier-1 feasible against any spec, with an
+  **in-box row preferred over the superseded out-of-box polish rows** (§13.3). The
+  old wifi24-closeness ranking could not reach either the *generated* dhruva-l1
+  feasible `seq0192` or the 4-band `rfbcs3` archetype; both are now in. Dedup is on
+  `wl_hash`, not on the token list — the same circuit re-emitted by a different
+  Eulerian walk has different tokens (it had been entering the table twice).
+* **Every cell also re-measures the pipeline's stored best point** for that
+  (topology, spec) and keeps whichever is better. Without it the table reports
+  *worse* than the program already owns: the stored feasibles were earned with
+  multi-seed heavy sizing plus polish, far past a per-cell budget, so a pure
+  re-search reported `seq0192` as infeasible on the very band it is feasible on.
+* **NF is measured on every cell** (`size_topology(enrich_nf=True)`), because the
+  old table's NF column was the retired port-referred number — it printed
+  *negative* noise figures — and after WP-D1 that path returns `None`, which would
+  have rendered as 0.
+

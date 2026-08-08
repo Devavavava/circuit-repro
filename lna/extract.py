@@ -31,10 +31,52 @@ def _supply_name(body):
     return m.group(1) if m else "Vsup"
 
 
+def _stability_lets():
+    """ngspice `let` lines deriving the two-port stability factors from the full
+    S-matrix the `sp` analysis already computed (WP-D4b; advisory metrics).
+
+        Delta = S11*S22 - S12*S21
+        K     = (1 - |S11|^2 - |S22|^2 + |Delta|^2) / (2*|S12*S21|)      (Rollett)
+        mu    = (1 - |S11|^2) / (|S22 - Delta*conj(S11)| + |S12*S21|)     (load plane)
+        mu_s  = (1 - |S22|^2) / (|S11 - Delta*conj(S22)| + |S12*S21|)     (source plane)
+
+    Unconditional stability <=> K > 1 AND |Delta| < 1 <=> mu > 1 <=> mu_s > 1;
+    mu/mu_s are single-parameter tests and their VALUE is a distance-to-instability
+    (bigger = safer), which is why both are logged. The +1e-30 guards a perfectly
+    unilateral stage (S12 = 0), where K is formally infinite."""
+    return [
+        "let s11m = mag(S_1_1)", "let s22m = mag(S_2_2)",
+        "let s12s21 = mag(S_1_2*S_2_1)",
+        "let dlt = S_1_1*S_2_2 - S_1_2*S_2_1",
+        "let dltm = mag(dlt)",
+        "let kk = (1 - s11m*s11m - s22m*s22m + dltm*dltm)/(2*s12s21 + 1e-30)",
+        "let mul = (1 - s11m*s11m)/(mag(S_2_2 - dlt*conj(S_1_1)) + s12s21 + 1e-30)",
+        "let mus = (1 - s22m*s22m)/(mag(S_1_1 - dlt*conj(S_2_2)) + s12s21 + 1e-30)",
+        "let s22db = db(s22m+1e-30)", "let s12db = db(mag(S_1_2)+1e-30)",
+    ]
+
+
+def _stability_meas(f0, f_lo, f_hi):
+    """`meas sp` lines: each stability factor at f0 and at its WORST point over the
+    sweep band (min for K/mu/mu_s, max for |Delta|)."""
+    return [
+        f"meas sp m_k_f0 find kk at={f0:g}",
+        f"meas sp m_k_min min kk from={f_lo:g} to={f_hi:g}",
+        f"meas sp m_mu_f0 find mul at={f0:g}",
+        f"meas sp m_mu_min min mul from={f_lo:g} to={f_hi:g}",
+        f"meas sp m_mus_f0 find mus at={f0:g}",
+        f"meas sp m_mus_min min mus from={f_lo:g} to={f_hi:g}",
+        f"meas sp m_delta_f0 find dltm at={f0:g}",
+        f"meas sp m_delta_max max dltm from={f_lo:g} to={f_hi:g}",
+        f"meas sp m_s22_f0 find s22db at={f0:g}",
+        f"meas sp m_s12_f0 find s12db at={f0:g}",
+    ]
+
+
 def control_block(f0, f_lo, f_hi, supply):
-    """op + Idd + S-parameters only. NF is NOT taken from this (port-driven) deck:
-    inoise referred to the S-param port is unphysical with gain (finding #7). The
-    trusted NF comes from the separate series-Rs deck (measure_nf)."""
+    """op + Idd + S-parameters + stability. NF is NOT taken from this (port-driven)
+    deck: inoise referred to the S-param port is unphysical with gain (finding #7).
+    The trusted NF comes from the separate series-Rs deck (measure_nf)."""
     return "\n".join([
         ".control", "op",
         f"let idd = -i({supply})", "print idd",
@@ -46,7 +88,7 @@ def control_block(f0, f_lo, f_hi, supply):
         f"meas sp m_s21_f0 find s21db at={f0:g}",
         f"meas sp m_s21_min min s21db from={f_lo:g} to={f_hi:g}",
         f"meas sp m_s21_max max s21db from={f_lo:g} to={f_hi:g}",
-        ".endc", ".end"])
+    ] + _stability_lets() + _stability_meas(f0, f_lo, f_hi) + [".endc", ".end"])
 
 
 def build_deck(body, params, f0, f_lo, f_hi, supply=None):
@@ -93,11 +135,84 @@ def run_and_extract(body, params, spec):
         "s21_db": s21,
         "s21_min_db": s21_min,
         "idd_ma": abs(idd) * 1e3 if idd is not None else None,
-        "nf_db": g("m_nf_f0"),      # best-effort; see caveat
+        "nf_db": None,              # only measure_nf (series-Rs) may fill this
+        # --- advisory two-port stability (WP-D4b); never gated, free from `sp`
+        "s22_db": g("m_s22_f0"),
+        "s12_db": g("m_s12_f0"),
+        "k_f0": g("m_k_f0"),
+        "k_min": g("m_k_min"),          # worst point over [f_lo, f_hi]
+        "mu_f0": g("m_mu_f0"),
+        "mu_min": g("m_mu_min"),
+        "mu_src_f0": g("m_mus_f0"),
+        "mu_src_min": g("m_mus_min"),
+        "delta_f0": g("m_delta_f0"),
+        "delta_max": g("m_delta_max"),
+        "stab_band": [f_lo, f_hi],
     }
     if s21_min is not None and s21_max is not None:
         metrics["s21_ripple_db"] = s21_max - s21_min
     return metrics
+
+
+def stability_verdict(metrics):
+    """('unconditional'|'conditional'|'unknown', reason) from a metrics dict.
+
+    Unconditional over the measured band needs K > 1 AND |Delta| < 1 at the worst
+    point; equivalently mu > 1. NOTE the band: these come from the spec's own sweep
+    grid, so a 'PASS' means *no in-band* potential instability -- it does not clear
+    the out-of-band spurs that actually kill feedback amplifiers. Use
+    `measure_stability(..., f_lo=..., f_hi=...)` for a wide audit sweep."""
+    k, d = metrics.get("k_min"), metrics.get("delta_max")
+    mu = metrics.get("mu_min")
+    if k is None or d is None:
+        return "unknown", "no S-matrix"
+    if k > 1.0 and d < 1.0:
+        return "unconditional", f"K_min={k:.3g} > 1, |Delta|_max={d:.3g} < 1"
+    why = []
+    if k <= 1.0:
+        why.append(f"K_min={k:.3g} <= 1")
+    if d >= 1.0:
+        why.append(f"|Delta|_max={d:.3g} >= 1")
+    if mu is not None:
+        why.append(f"mu_min={mu:.3g}")
+    return "conditional", "; ".join(why)
+
+
+def measure_stability(body, params, f0, f_lo, f_hi, npts=201):
+    """Stability factors over an ARBITRARY sweep window (the audit path).
+
+    run_and_extract reports K/mu on the spec's own band, which is narrow. Feedback
+    amplifiers oscillate out of band, so the honest audit re-runs `sp` over a wide
+    window (e.g. 0.1-20 GHz). Returns a metrics-shaped dict or None."""
+    lines = [body.rstrip()]
+    if params:
+        lines.append(".param " + " ".join(f"{k}={v}" for k, v in params.items()))
+    lines.append("\n".join(
+        [".control", "op", f"sp lin {npts:d} {f_lo:g} {f_hi:g} 1"]
+        + _stability_lets() + _stability_meas(f0, f_lo, f_hi) + [".endc", ".end"]))
+    d = tempfile.mkdtemp(prefix="stab_")
+    p = os.path.join(d, "s.cir")
+    open(p, "w").write("\n".join(lines) + "\n")
+    try:
+        r = subprocess.run([NGSPICE, "-b", p], capture_output=True, text=True,
+                           timeout=120)
+    except subprocess.TimeoutExpired:
+        return None
+    out = (r.stdout or "") + (r.stderr or "")
+
+    def g(name):
+        m = re.search(rf"{name}\s*=\s*{_NUM}", out, re.IGNORECASE)
+        try:
+            return float(m.group(1)) if m else None
+        except ValueError:
+            return None
+
+    res = {"k_f0": g("m_k_f0"), "k_min": g("m_k_min"),
+           "mu_f0": g("m_mu_f0"), "mu_min": g("m_mu_min"),
+           "mu_src_f0": g("m_mus_f0"), "mu_src_min": g("m_mus_min"),
+           "delta_f0": g("m_delta_f0"), "delta_max": g("m_delta_max"),
+           "stab_band": [f_lo, f_hi]}
+    return res if res["k_min"] is not None else None
 
 
 def build_noise_deck(body, params, f0, f_lo, f_hi, rs=50.0, rl=50.0):

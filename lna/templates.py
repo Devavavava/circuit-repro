@@ -24,7 +24,6 @@ import argparse
 import json
 import os
 import sys
-import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -50,13 +49,14 @@ def _pipeline():
 def emit_paths(netlist, ports=PORTS, max_solutions=1, run_num=1):
     """Netlist (read_netlist format) -> list of token sequences, via the upstream
     Eulerian augmentation (each path covers every edge once). Empty if none."""
+    from extract import scratch            # self-deleting scratch (FINDINGS §17)
     bcm, rcm, dfs = _pipeline()
     m, _ = bcm(netlist, ports)
-    d = tempfile.mkdtemp(prefix="tmpl_")
-    csv = os.path.join(d, "g.csv")
-    m.to_csv(csv)
-    paths = dfs(rcm(csv), start_node="VSS", max_solutions=max_solutions,
-               run_num=run_num)
+    with scratch("tmpl_") as d:
+        csv = os.path.join(d, "g.csv")
+        m.to_csv(csv)
+        paths = dfs(rcm(csv), start_node="VSS", max_solutions=max_solutions,
+                    run_num=run_num)
     return [[str(t) for t in p] for p in paths] if paths else []
 
 

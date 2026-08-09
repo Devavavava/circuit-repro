@@ -16,14 +16,50 @@ It is extracted best-effort and flagged; the sizer should treat nf as
 `unsupported` until a proper series-Rs noise reference is built. S11/S21/Idd are
 solid and are what the anchor re-derivation gates on.
 """
+import contextlib
 import os
 import re
+import shutil
 import subprocess
 import tempfile
 
 NGSPICE = os.environ.get("NGSPICE", r"C:\msys64\ucrt64\bin\ngspice_con.exe")
 _NUM = r"([-\d.eE+]+)"
 K4TRS = 8.283894e-19          # 4kT*50 at 300 K
+
+# Every ngspice caller in this tree used to `mkdtemp` per call and none of them
+# cleaned up (FINDINGS §15 hygiene note). One overnight campaign is ~1e5 calls;
+# the shared %TEMP% had accumulated 685k stale `size_*`/`nf_*`/`bias_*` dirs,
+# at which point creating one more directory is the slowest part of a 0.07 s
+# evaluation and merely listing %TEMP% takes minutes. Scratch is now scoped to
+# the call. Set LNA_KEEP_TMP=1 to keep the decks for debugging.
+_KEEP_TMP = os.environ.get("LNA_KEEP_TMP", "") not in ("", "0", "false", "False")
+
+
+@contextlib.contextmanager
+def scratch(prefix):
+    """A per-call scratch directory that deletes itself on the way out."""
+    d = tempfile.mkdtemp(prefix=prefix)
+    try:
+        yield d
+    finally:
+        if not _KEEP_TMP:
+            shutil.rmtree(d, ignore_errors=True)
+
+
+def run_deck(text, prefix, fname, timeout=60):
+    """Write a deck into self-deleting scratch, run ngspice -b, return combined
+    stdout+stderr (or None on timeout). The single ngspice entry point."""
+    with scratch(prefix) as d:
+        p = os.path.join(d, fname)
+        with open(p, "w") as fh:
+            fh.write(text)
+        try:
+            r = subprocess.run([NGSPICE, "-b", p], capture_output=True,
+                               text=True, timeout=timeout)
+        except subprocess.TimeoutExpired:
+            return None
+        return (r.stdout or "") + (r.stderr or "")
 
 
 def _supply_name(body):
@@ -107,15 +143,9 @@ def run_and_extract(body, params, spec):
     f_lo = float(band.get("f_lo", f0 * 0.98))
     f_hi = float(band.get("f_hi", f0 * 1.02))
     deck = build_deck(body, params, f0, f_lo, f_hi)
-    d = tempfile.mkdtemp(prefix="size_")
-    p = os.path.join(d, "c.cir")
-    open(p, "w").write(deck)
-    try:
-        r = subprocess.run([NGSPICE, "-b", p], capture_output=True,
-                           text=True, timeout=60)
-    except subprocess.TimeoutExpired:
+    out = run_deck(deck, "size_", "c.cir")
+    if out is None:
         return None
-    out = (r.stdout or "") + (r.stderr or "")
     if "singular matrix" in out.lower():
         return None
 
@@ -190,15 +220,9 @@ def measure_stability(body, params, f0, f_lo, f_hi, npts=201):
     lines.append("\n".join(
         [".control", "op", f"sp lin {npts:d} {f_lo:g} {f_hi:g} 1"]
         + _stability_lets() + _stability_meas(f0, f_lo, f_hi) + [".endc", ".end"]))
-    d = tempfile.mkdtemp(prefix="stab_")
-    p = os.path.join(d, "s.cir")
-    open(p, "w").write("\n".join(lines) + "\n")
-    try:
-        r = subprocess.run([NGSPICE, "-b", p], capture_output=True, text=True,
-                           timeout=120)
-    except subprocess.TimeoutExpired:
+    out = run_deck("\n".join(lines) + "\n", "stab_", "s.cir", timeout=120)
+    if out is None:
         return None
-    out = (r.stdout or "") + (r.stderr or "")
 
     def g(name):
         m = re.search(rf"{name}\s*=\s*{_NUM}", out, re.IGNORECASE)
@@ -276,15 +300,9 @@ def measure_nf(body, params, spec, rs=50.0):
     deck, _, _ = build_noise_deck(body, params, f0, f_lo, f_hi, rs=rs)
     if deck is None:
         return None
-    d = tempfile.mkdtemp(prefix="nf_")
-    p = os.path.join(d, "nf.cir")
-    open(p, "w").write(deck)
-    try:
-        r = subprocess.run([NGSPICE, "-b", p], capture_output=True,
-                           text=True, timeout=60)
-    except subprocess.TimeoutExpired:
+    out = run_deck(deck, "nf_", "nf.cir")
+    if out is None:
         return None
-    out = (r.stdout or "") + (r.stderr or "")
     if "singular matrix" in out.lower():
         return None
     m = re.search(rf"m_nf_f0\s*=\s*{_NUM}", out, re.IGNORECASE)
@@ -324,11 +342,7 @@ def nf_selftest():
         ".control", "op", "noise v(out) Vn lin 51 1e9 4e9", "setplot noise1",
         f"let nfv = 10*log10((inoise_spectrum*inoise_spectrum)/{K4TRS:.6e})",
         "let m_nf_f0 = nfv[25]", "print m_nf_f0", ".endc", ".end"])
-    d = tempfile.mkdtemp(prefix="nfself_")
-    p = os.path.join(d, "nf.cir")
-    open(p, "w").write(deck)
-    r = subprocess.run([NGSPICE, "-b", p], capture_output=True, text=True, timeout=60)
-    out = (r.stdout or "") + (r.stderr or "")
+    out = run_deck(deck, "nfself_", "nf.cir") or ""
     m = re.search(rf"m_nf_f0\s*=\s*{_NUM}", out, re.IGNORECASE)
     nf = float(m.group(1)) if m else None
     ok = nf is not None and abs(nf - 3.0103) <= 0.05

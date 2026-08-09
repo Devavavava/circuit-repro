@@ -37,7 +37,6 @@ import os
 import re
 import subprocess
 import sys
-import tempfile
 from collections import defaultdict
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -204,15 +203,10 @@ _NUM = r"([-\d.eE+]+)"
 
 def run_op(deck):
     """Run an opcheck deck; return {dev: {id, vds, vdsat, vgs}} or None on failure."""
-    d = tempfile.mkdtemp(prefix="bias_")
-    p = os.path.join(d, "op.cir")
-    open(p, "w").write(deck)
-    try:
-        r = subprocess.run([NGSPICE, "-b", p], capture_output=True,
-                           text=True, timeout=60)
-    except subprocess.TimeoutExpired:
+    from extract import run_deck            # self-deleting scratch (FINDINGS §17)
+    out = run_deck(deck, "bias_", "op.cir")
+    if out is None:
         return None
-    out = (r.stdout or "") + (r.stderr or "")
     if "singular matrix" in out.lower():
         return None
     res = defaultdict(dict)

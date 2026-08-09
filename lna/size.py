@@ -700,32 +700,40 @@ def scoreboard(directory, spec_name="wifi24", seed=1, max_candidates=4, log=True
 
     The program's headline: spec in, novel generated topology -> bias -> ZOAF
     sized -> scored. (NF gated off pending the harness fix.) Every candidate's
-    sizing run is logged as an L2 row unless `log=False` (--no-log)."""
+    sizing run is logged as an L2 row unless `log=False` (--no-log).
+
+    ⚠ `novel` is judged against the **versioned reference** (`ref-v2` = the 41
+    corpus circuits + every `templates.py` archetype), not the corpus alone: a
+    P5-era sample that regenerates a training archetype verbatim is a copy, and
+    the old corpus-only test logged it as a discovery (FINDINGS §14.5). The
+    reference tag is stamped into each row's provenance."""
     import glob
     from topology import Topology, parse_arrow_file
-    from novelty import corpus_reference, wl_features
+    from novelty import ref_tag, reference, wl_features
     spec = _spec_for_sizing(spec_name)
-    corpus_hashes, _ = corpus_reference()
+    ref_hashes, _, ref_meta = reference()
+    novelty_ref = ref_tag(ref_meta)
 
     cands = []
     for f in sorted(glob.glob(os.path.join(directory, "seq*.txt"))):
         topo = Topology(parse_arrow_file(f))
         if not spec.structural_screen(topo)[0]:
             continue
-        novel = wl_features(topo)[0] not in corpus_hashes
+        novel = wl_features(topo)[0] not in ref_hashes
         cands.append((f, topo, novel))
         if len(cands) >= max_candidates:
             break
 
     arm = os.path.basename(os.path.normpath(directory))
     print(f"sizing {len(cands)} spec-passing candidates from {directory} vs "
-          f"{spec_name} (nf gated off)\n")
+          f"{spec_name} (nf gated off; novelty vs {novelty_ref})\n")
     print(f"{'candidate':<12} {'novel':>5} {'dev':>3} {'sims':>5} "
           f"{'S11':>7} {'S21':>7} {'Idd':>6} {'feasible':>9}")
     n_feas = 0
     for f, topo, novel in cands:
         name = os.path.basename(f)
-        prov = {"source_arm": arm, "seed": seed,
+        prov = {"source_arm": arm, "seed": seed, "novel": bool(novel),
+                "novelty_ref": novelty_ref,
                 "token_file": os.path.relpath(f, HERE).replace("\\", "/")}
         res = size_topology(topo, spec, seed=seed, provenance=prov, log=log)
         if res is None or res["metrics"] is None:

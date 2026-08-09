@@ -83,10 +83,19 @@ def _template_tasks(spec_name, quota, done_keys, tmpl_dir=TEMPLATE_DIR):
 
 
 def _generated_tasks(spec, spec_name, quota, done_keys, gen_glob):
-    """Screen+novel+WL-unique generated topologies not yet labeled vs spec."""
+    """Screen+novel+WL-unique generated topologies not yet labeled vs spec.
+
+    ⚠ Novelty here is judged against the **versioned reference** (`ref-v2` by
+    default = 41 corpus circuits + every `templates.py` archetype), not the
+    41-circuit corpus alone. A P5-era sample that regenerates a training
+    archetype verbatim is a *copy of training data*, and the old corpus-only
+    check waved it through as new -- FINDINGS §14.5 measured that at ~47% of a
+    screen-passing pool. The reference tag travels with every task so a stored
+    row says which measuring stick called it novel."""
     from topology import Topology, parse_arrow_file
-    from novelty import wl_features, corpus_reference
-    corpus_hashes, _ = corpus_reference()
+    from novelty import wl_features, ref_tag, reference
+    ref_hashes, _, ref_meta = reference()
+    novelty_ref = ref_tag(ref_meta)
     seen, tasks = set(), []
     for f in sorted(glob.glob(gen_glob)):
         if os.path.basename(os.path.dirname(f)) == "templates":
@@ -98,11 +107,12 @@ def _generated_tasks(spec, spec_name, quota, done_keys, gen_glob):
         if not spec.structural_screen(topo)[0]:
             continue
         h = wl_features(topo)[0]
-        if h in seen or h in corpus_hashes or (h, spec_name) in done_keys:
+        if h in seen or h in ref_hashes or (h, spec_name) in done_keys:
             continue
         seen.add(h)
         tasks.append({"stratum": "G", "kind": "topo", "ref": f, "index": None,
-                      "spec": spec_name, "seed": 1, "repeat_probe": False})
+                      "spec": spec_name, "seed": 1, "repeat_probe": False,
+                      "novelty_ref": novelty_ref})
         if len(tasks) >= quota:
             break
     return tasks
@@ -161,6 +171,8 @@ def _size_task(t):
         from topology import Topology, parse_arrow_file
         topo = Topology(parse_arrow_file(t["ref"]))
     prov = {"source_arm": "campaign-" + t["stratum"], "seed": t["seed"]}
+    if t.get("novelty_ref"):      # which measuring stick called this topology new
+        prov["novelty_ref"] = t["novelty_ref"]
     if t["index"] is not None:
         prov["index"] = t["index"]
     else:
@@ -249,6 +261,9 @@ def write_report(tasks, results, spec_name):
         a, sz, fe = per.get(s, [0, 0, 0])
         lines.append(f"| {s} | {a} | {sz} | {fe} |")
     notes = ["M awaits the mutation move set (03-SEARCH §3)"]
+    refs = sorted({t["novelty_ref"] for t in tasks if t.get("novelty_ref")})
+    if refs:
+        notes.insert(0, "stratum-G novelty judged against " + ", ".join(refs))
     if per.get("G", [0])[0] == 0:
         notes.insert(0, "stratum G had no tasks (no seq*.txt in this checkout — "
                         "gitignored; pass --gen-glob at the main checkout)")

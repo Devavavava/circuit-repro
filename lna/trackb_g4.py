@@ -51,8 +51,13 @@ def tokfile(r):
 
 
 def scan(args, spec):
-    from novelty import wl_features, corpus_reference
-    corpus_hashes, _ = corpus_reference()
+    # Novelty vs the VERSIONED reference (ref-v2 = 41 corpus + every templates.py
+    # archetype), not the corpus alone -- a regenerated archetype is a copy of
+    # training data, which is exactly the hole `_ref_hashes()` below was hand-built
+    # to plug for --novel-only refinement (FINDINGS §14.5).
+    from novelty import ref_tag, reference, wl_features
+    ref_hashes, _, ref_meta = reference()
+    novelty_ref = ref_tag(ref_meta)
     files = sorted(globmod.glob(os.path.join(args.scan, "seq*.txt")))
     seen, cands = set(), []
     for f in files:
@@ -66,9 +71,9 @@ def scan(args, spec):
         if h in seen:
             continue
         seen.add(h)
-        cands.append((f, topo, h, h not in corpus_hashes))
+        cands.append((f, topo, h, h not in ref_hashes))
     print(f"[scan] {len(files)} seqs -> {len(cands)} screen-passing distinct "
-          f"(spec {spec.name})", flush=True)
+          f"(spec {spec.name}; novelty vs {novelty_ref})", flush=True)
     if args.shard:
         i, n = (int(x) for x in args.shard.split("/"))
         cands = [c for k, c in enumerate(cands) if k % n == i]
@@ -88,7 +93,8 @@ def scan(args, spec):
             continue
         m, tv = res["metrics"], total_viol(spec, res["metrics"])
         prov = {"source_arm": args.source_arm, "token_file": f.replace("\\", "/"),
-                "novel": bool(novel), "wl_hash": h, "trackb": True}
+                "novel": bool(novel), "novelty_ref": novelty_ref,
+                "wl_hash": h, "trackb": True}
         if not args.no_log:
             size.log_l2_result(spec, topo, m, res["feasible"], res["best_params"],
                                prov, args.recipe, res.get("n_evals") or 0)
@@ -105,8 +111,11 @@ def scan(args, spec):
 def _ref_hashes():
     """(archetype wl -> name, corpus wl set) from the Track-B snapshot. A claimed
     win must match NEITHER: the P5 pools regenerate templates.py archetypes
-    verbatim (~50% of screen-passing samples), and NDL's novelty reference is the
-    41-circuit corpus only, so it counts those copies as novel."""
+    verbatim (~50% of screen-passing samples).
+
+    Kept as a pinned snapshot: it names the archetype a candidate collides with,
+    which `novelty.reference()` (now ref-v2, the same union) does not, and it
+    freezes the 148-archetype set the Track-B claims were checked against."""
     p = "lna/out/_trackb_ref_hashes.json"
     d = json.load(open(p, encoding="utf-8"))
     return {a["wl"]: a["name"] for a in d["archetypes"]}, set(d["corpus_hashes"])

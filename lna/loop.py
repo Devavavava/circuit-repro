@@ -58,17 +58,27 @@ def _near_feasible(r):
 
 def _is_novel(r):
     """A real *generated* token topology (not a hand reference deck) whose wl_hash
-    is not a corpus circuit -- i.e. a design the pipeline discovered itself."""
-    from novelty import corpus_reference
-    ch, _ = corpus_reference()
+    is in neither the corpus nor `templates.py` -- i.e. a design the pipeline
+    discovered itself rather than recited.
+
+    ⚠ This used to test the 41-circuit corpus alone (`corpus_reference`, ref-v1),
+    which counted a verbatim regeneration of a hand-written archetype as a
+    discovery. Under the versioned ref-v2 reference (corpus + every archetype) the
+    headline curve is SPICE-minutes per genuinely-new feasible design, and it can
+    only go UP relative to the old definition -- ref-v2 is a superset, so the
+    denominator can only shrink (FINDINGS §14.5/§16)."""
+    from novelty import reference
+    ref_hashes, _, _ = reference()
     toks = (r.get("graph") or {}).get("tokens")
-    return bool(toks and r.get("wl_hash") and r["wl_hash"] not in ch)
+    return bool(toks and r.get("wl_hash") and r["wl_hash"] not in ref_hashes)
 
 
 def spice_curve():
     """SPICE-minutes per feasible *novel* design over the whole store (iteration-0
     aggregate). Marginal per-iteration is computed from loop-iteration provenance
-    once iterations run."""
+    once iterations run. `novelty_ref` records the measuring stick (see
+    `_is_novel`) so a curve value never travels without it."""
+    from novelty import ref_tag, reference
     l2 = ds.load("topo_labels")
     sims = sum((r.get("n_evals") or 0) for r in l2)
     spice_min = sims * SEC_PER_SIM / 60.0
@@ -80,6 +90,7 @@ def spice_curve():
     per = spice_min / n if n else float("inf")
     return {"spice_minutes": round(spice_min, 1), "sims": sims,
             "feasible": len(feasible), "feasible_novel": n,
+            "novelty_ref": ref_tag(reference()[2]),
             "spice_min_per_feasible_novel": round(per, 1) if n else None}
 
 
@@ -125,15 +136,21 @@ def _sigma_s21():
 
 
 def sample_stats(sample_dir, spec_name="wifi24"):
-    """Frozen NDL@256 + distinct WL-families for a generation dir: novel (not a
-    corpus circuit), spec-L0-passing, distinct-by-WL -- the same protocol as
-    FINDINGS §5 so the tripwire baseline matches the reported NDL."""
+    """Frozen NDL@256 + distinct WL-families for a generation dir: novel (matching
+    nothing in the versioned novelty reference), spec-L0-passing, distinct-by-WL --
+    the same protocol as `novelty.evaluate` so the tripwire baseline matches the
+    reported NDL.
+
+    ⚠ The reference is `ref-v2` (corpus + templates.py archetypes), not the
+    corpus alone, which is what the re-frozen NDL baselines (nb 52 / wb 21) are
+    stated against. Tripwire baselines recorded under the old corpus-only rule
+    are ref-v1 numbers and are NOT comparable (FINDINGS §14.5)."""
     import glob
     from topology import Topology, parse_arrow_file
-    from novelty import wl_features, corpus_reference, wl_cosine
+    from novelty import ref_tag, reference, wl_cosine, wl_features
     from spec import Spec
     spec = Spec.load(spec_name)
-    ch, _ = corpus_reference()
+    ref_hashes, _, ref_meta = reference()
     hashes, feats = set(), []
     for f in sorted(glob.glob(os.path.join(sample_dir, "seq*.txt")))[:256]:
         try:
@@ -143,7 +160,7 @@ def sample_stats(sample_dir, spec_name="wifi24"):
         if not spec.structural_screen(topo)[0]:
             continue
         h, ft = wl_features(topo)
-        if h not in ch and h not in hashes:
+        if h not in ref_hashes and h not in hashes:
             hashes.add(h)
             feats.append(ft)
     # distinct families = single-linkage clusters at cosine>=0.9 among novel hashes
@@ -156,7 +173,8 @@ def sample_stats(sample_dir, spec_name="wifi24"):
         for j in range(i + 1, len(feats)):
             if not seen[j] and wl_cosine(feats[i], feats[j]) >= 0.9:
                 seen[j] = True
-    return {"ndl": len(hashes), "families": fam}
+    return {"ndl": len(hashes), "families": fam,
+            "novelty_ref": ref_tag(ref_meta)}
 
 
 # ------------------------------------------------------------------ tripwires
@@ -184,17 +202,18 @@ def tripwires(sample_dir=None):
         b_ndl, b_fam = base.get("ndl"), base.get("families")
         trip_ndl = bool(b_ndl and s["ndl"] < (1 - NDL_DROP) * b_ndl)
         trip_fam = bool(b_fam and s["families"] < FAM_DROP * b_fam)
-        rows.append(("ndl@256", f"{s['ndl']} (base {b_ndl})", trip_ndl,
+        rows.append(("ndl@256", f"{s['ndl']} (base {b_ndl}) {s['novelty_ref']}",
+                     trip_ndl,
                      "revert checkpoint; raise replay %; halve winner oversampling"))
         rows.append(("wl-families", f"{s['families']} (base {b_fam})", trip_fam,
                      "same as NDL -- mode collapse showing early"))
 
     # 3. critic holdout regression is enforced by adopt-only-if-better (§1), noted
-    print(f"{'tripwire':<14} {'value':<20} {'state':<8} response")
+    print(f"{'tripwire':<14} {'value':<44} {'state':<8} response")
     any_trip = False
     for name, val, trip, resp in rows:
         any_trip = any_trip or trip
-        print(f"{name:<14} {val:<20} {'TRIPPED' if trip else 'ok':<8} "
+        print(f"{name:<14} {val:<44} {'TRIPPED' if trip else 'ok':<8} "
               f"{resp if trip else ''}")
     print(f"\n{'[!] ONE OR MORE TRIPPED' if any_trip else '[ok] all tripwires quiet'}"
           "  (critic-holdout tripwire = adopt-only-if-better, automatic in loop A)")

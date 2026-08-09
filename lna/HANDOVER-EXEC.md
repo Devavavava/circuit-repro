@@ -239,6 +239,82 @@ python lna/benchmark.py --all-feasible --seeds 1,2 --budget 8,8,2 --out-json <ck
 python lna/datastore.py --snapshot v4-train   # pin a training set (sha256 + line count)
 ```
 
+---
+
+## Session 5 (2026-08-09) — concurrent agents on `lna-data`
+
+> **Section conventions.** Several agents work this session in the same worktree
+> and each owns a clearly-marked sub-block below. Append yours; do not edit
+> another's. Commit only your own files with explicit path adds.
+
+### ▸ Sub-block: control experiment + metrics plumbing (owner: the control-arm executor)
+
+**Files owned:** `lna/finetune.py` (additive flags only), `lna/_ctrl_*`,
+`lna/out/ft_ctrl*`, FINDINGS §16, plus the two plumbing fixes. Commits
+`f9114bb`, `1ee889b`, and the §16 write-up. Full measured detail in
+**FINDINGS §16**.
+
+**Two plumbing fixes (done, quartet green after).**
+
+1. **The four remaining ref-v1 novelty call sites are migrated to ref-v2**
+   (`campaign.py` / `loop.py` / `size.py` / `trackb_g4.py` — the follow-up §14.5
+   left open). They now call `novelty.reference()` and stamp `novelty_ref` into
+   what they log. **This is not cosmetic:** the headline curve reads
+   **11 → 7 feasible-novel designs, 310.1 → 487.3 SPICE-min/design**, because
+   four store designs the corpus-only check called discoveries are WL-exact
+   regenerations of archetypes that were *already in the 92-archetype training
+   set* when those samples were drawn. **⚠ That qualifies the Gate-B1 gps-l1
+   claim:** `seq0089` and `seq0215` ARE hand templates (`cs_gi1_dg1_cx1_cc0_R_bf1`
+   / `..._cc1_tank_bf1`) — the sizing result stands, the topology-discovery half
+   does not. Track B's `seq0192` and the wifi24 tier-2 `seq0220` (wl `396b9032`)
+   both survive as genuinely novel. Details + the fourth entry (a phantom created
+   by `seq*.txt` filename reuse) in **FINDINGS §16.4**.
+2. **`critic_gnn.py`'s `C1?` column now reports the restated gate** (§14.6), with
+   `ofceil` / `skill` printed beside `enrich`. Re-run on `v4-train`: family skill
+   **0.792 → YES**, source-shift skill **0.367 → YES** — matching §14.6 exactly,
+   where the retired bar printed `no` on both.
+
+**The control experiment (a MEASUREMENT — nothing here is adopted).** Template-free
+arms fine-tuned from the same upstream `Pretrain.pth`, mirroring the P5-v3
+two-stage lineage with every archetype sequence removed. Headline, ref-v2:
+
+| arm | nb NDL@256 | wb NDL | arch copies (nb) | corpus copies (nb) | spec-L0 (nb) | novel-front best viol (wifi24 / dhruva-l1) |
+|---|---|---|---|---|---|---|
+| **P5-v3 (baseline, unchanged)** | **52** | **21** | 37.9% | 31.6% | **80.5%** | **0.000 (1 feasible)** / 1.023 |
+| ctrl-v1 (no templates, winners kept) | 42 | **31** | 0.4% | 40.2% | 35.5% | **0.000 (1 feasible)** / **0.960** |
+| ctrl-v1s (no archetype exposure at all) | 26 | – | 0.0% | 55.5% | 35.2% | 0.175 (0 feasible) / – |
+
+**Read:** the templates buy structural **yield** (spec-L0 80.5% → 35.5%), not
+novelty per sample (NDL per screen-passing sample is *higher* for the control:
+0.46 vs 0.25). About half the baseline's genuine novelty survives their complete
+removal, and the control's feasible design sits **NN-sim 0.64** from anything in
+the reference where the baseline's sits at **0.94** — i.e. the baseline's "novel
+front" is largely template-perturbation. No P1/P2-style collapse. ⚠ ctrl-v1 is
+not literally template-free (**42.3% of the winners rows are archetypes**) —
+that is what ctrl-v1s isolates, and the 42 → 26 gap is the size of the back door.
+
+**New/changed files:** `finetune.py` +`--no-templates` / `--templates-file` /
+`--winners-file` / `--tag` (all additive, defaults byte-unchanged);
+`lna/_ctrl_front.py` (novel-front driver, reusable);
+`lna/_ctrl_strict_winners.py`; `lna/_ctrl_train.sh` / `_ctrl_strict.sh` (+
+launchers). Pools `lna/out/ft_ctrl_{nb,wb}_s1337`, `ft_ctrls_nb_s1337`
+(meta.json tracked, seq*.txt gitignored). Checkpoints `ft_ctrl.pth`,
+`ft_ctrl_v2.pth`, `ft_ctrls_v2.pth` (gitignored, ~198 MB each — **do not** let
+them displace `ft_p5_v2.pre_dhruva.pth`, which is still the adopted P5-v3).
+
+**⚠ Store note:** 20 rows with recipe `ctrl-v1` are in
+`lna/data/topo_labels.jsonl` (arm in `provenance.source_arm`:
+`ctrl-v1` / `ctrl-v1s` / `p5v3-baseline`). That file was left **uncommitted** by
+this agent — it is the shared store and other agents were appending to it live.
+Whoever commits it next is committing those rows too.
+
+**Where this points next (cheap, one fine-tune):** if the templates' measured
+product is screen yield rather than novelty, a P5 arm that keeps the archetype
+scaffolding but **down-weights or curriculum-drops it late in training** should
+keep the yield and recover the novelty the 37.9% regurgitation is costing. One
+train + one NDL row settles it.
+
+---
 
 **⚠ BLIND PROTOCOL is active — read plans2/08 §"Blind protocol" before touching
 templates.py.** No paper circuit content anywhere; new families only from the

@@ -22,6 +22,8 @@ drown the circuit tokens. lr 3e-5, batch 32.
     python lna/finetune.py --arm p1 --do train  --device cuda
     python lna/finetune.py --arm p1 --do sample --device cuda --seed 1337 --out lna/out/ft_p1_s1337
     python lna/finetune.py --arm p2 --do both   --device cuda
+    # template-free control arm (FINDINGS §16): same recipe, zero archetypes
+    python lna/finetune.py --arm p5 --do train --no-templates --tag ctrl
     # then, Windows: python lna/novelty.py --eval lna/out/ft_p1_s1337 --spec wifi24
 """
 import argparse
@@ -101,13 +103,24 @@ def _corpus_class(npy_path, nb_id, wb_id):
     return nb_id if Topology(toks).n_inductors >= 1 else wb_id
 
 
-def build_dataset_p5(stoi, winners=False):
+def build_dataset_p5(stoi, winners=False, templates=True, templates_file=None,
+                     winners_file=None):
     """Corpus LNAs (tagged NB/WB by inductor) + Eulerian-augmented templates.py
     archetypes (tagged by class) + <OTHER> replay. This is the P5 lever: template
     diversity breaks the 35-graph memorization ceiling, and the class tokens make
     narrowband vs wideband a sampled channel (04-GEN §6). With `winners=True` the
     store's own feasible/near-feasible winners are mixed in -- Stage-3 Loop B
-    expert iteration (templates.py --emit-winners -> out/winners_train.json)."""
+    expert iteration (templates.py --emit-winners -> out/winners_train.json).
+
+    `templates=False` is the **template-free control arm** (FINDINGS §16): the
+    identical recipe with zero archetype sequences, which measures how much of the
+    generator's capability is the template scaffolding rather than the model. It
+    also removes the archetype half of the validation set, so val is the 6 held-out
+    corpus circuits alone -- stated because the best-val checkpoint policy then
+    early-stops on a different (corpus-only) criterion.
+    `templates_file` / `winners_file` pin *which* emission a run trained on; the
+    archetype set has grown 92 -> 118 -> 135 -> 148, so reproducing a historical
+    arm means naming its file, not just its flags."""
     nb, wb, oth = stoi["<LNA_NB>"], stoi["<LNA_WB>"], stoi["<OTHER>"]
     train, val = [], []
     for i in LNA_INDICES:
@@ -119,19 +132,21 @@ def build_dataset_p5(stoi, winners=False):
     n_corpus = len(train)
     # pre-generated augmented template rows (templates.py --emit-train), so the
     # GPU env needs no pandas; hold out every 8th archetype for val.
-    tf = os.path.join(HERE, "out", "templates_train.json")
-    tdata = json.load(open(tf, encoding="utf-8"))
-    n_arch, n_tmpl_tr = tdata["n_archetypes"], 0
-    for r in tdata["rows"]:
-        rows = _rows_from_seqs([r["seq"]], nb if r["cls"] == "nb" else wb)
-        if r["arch"] % 8 == 0:                # hold out every 8th archetype
-            val.extend(rows)
-        else:
-            train.extend(rows)
-            n_tmpl_tr += len(rows)
+    n_arch, n_tmpl_tr = 0, 0
+    if templates:
+        tf = templates_file or os.path.join(HERE, "out", "templates_train.json")
+        tdata = json.load(open(tf, encoding="utf-8"))
+        n_arch = tdata["n_archetypes"]
+        for r in tdata["rows"]:
+            rows = _rows_from_seqs([r["seq"]], nb if r["cls"] == "nb" else wb)
+            if r["arch"] % 8 == 0:            # hold out every 8th archetype
+                val.extend(rows)
+            else:
+                train.extend(rows)
+                n_tmpl_tr += len(rows)
     n_win = 0
     if winners:
-        wf = os.path.join(HERE, "out", "winners_train.json")
+        wf = winners_file or os.path.join(HERE, "out", "winners_train.json")
         for r in json.load(open(wf, encoding="utf-8"))["rows"]:
             train.extend(_rows_from_seqs([r["seq"]], nb if r["cls"] == "nb" else wb))
             n_win += 1
@@ -139,15 +154,16 @@ def build_dataset_p5(stoi, winners=False):
     target = int(0.15 * len(train))
     replay = [gen[j % len(gen)] for j in range(target)] if gen else []
     train += replay
-    print(f"[p5] train: {n_corpus} corpus + {n_tmpl_tr} template ({n_arch} arch) "
+    print(f"[p5] train: {n_corpus} corpus + {n_tmpl_tr} template ({n_arch} arch"
+          f"{'' if templates else ', TEMPLATE-FREE control arm'}) "
           f"+ {n_win} winner + {len(replay)} replay = {len(train)}; val: {len(val)}",
           flush=True)
     return _pad(train), _pad(val)
 
 
-def build_dataset(arm, stoi, winners=False):
+def build_dataset(arm, stoi, winners=False, **kw):
     if arm == "p5":
-        return build_dataset_p5(stoi, winners=winners)
+        return build_dataset_p5(stoi, winners=winners, **kw)
     lna_cls = stoi.get("<LNA>") if arm == "p1" else None
     oth_cls = stoi.get("<OTHER>") if arm == "p1" else None
     train, val = [], []
@@ -212,17 +228,22 @@ def build_model(arm, vocab_size, device, warm=None):
 
 
 # ------------------------------------------------------------------ train
-def ckpt_path(arm, winners=False):
+def ckpt_path(arm, winners=False, tag=None):
     # expert-iteration writes a distinct version so the base checkpoint is kept
     # (revertability is a Stage-3 tripwire requirement, 04-SELF-IMPROVE §2).
-    return os.path.join(HERE, "out", f"ft_{arm}{'_v2' if winners else ''}.pth")
+    # `tag` renames ONLY the checkpoint file, never the architecture: a side arm
+    # (e.g. the template-free control) must never overwrite a shared 198 MB
+    # checkpoint other agents are sampling from.
+    return os.path.join(HERE, "out", f"ft_{tag or arm}{'_v2' if winners else ''}.pth")
 
 
-def train(arm, device, epochs=40, batch=32, lr=3e-5, seed=1337, winners=False):
+def train(arm, device, epochs=40, batch=32, lr=3e-5, seed=1337, winners=False,
+          tag=None, **kw):
     torch.manual_seed(seed)
     _, stoi, vocab_size = ext_vocab(arm)
-    (Xtr, Ytr), (Xva, Yva) = build_dataset(arm, stoi, winners=winners)
-    warm = ckpt_path(arm) if (winners and os.path.exists(ckpt_path(arm))) else None
+    (Xtr, Ytr), (Xva, Yva) = build_dataset(arm, stoi, winners=winners, **kw)
+    base = ckpt_path(arm, tag=tag)
+    warm = base if (winners and os.path.exists(base)) else None
     model = build_model(arm, vocab_size, device, warm=warm)
     opt = torch.optim.AdamW(model.parameters(), lr=lr)
     Xtr, Ytr, Xva, Yva = [t.to(device) for t in (Xtr, Ytr, Xva, Yva)]
@@ -241,7 +262,8 @@ def train(arm, device, epochs=40, batch=32, lr=3e-5, seed=1337, winners=False):
         model.train()
         return sum(losses) / max(len(losses), 1)
 
-    os.makedirs(os.path.dirname(ckpt_path(arm, winners)), exist_ok=True)
+    out_ckpt = ckpt_path(arm, winners, tag=tag)
+    os.makedirs(os.path.dirname(out_ckpt), exist_ok=True)
     best = float("inf")
     t0 = time.time()
     for ep in range(epochs):
@@ -259,37 +281,39 @@ def train(arm, device, epochs=40, batch=32, lr=3e-5, seed=1337, winners=False):
         flag = ""
         if vl < best:
             best = vl
-            torch.save(model.state_dict(), ckpt_path(arm, winners))
+            torch.save(model.state_dict(), out_ckpt)
             flag = "  <- saved"
         print(f"[{arm}] epoch {ep:3d}  train {tot/(n//batch+1):.4f}  "
               f"val {vl:.4f}{flag}", flush=True)
     print(f"[{arm}] done in {time.time()-t0:.0f}s; best val {best:.4f} "
-          f"-> {ckpt_path(arm, winners)}")
+          f"-> {out_ckpt}")
 
 
 # ------------------------------------------------------------------ sample
-def load_ft(arm, device, winners=False):
+def load_ft(arm, device, winners=False, tag=None):
     _, _, vocab_size = ext_vocab(arm)
     model = GPTLanguageModel(vocab_size, N_EMBD, BLOCK_SIZE, N_HEAD, N_LAYER, DROPOUT)
-    model.load_state_dict(torch.load(ckpt_path(arm, winners), map_location=device))
+    model.load_state_dict(torch.load(ckpt_path(arm, winners, tag=tag),
+                                     map_location=device))
     return model.to(device).eval()
 
 
 def sample(arm, device, n=256, batch=32, max_tokens=256, temperature=0.7,
-           seed=1337, out=None, inductor_bias=0.0, cls="nb", winners=False):
+           seed=1337, out=None, inductor_bias=0.0, cls="nb", winners=False,
+           tag=None):
     torch.manual_seed(seed)
     devs, stoi, _ = ext_vocab(arm)
     itos = {i: d for i, d in enumerate(devs)}
-    model = load_ft(arm, device, winners=winners)
+    model = load_ft(arm, device, winners=winners, tag=tag)
     if arm == "p1":
         prefix = [stoi["<LNA>"], VSS_ID]
     elif arm == "p5":
         prefix = [stoi["<LNA_NB>" if cls == "nb" else "<LNA_WB>"], VSS_ID]
     else:
         prefix = [VSS_ID]
-    tag = f"{arm}{'v2' if winners else ''}"
-    out = out or os.path.join(HERE, "out", f"ft_{tag}_{cls}_s{seed}"
-                              if arm == "p5" else f"ft_{tag}_s{seed}")
+    otag = f"{tag or arm}{'v2' if winners else ''}"
+    out = out or os.path.join(HERE, "out", f"ft_{otag}_{cls}_s{seed}"
+                              if arm == "p5" else f"ft_{otag}_s{seed}")
     os.makedirs(out, exist_ok=True)
     if inductor_bias:
         from decode import generate_inductor_biased
@@ -341,14 +365,32 @@ def main():
     ap.add_argument("--inductor-bias", type=float, default=0.0,
                     help="P4: add this logit bias to unused L-device tokens while "
                          "the running inductor ratio is below target")
+    ap.add_argument("--no-templates", action="store_true",
+                    help="p5 TEMPLATE-FREE control arm: train on corpus (+winners) "
+                         "only, zero templates.py archetype sequences (FINDINGS §16)")
+    ap.add_argument("--templates-file", default=None,
+                    help="pin which templates.py emission to train on "
+                         "(default out/templates_train.json)")
+    ap.add_argument("--winners-file", default=None,
+                    help="pin which emit-winners emission to train on "
+                         "(default out/winners_train.json)")
+    ap.add_argument("--tag", default=None,
+                    help="rename the checkpoint/out-dir stem (ft_<tag>[_v2].pth) so "
+                         "a side arm never overwrites a shared checkpoint")
     args = ap.parse_args()
+    dkw = {}
+    if args.arm == "p5":
+        dkw = {"templates": not args.no_templates,
+               "templates_file": args.templates_file,
+               "winners_file": args.winners_file}
 
     if args.do in ("train", "both"):
         train(args.arm, args.device, epochs=args.epochs, seed=args.seed,
-              winners=args.winners)
+              winners=args.winners, tag=args.tag, **dkw)
     if args.do in ("sample", "both"):
         sample(args.arm, args.device, n=args.n, seed=args.seed, out=args.out,
-               inductor_bias=args.inductor_bias, cls=args.cls, winners=args.winners)
+               inductor_bias=args.inductor_bias, cls=args.cls,
+               winners=args.winners, tag=args.tag)
 
 
 if __name__ == "__main__":

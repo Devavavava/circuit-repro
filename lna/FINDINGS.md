@@ -1982,3 +1982,281 @@ the precision each bar implies at the measured base rate.
 python lna/critic.py --eval --snapshot v4-train --sigma-recipe candidate-v1+bo3
 python lna/critic.py --eval --snapshot v2-train    # reproduces the historical pass
 ```
+
+## 16. Phase 3 — the template-free control experiment: how much of the generator is the scaffolding? (Session 5)
+
+This section is a **measurement, not a proposal**. No arm here is a candidate for
+adoption; `ft_ctrl*.pth` must not replace `ft_p5_v2.pre_dhruva.pth` as the
+generator whatever the numbers say. The question is narrow and it has no "good"
+answer, only an informative one:
+
+> Every P5-era generator is fine-tuned on the Eulerian-augmented `templates.py`
+> archetype set. §14.5 then measured that **47% of the adopted generator's
+> screen-passing output is verbatim training archetype**. So: if the templates
+> were taken away, would the generator collapse back to reciting the 41 corpus
+> circuits — the way the historical template-free P1/P2 arms did (median NN-sim
+> 1.000, NDL 16–24) — or has it internalized enough of the design space to hold a
+> competitive front on its own?
+
+Answer, in one line: **it is graded, not binary — the templates buy structural
+*yield*, not novelty per token, and roughly half of the adopted generator's
+genuine novelty survives their complete removal.**
+
+### 16.1 The arms, and what "template-free" is allowed to mean
+
+The control mirrors the P5-v3 lineage exactly, with every archetype sequence
+removed. P5-v3 is a two-stage arm (`Pretrain.pth` → `ft_p5.pth` → `ft_p5_v2.pth`,
+warm-started), so the control is two-stage too — a one-stage control would have
+confounded "no templates" with "one fewer training stage".
+
+| | stage A (from `Pretrain.pth`) | stage B (warm from stage A) | train / val rows | best val |
+|---|---|---|---|---|
+| **P5-v3** (adopted) | corpus + **2230 template rows (118 arch)** + replay | + winners (965) | 7734 / 736 | 0.2300 @ ep 1 |
+| **ctrl-v1** | corpus + replay, **0 template rows** | + winners (965) | 5170 / 492 | **0.2162 @ ep 0** |
+| **ctrl-v1s** (strict) | *same stage A as ctrl-v1* | + winners with every archetype row dropped (512) | 4649 / 492 | 0.2189 @ ep 0 |
+
+Everything else is identical: `<LNA_NB>`/`<LNA_WB>` class tokens, lr 3e-5, batch
+32, 40 epochs with the best-val checkpoint shipping, seed 1337, sampling at
+n=256 / batch 32 / 256-token cap / temperature 0.7 from `<CLS> VSS`. The winners
+file is pinned to `winners_train.pre_dhruva.json` — the *P5-v3-era* emission, 965
+rows — not the current one, so the control sees exactly the winners P5-v3 saw.
+(One documented deviation, on the secondary arm only: ctrl-v1s ran 12 epochs
+rather than 40. Every fine-tune in this program takes its best val loss at epoch
+0–1 and rises monotonically thereafter — P5-v3 0.2300 @ 1, ctrl stage A 0.2226 @
+1 then 38 epochs of worsening, ctrl-v1 stage B 0.2162 @ 0 — and the shipped
+checkpoint is the best-val one, so epochs 12–39 cannot change the artefact.
+ctrl-v1 itself was run at the full 40 to keep the headline arm recipe-identical.)
+
+**⚠ Why ctrl-v1s exists: "corpus + winners only" is not actually template-free.**
+The winners channel is the store's own top quartile, and the store contains
+stratum-T rows — hand archetypes that the sizing loop promoted. Measured on the
+P5-v3-era winners file: **42 of its 77 distinct topologies are `templates.py`
+archetypes, carrying 42.3% of the 965 rows** (3 more are corpus circuits; 32 are
+genuinely new). So ctrl-v1 removes the deliberate 118-archetype *scaffolding* but
+still sees 42 archetypes through the back door. ctrl-v1s drops those rows (512 of
+965 survive, 32 distinct topologies) and is the only arm with **zero** archetype
+exposure anywhere in its lineage. Both are reported; the difference between them
+is the most informative number in the section.
+
+`finetune.py` gained three additive flags for this (`--no-templates`,
+`--templates-file` / `--winners-file`, `--tag`). Defaults are byte-unchanged, and
+`--tag` renames only the checkpoint/out-dir stem so a side arm can never overwrite
+a shared 198 MB `.pth` that another agent is sampling from.
+
+```bash
+# the strict winners file (deterministic; drop every row whose WL hash is in ref-v2)
+python lna/_ctrl_strict_winners.py
+# the two arms, on the WSL GPU (~20 min each at 40 epochs)
+<gpu py> lna/finetune.py --arm p5 --do train --device cuda --no-templates --tag ctrl
+<gpu py> lna/finetune.py --arm p5 --do train --device cuda --no-templates --tag ctrl \
+    --winners --winners-file lna/out/winners_train.pre_dhruva.json
+<gpu py> lna/finetune.py --arm p5 --do sample --device cuda --seed 1337 --n 256 \
+    --class nb --winners --tag ctrl --out lna/out/ft_ctrl_nb_s1337
+python lna/novelty.py --eval lna/out/ft_ctrl_nb_s1337 --spec wifi24 --ref both
+python lna/_ctrl_front.py --pool lna/out/ft_ctrl_nb_s1337 --spec wifi24 \
+    --arm ctrl-v1 --scan-limit 14 --top 5 --no-nf-gate
+```
+
+### 16.2 Pool metrics — the frozen protocol, n=256, seed 1337, `ref-v2[189h/b5689490]`
+
+| arm | class | **NDL@256 v2** | NDL v1 | copies (arch / corpus) | med NN-sim v1 → v2 | spec-L0 | term | ind ratio | anyL |
+|---|---|---|---|---|---|---|---|---|---|
+| **P5-v3 (baseline)** | nb | **52** | 100 | 69.5% (**37.9%** / 31.6%) | 0.573 → 1.000 | **206 (80.5%)** | 100.0% | **0.224** | 93.8% |
+| **ctrl-v1** | nb | **42** | 43 | 40.6% (**0.4%** / 40.2%) | 1.000 → 1.000 | 91 (35.5%) | 99.6% | 0.178 | 59.0% |
+| **ctrl-v1s** | nb | **26** | 26 | 55.5% (**0.0%** / **55.5%**) | 1.000 → 1.000 | 90 (35.2%) | 98.8% | 0.179 | 59.4% |
+| **P5-v3 (baseline)** | wb | **21** | 35 | 51.2% (14.1% / 37.1%) | 1.000 → 1.000 | **96 (37.5%)** | 99.6% | 0.077 | 39.5% |
+| **ctrl-v1** | wb | **31** | 31 | 35.5% (**0.0%** / 35.5%) | 0.609 → 0.621 | 50 (19.5%) | 98.8% | 0.156 | 53.9% |
+
+Historical anchors on the same stick: **P0 prefix-12 = 16**, **P2 ≤ 24** (bounded,
+pool lost — §14.5). Distinct-WL-family counts equal NDL in every row above, so
+the family metric adds nothing here and is omitted.
+
+**Four things this table says.**
+
+1. **★ The template contribution decomposes cleanly, and it is about half.**
+   nb NDL@256 goes **52 → 42 → 26** as archetype exposure is removed in two
+   steps. The full 2230-row scaffolding over 118 archetypes buys **+10** NDL over
+   seeing 42 archetypes through the winners channel; those 42 back-door
+   archetypes buy **+16** over seeing none at all. A generator with *no* archetype
+   exposure of any kind still reaches **26**, i.e. **half the adopted baseline**
+   and comfortably above P2's ≤24 and the P0 baseline's 16.
+2. **★ Corpus copying rises exactly as archetype exposure falls: 31.6% → 40.2% →
+   55.5%.** This is the P1/P2 memorization mechanism re-asserting itself, and it
+   is *graded*: strip the structures the model can learn from and it falls back on
+   reciting the 41 corpus graphs. The median screen-passing sample of both control
+   arms is a WL-exact corpus circuit (median NN-sim 1.000 against ref-**v1**,
+   where P5-v3 reads 0.573) — the historical collapse signature is present, but it
+   coexists with a 26–42-topology novel tail rather than eliminating it.
+3. **★★ The templates' real product is structural YIELD, not novelty per sample.**
+   spec-L0 pass rate **80.5% → 35.5%** (nb) and **37.5% → 19.5%** (wb): the
+   control produces less than half as many samples that are even shaped like an
+   LNA. But *conditional on passing the screen*, the control is the more novel
+   generator — NDL per screen-passing sample is **42/91 = 0.46** for ctrl-v1
+   against **52/206 = 0.25** for P5-v3 (wb: **31/50 = 0.62** vs **21/96 = 0.22**).
+   The archetype set is teaching the model what a valid LNA looks like; it is not
+   what makes the output new.
+4. **⚠ On the wb channel the control BEATS the re-frozen baseline: NDL 31 vs 21.**
+   That is not a template win reversed by luck — it is §14.5's correction landing.
+   P5-v3's wb pool is 14.1% verbatim archetype and its median wb sample is a
+   WL-exact match to training data; the control's wb pool contains **zero**
+   archetype copies and its median sample sits at NN-sim 0.62. **This is not an
+   adopt:** the wb inductor ratio moves the wrong way for an inductorless spec
+   (0.077 → 0.156), the adoption rule is "beat NDL at equal-or-better inductor
+   ratio", and this arm is a control by construction. It does say the wb channel's
+   headline number was carried by regurgitation more than by structure.
+
+### 16.3 ★ The novel front — the decisive comparison
+
+NDL counts new topologies; it says nothing about whether they are any *good*.
+`lna/_ctrl_front.py` measures the other half under one fixed protocol applied
+identically to every arm: take the pool's genuinely-novel candidates (WL hash
+matching **no `templates.py` archetype, no corpus circuit and no existing store
+row**), light all-free ZOAF scan (`n_candidates=4, sgd_iters=5, cgd_iters=1`) of
+the first 14 in filename order, then **box-clamped** `size.polish` (never the
+retired unclamped ascent — §13.3) on the top 5 by total violation. Tier-1 gating
+(S11/S21/Idd), NF measured and advisory, so the numbers are comparable with the
+program's whole feasibility record. Every result logged, recipe `ctrl-v1`, arm in
+`provenance.source_arm`.
+
+| arm | spec | novel front | sized | **feasible** | **best violation** | best design (replay-verified) |
+|---|---|---|---|---|---|---|
+| **P5-v3** | wifi24 | 45 | 14 | **1** | **0.000** | `seq0009` S11 −12.98 / S21 13.21 / Idd 3.63 · NF 3.50 adv |
+| **ctrl-v1** | wifi24 | 35 | 14 | **1** | **0.000** | `seq0014` S11 −14.28 / S21 12.78 / Idd 4.36 · NF 3.57 adv |
+| **ctrl-v1s** | wifi24 | 22 | 14 | 0 | **0.175** | `seq0043` S11 −9.0 / S21 17.5 / Idd 5.79 |
+| **P5-v3** | dhruva-l1 | 45 | 14 | 0 | 1.023 | `seq0015` S11max −14.1 / S21 −0.6 / Idd 0.35 |
+| **ctrl-v1** | dhruva-l1 | 36 | 14 | 0 | **0.960** | `seq0040` S11max −11.3 / S21 1.0 / Idd 0.0 |
+
+**★ The template-free arm produced a genuinely novel, replay-verified feasible
+wifi24 LNA.** `ft_ctrl_nb_s1337/seq0014`, wl `ab74782d9a3914ba`, 9 devices /
+1 inductor, reached by bounded polish; `size.replay_ok` re-evaluates the stored
+point and reproduces the stored metrics. It matches none of the 148 archetypes,
+none of the 41 corpus circuits and no row in the (then) 886-row store. The
+baseline's front produced exactly one as well (`seq0009`, 12 devices /
+3 inductors). On dhruva-l1 neither arm converted, and the control's best
+violation is *lower* (0.960 vs 1.023).
+
+**⚠ And the sharpest number in the section is a nearest-neighbour, not a hash.**
+WL-novelty is a hash test; graded similarity tells a different story about *how*
+novel each arm's front actually is:
+
+| front winner | arm | NN-sim to its nearest reference item | nearest neighbour |
+|---|---|---|---|
+| `seq0009` | P5-v3 | **0.939** | `arch:cs_gi1_dg1_cx1_cc1_tapped_bf1` |
+| `seq0014` | ctrl-v1 | **0.642** | `arch:cs_gi1_dg0_cx1_cc0_R_bf1` |
+| `seq0043` | ctrl-v1s | **0.574** | `arch:cs_gi1_dg0_cx1_cc0_tapped_bf0` |
+
+The baseline's feasible novel design is a **0.94-similar variant of a template it
+was trained on** — hash-novel, structurally template-adjacent. The control's is
+0.64 from anything in the reference. So on this evidence the template-trained
+generator's "novel front" is largely *template-perturbation*, while the
+template-free arms are exploring further out and paying for it in yield.
+
+**Statistical honesty.** One feasible out of 14 per arm is a single Bernoulli
+draw each; the feasibility column does **not** separate the arms and must not be
+read as "the control ties the baseline" at any confidence. The best-violation
+column and the 45/35/22-candidate front sizes are the finer-grained signal, and
+they say the same thing more weakly: the arms are close, and neither dominates.
+
+**SPICE cost.** 12,794 ngspice evaluations over the five front runs; the scan
+phases measured 1,352 s of process time (**0.10–0.14 s/sim** at this light
+budget), so the experiment cost **≈24 min of real ngspice**. Note that
+`loop.SEC_PER_SIM = 1.0` — the store's costing convention, calibrated on
+anchor-strength budgets — would bill the same work at 213 SPICE-min. Both numbers
+are stated because the headline curve uses the second one.
+
+### 16.4 What the ref-v2 migration corrected on the way in
+
+The four remaining `corpus_reference()` (ref-v1) call sites flagged at the end of
+§14.5 — `campaign.py`, `loop.py`, `size.py`, `trackb_g4.py` — now call the
+versioned `novelty.reference()` and stamp `novelty_ref` into what they log. That
+is a plumbing change with a substantive consequence:
+
+| headline curve (whole store, `loop.py --curve`) | feasible | **feasible-novel** | SPICE-min per novel design |
+|---|---|---|---|
+| ref-v1 (what it used to report) | 12 | **11** | **310.1** |
+| **ref-v2 (correct)** | 12 | **7** | **487.3** |
+
+**Four designs the old check called novel discoveries are WL-exact regenerations
+of archetypes that were already in the generator's training set when those
+samples were drawn** — verified against the pinned `templates_train.pre_broaden`
+(92-archetype) and `pre_dhruva` (118-archetype) emissions, so this is not the
+archetype set having grown afterwards:
+
+| design | spec | archetype it reproduces | in the 92-arch training set? |
+|---|---|---|---|
+| `seq0089` | gps-l1 | `cs_gi1_dg1_cx1_cc0_R_bf1` | **yes** |
+| `seq0215` | gps-l1 | `cs_gi1_dg1_cx1_cc1_tank_bf1` | **yes** |
+| a second topology later written to `ft_p5v2_nb_s1337/seq0220.txt` | wifi24 | `cs_gi1_dg1_cx1_cc1_R_bf1` | **yes** |
+| `rfbcs3_tank_cc21_bf0` | dhruva-l1 | itself (the hand archetype) | n/a — never claimed as generated |
+
+**⚠ This qualifies the Gate-B1 gps-l1 claim, and the qualification is only about
+topology, not about the circuits.** Both gps-l1 feasibles are real,
+SPICE-verified, in-box designs and the *sizing* result stands exactly as
+recorded: the generated-and-sized route reached feasibility where CP1's all-free
+ZOAF on the 30 new families did not. What does **not** stand is the
+topology-discovery half — "the generator supplies the co-sizeable input network
+the hand templates lacked" (BROADEN-PROGRESS CP5). The topology **is** a hand
+template; the generator recited it, and polish sized it. Note also that CP1 sized
+only the *30 new* families against gps-l1, never these two older `cs_*`
+archetypes, so it was never a same-topology comparison in the first place.
+
+**Two claims explicitly survive.** Track B's `seq0192` dhruva-l1 feasible
+(wl `20bca9a7c3a5f263`) was hand-checked against all 148 archetypes at the time
+and is still novel under ref-v2. The wifi24 tier-2 `seq0220` (wl
+`396b90321529157a`, NF 2.43) is also still novel — the archetype-copy row above
+is a *different* topology that was later written to the same filename when a
+generator run reused the output directory, and was picked up by Track C's
+best-of-3 σ probe. That collision is the same `seq*.txt`-name-reuse trap that
+07-EXIT §1 already had to fence with `size.replay_ok`; it is now on record as
+having also produced a phantom "novel feasible design" in the headline count.
+
+`critic_gnn.py`'s printed `C1?` column (the other item §14.6 left as a follow-up)
+now reports the restated gate through `critic.c1_stats` / `critic.c1_pass` and
+prints `ofceil` / `skill` beside `enrich`. Re-run on `v4-train`: family holdout
+ρ(S21) 0.847, prec@20% 0.895, **skill 0.792 → YES**; source-shift ρ(S21) 0.615,
+prec@20% 0.655, **skill 0.367 → YES** — reproducing §14.6's table, where the
+retired bar printed `no` on both.
+
+### 16.5 The honest reading
+
+**Neither hypothesis in the brief wins outright, and the middle answer is the
+interesting one.** The templates are *not* load-bearing for novelty: strip them
+completely and the generator still mints 26 novel distinct screen-passing
+topologies per 256 samples (half the adopted baseline, above every pre-P5 arm),
+its novel front still reaches violation 0.175 on wifi24, and with the winners
+channel left intact it mints 42, beats the baseline outright on the wideband
+channel, and lands a replay-verified feasible wifi24 LNA that sits 0.64 NN-sim
+from anything in the reference — further out than the baseline's own front
+winner at 0.94. That is not the P1/P2 collapse; the memorization ceiling is
+genuinely broken, and what broke it was as much the class tokens and the
+expert-iteration winners channel as the archetypes.
+
+What the templates *are* load-bearing for is **structural yield**: 80.5% vs 35.5%
+spec-L0 on nb. Their job in this pipeline turns out to be teaching the model what
+a well-formed LNA looks like, so that more of its samples are worth spending
+ngspice on — and that is a real and valuable thing to buy, just not the thing the
+NDL headline was implicitly crediting them with. The corresponding cost is
+visible in the same table: 37.9% of the baseline's output is verbatim archetype,
+its median screen-passing sample is a WL-exact copy of training data, and its
+best novel-front design is a 0.94-similar template variant. Template dependence
+is not "fading" so much as **relocating** — from novelty, where §14.5 already
+showed the credit was misattributed, to yield, where it is earned.
+
+**Two caveats that bound all of the above.** (1) ctrl-v1 is not literally
+template-free — 42.3% of its winner rows are archetypes — which is exactly why
+ctrl-v1s was run, and the 42 → 26 gap between them is the honest size of that
+back door. (2) The novel-front comparison is 14 candidates and one feasible per
+arm; it establishes that the control is *in the same league*, not that it
+matches. A larger front (or the same protocol at several seeds) is what would
+turn 16.3 from a plausibility argument into a measurement.
+
+**Nothing here is adopted.** The re-frozen baseline stays **P5-v3 =
+`ft_p5_v2.pre_dhruva.pth`, nb 52 / wb 21 under ref-v2**. The control checkpoints
+`ft_ctrl.pth` / `ft_ctrl_v2.pth` / `ft_ctrls_v2.pth` exist only as the evidence
+behind this section (gitignored, ~198 MB each; the pools' `meta.json` are
+tracked). The one actionable follow-up the experiment suggests is cheap and is
+*not* a generator change: if the templates' measured product is screen yield,
+then a P5 arm that keeps the archetype scaffolding but **down-weights or
+curriculum-drops it late in training** should keep the yield and recover the
+novelty the regurgitation is costing — testable with one fine-tune and one NDL
+row.

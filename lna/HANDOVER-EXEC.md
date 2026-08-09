@@ -519,6 +519,78 @@ python lna/novelty.py --eval <dir> --ref all --spec wifi24
 python lna/_ndl_refv3.py && python lna/_ndl_flipcheck.py   # protocol re-run + flip check
 ```
 
+### ▸ Sub-block: WP-BIAS v3 — the DC-return rules (same owner; `bias.py` transferred from the NF track)
+
+**Files owned:** `lna/bias.py` only. FINDINGS **§21**, this sub-block. `size.py`,
+`moves.py` and the specs were deliberately untouched (the NF track owns them and
+was mid-campaign). Full measured detail in **FINDINGS §21**.
+
+**★ R-SOURCE and R-DRAIN exist, they work, and they are OFF BY DEFAULT.** The
+third measurement was the one that moved: finding #9's off-MOS split (15 source /
+16 drain / 12 load-sizing), §19.2's 4 blocked externals (all under
+`sources_no_dc_path`), and §17.6's gate-rescue that gained 0 of those 4 all point
+at the same missing rule. A source node with no DC path now gets a return
+resistor to its device's rail (NMOS → 0, PMOS → VDD); a drain gets a load feed to
+the opposite rail.
+
+| `bias.py --validate`, 41 corpus LNAs | v1 (default) | +R-SOURCE | +R-SOURCE+R-DRAIN |
+|---|---|---|---|
+| **all MOS ON** | 22/41 (54%) | 25/41 (61%) | **26/41 (63%)** |
+| all MOS SATURATED | 14/41 | 15/41 | **16/41 (39%)** |
+| **made worse** | 0 | **0** | **0** |
+| off MOS (source / drain / load) | 43 (**15**/16/12) | 29 (**3**/14/12) | **21 (3/6/12)** |
+| v3 stage adopted | – | 11/41 | 13/41 |
+| wall clock | 20.8 s | 32.4 s | 47.2 s |
+
+**★ On the nine ingested externals: 3 of the 4 blocked circuits are fully fixed**
+— `paper-diffcccg` **0/2 → 2/2**, `align-lna-qm` 1/2 → 2/2, `paper-gmboostcg`
+1/2 → 2/2, all by **R-SOURCE alone at 200 Ω**. Totals 14/20 → **18/20**
+conducting, all-MOS-on circuits **5/9 → 8/9**. **The fourth is not a bias
+problem:** `ihp-lna-2p45g` has one transistor with all four pins on VSS (the
+layout dummy the converter itself flagged) and one with its gate tied to its own
+source — Vgs ≡ 0 in both cases, so the guard correctly declines the target it is
+offered.
+
+**⚠ Read before turning it on.** The flag is opt-in *on purpose*, not out of
+caution: R-GATE only makes a circuit biasable, whereas a source return **changes
+the circuit**, and `size.size_topology` calls `insert_bias` on every sizing run —
+default-on would silently re-domain every future L2 label. The monotonic guard
+proves conduction never degrades (measured: 0 worse, everywhere); it cannot prove
+the sizing domain is unchanged. **That decision is queued, not taken** — the
+experiment that settles it is in §21.5 item 1 and is small.
+
+**Three things that made this cheap and are worth reusing.** (a) The elements are
+named `RBIASSRC*` / `RBIASDRN*`, so the existing `^(RBIAS|CBYP|VBGEN)` scaffold
+contract already excludes them — **no `topology.py` change**. (b) The resistances
+are `.param`s but not `pVBG*`, so `size.classify_params` files them under *fixed*
+— **no `size.py` change**, and the sizer gains no free variable. (c) Candidates
+are a *ladder* of rule sets under the unchanged guard, so "never worse" extends
+for free: best-of over a superset that still contains the no-bias baseline.
+
+**⚠ The rule is offered ~2× more often than it is taken (13 adopted of 24
+offered), and the reason is structural:** the DC graph treats a MOS channel as an
+open, so interior cascode / current-reuse stack nodes read "no DC path" although
+the stack conducts fine. The guard absorbs all of it. Narrowing the offer is
+§21.5 item 2.
+
+**Default path byte-identical, verified in-process** (82/82 builds + every v1
+report key over 41 circuits × ideal/Q=12), and the quartet is green with the
+default: vocab **MATCH**, screen **59.4%**, pipeline **40/42**,
+`check_ref`/`check_nf`/`check_stab`/`check_bjt` **GREEN**, `calibrate_specs`
+**met**. 461's spot check is unmoved (NM1 Vgs 302 mV).
+
+**Store note:** +50 L1 rows in a new domain — the 41-circuit corpus pass and the
+9 externals — stamped `provenance.recipe = "bias-v3"` +
+`provenance.bias_rules`. v1 rows carry no `recipe` key. **Do not pool them:** a
+v3 row's `n_conducting` is measured on a deck with extra elements in it.
+
+```bash
+python lna/bias.py --validate                       # v1, unchanged (22/41)
+python lna/bias.py --validate --rules source|v3     # 25/41 | 26/41
+python lna/bias.py --index 476 --sweep --rules v3   # one circuit, verbose
+LNA_BIAS_RULES=source,drain python lna/size.py ...  # session-wide opt-in
+```
+
 ### ▸ Sub-block: critic v2 on the full store + the live rung-1 rerank (owner: the critic-track executor)
 
 **Files owned:** `lna/critic.py` (unchanged this session), `lna/critic_gnn.py`

@@ -3748,3 +3748,199 @@ near-feasibility. It mildly prefers archetype-like structures.
 5. **Coverage is still the live lever, and it is now self-funding**: this run added
    54 dhruva-s rows (132 → 186 for that spec) at 64.7 SPICE-min, on exactly the
    distribution the critic is weakest on.
+
+---
+
+## 21. Phase 3 — WP-BIAS v3: the DC-return rules, and the third measurement that finally moved the conducting rate (Session 6)
+
+> §17–§20 are the scratch-hygiene, curriculum, ingestion and critic tracks; this
+> section is numbered 21 to avoid a collision.
+
+`bias.py`'s `R-DIAGNOSE-ONLY` has classified drains and sources without feeding
+them since WP-BIAS v1, on an explicit "measure before adding rules" principle.
+Three independent measurements have now been taken and they agree:
+
+1. **The corpus off-MOS split** (HANDOVER finding #9, reproduced exactly by
+   `--validate` tonight): of 43 off devices, **15 source-no-DC-path, 16
+   drain-no-DC-path, 12 load/sizing**. Finding #9 pre-approved the R-SOURCE /
+   R-DRAIN escalation "when it blocks sizing yield".
+2. **§19.2 (ingestion):** 4 of the 9 newly ingested real LNAs have MOS that never
+   conduct, every one of them listed under `sources_no_dc_path`.
+3. **§17.6 (NF track):** an opt-in *gate*-rescue that promoted rail-reaching
+   gates to R-GATE bias nets gained **0 of those 4** and was reverted. No gate
+   bias can turn on a device whose source has no DC return.
+
+So the rule was built. **It works, and it is off by default.**
+
+### 21.1 The rules, and why they are opt-in
+
+    R-SOURCE   a MOS source node whose DC component reaches neither a power/bias
+               rail nor ground gets a return resistor to its device's return
+               rail (NMOS -> 0, PMOS -> VDD).
+    R-DRAIN    the same for a drain node, to the opposite rail (NMOS -> VDD,
+               PMOS -> 0) -- a load feed.
+
+**Opt-in was a decision, not caution-by-default.** R-GATE only makes a circuit
+*biasable*: it defines DC on nodes that had no DC definition at all. A source
+return resistor **changes the circuit** — it is a real element in the signal
+path — and `size.size_topology` calls `insert_bias` on every sizing run, so
+switching these on by default would silently re-domain every future L2 label.
+The monotonic guard proves conduction never degrades; it cannot prove the
+*sizing* domain is unchanged. That is a decision to take on purpose, not a side
+effect of landing a rule. Enable with `--rules v3` / `LNA_BIAS_RULES=source,drain`
+/ `insert_bias(..., rules=("source","drain"))`.
+
+**Default byte-identity is verified, not assumed.** Old and new `bias.py` were
+run in the same process (a separate process compares nothing — internal node
+names come from set iteration) over all 41 corpus circuits × ideal/Q=12: the
+default `build()` element list, params, bias nets and every v1 `report()` key are
+**identical on 82/82**. The candidate ladder is byte-identical too: with `rules`
+empty the sweep evaluates the same candidates in the same order with the same
+early break and the same sim count.
+
+Three implementation choices worth keeping:
+
+* **The elements are named `RBIASSRC*` / `RBIASDRN*`**, so the existing
+  `^(RBIAS|CBYP|VBGEN)` naming contract already excludes them from the screen,
+  from novelty and from the spec `device_budget` — **no `topology.py` change**.
+* **The resistances are `.param`s but not `pVBG*`**, so `size.classify_params`
+  files them under *fixed*. The sizer inherits the scaffolding; it does not gain
+  a free variable from it, and **no `size.py` change** was needed.
+* **The guard extends for free.** Candidates are now a *ladder* of rule sets
+  (none → gate → gate+source → gate+source+drain), each swept, with the same
+  "strictly more conducting MOS" comparison and the no-bias baseline still
+  candidate 0. A v3 stage is therefore adopted only if it turns more devices on:
+  best-of over a superset that still contains the old candidate set. Measured:
+  **0 circuits made worse**, in every configuration.
+
+Cost control: v3 stages sweep the VBG grid **tied** (4 points, not 4ⁿ), because
+the untied gate stage has already searched that space and its best is retained —
+a v3 stage only needs to find *additional* conduction. `--validate` over the 41
+corpus circuits costs **20.8 s (v1) → 32.4 s (+R-SOURCE) → 47.2 s (+R-DRAIN)**.
+
+### 21.2 Corpus: 22/41 → 26/41 all-MOS-on, and the off-MOS split collapses
+
+`python lna/bias.py --validate [--rules ...]`, 41 dataset LNAs:
+
+| | v1 (default) | + R-SOURCE | + R-SOURCE + R-DRAIN |
+|---|---|---|---|
+| **all MOS ON** (bias's job) | 22/41 (54%) | 25/41 (61%) | **26/41 (63%)** |
+| all MOS SATURATED (sizing's job) | 14/41 (34%) | 15/41 (37%) | **16/41 (39%)** |
+| **circuits made worse** | 0 | **0** | **0** |
+| off MOS, total | 43 | 29 | **21** |
+| … source-no-DC-path | **15** | **3** | **3** |
+| … drain-no-DC-path | 16 | 14 | **6** |
+| … load/sizing | 12 | 12 | 12 |
+| circuits where a v3 stage won | – | 11/41 | 13/41 |
+| `--validate` wall clock | 20.8 s | 32.4 s | 47.2 s |
+
+* **R-SOURCE does what it was built to do: source-no-DC-path off devices 15 → 3
+  (−80%).** R-DRAIN then takes drain-no-DC-path 16 → 6. Together the off
+  population halves, 43 → 21.
+* **The 12 load/sizing off devices do not move at all** — in any configuration.
+  That is the correct behaviour and a useful confirmation of the v1 split: those
+  devices are off because unsized loads force triode, which is WP-SIZE's problem
+  and not addressable by any bias rule.
+* **The headline still misses WP-BIAS's ≥80% acceptance bar (63%).** The
+  remaining gap is now almost entirely the load/sizing class plus a handful of
+  structurally-unbiasable devices (§21.3), not a missing bias rule.
+* **461's spot check is untouched** (NM1 Vgs = 302 mV), i.e. the v1 result the
+  whole rule set was validated on is unchanged.
+
+**⚠ The rule is offered far more often than it is taken, and that is by design.**
+24 of 41 circuits have at least one v3 target (20 with a source target / 26 target
+nodes; 21 with a drain target / 32 nodes) but a v3 stage is adopted in only
+**13 of those 24**. The reason is a known false-positive class, worth stating
+plainly: **the DC graph treats a MOS channel as an open**, so the *interior*
+nodes of a legitimate cascode or current-reuse stack read "no DC path" even
+though the stack conducts perfectly well once every device is on. Those nodes get
+offered a return resistor they do not need, and the guard declines. The
+false-positive rate is therefore ~46% of offered circuits, absorbed entirely by
+the guard rather than by the circuits.
+
+### 21.3 The nine ingested circuits: 3 of the 4 blocked ones are fixed, and the 4th was never a bias problem
+
+§19.2's four blocked externals, re-run with `rules=("source","drain")`:
+
+| circuit | v1 conducting | v3 conducting | adopted | R |
+|---|---|---|---|---|
+| **`paper-diffcccg`** | **0/2** | **2/2** | R-SOURCE | 200 Ω |
+| **`align-lna-qm`** | 1/2 | **2/2** | R-SOURCE | 200 Ω |
+| **`paper-gmboostcg`** | 1/2 | **2/2** | R-SOURCE | 200 Ω |
+| `ihp-lna-2p45g` | 2/4 | 2/4 | none | – |
+| `ihp-gps-lna-nmos` | 3/3 | 3/3 | none (already all-on) | – |
+| `ihp-gps-lna-npn` | 1/1 | 1/1 | none | – |
+| `paper-currentreuse` | 2/2 | 2/2 | none | – |
+| `paper-noisecancel` | 3/3 | 3/3 | none | – |
+| `paper-transformerfb` | 1/1 | 1/1 | none | – |
+| **total** | **14/20** | **18/20** | | |
+| **circuits with all MOS on** | **5/9** | **8/9** | | |
+
+**Three of the four are fully fixed, all by R-SOURCE alone, all at the grid's
+smallest resistance (200 Ω).** R-DRAIN contributed nothing on this population —
+it is the corpus rule, not the external one. `paper-diffcccg` is the sharpest
+case and the one §17.6 called out: a differential capacitor-cross-coupled CG
+whose *tail current source the single-ended token flow cannot represent at all*.
+Its two CG sources are the differential input nets, DC-blocked by `to_spice`, so
+neither device could ever conduct — 0/2 under every previous rule set. A source
+return resistor is precisely the missing tail element, and it takes it to 2/2.
+
+**The fourth is not a bias failure and no rule should "fix" it.** `ihp-lna-2p45g`
+stays 2/4 because its two off devices are structurally incapable of conducting:
+
+* **`NM4` has all four pins on node 0** — this is the dummy transistor the
+  converter flagged in its own `provenance.json` (`MMn3`, "all four pins land on
+  VSS … plausibly a real dummy/matching transistor common in RF layout"). Vgs ≡
+  Vds ≡ 0 by construction.
+* **`NM3` has its gate tied to its own source** (both on node `n3`, drain on
+  ground), so Vgs ≡ 0 regardless of any external bias.
+
+The v3 analyzer *does* offer both a target (`n3` gets a source return); the guard
+correctly declines, because no resistor changes Vgs = 0. **So the honest score on
+§19.2's "4 blocked circuits" is 3 fixed / 1 not a bias problem** — and the
+diagnosis for the fourth is a fact about the source netlist, independently
+corroborated by the converter's own note.
+
+### 21.4 Store and reproduction
+
+* **+50 L1 rows** in the new domain: the 41-circuit corpus pass and the 9
+  externals, each stamped `provenance.recipe = "bias-v3"` and
+  `provenance.bias_rules = ["source","drain"]`. v1 rows carry no `recipe` key, so
+  the two domains separate cleanly — **do not pool them**; a v3 row's
+  `n_conducting` is measured on a deck with extra elements in it. As in §19.4,
+  `l1_labels.jsonl` itself is left **uncommitted** by this track: it is the shared
+  store and other agents were appending to it live.
+* The report gained `source_returns` / `drain_feeds` (target node → rail, with a
+  `mixed` flag for the rare node shared by both polarities) and, when a stage is
+  adopted, `rules_applied` plus the winning `r_src` / `r_drn`.
+* Nothing outside `bias.py` changed. `size.py`, `moves.py` and the specs were not
+  touched (the NF track owns them and was mid-campaign).
+
+```bash
+python lna/bias.py --validate                      # v1, unchanged (22/41)
+python lna/bias.py --validate --rules source       # 25/41
+python lna/bias.py --validate --rules v3           # 26/41
+LNA_BIAS_RULES=source,drain python lna/size.py ... # session-wide opt-in
+python lna/bias.py --index 476 --sweep --rules v3  # one circuit, verbose
+```
+
+### 21.5 Where this points next
+
+1. **The decision this section deliberately did not take: should v3 be default-on
+   for sizing?** It would re-domain every future L2 label, so it needs the same
+   explicit treatment as §14.5's reference bump. The measurement that would settle
+   it is small and concrete: re-size the 13 corpus circuits and 3 externals that
+   adopt a v3 stage, with and without it, and compare feasibility/violation — not
+   conduction, which we already know improves.
+2. **Kill the false positives at the source.** A DC-graph that understood
+   "conducting MOS channel" for *stack interior* nodes would stop offering
+   returns to cascode midpoints; the cheap version is to skip a source node that
+   is also another MOS's drain whose own source already reaches a rail. That
+   would take the offer rate from 24/41 towards the 13/41 that actually benefit.
+3. **The ≥80% acceptance bar is now a sizing problem, not a bias problem** — 12
+   of the 21 remaining off devices are the load/sizing class and have not moved
+   under any rule in three sessions.
+4. **`paper-diffcccg` remains the vocabulary argument.** The rule rescues it
+   electrically, but a tail *current source* is still unrepresentable in the
+   token vocabulary, exactly like the transformer coupling of §19.2. Two
+   independent circuits now point at the same gap.

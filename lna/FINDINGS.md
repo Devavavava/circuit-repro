@@ -1647,3 +1647,199 @@ python lna/critic.py --eval --snapshot v4-train --sigma-recipe candidate-v1+bo3
 python lna/benchmark.py --all-feasible --seeds 1,2 --budget 8,8,2 --out-json <ckpt> [--resume <ckpt>]
 python lna/datastore.py --snapshot v4-train                    # pin a training set
 ```
+
+### 14.5 Metrics governance (2026-08-09): the NDL novelty reference is rebaselined to **ref-v2**
+
+§14.2 and the Session-4 handover both flagged this as needing an explicit
+user decision, because it changes a *frozen* protocol. The decision was taken and
+this is the execution. Nothing about the circuits changed tonight; what changed is
+what the measuring stick counts as novel.
+
+**The defect.** `novelty.py`'s reference was the 41-circuit AnalogGenie LNA corpus
+and nothing else. Every P5-era generator is fine-tuned on the Eulerian-augmented
+`templates.py` archetype set, so a verbatim regeneration of a hand-written
+archetype is a **copy of its own training data** — and the old reference, never
+having looked at the archetypes, scored it *novel*. Track B measured the size of
+the hole at ~51% of screen-passing samples; that reproduces here exactly (below).
+
+**The fix.** The reference is now versioned and the version travels with every
+number:
+
+| version | contents | distinct WL hashes | digest |
+|---|---|---|---|
+| `ref-v1` | 41 corpus LNAs (the original P0 freeze) | 41 | `5273a4f673b5eb6a` |
+| **`ref-v2`** (default) | 41 corpus + **148 `templates.py` archetypes** | **189** | `b5689490d0285c37` |
+
+Archetype hashes come from the *same* `templates.archetypes()` emission path that
+mints the P5 training set, so the reference is by construction exactly what the
+generator was trained on — it cannot drift away from the training set by being
+maintained separately. All 148 archetype hashes are distinct from each other and
+disjoint from the 41 corpus hashes (41 + 148 = 189).
+
+**The digest is not decoration.** The archetype set has grown 92 → 118 → 135 → 148
+over this program's life, so "ref-v2" alone does not pin a number the way "ref-v1"
+did. Every protocol row now prints `ref-v2[189h/b5689490]`, and the on-disk
+reference (`lna/data/novelty_ref_v2.json`, committed) is keyed by a SHA-256 over
+`templates.py` + `spec.py` + `topology.py` + `novelty.py` + the two screen YAMLs, so
+a stale cache rebuilds instead of silently answering a novelty question with the
+wrong measuring stick. Enumeration costs ~37 s cold, 0.8 s warm.
+
+#### The old → new table (frozen NDL@256 protocol, nb class, `--spec wifi24` screen, seed 1337)
+
+| checkpoint | pool on disk | NDL@256 ref-v1 | **NDL@256 ref-v2** | Δ | copies ref-v1 | copies ref-v2 (archetype / corpus) | median NN-sim v1 → v2 |
+|---|---|---|---|---|---|---|---|
+| P0 prefix-12 baseline | `sweep12repro{,_s2338}` | 16 | **16** | **0** | 45.7% | 45.7% (**0.0%** / 45.7%) | 1.000 → 1.000 |
+| P2 | *pool lost* | 24 | *not measurable* (≤ 24) | — | — | — | — |
+| P5-v1 | `ft_p5_nb_s1337` | 60 | **30** | −30 | 38.3% | 62.9% (24.6% / 38.3%) | 0.574 → 1.000 |
+| P5-v2 | `…nb_s1337.v2repro` | 73 | **41** | −32 | 38.7% | 62.9% (24.2% / 38.7%) | 0.588 → 1.000 |
+| **P5-v3 (adopted)** | `…nb_s1337.v3` | **100** | **52** | −48 | 31.6% | 69.5% (37.9% / 31.6%) | 0.573 → 1.000 |
+| P5-v4 | `…nb_s1337.v4` | 89 | **40** | −49 | 27.3% | 69.1% (41.8% / 27.3%) | 0.574 → 1.000 |
+| P5-v5 | `ft_p5v2_nb_s1337` | 84 | **35** | −49 | 31.2% | 77.7% (46.5% / 31.2%) | 0.574 → 1.000 |
+| P5-v6 | `ft_p5v6_nb_s1337` | 93 | **43** | −50 | 34.0% | 78.1% (44.1% / 34.0%) | 0.575 → 1.000 |
+
+wb channel (`--spec wideband-sdr`): **P5-v3 wb 35 → 21** (copies 37.1% → 51.2%,
+archetype 14.1%).
+
+**★ THE RE-FROZEN BASELINE.** The adopt-only-if-better gate now reads, under
+`ref-v2[189h/b5689490]`: **nb = 52** (was 100), **wb = 21** (was 35). Every future
+arm is judged against those, at equal-or-better inductor ratio (unchanged:
+nb 0.224, wb 0.077).
+
+**Two readings that matter more than the headline drop.**
+
+* **The P0 baseline is untouched: 16 → 16, with 0.0% archetype copies.** A
+  corpus-only arm cannot copy `templates.py`, so the reference extension bites
+  *only* the template-trained arms — which is exactly the behaviour a correct fix
+  should have. Every other number in the FINDINGS §5 prefix-12 row reproduces to
+  the digit as well (valid 96.9%, specL0 26.6%, inductor ratio 0.141, copies
+  45.7%), which is an end-to-end check that the protocol harness is intact.
+* **Median NN-sim jumps 0.573 → 1.000 for every P5 arm.** Under ref-v1 the median
+  screen-passing sample looked half-similar to its nearest corpus neighbour; under
+  ref-v2 the *median* sample is a WL-exact match to something it was trained on.
+  The copying pressure was always there — the old reference just could not see the
+  half of it that came from the archetypes.
+
+**Archetype copies among screen-passing samples** (the number Track B quoted):
+
+| checkpoint | screen-passing | distinct | archetype copies | corpus copies | truly novel distinct |
+|---|---|---|---|---|---|
+| P0 prefix-12 | 68 | 27 | **0** (0.0%) | 49 | 16 |
+| P5-v1 | 147 | 68 | 63 (42.9%) | 52 | 30 |
+| P5-v2 | 165 | 80 | 62 (37.6%) | 61 | 41 |
+| P5-v3 | 206 | 112 | 97 (47.1%) | 55 | 52 |
+| P5-v4 | 188 | 97 | 107 (56.9%) | 38 | 40 |
+| P5-v5 | 213 | 93 | **119** (55.9%) | 54 | 35 |
+| P5-v6 | 215 | 102 | **113** (52.6%) | 58 | 43 |
+
+Track B's independent count (against `dhruva-l1`'s screen) was **119/220** for v5
+and **113/220** for v6 — the same 119 and 113 samples, reached through a different
+screen and a different code path. Its truly-novel counts (52 / 35 / 43 for
+v3 / v5 / v6) are likewise reproduced exactly. The finding replicates.
+
+#### Recovering two pools that had been lost — and one checkpoint identification nobody had made
+
+Two of the checkpoints that faced an adopt/reject decision had **no pool on disk**:
+`seq*.txt` is gitignored, and `lna/out/ft_p5v2_nb_s1337/` had been *reused* for
+P5-v5, overwriting P5-v2's samples. Both were recovered from checkpoints:
+
+* `lna/_ndl_sample_ckpt.py` rebinds `finetune.ckpt_path` so a pool can be sampled
+  from an arbitrary `.pth` **without copying a 198 MB file over the shared
+  `ft_p5_v2.pth` path** — which was not acceptable with other agents live in the
+  worktree.
+* **Positive control first.** `ft_p5_v2.pre_dhruva.pth` was *claimed* to be P5-v3,
+  whose pool does survive. Re-sampling it at seed 1337 reproduced that pool
+  **byte-for-byte: 0 of 256 seq files differ.** So the regeneration is exact, and
+  — a fact nobody had established — **`ft_p5_v2.pre_dhruva.pth` is the adopted
+  P5-v3 baseline generator.** (`ft_p5_v2.pth` itself holds *P5-v5*, md5
+  `805fda53…`, per Track B's restore. Reproducing the nb baseline of 100/52 needs
+  the `pre_dhruva` file, not the `_v2` one.)
+* `ft_p5_v2.pre_broaden.pth` then re-sampled to a pool reading **ref-v1 NDL@256 =
+  73** — the historical P5-v2 number to the digit, which both recovers the pool and
+  confirms the checkpoint's identity.
+* The **P0 prefix-12 baseline** was regenerated the same way from the untouched
+  upstream `Pretrain.pth` (args copied from the surviving `meta.json`), and
+  reproduces its frozen row exactly, as noted above.
+* **Still lost: the P2 pool.** `ft_p2.pth` is not on disk and the seq files were
+  gitignored, so P2's ref-v2 number is *not measurable* and is reported as such
+  rather than skipped. It is bounded (see the flip check).
+
+#### ⚠ The flip check — Track B's conclusion is CONFIRMED for decisions, but its stated reason is WRONG
+
+Track B wrote: *"The ordering between checkpoints is unaffected … so no past
+adopt/reject decision flips."* The conclusion holds. The reason does not — and it
+matters, because the reason is what anyone would rely on next time.
+
+Every adopt/reject decision the program actually took, re-scored:
+
+| # | decision | ref-v1 | verdict | ref-v2 | verdict | flips? |
+|---|---|---|---|---|---|---|
+| 1 | prefix-12 baseline → **P2** | 16 → 24 | ADOPT | 16 → ≤ 24 | ADOPT | **no** (inferred, see below) |
+| 2 | P2 → **P5-v1** | 24 → 60 | ADOPT | ≤ 24 → 30 | ADOPT | **no** (proved) |
+| 3 | P5-v1 → **P5-v2** | 60 → 73 | ADOPT | 30 → 41 | ADOPT | **no** (measured) |
+| 4 | P5-v2 → **P5-v3** | 73 → 100 | ADOPT | 41 → 52 | ADOPT | **no** (measured) |
+| 5 | P5-v3 vs P5-v4 | 100 vs 89 | reject | 52 vs 40 | reject | **no** (measured) |
+| 6 | P5-v3 vs P5-v5 | 100 vs 84 | reject | 52 vs 35 | reject | **no** (measured) |
+| 7 | P5-v3 vs P5-v6 | 100 vs 93 | reject | 52 vs 43 | reject | **no** (measured) |
+| 8 | wb channel: P5-v3 sets the first wb baseline | 35 | new baseline | 21 | new baseline | n/a |
+
+**Verdict: no historical adopt/reject decision flips under ref-v2.** Five are
+measured outright, one is proved, one is inferred.
+
+*Decision 2 is proved without the missing pool.* ref-v2 ⊋ ref-v1, and adding
+hashes to the reference can only ever *remove* items from the novel set, so
+`NDL_v2(X) ≤ NDL_v1(X)` for every X. Hence `NDL_v2(P2) ≤ 24 < 30 = NDL_v2(P5-v1)`,
+and adopting P5-v1 over P2 holds whatever P2's pool was.
+
+*Decision 1 is inferred, not proved.* Monotonicity bounds both sides and cannot
+separate them. But the measured P0 baseline has **0.0% archetype copies**, and P2
+— like the baseline — was fine-tuned on the corpus alone, before `templates.py`
+existed. A non-template-trained arm has no mechanism for archetype regurgitation,
+so `NDL_v2(P2) ≈ 24 > 16`. Stated as inference because `ft_p2.pth` is gone.
+
+**★ But the *ranking* is NOT order-preserving, which is what Track B got wrong.**
+Track B checked only v3 / v5 / v6, where ref-v2 happens to preserve the order.
+With P5-v2 recovered:
+
+```
+ref-v1:  v3 100  >  v6 93  >  v4 89  >  v5 84  >  v2 73  >  v1 60
+ref-v2:  v3  52  >  v6 43  >  v2 41  >  v4 40  >  v5 35  >  v1 30
+                              ^^^^^ P5-v2 rises from 5th to 3rd
+```
+
+**P5-v2 overtakes both P5-v4 and P5-v5** (73 < 84 and 73 < 89 become 41 > 35 and
+41 > 40). P5-v2 was trained on the 92-archetype era set and regurgitates less of it
+(24.2% of samples) than the v3+ checkpoints do of their 118–148-archetype sets
+(37.9–46.5%), so the correction costs it far less. No decision turns on those two
+pairs — the adopt rule compares a candidate to *the then-current baseline*, which
+was v3 for all of v4/v5/v6, never v2 — so the conclusion survives. The general
+claim "ref-v2 preserves the checkpoint ordering" does not, and should not be
+relied on for future comparisons: **the correction is not a constant offset**
+(Δ ranges 0 to −50) and it scales with how much archetype mass the arm was trained
+on.
+
+**Honest read on the trend.** Under ref-v1, NDL looked like 60 → 73 → 100 → (89,
+84, 93): a rise then a plateau. Under ref-v2 it reads 30 → 41 → 52 → (40, 35, 43),
+the same shape — the generator's genuine-novelty peak really is P5-v3, and the
+rfb-family fine-tunes really did cost diversity. What ref-v2 adds is the level:
+**the adopted generator produces 52 novel distinct screen-passing topologies per
+256 samples, not 100, and 47% of its screen-passing output is verbatim training
+archetype.**
+
+#### What did *not* change, deliberately
+
+`corpus_reference()` keeps ref-v1 semantics exactly (verified: it returns the same
+41 hashes). `campaign.py`, `loop.py`, `size.py` and `trackb_g4.py` all call it for
+their own novelty checks and are **untouched** — they are not this session's files.
+Those four call sites still ask "is this in the corpus?" when they mean "is this
+new?", which is the same defect in four more places; migrating them to
+`novelty.reference()` is a follow-up, and until then a `novel=True` flag on a
+label row means ref-v1-novel. Note the Track-B `seq0192` dhruva-l1 claim is
+**unaffected** — it was explicitly checked against all 148 archetypes *and* the 41
+corpus circuits at the time, i.e. against ref-v2 by hand.
+
+```bash
+python lna/novelty.py --show-ref                    # reference audit + digests
+python lna/novelty.py --eval <dir> [...] --ref both --spec wifi24   # old vs new
+python lna/novelty.py --eval <dir> --ref v1         # reproduce a historical number
+python lna/novelty.py --refresh-ref                 # rebuild after templates.py grows
+```

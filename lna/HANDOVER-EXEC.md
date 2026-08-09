@@ -9,6 +9,11 @@ the roadmap; this file is what has actually been *done*, what was *found*, and
 exactly where to resume. Read `WORKLOG.md` (entries R1/R2 are mine) and
 `FINDINGS.md` (§5 P0 block is mine) for the measured detail.
 
+**The whole story, in order:** `lna/JOURNEY.md` is the cross-agent narrative
+history (origins → phase 1 → phase 2 → Dhruva → the honesty corrections →
+current frontier). Every future session appends/edits its own stage there as
+part of its wrap-up, same commit discipline as this file and `FINDINGS.md`.
+
 ---
 
 ## Session 2 — Phase 2 Stages 0–3 + last-mile + **★ STAGE 3 PHASE EXIT MET** (curve 967→367→**187**, 6 feasible wifi24 LNAs) + **★★ WP-BROADEN: Gate B1 gps-l1 CLOSED** (P5-v3 → 2 novel feasible gps-l1 LNAs; NDL 73→100 + new wb channel). Remaining: wideband-sdr + the NF harness.

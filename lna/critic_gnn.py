@@ -226,23 +226,36 @@ def evaluate_gnn(train, val, test, label, sigma):
     rho_nf = (critic.spearman(np.array([test[i]["y_nf"] for i in nf_i]),
                               mean[nf_i, 3]) if len(nf_i) >= 3 else float("nan"))
     racc = critic.pairwise_rank_acc(Yte[:, s21], mean[:, s21], sigma_norm)
-    enr, n_near, prec, ceil = critic.enrichment_top20(
-        Yte, critic._feasibility_score(mean[:, :3]))
+    # Gate C1 as RESTATED 2026-08-09 (FINDINGS §14.6): the enrichment half is
+    # retired -- its ceiling is min(1/k_frac, 1/base), so it got *harder* as the
+    # candidate pool improved and became unsatisfiable by a perfect ranker above
+    # base 0.5. `skill` = (prec@20% - base)/(ceiling prec - base) is 0 for random
+    # and 1 for perfect at any base rate; the bar is skill >= critic.C1_THETA.
+    # `enrich` is still printed for continuity with the historical rows.
+    st = critic.c1_stats(Yte, critic._feasibility_score(mean[:, :3]))
     # uncertainty calibration: does ensemble std rank the |error|?
     err = np.abs(mean[:, s21] - Yte[:, s21])
     cal = critic.spearman(std[:, s21], err)
-    c1 = (not np.isnan(rhos[s21]) and rhos[s21] >= 0.5
-          and not np.isnan(enr) and enr >= 2.0)
+    c1 = critic.c1_pass(rhos[s21], st["skill"])
     print(f"\n=== {label}: train {len(train)} / val {len(val)} / test {len(test)} "
           f"(sigma_S21={sigma:.3f}) ===")
     print(f"{'model':<10} {'rho_S11':>8} {'rho_S21':>8} {'rho_Idd':>8} "
           f"{'rho_NF':>8} {'rankacc':>8} {'prec@20':>8} {'enrich':>7} "
-          f"{'unc_cal':>8} {'C1?':>5}")
+          f"{'ofceil':>7} {'skill':>7} {'unc_cal':>8} {'C1?':>5}")
     print(f"{'gnn(ens5)':<10} {rhos[0]:>8.3f} {rhos[1]:>8.3f} {rhos[2]:>8.3f} "
-          f"{rho_nf:>8.3f} {racc:>8.3f} {prec:>8.3f} {enr:>7.2f} {cal:>8.3f} "
-          f"{'YES' if c1 else 'no':>5}")
-    print(f"  near-feasible {n_near}/{len(test)} -> enrichment ceiling {ceil:.2f}x; "
+          f"{rho_nf:>8.3f} {racc:>8.3f} {st['prec']:>8.3f} {st['enrich']:>7.2f} "
+          f"{st['frac_ceiling']:>7.3f} {st['skill']:>7.3f} {cal:>8.3f} {c1:>5}")
+    print(f"  near-feasible {st['n_near']}/{len(test)} = base {st['base']:.3f}; "
+          f"top-20% selects k={st['k']} -> ceiling precision {st['ceil_prec']:.3f} "
+          f"(= retired enrichment ceiling {st['ceil_enrich']:.2f}x); "
           f"NF-labeled {len(nf_i)}/{len(test)}")
+    print(f"  Gate C1 (restated 2026-08-09) = rho(S21) >= {critic.C1_RHO} AND "
+          f"skill >= {critic.C1_THETA} (0 = random, 1 = perfect at any base rate); "
+          f"here that is prec@20% >= "
+          f"{st['base'] + critic.C1_THETA * (st['ceil_prec'] - st['base']):.3f}, "
+          f"where the retired {critic.C1_ENRICH_LEGACY:.0f}x bar demanded "
+          f"{min(critic.C1_ENRICH_LEGACY * st['base'], 1.0):.3f}"
+          f"{' -- UNREACHABLE' if critic.C1_ENRICH_LEGACY * st['base'] > st['ceil_prec'] + 1e-12 else ''}.")
     critic._per_spec(test, Yte, {"trivial": mean, "gnn": mean}, s21)
 
 

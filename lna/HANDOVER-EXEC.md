@@ -314,6 +314,110 @@ scaffolding but **down-weights or curriculum-drops it late in training** should
 keep the yield and recover the novelty the 37.9% regurgitation is costing. One
 train + one NDL row settles it.
 
+### ▸ Sub-block: WP-SEARCH rung 2 — evolutionary search over graph edits (owner: the search executor)
+
+**Files owned:** `lna/moves.py`, `lna/evolve.py`, `lna/evolve_score.py`,
+FINDINGS **§15**, this sub-block. Nothing shared was edited. Full measured detail
+in **FINDINGS §15**; run artefacts in `lna/out/_evolve_*` (gitignored).
+
+**What shipped.** plans2/03-SEARCH §2's rung 2, end to end, run to budget on two
+specs with an equal-cost control on each:
+
+* `lna/moves.py` — **stratum M**, 17 one-edit graph moves over the `read_netlist`
+  genome, every mutant round-tripped through the token representation
+  (`emit_sequence → Topology → L0 screen → WL hash`) and the genome re-derived from
+  the realized graph so genotype ≡ phenotype. **290/300 proposals realize,
+  247 distinct WL hashes.** Plus the §2 decomposition crossover (cut at an
+  interstage coupler, splice head(A)+tail(B); parents with no cut are skipped —
+  4/60 archetype pairs realize, and it still produced 2 of the 10 best dhruva-s
+  designs).
+* `lna/evolve.py` — the driver (`--arm evolve|random`, `--report`, `--calibrate`)
+  with all four §4 trust rules mechanical: `mean − β·σ`, the uncertainty gate
+  calibrated on a holdout the ensemble never trained on, the trust region at
+  `datastore.FAMILY_SIM`, and an exploration stratum owning its own true-eval slot.
+* `lna/evolve_score.py` — critic v1 as a **persistent scorer** under the
+  analoggenie python (one ensemble train, ~7 min, then predictions are free), so
+  the torch-free driver can score every generation.
+
+**★ The result: a novel, tier-1-feasible, stable `dhruva-s` design.**
+`8c7592ea859e489a` — 16 devices, evolve arm gen 18, move `passive_type_swap`.
+After a box-clamped tier-1 boundary polish: **S11_max −10.94 / S21 34.89 /
+Idd 11.84 / NF 5.58 / K_min 6.54**, `replay_ok` True, **in-box**, novel against
+all 148 archetypes + 41 corpus circuits + every pre-run store row.
+**The best NF among tier-1-feasible dhruva-s designs goes 8.88 → 5.58 dB, and a
+tier-1-clean design's tier-2 violation goes 1.537 → 0.594 — 2.6× closer to
+Gate D3, which is now 2.08 dB of noise and nothing else.** Structurally it is a
+noise-cancelling CG+CS whose auxiliary cancellation path the search moved
+*downstream* of both tuned gain stages onto the output tank node.
+
+**Gate S2 — NOT MET** on both specs: 0 tier-2 feasible designs in all four arms,
+so the "≥2×" ratio is undefined. Raw numbers (FINDINGS §15.5 has the full table):
+
+| spec | arm | true evals | SPICE-min | feasible | near-feasible | best violation |
+|---|---|---|---|---|---|---|
+| wideband-sdr | evolve | 42 | 51.2 | 0 | 6 | 1.782 |
+| wideband-sdr | control | 60 | 76.0 | 0 | 9 | 1.931 |
+| dhruva-s | evolve | 47 | 69.1 | 0 | **41** | **0.642 → 0.594** |
+| dhruva-s | control | 60 | 62.4 | 0 | 28 | 1.070 |
+
+Rung 1 was never run live on either spec, so the S2 comparison is against the
+equal-budget random-selection control — stated, not hidden. On dhruva-s the
+evolutionary arm wins every SPICE-measured axis; on wideband-sdr the two arms tie
+at **8.5 vs 8.4 SPICE-min per near-feasible design**.
+
+**⚠ The one number that governs rung 2, and it is not good.** Critic v1 holds
+ρ(S21) ≈ 0.83 on its family holdout and **collapses to ρ ≈ +0.17 (wideband-sdr) /
++0.20 (dhruva-s) on the mutant distribution search actually generates** — measured
+post hoc on the control arms' 60 true evals each, which the critic never saw, so
+there is no selection bias in those numbers. On the elites it *did* select the
+residual correlation is 0 to −0.33. **The diagnosis is coverage:** `v4-train` had
+16 wideband-sdr rows and 24 dhruva-s rows out of 734. Tonight appended **213 rows
+(105 wideband-sdr, 108 dhruva-s)**, taking those two specs from 40 to 253.
+
+**⚠ The uncertainty gate is inert as specified.** `n_high_unc = 0` in every one of
+80 generations across all four runs — ensemble σ on a mutant never exceeded the
+holdout p90. The ensemble is *confidently* wrong off-distribution, not visibly
+uncertain, and ρ(σ,|error|) is not sign-stable on selected elites. The **trust
+region** is the rule that worked: the control populations drifted to 32/32 members
+outside the labeled family radius, the evolve arm never did.
+
+**Where to pick up (highest value first).**
+
+1. **Retrain the critic on the enlarged store and re-run `evolve.py --calibrate`
+   against the same stored arms.** No new SPICE, and §15.4 says this is the
+   binding constraint on the whole rung. If deployment ρ crosses ~0.4, re-run the
+   dhruva-s pair — the harness is unchanged and the comparison is already set up.
+2. **Gate D3 is 2.08 dB of NF on a tier-1-clean, stable, novel topology now.**
+   Session 4's lever still applies and is now much better aimed: an **NF-only inner
+   optimization stage** (or a cancellation-aware start) on `8c7592ea859e489a` and
+   on `19f723034c0a` (novel, crossover, S11_max **−16.90** / NF **4.66**, short only
+   on gain). These two bracket the remaining trade. Not more topology search.
+3. **wideband-sdr: re-read the spec before spending more search.** `nf_db` is
+   violated on **102/102** true evals across both arms while every other constraint
+   is individually within ~0.4 dB on *some* design. Sweep NF against the
+   `max_inductors: 1` / `idd_ma ≤ 8` corner and decide whether 3.5 dB is reachable
+   at all at this node — a measurement, not a search.
+4. **Stability in the objective**, quantified at last: **21 of 60** control-arm
+   dhruva-s sizings read in-band **K < 1**, against 2 of 47 in the evolve arm.
+5. **Two traps worth knowing.** (a) The feasibility-first violation scalar rewards
+   *degenerate* designs when the hardest constraint improves as the circuit shrinks
+   — wideband-sdr's lowest-violation individual is a 4-device near-passive network
+   with S21 −1.0 dB. (b) The move set is net-additive: mean device count drifts to
+   the `[3,16]` ceiling by generation 20, so late proposals are wasted against the
+   budget.
+
+**⚠ Store + hygiene notes.** 213 rows appended under recipes `evolve-v1` (89),
+`evolve-ctrl-v1` (123) and `evolve-v1+t1polish` (1); `provenance.source_arm` is
+`evolve-evolve` / `evolve-random` and carries the generation, the move, the parent
+hashes and the critic version. JSONL integrity verified with two other agents
+writing concurrently (0 malformed lines in 1010). Novelty here is checked against
+**148 archetypes + 41 corpus circuits + every pre-run store hash** — i.e. already
+the ref-v2-equivalent reference plus the store, so the §16.4 qualification does not
+apply to these claims. Separately: **every ngspice caller in the tree `mkdtemp`s
+per call and none clean up** — `%TEMP%` was carrying 16k+ stale `bias_*` dirs
+(swept). `moves.private_tmp()` now confines a driver's scratch to its own run dir;
+if you write a new driver, call it.
+
 ---
 
 **⚠ BLIND PROTOCOL is active — read plans2/08 §"Blind protocol" before touching

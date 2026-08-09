@@ -1983,6 +1983,324 @@ python lna/critic.py --eval --snapshot v4-train --sigma-recipe candidate-v1+bo3
 python lna/critic.py --eval --snapshot v2-train    # reproduces the historical pass
 ```
 
+## 15. Phase 2 — WP-SEARCH **rung 2**: evolutionary search over graph edits, with a control (Session 5)
+
+plans2/03-SEARCH §2 asks for search to leave token space: the LM seeds a
+population, mutation and crossover work on the *circuit*, critic v1 decides where
+SPICE minutes go, and the top elites of every generation get a true sizing run
+that is appended to the store. This section is that experiment, run to budget on
+two specs, each against a control that differs **only in selection**.
+
+The yardstick is 03-SEARCH's fixed one — feasible novel designs per equal SPICE
+budget — so every table below is SPICE, never critic. Critic numbers appear once,
+in §15.4, explicitly labelled as calibration.
+
+### 15.1 What was built
+
+* **`lna/moves.py` — stratum M, 17 one-edit graph moves.** The genome is the
+  `read_netlist` netlist `templates.py` already uses, because that is the one form
+  the upstream Eulerian pipeline consumes. Every mutant round-trips
+  `netlist → emit_sequence → tokens → Topology → L0 screen → WL hash`, and the
+  genome is then **re-derived from the realized topology** (`topo_to_netlist`), so
+  genotype and phenotype cannot drift apart. Moves are semantic where 03-SEARCH
+  names them — load class (R ↔ LC tank ↔ shunt-peaked), ±cascode, ±output buffer,
+  ±degeneration, ±shunt feedback, ±tuned gain stage, input-stage class swap
+  (CS ↔ CG, with the CG gate left undriven+bypassed so `bias.py`'s R-GATE owns the
+  bias — the Session-4 lesson), matching-element add, auxiliary/noise-cancelling
+  path add — and blind where they are not (passive type substitution, terminal
+  rewire, element deletion). Nothing writes a device *value*; sizing stays ZOAF's
+  job. Spec-derived budgets (`device_budget`, `max_inductors`) are enforced *inside*
+  the move, so a move never proposes what the screen must then discard.
+  **Measured yield** (`python lna/moves.py --selftest`, wideband-sdr, 300
+  proposals off archetype seeds): **290 realized (96.7%), 247 distinct WL hashes.**
+  Per-move realization is ≥0.95 for all but `feedback_remove` (0.71) and
+  `degen_remove` (0.00 — removing the only inductor from a CS stage leaves neither
+  a CG nor a feedback input, so `_match_plausible` correctly rejects it).
+* **Decomposition crossover.** Both parents are cut at a signal-path stage
+  boundary — an interstage coupler whose upstream side is a FET drain and
+  downstream side a FET gate, i.e. the seam `templates._tuned_chain` emits — and
+  head(A) is spliced to tail(B) through a fresh coupling capacitor, with B's nodes
+  renamed. Parents with no cut are **skipped, not forced** (§2's rule). It is a
+  minority operator by construction: only **4/60** archetype pairs realize, because
+  most archetypes are single-stage. It still earned its place — see §15.3.
+* **The §4 trust rules, mechanically.** (1) Selection consumes `mean − β·σ`, β = 1,
+  never the raw mean. (2) **Uncertainty gate**: `lna/evolve_score.py` trains the
+  critic-v1 ensemble once against a pinned snapshot and calibrates the 90th
+  percentile of holdout ensemble σ on a family split it never trained on
+  (σ_gate ≈ 0.31–0.40 across runs); an individual above it cannot displace a
+  trusted elite on its score. (3) **Trust region**: an offspring further than the
+  store's own family radius (`datastore.FAMILY_SIM = 0.9` WL-cosine) from every
+  labeled row is untrusted until a true eval exists for it. Untrusted individuals
+  are not discarded — they are routed to an **exploration stratum** holding 25% of
+  the population and owning one true-eval slot per generation, which is where §4
+  rule 2 says they belong. (4) Only SPICE numbers are results.
+* **The control (`--arm random`).** Identical seeds, move set, validity gates, L1
+  gate, dedup and true-eval recipe; selection replaced by uniform random choice and
+  no critic process at all. This isolates *selection quality*, holding candidate
+  supply constant, and is the rung-2 shape of 03-SEARCH §1's "size k random picks
+  from the identical pool" control. Rung 1 was never run live on either of these
+  specs, so this — not rung-1 rerank — is the control the S2 verdict is read
+  against, and that substitution is stated rather than hidden.
+* **True eval = the real thing.** bias insertion → ZOAF (8 candidates / 8 SGD /
+  2 CGD, `inductor_q=12`) → **box-clamped** bounded polish (80 sims; never the
+  pre-2026-08-08 unclamped polish), a second ZOAF seed only when the first lands
+  within 1.2 total violation (same rule in both arms). Every result is appended to
+  the store under a distinct recipe (`evolve-v1` / `evolve-ctrl-v1`) with
+  `nf_gated: true`, so it forms its own label domain and cannot contaminate the
+  `candidate-v1+bo3` σ groups.
+* **One performance finding worth carrying.** Every ngspice caller in the tree
+  (`bias.run_op`, `extract.run_and_extract`, `templates.emit_paths`) `mkdtemp`s per
+  call and none clean up; the shared `%TEMP%` was already carrying **16k+ `bias_*`
+  directories** from earlier sessions. `moves.private_tmp()` now points the driver
+  process's `tempfile` at a per-run scratch root that is wiped every generation.
+  Separately, the L1 gate must be **one** op solve, not `bias.feasibility_sweep`:
+  the sweep is a grid over the inserted VBG knobs (up to 16 ngspice runs) and at
+  ~150 proposals a generation it cost more wall-clock than every sizing run put
+  together. With both fixed, offspring generation is 10–30 s/generation.
+
+### 15.2 `wideband-sdr` — the primary, and a clean negative
+
+The open half of Gate B1: 0 feasible ever, and the benchmark's binding column
+(`s11 ×6, s21 ×4, s21_ripple ×2`) was measured over a candidate set of *narrowband*
+designs. Rung 2 gets to ask the question with topologies built for the spec.
+
+| arm | true evals | SPICE-min | feasible | novel feasible | near-feasible | best total violation | K<1 |
+|---|---|---|---|---|---|---|---|
+| **evolve** | 42 | 51.2 | **0** | **0** | 6 | **1.782** | 6 |
+| control | 60 | 76.0 | **0** | **0** | 9 | 1.931 | 14 |
+
+At an equal budget of **51.2 SPICE-min** (both arms truncated to the smaller arm's
+spend): evolve 42 evals / 6 near-feasible / best 1.782; control 39 evals /
+8 near-feasible / best 1.931. On the fixed yardstick the two arms are a dead heat —
+**8.5 SPICE-min per near-feasible design for the evolve arm, 8.4 for the control.**
+Critic guidance bought nothing here, and §15.4 says why in one number.
+
+*(“near-feasible” is 03-SEARCH's all-margins > −1 scale unit, computed over the
+four margins the critic heads predict — S11/S21/Idd/NF. `s21_ripple_db` is gated
+by this spec but is not a critic head, so it is excluded from that count and
+reported separately below.)*
+
+**What actually binds is noise, on every single design.** Across **102/102** true
+evaluations in both arms, `nf_db` is violated — there is no exception in the whole
+run. The rest, per arm (count violated / n, and the best gap any one design
+reached):
+
+| constraint | evolve 42 | control 60 |
+|---|---|---|
+| `nf_db` | **42/42** (best gap 0.168 → NF **4.09** dB vs 3.5) | **60/60** (best gap 0.378) |
+| `s21_ripple_db` | 40/42 (best gap 0.201 → **2.40** dB vs 2) | 42/60 (best gap 0.012) |
+| `s11_db` | 33/42 (best gap 0.084) | 56/60 (best gap 0.058) |
+| `s21_db` | 32/42 (best gap 0.055 → **11.3** dB vs 12) | 56/60 (best gap 0.006) |
+| `idd_ma` | 6/42 (best gap 0.010) | 17/60 (best gap 0.136) |
+
+Every constraint is individually within ~0.4 dB of clearing *on some design* — and
+no design clears more than four of five at once. The front is not blocked by one
+wall; it is blocked by the **conjunction**, and the term that never yields is NF.
+Two more things the table hides:
+
+* **The violation scalar rewards degenerate designs on this spec.** The lowest-
+  violation individual (`01389e803d2e`, 1.782) is a **4-device** network with
+  S21 −1.0 dB, Idd 0.35 mA, NF 4.09, S11 −10.2 — a near-passive front end that
+  scores well on NF/Idd/S11 and loses only on gain. The best *amplifier* is
+  `6507bd03296d` (novel, 12 devices, `stage_add`): S11 −17.5 / S21 **18.3** /
+  ripple 3.77 / Idd 3.12 / NF 6.78 / K_min 75.4. When a spec's hardest constraint
+  is one that shrinking the circuit improves, feasibility-first total violation is
+  not a safe progress metric on its own.
+* **Population drift is real and it ends at the device budget.** Mean device count
+  climbs 8.6 → 14.1 (evolve) and 9.4 → 14.4 (control) over 20 generations against a
+  `[3,16]` budget: the move set is net-additive, so late generations spend their
+  proposals against the ceiling. ~550 distinct valid, L1-passing topologies were
+  generated per arm; 42 and 60 of them earned a true eval (7.6% / 10.9%).
+
+### 15.3 ★ `dhruva-s` — a novel tier-1-feasible design, and the Gate-D3 front moves 3.3 dB
+
+| arm | true evals | SPICE-min | tier-2 feasible | near-feasible | best total violation | K<1 |
+|---|---|---|---|---|---|---|
+| **evolve** | 47 | 69.1 | 0 | **41** (87%) | **0.642** → **0.594** polished | 2 |
+| control | 60 | 62.4 | 0 | 28 (47%) | 1.070 | 21 |
+
+At an equal 62.4 SPICE-min: evolve 44 evals / **38** near-feasible / best 0.642;
+control 60 evals / 28 near-feasible / best 1.070. **Nine of the ten
+lowest-violation designs in the joint run are from the evolve arm, and eight of
+those ten are novel.** The control also produced **21 sizings with in-band K < 1**
+against the evolve arm's 2 — unguided drift walks into potential instability an
+order of magnitude more often.
+
+**The headline is a design, and it is replay-verified SPICE truth.**
+
+> **`8c7592ea859e489a`** — 16 devices, evolve arm **generation 18**, move
+> `passive_type_swap` off parent `5a013cb99cdfe560`, WL-similarity to the nearest
+> labeled graph 0.927 (inside the trust region, so it was selected on its critic
+> score legitimately).
+>
+> | | S11_max (1.1–2.5 GHz) | S21 @ 2.492 GHz | Idd | NF | K_min |
+> |---|---|---|---|---|---|
+> | as found | −10.09 ✓ | 30.74 ✓ | 12.58 ✓ | 5.75 | 8.03 |
+> | **+ tier-1 boundary polish** (box-clamped, 120 sims) | **−10.94 ✓** | **34.89 ✓** | **11.84 ✓** | **5.58** | **6.54** |
+>
+> **TIER-1 FEASIBLE** (min normalized tier-1 margin 0.089 after polish, up from
+> 0.008 as found), **in-box verified**, `replay_ok` **True**, unconditionally
+> stable in band. **Novel**: the WL hash matches none of the 148 `templates.py`
+> archetypes, none of the 41 corpus LNAs, and no pre-existing store row.
+
+Structurally it is a noise-cancelling CG+CS descendant that the search rearranged:
+common-gate input (`NM1`, source on the DC-blocked input node, gate undriven and
+bypassed so `bias.py` owns its current) with a **resistive** CG load, the CG output
+re-inverted through **two tuned CS stages**, and — the edit that matters — the
+auxiliary noise-cancelling path (`NM4`, AC-coupled off the input node) summing at
+the **output tank node**, i.e. moved downstream past both gain stages rather than
+landing on the first summing node the way `templates.nc_cgcs_lna` writes it.
+
+**What this changes on the Gate-D3 ladder.** There are now three tier-1-feasible
+dhruva-s rows in the store:
+
+| design | provenance | S11_max | S21 | Idd | NF | tier-2 violation |
+|---|---|---|---|---|---|---|
+| `3ebaf08f99d3` (`rfbcs3_tank_cc21_bf0`) | assistant-authored archetype, Session 3 | −10.25 | 34.64 | 8.70 | **8.88** | 1.537 |
+| `8c7592ea859e` as found | **search, Session 5** | −10.09 | 30.74 | 12.58 | 5.75 | 0.642 |
+| `8c7592ea859e` polished | **search, Session 5** | −10.94 | 34.89 | 11.84 | **5.58** | **0.594** |
+
+**The best NF among tier-1-feasible dhruva-s designs improves 8.88 → 5.58 dB
+(−3.30 dB), and the tier-2 violation of a tier-1-clean design improves 1.537 →
+0.594 — 2.6× closer to Gate D3.** **Gate D3 is still NOT MET**: 2.08 dB of noise
+remain, and the design's *only* violated constraint is NF.
+
+Two honest qualifications. (a) The program's lowest dhruva-s total violation is
+still **0.566**, held by the `nccgcs_s1_R` archetype (Session 4, NF 4.38) — which
+is *not* tier-1 feasible (S11_max −9.38, S21 22.44). So on "closest to tier-2" the
+record moved from 0.566 to 0.594 in the wrong direction by 0.028; what moved is the
+*conditioning* of the front — one binding constraint with margin on the other
+three, instead of three simultaneous near-misses. (b) The evolve arm also produced
+`19f723034c0a` (novel, **crossover**): S11_max **−16.90** / S21 20.06 / Idd 8.34 /
+**NF 4.66** / K_min 50.9 — 6.9 dB of match margin and the second-best NF ever
+measured on this spec, short only on gain. The two designs bracket the remaining
+Gate-D3 trade, and both came from this move set.
+
+Move attribution over the ten lowest-violation dhruva-s designs: `passive_type_swap`
+×5, `crossover` ×2, `load_swap` ×2, unmutated archetype ×1. The blind
+type-substitution move — not any of the semantic ones — did most of the work,
+which is worth remembering before the move set is "improved" toward more
+hand-designed edits.
+
+### 15.4 Critic v1 in deployment — the number that explains both results
+
+Critic scores are **not** results; this subsection exists because 03-SEARCH §4's
+trust rules are only as good as the model's deployment-distribution skill, and
+tonight measured it two ways. The control arm's true evals were drawn at random and
+the critic never saw them, so scoring them **post hoc** (`evolve.py --calibrate`)
+gives a selection-free estimate; the evolve arm's elites are range-restricted by
+construction and are reported separately.
+
+| | wideband-sdr | dhruva-s |
+|---|---|---|
+| in-distribution holdout (family split, n=95) ρ(S21) | 0.834 | 0.839 |
+| holdout rank accuracy | 0.841 | 0.846 |
+| **control arm, post hoc (n=60)** ρ(feasibility scalar) | **+0.174** | **+0.198** |
+| control arm ρ(`mean − β·σ`) | +0.175 | +0.220 |
+| control arm ρ(σ, \|error\|) | +0.147 | +0.458 |
+| control arm precision@top-20% / base rate | 0.250 / 0.150 = **1.67×** (ceiling 6.67×) | 0.583 / 0.467 = **1.25×** (ceiling 2.14×) |
+| **evolve arm, selected elites** ρ(feasibility scalar) | **−0.334** (n=42) | **−0.030** (n=47) |
+| evolve arm ρ(`mean − β·σ`) | −0.345 | −0.014 |
+
+Read together: **critic v1 keeps ρ ≈ 0.83 on its own family holdout and collapses
+to ρ ≈ +0.17…+0.20 on the mutant distribution the search actually generates** — a
+fifth of the in-distribution number, and far below Gate C1's 0.5 bar. On the elites
+it selected, the residual correlation is zero to negative. That is the whole story
+of §15.2: a ranker with ρ ≈ 0.17 cannot beat coin-flip selection by 2×, and it did
+not. On dhruva-s the same weak-but-positive signal was enough to matter, because
+there the population starts near a real front and the critic only has to avoid
+throwing it away — near-feasible 87% vs 47%, best violation 0.642 vs 1.070.
+
+**The diagnosis is coverage, and it is measurable.** Of `v4-train`'s 734 rows,
+**wifi24 has 424 and dhruva-l1 has 233; wideband-sdr has 16 (2.2%) and dhruva-s has
+24 (3.3%)**. The spec-conditioning vector is the only thing telling the model these
+are different problems, and for the two specs the program most wants to solve it
+has almost no signal behind it. Tonight's run appended **213 rows** —
+**105 wideband-sdr and 108 dhruva-s** — which takes those two specs from 40 rows to
+253 and is precisely the "search manufactures its own training data" bridge
+03-SEARCH §2 promised. **A retrain on the enlarged store is the single highest-value
+next step**, and unlike everything else here it is free of new SPICE.
+
+**The uncertainty gate never fired, and its premise is not reliable off-
+distribution.** Across all 80 generations of all four runs, `n_high_unc = 0` in
+every population: ensemble σ on a mutant never once exceeded the holdout p90
+threshold. The gate as specified is therefore **inert** — the ensemble is
+*confidently* wrong off-distribution rather than visibly uncertain, which is the
+known failure mode of a deep ensemble under covariate shift. ρ(σ, |error|) agrees
+that it is not a dependable signal here: +0.147 on the unselected wideband control,
++0.458 on the unselected dhruva-s control, and on the *selected* dhruva-s elites it
+is **−0.510** under the run's own ensemble and **+0.137** under the post-hoc one —
+i.e. the sign is not even stable across ensemble seeds once selection has
+range-restricted the sample.
+
+The **trust region**, by contrast, did real work. The evolve arm filled all 24 of
+its trusted slots in every generation of both specs (there were always ≥24 trusted
+candidates), while the control populations drifted out of the labeled families
+entirely — trusted membership fell to as low as **4/32** on wideband-sdr and
+**1/32** on dhruva-s, with 32/32 individuals beyond the family radius by the end of
+both control runs. The exploration stratum's dedicated true-eval slot is what put
+SPICE labels on those drifted regions instead of letting the critic score decide
+about them.
+
+### 15.5 Gate S2 verdict, cost, and what follows
+
+**Gate S2 — NOT MET, on both specs, under the plan's stated bar.** 03-SEARCH §2
+asks for ≥2× the feasible novel designs of rung-1 rerank at equal true-eval budget,
+or the program's first Gate-G4 design. Both arms produced **0** fully feasible
+(tier-2) designs on both specs, so the ratio is undefined and the gate fails; the
+G4 clause was already closed in Session 4 and is not reachable here. Rung 1 has
+never been run live on either spec, so the comparison is against the equal-budget
+random-selection control, stated as a substitution.
+
+Raw numbers, so an enrichment-style restatement can be computed either way
+(cf. §14.2's ceiling problem — a ratio bar is only meaningful next to its ceiling):
+
+| spec | arm | true evals | SPICE-min | feasible | near-feasible | base rate | best violation |
+|---|---|---|---|---|---|---|---|
+| wideband-sdr | evolve | 42 | 51.2 | 0 | 6 | 0.143 | 1.782 |
+| wideband-sdr | control | 60 | 76.0 | 0 | 9 | 0.150 | 1.931 |
+| dhruva-s | evolve | 47 | 69.1 | 0 | 41 | 0.872 | 0.642 (0.594 polished) |
+| dhruva-s | control | 60 | 62.4 | 0 | 28 | 0.467 | 1.070 |
+
+**SPICE accounting.** 209 true evaluations, **262.7 SPICE-minutes** in the four
+arms (51.2 + 76.0 + 69.1 + 62.4), plus ~3 min of verification/polish. 213 L2 rows
+appended (209 distinct topologies + the polished winner + 3 rows from an aborted
+first launch, all provenance-tagged `evolve-*`); JSONL integrity verified with two
+other agents writing concurrently (0 malformed lines in 1010).
+
+What the night says to do next, in order:
+
+1. **Retrain the critic on the enlarged store.** wideband-sdr 16 → 105 rows and
+   dhruva-s 24 → 108. §15.4 shows the deployment-distribution ρ is the binding
+   constraint on rung 2, and this is the only lever that costs no SPICE. Re-run
+   `evolve.py --calibrate` against the same stored arms afterwards — the comparison
+   is already set up and needs no new simulation.
+2. **Gate D3 is now 2.08 dB of NF on a tier-1-clean, stable, novel topology.**
+   That is a far better starting point than Session 4's "0.9 dB but violating three
+   constraints", and the lever Session 4 identified still applies: the sizer never
+   sits on the noise-cancellation locus, so an **NF-only inner optimization stage**
+   (or a cancellation-aware start) on `8c7592ea859e489a` and `19f723034c0a` is the
+   next move — not more topology search.
+3. **wideband-sdr needs the spec re-read before more search.** NF is violated on
+   102/102 designs while every other constraint is individually within ~0.4 dB on
+   *some* design. Either the ≤1-inductor / ≤8 mA / 0.5–3 GHz corner genuinely
+   excludes a 3.5 dB single-ended front end at this node, or the harness/objective
+   is mis-serving it. That is a measurement question (sweep NF against the
+   inductor budget), not a search question.
+4. **Put stability in the objective**, still. 21 of 60 control-arm dhruva-s
+   sizings read in-band K < 1 — the Session-4 recommendation is now quantified.
+5. **Guard the violation scalar against degenerate optima** on specs where the
+   hardest constraint improves as the circuit shrinks (§15.2).
+
+```bash
+python lna/moves.py --selftest --spec wideband-sdr            # move-set yield table
+python lna/evolve.py --spec dhruva-s --arm evolve --pop 32 --children 24 \
+    --gens 20 --elites 2 --explore 1 --true-evals 60 --out lna/out/_evolve_ds_evolve
+python lna/evolve.py --spec dhruva-s --arm random  ...        # the equal-budget control
+python lna/evolve.py --report  <a>/state.json <b>/state.json  # scoreboard + S2 verdict
+python lna/evolve.py --calibrate <a>/state.json <b>/state.json  # post-hoc critic ρ
+```
+
 ## 16. Phase 3 — the template-free control experiment: how much of the generator is the scaffolding? (Session 5)
 
 This section is a **measurement, not a proposal**. No arm here is a candidate for

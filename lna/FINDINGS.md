@@ -2581,6 +2581,289 @@ row.
 
 ---
 
+## 17. Phase 3 — the **NF-first sizing campaign**: Gate D3 measured to a wall, and ngspice scratch hygiene (Session 6)
+
+> Owner: the NF-campaign executor. Files: `lna/size.py` (`constrained_descent`,
+> `prepared_body`), `lna/nf_campaign.py`, `lna/nf_moves.py`, `lna/_nf_scan.py`,
+> `lna/_nf_verify.py`, `lna/_nf_table.py`, `lna/_nf_novel.py`, `lna/_nf_tmp_purge.py`,
+> `lna/extract.py` / `lna/bias.py` / `lna/templates.py` (scratch hygiene only).
+> Run artefacts in `lna/out/_nf/` (gitignored). Store rows: recipes `nf-v1` and
+> `nf-v1+move`, `provenance.source_arm` `nf-campaign` / `nf-moves`.
+
+**Headline.** Gate D3 is **NOT MET**, and it is now a *wall with a shape* rather
+than a distance. The whole low-noise family's noise/gain trade at a held
+broadband match was measured end to end: **NF ≤ 3.5 dB is reachable on
+`dhruva-s` — at S21 21.65 dB. S21 ≥ 30 dB is reachable — at NF 4.89 dB.** Both
+points are replay-verified, in-box, unconditionally stable. Nothing in between
+crosses. The remaining gap is **1.39 dB of noise at the spec's gain**, down from
+2.08, and the binding trade has moved from NF↔S11 (Session 4's rfb family) to
+**NF↔S21**.
+
+### 17.1 Why the previous lever could not work: `polish` cannot spend slack
+
+Session 5 handed over `8c7592ea859e489a` — tier-1 feasible on `dhruva-s`, NF
+5.58 the only violation, with 4.9 dB of S21 surplus and 1.2 mA of Idd surplus.
+The natural move is "trade the surplus for noise", and `size.polish` is the tool
+that exists. It cannot do it, for a structural reason worth writing down:
+**polish ascends the *minimum* normalized margin over the gated constraints.**
+When exactly one constraint is violated by a lot, the minimum *is* that
+constraint, so polish already optimizes it — and raising any *non-binding*
+margin cannot raise the minimum, so a 4.9 dB gain surplus is valued at exactly
+zero. Slack is currency only if something is allowed to spend it.
+
+`size.constrained_descent` (new) is that something: optimize **one** metric
+directly and refuse any step that pushes a *kept* constraint's margin below
+`floor`. Scoring is lexicographic — `(total kept-constraint shortfall, target
+value)` — so an infeasible start is walked into the region first and descended
+after. It is box-clamped exactly like polish (the Session-4 out-of-box bug),
+randomizes coordinate order per seed, and interleaves **joint multi-coordinate
+probes** with the coordinate sweep: noise cancellation is a condition on a
+*ratio* (aux gm vs CG gm, load vs load), so the descent direction that matters
+is rarely axis-aligned and a pure coordinate sweep stalls on the diagonal.
+Cost measured at **~0.15 s/eval** (op/sp + series-Rs NF), so a 1500-eval descent
+is ~4 minutes.
+
+`nf_campaign.py` drives it in four modes — `nf` (minimize noise inside a trust
+region selected by `--keep tier1|s11|s11idd|s11gain|none`), `gain` (maximize S21
+under `--nf-cap`), `match` (minimize worst-case S11 holding NF and gain), and
+`--fresh` (an independent match-first restart per seed, so a *family* floor is
+not confused with a *basin* floor).
+
+### 17.2 ★ The measured NF↔S21 front on `dhruva-s` (the deliverable)
+
+Every row below holds `s11_max_db ≤ −10 dB over 1.1–2.5 GHz` and `idd_ma ≤ 13`;
+all are replay-verified against their own stored parameters, in-box, and K ≥ 1.
+
+| point | S11_max | **S21** | Idd | **NF** | K_min | total viol | what binds |
+|---|---|---|---|---|---|---|---|
+| `ce39a7` as found (move `aux_path_add`) | −10.04 | 18.00 | 7.83 | **3.42** | 81.9 | 0.400 | S21 |
+| `ce39a7` gain-ascent @ NF ≤ 3.5 | −10.11 | **21.65** | 6.49 | **3.50** | 26.6 | **0.278** | S21 only |
+| `19f72303` NF floor at match | −10.00 | 23.30 | 9.73 | 3.73 | 35.4 | 0.290 | S21, NF |
+| `19f72303` gain-ascent @ NF ≤ 4 | −10.12 | 27.58 | 12.99 | 3.99 | 15.4 | **0.222** | S21, NF |
+| **`19f72303` tier-1 descent** | **−10.01** | **30.00** | **12.67** | **4.89** | 23.7 | **0.398** | **NF only** |
+| `8c7592ea` tier-1 descent (Session-5 incumbent) | −10.13 | 35.15 | 13.00 | 5.42 | 7.7 | 0.549 | NF only |
+
+Two records move:
+
+* **Best tier-1-feasible `dhruva-s` design: NF 5.58 → 4.89 dB**, tier-2 violation
+  **0.594 → 0.398**. `19f723034c0a946c`, 16 devices, the Session-5 crossover
+  design — S11_max **−10.01** / S21 **30.00** / Idd **12.67** / NF **4.892** /
+  K_min **23.7**, `replay_ok` True, in-box, unconditionally stable in band, NF
+  the single violated constraint. Three seeds land 4.89 / 4.96 / 5.07, so the
+  floor is the design's, not the seed's.
+* **Program-best total violation on `dhruva-s`: 0.566 → 0.222** (2.5×), same
+  graph at S21 27.58 / NF 3.995. ⚠ Per the §20 warning this is *not* a
+  shrink-to-nothing optimum — it carries 27.6 dB of real gain; every number in
+  this section is quoted with its S21 for exactly that reason.
+
+**The front is monotone and dense: +8.35 dB of gain (21.65 → 30.00) costs
++1.39 dB of noise (3.50 → 4.89).** That is the Gate-D3 gap, stated as a
+conversion rate rather than a distance.
+
+### 17.3 ★ A structural edit broke 3.5 dB — and hit the device budget
+
+`nf_moves.py` mutated the two elites one edit at a time (`moves.py` stratum M),
+realized each mutant through the full token round-trip and sized the survivors
+match-first + NF-descent — 20 distinct novel mutants from 37 proposals, all
+SPICE-verified. One matters:
+
+> **`ce39a77c91974013`** — move **`aux_path_add`** off parent `7b0b485b629cecd2`
+> (`nccgcs_s1_R`), **16 devices**. **NF 3.416 dB at s11_max −10.04**, S21 18.00,
+> Idd 7.83, K_min 81.9. `replay_ok` True, in-box. Novel: its WL hash is in
+> neither **ref-v3** (`d05390da6183123e`; 41 corpus + 9 external + 148
+> archetypes = 198 hashes) nor any pre-campaign store row; nearest reference
+> circuit is its own parent archetype at NN-similarity **0.822**.
+
+**This is the first design in the program to measure NF ≤ 3.5 dB with the
+broadband match held** — the noise half of Gate D3, alone. Pushed for gain at
+NF ≤ 3.5 it reaches S21 21.65; pushed for tier-1 it stops at S21 25.74 (NF 5.43)
+and never reaches 30. **The edit that bought the noise is an added auxiliary
+cancellation path, and it took the graph to exactly 16 devices — the
+`device_budget` ceiling.** So the one structural move that would buy the missing
+gain almost free in noise (Friis: a second gain stage) cannot be made: the
+family's low-noise members sit at 14–16 devices and a CS stage costs 2.
+
+That is the same *latent* constraint §13.5 flagged, now **active and measured**:
+`19f72303` 16 devices, `ce39a7` 16, `8c7592ea` 16, `7b0b485b` 14. Raising
+`device_budget` is a **spec** change and was deliberately **not** made to close a
+gate — it needs the same corpus calibration `[3,12] → [3,16]` got.
+
+### 17.4 Family NF floors, gain-gated (the "what binds next" table)
+
+NF floor with the broadband match held (`--keep s11`), **and an S21 floor
+applied** — an ungated NF floor is meaningless, e.g. `gmbcg_wb_s0_b1` reads NF
+3.61 at S21 **−0.63 dB**, a shrink-to-nothing optimum of exactly the shape §20
+warns about.
+
+| family | best NF @ S11 ≤ −10 **and S21 ≥ 15** | at S21 | tier-1-feasible NF | what binds next |
+|---|---|---|---|---|
+| noise-cancelling CG+CS (evolved: `ce39a7`) | **3.42** | 18.00 | – (S21 25.7 max) | **device budget** — no room for a gain stage |
+| noise-cancelling CG+CS (evolved: `19f72303`) | 3.73 | 23.30 | **4.89** | NF↔S21 conversion, 1.39 dB |
+| noise-cancelling CG+CS (`nccgcs_s1_R`, 14 dev) | 3.86 | 18.95 | – (S21 25.9 max) | gain |
+| noise-cancelling CG+CS (`nccgcs_s1_tank`) | 3.82 | 25.19 | – (Idd 16.3) | Idd |
+| evolved CG + 2 tuned CS (`8c7592ea`) | 5.42 | 35.15 | 5.42 | NF; aux path is downstream of both stages |
+| gm-boosted CG, 2-stage (`gmbcg_s2_*`) | 5.41 | 31.05 | 5.41 | NF floor of the family |
+| gm-boosted CG, 1-stage (`gmbcg_s1_*`) | 5.29 | 17.36 | – | NF **and** gain |
+
+**The family separation is clean and ~1.5 dB wide: noise-cancelling CG+CS floors
+at 3.4–3.9 dB, gm-boosted CG at 5.3–5.8 dB.** Only the NC family is on the D3
+ladder at all. Note `gmbcg_s2_*` *is* tier-1 feasible on `dhruva-s` (S21 31.05 /
+Idd 9.44 / S11 −10.19, viol 0.546) — a third tier-1-feasible dhruva-s design,
+but it cannot go below 5.4 dB.
+
+### 17.5 What sets the noise, measured directly (`_nf_scan.py`)
+
+A stall is a claim about a landscape, so the landscape was swept: each sizable
+parameter across its full spec box, everything else held, at the tier-1 point of
+`19f72303` (NF 4.892).
+
+| parameter | NF at base | NF reachable alone | breaks |
+|---|---|---|---|
+| `pC1V` (input DC block, 2.26 pF → 0.71 pF) | 4.89 | **3.66** | s11_max **and** s21 |
+| `pNM2W` (5.12 → 27.4 µm) | 4.89 | **3.95** | s21 |
+| `pNM3W` (12.0 → 3.76 µm) | 4.89 | 4.54 | s11_max and s21 |
+| `pR1V` (979 → 473 Ω) | 4.89 | 4.79 | s11_max, s21, idd |
+| every other coordinate | 4.89 | ≥ 4.87 | – |
+
+**Every coordinate that buys noise pays in gain**, and the two that pay most
+(the input coupling cap and the auxiliary device width) are exactly the
+cancellation-path elements. There is no unexploited direction: the descent is
+sitting on the constraint, not on a local minimum of its own making.
+
+Two further checks that the floor is the family's and not the search's:
+`--fresh` restarts (independent match-first sizings, seeds 1–3) land in visibly
+worse basins (NF 6.34 / 8.51 / 6.06 after the restart) and descend back to
+3.85–3.92, never below the 3.73 reached from the stored point; and three seeds of
+`--mode gain --nf-cap 3.5` on `19f72303` all terminate at the *same* NF 3.73
+point, i.e. the NF ≤ 3.5 region is simply not reachable on that graph at any
+gain.
+
+### 17.6 The five transcribed real topologies do not size here — and the reason is a *source* DC return, not gate bias
+
+All five paper transcriptions plus the four IHP/ALIGN circuits were screened and,
+where they pass, sized (`ext:` source, match-first + NF descent):
+
+| circuit | dhruva-s screen | best sized result |
+|---|---|---|
+| `paper-transformerfb` | pass | S11 −10.02 / **S21 −10.2** / NF 9.51 |
+| `ihp-gps-lna-nmos` | pass | S11 −8.87 / **S21 −5.8** / NF 19.8 |
+| `paper-currentreuse` | pass | S11 −1.85 / **S21 −16.6** / NF 21.3 |
+| `paper-gmboostcg` | pass | S11 −3.42 / **S21 −35.7** / NF 20.6 |
+| `paper-noisecancel` | fails (inductorless) | vs wideband-sdr: S11 −8.07 / S21 5.8 / NF 10.1 |
+
+None is competitive. The coordinator's intel — 4 of 9 have non-conducting MOS —
+was confirmed and then **localized**: `align-lna-qm` (NM2), `ihp-lna-2p45g`
+(NM3, NM4), `paper-diffcccg` (NM1, NM2) and `paper-gmboostcg` (NM2). §13.5's
+lesson said screen the operating point first, so the obvious hypothesis was
+Session 4's biasing defect again — a gate that `bias.py` leaves alone because it
+reaches a rail through the original design's on-chip divider, sized for another
+PDK and another rail.
+
+**It was tested and it is wrong.** An opt-in `BiasInserter.rescue()` that
+promotes such gates to R-GATE bias nets and re-sweeps was implemented and
+measured on all nine: **0 of 4 broken circuits gained a single conducting
+device.** The reason is visible in the same report — in *every* case the off
+device is listed under **`sources_no_dc_path`**: its source reaches neither a
+supply nor ground through R/L. No gate bias can turn on a device whose source
+has no DC return. The rescue rule was therefore **reverted, not landed** (dead
+opt-in code in a shared file is a liability, and the measurement is the
+deliverable). `bias.py`'s existing comment — "those devices are off for
+source/drain reasons, not gate bias" — is confirmed on a second, independent
+population.
+
+**The actionable rule is a different one and was NOT implemented**: a
+source-DC-return inserter. It is a bigger governance question than R-GATE,
+because adding a resistor from a source to ground *changes the circuit*, where
+gate scaffolding only makes it biasable. `paper-diffcccg` shows why it matters —
+it is a differential cross-coupled CG whose tail current source the single-ended
+token flow cannot represent at all.
+
+### 17.7 `wideband-sdr` — the wall is no longer NF alone
+
+The NF-capable families were run against `wideband-sdr` (NF ≤ 3.5, S11 ≤ −10,
+S21 ≥ 12, ripple ≤ 2, Idd ≤ 8, `max_inductors: 1`): the two externals that pass
+its screen, six low-noise archetypes, and the two best stored designs.
+
+**Best total violation 1.551 → 1.375** (`eb6c31c8dc22`: S11 −3.61 / S21 12.02 /
+Idd 3.07 / NF 5.50 / K_min 4.29). **Still 0 feasible**, and the diagnosis has
+changed: §15 recorded `nf_db` violated on 102/102, but with NF in the objective
+the binding constraint on every candidate is now the **f0 match** — s11_db
+lands at −2.6…−3.6 dB on eight of ten, and the lexicographic descent spends its
+whole budget there before it ever gets to reduce noise. `max_inductors: 1` is
+doing exactly what it was written to do (§15's "re-read the spec" item): the
+inductorless population matches through a resistive path that costs noise, and
+the one permitted inductor cannot be spent on the input.
+
+### 17.8 The opposite attack, and why it also fails
+
+§20's rung-1 lead is real and was tested: `seq0126` (`92d68c1eba1f`) reads **NF
+2.73 dB at S21 15.98** and `seq0218` (`f2f10647ec88`) **NF 2.82 at S21 17.73** —
+both under the `dhruva-s` target, both with the input match completely unsolved
+(s11_max −0.01 / −0.32). `--mode match` descends worst-case S11 holding NF ≤ 3.5
+and S21 ≥ 15. Over 2 seeds each: **S11_max moves −0.01 → −0.39 and −0.32 →
+−0.69 dB.** The match does not close by any parameter setting inside the box.
+⚠ `92d68c1e` also reads **K_min −0.33** at its stored point — potentially
+unstable, so it could not have carried a gate claim regardless.
+
+**Read:** on these graphs the input match is *structural*, not parametric, which
+is the same wall WP-BROADEN hit on gps-l1 and WP-D2 hit on rfb. The two attacks
+are now symmetric and both measured: designs that match cannot get below 3.4 dB
+with gain, and designs below 2.8 dB cannot be made to match at all.
+
+### 17.9 ⚙ ngspice scratch hygiene — 685,287 stale directories
+
+Every ngspice caller in the tree `mkdtemp`'d per call and none cleaned up (§15's
+hygiene note). `%TEMP%` was carrying **685,287** stale directories — 625,508
+`size_*`, 57,023 `nf_*`, 2,051 `bias_*`, 1,007 `tmpl_*`, 40 `stab_*` — at which
+point creating one more directory costs more than the 0.15 s evaluation it
+serves and listing `%TEMP%` takes minutes.
+
+`extract.py` gained `scratch()` (a context manager) and `run_deck()` — now the
+tree's single ngspice entry point: write the deck into self-deleting scratch,
+run, return stdout+stderr or `None` on timeout. All six call sites
+(`run_and_extract`, `measure_stability`, `measure_nf`, `nf_selftest`,
+`bias.run_op`, `templates.emit_paths`) route through it, so every campaign sim
+self-cleans; `LNA_KEEP_TMP=1` keeps the decks for debugging.
+
+`lna/_nf_tmp_purge.py` swept the backlog, pattern-fenced to `<prefix><8 alnum>`
+and to directories older than 60 minutes so a concurrently running sim in
+another agent's process could never be touched: **seen 686,780 / matched 685,287
+/ skipped_young 377 / removed 685,287 / failed 0, in 1,788 s.** Regression
+quartet green after.
+
+### 17.10 Cross-band, cost, and the honest verdict
+
+**Cross-band (`dhruva-l5`, NF ≤ 2.5 / S21 ≥ 22.3).** The lower bands sit at
+1.18–1.58 GHz where both inductor loss and gm/ω favour noise, so it was worth a
+measurement rather than an assumption. Tier-1-feasible on `dhruva-l5` with
+`19f72303`: S11 −10.01 / S21 28.03 / Idd 9.67 / **NF 3.65** / K 19.7, and
+`7b0b485b` reaches NF 3.76 at S21 22.34. **NF is indeed ~1.2 dB lower than on
+`dhruva-s`, and the target is 1.0 dB tighter, so the absolute gap grows**:
+1.15 dB on l5 against 1.39 dB on s — but normalized, l5's violation is 0.459
+against s's 0.398, so **`dhruva-s` remains the closest band**, confirming
+Session 4's choice with a number instead of an argument.
+
+**Cost.** ~46,000 SPICE evaluations across 9 campaign runs (~0.15 s each,
+3 concurrent), 64 sized results, **96 new L2 rows** (76 `nf-v1`, 20 `nf-v1+move`).
+
+**Gate D3 — NOT MET, and this is the stall report.** A `dhruva-s` design is
+tier-1 feasible with NF as its only violation at **4.89 dB** (target 3.5), and a
+different design in the same family clears **3.50 dB** with S21 as its only
+violation at 21.65 dB (target 30). The conversion rate between them is
+**+1.39 dB NF per +8.35 dB S21**, the front is dense and monotone, the landscape
+scan shows no unexploited direction, independent restarts do not find a better
+basin, and the one structural move that would break the trade — a second gain
+stage, nearly free in noise by Friis — is blocked by `device_budget` at 16,
+which every low-noise member of the family now touches.
+
+**So the next lever is not sizing and not more seeds.** It is (a) a
+`device_budget` decision made honestly, from corpus device counts, the way
+`[3,12] → [3,16]` was made — *not* to close a gate; or (b) a topology that gets
+30 dB from a *cascade* rather than from a harder-driven input stage, which is a
+generator/search job on a family that does not yet exist in the archetype set.
+
+---
+
 ## 18. Phase 3 — the **curriculum** arm: can scaffolding early + dropping it late keep the yield *and* buy the novelty? (Session 6)
 
 > §17 is reserved by a concurrent agent (the ingestion track's self-deleting

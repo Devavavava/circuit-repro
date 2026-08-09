@@ -29,6 +29,7 @@ domains. Enable finite inductor Q in the deck for physical inductors.
 import argparse
 import math
 import os
+import random
 import sys
 
 import numpy as np
@@ -382,6 +383,177 @@ def polish(topo, spec, prior_params, budget=80, inductor_q=12, exclude=()):
     feas = best_m is not None and spec.feasible(best_m)[0]
     return {"metrics": best_m, "feasible": feas, "best_params": params,
             "n_evals": n, "min_margin": best_mm}
+
+
+def prepared_body(topo, inductor_q=12):
+    """(body, sizable, fixed) for a topology, bias inserted -- or None if biasing
+    skips it. Factored out of polish/size_topology so a driver can pay the
+    bias-insert cost once and then run many searches on the same deck."""
+    import bias
+    kw = {"inductor_q": inductor_q} if inductor_q else {}
+    nl, _, rep, _ = bias.insert_bias(topo, sweep=True, **kw)
+    if rep.get("skipped") or not nl.two_port:
+        return None
+    sizable, fixed = classify_params(nl)
+    return E.body_of(nl.emit()), sizable, fixed
+
+
+def constrained_descent(topo, spec, prior_params, target=("nf_db", "min"),
+                        keep=None, budget=240, inductor_q=12, floor=0.0,
+                        seed=0, jitter=0.0, exclude=(), prepared=None,
+                        trace=None):
+    """Optimize ONE metric inside a hard trust region of the others (WP-NF / D3).
+
+    `polish` ascends the *minimum* normalized margin over every gated constraint.
+    That is the right move at a feasibility boundary, and the wrong one when a
+    design is tier-1 clean and misses on exactly one constraint by a lot: the
+    minimum IS the violated constraint, so polish optimizes it anyway -- while
+    valuing a 4.9 dB gain surplus and a 1.2 mA current surplus at exactly zero,
+    because raising a non-binding margin cannot raise the minimum. Slack is
+    currency only if something is allowed to spend it.
+
+    So: minimize (or maximize) `target` directly, and refuse any step that pushes
+    a *kept* constraint's normalized margin below `floor`. Scoring is
+    lexicographic -- (total kept-constraint shortfall, target value) -- so an
+    infeasible start is first walked into the region and only then descended.
+
+      target  (metric, "min"|"max")
+      keep    {metric: {"max": v} | {"min": v}}; defaults to every gated
+              constraint except the target (i.e. the tier-1 box, plus NF when
+              the target is gain).
+      floor   required normalized margin on kept constraints (0.0 = the boundary;
+              use e.g. 0.02 to keep a design off the cliff edge).
+      jitter  fractional log-uniform perturbation of the start point (multi-seed
+              diversity); the jittered start is used only if it stays in region.
+
+    Returns {metrics, feasible, best_params, n_evals, target, shortfall} or None.
+    """
+    prep = prepared or prepared_body(topo, inductor_q=inductor_q)
+    if prep is None:
+        return None
+    body, sizable, _fixed = prep
+    if exclude:
+        sizable = {k: v for k, v in sizable.items() if k not in set(exclude)}
+    nf_gated = nf_is_gated(spec)
+    tname, tdir = target
+    tsign = 1.0 if tdir == "min" else -1.0
+    if keep is None:
+        keep = {n: {k: c[k] for k in ("min", "max") if k in c}
+                for n, c in spec.constraints.items()
+                if c.get("status") != "unsupported" and n != tname}
+    scales = {n: spec._scale(c) for n, c in keep.items()}
+    rng = kind_ranges(spec)
+    rand = random.Random(seed)
+
+    def clamp(name, val):
+        kind = sizable.get(name)
+        if kind not in rng:
+            return val
+        lo, hi = rng[kind][0], rng[kind][1]
+        return min(max(val, lo), hi)
+
+    def score(p):
+        """(kept-constraint shortfall, signed target). Lower is better."""
+        m = eval_metrics(body, p, spec, nf_gated=nf_gated)
+        if m is None:
+            return (1e9, 1e9), None
+        short = 0.0
+        for n, c in keep.items():
+            v = m.get(n)
+            if v is None:                 # unmeasurable kept constraint
+                short += 1.0 + floor
+                continue
+            s = scales[n]
+            if "max" in c:
+                short += max(0.0, (v - c["max"]) / s + floor)
+            if "min" in c:
+                short += max(0.0, (c["min"] - v) / s + floor)
+        t = m.get(tname)
+        return (short, 1e9 if t is None else tsign * t), m
+
+    params = {k: v for k, v in (prior_params or {}).items()}
+    for nm in list(sizable):
+        if nm in params:
+            try:
+                params[nm] = f"{clamp(nm, float(params[nm])):.6g}"
+            except (TypeError, ValueError):
+                pass
+    best_s, best_m = score(params)
+    n = 1
+    if jitter > 0:
+        trial = dict(params)
+        for nm in list(sizable):
+            if nm not in trial:
+                continue
+            try:
+                base = float(trial[nm])
+            except (TypeError, ValueError):
+                continue
+            trial[nm] = f"{clamp(nm, base * math.exp(rand.uniform(-jitter, jitter))):.6g}"
+        s, m = score(trial)
+        n += 1
+        if s[0] <= best_s[0]:             # keep the jitter only if still in region
+            best_s, best_m, params = s, m, trial
+
+    order = [k for k in sizable if k in params]
+
+    def rand_dir(step_):
+        """A joint multiplicative move on 2-4 coordinates. Noise cancellation is a
+        condition on a *ratio* (aux gm vs CG gm, load vs load), so the descent
+        direction that matters is rarely axis-aligned; a coordinate sweep alone
+        stalls on the diagonal."""
+        pick = rand.sample(order, min(len(order), rand.randint(2, 4)))
+        trial = dict(params)
+        for nm in pick:
+            try:
+                base = float(trial[nm])
+            except (TypeError, ValueError):
+                continue
+            trial[nm] = f"{clamp(nm, base * (1 + step_ * rand.choice((-1.0, 1.0)))):.6g}"
+        return trial
+
+    step = 0.30
+    while n < budget and step > 0.015:
+        rand.shuffle(order)
+        improved = False
+        for _ in range(max(2, len(order) // 3)):     # random-direction probes
+            if n >= budget:
+                break
+            trial = rand_dir(step)
+            s, m = score(trial)
+            n += 1
+            if s < best_s:
+                best_s, best_m, params, improved = s, m, trial, True
+        for name in order:
+            try:
+                base = float(params[name])
+            except (TypeError, ValueError):
+                continue
+            for factor in ((1 + step, 1 - step) if rand.random() < 0.5
+                           else (1 - step, 1 + step)):
+                cand = clamp(name, base * factor)
+                if abs(cand - base) <= 1e-18:
+                    continue
+                trial = dict(params)
+                trial[name] = f"{cand:.6g}"
+                s, m = score(trial)
+                n += 1
+                if s < best_s:
+                    best_s, best_m, params, improved = s, m, trial, True
+                    base = cand
+                if n >= budget:
+                    break
+            if n >= budget:
+                break
+        if trace is not None:
+            trace.append({"n": n, "step": step, "shortfall": best_s[0],
+                          "target": tsign * best_s[1] if best_s[1] < 1e8 else None})
+        if not improved:
+            step *= 0.55
+    feas = best_m is not None and spec.feasible(best_m)[0]
+    return {"metrics": best_m, "feasible": feas, "best_params": params,
+            "n_evals": n, "target": (tsign * best_s[1] if best_s[1] < 1e8 else None),
+            "shortfall": best_s[0]}
 
 
 def match_param_names(topo, sizable):

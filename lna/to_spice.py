@@ -21,6 +21,12 @@ harness:
 Generated names are therefore prefixed (pW1, pL1, ...) and elements keep SPICE
 letters.
 
+Bipolars (NPN/PNP) are emitted as SPICE `Q` elements against the generic
+Gummel-Poon cards in `BJT_MODELS` -- see that constant for why they exist and
+what they are (and are not) calibrated to. The cards are emitted **only when the
+topology actually contains a bipolar**, so every MOS-only deck this file has ever
+produced is byte-identical to before.
+
     python lna/to_spice.py lna/out/cond/seq0003.txt -o work/cand3.cir
 """
 import argparse
@@ -39,12 +45,77 @@ DEFAULT_MODELS = os.path.abspath(os.path.join(
 DEFAULTS = {"NM": ("40u", "45n"), "PM": ("80u", "45n"),
             "R": "1k", "C": "1p", "L": "1n"}
 
+# --------------------------------------------------------------- bipolars
+# AnalogGenie's vocabulary and topology.py's LEGAL both carry 3-terminal C/B/E
+# NPN/PNP, and real ingested circuits use them (IHP's open SG13G2 GPS_LNA ships
+# an HBT variant alongside its NMOS one), but the DEFAULT_MODELS include --
+# AutoCkt's `45nm_bulk.txt` -- is a BSIM4 file with **MOS models only**. So a
+# bipolar-bearing topology needs its own device cards, and they live here.
+#
+# WHAT THESE ARE: generic Gummel-Poon cards, hand-written for this harness. No
+# vendor/PDK model was retrieved for them (and a PDK model could not be
+# redistributed in this repo if it had been), so they are **illustrative of a
+# device class, not an extraction of any real device**. Any number measured on a
+# bipolar topology here is a topology/harness result, not a silicon prediction.
+#
+# WHY THESE VALUES: the harness simulates 1-4 GHz, so the two parameters that
+# actually decide whether a bipolar deck behaves like an RF device are the
+# forward transit time (which sets fT) and beta. MEASURED by check_bjt.py:
+#   qnpn  SiGe-HBT class -- beta 193 @ 1 mA / 167 @ 4.2 mA,
+#                           fT 68.6 GHz @ 1 mA / 92.0 GHz @ 4.2 mA
+#   qpnp  generic PNP    -- beta 43 @ 0.9 mA / 31 @ 3.1 mA,
+#                           fT 11.1 GHz @ 0.9 mA / 7.7 GHz @ 3.1 mA
+# i.e. fT is 17-40x the 1-4 GHz band for the NPN and 2-11x for the (deliberately
+# slower) PNP, which is the regime real LNAs are designed in. The PNP's fT
+# *falling* with current is the IKF/XTF high-injection roll-off doing its job.
+# Ohmic (rb/rbm/re/rc) and
+# junction-capacitance values are scaled to the same device class; ikf/ise/ne
+# give the usual high- and low-injection beta roll-off so a badly biased device
+# degrades rather than staying ideal. Reverse Early (VAR) is deliberately left
+# infinite: in SPICE's Gummel-Poon `qb` a finite VAR scales *forward* beta too
+# (measured: var=2.5 dropped the NPN from ~184 to 131 at 1 mA), which would make
+# the stated bf misleading for a device that never runs reverse-active here.
+#
+# GOLDEN-CHECKED, NOT ASSERTED: `python lna/ref/check_bjt.py` measures DC beta
+# and fT of both cards in ngspice and compares them against the closed-form
+# Gummel-Poon prediction from these very parameters. Quoted measured values are
+# in lna/FINDINGS.md.
+#
+# NOT SIZABLE (deliberate): the Q elements carry a literal emitter-area
+# multiplier rather than a `.param`. size.py's `classify_params` owns the
+# param-name -> sizing-kind map and has no bipolar kind; emitting `area={pQ1A}`
+# would produce an "Undefined parameter" the moment E.body_of() strips the
+# .param block. Giving bipolars a sizable area is a size.py change, and this
+# file does not own it. Everything else in a bipolar topology (R/C/L/W) sizes
+# normally.
+BJT_AREA = 1.0
+
+BJT_MODELS = {
+    "NPN": ("qnpn", "\n".join([
+        ".model qnpn npn (is=2e-17 bf=200 vaf=60 ikf=20m ise=5e-17 ne=2",
+        "+                br=3 rb=30 rbm=8 re=1.5 rc=12",
+        "+                cje=18f vje=0.9 mje=0.35 cjc=9f vjc=0.7 mjc=0.33",
+        "+                cjs=12f vjs=0.6 mjs=0.3",
+        "+                tf=1.2p xtf=3 vtf=1.5 itf=30m tr=1n)"])),
+    "PNP": ("qpnp", "\n".join([
+        ".model qpnp pnp (is=4e-17 bf=50 vaf=40 ikf=5m ise=2e-16 ne=2",
+        "+                br=2 rb=60 rbm=20 re=4 rc=30",
+        "+                cje=25f vje=0.9 mje=0.35 cjc=15f vjc=0.7 mjc=0.33",
+        "+                cjs=20f vjs=0.6 mjs=0.3",
+        "+                tf=10p xtf=2 vtf=1.5 itf=5m tr=5n)"])),
+}
+
 
 class Netlist(object):
     def __init__(self, topo, models=DEFAULT_MODELS, vdd=1.1, vbias=0.5,
-                 freq_lo=1e9, freq_hi=4e9, points=201, inductor_q=None):
+                 freq_lo=1e9, freq_hi=4e9, points=201, inductor_q=None,
+                 bjt_models=None, bjt_area=BJT_AREA):
         self.t = topo
         self.models = models
+        # {base: (model_name, card_text)}; override to swap in a real PDK card
+        # without touching this file. Emitted only if the topology has bipolars.
+        self.bjt_models = dict(bjt_models or BJT_MODELS)
+        self.bjt_area = bjt_area
         self.vdd = vdd
         self.vbias = vbias
         self.freq = (freq_lo, freq_hi, points)
@@ -101,9 +172,18 @@ class Netlist(object):
         tok = f"{dev}_{pin}"
         return self.node_of_pin.get(tok)
 
+    def bjt_kinds(self):
+        """Sorted bipolar base types present in this topology ([] for MOS-only).
+
+        Drives whether the .model cards are emitted at all, which is what keeps
+        every pre-existing MOS-only deck byte-identical."""
+        return sorted({base_of(d) for d in self.t.devices
+                       if base_of(d) in BJT_MODELS})
+
     def missing_pins(self):
         """Devices whose pins are not all present -- cannot be emitted."""
-        need = {"NM": "DGSB", "PM": "DGSB", "R": "PN", "C": "PN", "L": "PN"}
+        need = {"NM": "DGSB", "PM": "DGSB", "R": "PN", "C": "PN", "L": "PN",
+                "NPN": "CBE", "PNP": "CBE"}
         bad = []
         for d in sorted(self.t.devices):
             b = base_of(d)
@@ -126,6 +206,14 @@ class Netlist(object):
         A("* Device values are placeholders exposed as .param for a sizing loop.")
         A("")
         A(f".include {self.models.replace(os.sep, '/')}")
+        # Bipolar cards, only when the topology has a bipolar -- the include above
+        # is BSIM4 (MOS) only. See BJT_MODELS for what these are calibrated to.
+        kinds = self.bjt_kinds()
+        if kinds:
+            A("* generic Gummel-Poon cards (to_spice.BJT_MODELS); the 45nm BSIM4")
+            A("* include has no bipolar models. Illustrative device class, not a PDK.")
+            for k in kinds:
+                A(self.bjt_models[k][1])
         A("")
 
         # ---- parameters -------------------------------------------------
@@ -192,6 +280,13 @@ class Netlist(object):
                 A(f"R{d} {self._pin_node(d,'P')} {self._pin_node(d,'N')} {{p{d}V}}")
             elif b == "C":
                 A(f"C{d} {self._pin_node(d,'P')} {self._pin_node(d,'N')} {{p{d}V}}")
+            elif b in BJT_MODELS:
+                # Q<name> C B E <model> <area>. AnalogGenie graphs carry each
+                # parallel unit finger as its own device, so `area` stays 1 and
+                # the multiplicity is structural (12 NPN tokens = 12 fingers).
+                A(f"Q{d} {self._pin_node(d,'C')} {self._pin_node(d,'B')} "
+                  f"{self._pin_node(d,'E')} {self.bjt_models[b][0]} "
+                  f"{self.bjt_area:g}")
             elif b == "L":
                 p, n = self._pin_node(d, 'P'), self._pin_node(d, 'N')
                 if self.inductor_q:
@@ -229,6 +324,19 @@ class Netlist(object):
                     A(f"let vdsat_{d}=@M{d}[vdsat]")
                     A(f"let vgs_{d}=@M{d}[vgs]")
                     A(f"print id_{d} vds_{d} vdsat_{d} vgs_{d}")
+            # Bipolars get their own labels (ic_/ib_/vbe_/vbc_). bias.py's op
+            # parser keys on id_/vds_/vdsat_/vgs_ only, so these are visible to a
+            # reader and invisible to the MOS-only L1 sweep -- which is correct:
+            # bias.py inserts *gate* scaffolding and has no base-bias rule.
+            # ngspice's BJT exposes vbe/vbc, NOT vce (`@q[vce]` is a hard error);
+            # Vce = Vbe - Vbc for anyone who wants it.
+            for d in sorted(t.devices):
+                if base_of(d) in BJT_MODELS:
+                    A(f"let ic_{d}=@Q{d}[ic]")
+                    A(f"let ib_{d}=@Q{d}[ib]")
+                    A(f"let vbe_{d}=@Q{d}[vbe]")
+                    A(f"let vbc_{d}=@Q{d}[vbc]")
+                    A(f"print ic_{d} ib_{d} vbe_{d} vbc_{d}")
         elif self.two_port:
             A(f"sp lin {pts} {lo:g} {hi:g} 1")
             # A generated topology can leave a port fully disconnected, making

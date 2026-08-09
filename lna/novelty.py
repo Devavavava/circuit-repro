@@ -21,8 +21,10 @@ bias cannot change a topology's identity.
 ### The reference set is VERSIONED (read this before quoting an NDL number)
 
     ref-v1  the 41-circuit AnalogGenie LNA corpus only        (the P0 freeze)
-    ref-v2  the 41 corpus circuits + every templates.py        (the default)
+    ref-v2  the 41 corpus circuits + every templates.py
             archetype, as WL hashes of their token topologies
+    ref-v3  the 50-circuit corpus (41 dataset + 9 ingested      (the default)
+            external real/cited LNAs) + the same archetypes
 
 **ref-v1 systematically overstates novelty for every P5-era generator.** P5 arms
 are fine-tuned on the Eulerian-augmented `templates.py` archetype set, so a
@@ -31,18 +33,28 @@ but ref-v1 never looked at the archetypes and scored it "novel". Measured, this
 is not a rounding error: ~51% of the P5-v6 pool's screen-passing samples are
 archetype regenerations (Track B, `data/reports/trackb-p5v6-2026-08-08.md`).
 
-ref-v1 stays reachable (`--ref v1`) so every historical number remains
-reproducible, and **every protocol row records which reference produced it**
-plus the reference's size and digest -- the archetype set has grown 92 -> 118 ->
-135 -> 148 over the program, so "ref-v2" alone does not pin a number. The digest
-does.
+**ref-v2 in turn understates the corpus.** The 41 dataset LNAs were never the
+whole of the real-LNA ground truth available to this project, just the whole of
+what AnalogGenie shipped. Nine real/cited circuits were converted, screened,
+simulated and ingested (`lna/data/external/`, manifest
+`corpus_manifest.json`) -- open-tapeout IHP SG13G2 designs, an ALIGN
+differential LNA, and five cited paper transcriptions -- so ref-v3 asks "is this
+new against everything we hold?" rather than "is this new against the subset
+upstream happened to publish?". The correction is expected to be small (9 hashes
+on 189); it is measured in FINDINGS, not assumed.
+
+ref-v1 and ref-v2 stay reachable (`--ref v1` / `--ref v2`) so every historical
+number remains reproducible, and **every protocol row records which reference
+produced it** plus the reference's size and digest -- the archetype set has grown
+92 -> 118 -> 135 -> 148 over the program and the corpus has now grown 41 -> 50,
+so a version name alone does not pin a number. The digest does.
 
 The self-contained WL implementation (no networkx) keeps this runnable under the
 same torch-free Windows analysis Python as screen.py / spec.py.
 
     python lna/novelty.py --dir lna/out/sweep12                 # novelty report
     python lna/novelty.py --eval lna/out/sweep12 --spec wifi24  # frozen-protocol row
-    python lna/novelty.py --eval <dir> [<dir> ...] --ref both --spec wifi24
+    python lna/novelty.py --eval <dir> [<dir> ...] --ref all --spec wifi24
     python lna/novelty.py --rebaseline --spec wifi24            # sweep 4/8/12/24
     python lna/novelty.py --show-ref [--refresh-ref]            # reference audit
 """
@@ -68,7 +80,9 @@ WL_ITERS = 3
 
 REF_V1 = "ref-v1"          # 41-circuit corpus only -- the original P0 freeze
 REF_V2 = "ref-v2"          # corpus + every templates.py archetype
-DEFAULT_REF = REF_V2       # what a run uses unless told otherwise
+REF_V3 = "ref-v3"          # + the 9 ingested external real/cited LNAs
+DEFAULT_REF = REF_V3       # what a run uses unless told otherwise
+ALL_REFS = (REF_V1, REF_V2, REF_V3)
 _HERE = os.path.dirname(os.path.abspath(__file__))
 REF_CACHE_PATH = os.path.join(_HERE, "data", "novelty_ref_v2.json")
 # The archetype set is a function of these files; any edit invalidates the cache.
@@ -183,6 +197,32 @@ def corpus_reference(indices=LNA_INDICES, iters=WL_ITERS):
     return _CORPUS_CACHE
 
 
+# ------------------------------------------- external ingested set (ref-v3)
+_EXTERNAL_CACHE = None
+
+
+def external_reference(iters=WL_ITERS, refresh=False):
+    """(hashes, [(name, feature Counter)]) for the ingested external corpus.
+
+    Reads `build_lna_corpus.external_topologies()`, i.e. row 0 of each ingested
+    circuit's augmented `Sequence_total_*.npy` -- exactly the representative
+    `corpus_reference()` takes for a dataset circuit, so the two halves of the
+    50-circuit corpus are built the same way. Quarantined circuits are excluded
+    by the manifest, not here: a circuit we refused to ingest is not part of the
+    corpus and must not silently suppress a generator's novelty."""
+    global _EXTERNAL_CACHE
+    if _EXTERNAL_CACHE is not None and not refresh:
+        return _EXTERNAL_CACHE
+    import build_lna_corpus as B                        # noqa: E402
+    hashes, feats = set(), []
+    for cid, topo in B.external_topologies():
+        gh, feat = wl_features(topo, iters)
+        hashes.add(gh)
+        feats.append((f"ext:{cid}", feat))
+    _EXTERNAL_CACHE = (hashes, feats)
+    return _EXTERNAL_CACHE
+
+
 # --------------------------------------------------- archetype set (ref-v2)
 def _sources_sha256():
     """Digest of every file the archetype set is a function of, so a stale
@@ -234,11 +274,12 @@ def reference(version=DEFAULT_REF, iters=WL_ITERS, refresh=False):
     """The novelty reference set.
 
     Returns (hashes:set, feats:list[(name, Counter)], meta:dict). `meta` carries
-    `version`, `n_corpus`, `n_archetypes`, `n_hashes`, `wl_iters` and `digest` --
-    a blake2b over the sorted hash list, which is what actually pins a published
-    NDL number (the archetype set has grown over the program's life)."""
-    version = {"v1": REF_V1, "v2": REF_V2}.get(version, version)
-    if version not in (REF_V1, REF_V2):
+    `version`, `n_corpus`, `n_external`, `n_archetypes`, `n_hashes`, `wl_iters`
+    and `digest` -- a blake2b over the sorted hash list, which is what actually
+    pins a published NDL number (both the archetype set and the corpus have grown
+    over the program's life)."""
+    version = {"v1": REF_V1, "v2": REF_V2, "v3": REF_V3}.get(version, version)
+    if version not in ALL_REFS:
         raise ValueError(f"unknown novelty reference {version!r}")
     ck = (version, iters)
     if ck in _REF_CACHE and not refresh:
@@ -247,8 +288,14 @@ def reference(version=DEFAULT_REF, iters=WL_ITERS, refresh=False):
     chashes, cfeats = corpus_reference(iters=iters)
     hashes = set(chashes)
     feats = [(f"corpus:{i}", f) for i, f in cfeats]
+    n_ext = 0
+    if version == REF_V3:
+        ehashes, efeats = external_reference(iters=iters, refresh=refresh)
+        n_ext = len(efeats)
+        hashes |= ehashes
+        feats.extend(efeats)
     n_arch = 0
-    if version == REF_V2:
+    if version in (REF_V2, REF_V3):
         rows = archetype_rows(refresh=refresh)
         n_arch = len(rows)
         for a in rows:
@@ -256,15 +303,15 @@ def reference(version=DEFAULT_REF, iters=WL_ITERS, refresh=False):
             hashes.add(gh)
             feats.append((f"arch:{a['name']}", feat))
 
-    meta = {"version": version, "n_corpus": len(cfeats), "n_archetypes": n_arch,
-            "n_hashes": len(hashes), "wl_iters": iters,
+    meta = {"version": version, "n_corpus": len(cfeats), "n_external": n_ext,
+            "n_archetypes": n_arch, "n_hashes": len(hashes), "wl_iters": iters,
             "digest": _h(sorted(hashes))}
     _REF_CACHE[ck] = (hashes, feats, meta)
     return _REF_CACHE[ck]
 
 
 def ref_tag(meta):
-    """Compact provenance stamp for a protocol row: ref-v2[189h/8d1c...]."""
+    """Compact provenance stamp for a protocol row: ref-v3[198h/8d1c...]."""
     return f"{meta['version']}[{meta['n_hashes']}h/{meta['digest'][:8]}]"
 
 
@@ -302,6 +349,11 @@ def evaluate(directory, spec=None, iters=WL_ITERS, ref=DEFAULT_REF):
     dirs = [directory] if isinstance(directory, str) else list(directory)
     ref_hashes, ref_feats, ref_meta = reference(ref, iters=iters)
     corpus_hashes, _ = corpus_reference(iters=iters)
+    # Only split out the external half when the reference actually contains it,
+    # so a ref-v1/v2 row keeps exactly the columns it always had.
+    ext_hashes = (external_reference(iters=iters)[0]
+                  if ref_meta["version"] == REF_V3 else set())
+    ext_hashes = ext_hashes - corpus_hashes
     files = []
     term = {}
     for d in dirs:
@@ -323,6 +375,7 @@ def evaluate(directory, spec=None, iters=WL_ITERS, ref=DEFAULT_REF):
             "spec_pass": spec.structural_screen(topo)[0] if spec else None,
             "novel": gh not in ref_hashes,
             "corpus_copy": gh in corpus_hashes,
+            "ext_copy": gh in ext_hashes,
             "nn": nn,
         })
     n = len(rows)
@@ -341,9 +394,11 @@ def evaluate(directory, spec=None, iters=WL_ITERS, ref=DEFAULT_REF):
     med_nn = float(np.median([r["nn"] for r in passing])) if passing else float("nan")
     copies = sum(1 for r in rows if not r["novel"])        # copies of the reference
     corpus_copies = sum(1 for r in rows if r["corpus_copy"])
+    ext_copies = sum(1 for r in rows if r["ext_copy"])
     # The whole point of ref-v2: how much of the pool is regurgitated training
-    # archetype rather than anything new.
-    arch_copies = copies - corpus_copies
+    # archetype rather than anything new. The external half is split out too, so
+    # "archetype copies" never silently absorbs a corpus-expansion hit.
+    arch_copies = copies - corpus_copies - ext_copies
 
     return {
         "n": n,
@@ -357,9 +412,11 @@ def evaluate(directory, spec=None, iters=WL_ITERS, ref=DEFAULT_REF):
         "any_ind_pct": 100.0 * any_ind,
         "copies_pct": 100.0 * copies / n,
         "corpus_copies_pct": 100.0 * corpus_copies / n,
+        "ext_copies_pct": 100.0 * ext_copies / n,
         "arch_copies_pct": 100.0 * arch_copies / n,
         "distinct": len({r["gh"] for r in rows}),
         "ref": ref_meta["version"],
+        "ref_n_external": ref_meta.get("n_external", 0),
         "ref_n": ref_meta["n_hashes"],
         "ref_digest": ref_meta["digest"],
         "ref_tag": ref_tag(ref_meta),
@@ -377,15 +434,18 @@ def _print_row(label, m):
           f"NDL={m['ndl']:<3} med_nn={m['median_nn']:.3f} "
           f"indR={m['ind_ratio']:.3f} anyL={m['any_ind_pct']:4.1f}% "
           f"copies={m['copies_pct']:4.1f}% "
-          f"(arch {m['arch_copies_pct']:4.1f}% / corpus {m['corpus_copies_pct']:4.1f}%) "
-          f"{m['ref_tag']}")
+          f"(arch {m['arch_copies_pct']:4.1f}% / corpus {m['corpus_copies_pct']:4.1f}%"
+          + (f" / ext {m['ext_copies_pct']:4.1f}%" if m["ref_n_external"] else "")
+          + f") {m['ref_tag']}")
 
 
 # ---------------------------------------------------------- legacy report
 def report_dir(directory, spec, iters, ref=DEFAULT_REF):
     _, _, meta = reference(ref, iters=iters)
+    ext = (f" + {meta['n_external']} ingested external LNAs"
+           if meta.get("n_external") else "")
     print(f"novelty reference: {ref_tag(meta)} = {meta['n_hashes']} distinct WL "
-          f"hashes from {meta['n_corpus']} corpus LNAs + "
+          f"hashes from {meta['n_corpus']} corpus LNAs{ext} + "
           f"{meta['n_archetypes']} templates.py archetypes")
     m = evaluate(directory, spec, iters, ref=ref)
     if m is None:
@@ -407,7 +467,10 @@ def report_dir(directory, spec, iters, ref=DEFAULT_REF):
 
 
 def _refs_for(arg):
-    return [REF_V1, REF_V2] if arg == "both" else [arg]
+    """`both` is kept as a spelling of `all` rather than as "v1 and v2": with a
+    third version the old two-way comparison is no longer the interesting one,
+    and printing an extra row can only add information to an ad-hoc comparison."""
+    return list(ALL_REFS) if arg in ("both", "all") else [arg]
 
 
 def main():
@@ -424,9 +487,11 @@ def main():
     ap.add_argument("--spec", default=None)
     ap.add_argument("--iters", type=int, default=WL_ITERS)
     ap.add_argument("--ref", default=DEFAULT_REF,
-                    choices=["v1", "v2", REF_V1, REF_V2, "both"],
-                    help="novelty reference set (default ref-v2: corpus + "
-                         "templates.py archetypes; 'both' prints old vs new)")
+                    choices=["v1", "v2", "v3", REF_V1, REF_V2, REF_V3,
+                             "both", "all"],
+                    help="novelty reference set (default ref-v3: 50-circuit "
+                         "corpus + templates.py archetypes; 'all' prints every "
+                         "version side by side)")
     ap.add_argument("--show-ref", action="store_true",
                     help="print the reference audit stamp and exit")
     ap.add_argument("--refresh-ref", action="store_true",
@@ -437,9 +502,10 @@ def main():
     if args.refresh_ref:
         archetype_rows(refresh=True)
     if args.show_ref or args.refresh_ref:
-        for v in (REF_V1, REF_V2):
+        for v in ALL_REFS:
             _, _, m = reference(v, iters=args.iters, refresh=args.refresh_ref)
             print(f"{ref_tag(m):<28} corpus={m['n_corpus']} "
+                  f"external={m.get('n_external', 0)} "
                   f"archetypes={m['n_archetypes']} wl_iters={m['wl_iters']} "
                   f"digest={m['digest']}")
         print(f"cache: {REF_CACHE_PATH}")

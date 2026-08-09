@@ -2673,3 +2673,354 @@ agent lands ref-v3 tonight, ref-v2 is still the reported stick, for comparabilit
 P5-v3 = `ft_p5_v2.pre_dhruva.pth`, nb 52 / wb 21 under ref-v2. Checkpoints
 `ft_cur_v2.pth` / `ft_cur2_v2.pth` are evidence, gitignored, and must never
 displace it.
+
+> **Note added by the ingestion track (§19):** ref-v3 did land tonight, and the
+> measured Δ(v3−v2) is **0 on every checkpoint including this arm's baseline** —
+> so ref-v2 and ref-v3 numbers are directly comparable for any arm trained before
+> the corpus expansion, and this section's comparability caveat costs nothing.
+> The re-frozen baseline is unchanged in value: nb 52 / wb 21, now stamped
+> `ref-v3[198h/d05390da]`.
+
+---
+
+## 19. Phase 3 — the corpus grows 41 → 50: bipolar emission, external ingestion, and ref-v3 (Session 6)
+
+> §17 is reserved by the scratch-hygiene track and §18 by the curriculum arm;
+> this section is numbered 19 to avoid a collision.
+
+Three things happened, in this order, and the order matters: the emitter learned
+to emit bipolars (without which one of the nine circuits could not be ingested at
+all), nine real/cited LNAs were ingested behind a gate ladder, and the novelty
+reference was re-versioned to ref-v3 with the frozen NDL protocol re-run and the
+adopt/reject history flip-checked.
+
+**The generator was NOT retrained.** Nothing here is a model claim. The
+deliverable is data, references and labels that a future fine-tune can trust.
+
+### 19.1 `to_spice.py` emits NPN/PNP, and the model cards are golden-checked
+
+`topology.py`'s `LEGAL`/`DEV_PREFIXES` and AnalogGenie's own 1005-token
+vocabulary have always carried 3-terminal C/B/E bipolars — `NPN1`…`NPN26`,
+`PNP1`…`PNP26` are real tokens the generator can emit — but `to_spice.Netlist`
+implemented NM/PM/R/C/L only. Running it on the IHP SiGe-HBT GPS LNA said so
+plainly: `cannot emit 12 device(s): NPN1: unsupported device type ...`
+
+Two sub-problems, and only one of them was the emitter. The `.include` this
+harness uses is AutoCkt's `45nm_bulk.txt` — **a BSIM4 file with no bipolar models
+in it at all**, so there was nothing for a `Q` element to reference.
+
+**The cards (`to_spice.BJT_MODELS`) are generic Gummel-Poon, and are labelled as
+such.** No vendor model was retrieved (and none could be redistributed here if it
+had been), so they are illustrative of a *device class*, not an extraction of any
+real device — a number measured on a bipolar topology in this harness is a
+topology/harness result, not a silicon prediction. What makes them defensible is
+that the two parameters which decide whether a bipolar deck behaves like an RF
+device at 1–4 GHz are **measured, not asserted** (`lna/ref/check_bjt.py`):
+
+| card | Ic | beta measured | closed-form | err | fT measured | closed-form | err |
+|---|---|---|---|---|---|---|---|
+| `qnpn` (SiGe-HBT class) | 0.97 mA | **193.0** | 192.9 | 0.1% | **68.6 GHz** | 71.1 | 3.5% |
+| `qnpn` | 4.18 mA | 167.3 | 166.9 | 0.2% | **92.0 GHz** | 97.0 | 5.1% |
+| `qpnp` (generic PNP) | 0.87 mA | **43.4** | 43.3 | 0.2% | **11.1 GHz** | 12.3 | 9.3% |
+| `qpnp` | 3.13 mA | 31.3 | 31.2 | 0.5% | **7.7 GHz** | 8.0 | 4.0% |
+
+So fT is 17–40× the band for the NPN and 2–11× for the deliberately slower PNP,
+and the PNP's fT *falling* with current is the IKF/XTF high-injection roll-off
+doing its job. Four details worth carrying forward:
+
+* **`beta == bf` would have been the wrong golden.** The card enables Early
+  (VAF) and the ISE/NE recombination term, so the closed form is computed from
+  the junction voltages ngspice itself settled at, through the full `qb` algebra
+  — which then matches to **0.1–0.5%**, i.e. the check has real resolution.
+* **Reverse Early (VAR) was removed from both cards after measuring what it
+  does.** In SPICE's `qb`, a finite VAR scales *forward* beta too: `var=2.5`
+  dropped the NPN from ~184 to **131** at 1 mA. Leaving VAR infinite keeps the
+  stated `bf=200` honest for a device that never runs reverse-active here.
+* **`gm == Ic/Vt` is also wrong** once IKF is active (measured 15% low at 5 mA on
+  the NPN, 28% on the PNP), so the gm golden is a numerical derivative through
+  the same algebra; it then agrees to 1.1–1.5%.
+* **ngspice's BJT exposes `vbe`/`vbc`, not `vce`** — `@q1[vce]` is a hard error,
+  not a warning. `opcheck` mode prints `ic_/ib_/vbe_/vbc_` per bipolar
+  (Vce = Vbe − Vbc). Those labels sit deliberately outside `bias.py`'s
+  `id_/vds_/vdsat_/vgs_` parser: bias insertion is a *gate*-scaffolding rule and
+  has no base-bias rule, so bipolars stay invisible to the L1 sweep until someone
+  writes one.
+
+**Additive, and proved so rather than asserted.** The `.model` cards are emitted
+only when the topology actually contains a bipolar. Old and new emitters were run
+in the *same process* (a separate process would have compared nothing — the
+internal `n0/n1` node names come from set iteration and vary with the hash seed)
+against the same model path:
+
+| deck family | modes × settings | identical |
+|---|---|---|
+| 41 corpus LNAs | sparam+opcheck × ideal/Q=12 | **164 / 164** |
+| 148 `templates.py` archetypes | sparam+opcheck × ideal/Q=12 | **592 / 592** |
+| 120 generated pool samples (P5-v3 nb + wb) | sparam, Q=12 | **120 / 120** |
+
+**Not sizable, deliberately.** The `Q` elements carry a literal emitter-area
+multiplier, not a `.param`. `size.classify_params` owns the param-name →
+sizing-kind map and has no bipolar kind, so `area={pQ1A}` would become an
+"Undefined parameter" the moment `E.body_of()` strips the `.param` block.
+Everything else in a bipolar topology (R/C/L/W) sizes normally — the HBT circuit
+sized and logged here through the unmodified `size.size_topology`. Giving
+bipolars a sizable area is a `size.py` change and was not this session's to make.
+
+**Known gap, left open on purpose:** `topology.lna_score`'s `has_transistor` and
+`spec.structural_screen`'s `has_transistor` both count MOS only. A bipolar-only
+LNA would fail them. It does not bite here (the HBT circuit carries an NMOS bias
+generator, so it screens 4/5), and changing a frozen screen is a governance
+decision of exactly the §14.5 / §14.6 kind — not something to slip in beside a
+data change. Recorded, not fixed.
+
+### 19.2 Ingestion: 9 attempted, 9 ingested, 0 quarantined
+
+The nine circuits (scouted and converted in
+`data/reports/data-expansion-2026-08-09.md`) live under `lna/data/external/<id>/`
+and are ingested by `lna/ingest_external.py` behind a **gate ladder**. A gate
+failing quarantines the circuit — left on disk with its reason recorded, out of
+the corpus, out of the reference, out of any training set. Everything else is
+measured and reported but decides nothing, because the corpus is *real LNA
+topologies*, not *topologies that pass our screen*: the existing 41 include
+inductorless CG designs scoring 2/5 and index 1081, which does not even simulate.
+
+Gates: **provenance** (a `provenance.json` exists; its source/citation subtree is
+free of the blind protocol's excluded paper; an explicit independence statement
+is present; the converter's own `quarantine` flag is honoured) · **augmentation**
+(≥1 Eulerian path covering every edge exactly once) · **structure**
+(`Topology.valid`, no floating sub-circuit) · **vocabulary** (every token in the
+guarded 1005-token vocabulary, encode→decode exact, checked on *every* augmented
+row) · **identity** (the augmented representative's WL hash equals the hash of
+the converter's own token sequence — the conversion and the augmentation must
+agree on what circuit this is) · **ngspice** (op, plus sp+noise when two-port,
+with no fatal error).
+
+| id | source | score | ngspice | L1 on/MOS | spec | L0 | S11max | S21 | Idd | NF | viol | novel vs ref-v2 (NN-sim) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `ihp-gps-lna-nmos` | IHP Apache-2.0 | **5/5** | clean | 3/3 | gps-l1 | ✓ | −0.30 | −5.41 | 3.30 | 8.14 | 3.52 | ✓ (0.61) |
+| `ihp-gps-lna-npn` | IHP Apache-2.0 | 4/5 | clean | 1/1 | gps-l1 | device_budget | −3.06 | 4.07 | 3.89 | **4.60** | 1.56 | ✓ (**0.29**) |
+| `ihp-lna-2p45g` | IHP Apache-2.0 | 4/5 | clean | 2/4 | wifi24 | device_budget | −2.25 | −4.52 | **0.65** | 8.72 | 2.49 | ✓ (0.58) |
+| `align-lna-qm` | ALIGN BSD-3 | 2/5 | clean | 1/2 | wideband-sdr | device_budget | −0.11 | 7.39 | 4.00 | 6.72 | **0.96** | ✓ (0.51) |
+| `paper-noisecancel` | Tang 2021 (OA) | 3/5 | clean | 3/3 | wideband-sdr | ✓ | −2.36 | **9.23** | 1.54 | 8.27 | 1.36 | ✓ (0.44) |
+| `paper-currentreuse` | Reddy 2025 (OA) | 5/5 | clean | 2/2 | wifi24 | ✓ | −1.80 | −2.99 | 1.04 | 10.88 | 3.35 | ✓ (0.57) |
+| `paper-gmboostcg` | Li JSSC 2005 | 5/5 | clean | 1/2 | wifi24 | ✓ | −3.78 | −13.03 | 3.59 | 18.24 | 6.30 | ✓ (0.35) |
+| `paper-transformerfb` | Wu TCAS-I 2017 | 5/5 | clean | 1/1 | wideband-sdr | max_inductors | −0.64 | 3.48 | 4.51 | 7.49 | 1.14 | ✓ (0.45) |
+| `paper-diffcccg` | Zhuo TCAS-II 2005 | 5/5 | clean | 0/2 | wifi24 | single_input | −0.31 | −20.68 | 0.00 | 24.63 | 8.85 | ✓ (0.32) |
+
+(`viol` is the worst single-constraint violation of the feasibility-first scalar;
+metrics are the `ingest-v1` L2 label, dB / mA. Full JSON with every gate, budget
+and reason: `lna/data/external/corpus_manifest.json`.)
+
+**Readings that matter more than the table.**
+
+* **No circuit was quarantined, and that is a claim about the scout's work, not a
+  weak gate.** The gates have teeth — the vocabulary gate checks all 481 augmented
+  rows, the identity gate compares two independently-derived WL hashes — and the
+  provenance gate did fail once during development, on `ihp-gps-lna-nmos`, until
+  the independence-statement matcher learned the phrasing "neither is derived
+  from, nor references, …". That is the gate working, not the circuit failing.
+* **The L0 misses are all the expected kind.** Three circuits exceed
+  `device_budget` [3,16] on real layout practice (the HBT's 6 parallel unit
+  fingers per transistor, kept faithfully, at 21 devices; five VDD–VSS decoupling
+  caps in the 2.45 GHz design; a 12-resistor output trim ladder in the ALIGN
+  core). `paper-diffcccg` misses `single_input` because it is differential and
+  every project spec sets `differential: false`. `paper-transformerfb` misses
+  `max_inductors: 1` because its transformer is represented as two galvanically
+  separate inductors — AnalogGenie's vocabulary has **no mutual-inductance
+  primitive at all**, so transformer *connectivity* is representable and magnetic
+  coupling is not, for this and for every transformer design that could ever be
+  added.
+* **Every one of the nine is structurally novel against ref-v2** — 9 distinct WL
+  hashes, none colliding with each other, the 41 corpus circuits, or the 148
+  archetypes, with a maximum nearest-neighbour similarity of **0.612**. The corpus
+  really did gain nine new structures, not nine re-spellings.
+* **All nine label infeasible against their nearest-band spec, and that is the
+  informative outcome, not a defect.** These are real designs sized *by us*, at a
+  deliberately cheap budget, against *our* nearest target — not reproductions of
+  their published numbers. The best are close: `align-lna-qm` at viol 0.96,
+  `paper-transformerfb` at 1.14, `paper-noisecancel` at 1.36 (and it is the only
+  one with net gain, S21 **+9.23 dB**). The HBT reads the best NF in the batch,
+  **4.60 dB** — the first bipolar number this harness has ever produced.
+* **L1 exposes a real bias gap, non-gating.** 4 of 9 have MOS that never conduct,
+  and the pattern is systematic: `paper-diffcccg` conducts **0/2** because both CG
+  gates are DC-fed through R1/R2 from a bias net the sweep does not own, and
+  `paper-gmboostcg` 1/2 because the CG device's gate is driven by the auxiliary
+  stage with no DC path. This is the same defect Session 4 fixed *by hand* for the
+  `gmb_cg` / `nc_cgcs` archetypes (undriven+bypassed CG gate). `bias.py` has no
+  rule for it, and no base-bias rule for bipolars at all.
+
+**Ingestion mechanics.** Sequences come from the *upstream* Eulerian augmentation
+(`Augmentation.dfs_all_paths` + the edge-cover check, execed read-only), so an
+ingested circuit is indistinguishable from a dataset one where a trainer or the
+reference consumes it. They are deliberately **not** written into
+`AnalogGenie/repo/Dataset/`: that tree is an untracked upstream clone, usually a
+junction into the main checkout, so new indices there would mutate shared state
+nothing in this repo owns and a fresh worktree does not have. Read APIs are
+`build_lna_corpus.external_sequences()` / `external_topologies()` /
+`external_manifest()`.
+
+**⚠ The augmentation budget is NOT uniform, and here is why.** The dataset stage
+uses 200 solutions / 10 runs; upstream's cover check rebuilds the whole edge set
+with pandas `.loc` scalar lookups (O(N²)) on *every candidate branch*, so cost
+scales as (solutions × path length × N³). Measured: a 20-node circuit at 200/10
+did not finish in 10 minutes. The batch therefore runs a per-circuit wall-clock
+guard (300 s) over a budget ladder [(64,3), (20,2), (8,1)], and the budget that
+actually produced each circuit's sequences is recorded per circuit:
+
+| circuit | seqs | budget | seconds |
+|---|---|---|---|
+| `paper-noisecancel` | 64 | 64/3 | 21.5 |
+| `paper-gmboostcg` | 64 | 64/3 | 28.4 |
+| `ihp-gps-lna-nmos` | 64 | 64/3 | 62.6 |
+| `paper-diffcccg` | 64 | 64/3 | 120.5 |
+| `paper-currentreuse` | 25 | 64/3 | 125.0 (search exhausted at 25) |
+| `ihp-lna-2p45g` | 64 | 64/3 | 139.4 |
+| `paper-transformerfb` | 52 | 64/3 | 164.2 (exhausted at 52) |
+| `align-lna-qm` | 64 | 64/3 | 164.6 |
+| **`ihp-gps-lna-npn`** | **20** | **20/2** | 56.9 (**64/3 timed out at 300 s**) |
+
+**481 sequences** total, 1183 s wall clock. For scale, the 41 dataset circuits
+carry 4023 (min 1, median 69, mean 98, and **16 of 41 sit on the 200 cap**), so
+the external set is **18% of the circuits but 10.7% of the rows** —
+under-weighted, deliberately and measurably, and a future trainer that cares can
+raise the budget knowingly. The real fix is an accelerated (and
+equivalence-tested) cover check.
+
+### 19.3 ref-v3 — and the honest result: the correction is exactly zero, today
+
+Following §14.5's pattern exactly. `novelty.py`'s reference is now:
+
+| version | contents | distinct WL hashes | digest |
+|---|---|---|---|
+| `ref-v1` | 41 corpus LNAs (the P0 freeze) | 41 | `5273a4f673b5eb6a` |
+| `ref-v2` | 41 corpus + 148 archetypes | 189 | `b5689490d0285c37` |
+| **`ref-v3`** (default) | **50 corpus** (41 dataset + **9 ingested**) + 148 archetypes | **198** | **`d05390da6183123e`** |
+
+ref-v1 and ref-v2 stay reachable (`--ref v1` / `--ref v2`) and both digests
+**reproduce to the digit** after the change. Every protocol row prints
+`ref-v3[198h/d05390da]`, and `evaluate()` now splits copies three ways —
+archetype / corpus / **ext** — so a corpus-expansion hit can never hide inside
+"archetype copies".
+
+#### The old → new table (frozen NDL@256 protocol, same pools on disk, only the stick moves)
+
+| checkpoint | pool | ref-v1 | ref-v2 | **ref-v3** | Δ(v3−v2) | ext copies | indR |
+|---|---|---|---|---|---|---|---|
+| P0 prefix-12 | `sweep12repro{,_s2338}` | 16 | 16 | **16** | 0 | 0.0% | 0.141 |
+| P5-v1 | `ft_p5_nb_s1337` | 60 | 30 | **30** | 0 | 0.0% | 0.179 |
+| P5-v2 | `…nb_s1337.v2repro` | 73 | 41 | **41** | 0 | 0.0% | 0.209 |
+| **P5-v3 (adopted)** | `…nb_s1337.v3` | 100 | 52 | **52** | 0 | 0.0% | 0.224 |
+| P5-v4 | `…nb_s1337.v4` | 89 | 40 | **40** | 0 | 0.0% | 0.233 |
+| P5-v5 | `ft_p5v2_nb_s1337` | 84 | 35 | **35** | 0 | 0.0% | 0.232 |
+| P5-v6 | `ft_p5v6_nb_s1337` | 93 | 43 | **43** | 0 | 0.0% | 0.222 |
+| ctrl-v1 (nb) | `ft_ctrl_nb_s1337` | 43 | 42 | **42** | 0 | 0.0% | 0.178 |
+| ctrl-v1s (nb) | `ft_ctrls_nb_s1337` | 26 | 26 | **26** | 0 | 0.0% | 0.179 |
+| **P5-v3 wb (adopted)** | `ft_p5v2_wb_s1337` | 35 | 21 | **21** | 0 | 0.0% | 0.077 |
+| ctrl-v1 wb | `ft_ctrl_wb_s1337` | 31 | 31 | **31** | 0 | 0.0% | 0.156 |
+
+**★ THE RE-FROZEN BASELINE: nb = 52, wb = 21 under `ref-v3[198h/d05390da]`, at
+inductor ratio 0.224 / 0.077** — numerically identical to ref-v2, and now stamped
+with a stick that has 198 hashes in it.
+
+**Δ = 0 everywhere is the measurement, not an assumption, and it is the right
+answer for a reason worth stating.** Not one sample in 2816 across eleven pools is
+a WL-exact copy of any of the nine ingested circuits. It could not have been: none
+of the nine has ever been in any training set. ref-v2 → ref-v3 is therefore **pure
+insurance**, and the contrast with ref-v1 → ref-v2 (Δ up to −50, because the
+archetypes *were* training data) is exactly the shape one should expect. The
+moment a P5 arm is fine-tuned on the 50-circuit corpus — the future arm this
+session exists to enable — a regurgitation of one of the nine becomes possible,
+and under ref-v2 it would have scored **novel**. That is the ref-v1 defect one
+layer up, closed before it can produce a wrong number rather than after.
+
+Two consequences follow directly:
+
+* **Any arm trained on the expanded corpus must be scored under ref-v3.** Scoring
+  it under ref-v2 would inflate its NDL by exactly the amount it copies the new
+  circuits.
+* **Because Δ = 0, ref-v3 numbers are directly comparable to every ref-v2 number
+  in §14.5 / §16 / §18 for pre-expansion arms.** No restatement of past sections
+  is needed; the two sticks agree on all existing evidence.
+
+#### The flip check
+
+Every adopt/reject decision the program actually took, re-scored under ref-v3
+(candidate vs *the then-current baseline*, not the best-ever):
+
+| # | decision | ref-v2 | ref-v3 | verdict | flips? |
+|---|---|---|---|---|---|
+| 1 | prefix-12 → **P2** | (pool lost) | ≤24 vs 16 | ADOPT | **no** (inferred) |
+| 2 | P2 → **P5-v1** | (pool lost) | 30 vs ≤24 | ADOPT | **no** (proved by the bound) |
+| 3 | P5-v1 → **P5-v2** | 41 vs 30 | 41 vs 30 | ADOPT | **no** |
+| 4 | P5-v2 → **P5-v3** | 52 vs 41 | 52 vs 41 | ADOPT | **no** |
+| 5 | P5-v3 vs P5-v4 | 40 vs 52 | 40 vs 52 | reject | **no** |
+| 6 | P5-v3 vs P5-v5 | 35 vs 52 | 35 vs 52 | reject | **no** |
+| 7 | P5-v3 vs P5-v6 | 43 vs 52 | 43 vs 52 | reject | **no** |
+
+**0 decisions flip.** Decision 2 is *proved* without P2's lost pool: ref-v3 ⊋
+ref-v2 ⊋ ref-v1, and adding hashes can only remove items from the novel set, so
+`NDL_v3(P2) ≤ NDL_v1(P2) = 24 < 30 = NDL_v3(P5-v1)`. Decision 1 remains
+*inferred* (monotonicity bounds both sides and cannot separate them; P2 was
+corpus-only-trained, and the measured P0 baseline has 0.0% archetype copies, so P2
+has no regurgitation mechanism). The **ordering** is also unchanged from ref-v2 —
+including P5-v2's §14.5 rise above P5-v4 / P5-v5 — but per §14.5's warning that is
+a measured fact about these pools, not a guarantee to rely on.
+
+### 19.4 Store, hygiene, and what is now true of the corpus
+
+* **9 L2 rows appended, recipe `ingest-v1`, `nf_gated: true`** (tier-2 domain),
+  `provenance.source_arm = "external-ingest"` carrying `external_id`. The budget
+  is deliberately below `candidate-v1`: ZOAF `n_candidates=4, sgd_iters=4,
+  cgd_iters=1`, `inductor_q=12`. **These rows must never be pooled with
+  `candidate-v1` / `curated-v1` / `+bo3` rows** — different budget, different label
+  domain, which is exactly why the recipe is stamped. The row is assembled in
+  `ingest_external.l2_label` rather than inside `size.size_topology`, whose logging
+  path hardcodes `candidate-v1`.
+* **11 L1 rows appended.** ⚠ `paper-gmboostcg` carries **3** of them: two are from
+  pre-run smoke tests of the driver, before its `--no-log` flag reached the L1
+  path. They are identical measurements of the same topology and the store is
+  append-only by design; dedup by `external_id` if it matters.
+* ⚠ **`topo_labels.jsonl` and `l1_labels.jsonl` were left UNCOMMITTED by this
+  track**, same call as §16's control-arm agent and for the same reason: they are
+  the shared store and three other agents were appending to them live, so
+  committing them would have committed their in-flight rows too. The 20 rows are
+  on disk in the worktree; whoever commits those files next commits them.
+* **The corpus is 50 circuits / 4504 augmented sequences.** `lna/data/external/`
+  now holds, per circuit: `provenance.json`, the converter artefacts,
+  `Sequence_total_<id>.npy`, `augment_budget.json`; plus the batch-level
+  `corpus_manifest.json` (gates, budgets, verdicts, WL hashes, L1/L2 summaries).
+* **Blind protocol honoured and re-verified mechanically.** The scout's per-file
+  independence statements were re-checked in code, not trusted from a report; the
+  excluded paper was never fetched.
+
+```bash
+python lna/build_lna_corpus.py --stage external        # augment (guarded ladder)
+python lna/ingest_external.py --audit                  # gates only, no ngspice
+python lna/ingest_external.py --run                    # full ladder + manifest
+python lna/ref/check_bjt.py                            # bipolar golden
+python lna/novelty.py --show-ref                       # v1/v2/v3 digests
+python lna/novelty.py --eval <dir> --ref all --spec wifi24
+python lna/_ndl_refv3.py && python lna/_ndl_flipcheck.py
+```
+
+### 19.5 Where this points next
+
+1. **Train the arm.** This session's whole purpose is that a P5 fine-tune on the
+   50-circuit corpus is now a one-command experiment with a correct measuring
+   stick. Score it under **ref-v3**, against the re-frozen **nb 52 / wb 21**.
+   `build_lna_corpus.external_sequences()` returns padded rows in exactly the
+   shape `finetune._rows_from_npy` produces; wiring it in is a `finetune.py`
+   change, and that file was another agent's tonight.
+2. **The augmentation accelerator.** An equivalence-tested replacement for
+   upstream's cover check would let the external set carry its proportional weight
+   (10.7% → ~18% of rows) and would speed the dataset stage too.
+3. **`bias.py` has no base-bias rule and no CG-gate rule.** 4 of 9 ingested
+   circuits have MOS that never conduct, for reasons Session 4 already diagnosed
+   and fixed by hand in `templates.py`. Encoding those two rules would improve
+   every CG / gm-boosted / differential topology the generator produces, not just
+   these nine.
+4. **`has_transistor` counts MOS only** in both screens (§19.1) — a governance
+   decision, deliberately not taken here.
+5. **Six more real IHP LNAs are identified but unconverted**, behind a Qucs-S
+   geometry parser, and IHP's tapeout program is renewable (LNA folders in 4 of 7
+   campaigns checked) — see the scout's report §6.5.

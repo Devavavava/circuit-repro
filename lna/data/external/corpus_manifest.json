@@ -1,0 +1,938 @@
+{
+ "recipe": "ingest-v1",
+ "generated": "2026-08-09T17:15:56",
+ "git_sha": "6c13805",
+ "augmentation": {
+  "ladder": [
+   [
+    64,
+    3
+   ],
+   [
+    20,
+    2
+   ],
+   [
+    8,
+    1
+   ]
+  ],
+  "timeout_s": 300,
+  "pad": 1025,
+  "note": "per-circuit budget is in each row's gates.augmentation.budget"
+ },
+ "zoaf": {
+  "n_candidates": 4,
+  "sgd_iters": 4,
+  "cgd_iters": 1,
+  "inductor_q": 12
+ },
+ "n_attempted": 9,
+ "n_ingested": 9,
+ "n_quarantined": 0,
+ "circuits": [
+  {
+   "id": "align-lna-qm",
+   "recipe": "ingest-v1",
+   "gates": {
+    "provenance": {
+     "ok": true,
+     "note": "BSD-3-Clause (repo LICENSE, copy saved alongside this proven"
+    },
+    "augmentation": {
+     "ok": true,
+     "n_sequences": 64,
+     "budget": {
+      "max_solutions": 64,
+      "run_num": 3,
+      "seconds": 164.6,
+      "timeout_s": 300,
+      "pad": 1025
+     }
+    },
+    "structure": {
+     "ok": true,
+     "valid": true,
+     "floating": []
+    },
+    "vocabulary": {
+     "ok": true,
+     "bad": []
+    },
+    "identity": {
+     "ok": true,
+     "converter_wl": "4a910c8f96fde16c"
+    },
+    "ngspice": {
+     "ok": true,
+     "note": "op+sp+noise clean",
+     "s11_min_db": -0.539951,
+     "s21_max_db": -4.47751
+    }
+   },
+   "ingested": true,
+   "source": {
+    "project": "ALIGN (analog layout automation) CircuitsDatabase, Wireless-Radio_frequency/LNA example",
+    "license": "BSD-3-Clause (repo LICENSE, copy saved alongside this provenance file as source/LICENSE_ALIGN_BSD-3.txt; copyright Regents of the University of Minnesota, Texas A&M University, Intel Corporation)",
+    "family": null
+   },
+   "graph": {
+    "n_devices": 19,
+    "counts": {
+     "C": 5,
+     "NM": 2,
+     "R": 12
+    },
+    "n_inductors": 0,
+    "inductor_ratio": 0.0,
+    "lna_score": 2,
+    "lna_score_missed": [
+     "has_inductor",
+     "inductor_ratio",
+     "lna_sized"
+    ]
+   },
+   "wl_hash": "4a910c8f96fde16c",
+   "novelty": {
+    "ref": "ref-v2[189h/b5689490]",
+    "novel": true,
+    "nn_sim": 0.5088,
+    "nearest": "corpus:1090"
+   },
+   "spec": {
+    "name": "wideband-sdr",
+    "why": "inductorless resistive-load core; no tuned band, and wideband-sdr is the only spec that allows no inductor",
+    "l0_pass": false,
+    "l0_missed": [
+     "device_budget"
+    ]
+   },
+   "l1": {
+    "n_mos": 2,
+    "n_conducting": 1,
+    "all_conduct": false,
+    "n_bias_nets": 2
+   },
+   "l2": {
+    "spec": "wideband-sdr",
+    "status": "appended",
+    "feasible": false,
+    "viol": {
+     "nf_db": 0.9201185714285715,
+     "s11_db": 0.9612696700000001,
+     "s21_db": 0.38397216666666667
+    },
+    "n_evals": 240,
+    "nf_gated": true,
+    "metrics": {
+     "s11_db": -0.3873033,
+     "s11_max_db": -0.1101587,
+     "s21_db": 7.392334,
+     "idd_ma": 3.9972100000000004,
+     "nf_db": 6.720415
+    }
+   },
+   "seconds": 77.1
+  },
+  {
+   "id": "ihp-gps-lna-nmos",
+   "recipe": "ingest-v1",
+   "gates": {
+    "provenance": {
+     "ok": true,
+     "note": "Apache-2.0 (repo LICENSE, verified at https://raw.githubuser"
+    },
+    "augmentation": {
+     "ok": true,
+     "n_sequences": 64,
+     "budget": {
+      "max_solutions": 64,
+      "run_num": 3,
+      "seconds": 62.6,
+      "timeout_s": 300,
+      "pad": 1025
+     }
+    },
+    "structure": {
+     "ok": true,
+     "valid": true,
+     "floating": []
+    },
+    "vocabulary": {
+     "ok": true,
+     "bad": []
+    },
+    "identity": {
+     "ok": true,
+     "converter_wl": "46bb819db2ecc1de"
+    },
+    "ngspice": {
+     "ok": true,
+     "note": "op+sp+noise clean",
+     "s11_min_db": -0.661081,
+     "s21_max_db": -13.612
+    }
+   },
+   "ingested": true,
+   "source": {
+    "project": "IHP-GmbH open-source SG13G2 tapeout, April 2025 campaign (Testfield T586)",
+    "license": "Apache-2.0 (repo LICENSE, verified at https://raw.githubusercontent.com/IHP-GmbH/TO_Apr2025/main/LICENSE)",
+    "family": null
+   },
+   "graph": {
+    "n_devices": 11,
+    "counts": {
+     "R": 3,
+     "L": 3,
+     "NM": 3,
+     "C": 2
+    },
+    "n_inductors": 3,
+    "inductor_ratio": 0.273,
+    "lna_score": 5,
+    "lna_score_missed": []
+   },
+   "wl_hash": "46bb819db2ecc1de",
+   "novelty": {
+    "ref": "ref-v2[189h/b5689490]",
+    "novel": true,
+    "nn_sim": 0.6125,
+    "nearest": "corpus:1090"
+   },
+   "spec": {
+    "name": "gps-l1",
+    "why": "GPS band ~1.575 GHz, narrowband inductive match",
+    "l0_pass": true,
+    "l0_missed": []
+   },
+   "l1": {
+    "n_mos": 3,
+    "n_conducting": 3,
+    "all_conduct": true,
+    "n_bias_nets": 0
+   },
+   "l2": {
+    "spec": "gps-l1",
+    "status": "appended",
+    "feasible": false,
+    "viol": {
+     "nf_db": 3.520841111111111,
+     "s11_db": 0.97004308,
+     "s21_db": 1.3608673333333334,
+     "idd_ma": 0.1002636666666666
+    },
+    "n_evals": 176,
+    "nf_gated": true,
+    "metrics": {
+     "s11_db": -0.2995692,
+     "s11_max_db": -0.296438,
+     "s21_db": -5.41301,
+     "idd_ma": 3.300791,
+     "nf_db": 8.137514
+    }
+   },
+   "seconds": 53.0
+  },
+  {
+   "id": "ihp-gps-lna-npn",
+   "recipe": "ingest-v1",
+   "gates": {
+    "provenance": {
+     "ok": true,
+     "note": "Apache-2.0 (repo LICENSE, verified at https://raw.githubuser"
+    },
+    "augmentation": {
+     "ok": true,
+     "n_sequences": 20,
+     "budget": {
+      "max_solutions": 20,
+      "run_num": 2,
+      "seconds": 56.9,
+      "timeout_s": 300,
+      "pad": 1025
+     }
+    },
+    "structure": {
+     "ok": true,
+     "valid": true,
+     "floating": []
+    },
+    "vocabulary": {
+     "ok": true,
+     "bad": []
+    },
+    "identity": {
+     "ok": true,
+     "converter_wl": "845c64326e7e86af"
+    },
+    "ngspice": {
+     "ok": true,
+     "note": "op+sp+noise clean",
+     "s11_min_db": -0.79338,
+     "s21_max_db": -87.533
+    }
+   },
+   "ingested": true,
+   "source": {
+    "project": "IHP-GmbH open-source SG13G2 tapeout, April 2025 campaign (Testfield T586)",
+    "license": "Apache-2.0 (repo LICENSE, verified at https://raw.githubusercontent.com/IHP-GmbH/TO_Apr2025/main/LICENSE)",
+    "family": null
+   },
+   "graph": {
+    "n_devices": 21,
+    "counts": {
+     "NPN": 12,
+     "NM": 1,
+     "R": 3,
+     "L": 3,
+     "C": 2
+    },
+    "n_inductors": 3,
+    "inductor_ratio": 0.143,
+    "lna_score": 4,
+    "lna_score_missed": [
+     "lna_sized"
+    ]
+   },
+   "wl_hash": "845c64326e7e86af",
+   "novelty": {
+    "ref": "ref-v2[189h/b5689490]",
+    "novel": true,
+    "nn_sim": 0.2904,
+    "nearest": "corpus:1090"
+   },
+   "spec": {
+    "name": "gps-l1",
+    "why": "GPS-band sibling of the NMOS variant",
+    "l0_pass": false,
+    "l0_missed": [
+     "device_budget"
+    ]
+   },
+   "l1": {
+    "n_mos": 1,
+    "n_conducting": 1,
+    "all_conduct": true,
+    "n_bias_nets": 0
+   },
+   "l2": {
+    "spec": "gps-l1",
+    "status": "appended",
+    "feasible": false,
+    "viol": {
+     "nf_db": 1.5551233333333334,
+     "s11_db": 0.6917242,
+     "s21_db": 0.7287856666666667,
+     "idd_ma": 0.2951079999999999
+    },
+    "n_evals": 160,
+    "nf_gated": true,
+    "metrics": {
+     "s11_db": -3.082758,
+     "s11_max_db": -3.057986,
+     "s21_db": 4.068215,
+     "idd_ma": 3.8853239999999998,
+     "nf_db": 4.599222
+    }
+   },
+   "seconds": 49.6
+  },
+  {
+   "id": "ihp-lna-2p45g",
+   "recipe": "ingest-v1",
+   "gates": {
+    "provenance": {
+     "ok": true,
+     "note": "Apache-2.0 (same repo family as ihp-gps-lna-nmos/npn; verifi"
+    },
+    "augmentation": {
+     "ok": true,
+     "n_sequences": 64,
+     "budget": {
+      "max_solutions": 64,
+      "run_num": 3,
+      "seconds": 139.4,
+      "timeout_s": 300,
+      "pad": 1025
+     }
+    },
+    "structure": {
+     "ok": true,
+     "valid": true,
+     "floating": []
+    },
+    "vocabulary": {
+     "ok": true,
+     "bad": []
+    },
+    "identity": {
+     "ok": true,
+     "converter_wl": "7892881a07a2d242"
+    },
+    "ngspice": {
+     "ok": true,
+     "note": "op+sp+noise clean",
+     "s11_min_db": -0.816471,
+     "s21_max_db": -46.1338
+    }
+   },
+   "ingested": true,
+   "source": {
+    "project": "IHP-GmbH open-source SG13G2 tapeout, May 2025 campaign",
+    "license": "Apache-2.0 (same repo family as ihp-gps-lna-nmos/npn; verified at TO_Apr2025 root and assumed consistent across IHP-GmbH TO_* campaigns -- not re-verified per-repo this time)",
+    "family": null
+   },
+   "graph": {
+    "n_devices": 18,
+    "counts": {
+     "C": 9,
+     "NM": 4,
+     "L": 3,
+     "R": 2
+    },
+    "n_inductors": 3,
+    "inductor_ratio": 0.167,
+    "lna_score": 4,
+    "lna_score_missed": [
+     "lna_sized"
+    ]
+   },
+   "wl_hash": "7892881a07a2d242",
+   "novelty": {
+    "ref": "ref-v2[189h/b5689490]",
+    "novel": true,
+    "nn_sim": 0.5787,
+    "nearest": "arch:cs_gi1_dg1_cx1_cc1_tapped_bf1"
+   },
+   "spec": {
+    "name": "wifi24",
+    "why": "2.45 GHz ISM band, narrowband tuned cascode",
+    "l0_pass": false,
+    "l0_missed": [
+     "device_budget"
+    ]
+   },
+   "l1": {
+    "n_mos": 4,
+    "n_conducting": 2,
+    "all_conduct": false,
+    "n_bias_nets": 3
+   },
+   "l2": {
+    "spec": "wifi24",
+    "status": "appended",
+    "feasible": false,
+    "viol": {
+     "nf_db": 2.4862588000000003,
+     "s11_db": 0.7711789,
+     "s21_db": 1.3764134166666668
+    },
+    "n_evals": 256,
+    "nf_gated": true,
+    "metrics": {
+     "s11_db": -2.288211,
+     "s11_max_db": -2.248448,
+     "s21_db": -4.516961,
+     "idd_ma": 0.6514468999999999,
+     "nf_db": 8.715647
+    }
+   },
+   "seconds": 65.4
+  },
+  {
+   "id": "paper-currentreuse",
+   "recipe": "ingest-v1",
+   "gates": {
+    "provenance": {
+     "ok": true,
+     "note": "yes -- Scientific Reports is fully open access; also mirrore"
+    },
+    "augmentation": {
+     "ok": true,
+     "n_sequences": 25,
+     "budget": {
+      "max_solutions": 64,
+      "run_num": 3,
+      "seconds": 125.0,
+      "timeout_s": 300,
+      "pad": 1025
+     }
+    },
+    "structure": {
+     "ok": true,
+     "valid": true,
+     "floating": []
+    },
+    "vocabulary": {
+     "ok": true,
+     "bad": []
+    },
+    "identity": {
+     "ok": true,
+     "converter_wl": "4074e37888be5c87"
+    },
+    "ngspice": {
+     "ok": true,
+     "note": "op+sp+noise clean",
+     "s11_min_db": -1.39747,
+     "s21_max_db": -24.0666
+    }
+   },
+   "ingested": true,
+   "source": {
+    "project": "A 180 nm CMOS dual-mode LNA with current reuse and double-resonance load for 2.4 GHz and 3.1-10.6 GHz wireless communication",
+    "license": null,
+    "family": "Current-reuse (DC-stacked, 2-stage) CMOS LNA"
+   },
+   "graph": {
+    "n_devices": 7,
+    "counts": {
+     "L": 3,
+     "R": 1,
+     "NM": 2,
+     "C": 1
+    },
+    "n_inductors": 3,
+    "inductor_ratio": 0.429,
+    "lna_score": 5,
+    "lna_score_missed": []
+   },
+   "wl_hash": "4074e37888be5c87",
+   "novelty": {
+    "ref": "ref-v2[189h/b5689490]",
+    "novel": true,
+    "nn_sim": 0.5738,
+    "nearest": "corpus:481"
+   },
+   "spec": {
+    "name": "wifi24",
+    "why": "paper's narrowband mode is 2.4 GHz",
+    "l0_pass": true,
+    "l0_missed": []
+   },
+   "l1": {
+    "n_mos": 2,
+    "n_conducting": 2,
+    "all_conduct": true,
+    "n_bias_nets": 1
+   },
+   "l2": {
+    "spec": "wifi24",
+    "status": "appended",
+    "feasible": false,
+    "viol": {
+     "nf_db": 3.350472,
+     "s11_db": 0.8170445000000001,
+     "s21_db": 1.24946175
+    },
+    "n_evals": 144,
+    "nf_gated": true,
+    "metrics": {
+     "s11_db": -1.829555,
+     "s11_max_db": -1.799952,
+     "s21_db": -2.993541,
+     "idd_ma": 1.0350030000000001,
+     "nf_db": 10.87618
+    }
+   },
+   "seconds": 36.2
+  },
+  {
+   "id": "paper-diffcccg",
+   "recipe": "ingest-v1",
+   "gates": {
+    "provenance": {
+     "ok": true,
+     "note": "NOT independently re-verified this session -- cited from pri"
+    },
+    "augmentation": {
+     "ok": true,
+     "n_sequences": 64,
+     "budget": {
+      "max_solutions": 64,
+      "run_num": 3,
+      "seconds": 120.5,
+      "timeout_s": 300,
+      "pad": 1025
+     }
+    },
+    "structure": {
+     "ok": true,
+     "valid": true,
+     "floating": []
+    },
+    "vocabulary": {
+     "ok": true,
+     "bad": []
+    },
+    "identity": {
+     "ok": true,
+     "converter_wl": "f9ea9244cd59ac87"
+    },
+    "ngspice": {
+     "ok": true,
+     "note": "op+sp+noise clean",
+     "s11_min_db": -1.11134,
+     "s21_max_db": -35.8012
+    }
+   },
+   "ingested": true,
+   "source": {
+    "project": "A Capacitor Cross-Coupled Common-Gate Low-Noise Amplifier",
+    "license": null,
+    "family": "Capacitor cross-coupled common-gate LNA (differential gm-boosting via cross-coupling, not an auxiliary amplifier stage)"
+   },
+   "graph": {
+    "n_devices": 8,
+    "counts": {
+     "L": 2,
+     "R": 2,
+     "NM": 2,
+     "C": 2
+    },
+    "n_inductors": 2,
+    "inductor_ratio": 0.25,
+    "lna_score": 5,
+    "lna_score_missed": []
+   },
+   "wl_hash": "f9ea9244cd59ac87",
+   "novelty": {
+    "ref": "ref-v2[189h/b5689490]",
+    "novel": true,
+    "nn_sim": 0.3165,
+    "nearest": "corpus:476"
+   },
+   "spec": {
+    "name": "wifi24",
+    "why": "narrowband differential CG with inductive loads; note the spec is single-ended, so single_input is expected to fail on L0",
+    "l0_pass": false,
+    "l0_missed": [
+     "single_input"
+    ]
+   },
+   "l1": {
+    "n_mos": 2,
+    "n_conducting": 0,
+    "all_conduct": false,
+    "n_bias_nets": 0
+   },
+   "l2": {
+    "spec": "wifi24",
+    "status": "appended",
+    "feasible": false,
+    "viol": {
+     "nf_db": 8.851388,
+     "s11_db": 0.96835936,
+     "s21_db": 2.72294
+    },
+    "n_evals": 152,
+    "nf_gated": true,
+    "metrics": {
+     "s11_db": -0.3164064,
+     "s11_max_db": -0.313822,
+     "s21_db": -20.67528,
+     "idd_ma": 0.0035895230000000003,
+     "nf_db": 24.62847
+    }
+   },
+   "seconds": 37.8
+  },
+  {
+   "id": "paper-gmboostcg",
+   "recipe": "ingest-v1",
+   "gates": {
+    "provenance": {
+     "ok": true,
+     "note": "PDF hosted by an IEEE regional chapter's public reference ar"
+    },
+    "augmentation": {
+     "ok": true,
+     "n_sequences": 64,
+     "budget": {
+      "max_solutions": 64,
+      "run_num": 3,
+      "seconds": 28.4,
+      "timeout_s": 300,
+      "pad": 1025
+     }
+    },
+    "structure": {
+     "ok": true,
+     "valid": true,
+     "floating": []
+    },
+    "vocabulary": {
+     "ok": true,
+     "bad": []
+    },
+    "identity": {
+     "ok": true,
+     "converter_wl": "681a05cfe13e14f2"
+    },
+    "ngspice": {
+     "ok": true,
+     "note": "op+sp+noise clean",
+     "s11_min_db": -4.17171,
+     "s21_max_db": -22.8334
+    }
+   },
+   "ingested": true,
+   "source": {
+    "project": "Gm-Boosted Common-Gate LNA and Differential Colpitts VCO/QVCO in 0.18-um CMOS",
+    "license": null,
+    "family": "gm-boosted common-gate LNA"
+   },
+   "graph": {
+    "n_devices": 4,
+    "counts": {
+     "R": 1,
+     "NM": 2,
+     "L": 1
+    },
+    "n_inductors": 1,
+    "inductor_ratio": 0.25,
+    "lna_score": 5,
+    "lna_score_missed": []
+   },
+   "wl_hash": "681a05cfe13e14f2",
+   "novelty": {
+    "ref": "ref-v2[189h/b5689490]",
+    "novel": true,
+    "nn_sim": 0.3504,
+    "nearest": "corpus:1088"
+   },
+   "spec": {
+    "name": "wifi24",
+    "why": "narrowband gm-boosted CG with an inductive drain load",
+    "l0_pass": true,
+    "l0_missed": []
+   },
+   "l1": {
+    "n_mos": 2,
+    "n_conducting": 1,
+    "all_conduct": false,
+    "n_bias_nets": 1
+   },
+   "l2": {
+    "spec": "wifi24",
+    "status": "appended",
+    "feasible": false,
+    "viol": {
+     "nf_db": 6.295312,
+     "s11_db": 0.6181803,
+     "s21_db": 2.0860716666666668
+    },
+    "n_evals": 120,
+    "nf_gated": true,
+    "metrics": {
+     "s11_db": -3.818197,
+     "s11_max_db": -3.778534,
+     "s21_db": -13.03286,
+     "idd_ma": 3.590352,
+     "nf_db": 18.23828
+    }
+   },
+   "seconds": 32.5
+  },
+  {
+   "id": "paper-noisecancel",
+   "recipe": "ingest-v1",
+   "gates": {
+    "provenance": {
+     "ok": true,
+     "note": "yes -- PMC (PubMed Central), confirmed retrievable at the UR"
+    },
+    "augmentation": {
+     "ok": true,
+     "n_sequences": 64,
+     "budget": {
+      "max_solutions": 64,
+      "run_num": 3,
+      "seconds": 21.5,
+      "timeout_s": 300,
+      "pad": 1025
+     }
+    },
+    "structure": {
+     "ok": true,
+     "valid": true,
+     "floating": []
+    },
+    "vocabulary": {
+     "ok": true,
+     "bad": []
+    },
+    "identity": {
+     "ok": true,
+     "converter_wl": "e56f5b775362195d"
+    },
+    "ngspice": {
+     "ok": true,
+     "note": "op+sp+noise clean",
+     "s11_min_db": -4.1288,
+     "s21_max_db": 2.428317
+    }
+   },
+   "ingested": true,
+   "source": {
+    "project": "A Wideband Noise and Harmonic Distortion Canceling Low-Noise Amplifier for High-Frequency Ultrasound Transducers",
+    "license": null,
+    "family": "Feedforward noise-cancelling wideband LNA (resistive-shunt-feedback matching device + summed auxiliary gm paths)"
+   },
+   "graph": {
+    "n_devices": 6,
+    "counts": {
+     "R": 3,
+     "NM": 3
+    },
+    "n_inductors": 0,
+    "inductor_ratio": 0.0,
+    "lna_score": 3,
+    "lna_score_missed": [
+     "has_inductor",
+     "inductor_ratio"
+    ]
+   },
+   "wl_hash": "e56f5b775362195d",
+   "novelty": {
+    "ref": "ref-v2[189h/b5689490]",
+    "novel": true,
+    "nn_sim": 0.441,
+    "nearest": "corpus:479"
+   },
+   "spec": {
+    "name": "wideband-sdr",
+    "why": "inductorless wideband noise-cancelling, the family this spec was written to exercise",
+    "l0_pass": true,
+    "l0_missed": []
+   },
+   "l1": {
+    "n_mos": 3,
+    "n_conducting": 3,
+    "all_conduct": true,
+    "n_bias_nets": 0
+   },
+   "l2": {
+    "spec": "wideband-sdr",
+    "status": "appended",
+    "feasible": false,
+    "viol": {
+     "nf_db": 1.3619251428571428,
+     "s11_db": 0.747374,
+     "s21_db": 0.23097391666666667
+    },
+    "n_evals": 136,
+    "nf_gated": true,
+    "metrics": {
+     "s11_db": -2.52626,
+     "s11_max_db": -2.361856,
+     "s21_db": 9.228313,
+     "idd_ma": 1.542865,
+     "nf_db": 8.266738
+    }
+   },
+   "seconds": 34.5
+  },
+  {
+   "id": "paper-transformerfb",
+   "recipe": "ingest-v1",
+   "gates": {
+    "provenance": {
+     "ok": true,
+     "note": "NO -- IEEE Xplore, paywalled. Cited by title/authors/venue o"
+    },
+    "augmentation": {
+     "ok": true,
+     "n_sequences": 52,
+     "budget": {
+      "max_solutions": 64,
+      "run_num": 3,
+      "seconds": 164.2,
+      "timeout_s": 300,
+      "pad": 1025
+     }
+    },
+    "structure": {
+     "ok": true,
+     "valid": true,
+     "floating": []
+    },
+    "vocabulary": {
+     "ok": true,
+     "bad": []
+    },
+    "identity": {
+     "ok": true,
+     "converter_wl": "54b750c527c39c53"
+    },
+    "ngspice": {
+     "ok": true,
+     "note": "op+sp+noise clean",
+     "s11_min_db": -0.183194,
+     "s21_max_db": -4.15256
+    }
+   },
+   "ingested": true,
+   "source": {
+    "project": "Design and Analysis of CMOS LNAs with Transformer Feedback for Wideband Input Matching and Noise Cancellation",
+    "license": null,
+    "family": "Transformer-feedback LNA"
+   },
+   "graph": {
+    "n_devices": 6,
+    "counts": {
+     "L": 2,
+     "NM": 1,
+     "C": 2,
+     "R": 1
+    },
+    "n_inductors": 2,
+    "inductor_ratio": 0.333,
+    "lna_score": 5,
+    "lna_score_missed": []
+   },
+   "wl_hash": "54b750c527c39c53",
+   "novelty": {
+    "ref": "ref-v2[189h/b5689490]",
+    "novel": true,
+    "nn_sim": 0.4527,
+    "nearest": "arch:cs_gi1_dg1_cx1_cc0_tapped_bf1"
+   },
+   "spec": {
+    "name": "wideband-sdr",
+    "why": "transformer feedback for wideband input matching",
+    "l0_pass": false,
+    "l0_missed": [
+     "max_inductors"
+    ]
+   },
+   "l1": {
+    "n_mos": 1,
+    "n_conducting": 1,
+    "all_conduct": true,
+    "n_bias_nets": 0
+   },
+   "l2": {
+    "spec": "wideband-sdr",
+    "status": "appended",
+    "feasible": false,
+    "viol": {
+     "nf_db": 1.1401914285714285,
+     "s11_db": 0.9361207699999999,
+     "s21_db": 0.7101315,
+     "s21_ripple_db": 1.14317995
+    },
+    "n_evals": 136,
+    "nf_gated": true,
+    "metrics": {
+     "s11_db": -0.6387923,
+     "s11_max_db": -0.6387019,
+     "s21_db": 3.478422,
+     "idd_ma": 4.511541,
+     "nf_db": 7.49067
+    }
+   },
+   "seconds": 33.8
+  }
+ ]
+}

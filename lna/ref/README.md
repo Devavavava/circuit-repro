@@ -13,6 +13,7 @@ known-good LNA) is closed. It is not a product; do not gold-plate it.
 | `ref24_cg.cir` | stage-A common-gate 2.4 GHz reference (the match anchor) |
 | `check_ref.py` | regression runner: metrics vs baseline + acceptance gates |
 | `ref_baseline.json` | stored baseline metrics for the drift check |
+| `check_bjt.py` | bipolar golden (added with the NPN/PNP emission path): `to_spice.BJT_MODELS` vs closed-form Gummel-Poon (beta, gm, fT), the token→`Q`-element emission path vs a hand deck, and the additive fence — a MOS-only deck must carry no bipolar card. `check_nf.py` / `check_stab.py` are the NF and stability equivalents. |
 
 ## Device characterization (02-REF §2.1)
 

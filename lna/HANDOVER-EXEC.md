@@ -420,6 +420,102 @@ if you write a new driver, call it.
 
 ---
 
+## Session 6 (2026-08-09) — concurrent agents on `lna-data` (continued)
+
+> Same convention as Session 5: each agent owns a clearly-marked sub-block below.
+> Append yours; do not edit another's. Commit only your own files with explicit
+> path adds.
+
+### ▸ Sub-block: corpus ingestion 41 → 50 + bipolar emission + ref-v3 (owner: the corpus-ingestion executor)
+
+**Files owned:** `lna/to_spice.py`, `lna/build_lna_corpus.py`, `lna/novelty.py`,
+`lna/ingest_external.py` (new), `lna/ref/check_bjt.py` (new), `lna/_ndl_refv3.py`
+/ `lna/_ndl_flipcheck.py` (new), `lna/data/external/**`, FINDINGS **§19**, this
+sub-block. `topology.py` was NOT edited (see the screen note below). Full measured
+detail in **FINDINGS §19**.
+
+**★ The corpus is 50 circuits. 9 attempted → 9 ingested, 0 quarantined.** The nine
+real/cited LNAs the scout converted (3 IHP SG13G2 open tapeouts, 1 ALIGN
+differential, 5 cited paper transcriptions) are through a six-gate ladder
+(provenance/blind-protocol · Eulerian augmentation · structure · vocabulary
+round-trip · WL identity vs the converter · ngspice op+sp+noise), screened, L1
+bias-swept and L2-labelled. All nine are **structurally novel** against ref-v2 —
+9 distinct WL hashes, max NN-sim **0.612**. All nine label **infeasible** against
+their nearest-band spec at the cheap `ingest-v1` budget, which is the informative
+outcome, not a defect: closest are `align-lna-qm` (viol 0.96),
+`paper-transformerfb` (1.14) and `paper-noisecancel` (1.36, the only one with net
+gain, S21 **+9.23 dB**). The SiGe HBT reads the batch's best NF, **4.60 dB**.
+
+**★ `to_spice.py` emits NPN/PNP — the vocabulary always had them, the emitter did
+not.** The 45 nm BSIM4 include has no bipolar models, so `to_spice.BJT_MODELS`
+adds generic Gummel-Poon cards, **golden-checked** by the new
+`lna/ref/check_bjt.py` against closed-form GP evaluated at the operating point
+ngspice settles at: NPN beta **193.0** (pred 192.9) / fT **68.6 GHz** at 1 mA;
+PNP beta **43.4** / fT **11.1 GHz**. `beta == bf` and `gm == Ic/Vt` are both
+*wrong* expectations here (Early + IKF), which is why the golden computes the full
+`qb` algebra — and why `var` was dropped from both cards after measuring that
+`var=2.5` silently cut forward beta 184 → 131. **Additive, proved in-process:**
+41 corpus decks **164/164**, 148 archetypes **592/592**, 120 generated samples
+**120/120** byte-identical.
+
+**★ ref-v3 is frozen: 50 corpus + 148 archetypes = 198 hashes,
+`d05390da6183123e`.** `novelty.py` default bumped; ref-v1 (`5273a4f6`) and ref-v2
+(`b5689490`) both still reachable and both reproduce to the digit. **The measured
+Δ(v3−v2) is 0 on every one of 11 pools** — 0.0% ext copies in 2816 samples,
+because none of the nine has ever been in a training set. So the re-frozen
+baseline is **nb 52 / wb 21, unchanged in value**, now stamped
+`ref-v3[198h/d05390da]`, and **0 of 7 adopt/reject decisions flip** (decision 2
+proved by the ref ⊋ monotonicity bound; decision 1 inferred, P2's pool is still
+lost). ref-v2 and ref-v3 numbers are therefore **directly comparable** for any arm
+trained before the expansion — including the Session-6 curriculum arm, whose §18
+comparability caveat costs nothing.
+
+**⚠ Three things the next session should know.**
+
+1. **The generator was deliberately NOT retrained.** The expanded corpus's first
+   fine-tune is the obvious next arm and is now a one-command experiment:
+   `build_lna_corpus.external_sequences()` returns padded rows in exactly the shape
+   `finetune._rows_from_npy` produces. Score it **under ref-v3** against nb 52 /
+   wb 21 — under ref-v2 it would score its own copies of the new circuits as novel.
+2. **The augmentation budget is not uniform, on purpose.** Upstream's edge-cover
+   check is O(N²) pandas lookups *per candidate branch*, so 200/10 (the dataset
+   budget) does not terminate here — a 20-node circuit did not finish in 10 min.
+   `--stage external` now runs a per-circuit 300 s guard over a ladder
+   [(64,3),(20,2),(8,1)] and records the winning budget per circuit. Result: 481
+   sequences, one circuit (`ihp-gps-lna-npn`) at 20/2. The external set is 18% of
+   the circuits but **10.7% of the rows**. An equivalence-tested fast cover check
+   is the fix.
+3. **Two known gaps, left open deliberately.** (a) `has_transistor` counts MOS
+   only in *both* `topology.lna_score` and `spec.structural_screen`, so a
+   bipolar-only LNA would fail the screen — changing a frozen screen is a §14.5/
+   §14.6-class governance decision, not a data-change side effect. (b) `bias.py`
+   has no base-bias rule for bipolars and no CG-gate rule: **4 of 9** ingested
+   circuits have MOS that never conduct, for exactly the reason Session 4 fixed by
+   hand in `templates.py`.
+
+**Store note:** +9 L2 rows (recipe **`ingest-v1`**, `nf_gated: true`, ZOAF 4/4/1,
+`inductor_q=12`, `provenance.source_arm = "external-ingest"`) and +11 L1 rows.
+`ingest-v1` is a *different label domain* from `candidate-v1`/`curated-v1` —
+never pool them. ⚠ `paper-gmboostcg` has 3 L1 rows (2 from driver smoke tests
+before `--no-log` reached the L1 path); identical measurements, dedup by
+`external_id`.
+
+**Regression quartet green after everything** (below, re-run at the end):
+vocab **MATCH**, screen **59.4% (114/192)**, pipeline_yield **40/42 (95.2%,** the
+known 1081 singular matrix), `check_ref` / `check_nf` / `check_stab` / **new
+`check_bjt`** all **GREEN**, `calibrate_specs` **ALL ACCEPTANCE CRITERIA MET**.
+
+```bash
+python lna/build_lna_corpus.py --stage external        # guarded Eulerian augmentation
+python lna/ingest_external.py --audit | --run          # gate ladder (+ manifest)
+python lna/ref/check_bjt.py                            # bipolar golden
+python lna/novelty.py --show-ref                       # v1/v2/v3 sizes + digests
+python lna/novelty.py --eval <dir> --ref all --spec wifi24
+python lna/_ndl_refv3.py && python lna/_ndl_flipcheck.py   # protocol re-run + flip check
+```
+
+---
+
 **⚠ BLIND PROTOCOL is active — read plans2/08 §"Blind protocol" before touching
 templates.py.** No paper circuit content anywhere; new families only from the
 existing archetype set or generic textbook blocks chosen *without* the paper,

@@ -86,11 +86,53 @@ libraries at this size, and we add **no new dependencies** (00-OVERVIEW rule 2):
   **enrichment@top-20%** for near-feasible (all margins > −1 scale unit);
   H-L1 AUC; uncertainty calibration (§5).
 * **Gate C1 (critic adopted at all):** on held-out families —
-  **enrichment@top-20% ≥ 2×** over random selection for near-feasibility,
-  and **Spearman ≥ 0.5 on the S21 margin** (the binding constraint
-  everywhere, per §5b). Any model that clears C1 makes search worth wiring;
-  if none does, stop and diagnose data (more strata-M contrast? more labels?
-  σ too high?) before touching 03-SEARCH.
+  ~~**enrichment@top-20% ≥ 2×** over random selection for near-feasibility~~
+  **superseded, see the amendment below** — and **Spearman ≥ 0.5 on the S21
+  margin** (the binding constraint everywhere, per §5b). Any model that clears
+  C1 makes search worth wiring; if none does, stop and diagnose data (more
+  strata-M contrast? more labels? σ too high?) before touching 03-SEARCH.
+
+### 4a. AMENDMENT (2026-08-09, user decision) — C1's enrichment half restated
+
+The Spearman half above is **unchanged**. The enrichment half is replaced,
+because it was not base-rate-robust and had become unreachable.
+
+`enrichment@k = precision@k / base_rate`, and at most `min(n_near, k)` of a
+`k`-row selection can be near-feasible, so it is capped at
+`min(1/k_frac, 1/base_rate)`. As the candidate pool improved, the near-feasible
+base rate rose 0.268 → 0.455 and that ceiling fell **3.74× → 2.20×**: "≥ 2×"
+silently became "precision@20% ≥ 0.910", and above base 0.5 it is unsatisfiable
+*by a perfect ranker*. The bar tightened because the candidates got better.
+Gating on raw precision@20%, or on the raw fraction of ceiling, fails the same
+test — random selection scores `base_rate` and `base_rate/ceiling` respectively,
+both of which move with the pool.
+
+> **Gate C1, restated.** On held-out families, both of:
+> **(a)** ρ(S21) ≥ **0.5** — unchanged; and
+> **(b)** selection skill ≥ **θ = 0.25**, where
+> `skill = (precision@20% − base_rate) / (ceiling_precision − base_rate)` and
+> `ceiling_precision = min(n_near, k)/k`, `k = round(0.2·n)`.
+>
+> Skill is **0 for random selection and 1 for a perfect ranker at any base
+> rate**. When `ceiling_precision = base_rate` the split admits no
+> discrimination: report **n/a**, never a silent pass. Keep reporting the old
+> `enrichment` and its ceiling alongside, for continuity with pre-2026-08-09
+> numbers.
+
+**θ = 0.25 is derived, not tuned.** Where the old bar was well-posed
+(`base ≤ k_frac`, so `ceiling_precision = base/0.2`), "enrichment ≥ 2×" means
+`precision ≥ 2·base`, and `(2b − b)/(b/0.2 − b) = 1/4` **exactly, for every such
+b**. So 0.25 is the unique constant that reproduces the frozen gate's meaning
+everywhere the frozen gate had one, and removes the silent tightening above it.
+The historical v2-train family pass (WL-kNN precision@20% = 1.000 at base 0.485 —
+a *perfect* top-20%) scores skill 1.000 and still passes. The measured verdict
+set is unchanged for any θ ∈ [0.25, 0.35].
+
+**Caveat that outlives the restatement:** at n = 95 the family holdout selects
+only k = 19, so skill has sd ≈ 0.20 under random selection and a *marginal* pass
+there is weak evidence (14% false-pass rate at θ = 0.25; 0.3% on the 420-row
+source-shift split). Enlarging the family holdout is the fix. Implementation and
+the re-scored v4-train table: `critic.c1_stats` / `critic.c1_pass`, FINDINGS §14.6.
 
 ## 5. Uncertainty — a deep ensemble, because search will lie to us
 

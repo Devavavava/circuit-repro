@@ -1,0 +1,25 @@
+{
+  "name": "align_lna_qm",
+  "description": "Differential common-source LNA core (M4/M13) with resistively-loaded/trimmed outputs (a 10-resistor VDD-to-OUTP/OUTN ladder network) and multiple VMAIN-node decoupling caps. From ALIGN's CircuitsDatabase example library (real, previously-taped-out mmWave phased-array front-end block, library name 'PhasedArray_WB_copy').",
+  "source": {
+    "project": "ALIGN (analog layout automation) CircuitsDatabase, Wireless-Radio_frequency/LNA example",
+    "repo": "https://github.com/ALIGN-analoglayout/ALIGN-public",
+    "path": "CircuitsDatabase/Sized_Netlists/Wireless-Radio_frequency/LNA/LNA_TB.scs (subckt LNA_QM_V1)",
+    "retrieved_from": "local checkout in the dormant worktree C:\\Users\\Devavrat\\circuit-repro\\.claude\\worktrees\\analoggenie-dataset-expansion\\_scratch\\ALIGN (already cloned there by a prior scoping session)",
+    "upstream_commit": "e392ae4789eb49193a4865244d8cc31dbe1744b7 (2026-07-05, per that checkout's git log)",
+    "retrieval_date": "2026-08-09",
+    "license": "BSD-3-Clause (repo LICENSE, copy saved alongside this provenance file as source/LICENSE_ALIGN_BSD-3.txt; copyright Regents of the University of Minnesota, Texas A&M University, Intel Corporation)",
+    "process": "Not specified in the excerpt (ALIGN's example decks are process-anonymised for the public repo); device models 'nmos', 'rppolywo_rf', 'res', 'cap', 'ind' are generic placeholders, not tied to a named PDK here.",
+    "format_as_retrieved": "Spectre-syntax subckt with AnalogGenie-like 'Dev (pin list) type' device lines (see source/LNA_TB.scs); a companion hierarchical HSPICE-style top view (source/LNA_QM.sp) exists in the same folder but references PDK subcircuits ('resistor','mimcap','nmos','ind') with no local definitions, so it was not used -- LNA_TB.scs's self-contained flat subckt was used instead."
+  },
+  "conversion": {
+    "route": "subckt body extracted by hand (cleaned_core.txt) -> parens stripped (spice2genie strip_parens=True, mirrors AnalogGenie's own read_netlist behaviour) -> spice2genie.convert() -> upstream graph/augmentation (execed read-only) -> token sequence -> lna/topology.py screen -> lna/to_spice.py -> ngspice",
+    "tool": "lna/data/external/_tools/convert_and_build.py + lna/data/external/_tools/spice2genie.py",
+    "edits_from_source": [
+      "Extracted only the device lines of subckt LNA_QM_V1 (R5 through R23) into cleaned_core.txt; the 'subckt'/'ends' wrapper lines and the enclosing testbench (V8/V6/V5/V3/C1/C0/PORT0/I0/analyses) were dropped -- AnalogGenie's format is topology-only and value-free, and the testbench is not part of the circuit under test.",
+      "DROPPED: L0 (net049 net048 VSS) ind 925pH. Its two non-ground nodes (net049, net048) do not appear on any other device line in this subckt excerpt, so within the file as retrieved L0 is a disconnected/orphan device -- structurally identical to the dataset's own index-1081 floating-inductor case documented in lna/WORKLOG.md R1. Since spice2genie.convert() hard-rejects disconnected graphs (by design, so a broken conversion never silently ships), and since I cannot infer what net049/net048 were meant to connect to elsewhere in the original (unretrieved) design hierarchy, I removed L0 rather than guess at connectivity. This is the ONLY device removed for connectivity reasons; every other device in the excerpt (including the 10-resistor VDD-to-output ladder network, whose exact function -- likely a gain-trim/tap network -- is not fully legible from this excerpt alone) was kept as found, on the principle of not editorially pruning real, connected topology just because its purpose is unclear.",
+      "No renaming was needed: element names already use plain SPICE letters (R#, C#, M#) with the '(pin list)' convention, which spice2genie handles once parentheses are stripped."
+    ]
+  },
+  "notes": "Because L0 was the excerpt's only inductor, the converted circuit has zero inductors and 19 devices (over the structural screen's 15-device 'lna_sized' ceiling), so it is expected to score low on lna/topology.py's 5-point LNA screen (see convert_results.json) despite being a real, differential LNA core -- consistent with lna/FINDINGS.md's existing observation that inductorless/atypical real LNAs score under the screen's ceiling by design, not by screen error. Kept as ground truth anyway: a real, differential, resistively-loaded topology is a genuinely different archetype from the single-ended inductively-matched designs that dominate both the existing 41-circuit corpus and the two IHP siblings converted alongside this one. Unrelated to, and independent of, the Kanchetla et al. TMTT 2022 paper this pipeline is blind-reproducing."
+}

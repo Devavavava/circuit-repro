@@ -1,0 +1,26 @@
+* Cleaned core of ALIGN CircuitsDatabase Wireless-Radio_frequency/LNA/LNA_TB.scs
+* subckt LNA_QM_V1, device lines only (R5..R23), verbatim from source.
+* EDIT: L0 (net049 net048 VSS) ind 925pH is DROPPED -- net049/net048 appear
+* nowhere else in the subckt body, so L0 is a disconnected/orphan device within
+* this excerpt (see provenance.json). No other device is touched or reordered.
+* Parens are stripped by the converter (strip_parens=True), matching
+* AnalogGenie's own "Dev (pins) type" netlist convention.
+    R5 (net011 VAUX VSS) rppolywo_rf l=6u w=500n m=1
+    R10 (net0252 VMAIN VSS) rppolywo_rf l=6u w=500n m=1
+    C3 (net0252 VSS VSS) cap lt=100.0000u wt=50u m=1
+    C41 (net0252 VSS VSS) cap lt=50u wt=20u m=1
+    C14 (net0252 VSS VSS) cap lt=50u wt=20u m=1
+    C4 (net0252 VSS VSS) cap lt=50u wt=50u m=1
+    C43 (IN net011 VSS) cap lt=49.65u wt=49.65u m=1
+    M4 (OUTN net011 VSS VSS) nmos lr=60n wr=1u nr=28 sigma=1 m=4
+    M13 (OUTP net0252 IN VSS) nmos lr=60n wr=1u nr=28 sigma=1 m=1
+    R29 (net040 net041 VSS) res l=6u w=3u m=1
+    R31 (VDD net039 VSS) res l=6u w=3u m=1
+    R30 (net039 net040 VSS) res l=6u w=3u m=1
+    R25 (net043 net045 VSS) res l=6u w=3u m=1
+    R22 (net046 OUTN VSS) res l=6u w=3u m=1
+    R27 (net038 net044 VSS) res l=6u w=3u m=1
+    R28 (net041 net038 VSS) res l=6u w=3u m=1
+    R26 (net044 net043 VSS) res l=6u w=3u m=1
+    R24 (net045 OUTP VSS) res l=6u w=3u m=1
+    R23 (VDD net046 VSS) res l=6u w=3u m=1

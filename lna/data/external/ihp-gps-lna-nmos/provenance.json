@@ -1,0 +1,27 @@
+{
+  "name": "ihp_gps_lna_nmos",
+  "description": "GPS-band (~1.1-1.6 GHz target) single-ended CMOS LNA, common-source input stage with inductive source degeneration (M1/L2), cascode (M2), inductive drain load (L1), gate LC match (R3/C1/C2/L3), diode-connected NMOS bias generator (M3/R1/R2). Taped out through IHP's open-source SG13G2 MPW shuttle.",
+  "source": {
+    "project": "IHP-GmbH open-source SG13G2 tapeout, April 2025 campaign (Testfield T586)",
+    "repo": "https://github.com/IHP-GmbH/TO_Apr2025",
+    "path": "GPS_LNA/design_data/xyce/simulations/lna_tb_xyce_rf_rfmos.spice",
+    "retrieved_url": "https://raw.githubusercontent.com/IHP-GmbH/TO_Apr2025/main/GPS_LNA/design_data/xyce/simulations/lna_tb_xyce_rf_rfmos.spice",
+    "retrieval_date": "2026-08-09",
+    "commit_or_ref": "main (as of retrieval; repo has no tags at time of retrieval)",
+    "license": "Apache-2.0 (repo LICENSE, verified at https://raw.githubusercontent.com/IHP-GmbH/TO_Apr2025/main/LICENSE)",
+    "process": "IHP SG13G2 130nm SiGe BiCMOS, RF-LDMOS device model 'sg13_lv_nmos'",
+    "format_as_retrieved": "Xyce-flavoured flat SPICE, xschem-exported (schematic -> flattened netlist), includes ESD/bondpad structures and testbench sources"
+  },
+  "conversion": {
+    "route": "raw .spice -> strip padframe/ESD -> rename X-prefixed R/C instances to plain R/C element syntax (see notes) -> spice2genie.convert() -> AnalogGenie .cir/Port -> SPICE2GRAPH_compress.build_connection_matrix (upstream, execed read-only) -> Augmentation.dfs_all_paths (upstream, execed read-only) -> token sequence -> lna/topology.py screen -> lna/to_spice.py -> ngspice",
+    "tool": "lna/data/external/_tools/convert_and_build.py + lna/data/external/_tools/spice2genie.py (adapted from the analoggenie-dataset-expansion worktree's dataset_expansion/spice2genie.py)",
+    "edits_from_source": [
+      "Removed 12 devices: XX1-XX4 (bondpads) and XD1-XD8 (ESD protection diodes). These are process-level I/O protection structures, not part of the LNA signal path; AnalogGenie's own dataset circuits never include pads/ESD, so this matches existing corpus convention.",
+      "Renamed X-prefixed resistor/capacitor subcircuit calls (XR1-XR3, XC1-XC2) to plain SPICE R/C element syntax (R1-R3, C1-C2) so the generic converter's direct r/c/l dispatch picks them up instead of trying (and failing) to resolve them as undefined subcircuits ('rppd', 'cap_rfcmim' are PDK primitives with no local .subckt definition in this excerpt). Net connectivity (first two nodes on each line) is unchanged; only the element-name prefix changed.",
+      "Voltage sources (VDD, vin) and all simulator directives (.lib/.include/.option/.ac/.print/.GLOBAL) are dropped automatically by the converter, matching AnalogGenie's topology-only, value-free representation -- consistent with how the existing 41-circuit corpus omits bias networks (see lna/FINDINGS.md §4b).",
+      "M1-M3 (sg13_lv_nmos, 4-terminal D/G/S/B) needed no edits; the converter's 5-token model-kind heuristic already resolves 'sg13_lv_nmos' to nmos4 correctly.",
+      "L1-L3 needed no edits (already plain SPICE L element syntax in the source)."
+    ]
+  },
+  "notes": "This is one of two sibling circuits taped out from the same project (an NMOS/rfmos variant and an NPN/HBT variant sharing the same bias generator M3/R1/R2, gate-match R3/C1/C2/L3, and drain inductor L1) -- see lna/data/external/ihp-gps-lna-npn/ for the bipolar sibling. Both are independent, unrelated designs from IHP's open tapeout program; neither is derived from, nor references, the Kanchetla et al. TMTT 2022 paper this pipeline is blind-reproducing."
+}

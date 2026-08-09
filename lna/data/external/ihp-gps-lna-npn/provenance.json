@@ -1,0 +1,27 @@
+{
+  "name": "ihp_gps_lna_npn",
+  "description": "GPS-band SiGe HBT (bipolar) LNA sibling of ihp-gps-lna-nmos: common-emitter input stage (Q2 unit, x6 parallel fingers) with inductive emitter degeneration (L2), cascode (Q1 unit, x6 parallel fingers), inductive collector load (L1), gate/base LC match (R3/C1/C2/L3), diode-connected NMOS bias generator (M3/R1/R2, reused verbatim from the NMOS sibling). Taped out through IHP's open-source SG13G2 MPW shuttle.",
+  "source": {
+    "project": "IHP-GmbH open-source SG13G2 tapeout, April 2025 campaign (Testfield T586)",
+    "repo": "https://github.com/IHP-GmbH/TO_Apr2025",
+    "path": "GPS_LNA/design_data/xyce/simulations/lna_tb_xyce_rf_npn.spice",
+    "retrieved_url": "https://raw.githubusercontent.com/IHP-GmbH/TO_Apr2025/main/GPS_LNA/design_data/xyce/simulations/lna_tb_xyce_rf_npn.spice",
+    "retrieval_date": "2026-08-09",
+    "commit_or_ref": "main (as of retrieval; repo has no tags at time of retrieval)",
+    "license": "Apache-2.0 (repo LICENSE, verified at https://raw.githubusercontent.com/IHP-GmbH/TO_Apr2025/main/LICENSE)",
+    "process": "IHP SG13G2 130nm SiGe BiCMOS, HBT device model 'npn13G2', bias devices on 'sg13_lv_nmos'",
+    "format_as_retrieved": "Xyce-flavoured flat SPICE, xschem-exported, includes ESD/bondpad structures and testbench sources"
+  },
+  "conversion": {
+    "route": "same pipeline as ihp-gps-lna-nmos (see that provenance.json) -- raw .spice -> strip padframe/ESD -> normalise device syntax -> spice2genie.convert() -> upstream graph/augmentation (execed read-only) -> token sequence -> lna/topology.py screen -> lna/to_spice.py -> ngspice",
+    "tool": "lna/data/external/_tools/convert_and_build.py + lna/data/external/_tools/spice2genie.py",
+    "edits_from_source": [
+      "Removed 12 devices: XX1/XX3/XX4 (bondpads) and XD1-XD8 (ESD diodes) -- same rationale as the NMOS sibling.",
+      "Renamed XR1-XR3, XC1-XC2 from X-prefixed subcircuit-call syntax to plain SPICE R/C element syntax -- same rationale as the NMOS sibling.",
+      "IMPORTANT BUG WORKED AROUND IN THE BORROWED CONVERTER: spice2genie.py's generic X-prefixed-instance handler classifies an unrecognised 4-terminal model name as NMOS whenever the model string happens to start with the letter 'n' (its `_model_kind` heuristic checks `startswith('n')` for nmos). The source netlist's HBTs are called via 'XQ<n> coll base emit sub npn13G2 Nx=10' -- 4 explicit nodes + a model name starting with 'n' -- so the unmodified converter would have silently mislabelled every HBT as an NMOS transistor (connectivity would have stayed correct, but the device *type* token would have been wrong, hiding the fact that this is a bipolar design). Fixed by rewriting each XQ<n> line to standard SPICE 'Q<n> collector base emitter model' syntax (3-terminal, substrate node and Nx= finger count dropped -- AnalogGenie's NPN vocabulary is 3-terminal C/B/E and carries no device values anyway), which routes through spice2genie's dedicated bipolar handler and correctly emits 'npn'. This bug was NOT fixed in the shared/original spice2genie.py -- only worked around by pre-editing this circuit's input text -- since that file lives outside my owned paths (this worktree's copy under lna/data/external/_tools/ is a local, owned adaptation).",
+      "All 12 real HBT instances (Q1-Q12, six parallel unit devices per collector-side and six per emitter-side transistor, Nx=10 fingers each) are kept AS FOUND -- not collapsed to a single equivalent device -- to stay faithful to the real, fully-connected layout-level netlist. This pushes device count to 21, which is why this circuit misses the structural screen's 'lna_sized' (<=15 devices) criterion even though it is a real, correct LNA (see convert_results.json)."
+    ]
+  },
+  "emission_gap_found": "lna/to_spice.py (shared, NOT edited) only implements NM/PM/R/C/L in its Netlist.emit() -- running it on this sequence fails with 'cannot emit 12 device(s): NPN1: unsupported device type ...' even though the sequence itself is structurally valid (score 4/5) and lna/topology.py's own vocabulary (DEV_PREFIXES, LEGAL) already supports NPN/PNP. Worked around, without touching the shared file, by writing lna/data/external/_tools/to_spice_bjt_ext.py -- a small owned-path emitter that mirrors to_spice.py's conventions (param naming, rshunt, finite inductor Q, db floor, contiguous port numbers) and adds a Q-element branch with a generic ngspice default NPN model (.model qnpn npn(...), no PDK-specific parameters since none were retrieved). This is flagged as a real gap for whoever owns lna/to_spice.py to close upstream -- BJT devices are real, present in the AnalogGenie vocabulary, and now have one working real-world example (this circuit) that would benefit from native support.",
+  "notes": "Sibling of lna/data/external/ihp-gps-lna-nmos/ -- same project, same bias/match scaffolding, HBT core instead of MOSFET. Adds a device family (NPN bipolar) not otherwise represented among likely candidates in this expansion batch. Independent of, and unrelated to, the Kanchetla et al. TMTT 2022 paper this pipeline is blind-reproducing."
+}

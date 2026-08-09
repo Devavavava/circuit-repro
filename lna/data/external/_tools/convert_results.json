@@ -1,0 +1,107 @@
+[
+  {
+    "name": "ihp_gps_lna_nmos",
+    "stats": {
+      "devices": 11,
+      "edges": 57,
+      "seq_len": 115,
+      "counts": {
+        "resistor": 3,
+        "inductor": 3,
+        "capacitor": 2,
+        "nmos4": 3
+      },
+      "ports": "VDD VSS VIN1 VOUT1",
+      "name": "ihp_gps_lna_nmos"
+    },
+    "n_eulerian_paths": 50,
+    "seq_len": 115,
+    "valid_structure": true,
+    "floating_devices": [],
+    "lna_score": 5,
+    "lna_criteria": {
+      "has_inductor": true,
+      "inductor_ratio": true,
+      "has_transistor": true,
+      "has_rf_ports": true,
+      "lna_sized": true
+    },
+    "device_counts": {
+      "NM": 3,
+      "C": 2,
+      "R": 3,
+      "L": 3
+    },
+    "seq_path": "C:\\Users\\Devavrat\\circuit-repro\\.claude\\worktrees\\lna-data\\lna\\data\\external\\ihp-gps-lna-nmos\\generated\\seq_ihp_gps_lna_nmos.txt"
+  },
+  {
+    "name": "ihp_gps_lna_npn",
+    "stats": {
+      "devices": 21,
+      "edges": 198,
+      "seq_len": 397,
+      "counts": {
+        "resistor": 3,
+        "inductor": 3,
+        "capacitor": 2,
+        "nmos4": 1,
+        "npn": 12
+      },
+      "ports": "VDD VSS VIN1 VOUT1",
+      "name": "ihp_gps_lna_npn"
+    },
+    "n_eulerian_paths": 50,
+    "seq_len": 397,
+    "valid_structure": true,
+    "floating_devices": [],
+    "lna_score": 4,
+    "lna_criteria": {
+      "has_inductor": true,
+      "inductor_ratio": true,
+      "has_transistor": true,
+      "has_rf_ports": true,
+      "lna_sized": false
+    },
+    "device_counts": {
+      "NPN": 12,
+      "R": 3,
+      "L": 3,
+      "C": 2,
+      "NM": 1
+    },
+    "seq_path": "C:\\Users\\Devavrat\\circuit-repro\\.claude\\worktrees\\lna-data\\lna\\data\\external\\ihp-gps-lna-npn\\generated\\seq_ihp_gps_lna_npn.txt"
+  },
+  {
+    "name": "align_lna_qm",
+    "stats": {
+      "devices": 19,
+      "edges": 83,
+      "seq_len": 167,
+      "counts": {
+        "resistor": 12,
+        "capacitor": 5,
+        "nmos4": 2
+      },
+      "ports": "VDD VSS VIN1 VOUT1 VOUT2",
+      "name": "align_lna_qm"
+    },
+    "n_eulerian_paths": 50,
+    "seq_len": 167,
+    "valid_structure": true,
+    "floating_devices": [],
+    "lna_score": 2,
+    "lna_criteria": {
+      "has_inductor": false,
+      "inductor_ratio": false,
+      "has_transistor": true,
+      "has_rf_ports": true,
+      "lna_sized": false
+    },
+    "device_counts": {
+      "R": 12,
+      "C": 5,
+      "NM": 2
+    },
+    "seq_path": "C:\\Users\\Devavrat\\circuit-repro\\.claude\\worktrees\\lna-data\\lna\\data\\external\\align-lna-qm\\generated\\seq_align_lna_qm.txt"
+  }
+]

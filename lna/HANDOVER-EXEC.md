@@ -1243,6 +1243,92 @@ python lna/pipeline_yield.py --indices 461-492,1081-1090
 Sobhy et al.'s "multiple feedback" topology (§22.1) is a concrete published
 example of the kind of multi-path match this archetype set does not yet have.
 
+### ▸ Sub-block: WP-NF part 2 — the `device_budget` unlock and the second gain stage (owner: the NF-campaign executor)
+
+**Files owned:** `lna/specs/dhruva-*.yaml` (budget field only), `lna/nf_moves.py`
+(move filter + recipe tag), `lna/_nf_devcount.py`, `lna/_nf_budget_check.py`,
+`lna/_nf_verify2.py`, `lna/_nf_verify_l5.py`, FINDINGS **§23**, this sub-block.
+`bias.py` was **not** touched (it moved to the ingestion track). Continues the
+WP-NF sub-block above; full detail in **FINDINGS §23**.
+
+**★ The unlock worked, and Friis is now measured rather than asserted.** §17's
+wall was that the one move able to break the NF↔S21 trade — a second gain stage —
+could not be *proposed*, because every frontier design sat at 16 devices. With
+`device_budget` at [3,18]:
+
+| | devices | S11_max | S21 | Idd | NF |
+|---|---|---|---|---|---|
+| parent `7b0b485b` (`nccgcs_s1_R`) | 14 | −10.02 | 18.95 | 6.56 | 3.86 |
+| **+ `moves.stage_add`** | **17** | −10.23 | **28.51** | 8.20 | **3.92** |
+
+**+9.56 dB of gain for +0.06 dB of noise.**
+
+**★ Best design in the program on `dhruva-s` — `f578743ae13296d0`** (18 devices,
+`stage_add` → `load_swap`), **TIER-1 FEASIBLE**:
+
+> **S11_max −10.02 / S21 33.74 / Idd 10.83 / NF 3.70 / K_min 239.6**,
+> `replay_ok` True, in-box, unconditionally stable, **NF the only violated
+> constraint**, total violation **0.059**. Novel vs ref-v3 (`d05390da6183123e`).
+> Four seeds land 3.70 / 3.71 / 3.72 / 3.74.
+
+**What the budget bought, three ways.** At the spec's S21 ≥ 30: **NF 4.89 → 3.70
+(−1.19 dB)**, **violation 0.398 → 0.059 (6.7×)**, and **Idd 12.67 → 10.83 mA** —
+noise improved *while* current fell, i.e. a second stage is strictly cheaper than
+driving one stage harder. **And the exchange rate improved 4.5×**: §17 measured
+0.166 dB NF per dB of S21; the 17–18-device front runs 0.030 dB/dB (NF 3.33 @
+S21 21.34 → NF 3.70 @ S21 33.74). That is the real content of the unlock — gain
+stopped being expensive in noise.
+
+**The spec change, calibrated not reverse-engineered.** 16 → 18 on the four
+dhruva specs only; `gps-l1` / `wifi24` / `wideband-sdr` / `legacy-lna5` untouched.
+Over all 50 reference circuits (median 6, p90 13) three real designs exceed 16:
+**`ihp-lna-2p45g` @ 18** — an IHP SG13G2 **2.45 GHz** open tapeout, the closest
+real analogue to dhruva-s at 2.492 GHz — `align-lna-qm` @ 19, `ihp-gps-lna-npn`
+@ 21. **18 is the device count of the nearest-in-frequency real silicon LNA**,
+which is why the bound stops there. Verified: the L0 screen and `moves.py` ctx
+both honour it, the 18-device real LNA now passes the dhruva-s screen, and the
+19-device one is **still rejected** — enforced, not removed. New rows carry recipe
+**`nf-v2+d18`** so the two budget domains never mix.
+
+**Gate D3 per band — NOT MET, by 0.20 dB on `dhruva-s`.**
+
+| band | target NF @ S21 | best tier-1-feasible | NF | viol | short by |
+|---|---|---|---|---|---|
+| **dhruva-s** | 3.5 @ 30.0 | `f578743ae13296d0` (18 dev) | **3.70** | **0.059** | **0.20 dB** |
+| dhruva-l5 | 2.5 @ 22.3 | `439032fd40e7e504` (18 dev, `aux_path_add`) | 3.31 | 0.324 | 0.81 dB |
+| dhruva-l2 / l1 | 2.5 / 2.7 | not run (see below) | – | – | – |
+
+l5's noise did improve (3.65 → 3.31) but its tighter target leaves it further
+away in normalized terms — dhruva-s is now the closest band by a wide margin.
+**l2 and l1 were not run**: l2 carries l5's targets at 1.23 GHz and l1 sits
+between, so neither could plausibly beat 0.059 — an inference, flagged as such,
+not a measurement.
+
+**Cost.** 5 growth runs + 6 descent campaigns, ~35,000 further SPICE evals,
+**57 further L2 rows** (36 `nf-v2+d18` + 21 `nf-v1`), total **153** for this
+executor. Four runs were stopped early once their answer was measured, to
+reallocate the 3-way ngspice budget; every quoted result survives in the
+append-only store and was re-verified from it.
+
+**Where to pick up (highest value first).**
+
+1. **The next 0.20 dB is a `device_budget` decision again, and the numbers are
+   already on the table.** `f578743ae13296d0` has 3.74 dB of gain slack, worth
+   only ~0.11 dB of noise at the measured 0.030 dB/dB — not enough, which is why
+   four seeds converge at 3.70. A **third** stage costs 3 devices; the same
+   calibration that justified 18 would justify 20–21 (`align-lna-qm` 19,
+   `ihp-gps-lna-npn` 21). **Decide it on whether a 20-device LNA is defensible,
+   not on the fact that it closes the gate.** A second independent probe agrees:
+   `6f0d080f91dfc642` at NF 3.33 / S21 21.34 with 5.2 mA unspent projects to
+   ~3.59 — still short.
+2. **`moves.stage_add` is now the highest-yield structural edit measured**, and
+   it needs a ≤15-device parent. The move set should be re-run from the *smaller*
+   low-noise designs, not the frontier ones — the parent that produced everything
+   here was the 14-device `nccgcs_s1_R`, not the 16-device elites.
+3. **Re-run `benchmark.py` on the dhruva bands** — the budget change alters the
+   L0 screen, so every cached dhruva screen/benchmark number predates it.
+4. l2 / l1 remain unmeasured under the new budget (§23.4).
+
 ## 1. TL;DR — what shipped this session
 
 | Plan item | Status | Key result |

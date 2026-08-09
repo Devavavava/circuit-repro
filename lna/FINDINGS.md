@@ -4132,3 +4132,145 @@ python lna/spec.py wideband-sdr             # confirm the recalibrated numbers l
 python lna/calibrate_specs.py               # L0 screen unaffected
 python lna/pipeline_yield.py --indices 461-492,1081-1090
 ```
+
+---
+
+## 23. Phase 3 — the `device_budget` unlock and the second gain stage: Gate D3 to within 0.20 dB (Session 6)
+
+> Owner: the NF-campaign executor (continues **§17**). Files: `lna/specs/dhruva-*.yaml`
+> (budget only), `lna/nf_moves.py` (move filter + recipe tag), `lna/_nf_devcount.py`,
+> `lna/_nf_budget_check.py`, `lna/_nf_verify2.py`, `lna/_nf_verify_l5.py`.
+> Store rows: recipe **`nf-v2+d18`** (36) plus `nf-v1` tier-1 descents on the new
+> graphs. `bias.py` is NOT touched — it belongs to the ingestion track (§21).
+
+**Headline.** §17 ended with a wall whose shape was known: the noise-cancelling
+family could reach NF ≤ 3.5 dB *or* S21 ≥ 30 dB but not both, and the move that
+would break the trade — a second gain stage, near-free in noise by Friis — could
+not even be *proposed*, because every frontier design already sat at the
+16-device budget. The user approved the widening on that measurement. It worked,
+and the Friis prediction is now measured rather than asserted: **the added stage
+bought +9.56 dB of gain for +0.06 dB of noise.** Gate D3 on `dhruva-s` goes from
+**1.39 dB short to 0.20 dB short**, and the tier-2 violation from **0.398 to
+0.059** — a 6.7× improvement. **Gate D3 is still NOT MET.**
+
+### 23.1 The spec change, and how it was calibrated
+
+`device_budget` 16 → **18** on the four `dhruva-*` specs only. `gps-l1`,
+`wifi24`, `wideband-sdr` and `legacy-lna5` are untouched.
+
+The justification is corpus-calibrated, in the same style and for the same reason
+as the earlier `[3,12] → [3,16]`, and deliberately **not** "the number that closes
+the gate". Device counts over all 50 reference circuits (41 corpus + 9 ingested
+externals): median 6, p90 13, and **three real designs exceed 16** —
+
+| circuit | devices | what it is |
+|---|---|---|
+| `ihp-lna-2p45g` | **18** | an IHP SG13G2 **2.45 GHz** open tapeout — the closest real analogue to `dhruva-s` at 2.492 GHz |
+| `align-lna-qm` | 19 | ALIGN differential LNA |
+| `ihp-gps-lna-npn` | 21 | IHP GPS LNA, bipolar |
+
+**18 is the measured device count of the nearest-in-frequency real silicon LNA**,
+which is why the bound stops there and not at 19 or 21. Had the gate needed 20,
+the honest answer would have been to stop.
+
+Verified (`_nf_budget_check.py`): the L0 screen and `moves.py`'s `ctx["max_dev"]`
+both read the new bound; the 18-device `ihp-lna-2p45g` now passes the `dhruva-s`
+structural screen where it previously failed on `device_budget` alone; the
+19-device `align-lna-qm` is **still rejected**, so the bound is enforced, not
+removed. Rows sized under it carry recipe **`nf-v2+d18`** so the two budget
+domains never mix — same discipline as `zoaf_cfg.nf_gated`.
+
+### 23.2 ★ The Friis experiment, measured
+
+`m_stage_add` appends an AC-coupled common-source stage and costs **3** devices
+(coupling cap + FET + load). So even at 18 it cannot be proposed off a 16-device
+parent — only off a ≤15-device one. That made **`7b0b485b629cecd2`**
+(`nccgcs_s1_R`, **14** devices, §17's second-best noise floor) the parent that
+mattered, and it is exactly the experiment Friis predicts:
+
+| | devices | S11_max | S21 | Idd | NF |
+|---|---|---|---|---|---|
+| parent `7b0b485b` | 14 | −10.02 | 18.95 | 6.56 | 3.86 |
+| **+ `stage_add` → `3e4a6a`** | **17** | −10.23 | **28.51** | 8.20 | **3.92** |
+
+**+9.56 dB of gain for +0.06 dB of noise.** The first stage's gain divides the
+new stage's noise contribution, exactly as the cascade formula says, and the
+sizer did not have to be told — the added stage simply gave the NF descent
+somewhere to put the gain that it was previously buying out of the input device.
+
+### 23.3 ★ The new `dhruva-s` front, and the best design in the program
+
+Two further edits landed on top of the stage-extended graph (`load_swap`,
+`degen_add`), taking it to the new 18-device ceiling. All rows replay-verified
+against their own stored parameters, in-box, K ≥ 1 in band:
+
+| design | dev | move chain | S11_max | S21 | Idd | NF | K_min | viol |
+|---|---|---|---|---|---|---|---|---|
+| **`f578743ae13296d0`** | **18** | `stage_add` → `load_swap` | **−10.02** | **33.74** | **10.83** | **3.70** | 240 | **0.059** |
+| `3e4a6adb7961e73c` | 17 | `stage_add` | −10.02 | 30.01 | 8.90 | 3.85 | 474 | 0.099 |
+| `7499599ed33bd478` | 18 | `stage_add` → `load_swap` | −10.01 | 32.82 | 10.88 | 3.85 | 263 | 0.099 |
+| `5753181803d94f92` | 18 | `stage_add` → `degen_add` | −10.01 | 31.84 | 10.61 | 3.89 | 282 | 0.110 |
+| `6f0d080f91dfc642` | 17 | `load_swap` | −11.02 | 21.34 | 7.85 | **3.33** | 36 | 0.289 |
+| *§17 incumbent* `19f72303` | 16 | – | −10.01 | 30.00 | 12.67 | 4.89 | 24 | 0.398 |
+
+> **`f578743ae13296d0`** — 18 devices, `dhruva-s` **TIER-1 FEASIBLE**:
+> **S11_max −10.02 / S21 33.74 / Idd 10.83 / NF 3.70 / K_min 239.6**,
+> `replay_ok` True, in-box, unconditionally stable in band, **NF the single
+> violated constraint** at 0.20 dB over target. Novel against **ref-v3**
+> (`d05390da6183123e`, 198 hashes). Four seeds land 3.70 / 3.71 / 3.72 / 3.74.
+
+**What the budget bought, stated three ways.** At the spec's S21 ≥ 30:
+**NF 4.89 → 3.70 dB (−1.19 dB)**; **violation 0.398 → 0.059 (6.7×)**; and
+**Idd 12.67 → 10.83 mA**, i.e. the noise improved *while* the current dropped
+1.8 mA — the added stage is strictly cheaper than driving one stage harder.
+
+**And the exchange rate itself improved 4.5×.** §17 measured +1.39 dB NF per
++8.35 dB S21 (0.166 dB/dB). The 17–18-device front runs from NF 3.33 @ S21 21.34
+to NF 3.70 @ S21 33.74 — **+0.37 dB NF per +12.40 dB S21 (0.030 dB/dB)**. That is
+the real content of the unlock: not that the front moved down, but that gain
+stopped being expensive in noise.
+
+### 23.4 `dhruva-l5`, and the honest per-band verdict
+
+| band | target NF @ S21 | best tier-1-feasible | NF | viol | short by |
+|---|---|---|---|---|---|
+| **dhruva-s** | 3.5 @ 30.0 | `f578743ae13296d0` (18 dev) | **3.70** | **0.059** | **0.20 dB** |
+| **dhruva-l5** | 2.5 @ 22.3 | `439032fd40e7e504` (18 dev, `aux_path_add`) | **3.31** | 0.324 | 0.81 dB |
+| dhruva-l2 | 2.5 @ 22.3 | not run this session | – | – | – |
+| dhruva-l1 | 2.7 @ 25.4 | not run this session | – | – | – |
+
+`dhruva-l5`'s best is S11_max −10.00 / S21 26.41 / Idd 11.23 / NF 3.31 /
+K_min 20.5, tier-1 feasible, replay-verified, in-box. The same
+`f578743ae13296d0` re-sized against `l5` reaches NF 3.63 at S21 38.21. So the
+lower band's noise did improve (3.65 → 3.31) but its 1.0 dB tighter target keeps
+it further away in normalized terms — **`dhruva-s` remains the closest band**,
+now by a wider margin than in §17 (0.059 vs 0.324). **l2 and l1 were not run**:
+l2 carries l5's targets at 1.23 GHz and l1 sits between, so neither could plausibly
+beat `dhruva-s` at 0.059 — but that is an inference, not a measurement, and is
+flagged as such.
+
+### 23.5 Cost, and the verdict
+
+**Cost.** 5 growth runs + 6 descent campaigns, ~35,000 further SPICE evaluations,
+**57 further L2 rows** (36 `nf-v2+d18` + 21 `nf-v1` on the new graphs), bringing
+this executor's total to **153**. Four runs were stopped early once their answer
+was measured, to reallocate the 3-way ngspice budget to the live frontier — every
+result quoted survives in the append-only store and was re-verified from it.
+
+**Gate D3 — NOT MET, by 0.20 dB on `dhruva-s`.** The claim is a tier-1-feasible,
+replay-verified, in-box, unconditionally stable design whose *only* violated
+constraint is noise, at 3.70 dB against a 3.5 dB target.
+
+**What the next 0.20 dB would take, measured rather than guessed.** The
+18-device front's exchange rate is 0.030 dB NF per dB of S21, and
+`f578743ae13296d0` carries **3.74 dB of gain slack** over the 30 dB floor — which
+at that rate is worth only ~0.11 dB of noise, i.e. **the slack on hand is not
+quite enough**, which is exactly why four seeds converge at 3.70. The lever that
+worked once is the same one that would work again: a *third* stage costs 3 more
+devices, and the same corpus calibration that justified 18 (`align-lna-qm` at 19,
+`ihp-gps-lna-npn` at 21) would justify 20–21. **That is a user decision, and it
+should be made on whether 20 devices is a defensible LNA — not on the fact that
+it would close the gate.** Alternatively `6f0d080f91dfc642` sits at NF **3.33**
+with S21 21.34 and 5.2 mA of unspent current: 8.7 dB of gain at 0.030 dB/dB is
+0.26 dB of noise, which lands at ~3.59 — still short, but it is the second
+independent probe of the same wall and it agrees.

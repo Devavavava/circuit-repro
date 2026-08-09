@@ -33,6 +33,34 @@ from topology import Topology     # noqa: E402
 
 RECIPE = "nf-v1+move"
 
+# Growth moves, by what they cost against `device_budget`. With the dhruva budget
+# at [3,18] a 16-device frontier design can still only afford +1 (cascode) or +2
+# (aux path); a full AC-coupled CS stage costs **3** (coupling cap + FET + load),
+# so it can only be proposed off a <=15-device parent -- which is why
+# `7b0b485b629cecd2` (14 devices, nccgcs_s1_R) is the parent that matters for the
+# Friis experiment.
+GROWTH = {"stage_add": 3, "aux_path_add": 2, "cascode_add": 1, "buffer_add": 2,
+          "match_elem_add": 1, "feedback_add": 1, "degen_add": 1, "load_swap": 0,
+          "passive_type_swap": 0, "input_class_swap": 0, "rewire": 0}
+
+
+def mutate_filtered(nl, rng, ctx, names, tries=16):
+    """`moves.mutate` restricted to a named subset, same weights and sanity gate."""
+    fns = {n: f for n, f, _ in M.MOVES}
+    ws = {n: w for n, _, w in M.MOVES}
+    pick = [n for n in names if n in fns]
+    if not pick:
+        raise SystemExit(f"no known moves in {names!r}")
+    for _ in range(tries):
+        name = rng.choices(pick, weights=[ws[n] for n in pick], k=1)[0]
+        try:
+            out = fns[name](M.copy_nl(nl), rng, ctx)
+        except Exception:
+            out = None
+        if out and M.sane(out, ctx["max_dev"], ctx["min_dev"]):
+            return out, name
+    return None, None
+
 
 def parent_rows(prefixes, spec_name):
     best = {}
@@ -57,6 +85,9 @@ def main():
     ap.add_argument("--pre-budget", type=int, default=8)
     ap.add_argument("--keep", default="s11", choices=("s11", "s11idd", "tier1"))
     ap.add_argument("--seed", type=int, default=11)
+    ap.add_argument("--moves", default=None,
+                    help="comma-separated move subset (default: the full set)")
+    ap.add_argument("--recipe", default=RECIPE)
     ap.add_argument("--no-log", action="store_true")
     ap.add_argument("--out", default=None)
     a = ap.parse_args()
@@ -71,6 +102,7 @@ def main():
            "min_dev": spec.topology.get("device_budget", [3, 16])[0],
            "max_inductors": spec.topology.get("max_inductors", 99)}
     rng = random.Random(a.seed)
+    movenames = [m for m in (a.moves or '').split(',') if m] or None
     parents = parent_rows([p for p in a.parents.split(",") if p], a.spec)
     if not parents:
         raise SystemExit("no parent rows found")
@@ -89,7 +121,8 @@ def main():
         nl, _ = T.topo_to_netlist(topo)
         if nl is None:
             continue
-        out, move = M.mutate(M.copy_nl(nl), rng, ctx)
+        out, move = (mutate_filtered(nl, rng, ctx, movenames)
+                     if movenames else M.mutate(M.copy_nl(nl), rng, ctx))
         if out is None:
             continue
         real = M.realize(out, spec)
@@ -137,7 +170,9 @@ def main():
             S.log_l2_result(spec, c["topo"], m, feas, bp,
                             {"source_arm": "nf-moves", "move": c["move"],
                              "parent_wl_hash": c["parent"], "keep": a.keep,
-                             "inductor_q": 12}, RECIPE, ne, inductor_q=12,
+                             "inductor_q": 12,
+                             "device_budget": ctx["max_dev"]}, a.recipe, ne,
+                            inductor_q=12,
                             repeat_probe=False)
     results.sort(key=lambda r: r["metrics"].get("nf_db") or 1e9)
     print("\nbest by NF:")

@@ -2680,6 +2680,233 @@ displace it.
 > the corpus expansion, and this section's comparability caveat costs nothing.
 > The re-frozen baseline is unchanged in value: nb 52 / wb 21, now stamped
 > `ref-v3[198h/d05390da]`.
+>
+> *(Curriculum track, confirming for its own arms: measured Δ(v3−v2) is **0** on
+> all four curriculum pools too — external-copy rate 0.0% on every one — so every
+> nb number below is simultaneously a ref-v2 and a ref-v3 number.)*
+
+### 18.1 What was actually run
+
+Both arms trained exactly as pre-registered. **The §18.0 prediction held on both:**
+phase 2 takes its best val at **epoch 0** and rises monotonically for the
+remaining 39 epochs, so the shipped curriculum is *scaffolded base + one
+template-free epoch*, and the 40-epoch runs are recipe fidelity, not annealing.
+
+| arm | warm start (phase 1) | train / val | best val | val @ ep 39 | wall |
+|---|---|---|---|---|---|
+| **cur-v1** | `ft_p5.pth` md5 `492f2eb7…` (P5-v1; its own pool reads nb NDL **30**, spec-L0 **57.4%**) | 5170 / 492 | **0.2257 @ ep 0** | 0.3633 | 2184 s |
+| **cur-v2** | `ft_p5_v2.pre_dhruva.pth` md5 `1b3c2b16…` (**the adopted P5-v3**) | 5170 / 492 | **0.2389 @ ep 0** | ≈0.36 | 1881 s |
+
+5170 / 492 is *byte-identical* to ctrl-v1's stage-B dataset, as designed — the
+curriculum arms and ctrl-v1 differ in the warm-start checkpoint and nothing else.
+
+Because best-val collapses the tail to one epoch, tail length was also swept
+directly with `--ckpt-policy final` (§18.3). ⚠ **That sweep is an unregistered
+exploratory add-on**: §18.0 pre-registered it only for the case where the
+one-epoch tail landed *within noise* of its warm start, and it did not — it moved
+both axes materially. It is reported because it turned the section's conclusion
+from an inference into a measurement, and it is labelled post-hoc.
+
+### 18.2 Pool metrics — §16's protocol, n=256, seed 1337, `ref-v2[189h/b5689490]`
+
+Every §16 row below was **re-measured tonight**, not copied, and reproduces to the
+digit — so the measuring stick had not drifted when the new arms were scored.
+
+| arm | class | **NDL@256 v2** | spec-L0 | copies (**arch** / corpus) | med NN-sim | term | ind ratio | anyL |
+|---|---|---|---|---|---|---|---|---|
+| **P5-v3 (baseline)** | nb | **52** | **206 (80.5%)** | 69.5% (**37.9%** / 31.6%) | 1.000 | 100.0% | 0.224 | 93.8% |
+| ctrl-v1 | nb | 42 | 91 (35.5%) | 40.6% (0.4% / 40.2%) | 1.000 | 99.6% | 0.178 | 59.0% |
+| ctrl-v1s | nb | 26 | 90 (35.2%) | 55.5% (0.0% / 55.5%) | 1.000 | 98.8% | 0.179 | 59.4% |
+| **cur-v1** | nb | **42** | **140 (54.7%)** | 59.0% (**3.5%** / 55.5%) | 1.000 | 99.6% | 0.226 | 78.1% |
+| **cur-v2** | nb | **39** | **179 (69.9%)** | 67.2% (**6.6%** / 60.5%) | 1.000 | 100.0% | **0.274** | 95.3% |
+| **P5-v3 (baseline)** | wb | **21** | 96 (37.5%) | 51.2% (14.1% / 37.1%) | 1.000 | 99.6% | **0.077** | 39.5% |
+| ctrl-v1 | wb | 31 | 50 (19.5%) | 35.5% (0.0% / 35.5%) | 0.621 | 98.8% | 0.156 | 53.9% |
+| **cur-v1** | wb | **31** | 84 (32.8%) | 55.9% (0.4% / 55.5%) | 1.000 | 100.0% | 0.117 | 44.5% |
+| **cur-v2** | wb | **23** | **131 (51.2%)** | 66.8% (0.4% / 66.4%) | 1.000 | 100.0% | **0.039** | 16.8% |
+
+**★ 1. The curriculum does exactly what it was supposed to do to the *copying*,
+and does not buy a single novel topology for it.** Verbatim archetype
+regurgitation collapses **37.9% → 6.6%** (cur-v2) and **24.6% → 3.5%** (cur-v1,
+against its own P5-v1 base) after *one* template-free epoch, and structural yield
+survives far better than under the control: nb spec-L0 **80.5% → 69.9%** for
+cur-v2, where deleting the templates from training entirely costs 80.5% → 35.5%.
+Both halves of §16's proposal landed. **And nb NDL still fell, 52 → 39.**
+
+**★★ 2. The reason is the sharpest number here: the copying does not stop, it
+MIGRATES.** Archetype copies and corpus copies trade almost one-for-one:
+
+| arm | arch copies | corpus copies | **total copies** |
+|---|---|---|---|
+| P5-v3 | 37.9% | 31.6% | **69.5%** |
+| cur-v2 (P5-v3 + 1 template-free epoch) | 6.6% (**−31.3**) | 60.5% (**+28.9**) | **67.2%** |
+| P5-v1 | 24.6% | 38.3% | 62.9% |
+| cur-v1 (P5-v1 + 1 template-free epoch) | 3.5% (**−21.1**) | 55.5% (**+17.2**) | 59.0% |
+
+Removing the archetypes from the *late* mix does not teach the model to invent; it
+re-points the same recitation habit at the 41-circuit corpus, the only memorizable
+structure left. **NDL per screen-passing sample confirms it**: cur-v2 reads
+**39/179 = 0.218**, *below* the baseline's 52/206 = 0.252, where ctrl-v1 (which
+never had the scaffolding) reads 42/91 = 0.46. The curriculum arm is a *less*
+novel generator per sample than the arm it started from.
+
+**3. cur-v1 is the missing 2×2 cell: stage-A scaffolding is worth ~19 points of
+yield and 0 points of NDL.** cur-v1 and ctrl-v1 share dataset, hyperparameters,
+seed and epoch count and differ only in whether phase 1 saw templates. Result:
+**NDL 42 vs 42 — identical** — and spec-L0 **54.7% vs 35.5%**. Early scaffolding
+is *purely* a yield instrument, and it does not matter for novelty whether the
+templates are present early, late, or not at all.
+
+**4. ⚑ On the wideband channel — and only there — a curriculum arm clears the
+adoption rule outright.** cur-v2 wb reads **NDL 23 > the re-frozen 21** at
+inductor ratio **0.039 vs 0.077** (strictly better for an *inductorless* spec) and
+spec-L0 **51.2% vs 37.5%**: every clause of "beat NDL at equal-or-better inductor
+ratio" met. It is one channel of two, the margin is 2 topologies, and the same arm
+loses nb 39 vs 52 — §18.5 on why that is not a promote.
+
+### 18.3 ★★ The tail-length schedule — a monotone dose-response, pointing down
+
+`--ckpt-policy final` ships epoch K−1, the only way to ask "how long should the
+de-scaffolding tail be?" where best-val always answers "one epoch". Warm start
+held at P5-v3, data and hyperparameters unchanged, seed 1337 throughout, so K=4's
+first four epochs are K=12's first four.
+
+| template-free tail from P5-v3 | **NDL@256 v2** | spec-L0 | arch copies | corpus copies | ind ratio |
+|---|---|---|---|---|---|
+| **K = 0** (P5-v3 itself) | **52** | 80.5% | 37.9% | 31.6% | 0.224 |
+| K = 1 (cur-v2, best-val) | **39** | 69.9% | 6.6% | 60.5% | 0.274 |
+| K = 4 | **27** | 69.5% | 5.1% | 75.8% | 0.294 |
+| K = 12 | **16** | 68.8% | 4.7% | 78.9% | 0.299 |
+
+**Novelty falls monotonically with tail length — 52 → 39 → 27 → 16 — while yield
+plateaus at ~69% and archetype copying saturates at ~5% after the first epoch.**
+Every point of archetype copying the tail removes past epoch 1 is replaced by
+*more* corpus copying (31.6% → 78.9%), and by K=12 the arm is at **16**, the P0
+prefix-12 baseline's NDL to the digit — the number this program started from.
+There is no tail length at which the curriculum's promise materializes; the curve
+has no interior optimum and its best point is K=0, i.e. not doing it at all.
+
+### 18.4 The novel front — §16's protocol, and the template-similarity verdict
+
+`lna/_cur_front.py` is `_ctrl_front.py`'s protocol with the recipe/experiment tag
+switched (scan-limit 14, top 5, box-clamped `size.polish`, tier-1 gating, NF
+advisory). ⚠ **Two asymmetries against §16, both conservative for the new arms**:
+the novelty filter ran under **ref-v3[198h/d05390da]** (9 more reference circuits
+to avoid than §16's arms had) and the store had grown 886 → 1014+ rows, so more
+candidates are excluded as already-labelled. Similarity is reported under
+**ref-v2** so the column is §16-comparable.
+
+| arm | spec | novel front | sized | **feasible** | **best viol** | best design | **NN-sim** | nearest reference item |
+|---|---|---|---|---|---|---|---|---|
+| P5-v3 | wifi24 | 45 | 14 | **1** | **0.000** | `seq0009` −12.98 / 13.21 / 3.63 | **0.939** | `arch:cs_gi1_dg1_cx1_cc1_tapped_bf1` |
+| ctrl-v1 | wifi24 | 35 | 14 | **1** | **0.000** | `seq0014` −14.28 / 12.78 / 4.36 | **0.642** | `arch:cs_gi1_dg0_cx1_cc0_R_bf1` |
+| ctrl-v1s | wifi24 | 22 | 14 | 0 | 0.175 | `seq0043` | 0.574 | `arch:cs_gi1_dg0_cx1_cc0_tapped_bf0` |
+| **cur-v1** | wifi24 | 33 | 14 | **1** | **0.000** | **`seq0057` −10.69 / 12.13 / 4.21** | **0.822** | `arch:cs_gi1_dg0_cx1_cc1_R_bf1` |
+| **cur-v2** | wifi24 | 32 | 14 | 0 | **0.054** | `seq0026` −16.54 / 11.76 / 5.17 | 0.714 | `arch:cs_gi1_dg1_cx1_cc1_tapped_bf0` |
+| P5-v3 | dhruva-l1 | 45 | 14 | 0 | 1.023 | `seq0015` | 0.501 | `corpus:463` |
+| ctrl-v1 | dhruva-l1 | 36 | 14 | 0 | 0.960 | `seq0040` | 0.644 | `corpus:483` |
+| **cur-v1** | dhruva-l1 | 31 | 14 | 0 | 1.743 | `seq0113` | 0.615 | `arch:cs_gi0_dg1_cx0_cc1_R_bf0` |
+| **cur-v2** | dhruva-l1 | 28 | 14 | 0 | **0.624** | `seq0064` −10.60 / 9.56 / 8.03 | 0.500 | `corpus:1086` |
+
+**★ cur-v1 produced a novel, replay-verified, tier-1-feasible wifi24 LNA.**
+`ft_cur_nb_s1337/seq0057`, novel against 148 archetypes + 41 corpus circuits + the
+9 ref-v3 externals + every store row, reached by box-clamped polish:
+**S11 −10.69 / S21 12.13 / Idd 4.21**. Third arm in the series to convert exactly
+one of fourteen — one Bernoulli draw per arm, so the feasibility column still does
+not separate the arms.
+
+**★ cur-v2 owns the best dhruva-l1 front violation of the whole series: 0.624**,
+against 0.960 (ctrl-v1) and 1.023 (P5-v3). `seq0064` reads S11_max −10.60
+(passing) and S21 9.56 against a 25.4 dB target — matched-but-gainless, the
+familiar shape. Its wifi24 front also lands **three** designs under violation 0.19
+(0.054 / 0.057 / 0.182) where the baseline landed one under 0.13: the front is
+*denser* even though NDL is lower.
+
+**⚠ And the number the experiment was built to move did not move the right way.**
+Template similarity of the polished top-5, under ref-v2:
+
+| arm | winner NN-sim | **median NN-sim over the top-5 front** | of the 5, how many sit nearest an *archetype* |
+|---|---|---|---|
+| P5-v3 | **0.939** | 0.729 | 3 / 5 |
+| ctrl-v1 | 0.642 | **0.603** | 3 / 5 |
+| ctrl-v1s | 0.574 | 0.623 | 2 / 5 |
+| **cur-v1** | 0.822 | 0.771 | 2 / 5 |
+| **cur-v2** | 0.714 | **0.817** | **5 / 5** |
+
+The curriculum arms sit **between** the baseline and the controls on the winner,
+and cur-v2 is **worse than the baseline on the median** — its entire wifi24 front
+is nearest to a `templates.py` archetype, all five of five. The de-scaffolding
+tail stopped the model landing *exactly* on archetypes (6.6% verbatim) without
+moving it off the archetype *manifold*. Hash-novelty shifted in a bookkeeping
+sense; graded novelty did not.
+
+### 18.5 ⚑ Verdict against the pre-registered criteria — and the promote decision
+
+§18.0's success test: nb NDL@256 **materially above 42** *and* nb spec-L0
+**materially above 35.5%** *and* a novel front at **NN-sim materially below
+0.939**. Scored honestly:
+
+| criterion | cur-v1 | cur-v2 |
+|---|---|---|
+| nb NDL > 42 | **42 — FAIL** (ties, does not beat) | **39 — FAIL** |
+| nb spec-L0 > 35.5% | 54.7% — PASS | 69.9% — PASS |
+| front NN-sim < 0.939 | 0.822 winner / 0.771 median — PASS (weakly) | 0.714 winner / **0.817 median — FAIL** |
+
+**Neither arm meets the pre-registered success criteria. The curriculum
+hypothesis is refuted, and §18.3 refutes it with a dose-response curve rather
+than a single point.**
+
+**Recommendation: DO NOT promote a curriculum arm to the next full P5 training.**
+The binding reason is the adoption rule itself, unchanged since §14.5:
+adopt-only-if-better against the re-frozen **nb 52**. cur-v1 reads 42, cur-v2
+reads 39, and the tail sweep shows the gap widens monotonically with more of the
+treatment. The secondary reason is that the treatment fails on its *stated
+purpose*: it was supposed to buy graded novelty, and cur-v2's front is more
+template-adjacent than the baseline's, not less.
+
+**One narrow exception, recorded rather than acted on.** On the **wideband**
+channel cur-v2 clears every clause of the adoption rule (NDL 23 > 21, ind ratio
+0.039 < 0.077, spec-L0 51.2% > 37.5%). The wb channel is thin — 222 template rows,
+no wb winners, a 2-topology margin — and promoting a checkpoint that loses nb by
+13 NDL to win wb by 2 would be optimizing the metric we happen to be able to move.
+If wideband-sdr becomes the priority (it is still the one spec with **zero**
+feasible designs), the cheap move is a *wb-targeted* arm, not this one.
+
+### 18.6 The honest reading
+
+**The §16 follow-up was a good hypothesis and it is wrong, in an informative way.**
+§16 established that the archetypes buy yield rather than novelty, and inferred
+that the 37.9% regurgitation was a *cost* removable while keeping the benefit. It
+is removable — one template-free epoch takes verbatim archetype copying to 6.6%
+and keeps 70% spec-L0 yield. But removing it buys nothing, because
+**regurgitation is not a property of the archetype channel; it is a property of
+this model on this data.** Take the archetypes away late and the same recitation
+lands on the corpus instead, one-for-one; push the tail further and corpus
+memorization takes over completely, until at K=12 the generator is back at NDL 16
+with 78.9% of its output a WL-exact corpus circuit.
+
+That reframes the §16 → §18 arc. The question was "are the templates load-bearing
+for novelty?" §16 answered "no — for yield". §18 answers the sharper version:
+**the templates are load-bearing for novelty too — not because they *create*
+novel topologies, but because they are the only thing crowding out corpus
+memorization.** The 148-archetype set is not scaffolding the model can be weaned
+off; it is the majority of the structural variety in the training distribution,
+and the model's novelty is roughly what leaks out of interpolating it. The lever
+that would actually work is therefore *more and more varied structure in the
+data* — exactly what §19's corpus ingestion is doing — not a schedule that
+removes structure.
+
+**What survives as positive results.** (1) `seq0057`, a novel replay-verified
+tier-1-feasible wifi24 LNA from cur-v1. (2) cur-v2's **0.624** dhruva-l1 front
+violation, the best of the five arms measured under this protocol. (3) The 2×2
+cell: with an identical stage B, stage-A scaffolding is worth **+19 points of
+spec-L0 and 0 NDL** — the cleanest isolation yet of what the templates do.
+
+**Nothing here is adopted.** The re-frozen baseline stays **P5-v3 =
+`ft_p5_v2.pre_dhruva.pth`, nb 52 / wb 21**. `ft_cur_v2.pth`, `ft_cur2_v2.pth`,
+`ft_cur2t4_v2.pth`, `ft_cur2t12_v2.pth` are evidence only (gitignored, ~198 MB
+each). 20 L2 rows were appended under recipe **`cur-v1`** with
+`provenance.source_arm` ∈ {`cur-v1`, `cur-v2`}; **10,614 ngspice evaluations**
+across the four front runs, ≈14 min of real ngspice.
 
 ---
 

@@ -603,6 +603,83 @@ python lna/search.py --size --rank-json R.json --k 30 --seed 1337 --shard 0/2 --
 python lna/search.py --s1 --rank-json R.json --k 30 --seed 1337 --sized-json S0.json S1.json
 ```
 
+### ▸ Sub-block: the curriculum experiment — §16's follow-up, tested and refuted (owner: the curriculum executor)
+
+**Files owned:** `lna/finetune.py` (two additive flags), `lna/_cur_*`,
+`lna/out/ft_cur*`, FINDINGS **§18**, this sub-block. Full measured detail in
+**FINDINGS §18**; the design was **pre-registered and committed before a single
+epoch was trained** (`6519abf`, §18.0).
+
+**The hypothesis (§16.5's proposed follow-up):** keep the `templates.py`
+scaffolding early, drop it late, and you should keep the templates' structural
+yield (spec-L0 80.5%) while earning the control's genuine novelty (front NN-sim
+0.642 vs the baseline's 0.939). **Verdict: refuted, with a dose-response curve.**
+
+Two arms, phase-2 dataset byte-identical to ctrl-v1's stage B (5170/492), lr 3e-5,
+batch 32, 40 epochs, seed 1337, best-val — differing from ctrl-v1 in *nothing but
+the warm-start checkpoint*: **cur-v1** warms from `ft_p5.pth` (P5-v3's own stage-A
+base) — the missing 2×2 cell — and **cur-v2** from `ft_p5_v2.pre_dhruva.pth`, the
+adopted P5-v3 itself. Both take best val at **epoch 0**, as pre-registered.
+
+| arm | nb NDL@256 (ref-v2 = ref-v3 here) | spec-L0 | arch / corpus copies | wb NDL | front winner NN-sim | median front NN-sim |
+|---|---|---|---|---|---|---|
+| **P5-v3 (baseline)** | **52** | **80.5%** | 37.9% / 31.6% | 21 | **0.939** | 0.729 |
+| ctrl-v1 | 42 | 35.5% | 0.4% / 40.2% | 31 | 0.642 | **0.603** |
+| ctrl-v1s | 26 | 35.2% | 0.0% / 55.5% | – | 0.574 | 0.623 |
+| **cur-v1** | 42 | 54.7% | **3.5%** / 55.5% | 31 | 0.822 | 0.771 |
+| **cur-v2** | 39 | **69.9%** | **6.6%** / 60.5% | 23 | 0.714 | **0.817** |
+
+* **★★ The copying does not stop — it MIGRATES.** One template-free epoch takes
+  verbatim archetype copies 37.9% → 6.6% and corpus copies 31.6% → 60.5%: a
+  near one-for-one trade, total copies barely move (69.5% → 67.2%). NDL per
+  screen-passing sample actually *falls* (0.252 → 0.218).
+* **★★ Tail length is a monotone dose-response and it points down.** Template-free
+  tail from P5-v3, shipping epoch K−1 (`--ckpt-policy final`): **NDL 52 (K=0) → 39
+  (K=1) → 27 (K=4) → 16 (K=12)** while spec-L0 plateaus at ~69% and corpus copying
+  climbs to 78.9%. K=12 lands on **16 = the P0 prefix-12 baseline**. No interior
+  optimum; the best tail length is zero.
+* **★ The missing 2×2 cell is clean:** cur-v1 vs ctrl-v1, identical stage B,
+  **NDL 42 vs 42** and spec-L0 **54.7% vs 35.5%** ⇒ stage-A scaffolding is worth
+  **+19 points of yield and 0 NDL**. It does not matter for novelty whether the
+  templates are early, late, or absent.
+* **★ One novel tier-1-feasible wifi24 LNA** from cur-v1: `ft_cur_nb_s1337/seq0057`
+  (S11 −10.69 / S21 12.13 / Idd 4.21), box-clamped polish, novel vs 148 archetypes
+  + 41 corpus + the 9 ref-v3 externals + every store row. **★ cur-v2 owns the best
+  dhruva-l1 front violation of the whole series, 0.624** (vs 0.960 ctrl-v1 /
+  1.023 P5-v3).
+* **⚑ DO NOT PROMOTE.** Adopt-only-if-better against the re-frozen nb 52: cur-v1
+  42, cur-v2 39. The one exception is recorded but not acted on — on the **wb**
+  channel cur-v2 clears every clause (NDL 23 > 21 at ind ratio **0.039 < 0.077**,
+  spec-L0 51.2% > 37.5%) — a 2-topology margin on a thin channel, bought by losing
+  nb by 13.
+* **The reframe worth carrying forward:** the archetypes are load-bearing for
+  novelty after all, not because they *create* it but because they are the only
+  thing crowding out corpus memorization. **The lever is more and more varied
+  structure in the data (§19's ingestion), not a schedule that removes structure.**
+
+**⚠ Notes.** (1) `finetune.py` gained `--warm-from` (explicit warm-start ckpt, so a
+curriculum phase never has to copy a 198 MB file over a shared path) and
+`--ckpt-policy best|final`; defaults byte-unchanged. (2) A plain
+`nohup … &` from `wsl -e bash <script>` **dies with the launching session** — use
+`setsid nohup … < /dev/null &` (cost ~10 min tonight; `lna/_cur_launch.sh` has the
+working pattern). (3) The four front runs logged **20 L2 rows, recipe `cur-v1`**,
+`provenance.source_arm` ∈ {`cur-v1`,`cur-v2`}, 10,614 ngspice evals ≈14 min real.
+(4) Front novelty filtering ran under **ref-v3** (stricter than §16's ref-v2) while
+similarity is reported under ref-v2 — both stated in §18.4; Δ(v3−v2) = 0 on all
+four curriculum pools.
+
+```bash
+# pre-generate training JSONs on Windows, then (WSL GPU):
+<gpu py> lna/finetune.py --arm p5 --do train --device cuda --seed 1337 --epochs 40 \
+    --no-templates --winners --tag cur --winners-file lna/out/winners_train.pre_dhruva.json \
+    --warm-from lna/out/ft_p5.pth                       # cur-v1 (early switch)
+bash lna/_cur_tail.sh lna/out/ft_p5_v2.pre_dhruva.pth cur2 4 12   # tail-length sweep
+python lna/novelty.py --eval lna/out/ft_cur_nb_s1337 --spec wifi24 --ref v2
+python lna/_cur_front.py --pool lna/out/ft_cur_nb_s1337 --spec wifi24 --arm cur-v1 \
+    --scan-limit 14 --top 5 --no-nf-gate --out lna/out/_cur_front_cur_wifi24.json
+python lna/_cur_nn.py lna/out/_cur_front_cur_wifi24.json --ref v2   # template similarity
+```
+
 ---
 
 **⚠ BLIND PROTOCOL is active — read plans2/08 §"Blind protocol" before touching

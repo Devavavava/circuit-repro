@@ -2578,3 +2578,98 @@ then a P5 arm that keeps the archetype scaffolding but **down-weights or
 curriculum-drops it late in training** should keep the yield and recover the
 novelty the regurgitation is costing — testable with one fine-tune and one NDL
 row.
+
+---
+
+## 18. Phase 3 — the **curriculum** arm: can scaffolding early + dropping it late keep the yield *and* buy the novelty? (Session 6)
+
+> §17 is reserved by a concurrent agent (the ingestion track's self-deleting
+> scratch work); this section is numbered 18 to avoid a collision.
+
+### 18.0 ⚑ PRE-REGISTRATION (written before a single epoch was trained)
+
+§16 measured that the `templates.py` archetype scaffolding buys **structural
+yield, not novelty**: removing it takes nb spec-L0 80.5% → 35.5% while NDL@256
+only falls 52 → 42, and the baseline's own "novel" front winner turns out to be a
+**0.939-similar perturbation of a template it was trained on** where the
+control's sits at 0.642. §16.5's closing proposal was the obvious follow-up:
+
+> *a P5 arm that keeps the archetype scaffolding but down-weights or
+> curriculum-drops it late in training should keep the yield and recover the
+> novelty the regurgitation is costing.*
+
+This section tests exactly that. Everything below the line was fixed in advance;
+the numbers are appended afterwards whatever they say.
+
+**The design.** A curriculum is two phases over the *same* P5 recipe:
+
+* **phase 1 (scaffolded)** — the full P5 mix: corpus + Eulerian-augmented
+  `templates.py` archetypes + `<OTHER>` replay (+ the winners channel in stage B).
+* **phase 2 (de-scaffolded)** — the identical mix with the **template channel
+  removed**: corpus + winners + replay. This is *byte-identical* to ctrl-v1's
+  stage-B dataset (`winners_train.pre_dhruva.json`, 965 rows — the P5-v3-era
+  emission), so the curriculum arms differ from ctrl-v1 in **nothing but the
+  warm-start checkpoint**.
+
+**The switch criterion, and why it is what it is.** The brief asks for a switch
+point chosen from the known training dynamics. Those dynamics are brutal and
+already measured on every arm in this program: **best val loss lands at epoch 0–1
+and rises monotonically for the rest of the run** (P5-v3 0.2300 @ ep 1; ctrl stage
+A 0.2226 @ ep 1; ctrl-v1 stage B 0.2162 @ ep 0; ctrl-v1s 0.2189 @ ep 0), and the
+shipped artefact is the best-val checkpoint. So "train phase 1 for the epochs
+where val is still falling" **is** "take phase 1 at its shipped best-val
+checkpoint" — which means phase 1 needs no GPU at all and is guaranteed
+byte-identical to the baseline lineage. Two switch points exist in that lineage,
+and both are tested:
+
+| arm | phase 1 = warm start | phase 1 archetype exposure | phase 2 (40 ep, lr 3e-5, batch 32, seed 1337) |
+|---|---|---|---|
+| **cur-v1** (*early switch*, at the stage A/B boundary) | `ft_p5.pth` (md5 `492f2eb7…`) — P5-v3's own stage-A base: corpus + 92-archetype templates + replay, from `Pretrain.pth` | stage A only | corpus + 965 winners + replay, **no templates** |
+| **cur-v2** (*late switch*, a de-scaffolding tail) | `ft_p5_v2.pre_dhruva.pth` (md5 `1b3c2b16…`) — **the adopted P5-v3 itself** | stage A **and** stage B (118 archetypes, 2230 rows) | same data as cur-v1 |
+
+That makes **cur-v1 the missing cell of a clean 2×2** over (templates in stage A) ×
+(templates in stage B): P5-v3 = yes/yes, ctrl-v1 = no/no, **cur-v1 = yes/no**.
+cur-v2 asks the same question one stage later — take the shipped baseline
+generator and de-scaffold it — which is the cheapest possible version of the
+proposal and the one an adoption decision would actually face.
+
+**Hyperparameters: identical to the §16 arms, no exceptions.** lr 3e-5, AdamW,
+batch 32, 40 epochs, seed 1337, `<LNA_NB>`/`<LNA_WB>` class tokens, PAD 128,
+loss masked after TRUNCATE, **best-val checkpoint ships**. No LR decay for phase 2:
+§16's arms had none and changing it would confound "curriculum" with "annealing".
+With `--no-templates` the validation set is the 6 held-out corpus circuits alone
+(492 rows) — the same val criterion ctrl-v1 early-stopped on, stated because it is
+*not* the same criterion P5-v3 used (736 rows incl. every 8th archetype).
+
+**⚑ The pre-registered prediction, so it cannot be retrofitted.** Given the
+dynamics above, phase 2's best val will land at **epoch 0 or 1**, i.e. the shipped
+curriculum will be "scaffolded base + one template-free epoch". If that is what
+happens it will be reported as such, not dressed up as a long anneal. A
+fixed-length tail is available as an ablation (`--ckpt-policy final`) and will be
+run **only if** the best-val tail lands within noise of its phase-1 warm start on
+both headline axes.
+
+**⚑ Pre-registered success criteria** (the brief's, restated numerically against
+the §16 table): success = nb **NDL@256 (ref-v2) materially above 42** *and* nb
+**spec-L0 materially above 35.5%**, with a **novel front whose winner sits at
+NN-sim materially below 0.939**. Beating 42/35.5% alone is not success — P5-v3
+already does that; the whole point is to do it *without* the front being
+template-perturbation. Pre-registered non-promotion: any arm that fails to clear
+the **re-frozen nb baseline of 52** at equal-or-better inductor ratio does not go
+to a full P5 training, whatever else it wins on (adopt-only-if-better).
+
+**⚑ Pre-registered evaluation protocol — §16's, byte for byte.** n=256, seed 1337,
+batch 32, 256-token cap, temperature 0.7, prefix `<LNA_NB> VSS`; NDL@256 under
+**ref-v2 [189h/`b5689490d0285c37`]** with archetype-copy %, corpus-copy %, median
+NN-sim, termination, inductor ratio and spec-L0 from the same `novelty.evaluate`
+row; wb channel (`--spec wideband-sdr`) if time allows. Novel front:
+`lna/_ctrl_front.py`, `--scan-limit 14 --top 5`, tier-1 gating (S11/S21/Idd; NF
+measured and advisory), light all-free ZOAF scan (`n_candidates=4, sgd_iters=5,
+cgd_iters=1`) then **box-clamped** `size.polish`, against **wifi24** and
+**dhruva-l1**, recipe `cur-v1`, arm in `provenance.source_arm`. If a concurrent
+agent lands ref-v3 tonight, ref-v2 is still the reported stick, for comparability.
+
+**Nothing in this section is an adoption.** The re-frozen baseline is and stays
+P5-v3 = `ft_p5_v2.pre_dhruva.pth`, nb 52 / wb 21 under ref-v2. Checkpoints
+`ft_cur_v2.pth` / `ft_cur2_v2.pth` are evidence, gitignored, and must never
+displace it.

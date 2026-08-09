@@ -24,6 +24,9 @@ drown the circuit tokens. lr 3e-5, batch 32.
     python lna/finetune.py --arm p2 --do both   --device cuda
     # template-free control arm (FINDINGS §16): same recipe, zero archetypes
     python lna/finetune.py --arm p5 --do train --no-templates --tag ctrl
+    # curriculum arm (FINDINGS §18): scaffolded phase 1, template-free phase 2
+    python lna/finetune.py --arm p5 --do train --no-templates --winners --tag cur \
+        --warm-from lna/out/ft_p5.pth --winners-file lna/out/winners_train.pre_dhruva.json
     # then, Windows: python lna/novelty.py --eval lna/out/ft_p1_s1337 --spec wifi24
 """
 import argparse
@@ -238,12 +241,22 @@ def ckpt_path(arm, winners=False, tag=None):
 
 
 def train(arm, device, epochs=40, batch=32, lr=3e-5, seed=1337, winners=False,
-          tag=None, **kw):
+          tag=None, warm_from=None, ckpt_policy="best", **kw):
+    """`warm_from` pins the warm-start checkpoint explicitly, overriding the
+    `ft_<tag>.pth` convention -- a **curriculum** phase warm-starts from another
+    arm's shipped checkpoint (e.g. the scaffolded P5-v3) and must not have to copy
+    a 198 MB file over a shared path to do it (FINDINGS §18).
+    `ckpt_policy="final"` ships the last epoch instead of the best-val one, which
+    is the only way to run a *fixed-length* curriculum tail in a program whose
+    fine-tunes all take their best val at epoch 0-1; `"best"` (the default) is the
+    unchanged §16/P5 policy."""
     torch.manual_seed(seed)
     _, stoi, vocab_size = ext_vocab(arm)
     (Xtr, Ytr), (Xva, Yva) = build_dataset(arm, stoi, winners=winners, **kw)
     base = ckpt_path(arm, tag=tag)
-    warm = base if (winners and os.path.exists(base)) else None
+    warm = warm_from or (base if (winners and os.path.exists(base)) else None)
+    if warm_from and not os.path.exists(warm_from):
+        raise SystemExit(f"--warm-from: no such checkpoint: {warm_from}")
     model = build_model(arm, vocab_size, device, warm=warm)
     opt = torch.optim.AdamW(model.parameters(), lr=lr)
     Xtr, Ytr, Xva, Yva = [t.to(device) for t in (Xtr, Ytr, Xva, Yva)]
@@ -264,7 +277,7 @@ def train(arm, device, epochs=40, batch=32, lr=3e-5, seed=1337, winners=False,
 
     out_ckpt = ckpt_path(arm, winners, tag=tag)
     os.makedirs(os.path.dirname(out_ckpt), exist_ok=True)
-    best = float("inf")
+    best, best_ep = float("inf"), -1
     t0 = time.time()
     for ep in range(epochs):
         perm = torch.randperm(n, device=device)
@@ -281,12 +294,17 @@ def train(arm, device, epochs=40, batch=32, lr=3e-5, seed=1337, winners=False,
         flag = ""
         if vl < best:
             best = vl
+            best_ep = ep
+            if ckpt_policy == "best":
+                torch.save(model.state_dict(), out_ckpt)
+                flag = "  <- saved"
+        if ckpt_policy == "final" and ep == epochs - 1:
             torch.save(model.state_dict(), out_ckpt)
-            flag = "  <- saved"
+            flag += "  <- saved (final)"
         print(f"[{arm}] epoch {ep:3d}  train {tot/(n//batch+1):.4f}  "
               f"val {vl:.4f}{flag}", flush=True)
     print(f"[{arm}] done in {time.time()-t0:.0f}s; best val {best:.4f} "
-          f"-> {out_ckpt}")
+          f"@ epoch {best_ep}; policy={ckpt_policy} -> {out_ckpt}")
 
 
 # ------------------------------------------------------------------ sample
@@ -377,6 +395,12 @@ def main():
     ap.add_argument("--tag", default=None,
                     help="rename the checkpoint/out-dir stem (ft_<tag>[_v2].pth) so "
                          "a side arm never overwrites a shared checkpoint")
+    ap.add_argument("--warm-from", default=None,
+                    help="explicit warm-start checkpoint, overriding the "
+                         "ft_<tag>.pth convention (curriculum phase 2, FINDINGS §18)")
+    ap.add_argument("--ckpt-policy", choices=["best", "final"], default="best",
+                    help="ship the best-val epoch (default, = P5/§16 policy) or the "
+                         "final epoch (fixed-length curriculum tail)")
     args = ap.parse_args()
     dkw = {}
     if args.arm == "p5":
@@ -386,7 +410,8 @@ def main():
 
     if args.do in ("train", "both"):
         train(args.arm, args.device, epochs=args.epochs, seed=args.seed,
-              winners=args.winners, tag=args.tag, **dkw)
+              winners=args.winners, tag=args.tag, warm_from=args.warm_from,
+              ckpt_policy=args.ckpt_policy, **dkw)
     if args.do in ("sample", "both"):
         sample(args.arm, args.device, n=args.n, seed=args.seed, out=args.out,
                inductor_bias=args.inductor_bias, cls=args.cls,

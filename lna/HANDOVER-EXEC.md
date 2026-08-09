@@ -1167,6 +1167,82 @@ runs. Regression quartet green before and after.
 4. **`wideband-sdr` needs the spec re-read, not more search** — the wall there is
    the f0 match under `max_inductors: 1`, not NF.
 
+### ▸ Sub-block: `wideband-sdr` spec recalibration against published silicon (owner: the spec-recalibration executor)
+
+**Files owned:** `lna/specs/wideband-sdr.yaml` (constraints + header only —
+`topology:`/`sizing:` untouched), FINDINGS **§22**,
+`lna/data/reports/wideband-sdr-recal-2026-08-09.md`, this sub-block. Directly
+answers item 4 above. Blind protocol: Kanchetla et al. TMTT 2022 (NavIC/GPS)
+**hard-excluded** from all sourcing.
+
+**★ Found and fixed a metric-definition bug while verifying the spec's own
+"holds across the whole band" claim.** It was false: the constraint gated
+`s11_db` (`extract.py`'s AT-F0 spot value), not `s11_max_db` (worst case over
+`[f_lo,f_hi]`, also computed, never gated) — present since `WP-SPEC day 1`
+(`cfa1721`), and the one spec never updated to the `dhruva-*` / `critic.py`
+`S11_SLOTS` precedent that already treats `s11_max_db` as "the" broadband-spec
+S11 constraint. §17.7's own prose ("the f0 match — s11_db lands at
+−2.6…−3.6 dB") was already quoting `s11_max_db` values under the wrong label
+(confirmed against the stored row: `s11_db=−17.71`, `s11_max_db=−3.61` on the
+same design) — previous sessions reasoned about the right metric informally
+while the code enforced the easy one. **Fixed: now gates `s11_max_db`.**
+
+**Recalibrated from a 3-agent, 44-source, 12-design literature survey of
+measured-silicon CMOS wideband/inductorless LNAs** (noise-cancelling lineage,
+TV-tuner/UWB, recent 2012–2024 low-power — table + full citations in
+FINDINGS §22.1 and the spec file's own header comment):
+
+| constraint | old | new | why |
+|---|---|---|---|
+| S11 (band-wide) | `s11_db`(@f0) ≤ −10 | `s11_max_db`(worst-case) ≤ **−10** | metric fixed, value confirmed: 6/7 comparable published designs meet/beat −10 dB |
+| NF | ≤ 3.5 | ≤ **3.5** (unchanged) | literature NF-min clusters 1.85–2.9 dB; 10/12 clear 3.5 with margin |
+| gain (S21@f0) | ≥ 12 | ≥ **14** (tightened) | literature gain clusters 14.5–23 dB; 12 sat below all but 2 low-power outliers |
+| ripple | ≤ 2 | ≤ **2** (unchanged) | matches Blixer's measured ±1 dB (2 dB pk-pk) flatness |
+| Idd | ≤ 8 mA | ≤ **8 mA** (unchanged) | power-normalized to our fixed 1.1 V rail (P/1.1V); ~65th percentile of the literature spread |
+
+**Re-judged the store's 134 existing `wideband-sdr` L2 rows from stored
+`metrics` — no re-simulation** (`spec.feasible()` / `datastore.margins_for()`
+both recompute purely from a row's `metrics` dict against whatever spec
+they're handed, confirmed by reading both before running this). **Still 0/134
+feasible either way.** Best total normalized violation moves **1.375 → 2.055**
+— numerically worse, and correctly so: the old number was free of any S11
+penalty (the record-holder passed the spot check at −17.7 dB while its true
+worst-case match was −3.6 dB); the new number prices that in. **Sharper
+diagnosis: `s11_max_db ≤ −10` has never once been cleared by any of the 134
+stored rows, at any NF/gain trade-off** (old `s11_db` gate: 29/134 passed;
+new `s11_max_db` gate: 0/134). Six of the twelve surveyed literature designs
+are explicitly 0-inductor, so the wall reads as a topology-library gap (no
+archetype here implements a multi-path feedback match like Sobhy et al.
+TMTT'11), not a physical impossibility — matches item 2 above (structural,
+not parametric) one spec over.
+
+⚠ **Domain note (same pattern as the NF re-gating precedent, §13.4):** every
+row's stored `margins` in `topo_labels.jsonl` was computed under the *old*
+spec and is untouched — append-only, nothing bumped or relabeled. The
+re-judged numbers above are reported fresh, not written back. Re-labeling is
+the next session's call, not exercised here.
+
+**Regression: unaffected and green, before and after.**
+`calibrate_specs.py` only exercises the L0 structural screen (`topology:` was
+not touched) — byte-identical to baseline (114/192, 32/41, 94.1%, 0/4). Full
+quartet: vocab MATCH, pipeline_yield 40/42 (95.2%, only the known 1081
+singular matrix), `check_ref`/`check_nf`/`check_stab`/`check_bjt` all GREEN.
+Other spec files (`dhruva-{l1,l2,l5,s}.yaml`, a `device_budget` bump) showed
+modified in `git status` from a different concurrent agent's uncommitted
+work in this shared worktree — not touched, not committed here.
+
+```bash
+python lna/spec.py wideband-sdr        # confirm the recalibrated numbers
+python lna/calibrate_specs.py          # L0 screen, unaffected
+python lna/pipeline_yield.py --indices 461-492,1081-1090
+```
+
+**Where this points next.** Item 2 above (a structural input-match front end,
+`moves.match_elem_add`) is now doubly motivated: it is the wall on both
+`dhruva-s`'s two best-NF designs *and* on all 134 `wideband-sdr` attempts.
+Sobhy et al.'s "multiple feedback" topology (§22.1) is a concrete published
+example of the kind of multi-path match this archetype set does not yet have.
+
 ## 1. TL;DR — what shipped this session
 
 | Plan item | Status | Key result |

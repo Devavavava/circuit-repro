@@ -3944,3 +3944,191 @@ python lna/bias.py --index 476 --sweep --rules v3  # one circuit, verbose
    electrically, but a tail *current source* is still unrepresentable in the
    token vocabulary, exactly like the transformer coupling of §19.2. Two
    independent circuits now point at the same gap.
+
+---
+
+## 22. Phase 3 — recalibrating `wideband-sdr` against published silicon, and a metric-definition bug found along the way (Session 6)
+
+> Owner: the spec-recalibration executor. Files: `lna/specs/wideband-sdr.yaml`
+> only (constraints/header changed; `topology:`/`sizing:` untouched — device
+> counts and inductor budget were out of scope for this pass). Blind protocol:
+> Kanchetla et al., IEEE TMTT 2022 (NavIC/GPS receiver) was **hard-excluded**
+> from all sourcing below — not searched, not read, not cited — stated
+> regardless of it not actually being an SDR-LNA paper.
+
+**Mission.** Re-anchor `wideband-sdr`'s numbers to published silicon instead
+of the arbitrary stretch-goal values WP-SPEC day 1 wrote from the plan
+verbatim. Three parallel literature-survey agents covered (a) the
+noise-cancelling/resistive-feedback lineage, (b) TV-tuner/UWB front ends, (c)
+recent (2012–2024) low-power inductorless designs — 44 sources checked, 12
+distinct measured-silicon designs kept (all SIMULATED-only candidates found
+along the way were identified and excluded, not silently dropped).
+
+### 22.1 The literature table (measured silicon, ~0.1–3 GHz class)
+
+| design | band | S11 (worst-case) | gain | NF (min) | power @ native Vdd | inductors | process |
+|---|---|---|---|---|---|---|---|
+| Bruccoleri, Klumperink, Nauta — JSSC 2004 | ~10 MHz–1.6 GHz | < −10 dB | 13.7 dB | < 2.4 dB | 35 mW @ 2.5 V | 0 | 0.25 µm |
+| Blaakmeer, Klumperink, Leenaerts, Nauta — JSSC 2008 | 0.3–3.5 GHz (best) | < −14 dB | 15 dB | ~3.0 dB | 21 mW @ 1.2 V | 0 | 65 nm |
+| Amer, Hegazi, Ragaie* — JSSC 2007 | 0.1–3.85 GHz | < −10 dB | 12.1 dB* | 8.4 dB* | 9.8 mW @ 1.2 V | unconfirmed | 90 nm |
+| Woo, Kim, Lee, H. Kim, Laskar — TMTT 2012 | 0.3–0.92 GHz | < −10 dB | 21 dB | 2.0 dB | 3.6 mW | 0 | 0.18 µm |
+| Arshad, Ramzan, Wahab — Integration VLSI J. 2018 | 50–830 MHz | −8.9 dB | 17 dB | 2.2 dB (mid-band) | not stated | 0 | 130 nm |
+| Chen, Liu, Boos, Niknejad — JSSC 2008 | 0.8–2.1 GHz | not located | ≥14.5 dB | < 2.6 dB | 17.4 mW @ 1.5 V | 0 | 0.13 µm |
+| Liu, Boon, Dong — TCAS-I 2024 | 0.2–2.85 GHz | not located | 20 dB | 2.9 dB | 1.74 mW @ 0.6 V | 0 | 28 nm |
+| Parvizi, Allidina, El-Gamal — TMTT 2016 | 0.1–2.2 GHz | not located | 12.3 dB | 4.9 dB | 0.4 mW @ 1 V | 0 | 130 nm |
+| De Souza, Mariano, Taris — TCAS-I 2017 | ~2.2 GHz (3dB BW) | not located | 21.1 / 21 dB | 2.0 / 2.6 dB | 7 / 1.5 mW | 0 | 130 nm |
+| Sobhy, Helmy, Hoyos, Entesari, Sánchez-Sinencio — TMTT 2011 | 0.1–1.77 GHz | RL > 10 dB (S11 < −10 dB) | 23 dB | 1.85 dB (min) | 2.8 mW @ 2 V | 0 | 90 nm |
+| Zhang, Bai, Huang — J. Semicond. 2013 | 0.3–0.9 GHz | not located | 12.2–15.2 dB | 2.3 dB | 12.6 mW @ 1.8 V | 0 | 0.18 µm |
+| Bevilacqua, Niknejad+ — JSSC 2004 (UWB, context) | 3.1–10.6 GHz | < −10 dB | 9.3 dB | 4.0 dB | 9 mW | several (LC ladder) | 0.18 µm |
+
+\* Amer is a merged LNA+downconverter chain, not a standalone LNA — its
+gain/NF are chain-level; quoted for S11/band only. **+** Bevilacqua is UWB
+(wider/higher band) and uses on-chip/bondwire inductors; kept as a contrast
+point (even a design with inductors and relaxed gain still lands S11 < −10 dB
+and NF ~4 dB — useful for the NF ceiling), not as inductorless evidence.
+6 designs are explicitly measured 0-inductor (**stricter** than this spec's
+`max_inductors: 1` allowance), confirming ≤1 inductor is generous, not tight,
+relative to the modern inductorless art.
+
+**SIMULATED-only candidates found and explicitly excluded (not measured
+silicon, so not used for calibration):** Khabbaz/Sobhi/Koozehkanani, *AEU*
+2018 (post-layout sim, 0.18 µm, claimed 2.8 dB NF); an unnamed 2024
+*Microelectronics Journal* CSNC+cascode LNA (post-layout sim, 40 nm, claimed
+1.35–1.72 dB NF); Wang/Wang EDSSC 2007 TV-tuner LNA (IEEE Xplore record
+carries a "Notice of Removal," excluded regardless of its numbers). Two
+citations named in the task brief could not be verified from accessible
+sources and are **not** in the table: no genuine Belostotski/Haslett
+resistive-feedback or noise-cancelling wideband design was found (their one
+verified wideband LNA, JSSC 2007, is inductively degenerated with 4–5
+inductors — topologically off-theme, left out); no "Guan & Nguyen resistive
+feedback wideband LNA" paper could be located under that author pair despite
+a targeted search (flagged, not guessed).
+
+Full DOIs for all 12 kept + 3 excluded-as-simulated + 2 not-found are in the
+three research agents' reports (not reproduced here for length; available on
+request / re-runnable from this section's citation list in
+`lna/specs/wideband-sdr.yaml`'s header comment, which carries the same 12).
+
+### 22.2 A bug found while verifying the S11-over-band claim
+
+The task was to *verify* the file's own claim ("constraints hold across the
+whole band, not at a spot frequency") before trusting it as the baseline. It
+does not hold, and did not hold since day 1 (`WP-SPEC day 1`, `cfa1721`): the
+constraint key was `s11_db`, which `extract.py` computes **at the reporting
+frequency f0 only** — not `s11_max_db` (worst case over `[f_lo, f_hi]`, also
+computed, just never gated). Three independent pieces of evidence this was an
+oversight rather than a design choice:
+
+1. `critic.py`'s own comment: *"broadband specs (dhruva-\*, wideband-sdr) gate
+   `s11_max_db`"* — a previous session already documented the intended
+   behavior; the spec file just never matched it.
+2. Every `dhruva-*` spec (added later, WP-DHRUVA) correctly gates
+   `s11_max_db`; `wideband-sdr` (the earliest spec, WP-SPEC day 1) is the one
+   holdout.
+3. §17.7's own prose ("the binding constraint on every candidate is now the
+   f0 match — s11_db lands at −2.6…−3.6 dB") quotes numbers that are actually
+   `s11_max_db` values, confirmed by cross-referencing the stored row
+   (`eb6c31c8dc22`: `s11_db = −17.71`, `s11_max_db = −3.61`) — i.e. previous
+   sessions' write-ups were already reasoning informally about the worst-case
+   metric while the code enforced the easy spot one. **The store's `feasible`
+   bool and `margins.s11_db` were never wrong** (they correctly judged the
+   spec as literally written) — the *spec* was the thing not matching its own
+   documented intent.
+
+**Fixed**: the constraint now gates `s11_max_db`, matching the `dhruva-*`
+precedent, `critic.py`'s existing assumption, and this file's own header.
+Threshold kept at −10 dB (§22.3). This is a **metric-definition correction**,
+not a value change — it is the reason the "best violation" number moves in
+the wrong direction in §22.4 below.
+
+### 22.3 Recalibrated numbers (in-file citation block is the source of truth; summarized here)
+
+| constraint | old | new | verdict |
+|---|---|---|---|
+| S11 (worst-case over band) | `s11_db` (**at f0 only**) ≤ −10 dB | `s11_max_db` (**worst-case over band**) ≤ −10 dB | **metric fixed**, value unchanged |
+| NF | ≤ 3.5 dB | ≤ 3.5 dB | **unchanged** — literature NF-min clusters 1.85–2.9 dB (10/12 designs clear 3.5 with margin); only the two most power-starved designs (Parvizi 0.4 mW → 4.9 dB) miss it |
+| gain (S21 @ f0) | ≥ 12 dB | ≥ 14 dB | **tightened** — literature gain clusters 14.5–23 dB (10/12); 12 dB sat below every surveyed design except two low-power outliers |
+| ripple (max−min over band) | ≤ 2 dB | ≤ 2 dB | **unchanged** — matches the Blixer follow-on's measured "flat ±1 dB to 7 GHz" (2 dB pk-pk) almost exactly |
+| Idd | ≤ 8 mA | ≤ 8 mA | **unchanged, re-derived via power** — literature spans 28 nm/0.6 V to 0.25 µm/2.5 V, so raw current doesn't transfer; normalizing each design's power to our fixed 1.1 V rail (`Idd_equiv = P / 1.1 V`) gives ~0.36–19.1 mA-equiv (excluding the 35 mW/2.5 V Bruccoleri outlier), and 8 mA sits ~65th percentile — generous to modern low-power designs, still excludes older high-power ones |
+
+The 45 nm/1.1 V-vs-papers'-node argument is carried explicitly for Idd (the
+only knob where raw units don't transfer across process/rail); S11/NF/gain/
+ripple are all dB or dB-referenced quantities and need no such normalization.
+
+### 22.4 Re-judged scoreboard (stored `metrics`, no re-simulation)
+
+Both `spec.feasible()` and `datastore.margins_for()` recompute purely from a
+row's stored `metrics` dict against whatever `Spec` object they're handed —
+confirmed by reading both (`spec.py:309`, `datastore.py:163`) before running
+this. So re-judging the store's 134 existing `wideband-sdr` L2 rows under the
+new spec required **no new SPICE**, just loading `Spec.load("wideband-sdr")`
+twice (old constraint dict reconstructed in-memory from git HEAD; new from
+the edited file) and re-scoring every row's `metrics`.
+
+| | OLD spec (as literally implemented) | NEW spec (recalibrated) |
+|---|---|---|
+| feasible | **0 / 134** | **0 / 134** — unchanged, no design becomes feasible |
+| best total normalized violation | **1.375** (`eb6c31c8dc22`) | **2.055** (`f2f10647ec88`) |
+| what binds the best row | `nf_db` (0.572) + `s21_ripple_db` (0.802); `s11_db` PASSES at −17.7 dB | `nf_db` (0.832) + `s11_max_db` (0.990) + `s21_ripple_db` (0.201) + `s21_db` (0.032) |
+
+**The best violation gets numerically worse (1.375 → 2.055), and that is the
+correct, honest direction.** It is not a regression in any design — it is the
+old number being quietly free of any S11 penalty. The `eb6c31c8dc22` row that
+held the old record has `s11_db = −17.7 dB` (passes at f0) but
+`s11_max_db = −3.6 dB` (fails badly band-wide); under the new gate a
+*different* row wins (`f2f10647ec88`, evolved gen-20 `stage_remove`), and even
+that row's `s11_max_db` is only −0.10 dB — essentially unmatched.
+**Per-constraint pass rates over the 134 rows**, old vs new: `s11_db≤−10` (the
+old, wrong gate) 29/134 (22%) vs `s11_max_db≤−10` (the new, correct gate)
+**0/134 (0%)** — the store has never once produced a design that holds match
+across the whole 0.5–3 GHz band, even among rows that "passed" the old S11
+check. `s21_db≥12` 21/134 → `s21_db≥14` 6/134 (as expected, tightening
+shrinks the passing set). `nf_db≤3.5` and `s21_ripple_db≤2` are unchanged
+(0/134 and 27/134 respectively — neither constraint's *value* moved).
+
+⚠ **Domain note, same pattern as the NF re-gating precedent (§13.4):** every
+row's stored `margins` field in `topo_labels.jsonl` was computed under the
+**old** spec (`s11_db`-gated, gain floor 12) at write time and is **not**
+touched by this session — the store is append-only and nothing here bumps or
+relabels an existing row. The numbers in this section are a re-judgment
+computed fresh from each row's stored `metrics`, reported here and in
+`lna/data/reports/wideband-sdr-recal-2026-08-09.md`, not written back to the
+store. Re-labeling (stamping a `recipe`/`zoaf_cfg` bump the way `relabel_nf.py`
+did for the NF gate) is the next session's call, not exercised here.
+
+### 22.5 What this means for the search
+
+Gate B1 (§11) was already 0/N on `wideband-sdr` and stays 0/N. The
+recalibration does not change *that* verdict, but it does change *why*: under
+the metric that was actually enforced, the story was "NF and ripple are the
+wall, S11 is fine" (§17.7's framing, itself now shown to be describing the
+wrong metric under the right label); under the metric the spec always meant
+to enforce, **the story is "S11 has never once been solved band-wide, at any
+NF/gain trade-off, in 134 attempts."** This sharpens rather than contradicts
+§17.8's structural-match diagnosis (`--mode match` could not close S11 on two
+`dhruva-s` designs either) — it says the same wall is present, and was always
+present, on `wideband-sdr` too, just uncounted until now. The six 0-inductor
+literature designs in §22.1 (Sobhy's multi-feedback topology in particular,
+which reports a real worst-case S11 number: RL > 10 dB) are evidence the wall
+is a topology-library gap, not a physical impossibility — none of the
+archetypes searched here yet implement a multi-path feedback match of that
+kind.
+
+### 22.6 Regression
+
+`python lna/calibrate_specs.py` unaffected (L0 structural screen only —
+`topology:` was not touched): **ALL ACCEPTANCE CRITERIA MET**, byte-identical
+to the pre-change baseline (114/192, 32/41, 94.1%, 0/4). Full regression
+quartet green before and after this change: vocab **MATCH**, pipeline_yield
+**40/42 (95.2%,** the known 1081 singular matrix), `check_ref` / `check_nf` /
+`check_stab` / `check_bjt` all **GREEN**. Other spec files
+(`dhruva-{l1,l2,l5,s}.yaml`) show as modified in `git status` — that is a
+different, concurrent agent's uncommitted work in this shared worktree (a
+`device_budget` bump, already present when this session started reading
+files), not touched or committed by this section.
+
+```bash
+python lna/spec.py wideband-sdr             # confirm the recalibrated numbers load
+python lna/calibrate_specs.py               # L0 screen unaffected
+python lna/pipeline_yield.py --indices 461-492,1081-1090
+```

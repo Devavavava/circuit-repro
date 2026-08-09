@@ -1,0 +1,32 @@
+{
+  "name": "paper_transformerfb",
+  "description": "Canonical transformer-feedback LNA: a common-source input transistor (M1, AC-coupled gate via C1, gate-biased via R1) whose drain load is a transformer primary winding (L1, to VDD); the secondary winding (L2, one terminal AC-grounded) couples feedback via C2 back to the gate, providing simultaneous wideband input matching and noise cancellation without a purely resistive feedback path's extra noise contribution.",
+  "source_family": "Transformer-feedback LNA",
+  "cited_paper": {
+    "title": "Design and Analysis of CMOS LNAs with Transformer Feedback for Wideband Input Matching and Noise Cancellation",
+    "authors": "Liang Wu, Hiu Fai Leung, Howard C. Luong",
+    "journal": "IEEE Transactions on Circuits and Systems I: Regular Papers",
+    "year": 2017,
+    "volume_issue_pages": "vol. 64, no. 6, pp. 1626-1635",
+    "url": "https://ieeexplore.ieee.org/document/7827121/",
+    "open_access": "NO -- IEEE Xplore, paywalled. Cited by title/authors/venue only; full text was not fetched or read.",
+    "retrieval_date": "2026-08-09",
+    "what_was_actually_read": "Only the title, authors, and venue metadata (via web search), not the paper's text or figures. The circuit transcribed here is the CANONICAL/textbook transformer-feedback LNA topology that this family of papers describes in general (drain-load primary winding, secondary winding feeding back to the gate), not a reproduction of this specific paper's exact schematic, sizing, or process node."
+  },
+  "transcription": {
+    "route": "Authored directly in AnalogGenie native format; validated through upstream build_connection_matrix/dfs_all_paths (execed read-only) -> token sequence -> lna/topology.py screen -> lna/to_spice.py -> ngspice.",
+    "vocabulary_limitation_disclosed": "AnalogGenie's device vocabulary (see lna/topology.py DEV_PREFIXES / lna/build_lna_corpus.py) has NO transformer or mutual-inductance primitive -- inductors are plain 2-terminal L elements with no coupling-coefficient concept at all. A transformer is therefore represented here as two GALVANICALLY SEPARATE inductors (L1 = primary, L2 = secondary) positioned exactly where the real windings sit in the signal path (drain load and gate-feedback node respectively). This reproduces the transformer-feedback topology's CONNECTIVITY correctly but cannot, even in principle within this vocabulary, encode the magnetic coupling itself -- true of every transformer-based design that could ever be added to this corpus, not specific to this circuit. Flagged explicitly for whoever works on vocabulary extensions next."
+  },
+  "transcription_confidence": "MEDIUM. The topology FAMILY and general structure (CS input stage, transformer primary as drain load, secondary feeding back to the gate) are HIGH confidence -- this is the standard, widely-taught description of transformer-feedback LNAs, cross-checked against multiple search results beyond just this one paper. Confidence is capped at MEDIUM because (a) the specific cited paper's full text/schematic was not read (paywalled), so this is a generic-family transcription attributed to a real, correctly-cited paper on that family rather than a verified reproduction of that paper's exact circuit, and (b) the vocabulary limitation above means the transformer's coupling is structurally represented but not physically modeled.",
+  "ambiguous_or_uncertain": [
+    "Exact secondary-winding polarity/dot convention (affects whether feedback is positive or negative) -- not resolvable without reading the actual paper; a plausible, standard connectivity was chosen.",
+    "No component values (paywalled); to_spice.py's standard placeholder .param defaults were used."
+  ],
+  "quarantine": false,
+  "quarantine_reason": null,
+  "validation": {
+    "structural_screen": "5/5 -- all criteria pass (2 inductors / 6 devices = 33% ratio; 6 devices).",
+    "ngspice_sim": "clean run, op + sp(1-4GHz) + noise, zero errors. S11min=-0.18dB, S21max=-4.15dB with generic placeholder sizing (best S21 among the unsized transcriptions besides paper_noisecancel)."
+  },
+  "excluded_paper_check": "Independent of, and unrelated to, the Kanchetla et al. TMTT 2022 paper this pipeline is blind-reproducing. Different authors (HKUST/CityU), different application focus (general wideband LNA design methodology, not a specific GNSS receiver), 2017 publication."
+}

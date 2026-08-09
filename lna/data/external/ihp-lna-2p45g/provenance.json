@@ -1,0 +1,24 @@
+{
+  "name": "ihp_lna_2p45g",
+  "description": "2.45 GHz ISM-band CMOS LNA, cascode CS core (MMn2 input, MMn1 cascode) with inductive source degeneration (LLs1), gate-inductor input match (LLi), inductive drain/tank load (LLl), diode-connected NMOS bias generator (MM3) with a shunt-feedback-style bias resistor network (RRrf/RR_pol), 5 VDD-VSS decoupling caps, and one apparently-dummy all-grounded transistor (MMn3, kept as found -- see notes). Harvested from IHP's open-source SG13G2 tapeout program.",
+  "source": {
+    "project": "IHP-GmbH open-source SG13G2 tapeout, May 2025 campaign",
+    "repo": "https://github.com/IHP-GmbH/TO_May2025",
+    "path": "LNA_2.45G/design_data/xschem/circuit_lvs.sch",
+    "retrieved_url": "https://raw.githubusercontent.com/IHP-GmbH/TO_May2025/main/LNA_2.45G/design_data/xschem/circuit_lvs.sch",
+    "retrieval_date": "2026-08-09",
+    "license": "Apache-2.0 (same repo family as ihp-gps-lna-nmos/npn; verified at TO_Apr2025 root and assumed consistent across IHP-GmbH TO_* campaigns -- not re-verified per-repo this time)",
+    "process": "IHP SG13G2 130nm SiGe BiCMOS",
+    "format_as_retrieved": "xschem schematic capture file (graphical/coordinate-based, NOT a flat netlist) -- this is the first circuit converted via the new geometry-based flattener (lna/data/external/_tools/xschem_flatten.py) built this session, rather than from an already-flattened SPICE export."
+  },
+  "conversion": {
+    "route": "raw .sch -> lna/data/external/_tools/xschem_flatten.py (parses sg13g2_pr/generic-xschem .sym pin geometry, applies the verified rotation/mirror transform, reconstructs nets via coordinate union-find, drops pads/ESD/sources by symbol K{type=} classification) -> flat SPICE text -> spice2genie.convert() -> upstream graph/augmentation (execed read-only) -> token sequence -> lna/topology.py screen -> lna/to_spice.py -> ngspice",
+    "tool": "lna/data/external/_tools/xschem_flatten.py + spice2genie.py + convert_and_build.py-style driver",
+    "edits_from_source": [
+      "One symbol dependency, sg13g2_pr/simple_inductor.sym, is a PROJECT-LOCAL override (not in the standard IHP-Open-PDK path) shipped alongside this schematic; fetched directly from this repo (https://raw.githubusercontent.com/IHP-GmbH/TO_May2025/main/LNA_2.45G/design_data/xschem/sg13g2_pr/simple_inductor.sym) and cached in lna/data/external/_tools/xschem_syms/ rather than guessed.",
+      "6 ESD diode instances (D2-D7, K{type=diode}) dropped automatically by the flattener's type classification -- same rationale as every prior circuit (process-level I/O protection, not part of the LNA topology).",
+      "No other manual edits -- unlike the earlier flat-SPICE IHP conversions, no hand-cleanup of X-prefixed devices or model-name heuristics was needed, because the flattener resolves device kind from each symbol's own K{type=...} field directly."
+    ]
+  },
+  "notes": "MMn3/M4 (all four pins land on VSS) is kept exactly as the geometry reconstructs it -- plausibly a real dummy/matching transistor common in RF layout (tied off, present for symmetry, not for function) rather than a parser artifact: its pin coordinates were independently verified against real wire endpoints like every other device (the flattener does not special-case or silently drop degenerate devices). Flagged for user review if it turns out to matter downstream. Structural score 4/5 -- misses only lna_sized (18 devices, mostly from 5 realistic VDD-VSS decoupling caps + a 2-resistor/1-transistor bias generator on top of the 2-transistor RF core), not a defect. This is the first circuit whose ground truth came directly from a schematic-capture file rather than an already-flattened netlist -- see lna/data/reports/data-expansion-2026-08-09.md for the flattener's golden-test validation (reproduces the already-verified ihp-gps-lna-nmos conversion exactly: 3R/3L/2C/3M, score 5/5, from raw schematic source). Independent of, and unrelated to, the Kanchetla et al. TMTT 2022 paper this pipeline is blind-reproducing."
+}

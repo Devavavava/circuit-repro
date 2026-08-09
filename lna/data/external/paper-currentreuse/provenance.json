@@ -1,0 +1,34 @@
+{
+  "name": "paper_currentreuse",
+  "description": "Canonical 2-stage current-reuse LNA: input CS stage (M1) with gate inductor (L1) and source degeneration (L2), AC-coupled (C1) into a second CS stage (M2) whose SOURCE is DC-stacked directly onto M1's drain -- so both stages share the same DC bias current ('current reuse') -- with a drain choke/load inductor (L3) at the output and a gate-bias resistor (R1) for M2.",
+  "source_family": "Current-reuse (DC-stacked, 2-stage) CMOS LNA",
+  "cited_paper": {
+    "title": "A 180 nm CMOS dual-mode LNA with current reuse and double-resonance load for 2.4 GHz and 3.1-10.6 GHz wireless communication",
+    "authors": "Thammaneni Snehitha Reddy, Vijay Nath",
+    "journal": "Scientific Reports (Nature Portfolio)",
+    "year": 2025,
+    "doi": "10.1038/s41598-025-93530-3",
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11926207/",
+    "open_access": "yes -- Scientific Reports is fully open access; also mirrored on PMC",
+    "retrieval_date": "2026-08-09",
+    "what_was_actually_read": "WebFetch extracted the paper's narrowband-mode device list: M2 (input NMOS, inductive degeneration L0), M3 (current-reuse device stacked above M2's source), M0/M1 (cascode devices), M4 (bias current source), plus L-network input/output matching and a source-follower output buffer (M5/M6). This is a more elaborate, reconfigurable dual-mode (narrowband+UWB, switch-selected) circuit than what is transcribed here."
+  },
+  "transcription": {
+    "route": "Authored directly in AnalogGenie native format; validated through upstream build_connection_matrix/dfs_all_paths (execed read-only) -> token sequence -> lna/topology.py screen -> lna/to_spice.py -> ngspice.",
+    "simplifications_from_the_paper": [
+      "The cited paper's circuit is a reconfigurable, mode-switched (narrowband/UWB), multi-transistor-stack design (M0/M1/M2/M3/M4 plus a separate output buffer M5/M6 and mode-select switches) -- too specific/switch-dependent to transcribe faithfully without guessing at the switch network's exact topology in each mode. This transcription instead captures the CORE current-reuse mechanism the paper's narrowband path is built on: two CS stages DC-stacked in series so they share one bias current, AC-coupled between stages -- the textbook minimal instance of 'current reuse', independent of this paper's specific reconfigurability and output-buffer additions."
+    ]
+  },
+  "transcription_confidence": "MEDIUM-HIGH. The current-reuse MECHANISM (DC-series-stacked 2-stage CS amplifier sharing bias current, AC-coupled between stages) is HIGH confidence -- this is the textbook definition of the technique and is unambiguous. Confidence is capped at MEDIUM-HIGH rather than HIGH because the specific paper cited describes a considerably more complex multi-mode circuit that was simplified down to the core mechanism rather than transcribed in full; no paper-specific component values were used (see ambiguous_or_uncertain).",
+  "ambiguous_or_uncertain": [
+    "The paper's actual stack is 4 transistors deep (M0/M1/M2/M3) in narrowband mode, not the 2 used here -- the extra devices implement mode-switching that this transcription omits entirely.",
+    "No component values from the paper were carried over (its L0=4.5nH, C1=10pF etc. are for its specific reconfigurable circuit, not directly applicable to this simplified 2-transistor core) -- to_spice.py's standard placeholder .param defaults were used instead, as with every other circuit in this project."
+  ],
+  "quarantine": false,
+  "quarantine_reason": null,
+  "validation": {
+    "structural_screen": "5/5 -- all criteria pass (3 inductors / 7 devices = 43% ratio, well above the 10% threshold; 7 devices within the 2-15 window).",
+    "ngspice_sim": "clean run, op + sp(1-4GHz) + noise, zero errors. S11min=-1.40dB, S21max=-24.1dB (attenuating with generic placeholder sizing, as expected for an unsized topology -- see lna/FINDINGS.md 4d)."
+  },
+  "excluded_paper_check": "Independent of, and unrelated to, the Kanchetla et al. TMTT 2022 paper this pipeline is blind-reproducing. Different authors, different institution, different application (dual-band WLAN/UWB receiver front-end, not a NavIC/GPS/Galileo/BeiDou receiver), published 2025 vs. 2022."
+}

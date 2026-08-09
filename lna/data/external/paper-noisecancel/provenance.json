@@ -1,0 +1,36 @@
+{
+  "name": "paper_noisecancel",
+  "description": "Canonical inductorless wideband noise-cancelling LNA: a common-source matching device (M1) with resistive shunt feedback (R1) and load (R2), summed with two auxiliary common-source paths (M2 sensing the input node, M3 sensing M1's drain) into a shared output load (R3) -- the feedforward noise/distortion-cancellation mechanism that is the family's namesake.",
+  "source_family": "Feedforward noise-cancelling wideband LNA (resistive-shunt-feedback matching device + summed auxiliary gm paths)",
+  "cited_paper": {
+    "title": "A Wideband Noise and Harmonic Distortion Canceling Low-Noise Amplifier for High-Frequency Ultrasound Transducers",
+    "authors": "Tang, Feng, Hu, Fang, Deng, Zhang, Zou, Chen",
+    "journal": "Sensors (Basel), MDPI",
+    "year": 2021,
+    "doi": "10.3390/s21248476",
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8703952/",
+    "open_access": "yes -- PMC (PubMed Central), confirmed retrievable at the URL above",
+    "retrieval_date": "2026-08-09",
+    "what_was_actually_read": "WebFetch extracted a text description (not the schematic image itself) naming a complementary N-path/P-path structure: M1N/M1P main amplifiers with drain-to-input resistive shunt feedback (RF), auxiliary cascode devices M2N/M2P for noise cancellation, and M4N/M4P combining stages driving the output, with input impedance set by RS = 1/(gm,P + gm,N)."
+  },
+  "transcription": {
+    "route": "Authored directly in AnalogGenie native format ('Dev (pins) type' + Port line) -- no external SPICE to parse, this is original transcription, not a file conversion. Validated through the same pipeline as every other circuit in this batch: upstream build_connection_matrix/dfs_all_paths (execed read-only) -> token sequence -> lna/topology.py screen -> lna/to_spice.py -> ngspice.",
+    "simplifications_from_the_paper": [
+      "The paper's circuit is a COMPLEMENTARY (NMOS+PMOS, N-path and P-path in parallel) implementation. This transcription keeps only a single N-path core (M1 matching device, M2/M3 auxiliary cancellation transistors) -- the minimal instance of the feedforward noise-cancelling *mechanism* the paper builds on (which itself traces to Bruccoleri, Klumperink & Nauta, 'Wide-Band CMOS Low-Noise Amplifier Exploiting Thermal Noise Canceling,' IEEE JSSC vol. 39 no. 2, 2004 -- the originating, foundational paper for this whole family; not separately re-cited as its own transcription here to avoid duplicating the same core mechanism twice in one batch).",
+      "The paper's exact auxiliary-path gm ratios, device sizes, and the precise wiring of M2N/M2P ('gate-connected configuration for noise cancellation' -- the fetched text was not specific about the exact node) are NOT reproduced; this transcription uses the textbook/canonical two-path summation (M2 senses the input node, M3 senses the matching device's drain, both drive a shared output load) that is the standard way this cancellation is implemented across the literature, including the original Bruccoleri paper."
+    ]
+  },
+  "transcription_confidence": "MEDIUM. The FAMILY (resistive-shunt-feedback input matching + feedforward noise-cancelling summation) and its general structure (RF/RL1 around M1, two auxiliary gm stages summed at a second output) are HIGH confidence -- well-established, cross-checked against the fetched paper text AND general RFIC circuit theory. The EXACT node-level wiring of the auxiliary cancellation path is MEDIUM confidence: the source paper's own schematic image was not machine-readable via the available tools (only surrounding text was extracted), so the auxiliary-stage connectivity here follows textbook convention for this well-known technique rather than being read directly off this specific paper's figure.",
+  "ambiguous_or_uncertain": [
+    "Exact node M2 drives (own output node vs. summed directly onto M1's drain) -- textbook convention used.",
+    "Whether the cited paper's M2N is common-gate or common-source in the auxiliary path -- fetched text said 'gate-connected configuration', ambiguous; common-source (gate=input) was assumed as the standard implementation.",
+    "No component values (W/L, R) were available from the fetch, so this circuit is (like every other AnalogGenie topology) value-free / topology-only -- to_spice.py's placeholder .param defaults were used, exactly as for every dataset/external circuit converted so far."
+  ],
+  "quarantine": false,
+  "quarantine_reason": null,
+  "validation": {
+    "structural_screen": "3/5 -- has_transistor, has_rf_ports, lna_sized pass; has_inductor and inductor_ratio correctly fail because this is a genuinely, deliberately inductorless design (the entire point of the family is wideband matching WITHOUT an on-chip inductor). This is the expected, correct score for this topology, not a conversion defect -- consistent with lna/FINDINGS.md's own documented ceiling discussion for inductorless real LNAs.",
+    "ngspice_sim": "clean run, op + sp(1-4GHz) + noise, zero errors. S11min=-4.13dB, S21max=+2.43dB (net gain even with generic placeholder device sizing -- notably the only circuit in this whole batch that shows positive gain unsized, a good sign the topology is fundamentally sound)."
+  },
+  "excluded_paper_check": "Independent of, and unrelated to, the Kanchetla et al. TMTT 2022 paper this pipeline is blind-reproducing. This family predates that paper by ~18 years (Bruccoleri et al. 2004) and is cited across dozens of unrelated works; the specific paper cited here (Tang et al. 2021, ultrasound transducer front-ends) is a different application domain entirely (biomedical ultrasound, not GNSS)."
+}

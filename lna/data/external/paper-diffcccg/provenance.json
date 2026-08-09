@@ -1,0 +1,31 @@
+{
+  "name": "paper_diffcccg",
+  "description": "Canonical capacitor cross-coupled differential common-gate LNA: two CG transistors (M1, M2), sources = differential input pair (VIN1/VIN2), drains = differential output pair (VOUT1/VOUT2, each with an inductive load L1/L2); EACH transistor's gate is capacitively cross-coupled (C1, C2) to the OPPOSITE transistor's source/input node (rather than tied to a fixed AC-ground bias), so the differential input swing modulates the gate too -- boosting effective gm without extra bias current. Gate DC bias set via R1/R2 from a shared bias net.",
+  "source_family": "Capacitor cross-coupled common-gate LNA (differential gm-boosting via cross-coupling, not an auxiliary amplifier stage)",
+  "cited_paper": {
+    "title": "A Capacitor Cross-Coupled Common-Gate Low-Noise Amplifier",
+    "authors": "Weimin Zhuo, Xiaohua Li, S. Shekhar, S.H.K. Embabi, J. Pineda de Gyvez, D.J. Allstot, E. Sanchez-Sinencio (author list per the seminal, widely-cited paper on this technique)",
+    "journal": "IEEE Transactions on Circuits and Systems II: Express Briefs",
+    "year": 2005,
+    "open_access": "NOT independently re-verified this session -- cited from prior knowledge of this seminal, widely-taught paper (referenced across dozens of downstream LNA papers and in RFIC textbooks, e.g. Razavi's RF Microelectronics) plus a confirming web search that surfaced it as 'A seminal work on capacitor cross-coupled common-gate low-noise amplifiers ... published by Zhuo et al. in IEEE Transactions on Circuits and Systems II in 2005.' Full text was not fetched.",
+    "retrieval_date": "2026-08-09",
+    "what_was_actually_read": "Web search summary only, confirming the paper's existence, authors (approximate -- see caveat), venue and year, and the one-sentence description of the technique (capacitor cross-coupling of CG devices in a differential cascode LNA to improve gain/NF without extra current). The circuit transcribed here is the textbook description of this well-known technique, not a verified reproduction of this paper's exact figure."
+  },
+  "transcription": {
+    "route": "Authored directly in AnalogGenie native format; validated through upstream build_connection_matrix/dfs_all_paths (execed read-only) -> token sequence -> lna/topology.py screen -> lna/to_spice.py -> ngspice.",
+    "notes": "This is the only DIFFERENTIAL circuit in this transcription batch (and one of few differential LNAs in the corpus generally -- the existing 41-circuit real-LNA set and this project's own lna/ref/*.cir anchors are predominantly single-ended, per lna/ref/README.md), so it adds a structurally distinct family beyond the 4 single-ended transcriptions alongside it."
+  },
+  "transcription_confidence": "MEDIUM-LOW on exact author list and bibliographic precision (reconstructed from memory of a well-known paper plus a confirming but non-quantitative web search -- the author list above should be verified before this citation is used in any formal context), MEDIUM-HIGH on the circuit topology itself (the cross-coupling mechanism -- each CG transistor's gate driven by the opposite input via a capacitor instead of a fixed bias -- is the well-established, unambiguous, textbook-documented defining feature of this technique, independently corroborated by multiple related-paper search results describing the same mechanism in near-identical terms).",
+  "ambiguous_or_uncertain": [
+    "Exact author list/page numbers for the 2005 TCAS-II paper were not independently verified via a direct fetch this session -- flagged for review before citing formally.",
+    "Whether the source paper's version includes cascode devices above M1/M2 (many real implementations do, for gain/isolation) -- omitted here for a minimal, clean instance of the cross-coupling mechanism itself.",
+    "No component values (not sourced); to_spice.py's standard placeholder .param defaults were used."
+  ],
+  "quarantine": false,
+  "quarantine_reason": null,
+  "validation": {
+    "structural_screen": "5/5 -- all criteria pass (2 inductors / 8 devices = 25% ratio; 8 devices).",
+    "ngspice_sim": "clean run, op + sp(1-4GHz) + noise, zero errors. S11min=-1.11dB, S21max=-35.8dB with generic placeholder sizing (both differential outputs referenced through the single VOUT1 S-parameter port that to_spice.py sets up; VOUT2 is present as a real node but not part of the 2-port S-parameter setup, same convention as align-lna-qm's VOUT2)."
+  },
+  "excluded_paper_check": "Independent of, and unrelated to, the Kanchetla et al. TMTT 2022 paper this pipeline is blind-reproducing. This is a 2005 paper (17 years earlier) on a general differential CG-LNA gm-boosting technique, not a GNSS receiver design."
+}

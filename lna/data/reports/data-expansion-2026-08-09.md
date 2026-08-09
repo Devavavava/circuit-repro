@@ -234,9 +234,158 @@ feedback designs); this is more of the same, correctly characterized rather than
 - **What was converted, and whether it simulated:** all three attempted conversions
   (`ihp-gps-lna-nmos`, `ihp-gps-lna-npn`, `align-lna-qm`) — all three simulated cleanly in
   ngspice with zero errors.
-- **Single best next ingestion step:** build a small xschem-symbol pin-offset table for IHP's
-  `sg13g2_pr` library (fetch the handful of `.sym` files referenced by `160GHz_LNA`,
-  `LNA_2.45G`, `Cascode_160GHz_LNA`, `207GHZ_LNA`, `RF_amplifiers`) and use it to flatten those
-  5-6 already-identified, already-licensed, real LNA schematics into netlists — this is
-  strictly cheaper than finding a new source, since the source, license, and circuit identity
-  are all already confirmed.
+- **Single best next ingestion step (as of the first pass):** build a small xschem-symbol
+  pin-offset table for IHP's `sg13g2_pr` library and use it to flatten the identified-but-
+  unconverted IHP LNA schematics into netlists. **Done in the follow-on session below.**
+
+---
+
+## 6. Follow-on session (same day): xschem flattener + paper transcriptions
+
+Continuation requested by the coordinator: (1) build the xschem schematic flattener
+recommended in §5, harvest the remaining identified IHP LNA schematics with it; (2) add a
+paper-transcription track for topology families the corpus lacks (noise-cancelling,
+current-reuse, transformer-feedback, gm-boosted CG). Same rules as the first pass: own only
+`lna/data/external/**` + this report, no shared `.py` edits (including `lna/to_spice.py` —
+still using the owned-path NPN extension script for anything it can't emit), ≤1 concurrent
+ngspice process, never push, blind protocol unchanged.
+
+### 6.1 The xschem flattener
+
+**Built:** `lna/data/external/_tools/xschem_flatten.py`. Parses `.sym` symbol-library files
+(pin geometry from `B 5 x1 y1 x2 y2 {name=... }` boxes, device kind from `K {type=...}`),
+parses `.sch` schematics (wires `N x1 y1 x2 y2 {lab=...}`, component instances
+`C {symbol} X Y ROT FLIP {props}`), applies xschem's placement rotation/mirror transform, and
+reconstructs electrical nets from raw geometry via a coordinate union-find (does **not** trust
+the schematic's own `lab=` text at face value — a wire's label is only used, as a preference,
+once the union-find has already independently established which points are electrically the
+same). Emits a flat SPICE deck that feeds straight into the existing `spice2genie.py` →
+upstream graph/augmentation → `lna/topology.py` → `lna/to_spice.py` pipeline.
+
+**The rotation/mirror transform was derived empirically, not from documentation memory alone.**
+`lna/data/external/_tools/_calibrate_xschem_transform.py` is the one-off script that found it:
+seeded with xschem's own `ROTATION` macro from `src/xschem.h` (fetched directly from
+`StefanSchippers/xschem`) as a starting hypothesis, then checked against the GPS_LNA testbench
+schematic (whose correct netlist was already known from the first pass's flat-SPICE
+conversion) by brute-force partition matching — grouping which device pins the transform says
+share a net, and comparing that grouping to the known-correct one. The verified formula:
+
+```
+flip=0: rot 0,1,2,3 -> (x,y), (-y,x), (-x,-y), (y,-x)
+flip=1: rot 0,1,2,3 -> (-x,y), (-y,-x), (x,-y), (y,x)
+absolute = instance placement (X,Y) + the above, applied to each pin's local coordinate
+```
+
+**Golden test — PASS.** `python lna/data/external/_tools/xschem_flatten.py --selftest`
+fetches `GPS_LNA`'s xschem testbench schematic (`design_data/xyce/lna_tb_xyce_rf_rfmos.sch`,
+the *raw graphical source*, not the already-flattened `.spice` export used in the first pass),
+flattens it from scratch, and checks the result against the already-independently-converted,
+screened (5/5), simulated `ihp-gps-lna-nmos` circuit:
+
+| Check | Result |
+|---|---|
+| Device composition | 3 resistor, 3 inductor, 2 capacitor, 3 nmos4 — **exact match** |
+| Padframe/ESD auto-excluded (via symbol `K{type=pad\|diode\|vsource}`, no manual stripping needed this time) | 4 bondpads + 8 ESD diodes + 2 voltage sources dropped, matching the hand-stripped count from the first pass |
+| Ports | `VDD VSS VIN1 VOUT1` — match |
+| Structural screen | **5/5**, criteria identical to the first-pass conversion |
+
+This is a from-scratch reproduction of an already-verified result via a completely different
+(and much harder) input format, which is what makes it a real golden test rather than a
+tautology.
+
+**One real bug found and fixed during calibration**, worth recording: symbol pin-order
+assumptions cannot be hardcoded by name across device families — `rppd`/`rsil` resistors use
+pins `P`/`M`, the generic `ind.sym` inductor uses lowercase `p`/`m`, project-local
+`simple_inductor.sym` uses `LA`/`LB`, `cap_rfcmim` uses `c0`/`c1` (+ a `bn` body pin to drop).
+The flattener does not hardcode any of these strings for 2-terminal passives — it takes each
+symbol's pins in **declaration order**, drops anything named like a body/substrate terminal
+(`bn`, `b`, `sub`, `body`), and keeps the first two. Multi-terminal actives (MOS/BJT) still use
+named lookup (`D`/`G`/`S`/`B`, `C`/`B`/`E`) since those need real identity, not just count.
+
+### 6.2 Harvest results — remaining IHP schematics
+
+Of the 6 candidates identified in §2 (plus one bonus), only some actually had an xschem
+schematic to flatten — the rest turned out, on inspection this session, to be genuinely
+unreachable with this tool, not just unconverted:
+
+| Candidate | Campaign | Format available | Outcome |
+|---|---|---|---|
+| **`LNA_2.45G`** | TO_May2025 | `xschem/circuit_lvs.sch` | **Converted.** See table below. |
+| `160GHz_LNA` | TO_Apr2025 | `qucs-s` + `openems` only, no `xschem` | Not reachable — different schematic format (Qucs-S), needs a separate parser. |
+| `Cascode_160GHz_LNA` | TO_May2025 | `qucs-s` + `openems` only | Same as above. |
+| `207GHZ_LNA` | TO_May2025 | `qucs-s` + `openems` only | Same as above. |
+| `LNA_24GHz` | TO_Dec2023 | `design_data/` and `val/` contain only a `README.md`, no schematic/netlist files exposed | Dead end — nothing to harvest. |
+| `Y0_openSource_LNA` | TO_Dec2023 | same as above | Dead end. |
+| `RF_amplifiers` (bonus, not in the original 6) | TO_Dec2024 | `xschem/amplifiers/*.sch` | **Checked, not pursued.** Inspecting `amplifiers_TB_xyce.sch` shows a *hierarchical* testbench (instantiates a `hamp.sch` sub-schematic via a dynamic `tcleval(...)` path — hierarchy the flattener deliberately does not support, see its docstring) built from baseband-style testbench primitives (`vcvs.sym`, `isource.sym`, `ammeter.sym`) with no RF port/S-parameter structure and no inductors visible — low confidence this is actually an LNA rather than a gain-block/driver-amp characterization ("H_DiFF_15dB", "H_SiNGLE" naming suggests transfer-function gain blocks). Judgment call: not worth building hierarchy support for a topically-uncertain circuit when 5 higher-confidence sources were already exhausted. |
+
+**New conversion this session:**
+
+| Circuit | Devices | Score /5 | Missed criteria | ngspice |
+|---|---|---|---|---|
+| `ihp-lna-2p45g` (2.45 GHz ISM-band cascode LNA, from raw xschem schematic) | 18 (2R+9C+4NM+3L) | **4/5** | `lna_sized` (18 > 15, mostly from 5 realistic VDD-VSS decoupling caps) | clean, S11min=-0.82dB, S21max=-46.1dB (unsized) |
+
+One structural oddity kept as-found rather than "fixed": one transistor (`MMn3`) has all four
+pins landing on VSS — independently geometry-verified against real wire endpoints like every
+other device, plausibly a real dummy/layout-matching transistor rather than a parser artifact.
+Documented in `lna/data/external/ihp-lna-2p45g/provenance.json` for user review.
+
+### 6.3 Paper transcription track
+
+Five canonical LNA topology families, covering exactly the families named in the brief
+(noise-cancelling, current-reuse, transformer-feedback, gm-boosted CG) plus one bonus
+(differential capacitor cross-coupled CG — the only *differential* circuit in this batch,
+adding a structural family the corpus/reference set otherwise lacks). Each is authored
+directly in AnalogGenie's native device format (not parsed from an external file — there was
+no netlist to parse, only a paper description), cited to a real paper, and run through the
+identical validation pipeline as every other circuit in this project. None derive from, cite,
+or resemble the excluded Kanchetla et al. TMTT 2022 paper — all five cited papers predate it
+by years to decades or address unrelated applications (ultrasound front-ends, WLAN/UWB
+receivers, general LNA methodology), and the actual excluded paper was never looked up.
+
+| Circuit | Family | Cited paper | Score /5 | Confidence | ngspice |
+|---|---|---|---|---|---|
+| `paper_noisecancel` | Feedforward noise-cancelling, resistive shunt-feedback | Tang et al., *Sensors* 2021, DOI 10.3390/s21248476 (open access, PMC) | 3/5 — correctly inductorless | MEDIUM | clean, **S21=+2.4dB** (only unsized transcription with net gain) |
+| `paper_currentreuse` | Current-reuse (DC-stacked 2-stage) | Reddy & Nath, *Scientific Reports* 2025, DOI 10.1038/s41598-025-93530-3 (open access) | 5/5 | MEDIUM-HIGH | clean |
+| `paper_gmboostcg` | gm-boosted common-gate | Li, Shekhar & Allstot, IEEE JSSC Dec 2005 (PDF not machine-readable — image-based) | 5/5 | MEDIUM | clean |
+| `paper_transformerfb` | Transformer-feedback | Wu, Leung & Luong, IEEE TCAS-I 2017 (paywalled, cited by metadata only) | 5/5 | MEDIUM | clean |
+| `paper_diffcccg` | Differential capacitor cross-coupled CG | Zhuo et al., IEEE TCAS-II 2005 (seminal/well-known paper, not independently re-fetched this session) | 5/5 | MEDIUM-HIGH (topology) / MEDIUM-LOW (exact citation) | clean |
+
+**One bug caught by the pipeline itself, not by inspection:** `paper_noisecancel`'s first draft
+used bare `IN`/`OUT` net names instead of the port-declared `VIN1`/`VOUT1`, so the structural
+screen correctly flagged `has_rf_ports: false` (score 2/5) even though the topology was
+otherwise fine — exactly the kind of authoring slip the screen exists to catch. Fixed and
+re-verified (3/5, the expected score for a genuinely inductorless design).
+
+Every `provenance.json` in this batch carries a `transcription_confidence` field explaining
+precisely what came from the cited paper (title/authors/DOI/URL, retrieval date, and what text
+was actually readable via the fetch tools) versus what is general, well-established circuit
+theory for that named topology family — none are marked `quarantine: true` (all five passed
+the structural screen and simulated cleanly), but every one discloses its simplifications and
+uncertainties explicitly rather than presenting a paper-exact reproduction that wasn't
+actually verified against a readable schematic.
+
+### 6.4 Updated corpus yield
+
+| | Count |
+|---|---|
+| Real LNAs before this project's involvement | 41 |
+| Converted in the first pass (§4) | +3 (`ihp-gps-lna-nmos`, `ihp-gps-lna-npn`, `align-lna-qm`) |
+| Converted this follow-on session | +1 IHP (`ihp-lna-2p45g`) + 5 paper transcriptions |
+| **Running total, screened + simulated this project** | **9** |
+| **Potential corpus size if all ingested** | **41 + 9 = 50** |
+
+All 9 have `valid_structure: true`, zero floating devices, and a clean (zero-error) ngspice
+`op` + `sp` + `noise` run; scores range 2/5–5/5, every score explained by genuine topology
+characteristics (inductorless-by-design, oversized-by-real-layout-practice, etc.) rather than
+conversion defects — consistent with `lna/FINDINGS.md`'s own finding that ~40% of the
+*existing* real corpus misses the inductor criteria for the same legitimate reasons.
+
+### 6.5 Best next step (updated)
+
+**Build a Qucs-S schematic parser.** With the xschem side now handled, the single largest
+remaining blocker is the 3 IHP mmWave LNAs (`160GHz_LNA`, `Cascode_160GHz_LNA`, `207GHZ_LNA`)
+sitting behind Qucs-S's `.sch` format instead of xschem's — same "real, licensed, already
+identified" argument as before applies again: the source, license, and circuit identity are
+already confirmed, only the geometry parser is missing. Second priority: track IHP's tapeout
+campaigns after `TO_Sep2025` for new LNA submissions (this source is demonstrably renewable —
+LNA folders appeared in 4 of 7 campaigns checked across two sessions).

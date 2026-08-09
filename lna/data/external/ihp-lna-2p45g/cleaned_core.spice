@@ -1,0 +1,18 @@
+C1 in_dc_block VIN cap_cmim
+M1 sd_mos common_mode cm_source VSS sg13_lv_nmos
+C2 cm_source common_mode cap_cmim
+M2 tank_out VDD sd_mos VSS sg13_lv_nmos
+M3 VSS diode_pol diode_pol VSS sg13_lv_nmos
+R1 diode_pol common_mode rhigh
+R2 V_POL diode_pol rppd
+C3 VOUT tank_out cap_cmim
+C4 VOUT VSS cap_cmim
+C5 VDD VSS cap_cmim
+C6 VDD VSS cap_cmim
+C7 VDD VSS cap_cmim
+C8 VDD VSS cap_cmim
+C9 VDD VSS cap_cmim
+M4 VSS VSS VSS VSS sg13_lv_nmos
+L1 in_dc_block common_mode simple_inductor
+L2 tank_out VDD simple_inductor
+L3 cm_source VSS simple_inductor

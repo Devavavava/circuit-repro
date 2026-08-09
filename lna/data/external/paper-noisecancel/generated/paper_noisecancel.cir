@@ -1,0 +1,45 @@
+* Auto-generated from an AnalogGenie topology by lna/to_spice.py
+* Device values are placeholders exposed as .param for a sizing loop.
+
+.include C:/Users/Devavrat/circuit-repro/.claude/worktrees/lna-data/AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt
+
+.param pVDD=1.1 pVB=0.5
+.param pINDQ=12.0 pINDW0=1.25664e+10
+.param pNM1W=40u pNM1L=45n
+.param pNM2W=40u pNM2L=45n
+.param pNM3W=40u pNM3L=45n
+.param pR1V=1k
+.param pR2V=1k
+.param pR3V=1k
+
+Vsup VDD 0 dc {pVDD}
+
+* port 1: RF input, DC-blocked so bias is not shorted to 50 ohm
+Vp1 p1 0 dc 0 ac 1 portnum 1 z0 50
+Cp1 p1 VIN1 10p
+* port 2: RF output
+Cp2 VOUT1 p2 10p
+Vp2 p2 0 dc 0 ac 0 portnum 2 z0 50
+
+MNM1 n0 VIN1 0 0 nmos W={pNM1W} L={pNM1L}
+MNM2 VOUT1 VIN1 0 0 nmos W={pNM2W} L={pNM2L}
+MNM3 VOUT1 n0 0 0 nmos W={pNM3W} L={pNM3L}
+RR1 VIN1 n0 {pR1V}
+RR2 n0 VDD {pR2V}
+RR3 VOUT1 VDD {pR3V}
+
+* Dataset topologies are textbook schematics: they show the signal path
+* but omit biasing, so nodes reachable only through capacitors have no
+* DC path and the OP solve goes singular. rshunt ties every node to
+* ground through 1e12 ohm -- enough for a DC solution, negligible at RF.
+* Without it, 9 of 26 dataset LNAs fail to simulate at all.
+.option rshunt=1e12
+.control
+op
+sp lin 201 1e+09 4e+09 1
+let s11db = db(mag(S_1_1) + 1e-30)
+let s21db = db(mag(S_2_1) + 1e-30)
+print vecmin(s11db) vecmax(s21db)
+noise v(p2) Vp1 dec 20 1e+09 4e+09 1
+.endc
+.end

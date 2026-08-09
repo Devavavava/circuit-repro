@@ -514,6 +514,95 @@ python lna/novelty.py --eval <dir> --ref all --spec wifi24
 python lna/_ndl_refv3.py && python lna/_ndl_flipcheck.py   # protocol re-run + flip check
 ```
 
+### ▸ Sub-block: critic v2 on the full store + the live rung-1 rerank (owner: the critic-track executor)
+
+**Files owned:** `lna/critic.py` (unchanged this session), `lna/critic_gnn.py`
+(+`--mutant-eval`), `lna/search.py` (+the live rung-1 driver), `lna/evolve_score.py`
+(unchanged), the `v5-train` entry in `lna/data/snapshots.json`, FINDINGS **§20**,
+`lna/data/reports/critic-v2-rung1-2026-08-09.md`, this sub-block. Full measured
+detail in **FINDINGS §20**.
+
+**Snapshot `v5-train`** = 1010 L2 rows / 41 L1 rows, sha256 `cc2f79ae…`. Every
+number below is pinned to it. (The store kept growing under three other agents
+during the run; the snapshot is the prefix, and `datastore.load(snapshot=)`
+verifies it.)
+
+**1. Critic v2 on the frozen splits — unchanged verdicts, one surprise.** All
+arms retrained on `v5-train`. Under the restated Gate C1 (§14.6) the family-split
+GNN is ρ(S21) 0.839 → **0.828**, skill 0.792 → **0.683**; source-shift 0.610 →
+0.586, skill 0.367 → **0.414**. Every C1 verdict is identical to v4-train. ⚠ Two
+things to carry forward: **ridge now beats the shipped GNN on the source-shift
+split** (ρ 0.631 / skill 0.453 vs 0.586 / 0.414) — re-check "the GNN is the best
+arm" at the next retrain rather than assuming it; and **neither frozen split
+tests the mutant distribution**, because `critic.is_generated` keys off
+`provenance.token_file` and the 213 evolve rows carry none, so they all sit on the
+*train* side of the source-shift split.
+
+**2. ★ The §15.4 collapse is substantially repaired — measured leak-free.** New
+`critic_gnn.py --mutant-eval` scores the 213 evolve rows under three regimes
+(v1-equiv = train on non-evolve rows only, reproducing v1's 16/24-row coverage;
+v2-cv = 3-fold over the evolve *WL families*; v2-leaky = upper bound). v1-equiv
+reproduces §15.4's deployed numbers to within seed noise, so the deltas are
+like-for-like. On the **selection-free control arms**: ρ(feasibility) +0.173 →
+**+0.441** (dhruva-s) and +0.198 → **+0.502** (wideband-sdr); selection skill
+−0.094 → **+0.375** and +0.160 → **+0.300**, i.e. both now clear θ = 0.25. On the
+selected elites, ρ goes from *negative* (−0.224 wideband-sdr) to **+0.479 / +0.641**.
+Still ~55–60% of the in-distribution 0.81 — coverage is not an exhausted lever.
+The v2-leaky bound (+0.736 / +0.857 with the rows in train) both proves the CV
+holds something out and shows the shortfall is a **generalization gap across
+topology families**, not model capacity: more rows inside the 171 families already
+sampled will not close it, rows from *new* families might.
+
+**3. ⚠ The uncertainty gate (03-SEARCH §4 rule 2) should be RETIRED.** The
+ensemble is well calibrated in-distribution (ρ(σ,|err|) 0.583 → 0.507 on the
+holdout; 0.651 / 0.578 on the two frozen splits) and only weakly on mutants. The
+mechanism behind §15.4's `n_high_unc = 0` is that **mutant σ is systematically
+*smaller* than holdout σ** — the threshold is set by held-out *families*, which
+are structurally unusual, while mutants are one-edit perturbations of covered
+graphs. Better coverage makes it *more* inert: firing rate 22/213 → **8/213**, and
+**2/110** on the live rung-1 pool. Keep the trust region (rule 3); replace rule 2
+with a distance-to-training-set gate.
+
+**4. ★★ Rung 1 ran live for the first time — Gate S1 has an honest verdict.**
+Spec `dhruva-s`; pool = the adopted P5-v3 generator's unsized remainder
+(`ft_p5v2_nb_s1337.v3` → 110 candidates never sized against this spec); ranker
+leak-free (all 244 store rows sharing a pool WL hash dropped before training);
+k = 30 per arm with a seeded random control from the identical pool, the 6 shared
+candidates simulated once and credited to both.
+
+| arm | k | feasible | near-feasible | best viol | med viol | SPICE-min |
+|---|---|---|---|---|---|---|
+| critic | 30 | 0 | **15** | 1.014 | 2.222 | 30.4 |
+| control | 30 | 0 | 8 | 1.015 | 2.661 | 34.3 |
+
+**Gate S1 — NOT MET on its literal ≥2× wording (1.88×, Fisher one-sided
+p = 0.055); MET on the restated skill bar (0.328 vs θ = 0.25).** Both recorded.
+`realized-vs-predicted ρ = +0.578` over all 54 sized candidates — the first
+deployment-distribution number on a live generated pool, 3× critic v1's mutant
+figure. The critic's edge is largest on **NF (3 vs 9 designs beyond −1 margin)**,
+which is the constraint Gate D3 is stuck on. 54 new `dhruva-s` L2 rows (recipe
+`rung1-v1`, arm in `provenance.rung1_arms`), 64.7 SPICE-min, ~30 min wall.
+
+⚠ **`bestviol` ties (1.014 vs 1.015) for a bad reason** — the lowest-violation
+points are degenerate shrink-to-nothing optima (S11/Idd/NF pass by producing
+~0 dB gain). §15.5 item 5's warning is now confirmed on a second spec and a second
+rung: **every "best violation" claim on a gain-limited spec needs an S21-margin
+floor.** Among designs with real gain the best four all came from the critic arm;
+`seq0126` (critic rank 1, novel vs ref-v2 + store) reaches **NF 2.73 dB at 15.98 dB
+gain** with the input match unsolved — an NF lead for the D3 track, not a design.
+
+```bash
+python lna/datastore.py --snapshot v5-train
+python lna/critic.py --eval --snapshot v5-train --sigma-recipe candidate-v1+bo3
+<analoggenie py> lna/critic_gnn.py --eval --snapshot v5-train --sigma-recipe candidate-v1+bo3
+<analoggenie py> lna/critic_gnn.py --mutant-eval --snapshot v5-train \
+    --sigma-recipe candidate-v1+bo3 --folds 3 --n-models 5
+python lna/search.py --pool lna/out/ft_p5v2_nb_s1337.v3 --spec dhruva-s --out P.json
+<analoggenie py> lna/search.py --rank --pool-json P.json --snapshot v5-train --out R.json
+python lna/search.py --size --rank-json R.json --k 30 --seed 1337 --shard 0/2 --out S0.json
+python lna/search.py --s1 --rank-json R.json --k 30 --seed 1337 --sized-json S0.json S1.json
+```
+
 ---
 
 **⚠ BLIND PROTOCOL is active — read plans2/08 §"Blind protocol" before touching

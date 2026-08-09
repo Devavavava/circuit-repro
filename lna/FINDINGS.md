@@ -3024,3 +3024,217 @@ python lna/_ndl_refv3.py && python lna/_ndl_flipcheck.py
 5. **Six more real IHP LNAs are identified but unconverted**, behind a Qucs-S
    geometry parser, and IHP's tapeout program is renewable (LNA folders in 4 of 7
    campaigns checked) — see the scout's report §6.5.
+---
+
+## 20. Phase 2 — critic **v2** on the full store, and the live rung-1 rerank (Gate S1, first honest verdict) (Session 6)
+
+> §17 is reserved by the scratch-hygiene track, §18 by the curriculum arm and
+> §19 by the ingestion track; this section is numbered 20 to avoid a collision.
+> Raw run record: `lna/data/reports/critic-v2-rung1-2026-08-09.md`.
+
+Two questions, one answered by retraining and one by spending SPICE.
+
+1. §15.4 measured critic v1 collapsing from **ρ ≈ 0.83 in-distribution to
+   ρ ≈ +0.17…+0.20 on the mutant distribution search actually generates**, and
+   diagnosed *coverage*: `v4-train` held 16 wideband-sdr and 24 dhruva-s rows.
+   The rung-2 run then appended 213 rows on exactly those two specs. **Did the
+   coverage fix it?**
+2. 03-SEARCH §1's rung 1 — critic rerank of a fresh pool against an equal-budget
+   random control — **had never been run live on any spec**. §15.5 recorded Gate
+   S2 against a substituted control because of it. **Run it.**
+
+### 20.1 Snapshot `v5-train`, and what critic v2 is
+
+`v5-train` pins **1010 L2 rows** (1006 token-bearing) / 41 L1 rows,
+sha256 `cc2f79ae…`. Spec mix wifi24 471 · dhruva-l1 249 · dhruva-s 132 ·
+wideband-sdr 121 · gps-l1 23 · dhruva-l5 7 · dhruva-l2 7. σ(S21) = **0.783 dB**
+at `candidate-v1+bo3` (0.726 dB at v4-train — the label-noise ceiling grew ~8%
+as the store did). The two search specs went **40 → 253 rows**, and *all* of that
+increase is the 213 evolve rows.
+
+Gate C1 as restated (§14.6): ρ(S21) ≥ 0.5 **and** skill ≥ 0.25.
+
+| split | arm | ρ(S21) v1 → v2 | prec@20% v1 → v2 | skill v1 → v2 | C1 |
+|---|---|---|---|---|---|
+| family holdout | WL-kNN | 0.687 → 0.696 | 0.842 → 0.800 | 0.687 → 0.603 | YES → YES |
+| (n 95 → 123) | ridge | 0.790 → 0.775 | 0.737 → 0.680 | 0.479 → 0.365 | YES → YES |
+| | **GNN ens-5** | 0.839 → **0.828** | 0.895 → 0.840 | 0.792 → **0.683** | YES → **YES** |
+| source-shift | WL-kNN | 0.370 → 0.384 | 0.512 → 0.537 | 0.105 → 0.140 | no → **no** |
+| (n 420 → 477) | ridge | 0.585 → **0.631** | 0.655 → 0.705 | 0.367 → **0.453** | YES → YES |
+| | **GNN ens-5** | 0.610 → 0.586 | 0.655 → 0.684 | 0.367 → **0.414** | YES → **YES** |
+
+**On the frozen splits, critic v2 is critic v1.** Every verdict is unchanged; the
+movements are within the range two ensemble seeds produce. Two things are worth
+saying out loud rather than leaving buried:
+
+* **ridge now out-ranks the shipped GNN on the source-shift split** (ρ 0.631 vs
+  0.586, skill 0.453 vs 0.414, ρ(S11) 0.629 vs 0.570). The GNN keeps the family
+  split (0.828 vs 0.775) and keeps the ensemble σ, which is why it still ships —
+  but "the GNN is the best arm" is now true on only one of the two splits, and
+  that should be re-checked, not assumed, at the next retrain.
+* ⚠ **Neither frozen split tests the mutant distribution at all.**
+  `critic.is_generated` keys off `provenance.token_file`, and the 213 evolve rows
+  carry none (they are graph edits, not sampler output), so all 213 land on the
+  **train** side of the source-shift split. The family holdout, separately, drew
+  only 8 dhruva-s and 7 wideband-sdr test rows. This is precisely why the §15.4
+  collapse was invisible to `critic.py --eval`, and it is a standing measurement
+  gap, not a one-off.
+
+### 20.2 ★ The mutant post-hoc: coverage repairs most of the collapse
+
+New mode `critic_gnn.py --mutant-eval`. 213 evolve rows in **171 WL families**,
+three regimes over the same test rows: **v1-equiv** (train on every non-evolve
+row — reproduces v1's coverage exactly: wideband-sdr 16, dhruva-s 24),
+**v2-cv** (3-fold over the evolve *families*, so no row is scored by an ensemble
+that saw its family), and **v2-leaky** (train on everything — an upper bound,
+quoted as leakage, never as a result). `evolve-random` is the selection-free arm;
+`evolve-evolve` are the elites the critic itself picked.
+
+The reproduction is sound: **v1-equiv reproduces §15.4's deployed numbers to
+within seed noise** — dhruva-s control ρ(mean−βσ) +0.218 vs §15.4's +0.220,
+wideband-sdr control +0.195 vs +0.175.
+
+| spec / arm | n | ρ(feasibility) v1-equiv → **v2-cv** | skill v1-equiv → **v2-cv** |
+|---|---|---|---|
+| dhruva-s / random (selection-free) | 60 | +0.173 → **+0.441** | −0.094 → **+0.375** |
+| wideband-sdr / random (selection-free) | 63 | +0.198 → **+0.502** | +0.160 → **+0.300** |
+| dhruva-s / evolve elites | 48 | +0.027 → **+0.641** | 0.200 → 1.000 |
+| wideband-sdr / evolve elites | 42 | −0.224 → **+0.479** | −0.029 → −0.235 † |
+
+† at base 0.143 that cell has 6 near-feasible rows in a top-20% of 8 — noise, not
+a regression.
+
+**★ Verdict: the diagnosis was right and the fix is real but partial.** On the
+distribution search actually generates, the critic goes from ρ ≈ +0.17…+0.20 (a
+fifth of in-distribution, and useless for selection) to **ρ ≈ +0.44…+0.50**, and
+from *negative* correlation on its own selected elites to **+0.48…+0.64**.
+Selection skill on both selection-free arms now clears θ = 0.25 where neither did
+before. It is still only ~55–60% of the in-distribution 0.81, so the coverage
+lever is not exhausted — but "a ranker with ρ ≈ 0.17 cannot beat coin-flip
+selection by 2×" (§15.4) no longer describes the critic.
+
+**The leaky bound does two jobs, and quoting it is not one of them.** With the
+evolve rows in train, ρ(feasibility) on the two selection-free arms is **+0.736 /
++0.857** against v2-cv's +0.441 / +0.502. First, that gap is the proof the family
+CV really holds something out — a leaking CV would coincide with it. Second, it
+caps what more coverage *of this kind* can buy: the architecture can rank these
+designs at ρ ≈ 0.8, so the out-of-fold ρ ≈ 0.47 is a **generalization gap across
+topology families**, not a capacity limit. More rows inside the 171 families
+already sampled will not close it; rows from *new* families might.
+
+### 20.3 Calibration: the uncertainty gate's premise is inverted, and coverage makes it worse
+
+| | v1-equiv | v2-cv |
+|---|---|---|
+| in-distribution holdout ρ(σ, abs err) | **0.583** | **0.507** |
+| mutant ρ(σ, abs err), four groups | +0.117 / +0.337 / +0.055 / +0.099 | +0.148 / +0.414 / +0.363 / +0.146 |
+| holdout p90 σ (= the gate threshold) | 0.2922 | 0.3077 |
+| median mutant σ | 0.117 – 0.206 | 0.103 – 0.165 |
+| **mutant rows above the gate** | **22/213 (10.3%)** | **8/213 (3.8%)** |
+
+The ensemble is *well* calibrated in distribution — ρ(σ, |error|) ≈ 0.5–0.6 both
+before and after, and 0.651 / 0.578 on the two frozen splits — and only weakly,
+unstably calibrated on mutants. That is the whole mechanism behind §15.4's
+`n_high_unc = 0` across all 80 generations: **mutant σ is systematically *smaller*
+than holdout σ, not larger.** The gate compares off-distribution candidates
+against a threshold set by held-out *families*, which are structurally unusual,
+while mutants are one-edit perturbations of well-covered graphs. Better coverage
+makes the gate *more* inert, not less — median mutant σ falls on every group and
+the firing rate halves, 10.3% → 3.8%. The live rung-1 pool agrees: **2/110** fresh
+generated candidates exceeded the gate.
+
+**Conclusion for 03-SEARCH §4 rule 2: a σ-percentile gate cannot detect this
+shift and should be retired in favour of a distance-to-training-set gate** — which
+is what the trust region (rule 3) already is, and which §15.4 measured doing real
+work. Keeping rule 2 as written is keeping a rule that has never fired.
+
+### 20.4 ★★ Rung 1, live — Gate S1 gets its first honest verdict
+
+03-SEARCH §1 run on real SPICE for the first time. Target spec **dhruva-s** (the
+richest new coverage). Pool = the **adopted** P5-v3 generator's unsized remainder:
+`ft_p5v2_nb_s1337.v3`, 256 samples → L0 209 → WL-distinct 113 → **110 never sized
+against dhruva-s** (51 novel vs `ref-v2[189h/b5689490]` + store; ref-v3 (§19)
+landed later in the session and does not apply to these rows' stamps).
+
+The ranker is **leak-free by construction**: all 244 store rows carrying one of
+the pool's 110 WL hashes — under *any* spec — were dropped before training
+(568 train / 95 val / 99 holdout, holdout ρ(S21) 0.824). Arms are k = 30 each, the
+control drawn by `random.Random(1337).sample` and declared before any SPICE ran;
+the 6 shared candidates are simulated **once** and credited to both arms, so each
+arm's budget is exactly 30 sizings of the identical protocol (light all-free ZOAF
+scan → box-clamped `size.polish(60)`, `inductor_q=12`, recipe `rung1-v1`).
+
+```
+arm         k  sized   ok  feas  near   base  bestviol  medviol  SPICE-min
+critic     30     30   30     0    15  0.500     1.014    2.222       30.4
+control    30     30   30     0     8  0.267     1.015    2.661       34.3
+```
+
+* **Gate S1 as written (≥ 2× the control's feasible-or-near-feasible count):
+  15 vs 8 = 1.88× → NOT MET.** One more near-feasible design would have read
+  exactly 2.00×. Fisher exact one-sided **p = 0.055** (conservative — the shared
+  candidates make the arms positively dependent).
+* **Gate S1 under the restated skill bar (§14.6): skill = 0.328 ≥ θ = 0.25 →
+  MET.** (base 0.267 from the control arm; ceiling precision 0.978.)
+* **realized-vs-predicted ρ = +0.578** over all 54 sized candidates — the
+  deployment-distribution number 03-SEARCH §1 asks to report alongside, measured
+  on a live generated pool for the first time, and stable across strata
+  (novel-vs-ref-v2 n=22 **+0.621**; structure-never-labeled n=14 +0.552).
+* cost **64.7 SPICE-min** total (12 885 ngspice evaluations, ~64 s/sizing, ~30 min
+  wall at 2 shards) — inside the ≤90 SPICE-min/arm budget by 3×.
+
+**Where the edge is.** Counting margins ≤ −1 scale unit, the critic arm is better
+on every constraint and most on **NF**: S11 8 vs 12, S21 7 vs 10, **NF 3 vs 9**.
+NF is the constraint the whole dhruva ladder is stuck on (Gate D3), so that is the
+useful half of the result.
+
+**What it is not.** **0 fully feasible designs in either arm** — `dhruva-s` wants
+S21 ≥ 30 **and** S11_max ≤ −10 **and** NF ≤ 3.5 **and** Idd ≤ 13 at once, and the
+program has exactly one tier-1-clean design on this spec (§15.3) and none tier-2.
+And the `bestviol` column ties (1.014 vs 1.015) **for a bad reason**: the
+lowest-violation points are degenerate shrink-to-nothing optima that satisfy
+S11/Idd/NF by producing no gain (seq0038: S11 −14.5 dB, Idd 0.35 mA, NF 3.48 dB,
+**S21 −0.43 dB**) — exactly the pathology §15.5 item 5 flagged, now confirmed on a
+second spec and a second search rung. Among designs with real gain
+(S21 margin > −1) the ordering is unambiguous and **the best four all came from
+the critic arm**:
+
+```
+seq0218  rank= 6  critic          viol=1.377  S11=-0.32 S21=17.73 Idd=2.94 NF=2.82
+seq0126  rank= 1  critic  NOVEL   viol=1.466  S11=-0.01 S21=15.98 Idd=4.32 NF=2.73
+seq0073  rank=15  critic          viol=1.587  S11=-0.70 S21=10.29 Idd=4.94 NF=3.24
+seq0029  rank=12  critic  NOVEL   viol=1.670  S11=-0.03 S21=17.81 Idd=5.12 NF=4.43
+```
+
+`seq0126` is novel against ref-v2 + the whole store and reaches **NF 2.73 dB at
+15.98 dB gain** — under the 3.5 dB spec — with the input match unsolved
+(S11_max −0.01 dB). It is an NF *lead*, not a design; the sizer never solved its
+match, which is the same "all-free ZOAF lands gain OR match, not both" failure
+06-LAST-MILE §1 documented and `_curate` exists to fix.
+
+**Novelty accounting.** The critic **under**-selects novelty — 11/30 novel vs
+ref-v2 against the control's 15/30 and the pool's 46% — and still wins on
+near-feasibility. It mildly prefers archetype-like structures.
+
+### 20.5 What this changes
+
+1. **Gate S1: NOT MET on its literal ≥2× wording (1.88×, p = 0.055), MET on the
+   restated skill bar (0.328 vs θ = 0.25).** Both readings are recorded; the
+   literal bar inherits the same base-rate defect §14.6 retired for C1 (at
+   base 0.267 with k/n = 0.27 the *ceiling* on the ratio is 3.67×, so "2×" demands
+   precision 0.533 of a ranker whose maximum is 0.978 — reachable here, but the
+   bar drifts with the pool exactly as C1's did). **Recommend restating S1's ratio
+   half the same way C1's was**, and re-reading this run under it.
+2. **The rung-2 comparison in §15.5 can now be closed properly.** Rung 1 has a
+   live number on dhruva-s: 15 near-feasible / 0 feasible per 30 sizings
+   (30.4 SPICE-min). Rung 2's dhruva-s evolve arm was 41 near / 0 feasible per 47
+   true evals (69.1 SPICE-min). Per SPICE-minute that is **0.49 near/min (rung 1)
+   vs 0.59 (rung 2)** — comparable, rung 2 slightly ahead, and *both* zero on
+   feasibility. Neither rung is the bottleneck; the topology–spec gap is.
+3. **Retire the σ-percentile uncertainty gate** (§20.3); keep the trust region.
+4. **Guard the violation scalar against degenerate optima** — §15.5 item 5 is now
+   confirmed twice and it is corrupting the headline metric on dhruva-s. Every
+   "best violation" claim on a gain-limited spec needs an S21-margin floor.
+5. **Coverage is still the live lever, and it is now self-funding**: this run added
+   54 dhruva-s rows (132 → 186 for that spec) at 64.7 SPICE-min, on exactly the
+   distribution the critic is weakest on.

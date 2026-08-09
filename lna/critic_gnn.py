@@ -28,8 +28,10 @@ source-shift **0.609** vs 0.585 / 0.370) and, uniquely, its ensemble std ranks
 sweep: ridge ties its source-shift precision@20% and beats its rho(S11) there.
 """
 import argparse
+import json
 import os
 import sys
+import time
 
 import numpy as np
 import torch
@@ -38,6 +40,7 @@ import torch.nn as nn
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import critic  # noqa: E402  (dataset, splits, metrics, baselines)
+import datastore as ds  # noqa: E402
 from topology import base_of  # noqa: E402
 
 DEV_TYPES = ["NM", "PM", "R", "C", "L"]
@@ -259,10 +262,221 @@ def evaluate_gnn(train, val, test, label, sigma):
     critic._per_spec(test, Yte, {"trivial": mean, "gnn": mean}, s21)
 
 
+# ============================================ off-distribution (mutant) eval
+# FINDINGS §15.4 measured critic v1 collapsing from rho ~0.83 on its own family
+# holdout to rho ~0.17-0.20 on the mutant distribution `evolve.py` generates, and
+# blamed coverage: v4-train had 16 wideband-sdr and 24 dhruva-s rows. The evolve
+# run then appended 213 rows on exactly those two specs. This mode answers "did
+# the coverage fix it?" without letting the answer be leakage -- ALL of the new
+# coverage on those specs came from the very rows we score against, so a model
+# trained on everything would be marking its own homework.
+#
+# Three regimes, same protocol, same test rows:
+#   v1-equiv  train on every NON-evolve row  -> reproduces v1's coverage exactly
+#   v2-cv     k-fold over evolve WL-FAMILIES -> the coverage benefit, out-of-fold
+#   v2-leaky  train on everything            -> upper bound, quoted as leakage
+EVOLVE_PREFIX = "evolve-"
+
+
+def _fit_ensemble(pool, sigma_norm, n_models, k_holdout=0.25, seed0=0):
+    """Train an ensemble on `pool` exactly the way the deployed scorer does
+    (`evolve_score.Scorer`): family split, train on the train families, early-stop
+    on val, keep the untouched test families for the uncertainty-gate p90 and the
+    in-distribution reference numbers."""
+    sp = ds.family_split(k_holdout=k_holdout, rows=[d["row"] for d in pool])
+    id2d = {id(d["row"]): d for d in pool}
+    tr = [id2d[id(r)] for r in sp["train"] if id(r) in id2d]
+    va = [id2d[id(r)] for r in sp["val"] if id(r) in id2d]
+    te = [id2d[id(r)] for r in sp["test"] if id(r) in id2d]
+    global _SPEC_MU
+    S = np.array([critic.spec_vector(d["spec"]) for d in tr], np.float32)
+    _SPEC_MU = (S.mean(0), S.std(0) + 1e-6)
+    models = [train_one(tr, va, sigma_norm, seed=seed0 + s) for s in range(n_models)]
+
+    def ens(items):
+        P = np.stack([predict(m, items) for m in models])
+        return P.mean(0), P.std(0)
+
+    hmean, hstd = ens(te)
+    Yte = np.array([d["y"] for d in te])
+    herr = np.abs(hmean[:, 1] - Yte[:, 1])
+    info = {"n_train": len(tr), "n_val": len(va), "n_holdout": len(te),
+            "rho_s21_holdout": critic.spearman(Yte[:, 1], hmean[:, 1]),
+            "unc_cal_holdout": critic.spearman(hstd[:, 1], herr),
+            "sigma_gate_p90": float(np.percentile(hstd[:, :3].mean(1), 90)),
+            "sigma_med_holdout": float(np.median(hstd[:, :3].mean(1)))}
+    return ens, info
+
+
+def _margin_cols(spec):
+    """Which of the 4 heads this spec gates (== evolve.margin_cols; inlined so
+    this module does not import the sizer stack under the py-3.8 torch env)."""
+    cols = [0, 1, 2]
+    c = spec.constraints.get("nf_db") or {}
+    if c.get("status") != "unsupported" and c.get("max") is not None:
+        cols.append(3)
+    return cols
+
+
+def _feas_scalar(vec):
+    """05-SIZING feasibility-first scalar (== evolve.feasibility_score)."""
+    short = sum(min(v, 0.0) for v in vec)
+    return short if short < 0 else sum(max(v, 0.0) for v in vec)
+
+
+def _mutant_metrics(items, mean, std, gate):
+    """Everything §15.4 reported, per group, plus the calibration diagnostics."""
+    from spec import Spec
+    sp = Spec.load(items[0]["spec"])
+    cols = _margin_cols(sp)
+    real = [[d["y"][0], d["y"][1], d["y"][2], d.get("y_nf")] for d in items]
+    out = {"n": len(items)}
+    for k, nm in enumerate(("S11", "S21", "Idd", "NF")):
+        ix = [i for i, r in enumerate(real) if r[k] is not None]
+        out["rho_" + nm] = (critic.spearman(np.array([real[i][k] for i in ix]),
+                                            mean[ix, k]) if len(ix) >= 3
+                            else float("nan"))
+    fs = _feas_scalar
+    fp = np.array([fs([mean[i][c] for c in cols]) for i in range(len(items))])
+    fr = np.array([fs([-4.0 if real[i][c] is None else real[i][c] for c in cols])
+                   for i in range(len(items))])
+    cons = np.array([fs([mean[i][c] - std[i][c] for c in cols])
+                     for i in range(len(items))])
+    unc = std[:, :3].mean(1)
+    err = np.abs(fp - fr)
+    out["rho_fs"] = critic.spearman(fp, fr)
+    out["rho_cons"] = critic.spearman(cons, fr)
+    out["unc_cal"] = critic.spearman(unc, err)
+    out["sigma_med"] = float(np.median(unc))
+    out["n_above_gate"] = int((unc > gate).sum())
+    near = np.array([all(r[c] is None or r[c] > critic.NEAR_FEASIBLE
+                         for c in cols) for r in real])
+    n, n_near = len(near), int(near.sum())
+    base = float(near.mean())
+    k = max(1, int(round(0.2 * n)))
+    out.update(base=base, k=k, n_near=n_near)
+    if n_near:
+        ceil_prec = min(n_near, k) / float(k)
+        prec = float(near[np.argsort(-fp)[:k]].mean())
+        out.update(prec=prec, ceil_prec=ceil_prec, enrich=prec / base,
+                   skill=((prec - base) / (ceil_prec - base)
+                          if ceil_prec - base > 1e-12 else float("nan")))
+    else:
+        out.update(prec=float("nan"), ceil_prec=float("nan"),
+                   enrich=float("nan"), skill=float("nan"))
+    return out
+
+
+def _fold_families(rows, n_folds, seed=0):
+    """Assign whole WL families of the mutant rows to CV folds (never a row-level
+    split -- the mutants are dense with near-duplicates by construction)."""
+    import hashlib
+    fams = ds._families(rows)
+    keyed = sorted(fams, key=lambda mem: min(str(rows[i].get("wl_hash") or i)
+                                             for i in mem))
+    fold = [0] * len(rows)
+    for fi, mem in enumerate(sorted(keyed, key=lambda mem: hashlib.blake2b(
+            ("%d:%s" % (seed, min(str(rows[i].get("wl_hash") or i)
+                                  for i in mem))).encode(),
+            digest_size=8).hexdigest())):
+        for i in mem:
+            fold[i] = fi % n_folds
+    return fold, len(keyed)
+
+
+def mutant_eval(snapshot=None, sigma_recipe=None, n_models=5, folds=3,
+                regimes=("v1-equiv", "v2-cv", "v2-leaky"), out=None):
+    data = critic.load_dataset(snapshot=snapshot)
+    sigma = critic._sigma_s21(recipe=sigma_recipe, snapshot=snapshot)
+    sigma_norm = sigma / 12.0
+    mut = [d for d in data if d["arm"].startswith(EVOLVE_PREFIX)]
+    rest = [d for d in data if not d["arm"].startswith(EVOLVE_PREFIX)]
+    mrows = [d["row"] for d in mut]
+    fold, n_fam = _fold_families(mrows, folds)
+    groups = sorted(set((d["spec"], d["arm"]) for d in mut))
+    print("mutant post-hoc eval -- snapshot=%s, sigma_S21=%.3f, %d evolve rows "
+          "in %d WL families, %d folds, ens-%d"
+          % (snapshot, sigma, len(mut), n_fam, folds, n_models))
+    print("  groups: " + ", ".join("%s/%s=%d" % (s, a, sum(
+        1 for d in mut if d["spec"] == s and d["arm"] == a)) for s, a in groups))
+    print("  non-evolve pool: %d rows (this is critic v1's coverage on the two "
+          "search specs: wideband-sdr=%d, dhruva-s=%d)"
+          % (len(rest), sum(1 for d in rest if d["spec"] == "wideband-sdr"),
+             sum(1 for d in rest if d["spec"] == "dhruva-s")))
+    results = {}
+    for reg in regimes:
+        t0 = time.time()
+        pred_mean = [None] * len(mut)
+        pred_std = [None] * len(mut)
+        infos = []
+        if reg == "v2-cv":
+            for f in range(folds):
+                pool = rest + [d for i, d in enumerate(mut) if fold[i] != f]
+                test_ix = [i for i in range(len(mut)) if fold[i] == f]
+                if not test_ix:
+                    continue
+                ens, info = _fit_ensemble(pool, sigma_norm, n_models)
+                m, s = ens([mut[i] for i in test_ix])
+                for j, i in enumerate(test_ix):
+                    pred_mean[i], pred_std[i] = m[j], s[j]
+                info["fold"] = f
+                info["n_test"] = len(test_ix)
+                infos.append(info)
+                print("  [%s] fold %d/%d: %s" % (reg, f + 1, folds,
+                                                 json.dumps(_r3(info))), flush=True)
+        else:
+            pool = rest if reg == "v1-equiv" else rest + mut
+            ens, info = _fit_ensemble(pool, sigma_norm, n_models)
+            m, s = ens(mut)
+            for i in range(len(mut)):
+                pred_mean[i], pred_std[i] = m[i], s[i]
+            infos.append(info)
+            print("  [%s] %s" % (reg, json.dumps(_r3(info))), flush=True)
+        gate = float(np.mean([i["sigma_gate_p90"] for i in infos]))
+        mean = np.stack(pred_mean)
+        std = np.stack(pred_std)
+        rows = []
+        for spec_name, arm in groups:
+            ix = [i for i, d in enumerate(mut)
+                  if d["spec"] == spec_name and d["arm"] == arm]
+            if len(ix) < 5:
+                continue
+            r = _mutant_metrics([mut[i] for i in ix], mean[ix], std[ix], gate)
+            r.update(spec=spec_name, arm=arm, regime=reg)
+            rows.append(r)
+        results[reg] = {"infos": infos, "gate": gate, "groups": rows,
+                        "secs": round(time.time() - t0, 1)}
+        _print_mutant(reg, rows, infos, gate)
+    if out:
+        with open(out, "w") as fh:
+            json.dump(results, fh, indent=1, default=float)
+        print("\nwrote " + out)
+    return 0
+
+
+def _r3(d):
+    return dict((k, (round(v, 3) if isinstance(v, float) else v))
+                for k, v in d.items())
+
+
+def _print_mutant(reg, rows, infos, gate):
+    rho_h = float(np.mean([i["rho_s21_holdout"] for i in infos]))
+    cal_h = float(np.mean([i["unc_cal_holdout"] for i in infos]))
+    print("\n=== regime %s: in-distribution holdout rho(S21)=%.3f, holdout "
+          "unc_cal=%.3f, uncertainty gate p90=%.4f ===" % (reg, rho_h, cal_h, gate))
+    print("%-14s %-14s %4s %8s %8s %8s %8s %8s %6s %7s %7s %6s"
+          % ("spec", "arm", "n", "rho_S21", "rho_fs", "rho_cons", "unc_cal",
+             "sig_med", "base", "prec20", "skill", "gated"))
+    for r in rows:
+        print("%-14s %-14s %4d %8.3f %8.3f %8.3f %8.3f %8.4f %6.3f %7.3f %7.3f "
+              "%3d/%d" % (r["spec"], r["arm"], r["n"], r["rho_S21"], r["rho_fs"],
+                          r["rho_cons"], r["unc_cal"], r["sigma_med"], r["base"],
+                          r["prec"], r["skill"], r["n_above_gate"], r["n"]))
+
+
 def run_eval(snapshot=None, sigma_recipe=None):
     data = critic.load_dataset(snapshot=snapshot)
     sigma = critic._sigma_s21(recipe=sigma_recipe, snapshot=snapshot)
-    import datastore as ds
     print(f"GNN critic -- {len(data)} rows, sigma_S21={sigma:.3f}, "
           f"generated {sum(d['gen'] for d in data)}, "
           f"NF-labeled {sum(d.get('y_nf') is not None for d in data)}")
@@ -289,9 +503,21 @@ def run_eval(snapshot=None, sigma_recipe=None):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--eval", action="store_true")
+    ap.add_argument("--mutant-eval", action="store_true",
+                    help="score the evolve-run rows off-distribution (FINDINGS "
+                         "§15.4), leak-free by family CV")
     ap.add_argument("--snapshot")
     ap.add_argument("--sigma-recipe")
+    ap.add_argument("--n-models", type=int, default=5)
+    ap.add_argument("--folds", type=int, default=3)
+    ap.add_argument("--regimes", default="v1-equiv,v2-cv,v2-leaky")
+    ap.add_argument("--out")
     args = ap.parse_args()
+    if args.mutant_eval:
+        return mutant_eval(snapshot=args.snapshot,
+                           sigma_recipe=args.sigma_recipe,
+                           n_models=args.n_models, folds=args.folds,
+                           regimes=tuple(args.regimes.split(",")), out=args.out)
     if args.eval:
         return run_eval(snapshot=args.snapshot, sigma_recipe=args.sigma_recipe)
     ap.error("give --eval")

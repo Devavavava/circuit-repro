@@ -1843,3 +1843,142 @@ python lna/novelty.py --eval <dir> [...] --ref both --spec wifi24   # old vs new
 python lna/novelty.py --eval <dir> --ref v1         # reproduce a historical number
 python lna/novelty.py --refresh-ref                 # rebuild after templates.py grows
 ```
+
+### 14.6 Metrics governance (2026-08-09): Gate C1's enrichment half, restated
+
+The second frozen-protocol item §14.2 escalated. The Spearman half of C1 —
+**ρ(S21) ≥ 0.5 on held-out families — is UNCHANGED.** Only the enrichment half
+moves.
+
+**Why the old bar had to go, in one line of algebra.** With `k` rows selected out
+of `n` and `n_near = base·n` truly near-feasible, at most `min(n_near, k)` of the
+selection can be near-feasible, so
+
+```
+ceiling precision  = min(n_near, k)/k = min(base/k_frac, 1)
+ceiling enrichment = ceiling precision / base = min(1/k_frac, 1/base)
+```
+
+(verified numerically against the closed form across base ∈ [0.02, 0.9] — exact
+match). At `k_frac = 0.2` the enrichment ceiling is 5× while base ≤ 0.2, then
+collapses as `1/base`. The pool improved from base 0.268 to 0.455 and the ceiling
+fell **3.74× → 2.20×**, so "enrichment ≥ 2×" quietly turned into "precision@20% ≥
+0.910", and at base ≥ 0.5 it becomes *unsatisfiable by a perfect ranker*. **The
+gate was getting harder because the candidates were getting better** — which is
+backwards, and is why nothing passed it on either split last night.
+
+**Why not the literal fraction-of-ceiling.** `precision / ceiling_precision` is
+reported (column `ofceil`) but is **not** the gate: random selection scores
+`base / ceiling_precision`, which moves with the pool, so a fixed threshold on it
+— exactly like a raw precision threshold — is passed or failed by a coin flip
+depending only on how good the pool already is. The same objection kills "gate on
+precision@20% ≥ 0.8".
+
+**The restatement — fraction of ceiling, measured from random rather than zero:**
+
+> **Gate C1 (restated 2026-08-09).** On held-out families, both of:
+> **(a) ρ(S21) ≥ 0.5** (unchanged), and
+> **(b) selection skill ≥ θ = 0.25**, where
+> **skill = (precision@20% − base) / (ceiling precision − base)**,
+> `ceiling precision = min(n_near, k)/k`, `k = round(0.2·n)`.
+> Skill is **0 for random selection and 1 for a perfect ranker at any base rate**.
+> When `ceiling precision = base` the split admits no discrimination at all; the
+> gate reports **n/a** and is not evaluable — never a silent pass.
+
+**Where θ = 0.25 comes from — it is derived, not tuned.** In the regime where the
+frozen bar was well-posed (`base ≤ k_frac`, so `ceiling precision = base/0.2`),
+"enrichment ≥ 2×" means `precision ≥ 2·base`, and
+
+```
+skill at the old bar = (2b − b) / (b/0.2 − b) = 1/4   exactly, for every such b
+```
+
+So **θ = 0.25 is the unique constant that reproduces the frozen gate's meaning
+everywhere the frozen gate had one**, and drops the silent tightening above it.
+(Verified to six decimals at base = 0.02/0.05/0.10/0.15/0.20. For
+0.2 < base < 0.5 the old bar's implied skill climbs 0.25 → 1.00 — that climb *is*
+the defect, not the intent.)
+
+**Properties, checked rather than asserted** (20 000 Monte-Carlo draws per cell):
+
+| requirement | result |
+|---|---|
+| random selection fails at any base rate | mean skill +0.0022 … −0.0174 across base 0.05–0.9 — **unbiased at 0** |
+| a perfect ranker passes at any base rate | skill = **1.0000** at base 0.02 … 0.99 (where the old bar scored 5.00× down to 1.01×) |
+| ceiling formula = `min(1/k_frac, 1/base)` | exact match, base 0.02–0.9 |
+| degenerate split (base = 0 or 1) | skill NaN → verdict `n/a`, not a pass |
+| **historical v2-train family pass survives** | WL-kNN precision@20% **1.000** at base 0.485 → **skill 1.000 → PASS** |
+
+⚠ **One correction to the brief.** The v2-train family-split pass is often quoted
+as "prec@20% = 0.842 at base ~0.27, enrichment 2.06× vs ceiling 3.74×". Re-running
+`critic.py --eval --snapshot v2-train` reproduces the actual record: the v2-train
+**family** pass was **prec@20% = 1.000 at base 0.485, enrichment 2.06× = its
+ceiling of 2.06×** — a *perfect* top-20%, not a 2× margin. The 0.842 is the
+**v4-train family** WL-kNN number; the base 0.27 / ceiling 3.74× belong to the
+**v2-train source-shift** split, which *failed* (best 1.33×). So the historical
+pass is a perfect ranker and constrains θ only to θ ≤ 1 — it cannot calibrate θ by
+itself, which is why θ is derived from the old bar's algebra instead.
+
+#### Re-scored: v4-train, per arm and per split
+
+σ_S21 = 0.726 dB (best-of-3). `ceiling precision = 1.000` on both splits, so here
+`ofceil` coincides with `prec@20%`; they diverge whenever base < 0.2.
+
+| split | arm | ρ(S21) | prec@20% | base | enrich (old) | ceiling | **skill** | C1 old | **C1 restated** |
+|---|---|---|---|---|---|---|---|---|---|
+| family holdout (n=95, k=19) | trivial | – | 0.495 | 0.495 | 1.00× | 2.02× | 0.000 | no | **no** |
+| | WL-kNN | 0.687 | 0.842 | 0.495 | 1.70× | 2.02× | **0.687** | no | **YES** |
+| | ridge | 0.790 | 0.737 | 0.495 | 1.49× | 2.02× | **0.479** | no | **YES** |
+| | **GNN (ens-5)** | 0.839 | **0.895** | 0.495 | 1.81× | 2.02× | **0.792** | no | **YES** |
+| source-shift (n=420, k=84) | trivial | – | 0.455 | 0.455 | 1.00× | 2.20× | 0.000 | no | **no** |
+| | WL-kNN | 0.370 | 0.512 | 0.455 | 1.13× | 2.20× | 0.105 | no | **no** |
+| | ridge | 0.585 | 0.655 | 0.455 | 1.44× | 2.20× | **0.367** | no | **YES** |
+| | **GNN (ens-5)** | 0.610 | 0.655 | 0.455 | 1.44× | 2.20× | **0.367** | no | **YES** |
+
+**★ Verdict. On C1's letter — held-out families — all three model arms now pass:
+WL-kNN, ridge and the shipped GNN. The trivial arm fails, as it must.** On the
+harder source-shift split (the honest number for ranking *generated* candidates,
+and the one 03-SEARCH actually spends), **ridge and the GNN pass; WL-kNN fails**
+— it is the only arm the restatement does *not* rescue, consistent with §14.2's
+finding that the kNN baseline lives on duplicate structure and collapses
+(ρ = 0.003) on the novel Track-B pool. Under the retired bar **nothing passed
+anywhere**, including a perfect ranker.
+
+The GNN numbers are tonight's fresh ensemble (ρ(S21) 0.839 family / 0.610
+source-shift vs 0.851 / 0.609 last night — ensemble seed variation, prec@20%
+identical at 0.895 / 0.655). Its test sets are byte-identical to the baselines'
+(47/95 and 191/420 near-feasible), so the two tables are directly comparable.
+
+**θ is not knife-edge, and the passes are not luck.** The verdict set above is
+**identical for every θ in [0.25, 0.35]**; only at θ = 0.40 does the source-shift
+pair drop out, and at θ = 0.50 the ridge family pass does too. Separately, the
+finite-sample false-pass rate of *random* selection at θ = 0.25 is **14.0% on the
+family split** (n = 95 ⇒ k = 19, skill sd 0.203) and **0.3% on the source-shift
+split** (n = 420 ⇒ k = 84, sd 0.089). So a *marginal* family-split pass would be
+weak evidence — but the measured ones sit at 2.4 σ (ridge), 3.4 σ (WL-kNN) and
+3.9 σ (GNN) above random, and the source-shift passes at 4.1 σ. **The family
+split's 19-row top-20% is the weakest link in C1 and always was** (it is a
+property of the holdout size, not of the restatement); the fix is a larger family
+holdout, and until then the source-shift number should carry the weight.
+
+**What this does and does not license.** C1 is the "is the critic worth wiring
+into search at all" gate, and it is now passable and passed. It is *not* a claim
+that the critic is good: skill 0.367 on generated candidates means the top-20%
+captures about a third of the available improvement over random, and 03-SEARCH's
+own S1 bar (2× near-feasible enrichment from reranking) is a separate,
+still-unmet measurement.
+
+**Implementation.** `critic.c1_stats()` returns base / k / prec / ceil_prec /
+enrich / ceil_enrich / frac_ceiling / skill from one selection; `critic.c1_pass()`
+applies the gate. `enrichment_top20()` is kept as a byte-compatible 4-tuple
+wrapper so `critic_gnn.py`'s existing unpacking is untouched — **its own printed
+`C1?` column therefore still shows the retired verdict**, and that file's two-line
+reporting update is a follow-up for whoever owns it next (the numbers above were
+computed from its measured prec@20% through `critic.c1_stats`, the same code path).
+`--eval` prints the old `enrich` and the new `ofceil` / `skill` side by side, plus
+the precision each bar implies at the measured base rate.
+
+```bash
+python lna/critic.py --eval --snapshot v4-train --sigma-recipe candidate-v1+bo3
+python lna/critic.py --eval --snapshot v2-train    # reproduces the historical pass
+```

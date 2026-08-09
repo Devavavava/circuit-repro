@@ -49,6 +49,50 @@ MARGIN_CLIP = (-4.0, 2.0)     # scale units; degenerate S21=-600 rows clip to fl
 NEAR_FEASIBLE = -1.0          # a margin > -1 scale unit is "near-feasible" (§4)
 _SPEC_CACHE = {}
 
+# ----------------------------------------------------- Gate C1, as restated
+# 02-CRITIC §4 froze C1 as "enrichment@top-20% >= 2x AND rho(S21) >= 0.5". The
+# Spearman half is untouched. The enrichment half was NOT base-rate-robust and
+# had become unreachable; it is restated below (user decision, 2026-08-09).
+#
+# Why the old bar broke. With k = k_frac*n selected and n_near = base*n truly
+# near-feasible, at most min(n_near, k) of the selection can be near-feasible, so
+#     ceiling precision  = min(n_near, k)/k = min(base/k_frac, 1)
+#     ceiling enrichment = ceiling precision / base = min(1/k_frac, 1/base)
+# At k_frac = 0.2 that ceiling is 5x for base <= 0.2 but collapses to 1/base
+# above it: the pool improved from base 0.27 to 0.46 and the ceiling fell
+# 3.74x -> 2.20x, so "enrichment >= 2x" silently became "precision@20% >= 0.91",
+# and at base >= 0.5 it becomes literally unsatisfiable. The gate got harder
+# because the *candidates* got better -- backwards.
+#
+# Why not gate on raw precision@20%, or on the raw fraction of ceiling. Random
+# selection scores precision = base and fraction-of-ceiling = base/ceiling_prec,
+# both of which move with the base rate; a fixed threshold on either is passed or
+# failed by a coin flip depending only on how good the pool is.
+#
+# The restatement: score the ranker on the fraction of the *attainable* range it
+# actually captures, measured from random rather than from zero --
+#
+#     C1_skill = (precision@20% - base) / (ceiling_precision - base)
+#
+# which is 0 for random selection and 1 for a perfect ranker AT ANY BASE RATE,
+# and is undefined (reported, never silently passed) when ceiling == base, i.e.
+# when the split admits no discrimination at all.
+#
+# Calibrating theta. In the regime where the frozen bar was well-posed
+# (base <= k_frac, so ceiling_precision = base/k_frac), "enrichment >= 2x" means
+# precision >= 2*base, and
+#     skill = (2b - b) / (b/0.2 - b) = 1/4   exactly, for every such b.
+# So theta = 0.25 is the unique constant that reproduces the frozen gate's
+# meaning wherever the frozen gate had one, and removes the silent tightening
+# above it. (For 0.2 < base < 0.5 the old bar's implied skill climbs 0.25 -> 1.0;
+# that climb is the defect, not the intent.) Historical check: the v2-train
+# family-split pass -- WL-kNN precision@20% = 1.000 at base 0.485, i.e. a
+# *perfect* top-20% -- scores skill 1.000 and still passes, as required.
+C1_RHO = 0.5                  # Spearman half of C1 -- UNCHANGED
+C1_THETA = 0.25               # restated enrichment half: skill >= 0.25
+C1_KFRAC = 0.20               # selected fraction ("top-20%")
+C1_ENRICH_LEGACY = 2.0        # the retired bar, still reported for continuity
+
 
 # --------------------------------------------------------------- dataset
 def _spec(name):
@@ -282,28 +326,71 @@ def pairwise_rank_acc(y_true, y_pred, sigma):
     return ok / tot if tot else float("nan")
 
 
-def enrichment_top20(y_true_margins, score):
-    """Enrichment of near-feasible rows in the top-20% by score vs base rate.
+def c1_stats(y_true_margins, score, k_frac=C1_KFRAC):
+    """Everything Gate C1 needs, old bar and new, from one selection.
+
     y_true_margins: (n,3) array; near-feasible = all margins > NEAR_FEASIBLE.
 
-    Returns (enrichment, n_near, precision@20%, ceiling). ⚠ **The ceiling matters
-    for reading Gate C1.** Enrichment is precision@20% / base-rate, and precision
-    cannot exceed 1, so the metric is capped at 1/base-rate: once ~50% of the test
-    pool is near-feasible, a *perfect* ranker scores only 2.0x. C1's "enrichment
-    >= 2x" was set when the pool was mostly far-from-feasible; as the pool
-    improves the same bar silently becomes "perfect precision@20%". Always read
-    enrichment against its ceiling, and precision@20% as the model's real skill."""
+    Returns a dict:
+      base          base rate of near-feasible rows (what random selection scores)
+      k             rows actually selected (the top k_frac by `score`)
+      prec          precision@k -- the model's raw hit rate
+      ceil_prec     min(n_near, k)/k -- the best precision ANY ranker can reach
+      enrich        prec/base, the retired C1 metric (reported for continuity)
+      ceil_enrich   ceil_prec/base = min(1/k_frac, 1/base), its ceiling
+      frac_ceiling  prec/ceil_prec -- "fraction of ceiling", NOT base-rate-robust
+                    (random scores base/ceil_prec, which moves with the pool)
+      skill         (prec - base)/(ceil_prec - base) -- the restated criterion:
+                    0 for random, 1 for perfect, at any base rate. NaN when
+                    ceil_prec == base (no discrimination possible on this split).
+    `ceil_prec` uses the ACTUAL k rather than k_frac*n, so it stays exact when
+    rounding makes the selected fraction differ from the nominal 20%."""
     near = (y_true_margins > NEAR_FEASIBLE).all(1)
-    base = near.mean()
-    if base == 0:
+    n, n_near = len(near), int(near.sum())
+    base = float(near.mean()) if n else float("nan")
+    k = max(1, int(round(k_frac * n)))
+    out = {"n": n, "n_near": n_near, "base": base, "k": k,
+           "prec": float("nan"), "ceil_prec": float("nan"),
+           "enrich": float("nan"), "ceil_enrich": float("nan"),
+           "frac_ceiling": float("nan"), "skill": float("nan")}
+    if n == 0 or n_near == 0:
+        return out
+    ceil_prec = min(n_near, k) / k
+    # No ranking signal (e.g. the trivial arm predicts a constant) == random.
+    prec = base if np.std(score) < 1e-9 else float(near[np.argsort(-score)[:k]].mean())
+    out.update(prec=prec, ceil_prec=ceil_prec, enrich=prec / base,
+               ceil_enrich=ceil_prec / base,
+               frac_ceiling=prec / ceil_prec if ceil_prec > 0 else float("nan"))
+    denom = ceil_prec - base
+    # denom == 0 means every ranker ties: the split cannot separate anything.
+    out["skill"] = (prec - base) / denom if denom > 1e-12 else float("nan")
+    return out
+
+
+def c1_pass(rho_s21, skill, theta=C1_THETA, rho_bar=C1_RHO):
+    """Gate C1 as restated (2026-08-09): Spearman half unchanged, enrichment half
+    replaced by the base-rate-robust selection skill. Returns 'YES' / 'no' /
+    'n/a' -- 'n/a' when the split admits no discrimination, which is a
+    measurement problem to fix, not a pass and not a failure."""
+    if math.isnan(skill):
+        return "n/a"
+    if math.isnan(rho_s21):
+        return "no"
+    return "YES" if (rho_s21 >= rho_bar and skill >= theta) else "no"
+
+
+def enrichment_top20(y_true_margins, score):
+    """Backward-compatible view of `c1_stats` -- (enrichment, n_near,
+    precision@20%, enrichment ceiling). Kept so `critic_gnn.py`'s existing
+    unpacking keeps working; new code should call `c1_stats`.
+
+    ⚠ Enrichment is the RETIRED half of Gate C1. It is precision@20%/base-rate
+    and is capped at min(1/k_frac, 1/base-rate), so it gets harder to score as
+    the candidate pool improves -- see the C1 block at the top of this module."""
+    s = c1_stats(y_true_margins, score)
+    if s["n_near"] == 0:
         return float("nan"), 0, float("nan"), float("nan")
-    ceil = 1.0 / base
-    if np.std(score) < 1e-9:          # no ranking signal (e.g. trivial) -> random
-        return 1.0, int(near.sum()), float(base), ceil
-    k = max(1, int(round(0.2 * len(score))))
-    top = np.argsort(-score)[:k]
-    prec = float(near[top].mean())
-    return prec / base, int(near.sum()), prec, ceil
+    return s["enrich"], s["n_near"], s["prec"], s["ceil_enrich"]
 
 
 # --------------------------------------------------------------- evaluation
@@ -341,22 +428,35 @@ def evaluate(train, test, label, sigma):
     print(f"\n=== {label}: train {len(train)} / test {len(test)} "
           f"(sigma_S21={sigma:.3f} dB) ===")
     print(f"{'model':<9} {'rho_S11':>8} {'rho_S21':>8} {'rho_Idd':>8} "
-          f"{'rho_NF':>8} {'rankacc':>8} {'prec@20':>8} {'enrich':>7} {'C1?':>5}")
-    n_near, ceil = 0, float("nan")
+          f"{'rho_NF':>8} {'rankacc':>8} {'prec@20':>8} "
+          f"{'enrich':>7} {'ofceil':>7} {'skill':>7} {'C1?':>5}")
+    st = None
     for name, P in preds.items():
         rhos = [spearman(Yte[:, k], P[:, k]) for k in range(3)]
         racc = pairwise_rank_acc(Yte[:, s21], P[:, s21], sigma / 12.0)
-        enr, n_near, prec, ceil = enrichment_top20(Yte, _feasibility_score(P))
-        c1 = (not math.isnan(rhos[s21]) and rhos[s21] >= 0.5
-              and not math.isnan(enr) and enr >= 2.0)
+        st = c1_stats(Yte, _feasibility_score(P))
         print(f"{name:<9} {rhos[0]:>8.3f} {rhos[1]:>8.3f} {rhos[2]:>8.3f} "
               f"{nf.get(name, float('nan')):>8.3f} "
-              f"{racc:>8.3f} {prec:>8.3f} {enr:>7.2f} {'YES' if c1 else 'no':>5}")
-    print(f"  near-feasible test rows (all margins > {NEAR_FEASIBLE} scale unit): "
-          f"{n_near}/{len(test)} = base rate {n_near / max(len(test), 1):.3f} "
-          f"-> **enrichment ceiling {ceil:.2f}x** (a perfect ranker scores this). "
-          f"NF-labeled test rows: {nf.get('_n', 0)}/{len(test)} "
-          "(series-Rs only; C1 gates S21+enrichment, NF is the added head).")
+              f"{racc:>8.3f} {st['prec']:>8.3f} {st['enrich']:>7.2f} "
+              f"{st['frac_ceiling']:>7.3f} {st['skill']:>7.3f} "
+              f"{c1_pass(rhos[s21], st['skill']):>5}")
+    if st:
+        print(f"  near-feasible test rows (all margins > {NEAR_FEASIBLE} scale "
+              f"unit): {st['n_near']}/{st['n']} = base rate {st['base']:.3f}; "
+              f"top-20% selects k={st['k']} -> ceiling precision "
+              f"{st['ceil_prec']:.3f} (= retired enrichment ceiling "
+              f"{st['ceil_enrich']:.2f}x). A perfect ranker scores skill 1.000, "
+              f"random scores 0.000.")
+        print(f"  Gate C1 (restated 2026-08-09) = rho(S21) >= {C1_RHO} AND "
+              f"skill >= {C1_THETA}, skill = (prec@20% - base)/(ceiling prec - "
+              f"base). At this base rate that is prec@20% >= "
+              f"{st['base'] + C1_THETA * (st['ceil_prec'] - st['base']):.3f}; "
+              f"the retired bar (enrichment >= {C1_ENRICH_LEGACY:.0f}x) would "
+              f"have demanded prec@20% >= "
+              f"{min(C1_ENRICH_LEGACY * st['base'], 1.0):.3f}"
+              f"{' -- UNREACHABLE' if C1_ENRICH_LEGACY * st['base'] > st['ceil_prec'] + 1e-12 else ''}."
+              f" NF-labeled test rows: {nf.get('_n', 0)}/{len(test)} "
+              "(NF is an added head, not gated by C1).")
     _per_spec(test, Yte, preds, s21)
 
 

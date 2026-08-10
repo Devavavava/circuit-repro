@@ -4621,3 +4621,24 @@ The blind protocol held throughout — every move is a generic textbook edit fro
 frequency-domain and ideal-element: no process corners, no load pull, no
 package/layout parasitics (§13, caveat 2). Neither qualifies the gate as written,
 but both qualify the engineering claim.
+
+### 25.6 Independent confirmation from `benchmark.py`, and a shared-artifact note
+
+The gate claim above is audited by my own harness, so it was also run through a
+**different code path**: `benchmark.py --specs dhruva-s,dhruva-l5 --all-feasible
+--seeds 1 --budget 6,6,2`, 17 candidates, which re-sizes each candidate from its
+stored tokens with its own curated recipe rather than replaying my parameters.
+
+**tier-1 yield dhruva-s 3/17 · dhruva-l5 3/17; tier-2 yield dhruva-s 1/17 ·
+dhruva-l5 0/17.** That single tier-2 cell is `ace8383c2fa68d03`, reproduced
+independently — and it is **the first tier-2 dhruva cell the benchmark has ever
+reported** (§14.3 read 0 on all four bands, with the whole program's tier-2
+record being one wifi24 cell). The binding constraint on the remaining
+infeasible cells is unchanged and unrelated: `s11_max` on 13 of them.
+
+⚠ **Shared-artifact note.** That invocation rewrites `lna/data/benchmark.md`, and
+because it named only two specs it dropped the `gps-l1` / `wideband-sdr` /
+`dhruva-l2` rows the committed 7-spec table carries. **The file was reverted and
+is NOT part of this change** — the numbers above come from the run's own JSON
+checkpoint. Anyone refreshing that table should pass the full spec list, or the
+refresh is a regression for every spec they leave out.

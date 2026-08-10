@@ -1509,9 +1509,13 @@ pull, or package/layout parasitics.
    *feasible* dhruva labels for the first time; `emit_winners` + a P5 fine-tune on
    them is the natural expert-iteration step, and it is the route to a
    *generated* tier-2 feasible (the claim this result explicitly does not make).
-3. **`benchmark.py` dhruva rows were refreshed post-budget-change** (`--specs
-   dhruva-s,dhruva-l5 --all-feasible --seeds 1 --budget 6,6,2`); re-run at full
-   budget when convenient, and add the two D3 designs to the candidate set.
+3. **`benchmark.py` independently reproduces the gate** (2-spec, 17 candidates):
+   tier-1 dhruva-s 3/17 · l5 3/17, **tier-2 dhruva-s 1/17 · l5 0/17** — the
+   first tier-2 dhruva cell the benchmark has ever reported (§14.3 read 0 on
+   all four bands). ⚠ That invocation **rewrites `lna/data/benchmark.md` and
+   drops every spec not named** — it dropped gps-l1 / wideband-sdr / dhruva-l2,
+   so the file was reverted and is not part of this change. Re-run at full
+   budget with the **full spec list**, and add the two D3 designs to the set.
 4. **l2 / l1 remain unmeasured** under the new budget.
 
 ## 1. TL;DR — what shipped this session

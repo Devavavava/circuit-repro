@@ -14,6 +14,13 @@ history (origins → phase 1 → phase 2 → Dhruva → the honesty corrections 
 current frontier). Every future session appends/edits its own stage there as
 part of its wrap-up, same commit discipline as this file and `FINDINGS.md`.
 
+**How the machine works, not how it got here:** `lna/STRUCTURE_LOGIC.md` is the
+architecture doc — every building block (vocabulary/topology, data sources,
+generator, eval ladder, sizing/verification, label store, critic, search, the
+loops, integrity mechanisms), what's trained vs. rule-based, and what feeds
+what. Any session that changes the architecture updates the affected section
+there as part of its wrap-up, same discipline as `JOURNEY.md`.
+
 ---
 
 ## Session 2 — Phase 2 Stages 0–3 + last-mile + **★ STAGE 3 PHASE EXIT MET** (curve 967→367→**187**, 6 feasible wifi24 LNAs) + **★★ WP-BROADEN: Gate B1 gps-l1 CLOSED** (P5-v3 → 2 novel feasible gps-l1 LNAs; NDL 73→100 + new wb channel). Remaining: wideband-sdr + the NF harness.

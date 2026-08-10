@@ -46,6 +46,9 @@ from zoaf.zoaf_core import ZOAF  # noqa: E402  (generic core; the *param variant
 # failed simulation must score worse than any infeasible point.
 SIM_FAIL_PENALTY = 1e3
 
+# sentinel: 'argument not supplied' (None is a MEANINGFUL value for w_finger)
+_UNSET = object()
+
 
 def kind_ranges(spec):
     # PyYAML parses exponentials without a decimal point (20e3, 10e-12) as
@@ -436,12 +439,18 @@ def polish(topo, spec, prior_params, budget=80, inductor_q=12, exclude=()):
             "n_evals": n, "min_margin": best_mm}
 
 
-def prepared_body(topo, inductor_q=12):
+def prepared_body(topo, inductor_q=12, w_finger=_UNSET):
     """(body, sizable, fixed) for a topology, bias inserted -- or None if biasing
     skips it. Factored out of polish/size_topology so a driver can pay the
-    bias-insert cost once and then run many searches on the same deck."""
+    bias-insert cost once and then run many searches on the same deck.
+
+    `w_finger` defaults to to_spice's own default (multi-finger since the
+    2026-08-10 cutover); pass None to reproduce a pre-cutover single-finger
+    deck, which is what the relabel tool's replay fence needs."""
     import bias
     kw = {"inductor_q": inductor_q} if inductor_q else {}
+    if w_finger is not _UNSET:
+        kw["w_finger"] = w_finger
     nl, _, rep, _ = bias.insert_bias(topo, sweep=True, **kw)
     if rep.get("skipped") or not nl.two_port:
         return None

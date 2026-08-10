@@ -177,7 +177,7 @@ HDR = (f"{'candidate':<22} {'seed':>4} {'sims':>5} {'S11*':>6} {'S21':>6} "
 
 def run(spec_name, sources, seeds, budget, mode, nf_cap, floor, jitter,
         pre_budget, log, out_json, keep_set="tier1", fresh=False,
-        s21_floor=None):
+        s21_floor=None, recipe=RECIPE):
     spec = S._spec_for_sizing(spec_name)
     assert S.nf_is_gated(spec), f"{spec_name} does not gate nf_db"
     nf_lim = (spec.constraints.get("nf_db") or {}).get("max")
@@ -299,7 +299,7 @@ def run(spec_name, sources, seeds, budget, mode, nf_cap, floor, jitter,
                                       "keep": keep_set,
                                       "seed": seed, "floor": floor, "fresh": fresh,
                                       "inductor_q": 12}, **c["origin"]),
-                                RECIPE, ne, inductor_q=12, repeat_probe=True)
+                                recipe, ne, inductor_q=12, repeat_probe=True)
         if best:
             print(f"{'':<22} {'BEST':>4}       {_row(best[1])}")
     if out_json:
@@ -332,13 +332,14 @@ def main():
                     help="mode=match: gain floor to hold (default: the spec min)")
     ap.add_argument("--fresh", action="store_true",
                     help="per-seed independent match-first restart (global multi-start)")
+    ap.add_argument("--recipe", default=RECIPE)
     ap.add_argument("--no-log", action="store_true")
     ap.add_argument("--out", default=None)
     a = ap.parse_args()
     run(a.spec, [s for s in a.source.split(",") if s],
         [int(s) for s in a.seeds.split(",") if s != ""],
         a.budget, a.mode, a.nf_cap, a.floor, a.jitter, a.pre_budget,
-        not a.no_log, a.out, a.keep, a.fresh, a.s21_floor)
+        not a.no_log, a.out, a.keep, a.fresh, a.s21_floor, a.recipe)
 
 
 if __name__ == "__main__":

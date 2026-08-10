@@ -1,730 +1,802 @@
 # The LNA Pipeline — Structure & Logic
 
-**What this is.** `JOURNEY.md` tells the story of how this system came to be —
-decisions, dead ends, who decided what, in chronological order. This document
-is the other cut through the same repository: not *how we got here* but *how
-the machine works today* — the building blocks, what feeds into what, and for
-each block, what it actually is (trained model? deterministic optimizer?
-hand-written rule?) and how it got that way. Read `JOURNEY.md`'s own preamble
-first if you haven't; this document assumes the same vocabulary (specs,
-gates, WP-names) without re-explaining it.
+**What this is.** `JOURNEY.md` tells the story of this project in order — what
+happened, who decided it, what it measured. This document does not retell that
+story. It is the architecture snapshot: the building blocks that exist *right
+now*, how each one is trained or derived (or explicitly not trained at all),
+what feeds into what, and the one or two design decisions per block that a new
+collaborator would otherwise have to reconstruct from the code. Read this to
+answer "how does this machine actually work?"; read `JOURNEY.md` to answer
+"how did we get here, and why?"
 
-**Maintenance contract.** Any session that changes the architecture — adds a
-block, retires one, changes what feeds what, promotes a metric from
-`unsupported` to gated, adds a training arm, changes a frozen protocol —
-updates the affected section here as part of its wrap-up, same discipline as
-`JOURNEY.md` and `FINDINGS.md`. Cite sources inline (`FINDINGS §N`,
-`HANDOVER Session N`, a file:line) rather than restating numbers from memory;
-numbers drift, pointers don't. If code and a narrative doc disagree, trust
-the code and note the disagreement rather than silently picking one.
+**Maintenance contract.** Any session that changes a block's mechanism — a new
+sizing recipe, a retrained critic architecture, a new search rung, a changed
+gate definition — updates the affected block here as part of its wrap-up, the
+same commit discipline `JOURNEY.md` and `FINDINGS.md` already carry. Numbers
+here are point-in-time; when a number changes, update it and note the
+`FINDINGS §N` it came from — don't leave a stale figure standing. This file
+does not duplicate `JOURNEY.md`'s chronology or `FINDINGS.md`'s
+measurement-by-measurement detail; it points at both rather than restating
+them.
 
-**Blind-protocol note.** Same rule as everywhere else in this repo: nothing
-here describes the Kanchetla et al. (TMTT 2022) paper's circuit — only the
-spec numbers the user released, per §10 below.
+**Ground truth.** Every claim below was checked against the code in this
+worktree (`lna-data`), cross-referenced against `HANDOVER-EXEC.md` and
+`FINDINGS.md` where numbers matter. Where code and prose disagreed, code won —
+the one confirmed instance is noted in Block 1.
+
+**Blind-protocol note.** Like every other file in the repo, this document
+describes only the allowed spec-number excerpt from the Dhruva target paper
+(Kanchetla et al., TMTT 2022) — never its circuit. See `plans2/08-DHRUVA-GOAL.md`
+and Block 10.
 
 ---
 
-## Map of the machine
+## Dataflow, end to end
 
 ```mermaid
 flowchart TD
-    subgraph DATA["Data sources (§2)"]
-        CORPUS["50-circuit real corpus\n41 AnalogGenie + 9 ingested\nbuild_lna_corpus.py / ingest_external.py"]
-        ARCH["148 hand archetypes\ntemplates.py"]
-        WIN["Winners\ntemplates.py --emit-winners"]
+    subgraph DATA["Data sources — Block 2"]
+        CORPUS["50-circuit real corpus<br/>41 AnalogGenie + 9 ingested externals<br/>build_lna_corpus.py / ingest_external.py"]
+        TEMPL["148 hand archetypes<br/>templates.py"]
     end
 
-    subgraph GEN["Generator (§3)"]
-        FT["finetune.py\n11.8M-param GPT, next-token CE\narms P1/P2/P5-vN"]
-        SAMP["generate.py\nprefix-conditioned sampling"]
-        NOV["novelty.py\nNDL@256, ref-v1/v2/v3"]
-    end
+    FT["Fine-tune — Block 3<br/>finetune.py (P1 / P2 / P5-vN)<br/>next-token cross-entropy, WSL GPU"]
+    CKPT["Generator checkpoint<br/>11.8M-param GPT, warm-started"]
+    GEN["Sample — generate.py<br/>prefix + class-token conditioning"]
+    NOV["novelty.py: NDL@256 vs ref-v1/2/3<br/>loop.py: adopt-only-if-better + tripwires"]
 
-    subgraph LADDER["Evaluation ladder (§4-5)"]
-        L0["L0 screen.py / topology.py\nstructural score, spec screen"]
-        L1["L1 bias.py\nR-GATE/SOURCE/DRAIN, rule-based"]
-        L2["L2 to_spice.py -> extract.py -> size.py\nZOAF sizing, ngspice-verified"]
-    end
+    L0["L0 structural / spec screen<br/>screen.py + spec.py — Block 4"]
+    L1["L1 operating point<br/>bias.py: R-GATE / R-SOURCE / R-DRAIN — Block 4"]
+    L2["L2 sizing & verification<br/>to_spice.py + extract.py + size.py — Block 5"]
 
-    STORE["Label store (§6)\ndatastore.py\nappend-only JSONL, recipes, WL-family splits"]
+    STORE[("Label store — Block 6<br/>datastore.py, append-only JSONL")]
+    CAMP["campaign.py<br/>stratified nightly labeling"]
 
-    subgraph LEARN["Critic (§7)"]
-        CRIT["critic.py (ridge/kNN)\ncritic_gnn.py (GNN ensemble)"]
-    end
+    CRITIC["Critic — Block 7<br/>critic.py baselines / critic_gnn.py (ships as v1)"]
+    WINNERS["Winners — Block 2/9<br/>templates.py --emit-winners<br/>(expert iteration, Loop B)"]
 
-    subgraph SEARCH["Search (§8)"]
-        S1["rung 1: search.py\ncritic rerank"]
-        S2["rung 2: evolve.py + moves.py\nevolutionary, SPICE-in-the-loop"]
-    end
+    RUNG1["Rung 1: critic rerank<br/>search.py — Block 8"]
+    RUNG2["Rung 2: evolutionary search<br/>moves.py + evolve.py — Block 8"]
 
     CORPUS --> FT
-    ARCH --> FT
-    WIN -. "Loop B expert iteration (§9)" .-> FT
-    FT --> SAMP
-    SAMP --> NOV
-    NOV -- "adopt-only-if-better" --> FT
-    SAMP --> L0 --> L1 --> L2
-    ARCH -.-> L0
-    L2 --> STORE
-    STORE --> CRIT
-    CRIT --> S1
-    STORE --> S2
-    S1 --> L2
-    S2 --> L2
-    L2 -- "feasible + near-feasible" --> WIN
-    STORE -. "labels train" .-> CRIT
+    TEMPL --> FT
+    WINNERS -.imitation data only, no reward.-> FT
+    FT --> CKPT --> GEN --> NOV
+    NOV -->|adopted checkpoint| CKPT
+    GEN --> L0 --> L1 --> L2 --> STORE
+    CAMP --> L0
+    STORE --> CAMP
+    STORE --> CRITIC
+    STORE --> WINNERS
+    CRITIC --> RUNG1 --> L2
+    CRITIC --> RUNG2 --> L2
+    RUNG2 -.mutant graphs.-> L0
+
+    classDef store fill:#2b2440,stroke:#8a7bd6,color:#fff;
+    class STORE store;
 ```
 
-The loop closes twice, at two different costs. **Loop A** (cheap): the
-critic reranks or steers search candidates before they ever touch SPICE.
-**Loop B** (expensive, ground-truth): SPICE-verified feasible/near-feasible
-designs are re-emitted as `templates.py` "winners" and mixed back into the
-generator's supervised training set (`finetune.py --winners`). Neither loop
-is reinforcement learning — see §9's non-RL statement, which is deliberately
-explicit because "self-improvement loop" invites the RL assumption and the
-codebase contains none.
+Everything downstream of the checkpoint (screen, bias, sizing, storing,
+critic, search) is deterministic or classically-trained (ridge/kNN/GNN) code
+— none of it is a language model. The only generative, autoregressive model
+in the whole system is the Block 3 checkpoint; everything else either
+prepares its input, scores its output, or feeds a better version of it back
+in as more imitation data. Block 9 states explicitly why none of the feedback
+arrows above are reinforcement learning.
 
 ---
 
 ## 1. Representation & vocabulary
 
-Circuits are token sequences: an Eulerian path over a device–pin graph, the
-encoding AnalogGenie uses. `lna/genie_common.py` owns the vocabulary — 1,005
-tokens (devices, per-device pins, net classes, `VDD`/`VSS`/`TRUNCATE`),
-built **positionally** in `build_vocab()` so token *ids*, not just token
-*names*, match the pretrained checkpoint exactly. This is checked, not
-assumed: `test_vocab_matches_upstream.py` `exec`s the vocabulary-building
-code straight out of `AnalogGenie/repo/Inference.py` on every run and asserts
-list-equality against `genie_common`'s own build, plus hard ids
-(`VOCAB_SIZE==1005`, `STOI["VSS"]==1003`, `STOI["TRUNCATE"]==1004`) — a live
-regression guard against upstream drifting, not a one-time diff. What
-`genie_common.py` adds over upstream is purely a serving-side speedup:
-batched sampling, early stop once every row in a batch has emitted
-`TRUNCATE`, and prefix conditioning (seed with an arbitrary token list
-instead of bare `VSS`) — none of it changes what a token means.
+Circuits are token sequences — an Eulerian path over a device-pin graph, the
+same scheme AnalogGenie (the external prior-art generator this project warm-
+starts from) uses. `lna/genie_common.py` holds the vocabulary: **1005 tokens,
+byte-identical to upstream** — device-instance tokens (`NM1..34`, `PM1..34`,
+`NPN1..26`, `PNP1..26`, `R1..27`, `C1..15`, `L1..23`, `DIO1..7`, plus digital
+cells), each immediately followed in the vocabulary by its own pin tokens
+(`NM3_D/G/S/B`, `R5_P/N`, …), and structural tokens for ports/bias nets
+(`VIN*`, `VOUT*`, `VDD`, `VSS`, `VB*`, …) plus the `TRUNCATE` sentinel
+(`VSS_ID=1003`, `TRUNCATE_ID=1004`).
 
-`lna/topology.py` turns a decoded token sequence back into devices, nets,
-and electrical nodes: pins and nets that are adjacent in the raw sequence
-are wired together (union-find), so `Topology` reconstructs the same graph
-regardless of which Eulerian traversal produced the sequence. Two
-structural facts fall out of that reconstruction and matter downstream:
+**Not trained — a frozen, hand-pinned vocabulary.** `lna/test_vocab_matches_upstream.py`
+execs the vocabulary-building code sliced out of upstream `Inference.py`,
+diffs the resulting device list token-for-token against `genie_common.DEVICES`,
+and asserts `VOCAB_SIZE==1005` / `STOI["VSS"]==1003` / `STOI["TRUNCATE"]==1004`.
+This is a pure regression guard — one leg of the "regression quartet(+)"
+(Block 10) — protecting against silently decoding a checkpoint's output into
+the wrong device names.
 
-- **The structural LNA score** (`Topology.lna_score()`) is five booleans —
-  has an inductor, inductor ratio ≥ 0.10, has a transistor, has both a
-  `VIN`-class and `VOUT`-class net, device count in [2,15] — thresholds
-  taken directly from the dataset's own 41-circuit LNA subset, where
-  inductor share is ~20% of devices vs ~0.8% corpus-wide (FINDINGS §1).
-  It's a purely structural score; nothing here has seen a volt.
-- **Floating-subcircuit detection** (`floating_devices()`) builds a second
-  union-find over the *node* graph and calls a component floating if it
-  never touches a driven net (`VDD`/`VSS`/`VB*`/`VCM*`/`VREF*`/`VIN*`/
-  `VOUT*`/`IB*`). Bias-insertion scaffolding (`RBIAS*`/`CBYP*`/`VBGEN*`,
-  §4) is explicitly excluded from this check so that inserting bias can't
-  hide a genuinely floating island — the detector that caught corpus index
-  1081's real defect (an ideal-inductor branch singularity, not a floating
-  subcircuit as first suspected — FINDINGS §1, JOURNEY stage 2) still works
-  on generated topologies today.
+**The encoding, concretely.** The compressed device-pin graph has two edge
+kinds: *wire* edges (real electrical connections) and *membership* edges (a
+device token spans between two of its own pins). Upstream's `dfs_all_paths`
+finds an Eulerian path starting at `VSS` that covers every edge exactly once —
+the walk *is* the token sequence, and decoding just replays adjacency.
+`lna/topology.py`'s `Topology(tokens)` reconstructs the circuit by union-find:
+an adjacency pair `(a, b)` is a wire edge (unioned into one electrical node)
+unless either token is a device instance, in which case it's membership and
+ignored for node-building. Sequences right-pad to 1025 tokens with `TRUNCATE`.
 
-Neither of these components is trained. They are deterministic parsers and a
-hand-set structural rule, and they are the ground floor everything else
-stands on: the generator emits token sequences, and every other block below
-starts by asking `topology.py` what those tokens mean.
+`topology.py` also computes two things nothing else in the pipeline
+recomputes:
 
----
+- **The structural LNA score** (`lna_score()`), five criteria derived from the
+  real LNA subset's own device statistics (20.3% inductor share in LNAs vs
+  0.8% corpus-wide — `FINDINGS §1`): `has_inductor`, `inductor_ratio ≥ 0.10`,
+  `has_transistor` (MOS only, not bipolar — a recorded gap, `FINDINGS §19.1`),
+  `has_rf_ports` (both `VIN`/`VOUT` nets present), `lna_sized` (2–15 devices).
+  It judges nothing electrical — purely "worth simulating."
+- **Floating-subcircuit detection** (`floating_devices()` /
+  `has_floating_subcircuit`, the H-Q3 mechanism): device-level connected
+  components over electrical nodes; a component is "driven" iff it touches a
+  reference net (`VDD`/`VSS`/`0` exactly, or a `VB*`/`VCM*`/`VREF*`/`VIN*`/
+  `VOUT*`/`IB*`-prefixed net), excluding bias-scaffolding device prefixes
+  (`RBIAS`/`CBYP`/`VBGEN`) so inserted bias can never mask a real flag. Used as
+  a hard gate in `ingest_external.py` and, opt-in per spec, in
+  `spec.structural_screen` (Block 4).
+
+**Design decisions:**
+
+- Keeping AnalogGenie's exact vocabulary and pretrained checkpoint, rather than
+  building a new generator from scratch, was the load-bearing Phase-1 call: 41
+  LNA graphs is a bad trade against a pretrain over 3,351 circuits on a 4 GB
+  GPU (`JOURNEY §2`).
+- **Code-vs-doc disagreement, resolved in favor of code.** `topology.py`'s own
+  comments cite corpus index 1081 as the motivating example of a genuinely
+  floating sub-circuit. `HANDOVER-EXEC.md` (finding #3) corrects this: 1081 is
+  fully connected and fails on an *ideal-inductor branch singularity*, fixed
+  by giving inductors finite Q (Block 5), not by the floating detector. The
+  detector mechanism itself is unaffected and still correctly used for
+  generated topologies — only its illustrative code comment is stale.
 
 ## 2. Data sources
 
-Three things feed the generator, and they are not the same kind of thing.
+Three deterministic (non-learned) channels feed the fine-tune corpus.
 
-**The 50-circuit real corpus** — 41 circuits native to AnalogGenie's own
-3,351-circuit dataset (indices 461–492, 1081–1090) plus 9 externally
-ingested real designs (IHP SG13G2 open tapeouts, an ALIGN example, cited
-transcriptions from published papers) living under `lna/data/external/*`,
-each with its own `provenance.json`. `build_lna_corpus.py` stages both: the
-41 through AnalogGenie's own graph-building code (never patched, `exec`'d
-from source), the 9 through `ingest_external.py`'s gate ladder — provenance
-→ Eulerian augmentation → structural validity → vocabulary round-trip →
-WL-hash identity — where a failure means quarantine, not a forced pass.
-Result: **9 attempted, 9 ingested, 0 quarantined** (FINDINGS §19.2). "Eulerian
-augmentation" is the same upstream DFS-all-paths / edge-cover algorithm
-applied to every circuit, real or hand-built: one graph produces many
-token-sequence traversals of itself (up to 200 solutions/circuit for the
-corpus, a reduced schedule for the externals to keep the O(N²) cover-check
-tractable), which is what turns 50 graphs into ~4,500 training rows. The
-`ingest_external.py` provenance check also mechanically enforces the blind
-protocol (§10): a circuit whose provenance text matches an excluded-source
-marker is rejected regardless of how well it sizes.
+**The 50-circuit real corpus** (`lna/build_lna_corpus.py`, `lna/ingest_external.py`).
+41 circuits reconstructed from AnalogGenie's own dataset (indices 461–492,
+1081–1090), run through the same two-stage upstream pipeline
+(`SPICE2GRAPH_compress` → `Augmentation.dfs_all_paths`) that produces the
+token sequences — one circuit becomes many training rows via multiple
+distinct Eulerian traversals of the same graph ("Eulerian augmentation," used
+identically for the corpus, the 9 externals, and every `templates.py`
+archetype). Plus **9 externally ingested circuits** (IHP SG13G2 tapeouts and a
+handful of cited published LNAs) under `lna/data/external/<id>/`, each with
+its own `provenance.json`, augmented at a reduced budget ladder. `ingest_external.py`
+gates every candidate on: **provenance** (a mechanical re-check of the blind
+protocol — scans source/citation JSON for excluded-source markers and
+requires an explicit independence statement), **augmentation** coverage,
+**structure** (`Topology.valid` + the Block-1 floating detector),
+**vocabulary** round-trip, and WL-hash **identity**. Result: 9/9 ingested, 0
+quarantined (`FINDINGS §19.2`). Externals are deliberately under-weighted — 18%
+of circuits, only 10.7% of training rows, because the reduced augmentation
+budget caps how many sequences one external circuit contributes.
 
-**148 hand archetypes** (`templates.py`) are constructor functions, not
-mined data: `cs_lna` (inductively-degenerated common-source, the narrowband
-workhorse, with gate-inductor/degen/Cex/cascode/load/buffer options),
-`cg_lna` and `rfb_lna` (inductorless wideband), `cs_cs_lna` and
-`current_reuse_lna` (gain- and current-budget-specific), and — added under
-the Dhruva blind protocol and tagged `recipe: blind-v1` — `rfb_cs_lna`,
-`rfb_cs3_lna`, `gmb_cg_lna`, `nc_cgcs_lna` (generic textbook low-noise
-families chosen *without* consulting the excluded paper). Every archetype is
-written as a netlist and pushed through the same upstream Eulerian-DFS
-augmentation as real circuits — there is no separate "synthetic" code path.
-`--emit-winners` (Loop B, §9) reranks *already-sized* topologies from the
-label store by `spec.objective()` per spec and keeps the top quartile (not a
-fixed feasible cutoff) — "winners" are drawn from true SPICE numbers only,
-never critic scores. Class tokens `<LNA_NB>`/`<LNA_WB>` tag a circuit by
-whether `Topology(...).n_inductors >= 1` (inductor presence, not a declared
-narrowband/wideband target) — a mechanical rule applied uniformly to corpus,
-external, and archetype rows alike in `finetune.py`.
+**148 hand-built archetypes** (`lna/templates.py`). Constructor families: `cs_lna`
+(inductively-degenerated common-source — the narrowband workhorse, with
+±gate-inductor / ±degeneration / ±Cex / ±cascode and R / tank / tapped-C
+loads, ±output buffer), `cg_lna` (common-gate, inductorless wideband match),
+`rfb_lna` (resistive shunt-feedback, inductorless wideband), `cs_cs_lna` /
+`current_reuse_lna` (two-stage / current-reuse gain boosters), and four
+**`blind-v1`** families added once the Dhruva blind-protocol work started —
+`rfb_cs_lna` / `rfb_cs3_lna` (broadband-match-then-tuned-gain, 2/3 stage),
+`gmb_cg_lna` (gm-boosted common-gate), `nc_cgcs_lna` (noise-cancelling CG+CS)
+— each documented as a generic textbook block chosen from a *measured
+failure mode*, explicitly never from the excluded paper (Block 10). Every
+archetype is WL-deduped and Eulerian-augmented through the same upstream
+pipeline the real corpus uses.
 
-**Design decisions that matter:** the archetype/corpus split is deliberately
-visible to the novelty metric — `ref-v2` extended the novelty reference to
-include archetypes specifically because ~51% of one generation arm's
-"novel" output was verbatim archetype regeneration under the narrower
-`ref-v1` (FINDINGS §14.5, §10 below); and the 41→50 corpus growth was
-measured to change *nothing* about existing pools' novelty scores under
-`ref-v3` (§19.3) — real data was added as insurance for future training runs,
-not because anything was broken.
+**Winners** (`templates.py --emit-winners`, the expert-iteration channel — Loop
+B, Block 9). Pulls feasible + top-quartile near-feasible sized designs
+straight from the label store, per-spec, re-Eulerian-augments them,
+oversamples feasible rows 2×. "TRUE SPICE numbers only — critic scores never
+select training data" (module docstring). This is how a design the pipeline
+actually built and verified becomes more imitation-learning data for the next
+fine-tune.
 
----
+**Class tokens `<LNA_NB>` / `<LNA_WB>`** (defined in `finetune.py`, appended
+after the 1005 upstream ids) tag every corpus/template/winner row by band
+(narrowband = inductor-bearing, wideband = inductorless-tolerant) and select
+which class the generator samples from at `generate.py` time.
+
+**Design decisions:**
+
+- `FINDINGS §16`'s template-free control experiment measured that archetypes
+  buy structural **yield**, not novelty: removing them drops nb spec-L0 pass
+  rate 80.5% → 35.5% while NDL@256 (Block 3) only falls 52 → 42 → 26 — roughly
+  half the generator's genuine novelty survives their complete removal
+  (`§16.3`, `§16.5`). `templates.py`'s job is teaching the model what a valid
+  LNA looks like, not supplying new ideas.
+- The nine ingested externals bought **+27 nb / +20 wb NDL@256 (+52%/+95%)**
+  from just 5.8% of the training rows — the single largest generator-novelty
+  jump measured in the program — and it worked by *displacing archetype
+  copying*, not corpus copying (`FINDINGS §24.2–24.4`). It is explicitly
+  costed, not free: 11.4 points of screen yield and a wb inductor-ratio
+  regression (`JOURNEY`, "Current frontier").
 
 ## 3. The generator (LLM)
 
-**What it is.** An 11.8M-parameter GPT-style model (`BLOCK_SIZE=1024,
-N_EMBD=384, N_HEAD=6, N_LAYER=6`) — AnalogGenie's own pretrained checkpoint,
-warm-started and fine-tuned on LNA-specific data. `lna/finetune.py` runs
-several **arms**, each a different training-data recipe over the identical
-architecture and objective:
+An **11.8M-parameter**, GPT-style decoder-only Transformer (nanoGPT-style
+causal self-attention; `BLOCK_SIZE=1024, N_EMBD=384, N_HEAD=6, N_LAYER=6`),
+pretrained upstream by AnalogGenie on its full 3,351-circuit corpus
+(`Pretrain.pth`) and **never trained from scratch in this repo** — every arm
+below is a warm-start fine-tune.
 
-- **P1** adds `<LNA>`/`<OTHER>` class tokens (new embedding rows,
-  mean-initialized from pretrained ones) so the model can be sampled
-  unconditionally for LNAs.
-- **P2** is the same data, no vocabulary change, bare-`VSS` sampling — "the
-  baseline the handover demands."
-- **P5** (the productive line, P5-v1…v7) uses three class tokens
-  (`<LNA_NB>`/`<LNA_WB>`/`<OTHER>`), mixes in the Eulerian-augmented
-  `templates.py` archetypes (the "template scaffolding" lever — `--no-templates`
-  is the control arm that measures how much of P5's gain is the scaffolding
-  itself, FINDINGS §16), and a 15% `<OTHER>` replay so the model doesn't
-  forget the rest of AnalogGenie's distribution.
-  `--external-corpus` (P5-v7) mixes the 9 ingested real circuits into
-  *training only*, holding validation byte-identical to P5-v3 so "expanded
-  corpus" is the single changed variable (FINDINGS §19, §24).
-  `--winners` mixes SPICE-verified winners from the store (Loop B, §9),
-  warm-starting from the base P5 checkpoint into a separate `_v2`-suffixed
-  file so the base is never overwritten.
+**Arms** (`lna/finetune.py`):
 
-**How it's trained — and what it is not.** The training signal is plain
-next-token cross-entropy (`F.cross_entropy` over shifted token targets),
-optimized with AdamW. That is the *entire* loss surface: there is no reward
-term, no SPICE-derived scalar anywhere near the gradient, no policy-gradient
-or value-function machinery in the file. "Winners" and "external corpus"
-look like self-improvement but are exactly that and nothing more: curated
-rows added to a supervised training set, still trained by the same
-cross-entropy objective — the SPICE/critic signal only ever decides *which
-rows get added*, never touches the loss (see §9's non-RL statement, which
-applies equally here). Every fine-tune in the program **overfits by epoch
-0–1** on the ~35-graph effective training set (val loss rises monotonically
-after; FINDINGS §16, §18, §24) — `ckpt_policy="best"` saves only the
-lowest-val-loss epoch, which is why "best-val" isn't a tuning choice so much
-as the only checkpoint worth keeping. Training runs on a WSL-side GPU
-(finetune.py's own comment: `# WSL GPU:`).
+- **P1** — extends the vocabulary with `<LNA>`/`<OTHER>` class tokens
+  (new rows mean-initialized), trains on the 41-circuit corpus tagged `<LNA>`
+  + ~22% general-corpus replay tagged `<OTHER>`, samples from `<LNA> VSS` with
+  no seed prefix.
+- **P2** — same data, bare-`VSS` sampling, no vocab change; the reference
+  "plain fine-tune" baseline.
+- **P5-vN** — the adopted lineage. Corpus (NB/WB-tagged by inductor count) +
+  Eulerian-augmented `templates.py` archetypes + `<OTHER>` replay,
+  `<LNA_NB>`/`<LNA_WB>` class tokens. History is additive: v1→v6 grew the
+  archetype set 92→118→135→148 and added the `--winners` channel; **v7**
+  (current adopted baseline) adds `--external-corpus` (the 9 ingested
+  circuits, train-only, so the validation set — and the best-val
+  early-stopping criterion — stays byte-identical to v3). `--no-templates`
+  and `--warm-from` exist only for controlled experiments (the template-free
+  control, `FINDINGS §16`; the curriculum arm, `FINDINGS §18`) and are not
+  part of the adopted lineage.
 
-**Sampling** (`lna/generate.py`, plus `finetune.py`'s own `sample()` for
-fine-tuned arms) is prefix-conditioned: seed with the first N tokens of a
-real LNA traversal (or a class token) instead of bare `VSS`, batch B
-heterogeneous-length rows through one forward pass, early-stop per row.
-Temperature (default 0.7) scales logits before a plain `torch.multinomial`
-draw — there is no top-k/top-p truncation anywhere in the sampler.
+**The training signal, precisely.** Standard next-token cross-entropy
+(`F.cross_entropy` over the vocabulary at every position, loss masked after
+`TRUNCATE`) on the token stream from Block 1. This is supervised imitation
+learning on sequences — corpus circuits, hand archetypes, and past winners are
+all just "more text to predict the next token of," differing only in how many
+augmented rows of each survive into the mix. **What the training signal is
+not: there is no reward, no scalar SPICE outcome fed into a policy-gradient
+loss, and no RL loop anywhere in this file.** A winner's only channel into the
+model is as an ordinary training row (Block 9 states this precisely for the
+whole pipeline, with a grep to back it).
 
-**The novelty protocol** (`lna/novelty.py`) is what makes "better generator"
-falsifiable. **NDL@256** = the count of distinct (WL-hashed) topologies,
-among 256 spec-screened samples, that are *both* structurally valid *and*
-not WL-hash-identical to anything in a frozen reference set. The reference
-itself is versioned — `ref-v1` (41-circuit corpus only) → `ref-v2` (+ 148
-archetypes, because ref-v1 was letting archetype regenerations count as
-"novel") → `ref-v3` (+ the 9 external circuits, a zero-effect correction
-confirmed by measurement, §19.3/§10) — each version stamped with an 8-byte
-blake2b digest over its sorted hash set, so every historical NDL number
-stays reproducible against the exact reference it was measured under.
-**Adoption governance** is "beat the frozen NDL at equal-or-better inductor
-ratio," applied as a documented decision at each fine-tune, not a function
-call — `_ndl_flipcheck.py` exists specifically to replay history against a
-current reference and confirm no adopt/reject decision would flip. `loop.py`
-backs this with five numeric **tripwires** (NDL drop >20%, WL-family count
-drop >50%, repeat-probe σ drift >2×, feasible-rate >60% [signals a gameable
-critic], critic-holdout regression) that must read quiet before any
-iteration is allowed to proceed.
+Runs on the WSL GPU (`--device cuda`, AdamW lr 3e-5, batch 32, 40 epochs) — a
+4 GB card, hence 128-token padded rows rather than the model's full 1024-token
+block. Every arm in the program overfits fast: best-val loss lands at epoch
+0–1 and rises monotonically afterward (e.g. P5-v3 0.2300 @ ep 1, ctrl-v1
+0.2162 @ ep 0 — `FINDINGS §18.0/§18.3` measured 40 consecutive rising epochs),
+so `finetune.py` saves only the best-val checkpoint; the shipped artefact
+needs no further epochs.
 
----
+`lna/generate.py` samples: temperature-scaled multinomial sampling (default
+0.7, no top-k/top-p anywhere in the codebase), batched, early-stopping a row
+once it emits `TRUNCATE`. Prefix conditioning is either unconditional (`VSS`)
+or seeded with the first *N* tokens of a real corpus LNA traversal
+(`--prefix lna --prefix-len`); class-token conditioning is handled in
+`finetune.py`'s own `sample()`.
 
-## 4. The evaluation ladder — L0 and L1
+**Adoption governance — the frozen NDL@256 protocol.** `lna/novelty.py`
+counts Novel Distinct LNAs among 256 generated samples: WL-graph-hashed
+(order-invariant over Eulerian reorderings), screen-passing, and absent from a
+**versioned, digest-pinned** reference set. The reference has been rebaselined
+twice: **ref-v1** (41-circuit corpus only, `5273a4f673b5eb6a`) overstated
+novelty once P5 arms trained on archetypes (~51% of screen-passers were
+verbatim archetype regenerations scored "novel" — `FINDINGS §14.5`); **ref-v2**
+(+148 archetypes → 189 hashes, `b5689490d0285c37`) fixed that; **ref-v3**
+(current default; +9 externals → 198 hashes, `d05390da6183123e`, `FINDINGS §19.3`)
+measured **exactly zero** correction on every pre-existing checkpoint — proof
+the rebaseline is retroactively harmless, only binding for arms trained on the
+expanded data. `lna/loop.py` enforces **adopt-only-if-better**: a candidate
+checkpoint replaces the baseline only if it beats the frozen NDL@256 at
+equal-or-better inductor ratio with every tripwire quiet (Block 9); ties go to
+the incumbent. Outcomes: P5-v6 **rejected** (NDL@256 93 vs baseline 100,
+`HANDOVER-EXEC.md`); P5-v7 **adopted** (nb NDL 79>52 ✓ at equal-or-better
+inductor ratio, even though the wb inductor-ratio clause fails and is reported
+rather than hidden — `FINDINGS §24.3`); the curriculum arms **rejected**
+outright (`FINDINGS §18.5`).
 
-**L0 — structural/spec screen** (`lna/screen.py`, `lna/spec.py`,
-`lna/topology.py`). Rule-based, not trained: `screen.py` is a CLI wrapper
-over two scoring paths — the fixed 5-criterion legacy score
-(`topology.lna_score()`, §1) or a spec-derived screen
-(`Spec.structural_screen()`) that reads its criteria (inductor bounds,
-`device_budget`, `allow_inductorless`, `differential`) out of the target
-spec's own YAML `topology:` block, so a spec built for inductorless designs
-doesn't unconditionally fail them the way the legacy screen would.
+**Design decisions:**
 
-Every spec is a YAML file (`lna/specs/*.yaml`) with `constraints:` (hard,
-pass/fail — e.g. `dhruva-l1.yaml`'s `s11_max_db: {max: -10}`, `s21_db: {min:
-25.4}`, `nf_db: {max: 2.7}`), `objectives:` (soft, weighted, only compared
-*among* feasible points), and `topology:`/`sizing:` blocks that drive the L0
-screen and the L2 device box respectively. A constraint carries
-`status: unsupported` when the harness genuinely can't measure it yet
-(`iip3_dbm`, tier-3, needs a two-tone harness that doesn't exist) — such a
-constraint is loaded, reported, and skipped by `feasible()`/`objective()`
-entirely. Every other constraint is "gated": it counts toward feasibility,
-and — this is the sharp edge — if a gated metric is *missing* from a run's
-measured metrics dict, that counts as **fully violated**, not ignored. That
-rule is what forced NF's harness fix before NF could be gated at all: NF
-used to be silently forced to `unsupported` in code (`size._spec_for_sizing`)
-regardless of what the YAML said, because the only NF measurement available
-was an unphysical port-referred one; once the series-Rs NF harness landed
-(§5), that override was deleted so sizing "honours the YAML" (HANDOVER
-Session 4, WP-D1). "Advisory" (e.g. K/μ stability) isn't a spec-schema
-keyword at all — those metrics simply have no `constraints:` entry and are
-never gated, a stronger exclusion than `unsupported`.
+- P1/P2 both hit a memorization ceiling (median NN-sim to the 41-circuit
+  corpus = 1.000) that neither more fine-tuning nor a decoding-time
+  inductor-logit bias (P4, `FINDINGS §5`) could break — the fix had to be more
+  varied *training data* (P5's archetype corpus), not a better decoder
+  (`JOURNEY §2`, `HANDOVER-EXEC.md` finding #8).
+- The external-corpus ingestion (P5-v7) is the largest single novelty jump
+  measured in the program, and it worked by displacing archetype copying —
+  the model does not learn to reproduce the 9 new circuits themselves (0.4%
+  copy rate on them) — "variety pressure," not imitation of the new data
+  specifically (`FINDINGS §24.4`).
 
-**L1 — operating point** (`lna/bias.py`). Rule-based DC-path analysis, not
-optimization: a MOS gate with no DC path to a driven net gets an inserted
-bias resistor + bypass cap (**R-GATE**); every bias net, inserted or
-pre-existing, gets bypassed (**R-CASCODE-BYPASS**, "the H-Q1 lesson
-institutionalized"); a genuinely floating subcircuit is flagged and skipped,
-not bypassed (**R-FLOAT**). Two more rules, opt-in as of 2026-08-09 because
-they add real signal-path elements rather than pure scaffolding — **R-SOURCE**
-(a source node with no DC path gets a return resistor: true degeneration)
-and **R-DRAIN** (a drain node with no DC path gets a load-feed resistor) —
-fix a *different* problem than R-GATE (measured split: 15 source-defects /
-16 drain-defects / 12 load-sizing issues among off-MOS devices, HANDOVER
-finding #9). They stay opt-in (env var or `--rules`) rather than default
-because `size.py` calls `insert_bias` on every sizing run, and silently
-changing every future label's sizing domain is not a decision to make by
-default. A **monotonic guard** underlies the whole ladder: each bias
-candidate is adopted only if it makes strictly more devices conduct than
-the current best, so bias insertion can prove it never makes a circuit
-*worse* — though the docstring is explicit that this does not prove the
-*sizing* domain is unchanged, which is the actual reason v3 stays opt-in.
+## 4. The evaluation ladder
 
-(L2 — full sizing — is §5, immediately below; it's grouped there with
-verification rather than here because sizing and SPICE verification are the
-same loop in this codebase.)
+**Not trained — a fixed, three-rung deterministic screen.** Every design
+clears L0 before it's worth simulating, gets rule-based bias before an
+operating point exists (L1), and is only fully scored once sized (L2, Block 5).
 
----
+**L0 — structural / spec screen** (`lna/screen.py`, `lna/spec.py`). A spec (a
+YAML file in `lna/specs/`) is the single source of truth for what's being
+designed; `Spec.structural_screen(topo)` **derives** its L0 criteria from the
+spec's own `topology:` fields, rather than running one hand-written screen
+against every target (the old hard-coded 5-criterion screen survives only as
+`legacy-lna5`, reproducing the historical 59.4% ceiling exactly). Concretely,
+`wifi24.yaml`: `device_budget: [3, 16]` (widened from `[3, 12]` after
+calibration showed real single-ended corpus LNAs reach 14 devices),
+`max_inductors: 3`, `l_min`/`l_max` bounds, `allow_inductorless: false` →
+activates `has_inductor`; `reject_floating: true` activates the H-Q3
+floating-subcircuit check. For inductorless-allowed (wideband) specs, a
+`match_plausible` check substitutes for `has_inductor` — structurally
+detecting a common-gate or resistive-shunt-feedback input stage, rather than
+accepting any transistor+resistor tangle.
+
+A spec's `constraints:` block separates **gated** (checked pass/fail, e.g.
+`s11_db: {max: -10}`) from **`status: unsupported`** (declared but never
+measured — e.g. `iip3_dbm` on every spec today, pending a two-tone harness;
+reported as UNMEASURED everywhere, never silently passed *or* failed). There
+is no separate third "advisory" constraint state inside `spec.py` itself:
+metrics that are measured but not gated (e.g. two-port stability K/μ, Block 5)
+simply live outside `constraints:` and are reported alongside without
+affecting `feasible()`. `spec.objective()` blends hard/soft feasibility-first:
+an infeasible design scores `1 + Σ(normalized violation)` — always worse than
+any feasible design — a feasible one scores by weighted normalized
+improvement on the declared `objectives:` (e.g. maximize S21, minimize
+Idd/NF).
+
+**L1 — operating point** (`lna/bias.py`). Not trained — rule-based. Real
+dataset LNAs are textbook schematics with implied biasing; a reconstructed
+gate often has no DC path and the device sits off. `BiasInserter` runs
+union-find over the DC-connectivity graph (R and L are DC edges, caps open, a
+MOS channel is not) and applies:
+
+- **R-GATE** (always on) — every MOS gate with no DC path to a driven net
+  (`VDD`/`VB*`/`VCM*`/`VREF*`/`IB*`) gets a resistor to a fresh bias source
+  plus a bypass cap.
+- **R-SOURCE** / **R-DRAIN** (v3, opt-in — `--rules v3` /
+  `LNA_BIAS_RULES=source,drain`) — a source or drain with no DC return gets a
+  resistor to its device's return rail (NMOS source→0 / PMOS source→VDD;
+  opposite for drain, i.e. a load feed). Added after measurement showed the
+  corpus's off-MOS split was 15 source-no-DC-path / 16 drain-no-DC-path / 12
+  load-sizing (`HANDOVER-EXEC.md` finding #9) and that gate-only rescue fixed
+  **0 of 4** blocked external circuits, because every one of those devices'
+  problem was a source with no return, not a gate (`FINDINGS §17.6`). Off by
+  default because a source-return resistor is a real signal-path element, not
+  scaffolding — turning it on would silently re-domain every future sizing
+  label.
+- **The monotonic guard** — candidates are evaluated as a ladder (none → gate
+  → gate+source → gate+source+drain) and the best-so-far kept under "strictly
+  more conducting MOS," so no rule set can ever be adopted for a circuit that
+  makes conduction *worse*.
+
+**Design decisions:**
+
+- The spec-driven L0 (replacing one hard-coded screen) resolved H-Q4: the old
+  screen's 59.4% "ceiling" on most of the corpus was an artefact of forcing
+  every circuit through one narrowband-MOS-specific rubric — union coverage
+  over the in-scope single-ended-MOS class is **94.1%** (`HANDOVER-EXEC.md`
+  finding #2).
+- `device_budget` widenings are always corpus-calibrated to the nearest real
+  silicon device count, never to "the number that closes a gate" — `[3,12] →
+  [3,16]` from the 41-circuit corpus, then `16→18→21` on the dhruva specs
+  only, each widening citing the specific real circuit that justified the new
+  ceiling (`FINDINGS §23.1`, `§25.3`) — and the record says so even when the
+  grant exceeds what was actually used (21 approved, 20 needed, `§25.3`).
 
 ## 5. Sizing & verification
 
-**`lna/to_spice.py`** turns a topology into a parameterized ngspice deck —
-every device value is exposed as a `.param`, not a literal, which is what
-makes the deck sizable at all. Two features were added under measured
-pressure rather than speculatively: **finite-Q inductors** (`--inductor-q`,
-default off) replace an ideal inductor with an `L` + series `R` at a
-constant-Q band-center value, which both models real spiral loss and fixes
-an ideal-inductor branch-current singularity that made corpus index 1081
-fail to simulate at all (WORKLOG F6); and **NPN/PNP emission** (FINDINGS
-§19.1) against hand-written, golden-checked Gummel-Poon `.model` cards,
-added because one of the 9 ingested externals (an IHP SiGe-HBT GPS LNA)
-had no bipolar model to emit against otherwise.
+**Not trained — a deterministic optimization + measurement stack** that turns
+a bias-inserted topology into a scored, verified design point (L2).
 
-**`lna/extract.py`** is the single ngspice entry point — every caller in the
-tree (`run_and_extract`, `measure_stability`, `measure_nf`, `bias.run_op`,
-`templates.emit_paths`) routes through one `run_deck()`/`scratch()` pair
-(write deck → run `ngspice_con -b` → parse → clean up the temp dir in a
-`finally`). That cleanup is not decorative: before it existed, every ngspice
-caller `mkdtemp`'d with no teardown and accumulated **685,287** stale scratch
-directories before directory creation itself became slower than the sim it
-served (FINDINGS §17.9) — `_nf_tmp_purge.py` swept the backlog once,
-`extract.scratch()` prevents recurrence. Two measurements matter more than
-the hygiene fix, though:
-- **NF** is measured with a series-Rs noise deck (`measure_nf`), not the
-  original port-referred `inoise_spectrum`, because the port source has no
-  physical noise resistance once a stage has real gain (an unphysical
-  measurement that flattered every stored design — HANDOVER WP-D1). The
-  replacement is golden-validated against a closed-form ideal-gain-10,
-  Rs=Rn=50Ω case (analytic NF = 3.0103 dB, measured 3.012469 dB,
-  `ref/check_nf.py` green to 0.002 dB worst-case).
-- **K/μ/Δ stability** falls out of the S-matrix the `sp` analysis already
-  computes — zero extra simulation cost — and is reported at f0 and over a
-  wide out-of-band sweep. It is advisory everywhere in the objective: a
-  design can be sized fully feasible with K_min < 1 (two measured wifi24
-  cases), because nothing in the sizing objective penalizes instability yet
-  (open item, JOURNEY "Current frontier").
+`lna/to_spice.py` (`Netlist`) emits a parameterized SPICE deck: every device
+value is a `.param`; inductors are ideal by default or given a **finite Q**
+(`inductor_q`, series R = ω₀L/Q at band centre) to avoid the ideal-inductor
+branch singularity that Block 1's "1081" case turned out to actually be;
+bipolar devices are emitted as SPICE `Q` elements against golden-checked
+generic Gummel-Poon cards (`ref/check_bjt.py`), added once real ingested
+circuits (IHP's `GPS_LNA`) brought bipolar devices into the corpus.
 
-**`lna/size.py`** is the sizing loop, built on **ZOAF**
-(`misc/ZOAF/zoaf_core.py`) — a vendored, generic **zeroth-order** black-box
-optimizer (Sobol/Halton/LHS multi-start, then ZO-SGD for basin-escape
-followed by ZO-CGD coordinate refinement); it never differentiates through
-ngspice, only evaluates it. `size.py` maximizes a feasibility-first scalar
-(`spec.objective`) over a log/linear-decoded parameter box. Three things
-here are load-bearing:
-- **Box-clamped bounded polish.** `polish()`'s coordinate ascent used to
-  scale a parameter by `(1±step)` without ever checking `kind_ranges`, so
-  it could (and did) walk designs outside their spec's own device box — one
-  measured case reached an 18.1 nH inductor against a 15 nH `l_max`. Every
-  polish/candidate step is now clamped, applied to both the incoming prior
-  point and every trial move (HANDOVER Session 4; 6 of 19 stored feasible
-  rows were found out-of-box before the fix, one tier-2 NF claim died on
-  re-derivation).
-- **`constrained_descent`** optimizes one target metric (e.g. minimize NF)
-  inside a hard trust region on the other gated constraints, because
-  `polish` structurally cannot spend non-binding slack: if NF is the only
-  violated constraint, it already *is* the minimum margin polish optimizes,
-  so a 12 dB gain surplus is valued at exactly zero. "Slack is currency only
-  if something is allowed to spend it" (FINDINGS §17.1) is the design
-  rationale in the code itself.
-- **`replay_ok`** is an audit fence, not an optimizer: re-evaluating a
-  stored `best_params` against the topology reconstructed from that same
-  row's own tokens must reproduce the stored S11/S21 within tolerance before
-  any further polish/reuse is attempted. It exists because a
-  topology/params mismatch — e.g. a `token_file` re-parsed against the
-  wrong arm's sequence file — is a real, previously-hit bug class.
+`lna/extract.py` is the **single ngspice entry point**. Every call runs inside
+a **self-deleting scratch directory** (`scratch()`, wrapping `tempfile.mkdtemp`
++ `shutil.rmtree` on exit) — added after a stale-directory bug left **685,287**
+uncollected scratch directories in `%TEMP%` from earlier callers that
+`mkdtemp`'d without cleanup (`FINDINGS §17.9`). It extracts:
 
-**`lna/g4_search.py`** spends extra budget on the closest-to-feasible
-candidates from a prior pass: multiple ZOAF seeds at a larger fixed budget,
-best-of-k kept. Its **polish-first-convert** ordering is deliberate cost
-management — try cheap `polish()` from the stored point first (~100 sims),
-fall through to full multi-seed re-sizing only if that fails to close
-feasibility, and polish the re-sized result too if needed — because a
-near-miss usually converts for ~100 sims where a fresh multi-seed search
-costs orders of magnitude more.
+- **S-parameters** and the derived **Rollett stability figures** (K, |Δ|, μ,
+  μ_src at f0 and worst-in-band) — computed for free from the S-matrix `sp`
+  already runs; advisory only, never gated.
+- **Noise figure**, via a **series-Rs deck** (`measure_nf` / `build_noise_deck`).
+  The S-parameter port's z0 is not a noisy source resistor, so the original
+  port-referred `inoise_spectrum` reading went **negative** once a stage had
+  gain. The fix swaps the port-1 source for an explicit `Rns = 50 Ω` and reads
+  `NF = 10·log10(inoise² / 4kTRs)`; golden-locked at `extract.py --selftest`
+  to **3.012469 dB vs the analytic 3.0103 dB**. Rows measured before this fix
+  carry a different `nf_method` and are never used as an NF training target
+  (Block 6).
 
-```mermaid
-flowchart LR
-    TOK["token sequence\n(generator or archetype)"] --> TOPO["topology.py\nparse + L0 score"]
-    TOPO --> BIAS["bias.py\nR-GATE/SOURCE/DRAIN\n+ monotonic guard"]
-    BIAS --> NET["to_spice.py\nparameterized deck"]
-    NET --> ZOAF["size.py: ZOAF\nzeroth-order search"]
-    ZOAF --> SIM["extract.py -> ngspice\nS-params, series-Rs NF, K/mu"]
-    SIM -- "feasible?" --> POLISH["size.polish / constrained_descent\nbox-clamped"]
-    POLISH --> SIM
-    SIM -- "replay_ok fence" --> LABEL["datastore.append_l2\n(§6)"]
-```
+`lna/size.py` runs **ZOAF**, a zeroth-order (gradient-free) black-box
+optimizer (`misc/ZOAF`), over the `.param` surface in `[0,1]^d` (log-scale for
+W/R/C/L, linear for bias), maximizing `-spec.objective`. Three sizing recipes:
 
----
+- **`candidate-v1`** (all-free) — every sizable parameter free; reliably lands
+  gain *or* match on anything but the simplest topologies, not both.
+- **`curated-v1`** (`curate=True`) — the input-match passives are fixed at a
+  prior best value (`_curate`) and only the rest is sized: the reliable path
+  to a first feasible point once *some* prior solution exists.
+- **match-fixed / self-starting** (`size_match_first`) — the curated idea
+  without needing a prior solution: solves the match first, then sizes the
+  rest.
+
+Two boundary-refinement passes operate on an already-sized point:
+`polish()` (box-clamped coordinate pattern search maximizing the *minimum*
+normalized margin over every gated constraint — the right move at a
+feasibility boundary, since it has a gradient right at the edge where the
+feasibility-first scalar does not) and `constrained_descent()` (optimizes one
+target metric, e.g. NF, inside a hard trust region on every other gated
+constraint — the right move once a design is already tier-1-clean and needs
+to spend slack on exactly one binding constraint, which `polish` cannot do
+because it values a large non-binding surplus at exactly zero). Both are
+**box-clamped** against the spec's declared device ranges — added after Track
+B found `polish` walking parameters outside the spec's declared box (6 of 19
+feasible rows were out-of-box before the fix; all 5 non-Track-B rows returned
+feasible and in-box after clamping, one tier-2 claim honestly died —
+`FINDINGS §13.3`).
+
+`size.replay_ok(topo, params, spec, stored_metrics)` is the **audit fence**:
+re-run the exact stored `(topology, params)` pair from scratch and require the
+S21/S11 it reproduces to match the stored metrics within label noise (S21
+within `max(σ, 0.5)` dB, S11 within 2.0 dB). Any stored claim that fails this
+is quarantined, not trusted (Block 10).
+
+`lna/g4_search.py` runs boosted multi-seed sizing on the handful of
+closest-to-feasible candidates from a generator pool: a larger ZOAF budget
+across several fresh seeds (ZOAF is stochastic; different seeds explore
+different basins), **polish-first** from each candidate's stored best point
+before falling back to a fresh ZOAF pass — a ~100-sim `polish` converts most
+boundary near-misses cheaply, and full re-sizing is spent only on what polish
+can't close. This is how Gate G4 (first novel *generated* topology sized to
+full feasibility) closed: `seq0240`, an 8-device generated topology, went from
+infeasible to S11 −11.9 / S21 12.6 / Idd 1.19 dB feasible purely from more
+seeds/budget on the same topology (`FINDINGS §11`, "GATE G4 CLOSED BY
+GENERATION").
+
+**Design decisions:**
+
+- The NF-harness rewrite (series-Rs, not port-referred) is the single most
+  consequential correction in the eval ladder: the old method flattered every
+  design by +0.55…+12.58 dB (median +2.32), including two designs that read
+  physically impossible *negative* noise figures (`FINDINGS §13.1`).
+- `polish` and `constrained_descent` are not redundant: `FINDINGS §17.1/§23.2`
+  measured that min-margin polish literally cannot spend a large non-binding
+  surplus, which is exactly why the third-stage NF win on `dhruva-s`
+  (Gate D3, `FINDINGS §25`) needed the target-metric descent instead.
 
 ## 6. The label store
 
-`lna/datastore.py` is a deterministic append-only JSONL store — no learning
-here, only bookkeeping. Three tables in `lna/data/`: `topo_labels.jsonl`
-(L2, one sizing outcome per `(topology, spec)`, git-tracked — "the prize"),
-`l1_labels.jsonl` (L1 bias sweeps, cheap and abundant), `sim_points.jsonl`
-(per-ZOAF-iteration points, a free byproduct, gitignored). Every L2 row
-carries a **margins vector** — signed, normalized slack per constraint,
-`(limit − achieved)/scale` on the binding side — which is the actual
-learning target for the critic (§7), not raw metrics.
+**Not trained** — an append-only JSONL store (`lna/datastore.py`) that is "the
+product" every learned component (Block 7) trains against. Three tables —
+`topo_labels.jsonl` (L2, one sizing outcome per (topology, spec), the
+expensive prize), `l1_labels.jsonl` (L1, cheap operating-point sweeps),
+`sim_points.jsonl` (point rows inside a ZOAF run, gitignored) — plus a
+`snapshots.json` index that pins named training sets by exact line count +
+sha256, so `load(table, snapshot=name)` always returns exactly the rows a
+critic version trained on, and any post-hoc mutation is detected as a hash
+mismatch rather than silently served.
 
-**Recipes and provenance are label-domain separators, not metadata.**
-`zoaf_cfg.recipe` names the exact labeling protocol that produced a row
-(`candidate-v1`, `candidate-v1+bo3` [best-of-k], `curated-v1`, `polish-v1`,
-`blind-v1`/`blind-v1-nf`, `evolve-v1`, `rung1-v1`, `ingest-v1`, and
-post-hoc migration bumps like `+nfrs-v1`), and `zoaf_cfg.nf_gated` separates
-rows sized before vs. after NF became a hard constraint (§4). Mixing across
-recipes or NF-gating without conditioning on them produces exactly the kind
-of contaminated statistic the σ story below is about — so every consumer
-(critic training, search, benchmark) is expected to condition on them, not
-average over them blind.
+Every L2 row carries `margins` (`margins_for`, `spec.feasible()` re-expressed
+as a per-metric signed normalized slack — the actual learning target, never a
+feasibility boolean) and a `recipe`/`provenance` pair that acts as a
+**label-domain separator**: rows produced under a different NF method
+(`nf_method`), a different `zoaf_cfg.nf_gated` state, a different sizing
+recipe (`candidate-v1` vs `curated-v1` vs `candidate-v1+bo3` vs
+`blind-v1`/`blind-v1-nf` vs the `nf-v2+d18`/`nf-v3+d21` device-budget
+domains), or a different bias-rule ladder are never silently pooled for
+training, ranking, or noise estimation — a rule violated once
+(`campaign.sigma_key` used to group repeat-probes by `(wl_hash, spec)` alone,
+mixing 81 of 89 multi-row keys across recipes) and fixed to condition on
+`(wl_hash, spec, recipe, nf_gated)` (`FINDINGS §14.1`).
 
-**σ and repeat-probes.** `campaign.sigma_key = (wl_hash, spec, recipe,
-nf_gated)` is itself a bug fix: the earlier key was just `(wl_hash, spec)`,
-which pooled different recipes and different NF-gating into one "drift"
-number and estimated a stdev from n=2 in most cells. Re-measured cleanly
-on 19 wifi24 repeat-probe keys: **σ_single ≈ 1.478 dB**, and best-of-3
-(`size.size_best_of_k`, recipe `+bo3`) halves it to **σ ≈ 0.726 dB** for 3×
-the simulation cost (HANDOVER Session 4 Track C; FINDINGS §14.1) — quieter,
-but still short of the ≲0.5 dB target, a known, stated limit rather than a
-closed one.
+**Family splits** (`datastore.family_split`) assign whole single-linkage
+clusters of WL-cosine-similar rows (threshold 0.9 — the same "same topology
+family" definition search's trust region uses, Block 8) to train/val/test as
+a unit, never a row-level random split, because the corpus is dense with
+near-duplicates and a row split would leak the answer across the boundary.
 
-**Snapshots** (`datastore.snapshot`) pin a named training set with a sha256
-over its contents, re-verified on every load — an append-only invariant
-that's checked, not assumed. **Family splits by WL-hash** (`family_split`,
-using `novelty.wl_features`'s Weisfeiler–Lehman graph hash and a
-`FAMILY_SIM=0.9` cosine threshold to cluster near-duplicates into one
-family before hash-assigning whole families to train/val/test) exist
-because row-level splitting leaks: median nearest-neighbor similarity hits
-1.000 in some pools, so two "different" rows are routinely the same
-topology at a different seed. Every critic-eval consumer calls this one
-function — nobody constructs their own split.
+**σ / repeat-probes.** `campaign.py`'s `run_sigma_probe` re-sizes the same
+(topology, spec) key with fresh seeds to measure ZOAF's own label noise — the
+floor every critic rank-loss margin is measured against. The historical
+number (σ(S21) ≈ 0.32 dB, apparently drifting to 1.02/1.27) turned out to be
+mostly the recipe-pooling bug above plus an n=2 stdev estimate; re-measured
+cleanly at 9 seeds/key, σ_single = **1.478 dB**, and **best-of-3 labeling**
+(`size.size_best_of_k`, recipe `candidate-v1+bo3`) roughly halves it to
+**σ = 0.726 dB** (`FINDINGS §14.1`) — still short of the ≲0.5 dB target, so σ
+is reported and conditioned on, never assumed small.
 
-`lna/campaign.py` runs stratified nightly labeling across four strata —
-**T**emplates/reference decks (topology diversity), **G**enerated (screened,
-WL-deduped against `ref-v2`), **M**utations (not yet built), **R**epeat-probes
-(re-size already-labeled keys) — under a fixed quota, skipping anything
-already labeled for that spec.
+`lna/campaign.py` is the nightly labeling scheduler: a stratified quota
+across four sources — **T** (templates/reference decks, topology diversity +
+near-feasible class), **G** (generated, screen-passing and WL-deduped against
+the store), **M** (mutations, `moves.py`'s move set), **R** (repeat-probes) —
+sizing each task once and writing a morning report (`lna/data/reports/`).
 
----
+**Design decisions:**
+
+- Recipe/provenance-as-label-domain is the single mechanism protecting every
+  downstream number (critic training, σ, novelty accounting) from silently
+  mixing incompatible measurements — the same discipline applied at four
+  separate junctures (NF method, NF gating, device budget, sizing recipe)
+  rather than one central flag, because each domain break happened at a
+  different session and had to be caught after the fact.
+- Family splits (not row splits) are what makes the critic's "family holdout"
+  number meaningful at all; the same near-duplicate-dense corpus property
+  that makes row splits leak is what makes WL-kNN "embarrassingly strong" as
+  a baseline (Block 7).
 
 ## 7. The critic
 
-**Feature baselines** (`lna/critic.py`): **trivial** (train-mean),
-**WL-kNN** (nearest labeled neighbor by WL-cosine, spec-conditioned), and
-**ridge** (closed-form, λ=10, over graph-count features + a spec-descriptor
-vector + a bag-of-WL-subtree-features vocabulary built from the training
-set). All three predict the same normalized margin vector the label store
-stores.
+A learned pre-SPICE surrogate: predicts the normalized margin vector
+(S11/S21/Idd, +NF once available) a topology would achieve against a spec, so
+search can filter candidates before spending a 5-minute sizing run on each.
+Feasibility is always *computed* from predicted margins, never a trained
+boolean.
 
-**The GNN ensemble** (`lna/critic_gnn.py`) is hand-rolled — its only imports
-are `numpy`/`torch`/`torch.nn`, no graph-learning library. Message passing
-is per-pin-role linear maps over the bipartite device↔net graph, three
-rounds, sum+max pooling, spec-conditioning concatenated at the readout head,
-which produces four margin outputs (S11/S21/Idd/NF; NF masked on rows
-predating the series-Rs harness). Loss is masked Huber plus a pairwise
-rank-hinge on S21 with the hinge margin set to the measured label-noise σ —
-"don't fit below the noise floor" made literal. **Five ensemble members**
-(different seeds); uncertainty is the ensemble standard deviation across
-them, used both to rank prediction error and to feed search's `mean − β·σ`
-selection rule (§8).
+`lna/critic.py` — the mandatory baselines, on the torch-free stack:
+**trivial** (predict the training mean), **WL-kNN** (nearest training
+neighbor by WL-subtree-kernel cosine, spec-conditioned), **ridge**
+(L2-regularized linear regression on hand features: graph stats + device-node
+degrees + a spec-conditioning vector of thresholds/band + a WL-subtree
+bag-of-features vocabulary built from train only). `lna/critic_gnn.py` — the
+shipped model: a **hand-rolled bipartite device↔net message-passing network**
+(plain `torch.nn`, no PyG/DGL — graphs are tiny enough that dense per-role
+adjacency matmuls beat any sparse library), 3 message-passing rounds, sum+max
+device pooling, the spec vector concatenated at the readout, one head
+predicting S11/S21/Idd/**NF margins** (NF masked out on pre-harness rows).
+Trained with Huber loss on margins + a pairwise rank-hinge on S21 (hinge
+margin set from the repeat-probe σ — never fit finer than label noise). A
+**5-seed deep ensemble** gives mean prediction + std; the std is what
+`search.py`'s `mean − β·σ` selection rule (Block 8) consumes as uncertainty.
 
-**Training data**: the `v4-train` snapshot (734 rows, 730 usable — an early
-version silently dropped every broadband-spec row because `_margins` only
-read `s11_db`, not `s11_max_db`, which meant the entire ~240-row Track-B
-dhruva corpus never trained the critic until fixed, FINDINGS §14.2) and the
-current `v5-train` (1010 rows / 1006 usable).
+Training data: named, sha256-pinned snapshots of the label store — `v1-train`
+→ `v2-train` (261 rows) → `v4-train` (734 rows) → `v5-train` (1010 rows) —
+each retrain re-measured on the same frozen splits so improvement is
+attributable to the data, not a code change (verified explicitly at least
+once: the same code on the old `v2-train` snapshot reproduces the old numbers
+exactly — `FINDINGS §14.2`).
 
-**Eval protocol — three splits, each testing a different generalization
-question**: **family holdout** (held-out WL-family, the baseline
-generalization test), **source-shift** (train on corpus+archetypes+
-reference decks, test on generator output — the question that matters for
-"can the critic actually guide sampling," discriminated by provenance, not
-by a single hardcoded arm name, which is what widened the generated eval
-pool 142→420 rows), and **mutant** (test on `evolve.py`'s 1-edit structural
-perturbations, held out by WL-family in 3-fold CV — the distribution
-`evolve.py` actually searches, as opposed to the distribution the generator
-samples from).
+**Eval protocol**, three splits: **family holdout** (whole WL-similarity
+families withheld — the primary gate); **source-shift** (train on
+corpus+references+templates, test on every generator/search-produced row —
+the shift search-guided sampling actually induces); **mutant**
+(`critic_gnn.py --mutant-eval`, post-hoc scoring of `evolve.py`'s one-edit
+graph mutants under leak-free family cross-validation — the off-distribution
+test that revealed the critic's real deployment behavior, Block 8).
 
-**Gate C1**, restated (FINDINGS §14.6): Spearman **ρ(S21) ≥ 0.5** on
-held-out families, *and* a **skill ≥ 0.25** where
-`skill = (precision@20% − base_rate)/(ceiling − base_rate)`. The restatement
-exists because the original "enrichment ≥ 2×" bar's ceiling
-(`min(1/k_frac, 1/base_rate)`) falls as the labeled pool's base feasibility
-rate rises — it fell from 3.74× to 2.20× on the source-shift split as
-labeling simply got better, which made "≥2×" silently mean "near-perfect
-precision," an unreachable and backwards bar. On `v4-train`: family-holdout
-ρ(S21) 0.79 (ridge) / 0.85 (GNN), source-shift 0.585 (ridge) / 0.61 (GNN) —
-**★ the source-shift gap closed** from a pre-fix 0.221, which is the number
-that justified promoting the GNN to critic-of-record over ridge (it wins
-family split and is the only arm with usable ensemble uncertainty), even
-though ridge ties or beats it on some source-shift statistics — "not a
-clean sweep," stated as such in FINDINGS §14.2.
+**Gate C1, restated 2026-08-09** (`critic.c1_pass`): **ρ(S21) ≥ 0.5** on
+family holdout, **and** selection **skill ≥ 0.25**, where
+`skill = (precision@20% − base_rate) / (ceiling_precision − base_rate)` — 0
+for random selection, 1 for a perfect ranker, at *any* base rate. This
+replaced the original "enrichment@20% ≥ 2×" bar after `FINDINGS §14.2/§14.6`
+proved its ceiling is `min(1/0.2, 1/base_rate)`, which *fell* from 3.74× to
+2.20× as the candidate pool got better — the gate was getting harder exactly
+because the pipeline was improving, which is backwards. θ = 0.25 is derived,
+not tuned: the unique constant reproducing the old bar's meaning everywhere it
+was well-posed.
 
-**Known limits.** Off-distribution decay is measured, not inferred: the
-critic holds ρ ≈ 0.83 in-distribution but collapsed to ρ ≈ +0.17…+0.20 on
-`evolve.py`'s search distribution before mutant-labeled rows existed
-(FINDINGS §15.4), and adding 213 evolve-sourced rows repaired it only
-partway (ρ ≈ 0.44–0.50, still ~55–60% of in-distribution performance, §20.2).
-A **σ-percentile uncertainty gate was retired** after being found inverted:
-mutant-distribution ensemble σ is systematically *smaller* than
-in-distribution holdout σ, not larger, so a "flag high-uncertainty
-candidates" gate almost never fires on exactly the rows it should
-(`n_high_unc = 0` across 80 generations of live search, FINDINGS §20.3) —
-distance-to-training-set (the trust region, §8) does the job the
-uncertainty gate was meant to do instead.
+Current state (`v4-train`/`v5-train`, σ = 0.726–0.783 dB best-of-3): **the
+GNN ships as critic v1** — family-holdout ρ(S21) **0.851** (vs ridge 0.790,
+WL-kNN 0.687), source-shift ρ(S21) **0.609** (vs 0.585, 0.370) — not a clean
+sweep (ridge ties or beats it on some source-shift metrics), but uniquely the
+only arm with usable ensemble uncertainty (ρ(σ,|error|) ≈ 0.53–0.54).
 
----
+**Known limits:**
+
+- **Off-distribution decay.** In-distribution ρ ≈ 0.83 collapses to ρ ≈
+  +0.17…+0.20 on the mutant distribution `evolve.py` actually generates
+  (`FINDINGS §15.4`) — a coverage problem (the two search specs had only
+  16–24 training rows each), not a modeling one. The mutant post-hoc, after
+  search added 213 rows on exactly those specs, recovered to ρ ≈ +0.44…+0.50
+  under leak-free CV — real but partial (`FINDINGS §20.2`).
+- **The retired σ-gate.** The uncertainty-based trust rule (reject a candidate
+  above the 90th-percentile holdout σ) never fired across 80 generations of
+  live search — ensemble σ on off-distribution mutants is systematically
+  *smaller* than in-distribution holdout σ, the opposite of what the gate
+  assumes, because mutants are one-edit perturbations of well-covered graphs
+  rather than structurally unusual held-out families. Retired in favor of the
+  WL-cosine trust region, which measurably does the real filtering
+  (`FINDINGS §20.3`).
+
+**Design decisions:**
+
+- The GNN was tried and *lost* the gate to WL-kNN on an earlier snapshot
+  (`v2-train`) before winning on `v4-train` — the brief's preference for a
+  GNN was honored only once the data justified it, not by default
+  (`FINDINGS §11`).
+- A silent bug (`_margins` reading only `s11_db`) dropped every broadband-spec
+  row (dhruva-*, wideband-sdr — ~240 rows, the whole Track-B corpus) from
+  every critic trained before it was found and fixed; the source-shift
+  ρ(S21) jump from 0.221→0.585 on the very next retrain is mostly the data
+  becoming visible, not a modeling change (`FINDINGS §14.2`).
 
 ## 8. Search
 
-**Rung 1 — critic rerank** (`lna/search.py`). A live four-step pipeline:
-`--pool` (L0-screen + WL-dedup a fresh candidate batch, drop anything
-already sized against the target spec) → `--rank` (critic-v2 GNN, leak-free
-— any store row sharing a WL-hash with the pool is excluded from training —
-scores `mean − β·σ`) → `--size` (size the union of {critic top-k} ∪
-{random control picks}, one sizing each, so both arms spend an identical
-budget) → `--s1` (score against **Gate S1**: critic-picked set must reach
-≥2× the control's feasible-or-near-feasible count at equal budget). Measured
-on `dhruva-s` (FINDINGS §20.4): 15/30 near-feasible for the critic-picked
-set vs. 8/30 control = **1.88×** — short of the literal 2× bar (one more
-near-feasible pick would have cleared it) but **skill = 0.328 ≥ 0.25**,
-i.e. it passes the restated Gate-C1-shaped criterion even where it misses
-the older literal one.
+Two "rungs" that spend SPICE minutes more efficiently than random sizing, by
+consulting the critic (Block 7) before deciding what to size.
 
-**The 17-move edit set + crossover** (`lna/moves.py`): `load_swap`,
-`cascode_add`/`remove`, `buffer_add`/`remove`, `degen_add`/`remove`,
-`stage_add`/`remove`, `feedback_add`/`remove`, `match_elem_add`,
-`input_class_swap`, `passive_type_swap`, `rewire`, `device_remove`,
-`aux_path_add` — each a single structural edit on the netlist genome, never
-a device-value change (that stays ZOAF's job). Every move round-trips
-through `topology.py`'s own token/graph representation so genotype and
-phenotype never drift. **Crossover** cuts two parents at a signal-path
-stage boundary (drain-side upstream, gate-side downstream) and splices
-head+tail through a fresh coupling cap — it only fires on multi-stage
-topologies, which most archetypes aren't, so it "earned its place" mostly
-on the multi-stage families the Dhruva ladder produced (FINDINGS §15.1,
-§15.3).
+**Rung 1 — critic rerank** (`lna/search.py`). Given a fresh pool of generated
+candidates: L0-screen, WL-dedup, drop anything already sized against the
+target spec; train a leak-free critic-v2 GNN ensemble (every store row
+sharing a pool candidate's WL hash is dropped from training first); score
+`mean − β·σ` (β=1) over the four margin heads; size the union of {critic's
+top-k} ∪ {k seeded-random control picks} once each (shared picks credited to
+both arms, so the comparison stays equal-budget). Live on `dhruva-s`
+(`FINDINGS §20.4`): 110 fresh candidates, k=30/arm, only 54 of 110 (49%) ever
+touch SPICE — critic arm **15/30 near-feasible** vs control **8/30** (1.88×,
+literal ≥2× bar **not met** by one design, but the restated skill bar
+**0.328 ≥ 0.25 is met**), with the critic's edge concentrated on NF (3 vs 9
+violations) — the constraint the whole dhruva ladder is stuck on.
 
-**Rung 2 — evolutionary search** (`lna/evolve.py`) is a μ+λ loop: a
-population seeded from archetypes + store rows + generator pool files,
-`moves`/`crossover` producing offspring, a critic-scored fitness
-(`mean − β·σ` plus a novelty bonus). Selection splits the pool into
-**trusted** individuals and an **exploration stratum**; the **trust region**
-(any offspring farther than `FAMILY_SIM=0.9` WL-cosine from every labeled
-row is "far," regardless of predicted score, until it earns a real
-evaluation) is what actually substitutes for the retired uncertainty gate
-(§7). **Elite SPICE verification**: only the top-fitness trusted elites and
-a small exploration quota get a real SPICE run (bias → ZOAF → polish) each
-generation; everyone else is scored by the critic alone. On `dhruva-s`,
-evolutionary search reached **87% near-feasible** vs. the random control's
-47%, produced a novel tier-1-feasible design, and moved the Gate-D3 NF front
-by **−3.30 dB** (FINDINGS §15.3) — the clean positive result in the
-search program; on `wideband-sdr`, where every candidate failed NF
-regardless of arm, evolve and random tied (a "clean negative," §15.2), which
-is itself evidence the guidance was real and not an artifact of the
-harness. **Gate S2** (evolve ≥ 2× rerank at tier-2-feasible count) is
-**NOT MET** on either spec measured so far — zero tier-2-feasible designs on
-either arm, so the ratio is undefined, not merely small (FINDINGS §15.5).
+**Rung 2 — evolutionary search over graph edits** (`lna/moves.py` +
+`lna/evolve.py`), a **genetic algorithm, not a learned policy**. `moves.py`
+defines **17 one-edit mutations** on the same netlist form `templates.py`
+uses — `load_swap`, `cascode_add`/`remove`, `buffer_add`/`remove`,
+`degen_add`/`remove`, `stage_add`/`remove`, `feedback_add`/`remove`,
+`match_elem_add`, `input_class_swap`, `passive_type_swap`, `rewire`,
+`device_remove`, `aux_path_add` — each realized through the full round-trip
+(netlist → tokens → `Topology` → L0 screen → WL hash) so genotype and
+phenotype can never drift apart, plus a stage-boundary crossover that splices
+two parents at an interstage-coupler seam. `evolve.py` runs a
+population/generations loop (default pop 48, gens 20) with three trust
+mechanisms guarding the critic's off-distribution weakness: **(1)** selection
+always uses `mean − β·σ`, never the raw mean; **(2)** an uncertainty gate
+(retired, Block 7); **(3)** a **trust region** — an offspring farther than
+WL-cosine 0.9 from every labeled row is "untrusted" and routed to a dedicated
+exploration stratum (25% of the population, its own true-eval slot) rather
+than discarded; **(4)** only true SPICE numbers are ever logged as results.
+Each generation, only the top 2 trusted elites + 1 exploration individual get
+a real sizing run (`bias.insert_bias` → ZOAF scan → box-clamped polish); the
+rest of the population (up to 96 individuals) is scored by the critic only.
+Neither `search.py` nor `evolve.py` writes the store directly — both call
+`size.log_l2_result` / `size.size_topology`'s internal logging, which appends
+through `datastore.append_l2`.
 
-**Search results become labels the same way sizing always does**: both
-`search.py` and `evolve.py` route every real evaluation — feasible or not —
-through `size.log_l2_result` → `datastore.append_l2`. Nothing about being
-"search output" changes how a row is stored; feasibility is a stored field,
-not a gate on storage, which is what lets the store's own history document
-search's failures as well as its wins.
+Measured results (`FINDINGS §15`): a dead heat on `wideband-sdr` (critic
+guidance bought nothing — the same off-distribution collapse Block 7
+measures), and a clear win on `dhruva-s` (**87% near-feasible vs 47% control**,
+and the search-only design `8c7592ea859e489a` — a search-rearranged
+noise-cancelling CG+CS descendant, no generator sample involved — improved
+the best tier-1-feasible NF on that spec from 8.88 to 5.58 dB).
 
----
+**Design decision worth carrying:** the trust region did real, measurable
+work (kept ≥24/32 trusted slots filled every generation on both specs; the
+unguided control drifted to as few as 1/32 trusted by run's end) while the
+uncertainty gate never fired once in 80 generations — a case where the
+cheaper, simpler guard (distance-to-training-data) outperformed the fancier
+one (learned uncertainty) (`FINDINGS §15.4`, `§20.3`).
 
 ## 9. The loops
 
-**Loop B — expert iteration.** `templates.py --emit-winners` reads the
-label store, ranks sized topologies *per spec* by true SPICE objective, and
-keeps the top quartile (oversampling feasible ones 2×) into
-`winners_train.json`. `finetune.py --winners` loads that file and appends
-its rows to the ordinary supervised training set — **this is the entire
-mechanism**: SPICE-verified good designs become more training examples for
-next-token prediction, mixed in exactly like corpus or archetype rows. There
-is no reward computation, no comparison-of-trajectories, nothing that
-resembles a policy update outside of gradient descent on cross-entropy loss.
+The governance layer that decides whether a checkpoint or a search run should
+feed forward — and the honest statement that **none of this is
+policy-gradient reinforcement learning**. A grep for
+`reward|policy_gradient|RL|PPO|REINFORCE|Q-learning|advantage` across every
+`lna/*.py` file returns zero hits in any RL sense (the only "reward"-adjacent
+string is the sizer's unrelated feasibility-violation scalar).
 
-**`lna/loop.py`** is governance over both loops: the same five tripwires
-described in §3, plus the pipeline's cost-efficiency headline,
-**SPICE-minutes per feasible-and-novel design** — total SPICE-minutes spent
-across the whole store, divided by the count of distinct WL-hashes that are
-both feasible *and* absent from the `ref-v2` reference (i.e., not a
-corpus/archetype regeneration). A companion `funnel()` metric tracks
-smoother precursors (near-feasible rate, one-constraint-off count) because
-the headline curve is a step function that can sit flat for a long stretch
-and then move on one lucky basin. **Iteration gating**: `cmd_iterate()`
-only lets the loop record forward progress when tripwires read quiet; the
-stated exit criterion is two consecutive iterations with the curve
-improving and every tripwire quiet.
+The two mechanisms that could be mistaken for RL are both something else:
 
-**`lna/benchmark.py`** is the cross-spec scoreboard — sizes a candidate set
-(the nearest-to-feasible pool, or every design ever tier-1-feasible against
-any spec) against every named target spec, reporting tier-1 and tier-2 yield
-per spec and per binding constraint. **The `--specs` subset trap** (FINDINGS
-§25.6): `benchmark.md`/`.json` are shared mutable files with no merge
-semantics — the report writer rebuilds the whole comparison table from
-whatever `--specs` list was passed *that run*, so an audit invocation naming
-only 2 of the committed table's 7 specs silently drops the other 5 specs'
-rows/columns from the shared file. Caught before landing this time (the
-partial run's numbers were pulled from its own JSON checkpoint instead, and
-the shared file reverted), but the finding's own words are the operating
-rule now: **"anyone refreshing that table should pass the full spec list, or
-the refresh is a regression for every spec they leave out."**
+- **Loop B — expert iteration** (`templates.py --emit-winners` →
+  `finetune.py --arm p5 --do both --winners`). A "winner" is selected purely
+  by its already-realized SPICE objective (`spec.objective`, top-quartile
+  feasible/near-feasible), then folded into the *next fine-tune's ordinary
+  training set* as more sequences to imitate via next-token cross-entropy
+  (Block 3). No reward, no advantage estimate, no gradient through a sampling
+  decision — this is supervised learning on curated examples, the
+  imitation-learning half of "self-improvement," not reinforcement.
+- **Rung-2 evolutionary search** (Block 8) is a genetic algorithm operating
+  directly on circuit graphs — mutation + fitness-based selection. Nothing
+  about the search process trains a policy; the critic it consults is a
+  static, separately-trained (offline, supervised) ranking model, read-only
+  during selection. The only way search feedback re-enters learning is
+  indirect and non-RL: SPICE labels it produces get folded into the critic's
+  next offline retrain (ordinary supervised regression) and into Loop B's
+  winners file (ordinary imitation data) — never a reward term in anyone's
+  loss.
 
-**There is no policy-gradient reinforcement learning anywhere in this
-codebase — say this plainly, because "self-improvement loop" invites the
-opposite assumption.** A grep across all of `lna/` for `policy_gradient`,
-`REINFORCE`, `PPO`, `actor_critic`, `value_function`, `advantage`, and a
-word-boundary `reward` returns nothing but two accidental substring
-collisions inside unrelated English words ("**PPO**SITE," "SU**PP**ORTED")
-and zero uses of "reward" anywhere in the pipeline's Python source. The two
-things that could be mistaken for RL are structurally not RL:
+`lna/loop.py` is the governance layer proper — not itself a learned
+component. It reads/writes `lna/data/loop_state.json` and defines:
+**tripwires** (5 numeric monitors — NDL drop >20% vs the pinned baseline,
+distinct-WL-family count <50% of baseline, repeat-probe σ drift >2×, labeled
+feasible-rate >0.60 (margins compressing), plus a critic-holdout regression
+check folded into adopt-only-if-better) with a named response per trip (e.g.
+revert checkpoint, raise replay fraction); the **SPICE-minutes-per-feasible-
+novel-design curve** (`spice_curve()`, `total sim seconds / distinct
+feasible-and-novel WL hashes`) — the program's own cost-efficiency yardstick,
+which dropped **967 → 367 → 187 SPICE-min** across the program's first four
+iterations as feasible-novel designs rose 1 → 3 → 6; and **iteration gating**
+(`cmd_iterate`, exit code 0 only when tripwires are quiet) — the documented
+exit criterion is two consecutive iterations with the curve improving and
+every tripwire quiet, not yet formally called.
 
-1. **Expert iteration** (this section) — winners become supervised training
-   rows; the SPICE/critic signal gates which data gets added, never touches
-   a loss or a gradient.
-2. **Evolutionary search with SPICE-in-the-loop fitness** (§8) — a
-   classical μ+λ evolutionary algorithm with a hand-written fitness formula.
-   No learned value function is being optimized, no policy network receives
-   gradient updates from expected reward, and there is no environment/
-   episode/action abstraction anywhere in `moves.py`/`evolve.py`. The critic
-   is a supervised regressor trained on stored (topology, spec) → margin
-   labels — it ranks and selects; it never updates a policy.
-
----
+`lna/benchmark.py` is the cross-spec scoreboard: sizes the feasible/
+near-feasible candidate record against every spec, tier-1 (S11/S21/Idd) and
+tier-2 (+NF) gated at the same sized point, writing
+`lna/data/benchmark.md`/`.json`. **The `--specs` subset trap** (`FINDINGS §25.6`):
+`write_report()` rebuilds the *entire* committed table from only the
+`spec_names` list of the current invocation — there is no merge with what's
+already on disk. An invocation that named only two specs (a legitimate,
+independent Gate-D3 confirmation) silently dropped the other five specs' rows
+from the shared file; it had to be manually reverted, with the numbers
+salvaged from the run's own JSON checkpoint instead. **Anyone refreshing that
+table must pass the full spec list, or the refresh is a regression for every
+spec they leave out.**
 
 ## 10. Integrity mechanisms
 
-**The regression quartet(+).** Required green before *and* after every work
-package (HANDOVER-EXEC §4): the vocab guard
-(`test_vocab_matches_upstream.py`), the legacy screen reproducing its
-historical 59.4% score on the fixed corpus indices
-(`screen.py --corpus --indices 461-492,1081-1090`), pipeline yield
-(`pipeline_yield.py`, 41/42 with finite inductor Q), and the reference
-anchor (`ref/check_ref.py`) — a quartet at the point HANDOVER-EXEC names it,
-with WP-SPEC acceptance (`calibrate_specs.py`) as the "+". `JOURNEY.md`'s
-current-frontier section documents it growing further still —
-`ref/check_nf.py` (the NF golden check, §5) and `ref/check_stab.py` (the
-stability closed-form check, §5) and `ref/check_bjt.py` (the bipolar
-golden check, §5) are now run alongside the original three. All seven exist
-as live files today; none has been retired.
+The standing set of disciplines that keep every claim in this pipeline honest
+under re-measurement — most born from a specific defect found and fixed in
+public (`JOURNEY.md`, "Standing honesty mechanisms").
 
-**Frozen protocols, and why freezing is the point.** NDL@256 (§3) is
-declared frozen specifically so that "the generator got better" is a claim
-that can be checked against history, not just against whatever reference
-happened to be convenient this session. Freezing only helps if the
-*reference* is honest, though — which is exactly what forced the ref-v1 →
-ref-v2 rebaseline (FINDINGS §14.5): ref-v1 covered only the 41-circuit
-corpus, so a generator trained on `templates.py` archetypes could score
-"novel" by regenerating an archetype ref-v1 had never seen — measured at
-~51% of one arm's screen-passing pool. ref-v2 → ref-v3 (FINDINGS §19.3) is
-the opposite kind of event: a real corpus expansion (41→50 circuits) that
-was checked against every existing pool and found to change **zero**
-historical NDL numbers — insurance confirmed to have no side effect, not a
-silent correction. Every version's digest travels with every reported
-number (`ref-v3[198h/d05390da6183123e]`-style tags), so a number is never
-ambiguous about which reference produced it.
+- **The regression quartet(+)** — must stay green before and after every work
+  package: the vocab guard (`test_vocab_matches_upstream.py`), the legacy
+  screen reproducing 59.4% (114/192) exactly, `pipeline_yield.py` (40/42,
+  41/42 with finite inductor Q), and `ref/check_ref.py`. It has grown three
+  more checks as new harnesses landed — `ref/check_nf.py` (the series-Rs NF
+  golden), `ref/check_stab.py` (the K/μ stability harness against
+  closed-form goldens), `ref/check_bjt.py` (bipolar device-model golden) —
+  so "quartet" now understates it; all of these plus `calibrate_specs.py`'s
+  WP-SPEC acceptance criteria are required green together.
+- **Frozen, versioned protocols with content-addressed digests.** The
+  NDL@256 novelty protocol (Block 3) and its reference pools (ref-v1/v2/v3,
+  each a `blake2b` digest over its sorted hash list) exist so a novelty
+  number measured this session can be reproduced exactly against the
+  reference it was measured under, even after the reference itself is later
+  rebaselined for good reason.
+- **Adopt-only-if-better**, applied uniformly to generator checkpoints
+  (Block 3) and, in the same shape, critic versions: a candidate replaces the
+  incumbent only if it beats the frozen metric with every tripwire quiet;
+  ties go to the incumbent, and real costs are stated even when the verdict
+  is ADOPT (e.g. P5-v7's wb inductor-ratio regression, reported rather than
+  smoothed over).
+- **Replay / audit fences.** `size.replay_ok` re-derives a stored (topology,
+  params) pair from scratch and requires it to reproduce the stored S11/S21
+  within label noise before any downstream code (polish, G4 boosted sizing,
+  benchmark) is allowed to build on it; a row that fails is quarantined, not
+  corrected in place (`relabel_nf.py` uses the identical fence when
+  re-labeling under a new harness). Independent re-audits go further:
+  `_nf_gate_d3.py` re-derives a gate claim from the store's own tokens
+  end-to-end, and Gate D3's headline claim was additionally confirmed through
+  `benchmark.py` — a completely different code path with its own curated
+  recipe — reproducing the same tier-2 cell (`FINDINGS §25.6`).
+- **Recipe/provenance-tagged label domains** (Block 6) are the mechanism that
+  stops an NF-method change, a device-budget widening, or a bias-rule change
+  from silently contaminating a training set or a ranking — `nf_gated:
+  true/false`, `blind-v1`/`blind-v1-nf`, `nf-v2+d18`/`nf-v3+d21`, and
+  `candidate-v1` vs `candidate-v1+bo3` are all the same discipline applied at
+  a different join point.
+- **The blind protocol** (`plans2/08-DHRUVA-GOAL.md`): the Dhruva
+  paper-target spec ladder (the four bands' gain/NF/IIP3/S11/current targets
+  cited in Block 4 as `dhruva-l5/l2/l1/s`) is drawn from Kanchetla et al.,
+  IEEE TMTT 70(7) 2022 — "the spec numbers cited here are the complete
+  allowed excerpt." The paper's circuit content is never described anywhere
+  in the repo; every archetype added while this work package is active is
+  tagged `recipe: blind-v1` and must be a generic textbook block chosen
+  *without* consulting the paper (Block 2's four blind-v1 families are the
+  result); if the search loop stalls, the rule is to record the stall and
+  stop — unblinding is explicitly the user's decision, never the executor's.
 
-**Replay and audit fences.** `size.replay_ok` (§5) re-derives a stored row's
-metrics from its own stored topology and params before allowing further
-reuse — a topology/params mismatch is a real bug class this has caught, not
-a hypothetical one. The same discipline shows up as independent re-audits
-elsewhere: `_nf_gate_d3.py` cross-checks a headline NF claim through a
-separate code path, and `benchmark.py`'s cross-spec table (§9) served as an
-**independent confirmation** of a Gate-D3 claim through yet another code
-path in FINDINGS §25.6 — the operating principle stated in `JOURNEY.md`'s
-closing section is that a stored point's claim isn't trusted until
-re-evaluating it from scratch reproduces the stored numbers.
-
-**The blind protocol.** From `plans2/08-DHRUVA-GOAL.md` — this plan doc
-lives on the `lna-plans`/`lna-critic-plans` worktree lineage, not in this
-worktree's own history, so `git show lna-critic-plans:lna/plans2/08-DHRUVA-GOAL.md`
-(or the sibling `lna-plans` worktree checkout) is how to read it from here;
-it is nonetheless the standing authority every other file in this repo
-cites. Verbatim rules: the target paper (Kanchetla et al., IEEE TMTT 70(7), 2022)
-has been removed from the repo — only its **performance numbers** (the spec
-ladder in §1 of that plan) are the allowed excerpt; no description,
-summary, sketch, or transcription of its circuit is permitted anywhere in
-the repo, in any file. `templates.py` may only grow families that are
-either already in the archetype set or "generic textbook blocks chosen
-without consulting the paper" — anything added under the active WP is
-tagged `recipe: blind-v1` (§2 above). If the loop stalls with no gate
-movement across two full turns, the rule is to record the stall and stop —
-**whether to unblind is the user's decision, never the executor's.**
-`ingest_external.py`'s provenance gate (§2) enforces the source half of this
-mechanically (an `EXCLUDED_MARKERS` check on provenance text), not just by
-convention.
-
-**Recipe-tagged label domains.** Covered in depth in §6: every sizing
-protocol change gets a new recipe string rather than silently redefining an
-old one, specifically so the store never has to be re-audited to tell which
-rows mean what.
-
-**The metric-honesty wave.** `JOURNEY.md` §12 (stage 12, "the
-metric-honesty wave") is the closest thing to a single "honesty
-corrections" chapter: the same session that fixed the σ repeat-probe
-contamination (§6) also retrained the critic on a corrected snapshot and
-restated Gate C1 (§7) — three separate metric defects, found and fixed
-together, each stated with the size of the correction rather than folded
-quietly into a clean restatement. It's the template every later correction
-in this program follows (the ref-v2/ref-v3 rebaselines, the σ-gate
-retirement, the `--specs` trap): measure the defect, propose the fix, get
-sign-off where the fix touches a frozen protocol or a spec's own
-constraints, execute it, and record the correction's exact size — including
-when the correction reveals a wall or an over-grant, not just when it closes
-a gate.
+**Design decision worth naming:** every one of these mechanisms exists
+because something *without* it went wrong first — the port-referred NF
+flattering every design, `polish` walking outside the device box, `--specs`
+silently dropping rows from a shared table, NDL treating archetype
+regurgitation as novelty. The pattern across the program (`JOURNEY.md`,
+"Current frontier") is measure → find the defect → fix → re-verify → record
+the correction's exact size, including when it reveals a wall rather than a
+win.
 
 ---
 
-For what's currently open, live, or explicitly deferred at the block level
-— which gates are met, which aren't, and why — see `JOURNEY.md`'s "Current
-frontier" and "Standing honesty mechanisms" sections; this document
-describes the machine's shape, not its current score.
+## Sizing / verification inner loop
+
+```mermaid
+flowchart LR
+    TOPO["Topology tokens"] --> BIAS["bias.insert_bias<br/>R-GATE (+ opt-in R-SOURCE/R-DRAIN)"]
+    BIAS --> NET["to_spice.Netlist<br/>finite-Q inductors, BJT emission"]
+    NET --> ZOAF["size.py: ZOAF scan<br/>candidate-v1 / curated-v1 / match-first"]
+    ZOAF --> EXTRACT["extract.py: ngspice op / sp / noise<br/>S-params, series-Rs NF, K/mu"]
+    EXTRACT --> FEAS{"spec.feasible /<br/>objective"}
+    FEAS -->|infeasible, budget left| ZOAF
+    FEAS -->|near-feasible boundary| POLISH["size.polish<br/>box-clamped min-margin ascent"]
+    FEAS -->|tier-1 clean, one metric short| CD["size.constrained_descent<br/>target metric, trust region on the rest"]
+    POLISH --> REPLAY["size.replay_ok fence"]
+    CD --> REPLAY
+    REPLAY -->|reproduces stored metrics| LOG["datastore.append_l2<br/>(topo_labels.jsonl)"]
+    REPLAY -->|does not reproduce| QUAR["quarantined, not stored"]
+```

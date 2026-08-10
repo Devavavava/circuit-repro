@@ -4854,6 +4854,206 @@ geometry model, and the passive match's inductor Q.
 
 ---
 
+## 27. Phase 3 — ★★★ the multi-finger cutover: **Gate D3 on all four dhruva bands**, and what the artefact was hiding (Session 6)
+
+> Owner: the NF-campaign executor (continues §17/§23/§25/§26). Files:
+> `lna/to_spice.py` (emission — owned for this cutover), `lna/size.py`
+> (`_zoaf_cfg` stamp, `prepared_body(w_finger=…)`), `lna/relabel_mf.py`,
+> `lna/nf_campaign.py` (`--recipe`), `lna/_mf_prove.py`,
+> `lna/_mf_stab_control.py`. Recipes `mf2-v1` (relabel), `mf2-cap-v1`
+> (capability tests). §26 is the diagnosis this acts on.
+
+**Headline.** The user approved adopting multi-finger MOS emission at
+`w_finger = 2 µm`. Under the honest harness **all four dhruva bands close on a
+single 20-device design**, and the store-wide relabel shows the old harness was
+overstating noise figure by a **median of 2.08 dB**. Two things the artefact was
+hiding also came out: a **conditional-stability problem in the Gate-D1/D2 4-band
+archetype**, and the fact that the generator's l5 candidates were never
+noise-limited at all.
+
+### 27.1 The cutover, and proving it does what it claims
+
+`to_spice.Netlist` now emits ` NF={max(1,ceil(pW/2e-06))}` on every MOS instance.
+W is a `.param`, not a literal, so the finger count must be a parser-evaluated
+expression; rounding **up** keeps every finger ≤ `w_finger`, and the `max()`
+floor keeps sub-micron devices legal. `w_finger=None` restores the historical
+single-finger emission byte-for-byte, so pre-cutover labels stay reproducible —
+and the relabel's replay fence depends on exactly that.
+
+**Proven, not assumed** (`_mf_prove.py`, same design, same params):
+
+| | single-finger | 2 µm/finger |
+|---|---|---|
+| instance | `MNM1 … W={pNM1W} L={pNM1L}` | `… NF={max(1,ceil(pNM1W/2e-06))}` |
+| **`rg` share of F−1** | **36.4%** | **0.4%** |
+| `id` (channel) share | 23.0% | 22.3% |
+| NF | 3.310 dB | **2.031 dB** |
+| S11_max | −10.00 | −7.85 |
+| Idd / S21 | 11.23 / 26.41 | 11.20 / 26.78 |
+| noise sum-closure | 1.0000 | 1.0000 |
+
+Exactly the intended term moves; channel noise doesn't; and **the match shifts**,
+which is why a relabel at fixed params is not the whole story (§27.3).
+
+**Self-describing, landed first and alone.** `size._zoaf_cfg` stamps
+`w_finger` + `mos_fingers` on every logged row, read from `to_spice`'s own
+default — so rows are honest about their geometry no matter which driver or
+which concurrent agent produced them. This was committed before any other work
+precisely because other agents were sizing at the time.
+
+### 27.2 Re-baselining the regression suite — and the one thing that legitimately moved
+
+| check | before | after | note |
+|---|---|---|---|
+| `extract --selftest` (NF golden) | 3.012469 | **3.012469** | measurement math untouched |
+| `check_nf` | GREEN | **GREEN** | |
+| noise-budget selftest | GREEN | **GREEN** | shares-NF 3.0103 exact |
+| vocab | MATCH | **MATCH** | |
+| screen (structural) | 59.4% (114/192) | **59.4%** | geometry is not structure |
+| `pipeline_yield` | 40/42 (95.2%) | **40/42 (95.2%)** | 1081's known singular matrix |
+| `calibrate_specs` | ALL MET | **ALL MET** | |
+| `check_ref` | GREEN | **GREEN, unchanged** | see below |
+| `check_stab` | GREEN | **harness GREEN, winner audit FAILS on l2** | §27.5 |
+
+**`check_ref` needed no `--update`, and that is itself a finding.** The hand
+reference decks (`lna/ref/*.cir`) are literal netlists that never pass through
+`to_spice`, so the cutover cannot reach them — every baselined number is
+byte-identical. The consequence is an **inconsistency to record**: the three hand
+references remain single-finger while everything generated is multi-finger, so
+their NF numbers (e.g. `ref24_cg` 4.127 dB, and the wifi24 tier-2 reference
+`ref24_tapped` at 2.00 dB) are on the *old* domain. Bringing them across is a
+separate, deliberate decision — they are a frozen regression anchor — and is
+**not** taken here.
+
+### 27.3 The store-wide relabel: the old harness overstated noise by 2.08 dB (median)
+
+`relabel_mf.py` follows WP-D1's doctrine — a new harness is a new label domain,
+rows are appended, never edited — with one deliberate difference. WP-D1 changed a
+*measurement* of an advisory metric; this changes the **circuit**, so the **full
+metric vector** is re-measured at the stored best point, not just `nf_db`. A row
+must carry the metrics that go with its geometry. Sizing is *not* re-run;
+re-sizing is a separate job, because a re-sized design is a different point.
+
+Fenced by an **old-geometry replay**: re-evaluating stored params under
+single-finger emission must reproduce the stored S11/S21, else the (topo, params)
+pair is inconsistent and the row is quarantined rather than relabeled.
+
+> 1317 pre-cutover NF-bearing L2 rows → 1245 distinct (design, spec, params).
+> **1240 relabeled, 6 quarantined, 0 failed**, 1974 s.
+>
+> **NF delta (new − old): min −14.758 · p25 −4.018 · median −2.078 ·
+> p75 −1.101 · max +105.756 · mean −1.794. Improved: 1109/1240.**
+
+The positive tail is degenerate near-passive designs whose NF was meaningless in
+either harness. **Every NF number published by this program before 2026-08-10 is
+pessimistic, typically by ~2 dB.**
+
+### 27.4 ★★★ Gate D3 — all four bands, one design
+
+`ace8383c2fa68d03` (20 devices, 2 inductors, `moves.stage_add` off
+`6f0d080f91dfc642`), re-sized per band under `constrained_descent`:
+
+| band | S11_max | S21 | Idd | **NF** | target | K_min in-band / 0.1–20 GHz |
+|---|---|---|---|---|---|---|
+| **dhruva-s** | −10.001 | 36.473 | 13.000 | **1.288** | 3.5 | 54.6 / 21.5 |
+| **dhruva-l1** | −10.000 | 36.824 | 12.997 | **1.220** | 2.7 | 17.3 / 9.7 |
+| **dhruva-l2** | −10.002 | 35.773 | 12.989 | **1.506** | 2.5 | 14.4 / 9.6 |
+| **dhruva-l5** | −10.001 | 35.961 | 12.963 | **1.253** | 2.5 | 19.9 / 10.3 |
+
+Full audit per band (`_nf_gate_d3.py`): **replay 3/3 identical, spread 0.0000 on
+every gated metric**; **30/30 parameters in-box**; `spec.feasible()` re-measured,
+not trusted; **unconditionally stable in band and over 0.1–20 GHz**; WL hash
+absent from **ref-v3** (nearest `arch:nccgcs_s1_R`, 0.806).
+
+Other bands' independent winners also close (l5: `998ff3` 1.32, `86d5ce` 1.40;
+l2: `86d5ce` 1.38; s: `ced0d8` 1.46), so the four-band result is not one lucky
+graph. `wifi24`'s tier-2 `seq0220` survives and improves: **NF 2.31 → 1.473** at
+S11 −15.67 / S21 15.36 / Idd 3.62.
+
+**What actually changed is the harness, not the design's luck.** The gate was
+never "0.20 dB away on dhruva-s and 0.81 on l5" — it was measuring a device
+nobody would tape out.
+
+**Attribution, unchanged and precise:** search + sizing (blind-v1 archetype
+`nccgcs_s1_R` → 1-edit `moves` → `constrained_descent`), **not** generation.
+`iip3_dbm` remains `unsupported` (tier-3), and stability is still ideal-element
+frequency-domain — no corners, load pull, or package/layout parasitics. Both
+qualify the engineering claim, not the gate.
+
+### 27.5 ⚠ The artefact was also hiding a stability problem
+
+`check_stab`'s winner audit now reports the **Gate-D1/D2 4-band archetype**
+`rfbcs3_tank_cc21_bf0` as only **CONDITIONALLY stable on `dhruva-l2`**
+(K_min **−17**, μ_min 0.977), where it read unconditional before. It is not my
+design and not the D3 winner — but it qualifies a *previous* gate claim, so it
+gets recorded properly.
+
+A control (`_mf_stab_control.py`, same archetype, same stored sizing, five
+emissions) settles the direction:
+
+| w_finger | K_f0 | **K_min** | μ_min | \|S12·S21\| dB | S21 | NF |
+|---|---|---|---|---|---|---|
+| None (1 finger) | 4281 | **+10.15** | 1.013 | −81.26 | 23.24 | 11.12 |
+| 8 µm | 5042 | −15.74 | 0.979 | −82.64 | 23.33 | 6.47 |
+| 4 µm | 5067 | −16.89 | 0.977 | −82.67 | 23.31 | 5.96 |
+| **2 µm** | 5113 | **−17.21** | 0.977 | −82.74 | 23.28 | 5.51 |
+| 1 µm | 5206 | −16.99 | 0.977 | −82.89 | 23.20 | 5.14 |
+
+**My first hypothesis was wrong and the data says so**: |S12·S21| does *not* rise
+— it is flat to slightly falling. With the reverse path pinned at ≈ −82 dB, K's
+sign is set by its numerator, so `1 − |S11|² − |S22|² + |Δ|² < 0` means **a port
+reflection coefficient exceeds unity — genuine negative resistance at a port.**
+The single-finger gate resistance was a large *real, lossy* series element that
+guaranteed passivity; removing it exposes a non-passive port this sizing always
+had. Note the flip is essentially complete by 8 µm/finger — it is not gradual.
+
+**Reading:** the honest harness did not destabilise the design; it stopped
+hiding that the design was marginal. The same reasoning applies to §14.3's
+"8 of 84 cells read in-band K < 1" — those counts were taken through a lossy
+harness and are **lower bounds**. Stability across the store deserves a re-audit
+on the new emission; the D3 winner is clean (audited above), which is what the
+gate needs.
+
+### 27.6 The capability tests, re-run unconfounded
+
+§26 measured both learned arms as failing and flagged the result as confounded,
+because 26–40% of the noise they were being asked to remove was an artefact.
+Re-run on the honest harness:
+
+* **Search — now succeeds easily.** `moves.py` from the quietest compact parents:
+  **8 of the first 14 mutants are tier-2 feasible on `dhruva-l5`**, best
+  `degen_add/809374` at **NF 1.19** (S11 −10.10 / S21 26.40 / Idd 12.78). The
+  §26 negative was the harness, not the search.
+* **Generator — still fails, and now for a clearly different reason.** The 12
+  most structurally-distinct P5-v7 pool candidates still produce nothing viable
+  (best NF 2.11 at S21 11.5 with S11 −3.78). The two P5-v8 l5 candidates the v8
+  agent flagged (§28) re-size to **NF 1.02** (`eaf1b914`, S21 22.31, Idd 12.99)
+  and **NF 0.96** (`fb48c7f2`, S21 22.30) — outstanding noise, adequate gain —
+  **but S11 stops at −4.46 and −0.99.** The generator's designs are **not
+  noise-limited and never were**; they are *match*-limited, exactly the
+  structural-match wall of §17.8.
+
+**So the honest capability verdict changes shape**: search can now reach the gate
+unaided; the generator supplies noise and gain but not an input match, and no
+amount of NF work will change that. The next generator question is a matching
+one.
+
+### 27.7 Corrections to the incoming report, and cost
+
+* **`ced0d8bd36ed4890` is NOT missing from the store.** The v8 audit reported it
+  invisible; it has **10 rows in `lna/data/topo_labels.jsonl`**, including the
+  `nf-v3+d21` dhruva-s row carrying both `graph.tokens` and `best_params` — it
+  resolved by hash in three campaigns this session. No storage gap, no fix
+  needed; recorded so the claim is not re-raised.
+* **The `check_stab` regression is real but is not the D3 winner** — it is the
+  Session-3 archetype, diagnosed in §27.5.
+
+**Cost.** 1 cutover + 1245-row relabel (1974 s) + 6 re-size campaigns + 4-band
+audit + 2 capability tests + 1 stability control. Store recipes: `mf2-v1`
+(relabel), `mf2-cap-v1` (capability), on top of §17/§23/§25's `nf-v*`.
+
+---
+
 ## 28. Phase 3 — **P5-v8**: Loop-B expert iteration on v7, and the winners channel recycles structure rather than adding it (Session 6/7)
 
 > §27 is the cutover track's. This section is numbered 28 to avoid a collision.

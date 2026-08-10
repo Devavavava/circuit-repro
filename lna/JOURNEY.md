@@ -1172,6 +1172,84 @@ re-reading bothers to keep.
 
 ---
 
+## 23. ★★★ The multi-finger cutover — Gate D3 on all four bands, and an artefact that was hiding two things
+
+**The decision.** Stage 22 closed Gate D3 on `dhruva-s` and left `dhruva-l5`
+0.81 dB short, with the diagnosis pointing at the input stage. A per-element
+noise decomposition (the new `extract.measure_noise_budget`, validated on a
+golden deck to 3.0103 dB *exactly* and with sum-closure 1.0000 on every real
+design) said the diagnosis was wrong: **26–40% of the excess noise factor on
+every dhruva design was BSIM4 gate-electrode resistance**, because the harness
+had always emitted MOSFETs as a **single finger**. The dominant per-device
+mechanism was `rg`, not the channel thermal noise everyone had been optimising.
+A 100–200 µm RF device at one finger carries hundreds of ohms in series with its
+gate — a device nobody would tape out.
+
+**Who decided what.** The executor measured the artefact and its size, then
+**refused to adopt the fix**: finger count is a harness-fidelity parameter of the
+same class as `inductor_q` and `device_budget`, changing it moves every NF label
+in the store, and changing it in order to close a gate is precisely what stages
+19/20/22 each declined to do. The proposal handed up was a rule calibrated to
+layout practice — fix a finger *width* (~1–5 µm real practice) and let the count
+follow from W — not a number chosen to clear a target. **The user approved
+`w_finger = 2 µm`.**
+
+**The result.** Under the honest harness a single 20-device design,
+`ace8383c2fa68d03`, is tier-2 feasible on **all four dhruva bands** —
+NF **1.288 / 1.220 / 1.506 / 1.253** dB against targets 3.5 / 2.7 / 2.5 / 2.5,
+each with S11_max ≤ −10 over 1.1–2.5 GHz, S21 ≥ 35.7 dB, Idd ≤ 13 mA, replay
+3/3 identical, 30/30 parameters in-box, and unconditional stability both in band
+and over 0.1–20 GHz. The four-band tier-2 result the ladder was built for.
+
+**What the record has to say honestly.** The gate was never "0.20 dB away on
+dhruva-s and 0.81 dB on l5". Those distances were measurements of a device that
+would never be built. The store-wide relabel — 1240 rows, append-only, fenced by
+an old-geometry replay — puts a number on it: **the old harness overstated noise
+figure by a median of 2.08 dB**, and every NF this program published before the
+cutover is pessimistic by roughly that much.
+
+**And the artefact was hiding a second thing, in the other direction.** The
+single-finger gate resistance was a large *real, lossy* series element that
+guaranteed port passivity. Removing it exposed the **Gate-D1/D2 four-band
+archetype** as only *conditionally* stable on `dhruva-l2` (K_min +10.15 → −17.2).
+A five-point control showed |S12·S21| flat throughout, so the sign flip is in K's
+numerator: a port reflection coefficient exceeding unity — negative resistance
+the design always had. The executor's first hypothesis (a feedback path being
+un-damped) was contradicted by its own control and is recorded as wrong. The new
+harness did not destabilise that design; it stopped flattering it — and it means
+every stability count taken through the old harness is a **lower bound**.
+
+**Two capability findings fell out, and they changed shape rather than sign.**
+Stage 22's negative result — that neither search nor the generator could find a
+quieter input stage — had been flagged as *confounded*, because a quarter to two
+fifths of the noise they were being asked to remove was not removable by
+topology at all. Re-run unconfounded: **search now reaches the gate easily**
+(8 of the first 14 mutants tier-2 feasible on l5, best NF 1.19), while **the
+generator still fails — but not for the reason assumed.** Its best l5 candidates
+reach NF **0.96–1.02 dB** with adequate gain and stop at S11 −1.0/−4.5. The
+generator's designs were never noise-limited; they are *match*-limited, which is
+the same structural-match wall three earlier stages hit. A negative result that
+survives its confound and then points somewhere new is worth more than the
+positive one it replaced.
+
+**Also corrected on the way in:** a concurrent report claimed the second D3
+winner `ced0d8bd36ed4890` was absent from the label store. It has ten rows there,
+with tokens and parameters, and had resolved by hash in three campaigns the same
+session — checked rather than acted on, and recorded so the claim is not
+re-raised.
+
+**What this stage adds to the method.** A harness cutover now has a shape, and it
+is the WP-D1 shape re-used a third time: *validate the instrument on a golden
+case → prove the intended term is what moves → land the self-describing stamp
+first (concurrent agents are writing) → re-baseline the regression suite
+deliberately → relabel append-only behind a replay fence → re-verify the
+flagships → report the delta distribution, not just the headline.* The one
+refinement this stage adds: when the cutover changes the **circuit** rather than
+a measurement, the relabel must re-measure the **whole metric vector**, because
+the match moves too — a row has to carry the metrics that go with its geometry.
+
+---
+
 ## Current frontier
 
 As of this document's writing (`lna-data`, commit `5be4de3` and whatever

@@ -381,6 +381,17 @@ a bias-inserted topology into a scored, verified design point (L2).
 value is a `.param`; inductors are ideal by default or given a **finite Q**
 (`inductor_q`, series R = ω₀L/Q at band centre) to avoid the ideal-inductor
 branch singularity that Block 1's "1081" case turned out to actually be;
+MOSFETs are emitted **multi-finger** — ` NF={max(1,ceil(W/w_finger))}` with
+`w_finger = 2 µm` — because BSIM4 charges a real gate-electrode resistance
+(`rgatemod=1`, `rshg=0.4 Ω/sq`, `ngcon=1`) that scales as 1/NF, and emitting the
+single-finger default put **26–40% of the excess noise factor** into gate
+resistance on every design measured (`FINDINGS §26`). 2 µm/finger is ordinary RF
+layout practice, calibrated to that practice and not to any target;
+`w_finger=None` reproduces the historical single-finger deck byte-for-byte.
+Geometry is a **label domain**: `w_finger`/`mos_fingers` are stamped onto every
+logged row beside `inductor_q` and `nf_method`, and the store-wide relabel onto
+the new emission moved NF by a **median of −2.08 dB** over 1240 rows
+(`FINDINGS §27`), so pre- and post-cutover NF must never be pooled;
 bipolar devices are emitted as SPICE `Q` elements against golden-checked
 generic Gummel-Poon cards (`ref/check_bjt.py`), added once real ingested
 circuits (IHP's `GPS_LNA`) brought bipolar devices into the corpus.
@@ -459,6 +470,13 @@ GENERATION").
   measured that min-margin polish literally cannot spend a large non-binding
   surplus, which is exactly why the third-stage NF win on `dhruva-s`
   (Gate D3, `FINDINGS §25`) needed the target-metric descent instead.
+- **Device geometry is part of the measurement, not a detail.** The
+  single-finger emission did not just overstate NF; it was a large real series
+  loss that *guaranteed* port passivity, and removing it exposed the Gate-D1/D2
+  4-band archetype as only conditionally stable on `dhruva-l2` (K_min +10.15 →
+  −17.2, with |S12·S21| flat, i.e. a port reflection coefficient exceeding
+  unity — `FINDINGS §27.5`). Stability counts taken through the old harness are
+  **lower bounds** and deserve a re-audit.
 
 ## 6. The label store
 

@@ -1715,6 +1715,94 @@ feasible vs 2.5, **0.69 dB short** (was 0.81). l2/l1 unmeasured.
    calibration scrutiny.
 4. l2 / l1 remain unmeasured under the current budget.
 
+### ▸ Sub-block: WP-MF — the multi-finger cutover, ★★★ Gate D3 on all four dhruva bands (owner: the NF-campaign executor)
+
+**Files owned:** `lna/to_spice.py` (emission — owned for this cutover),
+`lna/size.py` (`_zoaf_cfg` stamp, `prepared_body(w_finger=…)`),
+`lna/relabel_mf.py`, `lna/nf_campaign.py` (`--recipe`), `lna/_mf_prove.py`,
+`lna/_mf_stab_control.py`, FINDINGS **§27**, JOURNEY stage **23**,
+STRUCTURE_LOGIC §5, this sub-block. Recipes `mf2-v1`, `mf2-cap-v1`.
+
+**★★★ Gate D3 is MET on ALL FOUR dhruva bands with one 20-device design.**
+`ace8383c2fa68d03` (`moves.stage_add` off `6f0d080f91dfc642`):
+
+| band | S11_max | S21 | Idd | **NF** | target | K_min in / 0.1–20 GHz |
+|---|---|---|---|---|---|---|
+| dhruva-s | −10.001 | 36.473 | 13.000 | **1.288** | 3.5 | 54.6 / 21.5 |
+| dhruva-l1 | −10.000 | 36.824 | 12.997 | **1.220** | 2.7 | 17.3 / 9.7 |
+| dhruva-l2 | −10.002 | 35.773 | 12.989 | **1.506** | 2.5 | 14.4 / 9.6 |
+| dhruva-l5 | −10.001 | 35.961 | 12.963 | **1.253** | 2.5 | 19.9 / 10.3 |
+
+Full audit per band: replay 3/3 identical (spread **0.0000** on every gated
+metric), 30/30 in-box, `spec.feasible()` re-measured not trusted, unconditionally
+stable in band **and** wide, novel vs ref-v3. Independent winners close too
+(l5 `998ff3` 1.32 / `86d5ce` 1.40; l2 `86d5ce` 1.38; s `ced0d8` 1.46), so it is
+not one lucky graph. wifi24's tier-2 `seq0220` survives and improves:
+**NF 2.31 → 1.473**.
+
+**The cutover.** ` NF={max(1,ceil(pW/2e-06))}` on every MOS instance; W is a
+`.param` so the count must be a parser-evaluated expression. `w_finger=None`
+reproduces the old deck byte-for-byte (the relabel's replay fence needs it).
+**Proven, not assumed** (`_mf_prove.py`, same design/params): `rg` share of F−1
+**36.4% → 0.4%**, `id` 23.0% → 22.3%, NF 3.310 → 2.031, sum-closure 1.0000 both
+ways. **The stamp (`w_finger`/`mos_fingers` in `zoaf_cfg`) was committed first
+and alone**, because other agents were sizing at the time.
+
+**Re-baseline.** Measurement math untouched and re-verified (NF golden
+3.012469, `check_nf` GREEN, budget selftest GREEN). vocab MATCH, screen 59.4%,
+pipeline_yield **40/42 unchanged**, calibrate ALL MET. **`check_ref` needed no
+`--update`** — the hand `ref/*.cir` decks never pass through `to_spice`, so the
+cutover cannot reach them. ⚠ **That leaves an inconsistency to decide:** the
+three hand references (incl. the wifi24 tier-2 reference `ref24_tapped` at
+NF 2.00) are still on the single-finger domain. Not taken here — they are a
+frozen anchor.
+
+**Re-label: the old harness overstated NF by a median of 2.08 dB.**
+1317 pre-cutover NF-bearing rows → 1245 distinct points; **1240 relabeled,
+6 quarantined, 0 failed**. Delta (new−old): min −14.758, p25 −4.018,
+**median −2.078**, p75 −1.101, max +105.756 (degenerate near-passive designs),
+mean −1.794; **1109/1240 improved**. Unlike WP-D1 this cutover changes the
+*circuit*, so the **full metric vector** is re-measured at the stored point, not
+just `nf_db` — the match moves too.
+
+**⚠ The artefact was also hiding a stability problem — and it is a PREVIOUS gate
+that is qualified, not this one.** `check_stab`'s winner audit now reports the
+**Gate-D1/D2 4-band archetype** `rfbcs3_tank_cc21_bf0` as only CONDITIONALLY
+stable on `dhruva-l2` (K_min +10.15 → **−17.2**, μ_min 0.977). A five-point
+control shows |S12·S21| **flat** (−81.3 → −82.7 dB), so the flip is in K's
+numerator — a port reflection coefficient exceeding unity, i.e. negative
+resistance the sizing always had; single-finger gate resistance was a real lossy
+element guaranteeing passivity. My first hypothesis (an un-damped feedback path)
+was contradicted by my own control and is recorded as wrong. **Consequence:
+§14.3's "8 of 84 cells read K < 1" and every other stability count taken through
+the old harness are LOWER BOUNDS and deserve a re-audit.** The D3 winner is clean.
+
+**Capability tests, re-run unconfounded (§26 flagged both as confounded).**
+* **Search now reaches the gate unaided** — 8 of the first 14 `moves.py` mutants
+  are tier-2 feasible on l5, best `degen_add/809374` **NF 1.19**. The §26
+  negative was the harness, not the search.
+* **Generator still fails, for a different reason than assumed.** P5-v7's 12 most
+  distinct pool candidates: still nothing viable. The two P5-v8 l5 candidates
+  (§28) re-size to **NF 1.02** and **NF 0.96** with S21 22.3 and Idd ≈13 — and
+  stop at **S11 −4.46 / −0.99**. The generator's designs were **never
+  noise-limited; they are match-limited** (the §17.8 structural-match wall).
+  **The next generator question is a matching question, not a noise one.**
+
+**Correction to the incoming v8 report:** `ced0d8bd36ed4890` is **not** missing
+from the store — 10 rows in `lna/data/topo_labels.jsonl` with tokens and params,
+and it resolved by hash in three campaigns this session. Checked rather than
+acted on; no fix needed.
+
+**Where to pick up.**
+1. **Re-audit stability store-wide on the new emission** — old K counts are lower
+   bounds (§27.5), and one previously-claimed gate design is affected.
+2. **Decide the hand reference decks** (`ref/*.cir`): single-finger anchor vs
+   consistency with everything generated.
+3. **The generator's wall is the input match, now cleanly isolated** — its
+   candidates already have NF ≈ 1 dB and 22 dB of gain.
+4. `iip3_dbm` is still `unsupported` on all four specs; tier-3 remains open, and
+   stability is still ideal-element frequency-domain (no corners/package).
+
 ## 1. TL;DR — what shipped this session
 
 | Plan item | Status | Key result |

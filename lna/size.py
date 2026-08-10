@@ -195,6 +195,46 @@ def _enrich_nf(body, params, spec, m):
     return m
 
 
+def _noise_budget_row(body, params, spec, top=6):
+    """Compact per-element noise budget for an L2 row (WP-L5 phase 1).
+
+    `nf_db` says how much noise a design has; this says WHOSE, which is the part
+    a model can actually learn from -- the same NF can come from a dominant input
+    device (fixable by sizing) or from a lossy match (fixable only by topology).
+    Stored as INPUT FEATURES for the critic, never as a gated metric.
+
+    Kept small on purpose: the top-`top` contributors by share of the excess
+    noise factor (F-1), plus the mechanism split aggregated over all MOSFETs, so
+    the row stays a few hundred bytes. One extra ngspice call per label
+    (~0.15 s), and entirely defensive -- a failure logs nothing and changes
+    nothing else."""
+    try:
+        b = E.measure_noise_budget(body, params, spec)
+    except Exception:
+        return None
+    if not b or not b.get("elements") or not b.get("p_source"):
+        return None
+    mech = {}
+    for e in b["elements"].values():
+        for k, v in (e.get("mech") or {}).items():
+            mech[k] = mech.get(k, 0.0) + v
+    tot_mech = sum(mech.values()) or 1.0
+    rows = sorted(b["elements"].items(),
+                  key=lambda kv: -(kv[1].get("excess_frac") or 0.0))
+    return {
+        "f_hz": b["f"],
+        "nf_db_shares": b.get("nf_db_from_shares"),
+        "sum_closure": b.get("sum_closure"),
+        "source_frac": (b["elements"].get("rns") or {}).get("frac"),
+        "top": [{"elem": n, "kind": e.get("kind"),
+                 "frac_out": round(e.get("frac") or 0.0, 5),
+                 "frac_excess": round(e.get("excess_frac") or 0.0, 5)}
+                for n, e in rows[:top] if n != "rns"],
+        "mos_mech_frac": {k: round(v / tot_mech, 5)
+                          for k, v in sorted(mech.items(), key=lambda kv: -kv[1])[:6]},
+    }
+
+
 def _log_l2(spec, metrics, feasible, n_evals, points, best_x, best_params,
             best_obj, topo, wl_hash, provenance, zoaf_cfg, repeat_probe=False):
     """Append an L2 row (+ its point rows) to the label store. Logging must never
@@ -932,10 +972,16 @@ def log_l2_result(spec, topo, metrics, feasible, best_params, provenance, recipe
     kw = {"inductor_q": inductor_q} if inductor_q else {}
     nl, _, rep, _ = bias.insert_bias(topo, sweep=True, **kw)
     m = metrics
+    prov = provenance
     if not rep.get("skipped") and nl.two_port:
-        m = _enrich_nf(E.body_of(nl.emit()), best_params, spec, metrics)
+        body = E.body_of(nl.emit())
+        m = _enrich_nf(body, best_params, spec, metrics)
+        if nf_is_gated(spec) and (m or {}).get("nf_db") is not None:
+            nb = _noise_budget_row(body, best_params, spec)
+            if nb:                       # input features for the critic (WP-L5)
+                prov = dict(provenance or {}, noise_budget=nb)
     _log_l2(spec, m, feasible, n_evals, None, None, best_params, None, topo,
-            wl_features(topo)[0], provenance,
+            wl_features(topo)[0], prov,
             _zoaf_cfg(0, 0, 0, 0, recipe, inductor_q=inductor_q, spec=spec),
             repeat_probe=repeat_probe)
     return m

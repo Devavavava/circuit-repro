@@ -1525,6 +1525,106 @@ pull, or package/layout parasitics.
    budget with the **full spec list**, and add the two D3 designs to the set.
 4. **l2 / l1 remain unmeasured** under the new budget.
 
+### ▸ Sub-block: WP-L5 — the noise budget, and the single-finger artefact (owner: the NF-campaign executor)
+
+**Files owned:** `lna/extract.py` (`measure_noise_budget`, `noise_elements` —
+instrumentation), `lna/size.py` (`_noise_budget_row`), `lna/nf_campaign.py`
+(`pool:` source), `lna/_nf_budget.py`, `_nf_fingers*.py`, `_nf_gridcheck.py`,
+`_nf_probe*.py`, FINDINGS **§26**, this sub-block. Recipe `l5-nf-v1`.
+`bias.py` and `to_spice.py` untouched (ingestion track). Continues the three
+WP-NF sub-blocks above.
+
+**⚑ Redirect acknowledged.** The mid-campaign directive — no formulas on the
+*design* side (no analytic cancellation-locus start points, no hand-authored
+gm-boosted archetypes) — arrived while phase 1 was still being built. **Nothing
+from phase 2 or phase 3-as-authored-structure had been written, so nothing was
+reverted.** Measurement math stays and is what §26 is. Phase 3 became a
+capability test of the learned system; results below.
+
+**★ The headline is not the gate, it is the diagnosis.** `dhruva-l5` was assumed
+to be blocked by input-stage noise. A per-element decomposition says otherwise:
+**26–40% of the excess noise factor on every dhruva design is BSIM4
+gate-electrode resistance**, because the harness emits every MOSFET
+**single-finger**. The 45nm card has `rgatemod=1`, `rshg=0.4`, `ngcon=1`, and
+`NF` (fingers) is a per-instance parameter we never set — so a 100–200 µm RF
+device carries hundreds of ohms in series with its gate. **The dominant
+per-MOSFET mechanism is `rg`, not `id`.** Second-largest real contributor is
+`rql1`, the finite-Q inductor loss at 14.2% — the price of the passive match.
+
+**Re-sized at a 4-finger layout (nothing else changed), the SAME topologies reach
+NF 2.03–2.33 dB tier-1 feasible on `dhruva-l5` — under the 2.5 dB target**
+(`439032` 2.214/8-finger 2.012; `998ff3` 2.114 and 2.030 on both seeds).
+
+⚠ **Nothing is adopted, and this is NOT a Gate-D3 claim on l5.** Finger count is
+a harness-fidelity parameter of the same class as `inductor_q`/`device_budget`;
+changing it moves **every NF label in the store**, and changing it to close a gate
+is what §13.5/§23/§25 each refused to do. It is also not mine — emission lives in
+`to_spice.py` (ingestion track). If adopted, the defensible rule is a fixed
+**finger width** (real RF practice ~1–5 µm) giving `NF = ceil(W/w_finger)` —
+calibrated to layout practice, not to a target. **This needs a user decision.**
+
+**Instrumentation, validated before being believed.** Two discoveries were needed:
+ngspice emits per-source noise vectors **only** when the `noise` line carries a
+`pts_per_summary` argument, and it uses **two naming conventions at once**
+(`onoise.<mos>` dotted with per-mechanism children, `onoise_<res>` underscored).
+Validation: golden deck gives NF-via-shares **3.0103 dB exact** and Rn share
+**0.5000 exact**; Σ per-element powers ÷ total = **1.0000** on all six real
+designs; and NF-via-shares agrees with the existing `inoise` path to **≤0.002 dB**
+— an independent cross-check that also **re-confirms the §25 Gate-D3 numbers**.
+Separately cleared: `measure_nf`'s 51-point grid can read up to 14 MHz off f0
+(on `dhruva-s` it lands at 2.500 not 2.492 GHz); **measured error −0.003…+0.009 dB**,
+immaterial, and the D3 claim holds at NF 3.238 evaluated exactly at f0.
+
+**Capability test (c) — search:** `moves.py` from the quietest compact parents,
+16 mutants. Best **`86d5ce252054a160`** (18 dev, `cascode_add` off `6f0d08`):
+s11_max −10.006 / S21 22.879 / Idd 7.34 / **NF 3.185** / K_min 67.6, replay-verified,
+in-box, novel. **Tier-1 feasible, NF fails.** New l5 record (3.31 → 3.18) — found
+by the search unaided, but 0.69 dB short.
+
+**Capability test (b) — generator:** P5-v7's 256-sample nb pool (first checkpoint
+trained on the ingested real gm-boosted-CG / cross-coupled-CG / noise-cancelling
+silicon). **189/256 pass the l5 screen**; the 12 ranked furthest from the
+incumbent NC/rfb families by WL similarity were sized. Best results: `seq0149`
+S21 **6.5** dB at NF 7.7; `seq0038` NF 3.77 at S21 **−1.3**; rest NF 10–200 dB.
+**None is a viable amplifier — the generator did not produce a working l5 input
+stage, let alone a quieter one.** Per the redirect that is a reported outcome,
+not one to rescue with hand-authored structure.
+
+⚠ **The capability test is confounded and the confound is the artefact.** A
+quarter to two-fifths of the noise a "quieter input stage" must remove is not
+removable by topology at all. **Re-run (b) and (c) after the finger decision** —
+until then "the models cannot find a sub-2.5 dB input stage" is true but not
+attributable to the models.
+
+**The budget is now label data.** `size._noise_budget_row` stores a compact
+per-element budget on every NF-gated L2 row under `provenance.noise_budget`
+(top contributors by share of F−1 + the MOSFET mechanism split), one extra
+~0.15 s call per label, **input features only, never gated**. The same NF can
+come from a dominant input device (sizing-fixable) or a lossy match
+(topology-only) and the critic currently cannot see the difference.
+
+**On the flagged transformer-feedback gap: the budget does NOT point at it.**
+Feedback-R thermal noise is not dominant (the NC family has no feedback
+resistor; `rr1` at 17.8% of F−1 is a *load*). Missing mutual-inductance in the
+vocabulary is a real limitation but **is not what costs us l5**, and this
+campaign does not justify building it.
+
+**Verdict:** `dhruva-l5` Gate D3 **NOT MET** — best honest NF **3.185** tier-1
+feasible vs 2.5, **0.69 dB short** (was 0.81). l2/l1 unmeasured.
+
+**Where to pick up (highest value first).**
+
+1. **Decide the finger count** — it is worth ~0.8–1.1 dB of NF on every design in
+   the store and currently makes every published NF number pessimistic by an
+   amount nobody had quantified. Calibrate to finger width, then **re-label**.
+2. **Re-run the two capability tests afterwards** (§26.4/§26.5); the current
+   negative is confounded.
+3. **`rql1` (inductor Q) is the second real contributor at 14.2% of F−1** — that
+   is the broadband match's price and is *not* an artefact. If the finger fix
+   lands, Q becomes the leading real term and `inductor_q=12` deserves the same
+   calibration scrutiny.
+4. l2 / l1 remain unmeasured under the current budget.
+
 ## 1. TL;DR — what shipped this session
 
 | Plan item | Status | Key result |

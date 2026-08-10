@@ -17,6 +17,7 @@ It is extracted best-effort and flagged; the sizer should treat nf as
 solid and are what the anchor re-derivation gates on.
 """
 import contextlib
+import math
 import os
 import re
 import shutil
@@ -307,6 +308,125 @@ def measure_nf(body, params, spec, rs=50.0):
         return None
     m = re.search(rf"m_nf_f0\s*=\s*{_NUM}", out, re.IGNORECASE)
     return float(m.group(1)) if m else None
+
+
+_ELEM_RE = re.compile(r"^([MR])(\w+)", re.IGNORECASE)
+# BSIM4 noise mechanisms ngspice exposes per MOSFET, in the order we report them.
+_MOS_MECH = ("id", "1overf", "rg", "rd", "rs", "igs", "igd", "igb",
+             "rbps", "rbpd", "rbpb", "rbsb", "rbdb")
+
+
+def noise_elements(deck_body):
+    """(mosfets, resistors) element names present in a noise deck body.
+
+    ngspice names the per-source noise vectors with TWO different conventions --
+    `onoise.<mos>` (dotted, with per-mechanism children like `.id`) and
+    `onoise_<res>` (underscored). Both are lowercased element names, so the
+    vector list can be derived from the deck instead of a second probe run."""
+    mos, res = [], []
+    for ln in deck_body.splitlines():
+        m = _ELEM_RE.match(ln.strip())
+        if not m:
+            continue
+        (mos if m.group(1).upper() == "M" else res).append(
+            (m.group(1) + m.group(2)).lower())
+    return mos, res
+
+
+def measure_noise_budget(body, params, spec, f=None, rs=50.0, mechanisms=True):
+    """Per-element output-noise contributions at `f` (default f0) -- the BUDGET.
+
+    `measure_nf` answers "how much noise"; this answers "whose". ngspice's noise
+    analysis builds one spectral-density vector per elementary noise source, but
+    ONLY when the `noise` line carries a `pts_per_summary` argument -- without it
+    just the totals exist, which is why this needs its own deck rather than a
+    parse of the existing one. The sweep is placed with its first point exactly
+    on `f`, so the reading is at f0 and not at the nearest point of the 51-point
+    grid `measure_nf` uses (measured error on the dhruva bands: <= 0.01 dB, but
+    free to avoid here).
+
+    Contributions are returned as **output-referred noise POWER** (V^2/Hz), which
+    is the additive quantity. Each element's share of the total, and its share of
+    the excess noise factor F-1 = (P_tot - P_Rs)/P_Rs, are the two useful views:
+    the first says what dominates the output, the second says what the noise
+    figure is actually paying for.
+
+    Returns {"f": f, "p_total", "p_source", "nf_db_from_shares", "nf_db_inoise",
+             "elements": {name: {"p", "frac", "excess_frac", "mech": {...}}}}
+    or None. `mechanisms=False` skips the per-MOSFET breakdown (fewer prints).
+    """
+    band = spec.band
+    f = float(band.get("f0", 2.442e9)) if f is None else float(f)
+    deck, _nin, nout = build_noise_deck(body, params, f,
+                                        float(band.get("f_lo", f * 0.98)),
+                                        float(band.get("f_hi", f * 1.02)), rs=rs)
+    if deck is None:
+        return None
+    head = deck.split(".control")[0]
+    mos, res = noise_elements(head)
+    lets, names = [], []
+
+    def add(tag, vec):
+        lets.append(f"let {tag} = {vec}[0]*{vec}[0]")
+        names.append(tag)
+
+    for i, d in enumerate(mos):
+        add(f"pm{i}", f"onoise.{d}")
+        if mechanisms:
+            for k, mech in enumerate(_MOS_MECH):
+                add(f"pm{i}_{k}", f"onoise.{d}.{mech}")
+    for i, d in enumerate(res):
+        add(f"pr{i}", f"onoise_{d}")
+    ctrl = ["\n.control", "op",
+            f"noise v({nout}) Vnz lin 2 {f:g} {f * 1.0001:g} 1", "setplot noise1",
+            "let ptot = onoise_spectrum[0]*onoise_spectrum[0]",
+            f"let nfi = 10*log10((inoise_spectrum[0]*inoise_spectrum[0])/{K4TRS:.6e})"]
+    ctrl += lets + ["print ptot nfi"]
+    for i in range(0, len(names), 8):            # ngspice wraps long print lines
+        ctrl.append("print " + " ".join(names[i:i + 8]))
+    ctrl += [".endc", ".end"]
+    out = run_deck(head + "\n".join(ctrl) + "\n", "nfbud_", "n.cir", timeout=120)
+    if out is None or "singular matrix" in out.lower():
+        return None
+
+    def g(tag):
+        m = re.search(rf"(?<![\w.]){re.escape(tag)}\s*=\s*{_NUM}", out, re.IGNORECASE)
+        try:
+            return float(m.group(1)) if m else None
+        except ValueError:
+            return None
+
+    p_tot, nf_inoise = g("ptot"), g("nfi")
+    if p_tot is None:
+        return None
+    elems = {}
+    for i, d in enumerate(mos + res):
+        tag = f"pm{i}" if i < len(mos) else f"pr{i - len(mos)}"
+        p = g(tag)
+        if p is None:
+            continue
+        e = {"p": p, "kind": "mos" if i < len(mos) else "res"}
+        if mechanisms and i < len(mos):
+            mm = {}
+            for k, mech in enumerate(_MOS_MECH):
+                v = g(f"pm{i}_{k}")
+                if v:
+                    mm[mech] = v
+            e["mech"] = mm
+        elems[d] = e
+    src = f"r{'ns'}"                       # build_noise_deck always names it Rns
+    p_src = (elems.get("rns") or {}).get("p")
+    p_sum = sum(e["p"] for e in elems.values())
+    for e in elems.values():
+        e["frac"] = e["p"] / p_tot if p_tot else None
+        e["excess_frac"] = (e["p"] / (p_tot - p_src)
+                            if p_src and p_tot > p_src else None)
+    return {"f": f, "p_total": p_tot, "p_sum": p_sum, "p_source": p_src,
+            "source_elem": src, "elements": elems,
+            "nf_db_inoise": nf_inoise,
+            "nf_db_from_shares": (10 * math.log10(p_tot / p_src)
+                                  if p_src else None),
+            "sum_closure": (p_sum / p_tot) if p_tot else None}
 
 
 def body_of(deck):

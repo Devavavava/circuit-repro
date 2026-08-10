@@ -112,6 +112,43 @@ def resolve(source, spec_name):
                                        resumed_from=os.path.basename(path),
                                        resumed_mode=rec.get("mode"),
                                        resumed_idx=i)})
+    elif kind == "pool":
+        # pool:<generated dir>[:N] -- screen a generator pool against the spec and
+        # take the N candidates whose structure is FURTHEST from the families we
+        # already know (nc_cgcs / gmb_cg / rfb). The l5 question is whether the
+        # learned system proposes a different input stage, so ranking by novelty
+        # against the incumbents is the whole point of the ordering.
+        import templates as T
+        from novelty import wl_features, nn_similarity
+        d, _, n = arg.rpartition(":")
+        if not d or not n.isdigit():
+            d, n = arg, "12"
+        spec = S._spec_for_sizing(spec_name)
+        known = []
+        for aa in T.archetypes():
+            if aa["name"].startswith(("nccgcs", "gmbcg", "rfb")):
+                known.append((aa["name"], wl_features(Topology(aa["seq"]))[1]))
+        scored = []
+        for p in sorted(glob.glob(os.path.join(d, "seq*.txt"))):
+            try:
+                t = Topology(parse_arrow_file(p))
+            except Exception:
+                continue
+            if not t.valid or not spec.structural_screen(t)[0]:
+                continue
+            sim, who = nn_similarity(wl_features(t)[1], known)
+            scored.append((sim, p, t, who))
+        scored.sort(key=lambda s: s[0])          # least like the incumbents first
+        print(f"  pool {os.path.basename(d)}: {len(scored)} of "
+              f"{len(glob.glob(os.path.join(d, 'seq*.txt')))} pass the {spec_name} "
+              f"screen; taking the {min(int(n), len(scored))} most structurally distinct")
+        for sim, p, t, who in scored[:int(n)]:
+            out.append({"name": "pool:" + os.path.basename(p).replace(".txt", ""),
+                        "topo": t, "params": None,
+                        "origin": {"pool": os.path.basename(d),
+                                   "token_file": os.path.relpath(p, HERE),
+                                   "nn_sim_to_known": round(sim, 4),
+                                   "nn_nearest_known": who}})
     elif kind == "ext":
         pats = sorted(glob.glob(os.path.join(
             HERE, "data", "external", arg, "generated", "seq_*.txt")))

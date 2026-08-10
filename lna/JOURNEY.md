@@ -1250,20 +1250,146 @@ the match moves too — a row has to carry the metrics that go with its geometry
 
 ---
 
+## 24. ★★★ The match wall — the generator's designs put the signal on the wrong pin, and Gate D3 falls on `dhruva-l5` to a generator topology
+
+**The question.** Stage 23 ended with the generator cleanly isolated: on the
+honest multi-finger harness its `dhruva-l5` candidates read NF **0.96–1.02 dB**
+at 22 dB of gain and stopped dead at S11 **−4.46 / −0.99**. Not noise-limited,
+never had been — *match*-limited. The user's brief for this stage was narrow and
+strict: find out **why**, and find a fix **inside the rules** — no formula may be
+written into code or used to support topology or sizing (measurement math only),
+and no new hand-authored archetype family. A capability negative was named in
+advance as an acceptable answer.
+
+**What the executor decided to do first.** Not to theorise. The wall had been
+sighted three times (§17.8 on `dhruva-s`, §22.5 on `wideband-sdr`, §27.6 on
+`dhruva-l5`) and every sighting was a *sizing* result. The first move was to
+build an **instrument** rather than a hypothesis: `_match_struct.py`, which does
+nothing but count what sits at a circuit's input port — passives on the VIN node,
+whether their far end is a rail, how many hops to the first transistor terminal
+and which terminal it is. Pure graph arithmetic; no impedance appears anywhere,
+which is what keeps it on the right side of the no-formula rule.
+
+**The first measurement killed the obvious answer.** The generator *does* emit an
+input network: 91–95% of its narrowband samples have one, against 92.7% for the
+real corpus and — the number that settles it — **91.5% for stored designs that
+never match**. "It doesn't emit matching structure" was simply false.
+
+**The measurement that worked was a contingency table, not a theory.** Every
+stored design was reduced to the best S11 its graph ever achieved, labelled
+matched at ≤ −10 dB, and every structural feature scored against that label.
+One feature carried the split: **whether the input reaches a transistor SOURCE
+rather than a GATE.** It survived splitting by provenance — 5.2× inside the
+generator's own designs, 8.4× inside search, 25× inside the archetypes — at
+matched device counts and matched sizing budgets.
+
+**Then the mechanism, which is the part that actually explains §27.6.** Among
+multi-finger dhruva rows that already hold the band match: gate-driven inputs
+have a median NF of **7.52 dB** and **0 of 31** reach NF ≤ 2.5 with 22.3 dB of
+gain; source-driven ones sit at **2.97 dB** and **54 of 139** clear both. And
+among rows that do *not* match, gate-driven designs reach a minimum NF of
+**0.24 dB**. **A gate-driven input in this program is quiet exactly when it does
+not match.** `seq0086` and `seq0085` read NF ≈ 1 dB *because* nothing at their
+port dissipates, and that same absence is why no parameter setting reaches 50 Ω.
+
+**Who decided what, and the one place the executor refused a shortcut.** The
+diagnosis points straight at the hand archetype library — 88 `cs` + 16 `cscs` +
+12 `rfbcs` + 8 `rfb` + 5 `rfbcs3` + 4 `creuse`, every one of them gate-driven,
+against 10 `gmbcg` + 3 `nccgcs` + 2 `cg` — and that library is **31% of the
+training rows** while carrying the motif in **1.35%** of them. Writing more
+source-driven archetypes would obviously help and is exactly what the brief
+forbade, so it was **not done**; the measurement was put on the record and the
+decision handed up. The two levers that *were* allowed — re-weighting existing
+rows, and prefix-conditioned sampling from existing designs — were run instead.
+
+**Both allowed levers moved the rate and neither moved the yield.** Prefix
+conditioning is almost a control knob for the motif: 0.032 (seeding from
+gate-driven circuits) → 0.192 (unconditioned) → 0.758 → 0.926 (24-token
+source-driven seeds). But the count of *novel, screen-passing, motif-bearing*
+`dhruva-l5` candidates went 10 → 10 → 8. Every extra motif-bearing sample was an
+exact corpus copy; corpus copying rose 32% → 72%. **This is stage 21/23's law
+turning up in a channel that has nothing to do with training** — steering a model
+toward structure it has already memorised returns that structure as copies. The
+control arm that seeded from gate-driven circuits, and drove the motif *below*
+the unconditioned baseline, is what makes the reading unambiguous.
+
+**The positive results came from asking the pool a different question.** §27.6's
+capability test drew the **12 most structurally distinct** candidates from the
+generator pool and concluded a capability limit. Re-drawing them by the *measured*
+predictor instead — every screen-passing, source-driven sample from the P5-v7 and
+P5-v8 narrowband pools, 29 distinct graphs, 26 of them novel — **24 of 29 close
+the band match**, and one closes the whole gate. **`80aaf9f4a0cd7863`
+(`ft_p5v8_nb_s1337/seq0173`, 16 devices) is tier-2 feasible on `dhruva-l5`:
+S11_max −10.017 over 1.1–2.5 GHz, S21 29.794, Idd 12.993, NF 1.788 against a 2.5
+target**, replay 3/3 with spread 0.0000, 24/24 in-box, unconditionally stable in
+band and over 0.1–20 GHz, WL hash absent from ref-v3. **Its topology is the
+generator's, with no `moves` edit at all** — the first Gate-D3 feasible design in
+this program whose graph came out of the learned model rather than an archetype or
+a search edit. What this session added was candidate *selection* and the existing
+sizing path, and the record says exactly that.
+
+**And the controlled version, on the very design that defined the wall.**
+`moves.m_input_class_swap` — an existing black-box move that relocates the signal
+from a gate to a source — had been in the tree since the rung-2 work and had never
+been aimed at these parents. Applied to the two §27.6 named, **both converted**.
+`fb48c7f2` (`seq0085`), the worse of them at S11 −0.99 and NF 0.96, became
+`2669669e45c5c5a7` at **S11_max −10.01 / S21 24.20 / NF 2.87** — and one further
+edit (`cascode_add`) reached **`78f5cc9cc2cd0133`: S11_max −10.014 / S21 24.560 /
+Idd 12.997 / NF 1.963**, audited MET, unconditionally stable both in band and wide,
+novel. **The prediction the contingency table implies — that a source-driven input
+buys the match and costs roughly 2 dB of noise — was made before the edit and is
+what the simulator returned.** That is the causal claim the observational tables
+could not make on their own: same graph, one edit, match closes, noise pays.
+
+**Three sibling mutants were not claimed, and the reason is on the record.**
+`device_remove` (NF 2.24) and `passive_type_swap` (NF 2.19) both read
+`spec.feasible()` True and both have **K_min < 1** — conditionally stable, so they
+fail the gate's stability clause. Stage 23 had just finished warning that the
+honest emission exposes marginal stability; this lineage is exactly that, and the
+per-mutant K number is what separates a claim from a near-miss.
+
+**A claim the executor had made three hours earlier, broken by its own
+experiment.** The store said every design that had ever closed both the band match
+and 22.3 dB of gain carried **≥12 devices** — 78 of them, no exceptions. The swap
+mutant does it at **10**. Recorded with both halves: the ≥12 rule was a true
+statement about which structures had been *tried*, not a property of the problem.
+
+**What is not claimed.** `wideband-sdr` stays at 0/N, and the honest reason is
+recorded: the motif that carries all four dhruva bands carries **nothing** there —
+0 of 119 graphs have ever held that band match, source-driven ones peaking at
+−6.61 dB — so stage 19's topology-library reading stands untouched. And the
+generator's *unaided* frontier is still narrow: per 256 samples it produces 1 (v7)
+to 5 (v8) distinct graphs that are simultaneously source-driven, large enough for
+a cascade, novel and screen-passing.
+
+**The pattern this stage adds to the program's method.** *When a capability
+question has been answered three times by a sizing run, stop sizing and build an
+instrument for the thing you are actually asking about.* The wall had been
+measured repeatedly and never diagnosed, because every previous attempt asked
+"can this design be sized to match?" instead of "what do designs that match have
+that this one doesn't?" The second question needed twenty lines of graph
+arithmetic and no simulator at all — and once it was answered, the two things that
+closed the gate were a **selection criterion** and a **move that had been sitting
+in `moves.py`, unused on these parents, the entire time**. The corollary is a rule
+for this program's record-keeping: **a capability negative is only as strong as the
+selector that produced its candidates, and from now on it has to name it.**
+
+---
+
 ## Current frontier
 
 As of this document's writing (`lna-data`, commit `5be4de3` and whatever
 concurrent work is layered on top of it), the following are open, live, or
 explicitly deferred to the user:
 
-- **Gate D3 is MET on `dhruva-s`** (stage 22) but **NOT MET on the other
-  three bands.** `dhruva-l5` is measured short by 0.81 dB and diagnosed as
-  needing a **quieter input stage** — a topology question for the archetype
-  set/generator, not a sizing one, since more gain and more devices both
-  measure inert there (past the knee stage 22 found). `dhruva-l2`/`l1` were
-  never run under the current budget; the working assumption that neither
-  beats `dhruva-l5` is an inference, not a measurement, and should be
-  checked before being relied on.
+- **Gate D3 is MET on all four dhruva bands** — stage 23 on one 20-device
+  search-derived design (`ace8383c`), and stage 24 on `dhruva-l5` **twice
+  more**, once by a **generator-emitted** topology with no `moves` edit
+  (`80aaf9f4`, NF 1.788) and once by a generator seed plus two existing moves
+  (`78f5cc9c`, NF 1.963). ⚠ The stage-24 pair has been audited on `dhruva-l5`
+  **only**; whether either closes `l2`/`l1`/`s` is an open, cheap question and
+  is the natural next claim. Stage 22's "0.81 dB short on `dhruva-l5`" is
+  superseded — it was measured through the pre-cutover single-finger harness.
 - **`wideband-sdr`, under the corrected spec (stage 19), has never once
   produced a design that holds S11 band-wide** — 0/134 stored rows, at any
   NF/gain trade-off, under the metric the spec always meant to enforce. The

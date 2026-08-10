@@ -298,6 +298,23 @@ outright (`FINDINGS §18.5`).
   the model does not learn to reproduce the 9 new circuits themselves (0.4%
   copy rate on them) — "variety pressure," not imitation of the new data
   specifically (`FINDINGS §24.4`).
+- **Sampling is unconditioned by default and that is a choice, not a
+  constraint.** `finetune.sample` seeds with exactly two tokens (class token +
+  `VSS`); `lna/_match_sample.py` (`FINDINGS §29.7`) points `generate.py`'s
+  Phase-1 real-LNA prefix conditioning at a *fine-tuned* checkpoint for the
+  first time, and its unconditioned arm reproduces P5-v7's published protocol
+  row on every column. Seeding from existing designs is a near-perfect control
+  knob for a targeted structural statistic (source-driven input rate
+  **0.032 → 0.192 → 0.760 → 0.926** across arms) and buys **zero** extra novel
+  screen-passing candidates, because the additional samples are exact corpus
+  copies (corpus copying 32% → 72%, NDL 79 → 10).
+- **The novelty law now has three independent confirmations across three
+  different channels.** Winners feedback (`§28`, training), row re-weighting
+  (`§29.8`, training weights: P5-v9m, **REJECTED**, nb NDL 79→45 for a 1.43×
+  motif rate) and prefix conditioning (`§29.7`, decoding) all raise the
+  statistic they target and lower NDL. The law is about **where the steering
+  signal points** — at structure the model has already memorised — not about
+  which channel carries it.
 
 ## 4. The evaluation ladder
 
@@ -682,6 +699,26 @@ unguided control drifted to as few as 1/32 trusted by run's end) while the
 uncertainty gate never fired once in 80 generations — a case where the
 cheaper, simpler guard (distance-to-training-data) outperformed the fancier
 one (learned uncertainty) (`FINDINGS §15.4`, `§20.3`).
+
+**Rung 0 — candidate selection, added `FINDINGS §29`.** Before either rung
+spends a SPICE second, *which* pool candidates get sized is itself a lever, and
+it turned out to be the decisive one on the match question.
+`nf_campaign.py`'s `pool:` source ranks by **least** WL-similarity to the
+`nccgcs`/`gmbcg`/`rfb` families; §27.6 used it, drew 12, found nothing viable,
+and recorded a capability negative. `lna/_match_struct.py` is a structural
+instrument (graph arithmetic over `Topology.nodes` — elements at the VIN node,
+hops to the first active terminal, which terminal, source degeneration, feedback
+to a drain; **no impedance, no formula**) whose `port_src` predicate was measured
+on 828 stored designs to carry the whole match/no-match split
+(P(match|source) **0.581** vs P(match|gate-only) **0.132**). Selecting the same
+pools by that predicate instead — 29 distinct graphs — gave **24/29 band-matched
+and one full Gate-D3 feasible `dhruva-l5` design whose topology is the
+generator's** (`80aaf9f4`, NF 1.788, audited). The `input_class_swap` move
+(already in the 17) is the controlled version: applied to the two designs §27.6
+named, **both** closed the match, and one reached Gate D3 in two edits
+(`78f5cc9c`, NF 1.963). **Consequence for the record: a capability negative in
+this program is only as strong as the selector that produced its candidates, and
+must name it.**
 
 ## 9. The loops
 

@@ -1803,6 +1803,129 @@ acted on; no fix needed.
 4. `iip3_dbm` is still `unsupported` on all four specs; tier-3 remains open, and
    stability is still ideal-element frequency-domain (no corners/package).
 
+## Session 7 (2026-08-10) — concurrent agents on `lna-data`
+
+### ▸ Sub-block: WP-MATCH — ★★★ Gate D3 MET on `dhruva-l5` by a **generator-emitted** topology, and why the wall was there (owner: the generator-matching investigator)
+
+**Files owned:** `lna/_match_struct.py` (the input-port instrument),
+`lna/_match_census.py`, `lna/_match_sep.py`, `lna/_match_mix.py`,
+`lna/_match_sample.py`, `lna/_match_reweight.py`, `lna/_match_pools.py`,
+`lna/_match_gpu_sample.sh`, `lna/_match_gpu_train.sh`, FINDINGS **§29**,
+JOURNEY stage **24**, STRUCTURE_LOGIC Blocks 3/8, this sub-block. Store recipe
+**`match-v1`** (114 rows). Nothing in `lna/repro/**` touched (concurrent
+read-only packager owns it); no shared checkpoint written (private stem
+`ft_p5v9m`); `to_spice.py`, `spec.py`, the specs and `templates.py` untouched.
+
+**★★★ `80aaf9f4a0cd7863` = `ft_p5v8_nb_s1337/seq0173`, 16 devices — TIER-2
+FEASIBLE on `dhruva-l5`, and its topology is the generator's, with no `moves`
+edit at all.** S11_max **−10.017** (held 1.1–2.5 GHz) / S21 **29.794** / Idd
+**12.993** / **NF 1.788** (target 2.5). Audited (`_nf_gate_d3.py`): replay 3/3
+identical, **spread 0.0000** on every gated metric; **24/24 in-box**;
+`spec.feasible()` re-measured; **unconditionally stable in band (K_min 13.17) and
+over 0.1–20 GHz (13.16)**; WL hash **absent from ref-v3** (nearest
+`arch:nccgcs_s1_R`, 0.845). Tokens + params committed at
+`lna/out/match_dhruva_l5_seq0173.{tokens.txt,params.json}`.
+**Attribution:** the graph is the generator's; this session contributed only
+**candidate selection** (a structural criterion measured off the store's own
+labels) and the **existing** sizing path (`size_match_first` → `constrained_descent`).
+`iip3_dbm` still `unsupported`; stability still ideal-element frequency-domain.
+
+**★★ Second gate, on the exact design §27.6 called un-matchable.** `fb48c7f2`
+(`seq0085`, S11 −0.99, NF 0.96) + `moves.input_class_swap` + `moves.cascode_add`
+= **`78f5cc9cc2cd0133`** (11 dev): S11_max **−10.014** / S21 **24.560** / Idd
+**12.997** / **NF 1.963**, replay 3/3 spread 0.0000, 18/18 in-box, unconditional
+in band (K_min 1.382) **and** 0.1–20 GHz (1.394), novel (nearest
+`arch:gmbcg_s2_R_b0`, 0.769). Committed as
+`lna/out/match_dhruva_l5_swap_cascode.*`.
+
+**Why the wall was there — the measurement chain.**
+1. **It is not the tool and not the emission.** `--mode match` on the current
+   multi-finger harness: `eaf1b914` −4.46 → **−4.46**, `fb48c7f2` −0.99 →
+   **−0.99**, `92d68c1e` −0.10 → −0.64, `f2f10647` −0.31 → −0.74. With the trust
+   region **removed entirely** (only Idd ≤ 13) and **3 independent global
+   restarts** each: best **−4.73 / −0.49 / −4.68 / −6.40**. Control, same tool,
+   *tighter* region: `ace8383c` −10.00 → **−21.15**, `8c7592ea` −9.69 →
+   **−15.14** (newly tier-2 feasible on l5).
+2. **It is not failing to emit a port network** — 91.4% (v7 nb) / 95.0% (v8 nb)
+   have one, vs 92.7% corpus and **91.5% of stored designs that never match**.
+3. **The discriminator is whether the port reaches a transistor SOURCE.**
+   P(match|source) 0.581 vs P(match|gate-only) 0.132 over 828 graphs; on dhruva
+   bands inside each provenance class: generator **0.571 vs 0.109** (at 9.0 vs 9.2
+   devices, 224 vs 218 evals), search 0.736 vs 0.088, archetype 0.733 vs 0.029.
+   **Not a bandwidth failure** — generator dhruva designs reach −10 dB *at f0*
+   only 21.2% of the time (median S11@f0 **−1.39 dB**).
+4. **★ Mechanism.** Multi-finger dhruva rows that already hold the band match:
+   **gate-only** n=31, median NF **7.52 dB**, **0 of 31** reach NF ≤ 2.5 with
+   S21 ≥ 22.3; **source-driven** n=139, median **2.97 dB**, **54 of 139** clear
+   both. Rows that do *not* match: gate-only min NF **0.24 dB**. A gate-driven
+   input here is quiet exactly when it does not match.
+
+**Data lever — REJECTED, and it confirms §28's law a third time.** P5-v7's
+stage-B rows carry the motif at **21.8%**: corpus 36.5%, external 39.9%, winners
+5.8%, and the **118-archetype channel (30.9% of rows) at 1.35% (2 of 103)** — the
+hand library is 88 `cs` + 16 `cscs` + 12 `rfbcs` + 8 `rfb` + 5 `rfbcs3` +
+4 `creuse`, all gate-driven, vs 10 `gmbcg` + 3 `nccgcs` + 2 `cg`. **P5-v9m**
+(v7's stage B, one variable changed: +1468 rows oversampled from the 18
+motif-bearing traversal sources already in the mix; val byte-identical at 736):
+nb **NDL 79 → 45** at motif 0.192 → **0.275**; wb **41 → 38** at 0.235 → **0.314**.
+**REJECT — the adopted generator remains P5-v7 (`ft_p5v7_v2.pth`, nb 79 / wb 41).**
+
+**Sampling lever — rate fully controllable, yield unmoved.** `_match_sample.py`
+points `generate.py`'s prefix conditioning at a fine-tuned P5 checkpoint for the
+first time. The `uncond` arm reproduces P5-v7's published row on **every** column
+(NDL 79 / copies 46.9-14.5-32.0 / medNN 1.000 / term 100.0 / valid 99.6 /
+indR 0.230):
+
+| arm | NDL@256 | motif | corpus copies | NDL(l5) motif-bearing |
+|---|---|---|---|---|
+| P5-v7 baseline | **79** | 0.1922 | 32.0 | **10** |
+| `gate` len-12 (control) | 54 | **0.0316** | 39.1 | 2 |
+| `all` len-12 | 54 | 0.2598 | 34.0 | 7 |
+| `src` len-12 | 21 | **0.7579** | 55.5 | **10** |
+| `src` len-24 | 10 | **0.9258** | **71.9** | 8 |
+
+**4.8× the motif rate, zero extra usable candidates** — every extra sample is an
+exact corpus copy. Three different mechanisms (winners feedback §28, prefix
+conditioning, row re-weighting) all raise the targeted statistic and lower NDL.
+
+**⚠ `wideband-sdr`: the diagnosis does NOT transfer.** 119 distinct graphs,
+**0/119** ever hold the band match; source-driven best **−6.61**, gate-only best
+−9.67 (at S21 −600). §22.5's topology-library reading stands. **No wideband
+feasible is claimed.**
+
+**⚠ Corrections to record.**
+* §27.6's "the generator still fails" was a **selection** result, not a capability
+  one: it drew the 12 *most structurally distinct* pool candidates. Selecting 29
+  by the measured predictor instead yields **24/29 band-matched and 1 full gate**.
+  Future capability negatives in this program should name their selector.
+* The rule "everything that ever closed match+gain has ≥12 devices" (78 graphs,
+  no exceptions) was **broken by this session's own 10-device swap mutant**. It
+  described which structures had been tried, not the problem.
+* Three `2669669e` descendants read `spec.feasible()` True but are **not claimed**:
+  `device_remove/46d1ed` (NF 2.24, **K_min 0.87**) and `passive_type_swap/f35dbf`
+  (NF 2.19, **K_min 0.872**) are only conditionally stable. That lineage is
+  stability-marginal — exactly §27.5's warning.
+
+**Regression quartet green before and after:** vocab **MATCH**, screen
+**114/192 (59.4%)**, `pipeline_yield` **40/42 (95.2%)**, `check_ref` **GREEN**,
+`calibrate_specs` **ALL MET**. Cost: **~86,000 ngspice evaluations**, 114 L2 rows,
+5 GPU sampling arms + 1 GPU fine-tune arm.
+
+**Where to pick up.**
+1. **Run the other three dhruva bands and `wifi24` on `80aaf9f4` and `78f5cc9c`.**
+   §27.4's winner closed all four; whether a generator topology does is now a
+   cheap question and it is the natural next claim.
+2. **The archetype library is ~90% gate-driven and is 31% of the training mass.**
+   Fixing that means *authoring* source-driven families, which the standing rule
+   forbade this session. The measurement is on the record; the decision is the
+   user's.
+3. **Selection, not conditioning, is the lever that worked.** A critic or screen
+   that ranks pool candidates by measured structural predictors (rather than by
+   distance from known families) is the obvious follow-on, and it needs no new
+   model.
+4. `check_stab`'s store-wide re-audit on the new emission (§27's item 1) is still
+   open; this session did not touch it.
+
 ## 1. TL;DR — what shipped this session
 
 | Plan item | Status | Key result |

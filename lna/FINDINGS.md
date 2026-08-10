@@ -5295,3 +5295,494 @@ wb 41 under `ref-v3[198h/d05390da]`.** `ft_p5v8_v2.pth` is evidence (gitignored,
 first emission with wideband winners and the wb-targeted arm will want it.
 15 L2 rows appended under recipe **`p5v8-v1`**; **8,560 ngspice evaluations**
 across the three front runs.
+
+---
+
+## 29. Phase 3 — ★★★ **WP-MATCH**: the generator's wall was the input pin, and **Gate D3 is MET on `dhruva-l5` by a generator-emitted topology** (Session 7)
+
+> Owner: the generator-matching investigator. Files: `lna/_match_struct.py`
+> (the input-port instrument), `lna/_match_census.py`, `lna/_match_sep.py`,
+> `lna/_match_mix.py`, `lna/_match_sample.py`, `lna/_match_reweight.py`,
+> `lna/_match_pools.py`, `lna/_match_gpu_sample.sh`, `lna/_match_gpu_train.sh`,
+> FINDINGS **§29**, JOURNEY stage **24**, handover sub-block. Store recipe
+> **`match-v1`**. §27.6 is the question this section answers; §17.8 and §22.5 are
+> the two earlier sightings of the same wall.
+
+**Headline.** §27.6 concluded that the generator "supplies noise and gain but not
+an input match, and no amount of NF work will change that." **The first half is
+right and the second is wrong, and the reason is a selection criterion, not a
+capability.** The generator's designs fail to match because they put the signal on
+a transistor **gate**; measured across 828 stored designs that single fact carries
+the whole match/no-match split, in every provenance class independently, and it
+carries it *because of what it costs* — on the honest multi-finger harness,
+dhruva rows that match with a gate-driven input have a **median NF of 7.52 dB and
+0 of 31** reach NF ≤ 2.5 with 22.3 dB of gain, while source-driven ones sit at
+**2.97 dB** and **54 of 139** clear both. The generator emits the source-driven
+motif at **19.2%** (v7 nb). Re-running §27.6's capability test with the candidates
+selected by *that measured predictor* instead of by distance-from-known-families:
+**24 of 29 close the band match, and one closes the whole gate.**
+
+**★★★ `80aaf9f4a0cd7863` — `ft_p5v8_nb_s1337/seq0173`, 16 devices, straight out of
+the generator pool — is TIER-2 FEASIBLE on `dhruva-l5`:**
+
+| metric | measured | required | |
+|---|---|---|---|
+| `s11_max_db` (held 1.1–2.5 GHz) | **−10.017** | ≤ −10 | PASS |
+| `s21_db` @ 1.17645 GHz | **29.794** | ≥ 22.3 | PASS |
+| `idd_ma` | **12.993** | ≤ 13 | PASS |
+| **`nf_db`** | **1.788** | ≤ 2.5 | **PASS** |
+| K_min in-band / 0.1–20 GHz | **13.17 / 13.16** | ≥ 1 | unconditional |
+| WL hash in `ref-v3[198h/d05390da]` | **absent** (nearest `arch:nccgcs_s1_R`, 0.845) | — | novel |
+
+Full audit (`_nf_gate_d3.py`): **replay 3/3 identical, spread 0.0000 on every
+gated metric**, **24/24 parameters in-box**, `spec.feasible()` re-measured rather
+than trusted, unconditionally stable in band **and** over 0.1–20 GHz.
+
+**★★ And a second `dhruva-l5` gate closes on the very design §27.6 called
+un-matchable.** `fb48c7f2` (`seq0085`, S11 −0.99) + `moves.input_class_swap` +
+`moves.cascode_add` = **`78f5cc9cc2cd0133`**, 11 devices: S11_max **−10.014**,
+S21 **24.560**, Idd **12.997**, NF **1.963**, unconditional in band (K_min 1.382)
+and over 0.1–20 GHz, novel vs ref-v3 (nearest `arch:gmbcg_s2_R_b0`, 0.769),
+replay 3/3 spread 0.0000, 18/18 in-box. That one is generation + **two existing
+`moves` edits** + sizing — and it is the controlled proof of the mechanism, because
+the only thing that changed on the parent was which pin the signal enters.
+
+**⚠ Attribution, stated precisely.** The **topology is the generator's** — no
+`moves` edit, no crossover, no archetype, no hand authoring; the row's
+`token_file` points at a P5-v8 sample and its tokens are in the store. What this
+session contributed is **candidate selection** (a structural criterion derived
+from the store's own simulator labels) and the **existing** sizing path
+(`size_match_first` → `constrained_descent`). That is a materially different claim
+from §27.4's, whose graph came from `moves.stage_add`, and it is the **first
+Gate-D3 feasible design in this program whose topology came out of the learned
+generator.** `iip3_dbm` remains `unsupported` (tier-3) and stability is still
+ideal-element frequency-domain — the same two qualifications §27.4 carries.
+
+### 29.1 The wall is real under the honest emission — and it is not the tool
+
+§17.8's negative predates the multi-finger cutover, and §27.1 showed the cutover
+*changes the match* (S11_max −10.00 → −7.85 at fixed parameters), so it had to be
+re-run before anything was concluded from it. `nf_campaign --mode match` (descend
+worst-case S11, everything else as a hard trust region) on the current emission:
+
+| candidate | what it is | trust region | S11_max start → best | §17.8 (single-finger) |
+|---|---|---|---|---|
+| `eaf1b9147b17` | `seq0086`, P5-v8 l5 front (§28.5) | NF ≤ 2.5, S21 ≥ 22.3, Idd ≤ 13 | −4.46 → **−4.46** | — |
+| `fb48c7f2ebe5` | `seq0085`, P5-v8 l5 front | same | −0.99 → **−0.99** | — |
+| `92d68c1eba1f` | `seq0126`, §20's rung-1 lead | NF ≤ 3.5, S21 ≥ 15 | −0.10 → **−0.64** | −0.01 → −0.39 |
+| `f2f10647ec88` | `seq0218` | same | −0.31 → **−0.74** | −0.32 → −0.69 |
+
+Then the strongest form of the question — **the trust region removed entirely**
+(nothing held but Idd ≤ 13, so any gain and any noise figure is permitted), with
+three independent *global* restarts per graph (`--fresh` re-runs
+`size_match_first` per seed, so six basins per graph rather than six steps of one):
+
+| candidate | best S11_max over 3 global restarts | reached at |
+|---|---|---|
+| `eaf1b9147b17` | **−4.73** | S21 −6.38 (gain destroyed) |
+| `fb48c7f2ebe5` | **−0.49** | S21 25.86 |
+| `92d68c1eba1f` | **−4.68** | S21 −13.76 |
+| `f2f10647ec88` | **−6.40** | S21 −3.22 |
+
+**None reaches −10 dB at any parameter setting inside the box, at any gain, at any
+noise figure.** The wall is exactly where §17.8 left it.
+
+**And it is not the descent.** The identical driver, at the same budget, on two
+designs from the search channel — with the trust region *tighter* (NF ≤ 2.5 **and**
+S21 ≥ 22.3 both held throughout):
+
+| candidate | S11_max start → best | S21 | NF | verdict |
+|---|---|---|---|---|
+| `ace8383c2fa6` (the §27.4 4-band winner) | −10.00 → **−21.15** | 22.32 | 2.45 | tier-2 feasible |
+| `8c7592ea859e` (§15's rung-2 evolved) | −9.69 → **−15.14** | 33.18 | 2.50 | **newly tier-2 feasible on `dhruva-l5`** |
+
+11 dB of movement on one graph, 0 dB on another, same tool, same budget, same
+spec. Whatever blocks the generator's designs is in the graph.
+
+### 29.2 It is NOT failing to emit an input network — that criterion discriminates nothing
+
+`_match_struct.analyze` is the instrument this section is built on: pure graph
+arithmetic over `Topology.nodes`. It counts 2-terminal passives on the VIN node
+(series if the far end is not a rail, shunt if it is), walks out over passives to
+the first node carrying an active terminal, and reports which terminals are there,
+what sits between the first device's source and a rail, and which passives bridge
+the input side to a drain. **No impedance, no formula** — it counts elements and
+says which nodes they touch, which is what keeps it inside the measurement-only
+rule.
+
+Its weakest binary — *is there any passive network at the port at all* — separates
+nothing:
+
+| pool | n | any port network | mean elements at port |
+|---|---|---|---|
+| corpus (41 dataset LNAs) | 41 | 0.927 | 1.00 |
+| external (9 ingested) | 9 | 0.889 | 0.89 |
+| archetypes (148) | 148 | 1.000 | 1.00 |
+| P5-v7 nb pool | 245 | **0.914** | 0.94 |
+| P5-v8 nb pool | 238 | **0.950** | 0.97 |
+| store, best S11 ≤ −10 | 252 | 1.000 | 1.07 |
+| store, best S11 > −5 | 484 | **0.915** | 0.96 |
+
+So the sub-question "is it failing to emit match structure, or emitting it in
+un-sizeable configurations?" is **false as posed**: it emits a port network at the
+same rate as the designs that do match. Something narrower is missing.
+
+### 29.3 What the store's own labels pick out: the port must reach a SOURCE
+
+`_match_sep.py` reduces every stored design to the best S11 its graph ever
+achieved, labels it MATCHED at ≤ −10 dB, and scores each structural feature by how
+it splits the classes. 828 distinct graphs:
+
+| feature | P(f \| match) | P(f \| no match) | P(match \| f) | P(match \| ¬f) |
+|---|---|---|---|---|
+| **port reaches a transistor source** | **0.667** | **0.210** | **0.581** | **0.156** |
+| port reaches only a gate | 0.266 | 0.764 | 0.132 | 0.576 |
+| source degeneration present | 0.758 | 0.432 | 0.434 | 0.157 |
+| feedback passive to a drain | 0.194 | 0.255 | 0.250 | 0.321 |
+| shunt element at the port | 0.091 | 0.030 | 0.575 | 0.291 |
+| no port network at all | 0.000 | 0.071 | **0.000** | 0.320 |
+
+The confound that matters is provenance — the archetype and search families are
+both the most matched and the most degenerated — so the same split four ways, on
+the four dhruva bands (where S11 must hold over 1.1–2.5 GHz), with device counts
+and sizing effort reported so a reader can see they are not doing the work:
+
+| subset | n | S11@f0 ≤ −10 | S11 band ≤ −10 | median band | mean devices | median evals |
+|---|---|---|---|---|---|---|
+| **generator: all** | 198 | 0.212 | 0.167 | −0.69 | 9.3 | 218 |
+| generator: port reaches a SOURCE | 21 | 0.667 | **0.571** | **−10.72** | 9.0 | 224 |
+| generator: port reaches a GATE | 165 | 0.139 | **0.109** | −0.52 | 9.2 | 218 |
+| generator:   …GATE + degeneration | 67 | 0.075 | 0.075 | −0.44 | 9.5 | 218 |
+| generator:   …GATE, nothing else at port | 69 | 0.029 | **0.014** | −0.27 | 8.9 | 210 |
+| **search: all** | 216 | 0.625 | 0.565 | −10.03 | 15.5 | 1084 |
+| search: SOURCE | 159 | 0.780 | **0.736** | −10.10 | 16.7 | 1166 |
+| search: GATE | 57 | 0.193 | **0.088** | −0.79 | 12.2 | 432 |
+| **archetype: all** | 50 | 0.360 | 0.240 | −3.25 | 11.1 | 264 |
+| archetype: SOURCE | 15 | 0.733 | **0.733** | −10.50 | 11.7 | 628 |
+| archetype: GATE | 35 | 0.200 | **0.029** | −2.42 | 10.8 | 218 |
+
+5.2× / 8.4× / 25× inside three independent provenance classes, and in the
+generator row at matched device counts and matched budgets (9.0 vs 9.2 devices,
+224 vs 218 evaluations). ⚠ It is an **association measured on this store**, not a
+controlled experiment — nothing here randomly assigns a motif to a graph. §29.9 is
+the controlled version.
+
+**The failure is not bandwidth.** The natural alternative reading is that these
+designs match at f0 and lose it across 1.1–2.5 GHz. The store carries both
+metrics: generator dhruva designs reach −10 dB **at f0** only 21.2% of the time,
+median S11@f0 **−1.39 dB**, and band-holding costs a further 4.5 points. There is
+no match to lose.
+
+### 29.4 ★ The mechanism: on a gate-driven input, the match is bought with noise
+
+Restricted to rows on the **multi-finger** harness (the only honest noise domain,
+§27.3), on the four dhruva bands, that **already hold the band match**:
+
+| input motif | rows with S11 ≤ −10 | min NF | p25 | median | p75 | NF ≤ 2.5 | **NF ≤ 2.5 AND S21 ≥ 22.3** |
+|---|---|---|---|---|---|---|---|
+| gate-only | 31 | 2.20 | 3.77 | **7.52** | 187.85 | 3.2% | **0** |
+| port reaches a source | 139 | 1.19 | 1.96 | **2.97** | 3.95 | 41.0% | **54** |
+
+And the same split on rows that do **not** match:
+
+| input motif | rows with S11 > −10 | min NF | p25 | median | p75 |
+|---|---|---|---|---|---|
+| gate-only | 335 | **0.24** | 1.70 | 2.98 | 5.59 |
+| port reaches a source | 224 | 1.00 | 2.30 | 2.64 | 3.82 |
+
+**A gate-driven input in this program is quiet exactly when it does not match, and
+noisy when it does.** That is the whole of §27.6's puzzle: `seq0086` and `seq0085`
+read NF 1.02 / 0.96 dB *because* nothing at their port dissipates, and the same
+absence is why no parameter setting brings them to 50 Ω. The one
+generator-derived graph in the store that had ever closed both the band match and
+22.3 dB of gain on a dhruva band before this session — `20bca9a7c3a5f263`, Track
+B's `ft_p5v6_nb_s1337/seq0192` (§14) — is gate-driven, 12 devices, S11_max −11.49 /
+S21 29.19 / Idd 11.09, and its **NF is 9.63 dB**. It is the exception that measures
+the rule.
+
+### 29.5 A second limiter, and the session's own counterexample to it
+
+Per **sized point** on the four dhruva bands, the joint (S11_max ≤ −10) × (S21 ≥ 22.3):
+
+| provenance | both | match only | gain only | neither | n |
+|---|---|---|---|---|---|
+| search | **204** | 85 | 126 | 236 | 651 |
+| archetype | 37 | 14 | 40 | 89 | 180 |
+| **generator** | **2** | 81 | 40 | 448 | 571 |
+
+78 distinct graphs had ever done both, and **every one carried ≥ 12 devices**
+(archetype min 12 / median 15; search min 14 / median 18; the single generator
+graph, 12) — against nb pools with a **median of 8–9** devices and only 0.8% (v7) /
+2.7% (v8) of samples at ≥ 16. Per 256 samples, distinct graphs that are
+simultaneously motif-bearing, ≥ 12 devices, novel against ref-v3 and
+l5-screen-passing: **v7 = 1, v8 = 5** (wb: 0 and 3).
+
+⚠ **This session's own experiment broke the ≥ 12 rule.** §29.9's
+`input_class_swap` mutant reaches S11_max −10.01 with S21 24.20 at **10 devices**.
+The rule was a true statement about *which structures had been tried*, not a
+property of the problem; it is recorded with both halves rather than quietly
+dropped. The device-count effect is real and large in the pool campaign (§29.10:
+the only two candidates with usable gain are the two 16-device ones) but it is not
+a floor.
+
+### 29.6 Data side: the archetype channel dilutes the motif 27-fold
+
+`_match_mix.py` reproduces `finetune.build_dataset_p5`'s row accounting exactly
+(same indices, same 6-circuit holdout, same pinned emissions) without importing
+torch, and asks what fraction of **P5-v7's stage-B training rows** carry the motif:
+
+| channel | circuits | rows | row share | motif circuits | **motif row share** |
+|---|---|---|---|---|---|
+| corpus (35 train) | 35 | 3531 | 0.490 | 13/35 | **0.3653** |
+| external (9 ingested) | 9 | 481 | 0.067 | 3/9 | **0.3992** |
+| **archetypes (118)** | 103 | 2230 | 0.309 | **2/103** | **0.0135** |
+| winners (`pre_dhruva`) | 965 | 965 | 0.134 | 56/965 | 0.0580 |
+| **TOTAL** | 1112 | 7207 | 1.000 | | **0.2176** |
+
+The hand library is 88 `cs` + 16 `cscs` + 12 `rfbcs` + 8 `rfb` + 5 `rfbcs3` +
+4 `creuse` — **every one gate-driven** — against 10 `gmbcg` + 3 `nccgcs` + 2 `cg`,
+which are the only source-driven families and were added late enough that the
+emission P5-v7 trained on contains two of them. **The channel §18/§24/§28 showed
+dominates what the model copies is the channel that carries the motif at 1.35%**,
+and it drags the real corpus's 36.5% down to 21.8%.
+
+**The generator then reproduces its training rate almost exactly**, which is the
+strongest evidence that the mix and not the architecture sets it:
+
+| pool | motif rate | ÷ training rate |
+|---|---|---|
+| P5-v7 nb (adopted) | 0.1922 | 0.88× |
+| P5-v8 nb | 0.1614 | 0.74× |
+| P5-v7 wb | 0.2353 | 1.08× |
+| P5-v8 wb | 0.2048 | 0.94× |
+
+⚠ Writing more source-driven archetypes is the obvious fix and is **out of scope
+by the standing rule** (no new hand-authored families). The measurement is put on
+the record; the decision is not the executor's.
+
+### 29.7 ★ Sampling side: the rate is fully controllable, the yield is not
+
+`_match_sample.py` points `generate.py`'s Phase-1 prefix conditioning at a
+fine-tuned P5 checkpoint for the first time (`finetune.sample` has always seeded
+with exactly two tokens). A prefix is the opening K tokens of a traversal of a
+circuit **that already exists in this program**; the only choice exercised is which
+existing circuits to seed from, which is data selection, not structure creation.
+Adopted P5-v7, n=256, seed 1337, temp 0.7, `ref-v3[198h/d05390da]`:
+
+| arm | NDL@256 | **motif rate** | spec-L0 | copies (arch/corpus) | med NN | term | valid | ind ratio |
+|---|---|---|---|---|---|---|---|---|
+| P5-v7 nb (published, §28.3) | **79** | 0.1922 | 69.1 | 46.9 (14.5/32.0) | 1.000 | 100.0 | 99.6 | 0.230 |
+| **`uncond` (this tool)** | **79** | **0.1922** | **69.1** | **46.9 (14.5/32.0)** | **1.000** | **100.0** | **99.6** | **0.230** |
+| `gate` len-12 (control) | 54 | **0.0316** | 63.7 | 61.7 (21.9/39.1) | 1.000 | 100.0 | 98.8 | 0.186 |
+| `all` len-12 | 54 | 0.2598 | 55.1 | 53.5 (18.0/34.0) | 1.000 | 99.6 | 99.2 | 0.176 |
+| `src` len-12 | 21 | **0.7579** | 28.5 | 59.8 (1.2/**55.5**) | 1.000 | 100.0 | 98.4 | 0.155 |
+| `src` len-24 | **10** | **0.9258** | 30.9 | 83.2 (2.7/**71.9**) | 1.000 | 100.0 | 100.0 | 0.151 |
+
+The `uncond` arm reproduces P5-v7's published row **on every column**, which is
+what licenses reading the rest as one changed variable. The motif rate is then
+almost a control knob — **0.032 → 0.192 → 0.260 → 0.758 → 0.926** — and the `gate`
+arm settles that the effect is the *structure of the seed*, not conditioning
+itself: same mechanism, opposite selection, motif rate falls **below** the
+unconditioned baseline.
+
+**⚠ And it buys nothing usable.** Counting what a campaign can actually consume —
+distinct graphs novel against ref-v3 **and** passing the `dhruva-l5` L0 screen:
+
+| arm | motif rate | NDL (l5 screen) | of which motif-bearing | + ≥12 devices |
+|---|---|---|---|---|
+| P5-v7 nb (baseline) | 0.1922 | **81** | **10** | 1 |
+| `all` len-12 | 0.2598 | 55 | 7 | 2 |
+| `gate` len-12 | 0.0316 | 56 | 2 | 0 |
+| `src` len-12 | 0.7579 | 21 | **10** | 1 |
+| `src` len-24 | 0.9258 | 11 | **8** | 1 |
+
+**A 4.8× rate increase yields zero extra usable candidates** — every additional
+motif-bearing sample is an exact copy, and corpus copying rises 32.0% → 71.9%.
+This is §28.6's law appearing in a channel that has nothing to do with training:
+*steering the model toward structure it has already memorised returns that
+structure as copies.* The sampling lever and the winners lever fail for the same
+reason, and that is now measured twice by two different mechanisms.
+
+### 29.8 Data-side intervention: P5-v9m, re-weighting rows that already exist
+
+§29.6 says the mix under-weights the motif and §29.7 says the generator tracks
+whatever rate the mix sets. That is a testable intervention, and the only version
+of it the rules allow is **more copies of rows that already exist**.
+`_match_reweight.py` emits 1468 extra rows drawn (with repetition) from the 18
+motif-bearing traversal sources already in the mix — 13 corpus circuits, 3
+ingested externals, 2 archetypes — appended to `winners_train.pre_dhruva.json` and
+fed through the existing `--winners-file` channel, so `finetune.py` needs no
+change and no circuit is authored. Predicted mix motif share **0.2176 → 0.3500**.
+
+**P5-v9m** = P5-v7's **stage B**, warm-started from v7's own stage-A checkpoint
+(`ft_p5v7.pth`), with exactly one variable changed: the winners file. Same 40
+epochs / lr 3e-5 / batch 32 / seed 1337 / best-val-ships. Val stays
+**byte-identical at 736 rows** (the added rows go to TRAIN only), so the early-stop
+criterion is the baseline's. 9976 train rows; best val **0.2350 @ epoch 0** against
+v7's 0.2326 and v8's 0.2369 — the same epoch-0 pattern the whole line shows.
+
+| arm | class | NDL@256 | **motif rate** | spec-L0 | copies (arch/corpus) | med NN | valid | ind ratio |
+|---|---|---|---|---|---|---|---|---|
+| **P5-v7 (baseline)** | nb | **79** | 0.1922 | 69.1 | 46.9 (14.5/32.0) | 1.000 | 99.6 | 0.230 |
+| **P5-v9m** | nb | **45** | **0.2745** | 63.3 | 59.0 (19.9/38.7) | 1.000 | 99.6 | 0.230 |
+| **P5-v7 (baseline)** | wb | **41** | 0.2353 | 30.5 | 42.6 (14.1/28.1) | 0.756 | 99.6 | 0.132 |
+| **P5-v9m** | wb | **38** | **0.3137** | 32.4 | 43.0 (7.8/34.8) | 1.000 | 99.6 | **0.124** |
+
+**⚑ Verdict: REJECT. The adopted generator remains P5-v7 (`ft_p5v7_v2.pth`,
+nb 79 / wb 41 under ref-v3).** Adopt-only-if-better fails on NDL in **both**
+channels; a checkpoint is one artefact and it is not adopted.
+
+**What it did and did not buy, measured:**
+
+* **The intervention works on its own terms.** Motif rate rises **1.43× (nb)** and
+  **1.33× (wb)**, in the direction the mix was moved. The generator again
+  under-reproduces its training rate by the same factor it always has
+  (0.2745 / 0.35 = **0.78×**, against v7's 0.88×), so the mix → sample transfer is
+  stable and predictable.
+* **It costs 34 nb NDL**, and the mechanism is visible in the copy columns: corpus
+  copying 32.0% → 38.7% and archetype copying 14.5% → 19.9%. Oversampling 18
+  circuits teaches the model those 18 circuits.
+* **The usable yield does not move.** Distinct graphs novel against ref-v3, passing
+  the `dhruva-l5` screen, *and* motif-bearing: **nb 10 → 7** (v7 → v9m); with the
+  ≥12-device conjunction, 1 → 2. On wb, 6 → 9 (with 0 → 1 at ≥12 devices) — the
+  only place the arm is arguably positive, and the same channel §28.4 identified
+  as the one where new information helps.
+
+**This is the third independent confirmation of the same law in one session.**
+Winners feedback (§28), prefix conditioning (§29.7) and row re-weighting (here)
+are three completely different mechanisms — a training channel, a decoding
+channel, and a sampling-weight channel — and all three raise the targeted
+statistic while lowering NDL, because all three point the model at structure it
+has already memorised. **Re-weighting existing data cannot add a motif the data
+does not carry; it can only make the model copy the few circuits that do.**
+
+### 29.9 ★★ The controlled version of §29.3: one existing edit, on the two designs that defined the wall
+
+`moves.m_input_class_swap` has been in the tree since the rung-2 work: it relocates
+the signal from a gate to a source (gate AC-grounded and biased by `bias.py`'s
+R-GATE, plus one element from the new input node to VSS). It had never been aimed
+at these parents. `nf_moves.py --moves input_class_swap --parents eaf1b914,fb48c7f2`
+proposes exactly two distinct novel mutants — one per parent — and **both convert**:
+
+| parent | parent S11_max / S21 / NF | mutant | mutant S11_max / S21 / Idd / NF | viol |
+|---|---|---|---|---|
+| `fb48c7f2` (`seq0085`) | −0.99 / 22.30 / **0.96** | `2669669e45c5c5a7` | **−10.05** / 24.02 / 12.95 / **2.96** | 0.185 |
+| `eaf1b914` (`seq0086`) | −4.46 / 22.31 / **1.02** | `f65db2d3bfadb3d2` | **−10.09** / 23.85 / — / **3.83** | 0.532 |
+
+A further `constrained_descent` on `2669669e` over three seeds reaches
+**S11_max −10.01 / S21 24.20 / Idd 12.99 / NF 2.87**, tier-1 feasible with noise
+as the only violation. **The prediction §29.4 implies — a source-driven input buys
+the match and costs roughly 2 dB of noise — was made before the edit and is what
+the simulator returned** (NF 0.96 → 2.87). This is the causal statement the
+observational tables in §29.3 cannot make on their own: same graph, one edit,
+match closes, noise pays.
+
+**★★ And two more `moves` edits close the gate on this line too.** A 1-edit search
+from `2669669e` (16 mutants, tier-1 trust region) returns **`78f5cc9cc2cd0133`**
+— `cascode_add`, 11 devices — at **S11_max −10.014 / S21 24.560 / Idd 12.997 /
+NF 1.963**, audited **MET**: replay 3/3 spread 0.0000, 18/18 in-box, unconditional
+in band (K_min 1.382) **and** over 0.1–20 GHz (K_min 1.394, μ_min 1.050), WL hash
+absent from ref-v3 (nearest `arch:gmbcg_s2_R_b0`, 0.769). **The exact design §27.6
+named as un-matchable is two existing edits away from Gate D3.** Attribution:
+generation supplied the graph, `moves` supplied the input class and the cascode,
+sizing supplied the numbers.
+
+⚠ **Three sibling mutants read `spec.feasible()` True and are NOT claimed**, because
+the gate's stability clause fails: `device_remove/46d1ed` (NF 2.24, **K_min 0.87**),
+`passive_type_swap/f35dbf` (NF 2.19, **K_min 0.872**), both only *conditionally*
+stable. `stage_add/702f15` (13 devices) reads NF 2.96 at **K_min 194** — the same
+noise at vastly better stability. This lineage is stability-marginal and the
+per-mutant K number is what separates a claim from a near-miss, exactly as §27.5
+warned after the cutover.
+
+### 29.10 ★★★ Search-side closure: the capability test re-run with the measured selector
+
+§27.6's capability test drew "the 12 most structurally distinct" pool candidates —
+`nf_campaign`'s `pool:` source, which ranks by *least* similarity to the
+`nccgcs`/`gmbcg`/`rfb` families. That ordering was checked here and is **not** the
+culprit (it contained 1 motif-bearing design of 12 against an 18% base rate;
+motif-bearing samples are on average *further* from those families, mean NN-sim
+0.477 vs 0.561). The culprit is simpler: 12 draws from a pool where the motif
+appears at 18% and must co-occur with enough devices for a cascade.
+
+So the test was re-run with the candidates selected by the measured predictor
+instead: every screen-passing, motif-bearing sample from the P5-v7 and P5-v8 nb
+pools, deduplicated by WL hash — **29 distinct graphs, 26 of them novel against
+ref-v3** — each match-first sized and NF-descended inside the full tier-1 trust
+region, 2 seeds, budget 800.
+
+**24 of 29 close the band match** (S11_max ≤ −10), which is the diagnosis doing
+exactly what it says. What separates them is gain:
+
+| candidate | devices | S11_max | S21 | Idd | NF | K_min | viol |
+|---|---|---|---|---|---|---|---|
+| **`seq0173` → `80aaf9f4`** | **16** | **−10.02** | **29.79** | **12.99** | **1.79** | 13.17 | **0.000 ★ TIER-2** |
+| `seq0156` → `5f434c62` | 16 | −10.00 | 13.26 | 11.35 | 2.52 | 1.54 | 0.412 |
+| `seq0008` → `1eb9e8…` | 11 | −14.76 | −1.11 | 0.59 | 4.19 | 1.00 | 1.727 |
+| `seq0183` | 8 | −10.00 | 1.34 | 0.00 | 5.61 | 1.76 | 2.186 |
+| … 25 more | 3–13 | mostly ≤ −10 | ≤ 1.34 | | | | |
+
+**The two 16-device candidates are the only two with usable gain, and one of them
+closes the gate.** That is §29.5's device-count limiter and §29.3's motif
+requirement acting as a conjunction, and it is why the pool yield table in §29.5
+(v7 = 1, v8 = 5 per 256) is the number that matters for this channel.
+
+### 29.11 `wideband-sdr`: the diagnosis does not transfer
+
+§22.5 left the band match at 0/N and read it as a topology-library gap. On 119
+distinct graphs ever sized against `wideband-sdr` (S11 held over 0.5–3.0 GHz,
+Idd ≤ 8 mA, ripple ≤ 2 dB), the split that carries all four dhruva bands **carries
+nothing**:
+
+| input motif | n | best S11_max | p10 | median | frac ≤ −10 |
+|---|---|---|---|---|---|
+| port reaches a source | 36 | **−6.61** | −6.06 | −2.25 | **0.000** |
+| gate-only | 83 | −9.67 | −3.83 | −0.56 | **0.000** |
+
+The best number in the table, −9.67, belongs to a design reading S21 −600 dB.
+**§22.5's reading stands untouched** — `wideband-sdr` wants a multi-path feedback
+match no family in this library implements, and a source-driven input is not a
+substitute. **No first-ever `wideband-sdr` feasible is claimed.**
+
+### 29.12 The honest reading
+
+Three things are now settled that were not before.
+
+**1. The generator can reach Gate D3, and the earlier verdict was a selection
+artefact.** §27.6 tested 12 candidates chosen for structural distinctness and
+concluded a capability limit. Testing 29 chosen by a measured structural predictor
+returns one audited, novel, unconditionally stable tier-2 feasible `dhruva-l5`
+design whose topology nothing but the model produced. **What changed was the
+question asked of the pool, not the pool.** Any future capability negative in this
+program should state which selector it used.
+
+**2. The wall has a mechanism, and it is a trade, not a barrier.** A gate-driven
+input reaches 50 Ω only through something dissipative; that is why the generator's
+quietest designs are its worst-matched ones, and why the one edit that moves the
+signal to a source buys the match for ~2 dB of noise, on both parents, every time.
+
+**3. §28's law is not about training.** It was stated as "novelty tracks structure
+the model has not memorised" from three training interventions. Prefix conditioning
+touches no training at all and obeys it exactly: the motif rate goes to 0.93 and
+the *usable* yield does not move, because the extra samples are copies. The law is
+about **where the steering signal points**, not about which channel carries it.
+
+### 29.13 Regression and cost
+
+Full quartet green before and after: vocab **MATCH**, screen **114/192 (59.4%)**,
+`pipeline_yield` **40/42 (95.2%)** (the known 1081 singular matrix), `check_ref`
+**GREEN**, `calibrate_specs` **ALL ACCEPTANCE CRITERIA MET**. No shared checkpoint
+was written (private stem `ft_p5v9m`); `lna/repro/**` was not touched (a concurrent
+agent owns it); `to_spice.py`, `spec.py`, the specs and the archetype set were not
+modified — this section adds no structure to the program, only measurements,
+selection and existing moves.
+
+**Cost.** 6 `--mode match` / free-descent campaigns, 1 controlled
+`input_class_swap` experiment, 1 16-mutant 1-edit search, 3 shards x 29
+motif-selected pool candidates, 2 full Gate-D3 audits, 5 GPU sampling arms and 1
+GPU fine-tune arm: **~86,000 ngspice evaluations**, **114 new L2 rows** under
+recipe `match-v1` (store 2642 -> 2756). Analysis artefacts under `lna/out/_m/`
+(gitignored, as `lna/out/_nf/` is); the two gate designs are persisted as
+committed token+params files so both claims replay from the repo alone:
+`lna/out/match_dhruva_l5_seq0173.{tokens.txt,params.json}` and
+`lna/out/match_dhruva_l5_swap_cascode.{tokens.txt,params.json}`.

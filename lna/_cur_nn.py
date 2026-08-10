@@ -24,6 +24,12 @@ def main():
     ap.add_argument("summaries", nargs="*", help="_cur_front/_ctrl_front JSON summaries")
     ap.add_argument("--files", nargs="*", default=[], help="seq*.txt token files")
     ap.add_argument("--ref", default="v2")
+    ap.add_argument("--breakdown", action="store_true",
+                    help="split NN-sim by reference group: templates.py archetypes "
+                         "vs the original 41-circuit corpus vs the 9 ingested "
+                         "external LNAs (needs --ref v3). Answers 'did the real "
+                         "data change what the model composes, or only what it "
+                         "copies?' (FINDINGS §21)")
     args = ap.parse_args()
     _, feats, meta = reference(args.ref)
     print(f"reference {ref_tag(meta)}  ({len(feats)} items)")
@@ -36,6 +42,23 @@ def main():
                          os.path.join(pool, r["seq"]), r))
     for f in args.files:
         jobs.append((os.path.basename(f), f, None))
+    if args.breakdown:
+        groups = {"arch": [f for f in feats if f[0].startswith("arch:")],
+                  "corpus": [f for f in feats if f[0].startswith("corpus:")],
+                  "ext": [f for f in feats if f[0].startswith("ext:")]}
+        print(f"groups: " + ", ".join(f"{k}={len(v)}" for k, v in groups.items()))
+        print(f"{'design':<38} {'viol':>8} {'feas':>5}  {'arch':>6} {'corpus':>6} "
+              f"{'ext':>6}   nearest overall")
+        for label, path, row in jobs:
+            _, feat = wl_features(Topology(parse_arrow_file(path)))
+            per = {k: (nn_similarity(feat, v) if v else (float("nan"), None))
+                   for k, v in groups.items()}
+            nn, who = nn_similarity(feat, feats)
+            v = f"{row['viol']:8.3f}" if row else " " * 8
+            fe = f"{str(row['feasible']):>5}" if row else " " * 5
+            print(f"{label:<38} {v} {fe}  {per['arch'][0]:6.3f} "
+                  f"{per['corpus'][0]:6.3f} {per['ext'][0]:6.3f}   {nn:.3f} {who}")
+        return 0
     print(f"{'design':<38} {'viol':>8} {'feas':>5}  {'NN-sim':>6}  nearest")
     for label, path, row in jobs:
         topo = Topology(parse_arrow_file(path))

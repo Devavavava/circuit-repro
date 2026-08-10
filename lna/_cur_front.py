@@ -22,8 +22,8 @@ import size  # noqa: E402
 RECIPE = "cur-v1"
 
 
-def _patch(experiment):
-    cf.RECIPE = RECIPE
+def _patch(experiment, recipe=RECIPE):
+    cf.RECIPE = recipe
     orig = size.log_l2_result
 
     def logged(spec, topo, metrics, feasible, params, prov, recipe, n_evals):
@@ -38,6 +38,8 @@ def main():
     ap.add_argument("--spec", default="wifi24")
     ap.add_argument("--arm", default="cur-v1")
     ap.add_argument("--experiment", default="cur-v1")
+    ap.add_argument("--recipe", default=RECIPE,
+                    help="store recipe for the logged L2 rows (e.g. p5v7-v1)")
     ap.add_argument("--scan-limit", type=int, default=14)
     ap.add_argument("--top", type=int, default=5)
     ap.add_argument("--polish-budget", type=int, default=60)
@@ -47,7 +49,7 @@ def main():
     ap.add_argument("--no-log", action="store_true")
     ap.add_argument("--out", default=None)
     args = ap.parse_args()
-    _patch(args.experiment)
+    _patch(args.experiment, args.recipe)
     return cf.run(args)
 
 

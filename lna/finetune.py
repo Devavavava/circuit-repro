@@ -106,8 +106,28 @@ def _corpus_class(npy_path, nb_id, wb_id):
     return nb_id if Topology(toks).n_inductors >= 1 else wb_id
 
 
+def _external_rows(nb, wb):
+    """Ingested external corpus rows (FINDINGS §19), classed NB/WB by the
+    circuit's own inductor count -- the same rule `_corpus_class` applies to a
+    dataset circuit. Returns (rows, n_circuits, n_rows).
+
+    These live under `lna/data/external/` rather than in `AnalogGenie/repo/
+    Dataset/` (§19.2: that tree is an untracked upstream clone), so they need
+    their own loader; everything downstream treats them identically."""
+    from build_lna_corpus import external_sequences
+    from topology import Topology
+    rows, n_circ = [], 0
+    for _cid, seqs in external_sequences():
+        if not seqs:
+            continue
+        n_circ += 1
+        cls = nb if Topology(seqs[0]).n_inductors >= 1 else wb
+        rows.extend(_rows_from_seqs(seqs, cls))
+    return rows, n_circ, len(rows)
+
+
 def build_dataset_p5(stoi, winners=False, templates=True, templates_file=None,
-                     winners_file=None):
+                     winners_file=None, external=False):
     """Corpus LNAs (tagged NB/WB by inductor) + Eulerian-augmented templates.py
     archetypes (tagged by class) + <OTHER> replay. This is the P5 lever: template
     diversity breaks the 35-graph memorization ceiling, and the class tokens make
@@ -133,6 +153,14 @@ def build_dataset_p5(stoi, winners=False, templates=True, templates_file=None,
         rows = _rows_from_npy(p, _corpus_class(p, nb, wb))
         (val if i in HOLDOUT else train).extend(rows)
     n_corpus = len(train)
+    # P5-v7: the ingested external corpus (41 -> 50 circuits). Added to TRAIN
+    # only -- the val set stays byte-identical to P5-v3's, so the best-val
+    # checkpoint policy early-stops on exactly the criterion the baseline used
+    # and "expanded corpus" is the single changed variable.
+    n_ext_c, n_ext_r = 0, 0
+    if external:
+        erows, n_ext_c, n_ext_r = _external_rows(nb, wb)
+        train.extend(erows)
     # pre-generated augmented template rows (templates.py --emit-train), so the
     # GPU env needs no pandas; hold out every 8th archetype for val.
     n_arch, n_tmpl_tr = 0, 0
@@ -157,7 +185,9 @@ def build_dataset_p5(stoi, winners=False, templates=True, templates_file=None,
     target = int(0.15 * len(train))
     replay = [gen[j % len(gen)] for j in range(target)] if gen else []
     train += replay
-    print(f"[p5] train: {n_corpus} corpus + {n_tmpl_tr} template ({n_arch} arch"
+    print(f"[p5] train: {n_corpus} corpus"
+          f"{f' + {n_ext_r} external ({n_ext_c} circuits)' if external else ''}"
+          f" + {n_tmpl_tr} template ({n_arch} arch"
           f"{'' if templates else ', TEMPLATE-FREE control arm'}) "
           f"+ {n_win} winner + {len(replay)} replay = {len(train)}; val: {len(val)}",
           flush=True)
@@ -395,6 +425,9 @@ def main():
     ap.add_argument("--tag", default=None,
                     help="rename the checkpoint/out-dir stem (ft_<tag>[_v2].pth) so "
                          "a side arm never overwrites a shared checkpoint")
+    ap.add_argument("--external-corpus", action="store_true",
+                    help="P5-v7: mix the ingested external corpus (FINDINGS §19, "
+                         "41 -> 50 circuits) into the training rows")
     ap.add_argument("--warm-from", default=None,
                     help="explicit warm-start checkpoint, overriding the "
                          "ft_<tag>.pth convention (curriculum phase 2, FINDINGS §18)")
@@ -406,7 +439,8 @@ def main():
     if args.arm == "p5":
         dkw = {"templates": not args.no_templates,
                "templates_file": args.templates_file,
-               "winners_file": args.winners_file}
+               "winners_file": args.winners_file,
+               "external": args.external_corpus}
 
     if args.do in ("train", "both"):
         train(args.arm, args.device, epochs=args.epochs, seed=args.seed,

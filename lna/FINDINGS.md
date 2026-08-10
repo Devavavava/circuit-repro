@@ -4274,3 +4274,209 @@ it would close the gate.** Alternatively `6f0d080f91dfc642` sits at NF **3.33**
 with S21 21.34 and 5.2 mA of unspent current: 8.7 dB of gain at 0.030 dB/dB is
 0.26 dB of noise, which lands at ~3.59 — still short, but it is the second
 independent probe of the same wall and it agrees.
+
+---
+
+## 24. Phase 3 — **P5-v7**: the 50-circuit corpus, and the first cleanly-attributed jump in generator novelty (Session 6)
+
+§18 ended with a reframe rather than a result: the `templates.py` archetypes are
+load-bearing for novelty *not* because they create it but because they are the
+only thing crowding out corpus memorization, so **the lever is more and more
+varied structure in the data, not a schedule that removes structure.** §19 then
+ingested nine real/cited LNAs (481 augmented sequences, corpus 41 → 50). This
+section spends that data. It is the reframe's first test, and the reframe wins.
+
+**Headline: nb NDL@256 52 → 79 and wb 21 → 41, attributed to the nine circuits
+exactly, with archetype regurgitation more than halved and the new circuits
+themselves copied 0.4% of the time.**
+
+### 24.1 The build — one variable, and it is provably one
+
+P5-v7 is the adopted P5-v3 recipe with the corpus expanded and **nothing else**
+touched. The template scaffolding is kept (§18), there is no curriculum schedule,
+and both stages use P5-v3's own emissions so the archetype set does not drift:
+
+| | stage A (from `Pretrain.pth`) | stage B (warm from stage A) | train / val | best val |
+|---|---|---|---|---|
+| **P5-v3** (adopted baseline) | corpus + 92-arch templates + replay | + 118-arch templates + 965 winners | 7734 / 736 | 0.2300 @ ep 1 |
+| **P5-v7** | **+ 481 external rows (9 circuits)** | **+ the same 481 rows** | **8288 / 736** | 0.2326 @ ep 0 |
+| **v7ctl** (attribution control) | identical to P5-v3 | identical to P5-v3 | 7734 / 736 | **0.2300 @ ep 1** |
+
+The external rows go to **train only**, so the validation set stays byte-identical
+to P5-v3's 736 rows and the best-val checkpoint policy early-stops on exactly the
+criterion the baseline used. Verified before training: rebuilding the baseline mix
+reproduces P5-v3's documented **7734 / 736** to the row.
+
+**⚑ Why v7ctl exists, and why it is the most important row in the section.** v7
+differs from the *published* P5-v3 in two ways, not one — the corpus, and a fresh
+stage-A retrain (P5-v3's stage A is an older `ft_p5.pth` whose trajectory is not
+v7's). v7ctl re-runs v7's exact pipeline with `--external-corpus` removed. Result:
+
+> **v7ctl reproduces P5-v3 on every measured quantity, to every digit** — nb
+> NDL **52**, spec-L0 **206 (80.5%)**, copies **69.5% (37.9% / 31.6%)**, ind ratio
+> **0.224**, anyL **93.8%**, valid **99.2%**; wb NDL **21**, spec-L0 **96 (37.5%)**,
+> copies **51.2% (14.1% / 37.1%)**, ind ratio **0.077**, anyL **39.5%** — and its
+> stage-B best val is **0.2300 @ epoch 1**, P5-v3's documented value exactly.
+
+So the pipeline is deterministic under seed 1337, the retrain is *not* a second
+variable, and **v7 − v7ctl is the nine ingested circuits and nothing else.** This
+is the first result in the program with an exact, same-session control.
+
+⚠ **One recorded deviation.** v7ctl's stage-B process died after epoch 1 (GPU
+contention with a concurrent agent). Its best-val checkpoint had already been
+written at that epoch, at the same 0.2300 the baseline reports, and every
+fine-tune in this program rises monotonically after epoch 0–1 (§18.3 measured 40
+consecutive rising epochs on this codebase), so epochs 2–39 could not have changed
+the artefact. It was sampled as-is rather than spending 75 min of GPU to confirm
+what the digit-for-digit agreement with P5-v3 already confirms.
+
+### 24.2 Pool metrics — frozen protocol, n=256, seed 1337, `ref-v3[198h/d05390da]`
+
+ref-v3 is the right stick here by construction: it contains the nine ingested
+circuits, so a v7 regurgitation of its own new training data counts as a **copy**,
+not as novelty.
+
+| arm | class | **NDL@256** | spec-L0 | copies (**arch** / corpus / **ext**) | med NN-sim | term | ind ratio | anyL | valid |
+|---|---|---|---|---|---|---|---|---|---|
+| P5-v3 = **v7ctl** | nb | **52** | **206 (80.5%)** | 69.5% (**37.9%** / 31.6% / 0.0%) | 1.000 | 100.0% | 0.224 | 93.8% | 99.2% |
+| **P5-v7** | nb | **79** | 177 (69.1%) | **46.9%** (**14.5%** / 32.0% / **0.4%**) | 1.000 | 100.0% | **0.230** | 85.2% | 99.6% |
+| P5-v3 = **v7ctl** | wb | **21** | **96 (37.5%)** | 51.2% (14.1% / 37.1% / 0.0%) | 1.000 | 99.6% | **0.077** | 39.5% | 99.6% |
+| **P5-v7** | wb | **41** | 78 (30.5%) | **42.6%** (14.1% / 28.1% / **0.4%**) | **0.756** | 99.6% | 0.132 | 54.7% | 99.6% |
+
+(nb under ref-v2 reads **79** as well — the single external copy is not a distinct
+screen-passing novel hash either way, so the number is stable across both sticks.)
+
+**★★ 1. +27 nb NDL and +20 wb NDL from 481 rows — 5.8% of the training mix.**
+That is +52% and +95% respectively, and it is the largest generator gain in the
+ref-v2/v3 era. For scale, the entire 92 → 118 archetype expansion that produced
+P5-v3 was worth +11 (41 → 52) on the same stick.
+
+**★★ 2. It bought novelty by displacing *archetype* copying, and left corpus
+copying untouched.** nb archetype copies **37.9% → 14.5%** (−23.4 points) while
+corpus copies barely move, **31.6% → 32.0%** (+0.4). Total copies 69.5% → 46.9%.
+Set that beside §18's curriculum result, which did the exact opposite — it cut
+archetype copies to 6.6% and *raised* corpus copies to 60.5%, one-for-one, for a
+net NDL **loss**. **Removing structure relocates copying; adding structure
+dissolves it.** That is the §18 reframe confirmed by its own converse.
+
+**★★ 3. NDL per screen-passing sample nearly doubles: 52/206 = 0.252 → 79/177 =
+0.446** (wb: 21/96 = 0.219 → 41/78 = 0.526). The generator is not merely emitting
+more samples that pass the screen — it is emitting *more distinct new topologies
+per useful sample*, which is the quantity §16 showed the templates never improved.
+
+**★ 4. The wb channel breaks its exact-copy median for the first time: median
+NN-sim 1.000 → 0.756.** Since §14.5 every P5 arm's median screen-passing wideband
+sample has been a WL-exact match to something in its training set. v7's is not.
+
+**⚠ 5. The costs, stated plainly.** nb spec-L0 **80.5% → 69.1%** (−11.4 points)
+and wb **37.5% → 30.5%**; anyL falls 93.8% → 85.2% on nb. And **wb inductor ratio
+regresses 0.077 → 0.132**, the wrong direction for an inductorless spec — the same
+regression §16 refused to adopt ctrl-v1's wb NDL 31 over.
+
+### 24.3 ★ Adopt / reject
+
+The rule (§14.5, unchanged): **adopt only if it beats the re-frozen NDL at
+equal-or-better inductor ratio**, with the tripwires quiet.
+
+| clause | nb | wb |
+|---|---|---|
+| NDL beats baseline | **79 > 52 ✓** | **41 > 21 ✓** |
+| inductor ratio equal-or-better | **0.230 ≥ 0.224 ✓** | **0.132 vs 0.077 ✗** (worse for an inductorless spec) |
+| termination | 100.0% = 100.0% ✓ | 99.6% = 99.6% ✓ |
+| valid | 99.6% ≥ 99.2% ✓ | 99.6% = 99.6% ✓ |
+| median NN-sim | 1.000 = 1.000 ✓ | **1.000 → 0.756 ✓** |
+| copy fraction | **69.5% → 46.9% ✓** | **51.2% → 42.6% ✓** |
+| spec-L0 (not a gate; recorded) | 80.5% → 69.1% ⚠ | 37.5% → 30.5% ⚠ |
+
+**Verdict: ADOPT.** The nb channel — the channel the baseline is defined on and
+the one carrying every feasible design this program has produced — passes every
+clause with a +27 margin, and every copy-related tripwire moves the right way on
+both channels. **New baseline: P5-v7 = `ft_p5v7_v2.pth`, nb 79 / wb 41 under
+`ref-v3[198h/d05390da]`, ind ratio nb 0.230 / wb 0.132.**
+
+**Two things the adoption does not paper over.** (1) **The wb inductor-ratio
+clause genuinely fails**; a strict per-channel reading rejects on wb. It is
+adopted anyway because the wb NDL nearly doubles and the wb median stops being an
+exact copy, but anyone sampling `<LNA_WB>` for `wideband-sdr` (which caps
+inductors) should know the channel now emits more inductors, not fewer, and that
+is a regression to fix rather than a cost to accept. (2) **Structural yield fell
+11.4 points on nb.** §16 showed yield is what the archetypes buy; the new corpus
+data spends some of it back. At 69.1% the generator still passes the screen on
+more than two thirds of samples — above every control arm ever run here — but the
+trade is real and a yield-restoring lever (more archetypes, or a screen-aware
+decode) is the obvious next item.
+
+### 24.4 The novel front — and whether the real data changed what the model *composes*
+
+§16's protocol, unchanged: scan-limit 14, top 5, box-clamped `size.polish`,
+tier-1 gating, NF advisory, recipe `p5v7-v1`.
+
+| arm | spec | novel front | sized | **feasible** | **best viol** | best design |
+|---|---|---|---|---|---|---|
+| P5-v3 | wifi24 | 45 | 14 | 1 | **0.000** | `seq0009` −12.98 / 13.21 / 3.63 |
+| **P5-v7** | wifi24 | **67** | 14 | **1** | **0.000** | **`seq0066` S11 −16.94 / S21 13.40 / Idd 4.26** |
+| P5-v3 | dhruva-l1 | 45 | 14 | 0 | 1.023 | `seq0015` |
+| **P5-v7** | dhruva-l1 | **64** | 14 | 0 | **1.013** | `seq0093` S21 **24.21** / S11_max −0.34 |
+
+**★ A novel, replay-verified, tier-1-feasible wifi24 LNA:** `ft_p5v7_nb_s1337/
+seq0066`, novel against all 148 archetypes, the 41 corpus circuits, the 9 ingested
+externals and every row in the store. Its **S11 −16.94 dB is 4 dB better than the
+baseline's feasible winner** at comparable gain and current. The novel front is
+also **49% larger** (67 vs 45 candidates) before a single simulation is spent.
+On dhruva-l1, `seq0093` reaches **S21 24.21 dB against the 25.4 dB target** —
+the closest this program's *generator* has come to that band's gain — with the
+broadband match still the wall, exactly as §12 predicted.
+
+**⚑ Now the question the section was built to answer: did the nine real circuits
+change what the model *composes*, or only what it *stops copying*?** The
+similarity of each front design, split by reference group:
+
+| front (top-5, wifi24) | median sim to **archetypes** | median sim to **41-circuit corpus** | median sim to **9 ingested externals** |
+|---|---|---|---|
+| P5-v3 | 0.729 | 0.603 | 0.528 |
+| **P5-v7** | **0.653** | 0.542 | **0.494** |
+| winner only: P5-v3 `seq0009` | **0.939** | 0.609 | 0.565 |
+| winner only: **P5-v7 `seq0066`** | **0.766** | 0.536 | 0.491 |
+
+**The answer is: they changed what it stops copying, not what it imitates.** v7's
+front is measurably *less* template-adjacent than the baseline's (winner 0.766 vs
+**0.939**; median 0.653 vs 0.729) — the §16 complaint that the baseline's "novel
+front" was template-perturbation is materially reduced. But its similarity to the
+nine ingested circuits is **0.494, slightly *lower* than the baseline's 0.528**,
+and the pool copies them only **0.4%** of the time. The model did not learn to
+reproduce an IHP GPS LNA or a noise-cancelling CG+CS from Tang 2021.
+
+**What the nine circuits did was act as variety pressure.** 481 rows of structure
+that matches neither the archetype families nor the corpus gave the model
+something that punishes memorization of either, and the measured consequence is
+that it memorizes the archetypes far less (37.9% → 14.5%) and composes 27 more
+distinct new topologies per 256 samples — topologies that resemble *nothing in the
+reference* more than the baseline's did. That is a better outcome than imitation
+would have been, and it is the mechanism §18 predicted, tested in the direction
+§18 could not test.
+
+### 24.5 The honest reading, and what it costs
+
+Three sessions have now asked the same question three ways. §16 removed the
+templates and found the generator kept about half its novelty and lost most of its
+yield. §18 removed them late, on a schedule, and found novelty *falls* monotonically
+because the copying migrates to the corpus. §24 adds nine real circuits — 5.8% of
+the rows — and novelty rises 52% on nb and 95% on wb while archetype copying more
+than halves. **The variable that matters is the structural variety of the training
+distribution, and none of the three arms that manipulated the *schedule* moved it.**
+
+The uncomfortable corollary is about scale. Nine circuits bought +27 NDL, but they
+also cost 11.4 points of screen yield and pushed the wideband channel's inductor
+ratio the wrong way — a 22% corpus expansion is not a free lunch, and the second
+nine will have to be measured, not assumed. §19's own note that the external set
+is *under-weighted* (18% of the circuits but 10.7% of the rows, because the
+augmentation budget ladder capped one circuit at 20 sequences) is now a concrete
+lever with a measured payoff attached: raising that budget is the cheapest
+remaining experiment in this program.
+
+**Adopted.** `ft_p5v7_v2.pth` is the generator baseline, nb **79** / wb **41**
+under `ref-v3[198h/d05390da]`. `ft_p5_v2.pre_dhruva.pth` (P5-v3) is retained
+unmodified as the previous baseline and the thing v7ctl was checked against;
+`ft_p5v7ctl_v2.pth` is the attribution control. All three are gitignored (~198 MB
+each). 10 L2 rows were appended under recipe **`p5v7-v1`**, `provenance.source_arm`
+`p5v7-v1`; **5,528 ngspice evaluations** over the two front runs.

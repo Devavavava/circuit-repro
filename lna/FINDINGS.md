@@ -5054,6 +5054,35 @@ audit + 2 capability tests + 1 stability control. Store recipes: `mf2-v1`
 
 ---
 
+
+### 27.8 Benchmark refresh — partial, and an honest budget caveat
+
+`benchmark.py` was re-run on the **full** seven-spec list (the §25.6 trap: naming
+a subset silently drops every spec left out). At 42 candidates x 7 specs it needs
+~2.5 h, so it was **stopped after 7 candidates** and `lna/data/benchmark.{md,json}`
+were deliberately left untouched rather than half-written. Partial reading:
+
+| candidate | dhruva-l5 | dhruva-l2 | dhruva-l1 | dhruva-s |
+|---|---|---|---|---|
+| `rfbcs3_tank_cc21_bf0` (Session-3 winner) | bind s11_max | T1 | bind s11_max | bind s11_max |
+| `?` (18 dev) | **T2** | **T2** | T1 | bind s21 |
+| `86d5ce` (18 dev) | T1 | T1 | **T2** | bind s21 |
+| `ace838` (20 dev) | T1 | T1 | T1 | T1 |
+| `22f2f0` (18 dev) | **T2** | T1 | bind s21 | bind s21 |
+
+**Tier-2 dhruva cells now appear in the benchmark for the first time** (§14.3 read
+0 on all four bands). ⚠ **But `ace838` reads T1, not T2, in every column** — and
+that is a budget artefact worth stating plainly: `benchmark.py` re-sizes each
+candidate from scratch at `seeds=1, budget=6,6,2`, roughly two orders of
+magnitude less search than the 1600-evaluation `constrained_descent` the §27.4
+claim was made with. The gate claim rests on **stored parameters that replay
+exactly** (3/3, spread 0.0000), not on a design the benchmark's budget can
+rediscover. The benchmark measures *how easily a spec is reached from scratch*;
+it is not a re-verification of a specific design point, and it should not be read
+as contradicting one.
+
+---
+
 ## 28. Phase 3 — **P5-v8**: Loop-B expert iteration on v7, and the winners channel recycles structure rather than adding it (Session 6/7)
 
 > §27 is the cutover track's. This section is numbered 28 to avoid a collision.

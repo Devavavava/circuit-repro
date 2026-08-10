@@ -4480,3 +4480,144 @@ unmodified as the previous baseline and the thing v7ctl was checked against;
 `ft_p5v7ctl_v2.pth` is the attribution control. All three are gitignored (~198 MB
 each). 10 L2 rows were appended under recipe **`p5v7-v1`**, `provenance.source_arm`
 `p5v7-v1`; **5,528 ngspice evaluations** over the two front runs.
+
+---
+
+## 25. Phase 3 — ★★ **Gate D3 MET on `dhruva-s`**: the third stage, and why my own extrapolation was wrong (Session 6)
+
+> Owner: the NF-campaign executor (continues **§17**, **§23**). Files:
+> `lna/specs/dhruva-*.yaml` (budget only), `lna/_nf_gate_d3.py` (the audit),
+> `lna/_nf_budget_check.py`. Store rows: recipe **`nf-v3+d21`** (28).
+> `bias.py` untouched — it belongs to the ingestion track (§21).
+
+**★★ Gate D3 is MET on `dhruva-s`.** Two independent designs clear all four
+gated constraints — the first NF-gated feasible dhruva LNAs in the program.
+And the mechanism corrects §23's own reasoning: the third stage did **not** work
+by spending the frontier design's gain slack, which is what §23 predicted. It
+worked by giving a *different*, already-quiet design the gain it never had.
+
+### 25.1 The claim, and its audit
+
+> **`ace8383c2fa68d03`** — 20 devices, 2 inductors, `moves.stage_add` off parent
+> `6f0d080f91dfc642`, recipe `nf-v3+d21`.
+>
+> | constraint | limit | measured | |
+> |---|---|---|---|
+> | `s11_max_db` (worst over 1.1–2.5 GHz) | ≤ −10 | **−10.370** | PASS |
+> | `s21_db` @ 2.492 GHz | ≥ 30 | **34.374** | PASS |
+> | `idd_ma` | ≤ 13 | **11.561** | PASS |
+> | **`nf_db`** (series-Rs) | **≤ 3.5** | **3.240** | **PASS** |
+> | `K_min` in band / 0.1–20 GHz | advisory | **173.2 / 57.8** | unconditionally stable |
+
+A gate claim is only as good as its audit, so `lna/_nf_gate_d3.py` runs the whole
+ladder from the append-only store's own record: the topology is rebuilt from the
+row's **own tokens**, re-evaluated at the row's **own `best_params`**, and
+`spec.feasible()` is re-measured rather than trusted.
+
+* **Replay 5/5 identical** — spread **0.0000** on every gated metric.
+* **In-box 30/30** parameters.
+* **Unconditionally stable** in band *and* over 0.1–20 GHz (the wide audit is
+  where §13.2 said conditional stability hides).
+* **Novel** — WL hash absent from **ref-v3** (198 hashes, digest
+  `d05390da6183123e`); nearest reference circuit `arch:nccgcs_s1_R` at 0.806.
+
+**A second, independent design also clears it**, which is what makes this a
+result rather than a lucky seed:
+
+> **`ced0d8bd36ed4890`** — 20 devices, also `stage_add` off `6f0d080f91dfc642`:
+> s11_max **−10.537** / S21 **39.151** / Idd **12.825** / **NF 3.253** /
+> K_min 64.1 in band, 18.1 wide. Replay 3/3 identical, in-box 30/30, novel
+> (nearest 0.781).
+
+### 25.2 ★ What the third stage actually measured — two regimes, not one curve
+
+§23 measured an NF↔S21 exchange rate of 0.030 dB/dB on the 17–18-device front and
+projected that the winner's 3.74 dB of gain slack was worth ~0.11 dB of noise —
+not quite enough, and that a third stage would supply the rest. **That projection
+was wrong, and the campaign measured why.** Both halves were run:
+
+| start | parent state | + `stage_add` | S21 | NF |
+|---|---|---|---|---|
+| `f57874` / `3e4a6a` (18/17 dev) | already at NF **3.70** with gain to spare | `3a5fc1` (**21 dev**) | 33.7 → **46.9** | 3.70 → **3.71** |
+| **`6f0d08` (17 dev)** | had the **noise** (3.33), lacked the **gain** (21.3) | **`ace838` (20 dev)** | 21.3 → **34.4** | 3.33 → **3.24** |
+
+**Adding 13 dB of gain to the already-quiet design cost nothing — it improved NF
+by 0.09 dB. Adding 13 dB to the frontier design changed NF by 0.01 dB.** Four
+seeds of tier-1 descent on the 21-device `3a5fc1` converge at **3.71**, identical
+to the 18-device design's 3.70.
+
+The reconciliation is Friis read properly. `F = F1 + (F2−1)/G1 + …`: extra gain
+helps the *total* noise figure only while the first stage is being over-driven to
+produce gain it should not have to produce. `6f0d08` was a relaxed, low-noise
+input stage starved of gain — the stage converted. `f57874`'s input stage was
+**already relaxed** (that was §23's whole achievement, Idd 12.67 → 10.83), so
+there was nothing left to convert and F had collapsed to F1. **The front is not a
+smooth exchange curve; it is two regimes with a knee, and §23 extrapolated across
+the knee.**
+
+The practical lesson, which is the transferable one: **the parent to grow is the
+quietest one, not the best one.** `6f0d08` had the worst total violation of the
+three candidates (0.289 vs 0.059) and was the only one that could reach the gate.
+
+### 25.3 The `device_budget` widening — and an honest note on how much was needed
+
+18 → **21** on the four dhruva specs only (`gps-l1` / `wifi24` / `wideband-sdr` /
+`legacy-lna5` untouched), calibrated to **`ihp-gps-lna-npn` @ 21** — a real IHP
+SG13G2 **GPS-band** LNA in the corpus, the same navigation-receiver role these
+specs target, and **the largest real design in the 50-circuit reference set**, so
+21 is where this line of justification runs out: no further widening has a corpus
+circuit to point at.
+
+Verified (`_nf_budget_check.py`): the L0 screen and `moves.py`'s ctx both read the
+new bound; the 21-device `ihp-gps-lna-npn` now passes the `dhruva-s` structural
+screen with every other gate green; **22 and 30 devices are still rejected**, so
+the bound binds rather than being removed.
+
+⚠ **Stated plainly: the gate needed 20 devices, not 21.** `stage_add` costs 3 and
+the parent sat at 17, so the binding fact was that 20 > 18 — the widening was
+*sufficient* but the winner does not use the last slot. Both D3 designs are 20
+devices; the only 21-device design built (`3a5fc1`) is the one that bought nothing.
+A widening to 20 would have closed the gate identically. This is recorded because
+the next request of this kind should be sized to the measured need.
+
+### 25.4 Gate D3 per band
+
+| band | target NF @ S21 | best design | S11_max | S21 | Idd | NF | K_min | viol | verdict |
+|---|---|---|---|---|---|---|---|---|---|
+| **dhruva-s** | 3.5 @ 30.0 | **`ace8383c2fa68d03`** (20 dev) | **−10.370** | **34.374** | **11.561** | **3.240** | 173.2 | **0.000** | **★★ MET** |
+| dhruva-s (2nd) | 3.5 @ 30.0 | `ced0d8bd36ed4890` (20 dev) | −10.537 | 39.151 | 12.825 | 3.253 | 64.1 | 0.000 | ★★ MET |
+| **dhruva-l5** | 2.5 @ 22.3 | `439032fd40e7e504` (18 dev) | −10.00 | 26.41 | 11.23 | **3.31** | 20.5 | 0.324 | NOT MET, −0.81 dB |
+| dhruva-l2 / l1 | 2.5 / 2.7 | not run | – | – | – | – | – | – | unmeasured |
+
+`dhruva-l5` was pushed with the same lever and does not close. The D3-winning
+graphs re-sized against l5 give NF **3.38** (`ace838`, S21 31.41, tier-1 clean)
+and **3.43** (`ced0d8`); a fresh 18-device `degen_add` mutant reaches **3.35** at
+S21 22.99. The band's floor sits at **~3.31 dB against a 2.5 dB target**, and
+unlike `dhruva-s` there is no starved-gain design left to convert — every l5
+candidate is already tier-1 clean with gain to spare, i.e. **l5 is on the far side
+of the knee described in §25.2, where more gain is inert.** Closing it needs a
+quieter *input stage*, not more devices. **l2 and l1 were not run**; l2 carries
+l5's targets at 1.23 GHz and l1 sits between, so neither is likely to beat l5 —
+an inference, flagged as such.
+
+### 25.5 Cost, provenance, and what this does not claim
+
+3 growth runs + 2 descent campaigns + 2 audits, **28 further L2 rows** under
+recipe `nf-v3+d21` (191 total for this executor across §17/§23/§25). The two
+D3 designs carry `provenance.source_arm: nf-moves`, the move name, the parent
+hash and `device_budget: 21`.
+
+**Attribution, precisely.** This is *search plus sizing*, not generation: the
+lineage is the blind-v1 archetype `nccgcs_s1_R` → evolutionary/1-edit moves
+(`load_swap` → `stage_add`) → `constrained_descent`. The graphs are novel against
+ref-v3 and every prior store row, but no generator sample is involved, so this is
+**not** a "the pipeline designed it" claim of the kind Track B's `seq0192` made.
+The blind protocol held throughout — every move is a generic textbook edit from
+`moves.py`, no paper circuit content anywhere.
+
+**Still open on this ladder:** `iip3_dbm` remains `unsupported` on all four specs
+(tier-3, needs a two-tone/HB harness — the VACASK route in the memory index), so
+"feasible" here means tier-2, not the paper's full spec. Stability remains
+frequency-domain and ideal-element: no process corners, no load pull, no
+package/layout parasitics (§13, caveat 2). Neither qualifies the gate as written,
+but both qualify the engineering claim.

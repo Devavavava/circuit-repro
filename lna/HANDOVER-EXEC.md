@@ -1417,6 +1417,103 @@ append-only store and was re-verified from it.
    L0 screen, so every cached dhruva screen/benchmark number predates it.
 4. l2 / l1 remain unmeasured under the new budget (§23.4).
 
+### ▸ Sub-block: WP-NF part 3 — ★★ **Gate D3 MET on `dhruva-s`** (owner: the NF-campaign executor)
+
+**Files owned:** `lna/specs/dhruva-*.yaml` (budget only), `lna/_nf_gate_d3.py`
+(new — the gate audit), `lna/_nf_budget_check.py`, FINDINGS **§25**, this
+sub-block. Store rows: recipe **`nf-v3+d21`** (28). `bias.py` untouched (it
+belongs to the ingestion track). Continues the two WP-NF sub-blocks above.
+
+**★★ GATE D3 IS MET on `dhruva-s`** — the first NF-gated feasible dhruva LNAs in
+the program, and **two independent designs** clear it.
+
+> **`ace8383c2fa68d03`** — 20 devices, 2 inductors, `moves.stage_add` off parent
+> `6f0d080f91dfc642`:
+> **s11_max −10.370 ≤ −10 · S21 34.374 ≥ 30 · Idd 11.561 ≤ 13 · NF 3.240 ≤ 3.5**
+> · K_min **173.2** in band, **57.8** over 0.1–20 GHz (unconditionally stable both).
+>
+> **`ced0d8bd36ed4890`** — 20 devices, same move and parent:
+> −10.537 / 39.151 / 12.825 / **3.253**, K_min 64.1 / 18.1.
+
+Audited by the new `lna/_nf_gate_d3.py`, which rebuilds the topology from the
+row's **own tokens**, re-evaluates the row's **own `best_params`** and
+re-measures `spec.feasible()` rather than trusting the stored verdict:
+**replay 5/5 (and 3/3) identical, spread 0.0000 on every gated metric; in-box
+30/30; unconditionally stable in band and wide; novel vs ref-v3** (198 hashes,
+digest `d05390da6183123e`; nearest `arch:nccgcs_s1_R` at 0.806 / 0.781).
+
+**★ The mechanism corrects my own §23 write-up, and this is the transferable
+part.** §23 measured a 0.030 dB/dB NF↔S21 exchange rate and predicted a third
+stage would let the *frontier* design spend its 3.74 dB of gain slack. Both
+halves were run, and the prediction was wrong:
+
+| start | parent state | + `stage_add` | S21 | NF |
+|---|---|---|---|---|
+| `f57874`/`3e4a6a` (18/17 dev) | already NF **3.70**, gain to spare | `3a5fc1` (21 dev) | 33.7 → 46.9 | 3.70 → **3.71** |
+| **`6f0d08` (17 dev)** | had the **noise** (3.33), lacked **gain** (21.3) | **`ace838` (20 dev)** | 21.3 → **34.4** | 3.33 → **3.24** |
+
+**13 dB of gain onto the quiet design cost nothing (NF improved 0.09 dB); the
+same 13 dB onto the frontier design moved NF by 0.01 dB.** Four seeds on the
+21-device `3a5fc1` converge at 3.71 — identical to the 18-device 3.70. Friis read
+properly: extra gain lowers total NF only while the input stage is still being
+over-driven to make gain. §23's own achievement (relaxing that stage, Idd 12.67 →
+10.83) had already collapsed F to F1, so there was nothing left to convert.
+**The front is two regimes with a knee, not one exchange curve — and §23
+extrapolated across the knee.** Practical rule: **grow the quietest parent, not
+the best one.** `6f0d08` had the *worst* violation of the three (0.289 vs 0.059)
+and was the only one that reached the gate.
+
+**⚠ The gate needed 20 devices, not 21.** `stage_add` costs 3 off a 17-device
+parent, so the binding fact was 20 > 18. Both D3 designs are 20 devices; the only
+21-device design built is the one that bought nothing. A widening to 20 would have
+closed it identically — recorded so the next request of this kind is sized to the
+measured need. The 18 → 21 change is calibrated to `ihp-gps-lna-npn` @ 21, a real
+IHP SG13G2 **GPS-band** LNA and the **largest real design in the 50-circuit
+reference set**, so 21 is where this justification runs out. Verified: the L0
+screen and `moves.py` ctx read it, the 21-device real LNA now passes the dhruva-s
+screen, **22 and 30 are still rejected**, other specs untouched.
+
+**Gate D3 per band.**
+
+| band | target NF @ S21 | best | NF | viol | verdict |
+|---|---|---|---|---|---|
+| **dhruva-s** | 3.5 @ 30.0 | `ace8383c2fa68d03` (20 dev) | **3.240** | **0.000** | **★★ MET** |
+| dhruva-l5 | 2.5 @ 22.3 | `439032fd40e7e504` (18 dev) | 3.31 | 0.324 | NOT MET, −0.81 dB |
+| dhruva-l2 / l1 | 2.5 / 2.7 | not run | – | – | unmeasured |
+
+l5 was pushed with the same lever and does not close: the D3 graphs re-sized
+against it give NF 3.38 / 3.43, a fresh `degen_add` mutant 3.35 @ S21 22.99, and
+the band floor sits at ~3.31 vs 2.5. **Unlike dhruva-s there is no starved-gain
+design left to convert** — every l5 candidate is already tier-1 clean with gain to
+spare, i.e. l5 sits on the far side of the §25.2 knee where more gain is inert.
+**Closing l5 needs a quieter input stage, not more devices.**
+
+**Attribution, precisely.** Search + sizing, **not** generation: blind-v1
+archetype `nccgcs_s1_R` → 1-edit moves (`load_swap` → `stage_add`) →
+`constrained_descent`. Novel against ref-v3 and every prior store row, but no
+generator sample is involved — this is **not** the "the pipeline designed it"
+claim Track B's `seq0192` made. Blind protocol held; every move is a generic
+textbook edit.
+
+**Still open, and it qualifies the engineering claim (not the gate):**
+`iip3_dbm` is still `unsupported` on all four specs (tier-3, needs two-tone/HB),
+and stability remains frequency-domain with ideal elements — no corners, load
+pull, or package/layout parasitics.
+
+**Where to pick up.**
+
+1. **`dhruva-l5`/`l2` need a lower-noise INPUT stage** — more gain and more
+   devices are both measured inert there (§25.4). That is a topology question for
+   the archetype set / generator, not the sizer.
+2. **Feed the two D3 designs back to the generator.** There are now NF-gated
+   *feasible* dhruva labels for the first time; `emit_winners` + a P5 fine-tune on
+   them is the natural expert-iteration step, and it is the route to a
+   *generated* tier-2 feasible (the claim this result explicitly does not make).
+3. **`benchmark.py` dhruva rows were refreshed post-budget-change** (`--specs
+   dhruva-s,dhruva-l5 --all-feasible --seeds 1 --budget 6,6,2`); re-run at full
+   budget when convenient, and add the two D3 designs to the candidate set.
+4. **l2 / l1 remain unmeasured** under the new budget.
+
 ## 1. TL;DR — what shipped this session
 
 | Plan item | Status | Key result |

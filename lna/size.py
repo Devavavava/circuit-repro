@@ -175,6 +175,17 @@ def _zoaf_cfg(seed, n_candidates, sgd_iters, cgd_iters, recipe="anchor-v1",
            "inductor_q": inductor_q}
     if spec is not None:
         cfg["nf_gated"] = nf_is_gated(spec)
+    # MOS gate geometry (2026-08-10 cutover, FINDINGS §26/§27). Emitting
+    # single-finger devices put 26-40% of the excess noise factor into BSIM4's
+    # gate-electrode resistance, so NF numbers before and after the cutover are
+    # NOT comparable. Stamped from to_spice's own default so a row is honest
+    # about its geometry no matter which driver produced it.
+    try:
+        from to_spice import Netlist as _NL, W_FINGER as _WF
+        cfg["w_finger"] = _WF
+        cfg["mos_fingers"] = "ceil(W/w_finger)" if _WF else 1
+    except Exception:
+        pass
     return cfg
 
 

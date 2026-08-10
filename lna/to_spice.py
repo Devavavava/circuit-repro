@@ -106,10 +106,33 @@ BJT_MODELS = {
 }
 
 
+# ---------------------------------------------------------------- MOS layout
+# Gate FINGER width. BSIM4 charges a real gate-electrode resistance
+#
+#   Rgeltd = RSHG * (XGW + Weff/(3*NGCON)) / (NGCON * (Ldrawn - XGL) * NF)
+#
+# and the 45nm card enables it (rgatemod=1, rshg=0.4 ohm/sq, ngcon=1). `NF` is
+# the number of gate fingers, a per-INSTANCE parameter. Emitting NF=1 -- which is
+# what this file did until 2026-08-10 -- gives a 100-200 um RF device hundreds of
+# ohms in series with its gate, which nobody tapes out.
+#
+# Measured cost of that omission (FINDINGS §26, per-element noise decomposition):
+# gate-electrode resistance carried **26-40% of the excess noise factor F-1** on
+# every dhruva design, and `rg` -- not channel thermal noise `id` -- was the
+# dominant per-MOSFET mechanism. Re-sizing the same topologies at 4 fingers moved
+# dhruva-l5 from NF 3.31 to 2.03-2.33 dB.
+#
+# 2 um/finger is ordinary RF layout practice (typical range 1-5 um) and is
+# calibrated to that practice, NOT to any target: the rule is fixed and the
+# finger count follows from W. Set `w_finger=None` to restore the historical
+# single-finger emission and reproduce pre-cutover labels exactly.
+W_FINGER = 2e-6
+
+
 class Netlist(object):
     def __init__(self, topo, models=DEFAULT_MODELS, vdd=1.1, vbias=0.5,
                  freq_lo=1e9, freq_hi=4e9, points=201, inductor_q=None,
-                 bjt_models=None, bjt_area=BJT_AREA):
+                 bjt_models=None, bjt_area=BJT_AREA, w_finger=W_FINGER):
         self.t = topo
         self.models = models
         # {base: (model_name, card_text)}; override to swap in a real PDK card
@@ -126,6 +149,8 @@ class Netlist(object):
         # a node reached only through ideal inductors + a MOS gate has an
         # undetermined branch current. Confirmed to resolve 1081. See 05-SIZE §4.
         self.inductor_q = inductor_q
+        # None -> historical single-finger emission (pre-2026-08-10 labels).
+        self.w_finger = w_finger
         # bias scaffolding injected by bias.py: {param: default} and raw element
         # lines (already using this Netlist's node names). Kept out of the device
         # loop so scaffolding never changes the topology's device identity.
@@ -195,6 +220,25 @@ class Netlist(object):
                     bad.append((d, f"pin {p} unconnected"))
                     break
         return bad
+
+    def _fingers(self, d):
+        """` NF={...}` for a MOS instance, or "" under single-finger emission.
+
+        W is a `.param`, not a literal, so the finger count has to be an
+        expression evaluated by the netlist parser: `max(1, ceil(W/w_finger))`.
+        Rounding UP keeps every finger at or below `w_finger`, and the max()
+        floor keeps sub-micron devices legal at NF=1."""
+        if not self.w_finger:
+            return ""
+        return f" NF={{max(1,ceil(p{d}W/{self.w_finger:g}))}}"
+
+    @property
+    def layout_cfg(self):
+        """Harness settings that change the emitted device geometry, for stamping
+        onto every logged row (see `size._zoaf_cfg`). Labels produced under
+        different geometry are different label domains and must not be pooled."""
+        return {"w_finger": self.w_finger,
+                "mos_fingers": ("ceil(W/w_finger)" if self.w_finger else 1)}
 
     def emit(self, mode="sparam"):
         """mode 'sparam' -> the full op/sp/noise deck; 'opcheck' -> op only, with
@@ -268,14 +312,11 @@ class Netlist(object):
         # ---- devices ------------------------------------------------------
         for d in sorted(t.devices):
             b = base_of(d)
-            if b == "NM":
+            if b in ("NM", "PM"):
+                model = "nmos" if b == "NM" else "pmos"
                 A(f"M{d} {self._pin_node(d,'D')} {self._pin_node(d,'G')} "
-                  f"{self._pin_node(d,'S')} {self._pin_node(d,'B')} nmos "
-                  f"W={{p{d}W}} L={{p{d}L}}")
-            elif b == "PM":
-                A(f"M{d} {self._pin_node(d,'D')} {self._pin_node(d,'G')} "
-                  f"{self._pin_node(d,'S')} {self._pin_node(d,'B')} pmos "
-                  f"W={{p{d}W}} L={{p{d}L}}")
+                  f"{self._pin_node(d,'S')} {self._pin_node(d,'B')} {model} "
+                  f"W={{p{d}W}} L={{p{d}L}}{self._fingers(d)}")
             elif b == "R":
                 A(f"R{d} {self._pin_node(d,'P')} {self._pin_node(d,'N')} {{p{d}V}}")
             elif b == "C":

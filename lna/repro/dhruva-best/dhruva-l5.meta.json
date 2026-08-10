@@ -1,0 +1,107 @@
+{
+  "margins_idd": {
+    "achieved": 12.96318,
+    "margin": 0.002832307692307732,
+    "required_max": 13,
+    "required_min": null,
+    "scale": 13,
+    "supported": true
+  },
+  "margins_nf": {
+    "achieved": 1.252883,
+    "margin": 0.49884680000000003,
+    "required_max": 2.5,
+    "required_min": null,
+    "scale": 2.5,
+    "supported": true
+  },
+  "margins_s11": {
+    "achieved": -10.00078,
+    "margin": 7.800000000006691e-05,
+    "required_max": -10,
+    "required_min": null,
+    "scale": 10,
+    "supported": true
+  },
+  "margins_s21": {
+    "achieved": 35.961,
+    "margin": 0.6126008968609864,
+    "required_max": null,
+    "required_min": 22.3,
+    "scale": 22.3,
+    "supported": true
+  },
+  "provenance": {
+    "floor": 0.0,
+    "fresh": false,
+    "inductor_q": 12,
+    "keep": "tier1",
+    "mode": "nf",
+    "noise_budget": {
+      "f_hz": 1176450000.0,
+      "mos_mech_frac": {
+        "1overf": 0.08142,
+        "id": 0.89758,
+        "igd": 0.00457,
+        "igs": 0.00295,
+        "rbpd": 4e-05,
+        "rg": 0.0134
+      },
+      "nf_db_shares": 1.259197622639506,
+      "source_frac": 0.7483077407496906,
+      "sum_closure": 0.9999999625630661,
+      "top": [
+        {
+          "elem": "rql1",
+          "frac_excess": 0.38845,
+          "frac_out": 0.09777,
+          "kind": "res"
+        },
+        {
+          "elem": "rr1",
+          "frac_excess": 0.17023,
+          "frac_out": 0.04285,
+          "kind": "res"
+        },
+        {
+          "elem": "mnm2",
+          "frac_excess": 0.12764,
+          "frac_out": 0.03213,
+          "kind": "mos"
+        },
+        {
+          "elem": "mnm5",
+          "frac_excess": 0.12743,
+          "frac_out": 0.03207,
+          "kind": "mos"
+        },
+        {
+          "elem": "rr2",
+          "frac_excess": 0.09005,
+          "frac_out": 0.02266,
+          "kind": "res"
+        }
+      ]
+    },
+    "seed": 1,
+    "source_arm": "nf-campaign",
+    "store_recipe": "nf-v1+mf2-v1",
+    "store_spec": "dhruva-l5",
+    "store_wl_hash": "ace8383c2fa68d03"
+  },
+  "recipe": "mf2-v1",
+  "spec": "dhruva-l5",
+  "wl_hash": "ace8383c2fa68d03",
+  "zoaf_cfg": {
+    "cgd_iters": 0,
+    "inductor_q": 12,
+    "mos_fingers": "ceil(W/w_finger)",
+    "n_candidates": 0,
+    "n_starts": 4,
+    "nf_gated": true,
+    "recipe": "mf2-v1",
+    "seed": 0,
+    "sgd_iters": 0,
+    "w_finger": 2e-06
+  }
+}

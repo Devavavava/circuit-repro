@@ -4851,3 +4851,218 @@ mutual-inductance capability in the vocabulary/netlist is a real limitation, but
 **it is not what is costing us `dhruva-l5`**, and this campaign does not justify
 building it. The two things that are costing us are, in order: the device
 geometry model, and the passive match's inductor Q.
+
+---
+
+## 28. Phase 3 — **P5-v8**: Loop-B expert iteration on v7, and the winners channel recycles structure rather than adding it (Session 6/7)
+
+> §27 is the cutover track's. This section is numbered 28 to avoid a collision.
+
+§24 adopted P5-v7 by adding *new* structure to the corpus (nb NDL 52 → 79). This
+section does the other half of the loop — feed the store's own best designs back
+in (Stage-3 Loop B, 04-SELF-IMPROVE §2) — on top of v7, with a fresh multi-spec
+winners emission that includes the first NF-gated feasibles. **Verdict: REJECT on
+the primary channel, with a clean mechanism and one genuinely useful side
+result.**
+
+### 28.1 The winners emission — what it picked up, and two gaps worth reporting
+
+`emit_winners` filters only on `spec`; it never looks at `recipe` or
+`zoaf_cfg.nf_gated`, so the **new NF-gated label domain is included by
+construction**. It does, however, *rank across* both domains with one
+`spec.objective`, which §13 explicitly warned against. `lna/_v8_winners_audit.py`
+measures what that actually does before anything is emitted:
+
+| spec | pool | kept (top quartile) | feasible | kept **nf-gated** | kept tier-1 |
+|---|---|---|---|---|---|
+| wifi24 | 486 | 121 | 19 | **0** | **121** |
+| gps-l1 | 25 | 6 | 3 | 1 | 5 |
+| dhruva-l1 | 264 | 66 | 3 | 6 | 60 |
+| dhruva-l5 | 28 | 7 | 0 | **7** | 0 |
+| dhruva-l2 | 7 | 1 | 0 | 1 | 0 |
+| dhruva-s | 346 | 86 | 2 | **86** | **0** |
+| wideband-sdr | 134 | 33 | 0 | 27 | 6 |
+
+**The domains do not blend — they segregate by spec.** dhruva-s keeps 86 of 86
+NF-gated rows and zero tier-1; wifi24 keeps 121 of 121 tier-1 and zero NF-gated.
+The cross-domain ranking §13 feared never arises in practice, because each spec's
+pool is dominated by whichever labelling era campaigned it. That is a benign
+outcome, but it is benign *as measured*, not by design, and it will stop being
+benign the first time a spec gets campaigned in both eras.
+
+**Two gaps found on the way in, both reported rather than patched:**
+
+1. **⚠ `ced0d8bd36ed4890` — §25's *second* Gate-D3 winner — is not in the label
+   store at all.** Zero occurrences in `lna/data/topo_labels.jsonl` and zero in
+   any file under `lna/data/`. §25 records it as MET (s11_max −10.537 / S21 39.151
+   / Idd 12.825 / **NF 3.253** / viol 0.000), so the *claim* stands on that
+   section's evidence, but the winners channel is blind to it and so is anything
+   else that reads the store. **For the D3 owner:** it needs logging.
+2. **`8c7592ea859e489a` (the rung-2 evolved dhruva-s) misses the quartile by ten
+   places** — rank **96/346**, objective 1.5489 against a 1.483 cut. This is *not*
+   a broken selector: dhruva-s now ranks under an NF-gated objective, and the
+   design's NF 5.58 is correctly outranked by the D3-era winners at NF 3.24. The
+   expert iteration is doing its job; the headline design of one session is
+   mid-pack under the next session's objective.
+
+Emission: **1797 augmented rows** (140 feasible-derived) vs v7's 965, and — for
+the first time in the program — **198 of them are `<LNA_WB>`** (v7's winners file
+was 100% nb, because no wideband winners existed). `dhruva-l2`'s single winner
+augmented to 0 rows.
+
+### 28.2 The build
+
+P5-v8 = v7's exact mix with the new winners file, warm-started from the adopted
+v7 checkpoint. One stage, exactly as P5-v2 → P5-v3 was. Hyperparameters unchanged
+throughout the v3/v7/v8 line: 40 epochs, lr 3e-5, batch 32, seed 1337, best-val
+ships; external rows to TRAIN only so the **val set stays byte-identical at 736
+rows** for the third arm running.
+
+| | train / val | best val | wall |
+|---|---|---|---|
+| P5-v7 (adopted) | 8288 / 736 | 0.2326 @ ep 0 | 1710 s |
+| **P5-v8** (warm from `ft_p5v7_v2.pth`) | **9244 / 736** | 0.2369 @ ep 0 | 1843 s |
+
+### 28.3 Pool metrics — frozen protocol, n=256, seed 1337, `ref-v3[198h/d05390da]`
+
+| arm | class | **NDL@256** | spec-L0 | copies (**arch** / corpus / ext) | med NN-sim | term | ind ratio | valid |
+|---|---|---|---|---|---|---|---|---|
+| **P5-v7 (baseline)** | nb | **79** | 69.1% | 46.9% (**14.5%** / 32.0% / 0.4%) | 1.000 | 100.0% | **0.230** | 99.6% |
+| **P5-v8** | nb | **67** | **70.3%** | 51.2% (**27.0%** / 23.8% / 0.4%) | 1.000 | 99.6% | 0.208 | 99.2% |
+| **P5-v7 (baseline)** | wb | **41** | 30.5% | 42.6% (14.1% / 28.1% / 0.4%) | **0.756** | 99.6% | 0.132 | **99.6%** |
+| **P5-v8** | wb | **45** | **40.6%** | 49.6% (12.5% / 36.7% / 0.4%) | 1.000 | 99.6% | **0.094** | 97.3% |
+
+**★★ 1. The winners channel re-injects archetype structure — archetype copying
+nearly doubles, 14.5% → 27.0%, and nb NDL falls 79 → 67.** This is the direct
+consequence of a fact §16 measured and nobody had spent yet: **the winners are
+substantially archetype-derived designs that the sizing loop promoted** (§16.1:
+42 of 77 distinct topologies in the P5-v3-era file, 42.3% of its rows). Feeding
+the store's best designs back therefore feeds the *archetypes* back, a second
+time, on top of the template channel that already carries them. Corpus copying
+falls in exchange (32.0% → 23.8%) but not by enough: total copies rise 46.9% →
+51.2%.
+
+Set the three sessions side by side and the picture is consistent:
+
+| intervention | arch copies | corpus copies | nb NDL |
+|---|---|---|---|
+| §18 curriculum (remove templates late) | 37.9% → **6.6%** | 31.6% → **60.5%** | 52 → **39** |
+| §24 corpus expansion (add new structure) | 37.9% → **14.5%** | 31.6% → 32.0% | 52 → **79** |
+| §28 winners feedback (recycle own structure) | 14.5% → **27.0%** | 32.0% → 23.8% | 79 → **67** |
+
+**Only the intervention that added structure the model had never seen raised
+NDL.** Removing structure relocated copying; recycling structure re-concentrated
+it. Expert iteration on a winners pool that is itself template-derived is a
+novelty *sink*, not a novelty source.
+
+**★ 2. On the wideband channel it worked, and it repaired §24's regression.**
+The 198 first-ever wb winner rows take wb NDL **41 → 45**, spec-L0 **30.5% →
+40.6%** (+10.1 points), and — the number §24 flagged as the cost of adopting v7 —
+**inductor ratio 0.132 → 0.094**, back most of the way to P5-v3's 0.077 and in
+the right direction for an inductorless spec. The wb channel is where the winners
+were genuinely *new* information (v7 had never seen a wideband winner), and it is
+exactly the channel that improved.
+
+**⚠ 3. What the wb gain cost.** Median wb NN-sim regresses **0.756 → 1.000** — v7's
+one-of-a-kind break from an exact-copy median does not survive — and valid falls
+99.6% → 97.3%.
+
+### 28.4 ⚑ Adopt / reject
+
+| clause | nb | wb |
+|---|---|---|
+| NDL beats baseline (79 / 41) | **67 < 79 ✗** | **45 > 41 ✓** |
+| inductor ratio equal-or-better | 0.208 < 0.230 ✗ (nb wants inductors) | **0.094 < 0.132 ✓** |
+| termination | 99.6% vs 100.0% ⚠ | 99.6% = 99.6% ✓ |
+| valid | 99.2% vs 99.6% ⚠ | 97.3% vs 99.6% ⚠ |
+| median NN-sim | 1.000 = 1.000 ✓ | **1.000 vs 0.756 ✗** |
+| copy fraction | 51.2% vs 46.9% ✗ | 49.6% vs 42.6% ✗ |
+| spec-L0 (recorded) | 70.3% vs 69.1% ✓ | **40.6% vs 30.5% ✓** |
+
+**Verdict: REJECT. The adopted generator remains P5-v7 (`ft_p5v7_v2.pth`,
+nb 79 / wb 41 under ref-v3).** The primary channel loses 12 NDL at a worse
+inductor ratio and a higher copy fraction; adopt-only-if-better fails on nb, and
+a checkpoint is one artefact.
+
+**But the wb half is a real, actionable result and should not be thrown away with
+the checkpoint.** A **wb-targeted arm** — v7 warm-started on the *wideband
+winners only*, leaving the nb channel untouched — is the obvious next experiment,
+and it is now motivated by measurement rather than hope: the wb winners were the
+only genuinely new information in this emission, and every wb axis except
+copy-fraction improved. That arm would also test whether §24's wb inductor-ratio
+regression can be repaired without paying nb NDL for it, which is the one open
+defect on the adopted baseline.
+
+### 28.5 The novel front, and whether the winners moved what the model composes
+
+§16's protocol, recipe `p5v8-v1`, plus **`dhruva-l5` for the first time** (the
+parallel l5 campaign wants co-sizeable low-noise hybrids). ⚠ **Domain note:** these
+rows were sized under the **multi-finger MOS emission** (`to_spice` `w_finger` set,
+`mos_fingers: ceil(W/w_finger)`), which §26 showed changes NF materially; the rows
+self-describe via the `mos_fingers` stamp, and they are **not** comparable to the
+pre-cutover single-finger front rows in §16 / §24 on any noise-sensitive axis.
+
+| arm | spec | novel front | **feasible** | **best viol** | best design |
+|---|---|---|---|---|---|
+| P5-v7 | wifi24 | 67 | 1 | **0.000** | `seq0066` −16.94 / 13.40 / 4.26 |
+| **P5-v8** | wifi24 | 59 | **1** | **0.000** | `seq0057` S11 −10.65 / S21 13.04 / Idd 4.68 |
+| P5-v7 | dhruva-l1 | 64 | 0 | **1.013** | `seq0093` |
+| **P5-v8** | dhruva-l1 | 61 | 0 | 1.196 | `seq0068` S21 20.17 / Idd 12.2 |
+| **P5-v8** | **dhruva-l5** | **56** | 0 | **0.826** | **`seq0086` S11_max −5.13 / S21 21.04 / Idd 16.68** |
+
+v8 converts one of fourteen on wifi24, as every arm in this series has. On
+dhruva-l1 it is worse than v7 (1.196 vs 1.013). The **dhruva-l5 front is new**:
+best violation **0.826**, binding on the broadband match and current, with gain
+already at 21.04 dB.
+
+**⚑ Did the winners visibly shift generation toward the Gate-D3 structures?
+Yes — measurably, and this is the section's one unambiguous win.**
+`lna/_v8_d3sim.py` scores every screen-passing sample against a purpose-built
+reference of the D3 winners (`ace8383c`, `f578743a`, `6f0d080f`, `8c7592ea`) plus
+the 13 noise-cancelling / gm-boosted-CG archetypes:
+
+| pool (dhruva-l5 screen) | n | median D3/NC-sim | mean | max | **fraction > 0.70** |
+|---|---|---|---|---|---|
+| P5-v7 (baseline) | 189 | 0.560 | 0.531 | 0.728 | **0.5%** |
+| **P5-v8** | 191 | **0.616** | 0.576 | **0.845** | **4.2%** |
+
+**The fraction of samples sitting within 0.70 of a D3/NC structure goes up 8×**,
+the median moves +0.056 and the maximum +0.117. And it shows up in the front, not
+just the pool: the l5 front's two best designs are the D3/NC-adjacent ones —
+`seq0086` (viol **0.826**, nearest `d3:8c7592ea` at **0.670**) and `seq0085`
+(nearest `nc:gmbcg_s2_R_b1`, a gm-boosted CG noise-canceller, at **0.734**).
+
+**⚠ What this does NOT establish: sub-4 dB NF.** The front protocol is tier-1
+gated (S11/S21/Idd), so `nf_db` is `unsupported` on that path and every NF column
+above reads n/a — no NF was measured on any v8 front design. The structural claim
+is measured; the noise claim is not, and after §26 an NF number produced under the
+old single-finger emission would have been misleading anyway. **Handoff to the l5
+track:** `ft_p5v8_nb_s1337/seq0086` and `seq0085` are the two candidates worth
+re-sizing under the NF-gated `dhruva-l5` spec on the current emission — they carry
+the input structure the l5 campaign is looking for and they are the l5 front's
+best two by violation.
+
+### 28.6 The honest reading
+
+**Expert iteration is not a novelty engine here, and now we know why.** Loop B's
+premise is that the generator's own best designs are the best thing to train it
+on. That premise holds for *quality* — spec-L0 rose on both channels, and the wb
+channel improved on almost every axis — and fails for *novelty*, because in this
+program the winners pool is largely made of the same hand archetypes the template
+channel already supplies. Feeding it back is structure recycling: archetype
+copying nearly doubled and NDL fell 12.
+
+The four sessions now form one clean statement. **Novelty in this generator
+tracks the amount of structure in the training distribution that the model has
+not already memorized.** §18 removed structure and it fell. §24 added nine real
+circuits and it rose the most it ever has. §28 recycled structure the model
+already had and it fell again. The wb channel is the control inside this very
+section: it is the one place the winners were new information, and it is the one
+place they helped.
+
+**Rejected, and the baseline is unchanged: P5-v7 = `ft_p5v7_v2.pth`, nb 79 /
+wb 41 under `ref-v3[198h/d05390da]`.** `ft_p5v8_v2.pth` is evidence (gitignored,
+~198 MB); `lna/out/winners_train.v8.json` (1797 rows) is kept because it is the
+first emission with wideband winners and the wb-targeted arm will want it.
+15 L2 rows appended under recipe **`p5v8-v1`**; **8,560 ngspice evaluations**
+across the three front runs.

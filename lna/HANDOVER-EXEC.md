@@ -853,6 +853,96 @@ python lna/_cur_nn.py lna/out/_v7_front_wifi24.json --ref v3 --breakdown   # arc
 ```
 
 ---
+### ▸ Sub-block: P5-v8 REJECTED — expert iteration recycles structure (owner: the P5 generator executor)
+
+**Files owned:** `lna/finetune.py` (additive), `lna/_v8*`, `lna/_v7*`, `lna/_cur_*`,
+`lna/out/ft_p5v8*`, FINDINGS **§28**, this sub-block. Full detail in **§28**.
+Direct sequel to §24: that section adopted v7 by adding *new* structure; this one
+feeds the store's own winners back (Stage-3 Loop B) on top of v7.
+
+**⚑ REJECT. The adopted generator stays P5-v7 (`ft_p5v7_v2.pth`, nb 79 / wb 41
+under `ref-v3[198h/d05390da]`).**
+
+| arm | class | NDL@256 | spec-L0 | copies (**arch**/corpus) | med NN-sim | ind ratio |
+|---|---|---|---|---|---|---|
+| **P5-v7 (stays)** | nb | **79** | 69.1% | 46.9% (**14.5%**/32.0%) | 1.000 | **0.230** |
+| P5-v8 | nb | **67** | 70.3% | 51.2% (**27.0%**/23.8%) | 1.000 | 0.208 |
+| P5-v7 | wb | 41 | 30.5% | 42.6% (14.1%/28.1%) | **0.756** | 0.132 |
+| **P5-v8** | wb | **45** | **40.6%** | 49.6% (12.5%/36.7%) | 1.000 | **0.094** |
+
+* **★★ The mechanism, and it is the reusable finding: the winners channel
+  re-injects ARCHETYPE structure.** arch copies **14.5% → 27.0%**, nb NDL 79 → 67.
+  §16.1 measured why and nobody had spent it: **42.3% of the winners rows are
+  `templates.py` archetypes** the sizing loop promoted. Feeding the store's best
+  designs back feeds the archetypes back a second time, on top of the template
+  channel that already carries them. Three sessions, one law:
+
+  | intervention | arch copies | corpus copies | nb NDL |
+  |---|---|---|---|
+  | §18 remove templates late | 37.9 → **6.6%** | 31.6 → **60.5%** | 52 → **39** |
+  | §24 add 9 real circuits | 37.9 → **14.5%** | 31.6 → 32.0% | 52 → **79** |
+  | §28 recycle own winners | 14.5 → **27.0%** | 32.0 → 23.8% | 79 → **67** |
+
+  **Only adding structure the model had never seen raised NDL.**
+* **★ The wb channel is the control inside the section, and it worked.** The 198
+  **first-ever wideband winner rows** (v7's file was 100% nb) take wb NDL 41 → 45,
+  spec-L0 30.5% → **40.6%**, and **inductor ratio 0.132 → 0.094** — repairing most
+  of the one defect §24 adopted v7 with. Cost: wb median NN-sim 0.756 → 1.000,
+  valid 99.6% → 97.3%.
+* **★ NEXT EXPERIMENT, motivated by measurement:** a **wb-targeted arm** — v7 warm
+  started on the *wideband winners only*, nb channel untouched. It is the only
+  place the winners were new information, and it directly tests whether §24's wb
+  inductor-ratio regression can be repaired without paying nb NDL.
+* **★ The winners DID move what the model composes toward the Gate-D3
+  structures** (`lna/_v8_d3sim.py`, reference = the 4 D3 winners + 13 NC/gmb-CG
+  archetypes), on the dhruva-l5 screen: median D3/NC-sim **0.560 → 0.616**, max
+  **0.728 → 0.845**, **fraction > 0.70 = 0.5% → 4.2% (8×)**. It shows in the front
+  too — the l5 front's best two are the D3/NC-adjacent ones.
+* **Front (recipe `p5v8-v1`, first-ever `dhruva-l5` run):** wifi24 **1 feasible**
+  (`seq0057`, S11 −10.65 / S21 13.04 / Idd 4.68); dhruva-l1 best viol 1.196 (worse
+  than v7's 1.013); **dhruva-l5 best viol 0.826** (`seq0086`, S21 21.04, binding on
+  match + current). ⚠ Rows sized under the **multi-finger** emission
+  (`mos_fingers: ceil(W/w_finger)`) and self-describe via that stamp — **not**
+  comparable to the pre-cutover single-finger front rows in §16/§24 on any
+  noise-sensitive axis.
+* **⚠ HANDOFF TO THE l5 TRACK:** `ft_p5v8_nb_s1337/seq0086` and `seq0085` carry
+  the NC-family input structure the l5 campaign wants (D3/NC-sim 0.670 and
+  **0.734**, the latter nearest `gmbcg_s2_R_b1`) and are the l5 front's best two by
+  violation. **No NF was measured on them** — the front protocol is tier-1 gated,
+  so `nf_db` is `unsupported` on that path. Re-size them under the NF-gated
+  `dhruva-l5` spec on the current emission to settle the sub-4 dB question.
+* **⚠ FOR THE D3 OWNER: `ced0d8bd36ed4890` is not in the label store.** Zero
+  occurrences in `topo_labels.jsonl` and in every file under `lna/data/`. §25
+  records it as a Gate-D3 winner (NF 3.253, viol 0.000) so the claim stands on
+  §25's evidence, but the winners channel — and anything else reading the store —
+  cannot see it. It needs logging.
+* **Note on `emit_winners`:** it filters only on `spec`, never `recipe` or
+  `nf_gated`, so the NF-gated domain is included automatically. It *ranks* across
+  both domains, which §13 warned about; measured, the domains **segregate by spec**
+  (dhruva-s keeps 86/86 nf-gated, wifi24 121/121 tier-1) so the cross-domain
+  ranking never bites today. It will the first time one spec is campaigned in both
+  eras. `lna/_v8_winners_audit.py` is the check; run it before any future emission.
+* **⚠ Quartet:** vocab MATCH, screen 59.4% (114/192), pipeline 40/42,
+  `check_ref` GREEN, `check_nf` GREEN, calibrate ALL CRITERIA MET — but
+  **`check_stab` now reports the dhruva winner NOT unconditionally stable on
+  `dhruva-l2`** (harness itself GREEN). It read "unconditionally stable on every
+  band" earlier in this same session, and the only thing that changed in between is
+  the **multi-finger emission cutover**. Nothing in this sub-block touches SPICE
+  emission (`finetune.py` + private sidecars only), so this is flagged for the
+  cutover owner rather than fought.
+
+```bash
+python lna/_v8_winners_audit.py --specs wifi24,gps-l1,dhruva-l1,dhruva-l5,dhruva-l2,dhruva-s,wideband-sdr
+python lna/templates.py --emit-winners lna/out/winners_train.v8.json \
+    --winners-specs wifi24,gps-l1,dhruva-l1,dhruva-l5,dhruva-l2,dhruva-s,wideband-sdr
+bash lna/_v8_launch.sh          # warm from ft_p5v7_v2.pth, 40 ep, seed 1337
+python lna/novelty.py --eval lna/out/ft_p5v8_nb_s1337 --spec wifi24 --ref v3
+bash lna/_v8_fronts.sh          # wifi24 + dhruva-l1 + dhruva-l5, recipe p5v8-v1
+python lna/_v8_d3sim.py --pool lna/out/ft_p5v8_nb_s1337 \
+    --baseline-pool lna/out/ft_p5v7_nb_s1337 --spec dhruva-l5
+```
+
+---
 
 **⚠ BLIND PROTOCOL is active — read plans2/08 §"Blind protocol" before touching
 templates.py.** No paper circuit content anywhere; new families only from the

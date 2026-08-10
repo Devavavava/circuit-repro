@@ -504,8 +504,12 @@ is reported and conditioned on, never assumed small.
 `lna/campaign.py` is the nightly labeling scheduler: a stratified quota
 across four sources — **T** (templates/reference decks, topology diversity +
 near-feasible class), **G** (generated, screen-passing and WL-deduped against
-the store), **M** (mutations, `moves.py`'s move set), **R** (repeat-probes) —
-sizing each task once and writing a morning report (`lna/data/reports/`).
+the store), **M** (mutations — reserved for `moves.py`'s move set, but the
+quota slot is currently a documented placeholder: `campaign.py` itself notes
+"M awaits the mutation move set" and does not call `moves.py`; `evolve.py`
+produces and logs mutation-derived labels through its own path, Block 8,
+independent of this scheduler), **R** (repeat-probes) — sizing each task once
+and writing a morning report (`lna/data/reports/`).
 
 **Design decisions:**
 

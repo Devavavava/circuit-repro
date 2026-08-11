@@ -36,7 +36,11 @@ def build(spec="wifi24"):
     bias = _load("bias_stats.json") or {}
     pool = _load("pool.json") or {}
     rank = _load("rank.json") or {}
-    sized = _load("sized.json") or {"results": []}
+    import glob as _g
+    sized = {"results": []}
+    for _p in sorted(_g.glob(os.path.join(OUT, "sized*.json"))):
+        with open(_p, encoding="utf-8") as fh:
+            sized["results"].extend(json.load(fh).get("results", []))
     per_arm_pool = pool.get("per_arm", {})
     rows = {}
     for arm in ARMS:

@@ -1618,6 +1618,63 @@ above +2.5 dB of gain). The claim supported is "the learned generator supplies
 DC-viable, gain-capable structure that syntax plus retrieval does not"; the
 claim *not* supported is a precise multiplier on feasible-novel yield.
 
+## 28. Telling the generator what its circuits measured — and the shuffled control taking the credit
+
+**Context.** Three sessions had established a law (`FINDINGS §29.12`): every
+feedback channel tried — winners feedback, prefix conditioning, row re-weighting —
+raised the statistic it targeted and lowered novelty, because all three pointed the
+model at structure it had already memorised. But no channel had ever carried a
+*measured outcome* into the weights in any form. The generator had never seen a
+SPICE result. This stage tests the one channel that is different in kind:
+decision-transformer-style outcome conditioning, 16 new tokens saying what each
+labeled topology achieved, and a request for `all-bins-MET` at sampling time. Both
+readings were pre-registered as live — "conditioning works because it adds
+information," and "the novelty law claims a fourth channel" — in
+`plans2/11-WP-OUTCOME.md`, committed before a single epoch.
+
+**Decision.** The executor built the channel with a control that is the whole
+experiment's backbone: a second fine-tune on *the same rows and the same token
+streams* with the bin vectors permuted across rows, so per-slot marginals and the
+joint bin distribution survive and only the label-to-topology correspondence dies.
+Bins came only from the current measurement era (multi-finger geometry, series-Rs
+NF), a strict Block-6 policy whose cost was measured rather than assumed: 4 keys of
+1086. The MARGINAL/MET threshold was set at one label-noise unit, not a round
+number. Both arms are P5-v7's stage B with one variable changed, and the label
+store's own 4072 conditioned rows went to train only, so the validation set and the
+early-stop criterion stayed the baseline's.
+
+**Result.** The checkpoint is **REJECTED** under adopt-only-if-better — the
+inductor-ratio clause fails in both channels — but the interesting numbers are
+elsewhere. Conditioning **raised** nb NDL@256 from 79 to 99 (wb 41 to 89) and
+collapsed corpus copying from 32% to 6%; the shuffled control scored **115** and
+5.5%. The novelty is real and it is not the labels: it is the 4072 new rows plus
+the mere presence of a prefix. On the sized funnel the conditioned arms produced
+candidates that actually amplify — S21 > 0 on 10/10 against the adopted baseline's
+2/9 (p = 0.0007), 8 near-feasible of 10 against 2 of 9 (p = 0.019), and **a new
+`wifi24` tier-2 feasible design**, `ce39a77c91974013` (S11 −10.85 / S21 13.00 /
+Idd 4.74 / NF 2.33), replay-verified, in-box, unconditionally stable, novel against
+ref-v3 — **which both arms found independently.** The real-label arm beat its
+shuffled twin on all seven measured axes (source-driven input rate, device count,
+conduction, qualifying rate, near-feasible count, median violation, gain) and on
+none of them significantly: a consistent small effect the sample size cannot
+certify. Sampling the same checkpoint *unconditioned* was the expensive lesson —
+NDL halved to 42 and archetype copying more than doubled, so the prompt channel
+damaged the base distribution it was supposed to leave alone.
+
+**Understanding.** The registered prediction that both hypotheses agreed on — that
+novelty would fall — is the one that was wrong, and that is the stage's real
+content. The law did not acquire a fourth channel; its scope got sharper. What
+moves this generator has never been the *direction* of a steering signal; it is
+whether the channel carries structure the model has not memorised. Outcome labels
+are not structure. The rows that carried them were — the store's own search- and
+mutation-derived topologies, a data source this program had been sitting on since
+the first campaign and had only ever fed back through the winners filter, which by
+construction selects the archetype-like ones. The follow-up the measurement points
+at is therefore not a better prompt: it is the same 864 topologies as an ordinary
+unconditioned fine-tune. And the funnel added a second independent instance of this
+session's other lesson — the frozen novelty protocol could not see the difference
+between a pool of passive networks and a pool of amplifiers.
+
 ## Current frontier
 
 As of this document's writing (`lna-data`, commit `5be4de3` and whatever

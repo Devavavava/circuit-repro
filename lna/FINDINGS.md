@@ -6664,3 +6664,295 @@ python lna/_attrib_size.py --rank-json lna/out/_at/rank.json --k 10 \
 python lna/_attrib_report.py --spec wifi24 --md
 python lna/_attrib_audit.py --wl 0da2f0c7b263eee5 --reps 3
 ```
+
+---
+
+## 32. Phase 3 — **WP-OUTCOME**: the generator is told what its topologies measured, and the shuffled control takes the credit for the novelty (Session 7)
+
+> Owner: the WP-OUTCOME executor. Files: `lna/plans2/11-WP-OUTCOME.md` (pre-registered
+> and committed `046440d`, **before a single epoch**), `lna/_out_tokens.py`,
+> `lna/_out_emit.py`, `lna/_out_pool.py`, `lna/_out_size.py`, `lna/_out_struct.py`,
+> `lna/_out_report.py`, `lna/_out_train.sh` / `_out_launch.sh`, additive flags in
+> `lna/finetune.py`, `lna/out/outcome_train*.json`. Artefacts under `lna/out/_o/`
+> (gitignored, as `_at/` and `_m/` are).
+
+Every feedback channel this program has tried pointed the generator at structure it
+had already memorised, and `§29.12` turned that into a law. **This work package
+gives it something it has never had: a label.** Sixteen outcome tokens — 4 gated
+metrics × {VIOLATED, MARGINAL, MET, UNK} — computed from the stored L2 margin
+vector and prefixed onto the training rows of every topology the pipeline has
+measured, decision-transformer style. Sampling then *asks* for an outcome.
+
+**Headline, and it is not the one either registered hypothesis predicted:
+conditioning on all-bins-MET raises nb NDL@256 from 79 to 99 and turns the
+generator's rung-0 candidates from mostly-passive networks into amplifiers (S21 > 0
+on 10/10 against the baseline's 2/9, p = 0.0007) — and the SHUFFLED-LABEL control
+reproduces almost all of it, scoring NDL 115.** The gain is real, large, and
+attributable to the conditioned *rows*, not to what the labels *say*.
+
+### 32.1 The build — one variable, twice
+
+Sixteen ids appended after the 1005 upstream tokens and the three P5 class tokens
+(vocab 1008 → **1024**), mean-initialized by the same surgery `<LNA_NB>` got,
+lifted one level into `finetune._load_warm` so it can extend an *already
+fine-tuned* checkpoint. The vocab guard's invariant is untouched by construction.
+
+Bins come from `datastore.margins_for`'s per-spec normalized signed slack:
+`VIOL` < 0 ≤ `MARG` < **τ = 0.05** ≤ `MET`, `UNK` for missing/unsupported.
+**τ is one label-noise unit** — `§14.1`'s σ(S21) = 0.726 dB on a 15 dB gain floor
+is 0.048 normalized — so `MARGINAL` means "meets it by less than the measurement
+noise", not a round number.
+
+**Label domain (Block 6), and its measured cost.** A bin may only come from a row
+in the current era: `w_finger = 2e-06` (the `§27` multi-finger cutover, which moved
+NF a median of −2.08 dB store-wide) **and** `nf_method = "series_rs"`. S11/S21/Idd
+are held to the same fence as NF, because the geometry change moves the match too.
+**That strict policy costs 4 keys of 1086**: `relabel_mf` had already re-derived
+1000 of the 1004 pre-cutover keys under the new geometry. `nf_gated` needs no
+separate filter — a tier-1 row's `nf_db` margin is `None` and the rule already
+sends it to `<NF_UNK>`.
+
+`_out_emit.py` is `emit_winners`'s shape with the one difference that is the whole
+experiment: **a row gets in because it was measured, not because it won.** 1437
+in-domain L2 rows → **1082 `(wl_hash, spec)` keys** (864 topologies) → 4 Eulerian
+traversals per distinct topology → **4072 conditioned rows**, ~31% of the mix.
+
+| slot | `VIOL` | `MARG` | `MET` | `UNK` | (keys) |
+|---|---|---|---|---|---|
+| **S11** | 835 | 98 | **149** | 0 | |
+| **S21** | 861 | 45 | **176** | 0 | |
+| **IDD** | 164 | 88 | **830** | 0 | |
+| **NF** | 689 | 23 | **358** | **12** | |
+
+**Only 9 of 1082 keys are all-four-`MET`** — registered in `plans2/11 §2.1` as a
+risk *before* the result was known, because the sampling prompt is therefore at the
+edge of the label distribution (the normal decision-transformer regime, but worth
+saying out loud).
+
+**The control.** `outcome_train.shuf.json` is written from the *same* augmentation
+pass with the multiset of bin 4-tuples permuted across rows (seed 1337): identical
+token streams, identical per-slot marginals, identical joint bin-vector
+distribution, **84.18%** of rows re-assigned. Only the correspondence dies.
+
+**Training.** Both arms are P5-v7's stage B, warm-started from v7's own stage-A
+`ft_p5v7.pth` — `§29.8`'s P5-v9m construction exactly — same emissions, 40 epochs,
+lr 3e-5, batch 32, seed 1337, best-val ships, conditioned rows **TRAIN-only** so
+val stays byte-identical at 736. 12,970 train rows. Both arms take best val
+**0.2451 @ epoch 2** (curves distinct: 0.4928/0.4926 at epoch 0, 0.2464/0.2459 at
+epoch 3), against v7's 0.2326 @ epoch 0.
+
+### 32.2 The frozen protocol — n = 256, seed 1337, `ref-v3[198h/d05390da]`
+
+| arm | class | **NDL@256** | spec-L0 | copies (arch / corpus) | med NN | term | ind ratio | anyL | valid |
+|---|---|---|---|---|---|---|---|---|---|
+| **P5-v7 (adopted)** | nb | **79** | 177 (69.1%) | 46.9% (14.5 / 32.0) | 1.000 | 100.0 | **0.230** | 85.2 | 99.6 |
+| **OUT-U** (same ckpt, *unconditioned*) | nb | **42** | 201 (78.5%) | **65.2%** (**35.5** / 29.7) | 1.000 | 99.6 | 0.244 | 90.6 | 99.2 |
+| **OUT-C** (all-bins-MET) | nb | **99** | 199 (77.7%) | 35.2% (28.5 / **6.2**) | **0.823** | 99.6 | 0.193 | 97.7 | 96.9 |
+| **OUT-S** (shuffled, all-bins-MET) | nb | **115** | 210 (82.0%) | 34.4% (28.9 / **5.5**) | 0.822 | 100.0 | 0.194 | 98.4 | 97.7 |
+| OUT-C @ seed 2338 | nb | 108 | 206 (80.5%) | 33.2% | 0.822 | 100.0 | 0.202 | 98.4 | 98.8 |
+| OUT-S @ seed 2338 | nb | 112 | 219 (85.5%) | 39.1% | 0.830 | 100.0 | 0.212 | 98.8 | 98.4 |
+| **P5-v7 (adopted)** | wb | **41** | 78 (30.5%) | 42.6% (14.1 / 28.1) | 0.756 | 99.6 | **0.132** | 54.7 | 99.6 |
+| **OUT-U** | wb | 53 | 128 (50.0%) | 50.8% (18.0 / 31.2) | 1.000 | 99.6 | 0.115 | 54.7 | 99.6 |
+| **OUT-C** | wb | **89** | 132 (51.6%) | **16.8%** (16.8 / **0.0**) | 0.759 | 100.0 | 0.137 | 95.7 | 95.3 |
+| **OUT-S** | wb | **105** | 149 (58.2%) | **13.3%** (12.9 / 0.4) | 0.753 | 100.0 | 0.135 | 96.9 | 97.3 |
+
+Three readings, in order of how much they change the picture.
+
+**★★ 1. The conditioning prefix breaks corpus memorization, and the label content
+is not why.** Corpus copying collapses **32.0% → 6.2%** on nb and **28.1% → 0.0%**
+on wb, `anyL` rises 85% → 98%, and NDL goes 79 → 99 (nb) / 41 → 89 (wb). But the
+**shuffled control does the same thing harder** — NDL **115** (nb) and **105** (wb),
+corpus copying 5.5% / 0.4%. Both seeds agree (nb 99/108 vs 115/112). Whatever the
+four extra tokens buy, *four random extra tokens buy at least as much*: the model
+is being moved off its memorised modes by the shape of the prefix and by the 4072
+new rows behind it, not by what the prefix means.
+
+**⚠ 2. The channel damages the unconditioned base distribution, badly.** OUT-U is
+the *same checkpoint* sampled with v7's byte-identical `<LNA_NB> VSS` prefix:
+**NDL 79 → 42**, and the mechanism is in the copy column — **archetype copying
+14.5% → 35.5%**, a 2.4× rise. Adding 4072 rows of store topologies under a
+different prefix made the plain prefix *more* archetype-bound. This is the cost
+`plans2/11` prediction 2 asked for and it is the largest single negative number in
+the section.
+
+**⚠ 3. The inductor-ratio clause fails in both channels.** nb 0.193 < 0.230 (a
+narrowband channel wants inductors) and wb 0.137 > 0.132 (an inductorless channel
+wants fewer). Under adopt-only-if-better as written, that is a reject before the
+NDL column is even reached — the same clause `§24.3` reported honestly for P5-v7.
+
+### 32.3 ★★★ The funnel — `wifi24`, one fixed rung-0 selector, one critic ensemble
+
+Selector held identical across arms per `§29.12`: {L0} ∩ {novel vs ref-v3} ∩
+{WL-dedup} ∩ {`_match_struct.port_src`}, all arms in ONE pool JSON ranked by ONE
+critic-v2 ensemble (snapshot **`v7-outcome`** = 2802 rows, leak-free: 53 store rows
+sharing a pool hash dropped; holdout ρ(S21) **0.846**, ρ(S11) 0.632, rank acc
+0.849), each arm taking its own top 10. Sizing imported from `search.py`, not
+restated: `size_topology(seed=1, inductor_q=12, **SCAN_BUDGET)` → box-clamped
+`polish(budget=60)`, current harness, NF gated (so `wifi24` feasibility here is
+**tier-2**).
+
+| arm | n | L0 | **NDL** | novel | WL-distinct | **qualifying** | sized | **near** | **feas** | best viol | med viol | SPICE-min | **near/min** |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| **P5V7** (adopted baseline) | 256 | 177 | 79 | 88 | 79 | **9** | 9 | 2 | **1** | 0.000 | 3.981 | 36.5 | 0.055 |
+| **OUT-U** (unconditioned) | 256 | 201 | 42 | 63 | 42 | **4** | 4 | **0** | **0** | 4.348 | 9.078 | 15.9 | **0.000** |
+| **OUT-C** (all-MET) | 256 | 199 | 99 | 116 | 99 | **32** | 10 | **8** | **1** | 0.000 | **1.103** | 48.3 | **0.166** |
+| **OUT-S** (shuffled) | 256 | 210 | 115 | 124 | 115 | **25** | 10 | 6 | **1** | 0.000 | 1.964 | 48.5 | 0.124 |
+
+**The gain column, which is where §31's "best-violation trap" is defused rather
+than triggered:**
+
+| arm | best S21 | median S21 | S21 > 0 | S21 ≥ 12 | mean evals/candidate |
+|---|---|---|---|---|---|
+| P5V7 | +13.37 | **−2.94** | **2/9** | 1 | 244 |
+| OUT-U | −3.62 | −8.77 | **0/4** | 0 | 238 |
+| **OUT-C** | +17.42 | **+9.55** | **10/10** | **4** | 290 |
+| **OUT-S** | **+20.16** | +9.83 | 9/10 | 3 | 291 |
+
+**★★ The conditioned arms produce candidates that actually amplify.** The adopted
+baseline's rung-0 picks are 7 of 9 with *negative* gain — the degenerate
+shrink-to-nothing optimum `§15.5`/`§20.4`/`§31.2` have each hit — and both
+conditioned arms are 9–10 of 10 positive with a median near 10 dB. **OUT-C vs
+P5V7: near-feasible 8/10 vs 2/9, Fisher one-sided p = 0.019; S21 > 0 10/10 vs 2/9,
+p = 0.0007.** Near-feasible per SPICE-minute is **3.0× the baseline** (0.166 vs
+0.055) at a 19% higher cost per candidate.
+
+### 32.4 ★★ A new `wifi24` tier-2 feasible — and the shuffled control found it too
+
+`ce39a77c91974013` — 16 devices, 1 inductor —
+**S11 −10.85 / S21 13.00 / Idd 4.74 / NF 2.33, tier-2 FEASIBLE**, objective −0.143.
+Audited through `_attrib_audit.py` (a different work package's fence, run
+unmodified): **replay 3/3 OK, 16/16 parameters in box, unconditionally stable
+in-band (K_min 6.02) and over 0.1–20 GHz (K_min 4.78), WL hash absent from ref-v3**,
+nearest reference neighbour `arch:nccgcs_s1_R` at WL-cosine 0.822.
+
+**Attribution, precisely, and it is the section's sharpest single fact: the same
+hash is in BOTH conditioned arms' qualifying pools.** OUT-C and OUT-S emitted it
+independently under seed 1337 (their pools share only 5 hashes of 52, Jaccard
+0.096 — this is one of the five). So the design is attributable to the
+**conditioned-row channel**, and **not** to the labels meaning anything. The
+topology is the generator's; this work package contributed the channel and the
+existing selector + sizing path.
+
+### 32.5 The structural signature — the label *is* read, just not loudly
+
+`plans2/11` prediction 3 registered the cheapest test of whether the model used the
+label: in the store, the designs that met S11 are the source-driven, device-rich
+ones (`§29.3`, `§29.10`), so an all-MET request should emit more of them. Measured
+over **every analysable sample** (~242-252 per arm), not the ten the sizing budget
+reaches:
+
+| arm | **port_src** | mean devices | **>= 12 devices** | series C at port | **all-MOS conducting** | mean conducting MOS |
+|---|---|---|---|---|---|---|
+| P5V7 | 0.199 | 8.41 | 0.144 | 0.492 | 112/177 (**63.3%**) | 1.81 |
+| OUT-U | 0.135 | 8.73 | 0.164 | 0.528 | 155/201 (77.1%) | 2.18 |
+| **OUT-C** | **0.314** | **10.77** | **0.355** | **0.826** | **157/199 (78.9%)** | **2.53** |
+| OUT-S | 0.269 | 10.07 | 0.281 | 0.818 | 156/210 (74.3%) | 2.31 |
+
+**OUT-C beats OUT-S on every axis in this section and in §32.3 — seven of seven —
+and not one of them is individually significant.** Fisher one-sided: port_src
+p = 0.159, >=12 devices **p = 0.048**, conduction p = 0.163, qualifying-rate
+p = 0.056, near-feasible 8/10 vs 6/10 p = 0.314. A sign test over the seven
+pre-specified axes gives p = 0.008, but they are strongly correlated (device count
+drives port_src drives conduction), so **the honest statement is: a consistent
+small effect in the registered direction, at a sample size that cannot certify it.**
+
+The conduction column is `§31.8`'s recommendation, added *after* that section
+landed and reported as descriptive only — never as a decision input, because
+changing the adoption rule is a frozen-protocol decision and the user's.
+
+### 32.6 ⚑ Verdict
+
+**Checkpoint: REJECT.** Adopt-only-if-better fails on the **inductor-ratio clause
+in both channels** (nb 0.193 < 0.230, wb 0.137 > 0.132) before NDL is reached, and
+`valid` regresses on nb (96.9% vs 99.6%). **The adopted generator remains P5-v7 =
+`ft_p5v7_v2.pth`, nb 79 / wb 41 under `ref-v3[198h/d05390da]`.** More decisively
+than any clause: the arm's headline NDL gain is *beaten by its own shuffled
+control*, so there is nothing to adopt that the control would not also have earned.
+
+**Scientific verdict: neither registered hypothesis wins outright, and the
+measurement says something better than either.**
+
+* **H-INFO (conditioning works because it adds information) is NOT supported at
+  its registered bar.** It required OUT-C >= 2x OUT-S on near-feasible per
+  SPICE-minute; the measurement is **1.34x** (0.166 vs 0.124), p = 0.314.
+* **H-LAW (the novelty law claims a fourth channel) is REFUTED as stated.** The law
+  predicted the targeted statistic would rise and NDL would fall, as it did for
+  winners feedback (`§28`), prefix conditioning (`§29.7`) and re-weighting
+  (`§29.8`). Here NDL **rose** — 79 to 99 (nb) and 41 to 89 (wb) — and corpus
+  copying fell to 6.2% / 0.0%. The registered prediction 1, which *both* hypotheses
+  agreed on, is the one that was wrong.
+* **What actually happened is a third thing, and the control separates it
+  cleanly:** the conditioned rows are a **new data channel**, and a *prefix* — any
+  prefix — moves the model off the modes it memorised. The label's semantic content
+  contributes a consistent but small increment on top (§32.5), worth about
+  1.34x on the program's own currency and 0 of 7 individually significant axes.
+
+**Why this is not a fourth confirmation of `§29.12`, stated carefully.** The three
+earlier channels pointed the model at a *subset of the structure it already had*
+and got copies. This channel added 4072 rows of structure the model had *not* been
+trained on — the store's own measured topologies, most of them search- and
+mutation-derived rather than archetype-derived — and got novelty, exactly as `§24`
+predicted for the nine ingested externals. **The law survives and its scope narrows
+usefully: what matters is still whether the channel carries structure the model has
+not memorised. Outcome labels are not that structure; the rows carrying them were.**
+
+### 32.7 What this changes, and what it costs
+
+1. **The most useful artefact here is `outcome_train.json` minus its prefixes.**
+   The measured comparison says a plain (unconditioned) fine-tune on the store's own
+   864 measured topologies is the arm worth running next — it is the variable that
+   produced the novelty, and it needs no vocabulary change, no prompt at sampling
+   time, and none of the `OUT-U` damage.
+2. **Rung-0 candidate quality is the real result.** The adopted generator's
+   selector-qualifying candidates are mostly passive networks (median S21 -2.94 dB,
+   2/9 positive). Sampling *any* conditioned prefix from this checkpoint produces
+   9-10 of 10 with real gain and 3.0x the near-feasible-per-SPICE-minute. That is a
+   bigger effect than any NDL delta in this section and it is invisible to the
+   frozen protocol — the second independent finding this session (`§31.8` was the
+   first) that NDL cannot see what makes a candidate useful.
+3. **A conditioning prefix is not free.** `OUT-U` measures the cost: the base
+   distribution's NDL halves and its archetype copying more than doubles. Any future
+   arm that adds a prompt channel should sample its unconditioned prefix and report
+   that number.
+4. **Only 9 of 1082 keys were all-four-MET**, so the request lives at the edge of
+   the label distribution. A cheap follow-up this section does not claim: condition
+   on the *modal* achievable vectors (e.g. `MET/MET/MET/VIOL`) and see whether the
+   label effect grows when the prompt is in-distribution.
+
+### 32.8 Regression and cost
+
+Full suite green **before and after**, identical readings: vocab **MATCH**, screen
+**114/192 (59.4%)**, `pipeline_yield` **40/42 (95.2%)** (the known 1081 singular
+matrix), `check_ref` / `check_nf` / `check_bjt` **GREEN**, `check_stab` **harness
+GREEN** (its pre-existing `dhruva-l2` advisory is unchanged by this work package),
+`calibrate_specs` **ALL ACCEPTANCE CRITERIA MET**.
+
+**Cost.** 1 emission pass (18.2 min CPU) + 2 fine-tunes (2333 s and 4974 s on the
+4 GB card, checked free before each) + 10 sampling arms of 256 (~2 min each) + 787
+bias sweeps (~10.6 min) + one critic-v2 ensemble train (2140 s CPU on 2060 rows) +
+**33 sizings = 8,952 ngspice evaluations ~ 149.2 SPICE-minutes**, 25.8 min wall
+over two shards + one audit. **+25 L2 rows** under recipe **`outcome-v1`**
+(`provenance.outcome_arm` in {OUT-C 10, OUT-S 8, P5V7 4, OUT-U 3}); **8 of 33 were
+`skipped` by the store's `(wl_hash, spec)` dedup**, expected because the selector
+deliberately does not drop already-sized candidates. Snapshot **`v7-outcome`** pins
+`topo_labels = 2802 / l1_labels = 102`.
+
+Checkpoints `ft_p5out_v2.pth` / `ft_p5outs_v2.pth` are evidence, gitignored
+(~198 MB each); no shared `.pth` was written. `lna/out/outcome_train.json` and its
+shuffled twin **are committed** — they are the pinned training sets, because the
+store was being appended to by concurrent agents while the emission ran.
+
+```bash
+python lna/_out_emit.py --out lna/out/outcome_train.json
+wsl -e bash lna/_out_launch.sh                       # both arms + 10 sampling arms
+python lna/_out_pool.py --stage gen|bias|pool
+python lna/_out_struct.py
+python lna/datastore.py --snapshot v7-outcome
+"<analoggenie py>" lna/search.py --rank --pool-json lna/out/_o/pool.json \
+    --snapshot v7-outcome --out lna/out/_o/rank.json
+python lna/_out_size.py --rank-json lna/out/_o/rank.json --k 10 --shard 0/2 \
+    --out lna/out/_o/sized_a.json
+python lna/_out_report.py --pool lna/out/_o/pool.json --rank lna/out/_o/rank.json \
+    --sized lna/out/_o/sized_a.json lna/out/_o/sized_b.json --gen lna/out/_o/gen_stats.json
+python lna/_attrib_audit.py --wl ce39a77c91974013 --reps 3 --recipe outcome-v1
+```

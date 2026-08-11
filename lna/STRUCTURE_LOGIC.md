@@ -239,6 +239,21 @@ below is a warm-start fine-tune.
   and `--warm-from` exist only for controlled experiments (the template-free
   control, `FINDINGS §16`; the curriculum arm, `FINDINGS §18`) and are not
   part of the adopted lineage.
+- **OUT-C / OUT-S** (`--outcome`, `--outcome-file`, `--outcome-bins`;
+  `FINDINGS §32`) — **outcome conditioning**, the only arm that puts a measured
+  SPICE result into the model. Sixteen tokens (4 gated metrics x
+  VIOL/MARG/MET/UNK, `lna/_out_tokens.py`) are appended after the class tokens
+  and mean-initialized the way `<LNA_NB>` was; bins are read from a row's stored
+  `margins` and restricted to one label domain (Block 6). Every measured
+  `(topology, spec)` key contributes rows regardless of outcome — the point that
+  separates it from the winners channel — and sampling asks for a bin vector
+  between the class token and `VSS`. `OUT-S` is its **shuffled-label control**:
+  identical rows, identical token streams, bin vectors permuted across rows.
+  **Both REJECTED** (adopt-only-if-better fails the inductor-ratio clause on both
+  channels), and the control is the finding: it matches or beats the real arm on
+  NDL@256 (nb 115 vs 99; wb 105 vs 89), so the +20 nb NDL over P5-v7 belongs to
+  the 4072 new store-derived training rows and to the presence of a prefix, not
+  to what the labels say.
 
 **The training signal, precisely.** Standard next-token cross-entropy
 (`F.cross_entropy` over the vocabulary at every position, loss masked after
@@ -308,13 +323,30 @@ outright (`FINDINGS §18.5`).
   **0.032 → 0.192 → 0.760 → 0.926** across arms) and buys **zero** extra novel
   screen-passing candidates, because the additional samples are exact corpus
   copies (corpus copying 32% → 72%, NDL 79 → 10).
+- **Outcome conditioning is the one steering channel that RAISED novelty, and
+  its own control explains why** (`§32`). nb NDL 79 -> 99 with corpus copying
+  32.0% -> 6.2%, against a shuffled-label twin at 115 / 5.5%. The label's
+  semantic content shows up only as a consistent small increment across seven
+  axes (source-driven rate 0.314 vs 0.269, >=12 devices 0.355 vs 0.281, all-MOS
+  conducting 78.9% vs 74.3%, near-feasible 8/10 vs 6/10), none of them
+  individually significant. Two costs are measured rather than inferred: the
+  same checkpoint sampled *unconditioned* loses half its novelty (NDL 42) and
+  more than doubles archetype copying, and the inductor ratio regresses on both
+  channels. The sized funnel is where the channel is unambiguously worth
+  something -- rung-0 candidates go from 2/9 with positive gain to 10/10, and it
+  produced an audited `wifi24` tier-2 feasible (`ce39a77c91974013`) that **both**
+  arms found -- and none of that is visible in the frozen protocol.
 - **The novelty law now has three independent confirmations across three
   different channels.** Winners feedback (`§28`, training), row re-weighting
   (`§29.8`, training weights: P5-v9m, **REJECTED**, nb NDL 79→45 for a 1.43×
   motif rate) and prefix conditioning (`§29.7`, decoding) all raise the
   statistic they target and lower NDL. The law is about **where the steering
   signal points** — at structure the model has already memorised — not about
-  which channel carries it.
+  which channel carries it. `§32` sharpened rather than extended it: an outcome
+  channel raised NDL because the rows it added were structure the model had *not*
+  memorised (the store's own search- and mutation-derived topologies), so the
+  operative variable is the structural content of the channel, not the existence
+  of a steering signal.
 - **★ The generator now has a no-learning control, and it inverts both
   headline metrics** (`lna/grammar_gen.py`, `FINDINGS §31`). A grammar-only
   generator — random device multiset inside the spec's `device_budget`,

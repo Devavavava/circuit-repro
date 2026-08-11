@@ -6013,3 +6013,261 @@ on.
    `provenance.bo_seed`), `_size_ref` (`size.py --anchor`, which dedups and
    therefore also proves op rows are correctly *not* written when the L2 row is
    skipped), and `log_l2_result` (the noise-deck row).
+
+---
+
+## 33. Phase 2 — **WP-SURROGATE v0**: the 66k point rows every sizing run threw off were a learnable response surface, and **82.6% of the ngspice calls in a ZOAF run are provably wasted** (Session 7)
+
+> Owner: the WP-SURROGATE executor session, 2026-08-11. Pre-registration:
+> `lna/plans2/12-WP-SURROGATE.md` (written and committed before any model
+> existed). Files: `lna/surrogate.py`, `lna/_surr_run.sh`,
+> `lna/data/reports/surrogate-v0-2026-08-11.json`. Nothing in `extract.py` /
+> `size.py` / `critic_gnn.py` was edited — `critic_gnn` is imported.
+
+**Headline.** `data/sim_points.jsonl` — 66,664 rows accumulated as the free
+byproduct of every ZOAF sizing run, never used for learning — joins to its
+topologies at **98.85% coverage** with a **bit-exact** fence, and a point-level
+GNN surrogate f(graph, x) -> metrics reaches **rho(S21) = 0.990 / MAE 1.54 dB**
+interpolating inside a box it has explored and **rho(S21) = 0.845 / MAE 8.79 dB**
+on a topology family it has never seen. Replaying all 333 stored runs with the
+surrogate as a pre-gate (zero new SPICE) puts a hard number on the waste: an
+**oracle** gate — a perfect surrogate — skips **82.6%** of the ngspice calls in a
+cold-start run and **90.1%** in a warm-start one *with the run's argmin exactly
+preserved*. The v0 surrogate captures that at 43% (warm start) but only ~1%
+(cold start) if the argmin must be preserved *exactly* in every run.
+
+### 33.1 The join — recovered from append order, and fenced bit-exactly
+
+A point row is `{wl_hash, spec, x, metrics}`. It carries no tokens, no parameter
+names and no recipe, so three things had to be recovered before a single number
+could be trusted:
+
+1. **Which run is it?** `size._log_l2` appends a run's point rows in one
+   contiguous `ds.append_all` burst, so a maximal run of equal `wl_hash` in file
+   order **is** one ZOAF sizing run. 336 blocks.
+2. **Which topology?** The `topo_labels` row with the same `wl_hash`, `spec`, and
+   — the disambiguator — `n_evals == len(block)`. Twenty-one hashes were sized
+   more than once (repeat probes, `+bo3` and `+mf2-v1` relabels), and `n_evals`
+   is what says which of those rows a block belongs to.
+3. **What do the numbers in `x` mean?** Rebuilt with `size.py`'s own machinery
+   (`prepared_body` -> `classify_params` for the order, `kind_ranges` for the
+   per-kind log/linear map, `match_devices` for the passives `_curate` freezes),
+   never reimplemented.
+
+**The fence is what makes this reportable.** Each block's map was required to
+decode its L2 row's stored `best_x` into its stored `best_params` **string for
+string**: **333 of 336 blocks pass**. Then eight *interior* points (not the
+argmin, which the L2 row already pins) were replayed through ngspice:
+
+| replay | worst \|delta\| over all six metrics, 8 rows |
+|---|---|
+| **single-finger, `w_finger=None` (the era)** | **0.000000** |
+| today's default multi-finger deck | **10.1975** (S21 +10.09, S11 +4.77 on another row) |
+
+So the join is not "consistent within label noise", it is exact — and the same
+run measures the §27 cutover gap on the sizing loop's own points rather than
+assuming it. Coverage: **65,896 / 66,664 rows = 98.85%**. The 768 dropped rows
+are the three token-less reference-deck blocks (one of which was written with
+`wl_hash = null` outright).
+
+*Aside, free:* the fence ran with the concurrent WP-OBSERVE probe already
+patched into `extract.py`, so 0.000000 is also an independent confirmation of
+§30's "print-only, the solved circuit cannot move" claim.
+
+### 33.2 The era — what this model is NOT valid for
+
+`sim_points.jsonl` is **live** (WP-OBSERVE is appending to it right now: 66,936
+lines by the time the cache was built), so v0 is pinned the way
+`datastore.snapshot` pins a training set — **66,664 lines, sha256
+`591428b0fcadc458...`** — *and* cross-checked per block against its L2 row's
+recipe and date, so a post-cutover row cannot leak in even if the line cap is
+raised later.
+
+Every joined run is **2026-08-06/07**, `candidate-v1` (329) or `curated-v1` (4),
+`inductor_q=12`, `nf_gated=false`, `wifi24` only. That is **pre-`mf2-v1`**
+(single-finger MOS, §27), **pre-`nfrs-v1`** (§13) and pre-stability. Therefore:
+
+* **the `nf_db` column is the RETIRED port-referred NF** (finding #7) — the one
+  that flattered every design without exception, and which reads as low as
+  **-18.94 dB** in this table. It is learned here as a fourth response surface
+  because it is a real deterministic function of the same deck; it must **never**
+  be pooled with, ranked against, or substituted for a `series_rs` NF;
+* v0 is a **proof of mechanism**. The question it answers — can a graph net
+  interpolate ngspice over a device box, and how much of a ZOAF run is waste —
+  is era-independent. Its *numbers* are valid only for the single-finger,
+  port-NF, `wifi24` domain. A production surrogate needs post-cutover points,
+  which WP-OBSERVE is now accumulating.
+
+### 33.3 The model, and the A/B that mattered
+
+`critic_gnn`'s bipartite device<->net trunk is imported verbatim; only the input
+embedding and the readout change. The design decision was how to carry a
+parameter vector whose **length is per-topology** (2...14 here, median 8). The
+answer that won is not on the brief's menu: **inject each parameter into the
+device node it belongs to** — `p<dev>W` into that MOS, `p<dev>V` into that
+passive, `pVBG<k>` into the MOS gates that bias net drives. Variable length then
+isn't padded around, it is *dissolved*: the parameter vector rides the graph that
+already varies in size, and the encoder stays permutation-equivariant over
+devices. (Parameters a run held **fixed** — a `curated-v1` run's frozen Lg/Ls/Cin
+— are recovered by inverting `kind_ranges`, so the model sees the circuit as
+simulated, not the optimizer's variable set.)
+
+Three arms, one seed, identical budget, **cross-family (cold-start) test**:
+
+| arm | how x enters | rho(S21) | MAE(S21) | selection loss |
+|---|---|---|---|---|
+| **`node`** | injected at the device node | **0.821** | **9.40 dB** | **0.0953** |
+| `film` | `node` + FiLM on every message round | 0.818 | 9.90 dB | 0.1203 |
+| `concat` | padded + masked, concatenated at the readout | 0.646 | 13.49 dB | 0.1669 |
+
+**P4 confirmed** (`node` beats `concat` by 0.175, predicted >= 0.05) and **P5
+confirmed** (`film` within 0.003 of `node`, predicted +-0.03). The reading: *where*
+a parameter enters matters a great deal and *how often* it enters matters not at
+all. `concat` cannot tell which device a width belongs to once the graph changes,
+and pays 4 dB of S21 for it; FiLM re-injects information the input embedding has
+already placed correctly.
+
+Splits are `datastore.family_split` over the 310 joined topologies — **301
+families, 296 of them singletons**, so cross-family here really is
+cross-topology. Model selection used a *separate* 5% point slice plus the val
+families, so no reported stratum picked the checkpoint. Trained on the WSL GPU
+(`/opt/miniconda/envs/gpu`, torch 2.13+cu130, RTX 3050), ~4 s/epoch, 60 epochs;
+the headline model is a 3-seed deep ensemble of `node`.
+
+### 33.4 Accuracy — and what the sigma floor actually is here
+
+3-seed `node` ensemble, target units (`idd_ma` is log10 mA):
+
+| stratum | rho(S21) | MAE(S21) | MAE(S11) | MAE(Idd, dec) | rho(ripple) | rho(Idd) |
+|---|---|---|---|---|---|---|
+| **within-family point holdout** (interpolation) | **0.990** | **1.54 dB** | 0.39 dB | 0.102 | 0.941 | 0.980 |
+| held-out whole RUN of a seen topology | 0.962 | 3.88 dB | 0.69 dB | 0.188 | 0.701 | 0.952 |
+| cross-family, val | 0.855 | 7.31 dB | 1.56 dB | 0.767 | 0.549 | 0.597 |
+| **cross-family, test (COLD START)** | **0.845** | **8.79 dB** | 1.51 dB | 0.805 | 0.494 | 0.562 |
+
+**P1 confirmed** — within-family rho(S21) 0.990 > 0.9. **P3 falsified in the good
+direction**: cold-start rho(S21) was predicted at 0.30-0.65 by analogy with the
+critic's off-distribution decay (§15.4, rho 0.83 -> 0.17) and came in at **0.845**.
+That analogy was wrong for an instructive reason — the critic extrapolates to an
+unseen *graph* with one label per graph, while this model has ~190 points per
+graph and is mostly being asked to reproduce a response *shape* (S21 falls when
+the load shrinks, current rises with width) that is shared across topologies.
+
+**P2 falsified.** Within-family MAE(S21) is **1.54 dB**, above the best-of-3
+sigma of 0.726 dB and marginally above the single-seed 1.478 dB. The pattern P2
+predicted did hold — rho is easy over a 100 dB range, absolute accuracy is not —
+it was simply not close enough. **A correction to the brief's framing, worth
+carrying:** sigma(S21) = 0.726/1.478 dB (§14.1) is the noise of a **sizing-run
+outcome across seeds**, not of a single ngspice evaluation. §33.1 measured the
+latter directly and it is **0.0000 dB** — the point label is deterministic. So
+"at or under label noise" is not available as a bar here; the defensible reading
+of the sigma floor is that a surrogate whose point error is below the sizer's own
+seed-to-seed spread cannot change a sizing decision by more than the sizer
+already changes it by itself. v0 does not clear even that, by 2.1x.
+
+**P8 is half right, and the wrong half is the interesting one.** `s21_ripple_db`
+is indeed the weakest metric cross-family (rho 0.494) — it is a difference of two
+large numbers. But **Idd is not the easiest**: it is *second-worst* cross-family
+(rho 0.562) despite being near-perfect within-family (0.980). Total supply
+current is a sum over branches, so it depends on how many branches the topology
+*has* and what they are — the one metric here that is genuinely about graph
+structure rather than about a shared response shape. S21 and even the port NF
+transfer far better than the DC quantity, which is the opposite of the intuition.
+
+### 33.5 ★ The offline replay gate — how much of a ZOAF run is waste
+
+Every joined block is a sizing run in the order ngspice saw it. Replay it, and
+before each evaluation ask the surrogate; skip the call when the predicted
+objective is worse than the incumbent best by more than `Delta` (rule
+pre-registered: `Delta = 0.5`, warm-up `K = 8` always simulated, objective always
+*computed* from predicted metrics under the era's gating, never regressed). Zero
+new SPICE.
+
+**The control first — and it is the most valuable number in this section.** Run
+the identical gate with the *true* metrics as predictions. A perfect surrogate
+can only skip points that genuinely do not beat the incumbent, so it preserves
+every run's argmin by construction, and what it skips is pure waste:
+
+| stratum | runs | **oracle skip %** | argmin preserved |
+|---|---|---|---|
+| cross-family (cold start) | 49 | **82.6%** | 49/49 |
+| held-out run of a seen topology (**warm start**) | 11 | **90.1%** | 11/11 |
+| train families | 217 | **77.8%** | 217/217 |
+
+**Between 78% and 90% of every ngspice call this pipeline has ever spent inside
+ZOAF was, in hindsight, unnecessary** — the point never beat the incumbent and
+never would have. That is a property of the *search*, not of any model, and it is
+the size of the prize a surrogate pre-gate is playing for. At the program's own
+accounting of ~5 minutes and ~193 evaluations per sizing run, the ceiling is
+about **4 minutes of the 5 saved per topology**.
+
+**What v0 actually delivers** (3-seed `node` ensemble; `raw` = predictions as-is,
+`cal` = plus a per-run median-residual offset refit on that run's own simulated
+points):
+
+| stratum | rule | skip % | runs with argmin **exactly** preserved | within 0.05 obj | feas-flips | worst degradation |
+|---|---|---|---|---|---|---|
+| cross (cold) | `Delta`=0.5 raw (**pre-registered**) | **62.8%** | 30/49 (61.2%) | 71.4% | 0 | 1.148 |
+| cross (cold) | `Delta`=2.0 raw | 25.0% | 43/49 (87.8%) | 89.8% | 0 | 0.228 |
+| cross (cold) | `Delta`=5.0 raw | 0.9% | **49/49 (100%)** | 100% | 0 | 0 |
+| **held_run (warm)** | `Delta`=2.0 cal | **42.9%** | **11/11 (100%)** | 100% | 0 | 0 |
+| held_run (warm) | `Delta`=0.5 raw | 71.3% | 8/11 (72.7%) | 72.7% | 1 | 2.300 |
+| train (in-sample) | `Delta`=2.0 raw | 19.5% | 217/217 (100%) | 100% | 0 | 0 |
+| train (in-sample) | `Delta`=0.5 raw | 55.1% | 202/217 (93.1%) | 94.9% | 0 | 0.896 |
+
+**The headline the brief asks for — % skippable at ZERO change to every run's
+final argmin — is 42.9% warm-start (n = 11 runs, thin) and 0.9% cold-start.**
+**P6 is falsified** (>= 60% at zero change was predicted). At the pre-registered
+`Delta` = 0.5 the gate does skip 62.8% cold-start, but 19 of 49 runs then end on a
+different point, at a mean objective cost of 0.267 and a worst of 1.148 — in S21
+terms, typically ~3 dB and at worst ~14 dB of gain given away.
+
+**P7 is falsified too, and cleanly.** The per-run residual calibration was
+predicted to matter more than the encoder. At matched skip rates it is *worse*:
+cold-start `Delta`=1.0, `raw` skips 48.8% preserving 73.5% while `cal` skips 49.3%
+preserving 71.4%, and `cal` has the larger worst-case degradation everywhere
+(6.403 vs 0.896 on train families) — it also caused the only feasibility flip
+seen in the whole sweep. A median offset fitted on a run's early, uniformly bad
+points is a bias correction for the wrong regime; it pulls predictions toward the
+part of the box the run has left behind.
+
+**The mechanism is margin-limited, not model-limited, and the ratio says so.**
+The required `Delta` tracks the surrogate's own error: cold-start MAE(S21) 8.79 dB
+is 0.73 objective units, and preservation only reaches 100% at `Delta` = 5. Warm
+start has MAE(S21) 3.88 dB (0.32 units) and reaches 100% at `Delta` = 2, capturing
+**48% of its 90.1% ceiling**. So the savings curve is driven by point-level
+accuracy, which is exactly what more topologies and post-cutover data buy.
+
+**Three caveats, all load-bearing:**
+
+1. **The replay holds ZOAF's trajectory fixed.** A live gate must hand ZOAF
+   *something* for a skipped point, and whatever it hands back changes what ZOAF
+   proposes next. This measures the **waste rate of the trajectory ZOAF actually
+   took**, which is the right first-order number for SPICE-minutes, not a
+   simulation of a live gated run.
+2. **The zero-feasibility-flip result is nearly vacuous on the cold-start
+   stratum**: 0 of those 49 runs ends feasible at all (the store holds 35 feasible
+   points in 66,664). It is meaningful only on the train stratum, where 3 runs do
+   end feasible and `raw` never flipped one.
+3. **`held_run` is n = 11.** It is reported because it is the deployment that
+   already exists — `size_best_of_k` re-sizes the same topology with three seeds,
+   so runs 2 and 3 *are* "a new run of a topology we have already explored" — but
+   eleven runs is a direction, not a measurement.
+
+### 33.6 What this changes
+
+* **A gate is worth building, and the warm-start one is worth building first.**
+  `size_best_of_k` currently pays 3x the sim cost for a 2.0x quieter label
+  (§14.1). Gating seeds 2 and 3 with a surrogate warm-started on seed 1 attacks
+  exactly that multiplier, in the stratum where v0 already preserves 11/11
+  argmins while skipping 42.9%.
+* **Point rows are training data and should be treated as such.** They were
+  gitignored as a "free byproduct"; they are the densest supervision in the
+  program (66k rows against `topo_labels`' 2.8k) and they join at 98.85%.
+* **The era wall is the binding constraint on making this production.** Nothing
+  here can be shipped into today's sizing loop until post-cutover points exist —
+  which is precisely what WP-OBSERVE's logging now accumulates.
+* **Do not read `nf_db` from this model.** It is the retired port NF, kept only
+  as a fourth surface. Its cross-family rho of 0.786 says the *retired* quantity
+  was learnable, and nothing about the series-Rs one.
+

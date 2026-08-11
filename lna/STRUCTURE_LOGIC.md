@@ -692,6 +692,77 @@ only arm with usable ensemble uncertainty (ρ(σ,|error|) ≈ 0.53–0.54).
   ρ(S21) jump from 0.221→0.585 on the very next retrain is mostly the data
   becoming visible, not a modeling change (`FINDINGS §14.2`).
 
+## 7b. The point surrogate (WP-SURROGATE v0)
+
+Block 7's critic scores a **topology**; this scores a **point inside one**.
+
+`lna/surrogate.py` — a learned stand-in for one ngspice call:
+**f(topology graph, parameter vector x) -> the 7-metric vector**. Where the
+critic asks "is this topology worth a sizing run?", this asks "is this
+*evaluation* worth making?", which makes it an inner-loop instrument rather than
+a candidate filter. Its output is not a ranking, it is **SPICE-minutes**.
+
+**What it is trained on.** `data/sim_points.jsonl` — the point rows
+`size._log_l2` has been appending as a free byproduct of every ZOAF run since the
+store went live, gitignored and, until this WP, never used for learning (66k
+rows against `topo_labels`' 2.8k). A point row carries only `(wl_hash, spec, x,
+metrics)`, so the join is reconstructed and then *proved*:
+
+* runs come from **append order** (a run's points are one contiguous
+  `ds.append_all` burst); the L2 row is matched on `(wl_hash, spec, n_evals)`,
+  which is what disambiguates a topology sized more than once;
+* the parameter map is rebuilt with `size.py`'s own machinery
+  (`prepared_body` / `classify_params` / `kind_ranges` / `match_devices`) and
+  every block must decode its L2 row's `best_x` into its `best_params`
+  **string for string** or it is dropped (333/336 pass);
+* eight interior points replayed through ngspice reproduce every stored metric
+  to **0.000000** under `w_finger=None`. Coverage **98.85%** (FINDINGS §33.1).
+
+**Architecture.** `critic_gnn.MPNN`'s bipartite device<->net trunk, imported
+verbatim (not copied, not edited), with a new input embedding and readout. The
+parameter vector is **per-topology in length**, and the design decision that
+carries the block is to inject each parameter **at the device node it belongs
+to** — `p<dev>W` into that MOS, `p<dev>V` into that passive, `pVBG<k>` into the
+MOS gates its bias net drives. Variable length is dissolved rather than padded
+around, and the encoder stays permutation-equivariant. Measured against the
+alternatives on cold-start rho(S21): node **0.821** / FiLM 0.818 / pad-and-concat
+0.646 — *where* a parameter enters matters, *how often* it re-enters does not.
+Splits are `datastore.family_split` over the joined topologies, never row-level.
+
+**What it is NOT valid for — the era wall.** `sim_points.jsonl` is live, so v0 is
+pinned to a prefix by line count + sha256 (66,664 lines,
+`591428b0fcadc458...`) *and* per-block by recipe and date. Every training row is
+**2026-08-06/07, `wifi24`, `candidate-v1`/`curated-v1`, `nf_gated=false`** —
+i.e. **pre-`mf2-v1`** (single-finger MOS, Block 5's current emission is
+multi-finger; the same points move up to 10.2 dB through today's deck) and
+**pre-`nfrs-v1`**, so its **`nf_db` head is the RETIRED port-referred NF** and
+must never be pooled with or substituted for a `series_rs` NF. v0 is a proof of
+mechanism; a production surrogate needs the post-cutover points Block 6 is now
+accumulating.
+
+**The result that matters.** Replaying all 333 stored ZOAF runs with the
+surrogate as a pre-gate (zero new SPICE) shows an **oracle** gate would skip
+**82.6%** of a cold-start run's ngspice calls and **90.1%** of a warm-start
+run's with the argmin exactly preserved — i.e. roughly four of every five
+evaluations this pipeline has ever spent inside ZOAF were waste. v0 captures
+**42.9% at zero argmin change on the warm-start stratum** (the one
+`size_best_of_k` already creates every time it re-sizes with seeds 2 and 3) and
+only ~1% cold-start; at the pre-registered margin it skips 62.8% cold-start but
+moves 39% of runs off their argmin. The gate is **margin-limited by the
+surrogate's own point error**, so it improves with data rather than with
+architecture (FINDINGS §33.5).
+
+**Design decisions:**
+
+- The join is *proved* rather than trusted, because a silently mis-ordered
+  parameter map would have produced a plausible-looking model trained on
+  scrambled inputs — the same failure mode as the `_margins` bug in Block 7,
+  which cost ~240 rows before anyone noticed.
+- The gate always **computes** feasibility from predicted metrics and never
+  regresses the objective, matching Block 7's rule.
+- The oracle arm is reported first: without it, "62.8% skipped" reads as a model
+  result when most of it is a property of the search.
+
 ## 8. Search
 
 Two "rungs" that spend SPICE minutes more efficiently than random sizing, by

@@ -1462,6 +1462,88 @@ a validated instrument*, not a result.
 
 ---
 
+## 26. The 66,000 free labels — and the discovery that four of every five ngspice calls in a sizing run are waste
+
+**Context.** Every ZOAF sizing run had been quietly writing its own interior to
+`data/sim_points.jsonl`: one row per ngspice evaluation, `(wl_hash, spec, x,
+metrics)`, appended by `size._log_l2` since the store went live and gitignored as
+a "free byproduct". By this session it held **66,664 rows** — twenty-four times
+the L2 table the critic trains on — and had never been used for anything. The
+program's learned components all sat at the *outer* level: predict what a
+topology will score after sizing. Nobody had asked the inner question — can you
+predict what **one simulation** will say — even though the data to answer it had
+been accumulating for a week (stage 25 was the sibling realisation about the
+inside of each simulation; this is the same blind spot one level up).
+
+**Decision.** Pre-register first (`lna/plans2/12-WP-SURROGATE.md`, committed
+before any model existed), then build a point-level surrogate
+f(graph, x) -> metrics on `critic_gnn`'s trunk, and — the part that decides
+whether any of it is worth it — replay every stored sizing run with the
+surrogate as a **pre-gate**, offline, with zero new SPICE.
+
+Two things were treated as non-negotiable. First, **the join had to be proved,
+not trusted**: point rows carry no tokens and no parameter names, so runs were
+recovered from append order, topologies matched on `(wl_hash, spec, n_evals)`,
+and the parameter map rebuilt with `size.py`'s own machinery — then every block
+was required to decode its L2 row's `best_x` into its stored `best_params`
+*string for string*, and eight interior points were replayed through ngspice.
+Second, **the era had to be labelled**: the file's last append predates the
+multi-finger cutover (stage 23) and the series-Rs NF, so it was pinned by line
+count + sha256 and cross-checked per block against recipe and date.
+
+**Result.** The join fence came back **bit-exact — 0.000000 on every metric,
+all eight rows** (the same points through today's multi-finger deck move up to
+10.2 dB, which measures the stage-23 gap on the sizer's own points rather than
+assuming it). 98.85% coverage; 333 of 336 blocks proved. The surrogate reaches
+**rho(S21) 0.990 / MAE 1.54 dB** interpolating inside a box it has explored and
+**0.845 / 8.79 dB** on a topology family it has never seen — the latter far
+better than the critic's off-distribution decay predicted, because ~190 points
+per graph teach a response *shape* that transfers even when the graph does not.
+The A/B settled the representation question: injecting each parameter at its own
+device node beats padding-and-concatenating by 0.175 rho, while adding FiLM on
+top changes nothing (0.003).
+
+But the number that reframes the program is the **control**, not the model. Run
+the identical gate with the *true* metrics as predictions — a perfect surrogate —
+and it skips **82.6%** of a cold-start run's ngspice calls, and **90.1%** of a
+warm-start run's, with every run's argmin exactly preserved. At the program's own
+~5 minutes and ~193 evaluations per sizing run, roughly **four of the five
+minutes are spent on points that never beat the incumbent and never would have.**
+v0 captures 42.9% of that at zero argmin change in the warm-start stratum and
+only ~1% cold-start; at the pre-registered margin it skips 62.8% cold-start but
+moves 39% of runs off their argmin. Three of my eight registered predictions
+were falsified: the cold-start correlation was much better than predicted, the
+within-family error did not reach the sigma floor, and the per-run residual
+calibration — predicted to matter more than the encoder — made things *worse*.
+
+**Understanding.** Three things changed shape.
+
+*The waste is in the search, not in the simulator.* "82.6% skippable" is a
+property of ZOAF's trajectory that no model was needed to measure, and reporting
+it first is what keeps "62.8% skipped" from reading as a model result. The gate
+is **margin-limited by the surrogate's own point error** — cold start needs
+`Delta` = 5 to be safe, warm start only `Delta` = 2 — so the savings curve moves
+with data, not with architecture.
+
+*The sigma floor was being asked to do a job it cannot do.* sigma(S21) =
+0.726/1.478 dB is the spread of a *sizing-run outcome across seeds*. The replay
+fence measured the point-level label noise directly: **zero**. "At or under label
+noise" therefore isn't an available bar for a point surrogate, and the honest
+restatement is that a point error below the sizer's own seed spread cannot change
+a decision by more than the sizer already does.
+
+*The DC quantity is the one that does not transfer.* Idd is near-perfect
+within-family (rho 0.980) and second-worst cross-family (0.562), while S21 stays
+at 0.845 — because total current is a sum over branches and so depends on what
+branches the topology *has*, whereas gain is a shared response shape. The
+intuition that "DC is easy, RF is hard" is exactly backwards for generalisation.
+
+The immediate lever is not a better encoder: it is to gate `size_best_of_k`'s
+seeds 2 and 3 — a warm-start case the pipeline manufactures every night, where
+v0 already preserves 11/11 argmins while skipping 42.9% — and to retrain on the
+post-cutover points stage 25's logging is now accumulating, since nothing here
+can enter today's sizing loop until they exist.
+
 ## Current frontier
 
 As of this document's writing (`lna-data`, commit `5be4de3` and whatever

@@ -27,6 +27,11 @@ drown the circuit tokens. lr 3e-5, batch 32.
     # curriculum arm (FINDINGS §18): scaffolded phase 1, template-free phase 2
     python lna/finetune.py --arm p5 --do train --no-templates --winners --tag cur \
         --warm-from lna/out/ft_p5.pth --winners-file lna/out/winners_train.pre_dhruva.json
+    # outcome-conditioned arm (WP-OUTCOME, FINDINGS 32): 16 outcome tokens
+    # appended after the class tokens; the measured SPICE bins of every labeled
+    # topology are prefixed onto its rows, and sampling asks for an outcome:
+    #   --outcome --outcome-file lna/out/outcome_train.json --tag p5out
+    #   --outcome --outcome-bins MET,MET,MET,MET --tag p5out --winners --do sample
     # then, Windows: python lna/novelty.py --eval lna/out/ft_p1_s1337 --spec wifi24
 """
 import argparse
@@ -46,6 +51,7 @@ from genie_common import (BLOCK_SIZE, DEVICES, DROPOUT, N_EMBD, N_HEAD,  # noqa:
                           VSS_ID, decode, generate_batch)
 sys.path.insert(0, REPO)
 from Models.GPT import GPTLanguageModel  # noqa: E402
+from _out_tokens import OUTCOME_TOKENS, tokens_for  # noqa: E402
 
 LNA_INDICES = list(range(461, 493)) + list(range(1081, 1091))
 # 6 held-out circuits (spread across both index blocks), validation only.
@@ -58,8 +64,12 @@ IGNORE = -1
 PRETRAIN = os.path.join(REPO, "Pretrain.pth")
 
 
-def ext_vocab(arm):
-    devs = DEVICES + CLASS_TOKENS.get(arm, [])
+def ext_vocab(arm, outcome=False):
+    """`outcome=True` appends WP-OUTCOME 16 outcome tokens AFTER the class
+    tokens, so the upstream 1005 ids and the P5 class ids are both untouched and
+    every existing checkpoint stays loadable at its own vocab size. Default off:
+    the returned triple is byte-identical to what every other arm sees."""
+    devs = DEVICES + CLASS_TOKENS.get(arm, []) + (OUTCOME_TOKENS if outcome else [])
     stoi = {d: i for i, d in enumerate(devs)}
     return devs, stoi, len(devs)
 
@@ -82,8 +92,11 @@ def _rows_from_npy(path, cls_id):
     return out
 
 
-def _rows_from_seqs(seqs, cls_id):
-    """token-name sequences -> id lists [cls?, content..., TRUNCATE]."""
+def _rows_from_seqs(seqs, cls_id, prefix_ids=None):
+    """token-name sequences -> id lists [cls?, prefix?, content..., TRUNCATE].
+
+    `prefix_ids` is WP-OUTCOME four outcome tokens; with it None (every other
+    caller) the row is byte-identical to what it always was."""
     out = []
     for toks in seqs:
         if "TRUNCATE" in toks:
@@ -91,6 +104,8 @@ def _rows_from_seqs(seqs, cls_id):
         if not toks:
             continue
         ids = [STOI[t] for t in toks] + [TRUNCATE_ID]
+        if prefix_ids:
+            ids = list(prefix_ids) + ids
         if cls_id is not None:
             ids = [cls_id] + ids
         out.append(ids)
@@ -127,7 +142,7 @@ def _external_rows(nb, wb):
 
 
 def build_dataset_p5(stoi, winners=False, templates=True, templates_file=None,
-                     winners_file=None, external=False):
+                     winners_file=None, external=False, outcome_file=None):
     """Corpus LNAs (tagged NB/WB by inductor) + Eulerian-augmented templates.py
     archetypes (tagged by class) + <OTHER> replay. This is the P5 lever: template
     diversity breaks the 35-graph memorization ceiling, and the class tokens make
@@ -181,6 +196,19 @@ def build_dataset_p5(stoi, winners=False, templates=True, templates_file=None,
         for r in json.load(open(wf, encoding="utf-8"))["rows"]:
             train.extend(_rows_from_seqs([r["seq"]], nb if r["cls"] == "nb" else wb))
             n_win += 1
+    # WP-OUTCOME: measured-outcome-conditioned rows (`_out_emit.py`). TRAIN ONLY,
+    # the same discipline `--external-corpus` uses, so the 736-row validation set
+    # and therefore the best-val early-stop criterion stay byte-identical to the
+    # baseline. Unlabeled rows above keep their plain class token, so the base
+    # distribution is preserved and the conditioning is strictly additive.
+    n_cond = 0
+    if outcome_file:
+        for r in json.load(open(outcome_file, encoding="utf-8"))["rows"]:
+            pre = [stoi[t] for t in tokens_for(r["bins"])]
+            train.extend(_rows_from_seqs([r["seq"]],
+                                         nb if r["cls"] == "nb" else wb,
+                                         prefix_ids=pre))
+            n_cond += 1
     gen = _rows_from_npy(os.path.join(REPO, "Training.npy"), oth)
     target = int(0.15 * len(train))
     replay = [gen[j % len(gen)] for j in range(target)] if gen else []
@@ -189,7 +217,9 @@ def build_dataset_p5(stoi, winners=False, templates=True, templates_file=None,
           f"{f' + {n_ext_r} external ({n_ext_c} circuits)' if external else ''}"
           f" + {n_tmpl_tr} template ({n_arch} arch"
           f"{'' if templates else ', TEMPLATE-FREE control arm'}) "
-          f"+ {n_win} winner + {len(replay)} replay = {len(train)}; val: {len(val)}",
+          f"+ {n_win} winner"
+          f"{f' + {n_cond} conditioned' if outcome_file else ''}"
+          f" + {len(replay)} replay = {len(train)}; val: {len(val)}",
           flush=True)
     return _pad(train), _pad(val)
 
@@ -234,11 +264,41 @@ def _pad(rows):
 
 
 # -------------------------------------------------------- checkpoint surgery
+def _load_warm(model, state):
+    """Load a warm-start state dict whose vocabulary may be SHORTER than the
+    model, mean-initializing the new rows -- the identical surgery this file
+    already does for `<LNA_NB>` off `Pretrain.pth`, applied one level up so
+    WP-OUTCOME can append 16 outcome tokens to an already-fine-tuned P5
+    checkpoint. When the shapes match (every pre-existing caller) this is a plain
+    `load_state_dict` and nothing about the default path changes."""
+    own = model.state_dict()
+    key = "token_embedding_table.weight"
+    if own[key].shape == state[key].shape:
+        model.load_state_dict(state)
+        return 0
+    n_old, n_new = state[key].shape[0], own[key].shape[0]
+    if n_new < n_old:
+        raise SystemExit(f"warm checkpoint vocab {n_old} exceeds model vocab {n_new}")
+    patched = dict(state)
+    for k in (key, "lm_head.weight"):
+        t = own[k].clone()
+        t[:n_old] = state[k]
+        t[n_old:] = state[k].mean(0, keepdim=True)
+        patched[k] = t
+    b = own["lm_head.bias"].clone()
+    b[:n_old] = state["lm_head.bias"]
+    b[n_old:] = state["lm_head.bias"].mean()
+    patched["lm_head.bias"] = b
+    model.load_state_dict(patched)
+    return n_new - n_old
+
+
 def build_model(arm, vocab_size, device, warm=None):
     model = GPTLanguageModel(vocab_size, N_EMBD, BLOCK_SIZE, N_HEAD, N_LAYER, DROPOUT)
     if warm and os.path.exists(warm):                # Stage-3 expert iteration:
-        model.load_state_dict(torch.load(warm, map_location=device))  # warm-start
-        print(f"[{arm}] warm-started from {warm}", flush=True)
+        n_add = _load_warm(model, torch.load(warm, map_location=device))
+        print(f"[{arm}] warm-started from {warm}"
+              + (f" (+{n_add} mean-init vocab rows)" if n_add else ""), flush=True)
         return model.to(device)
     state = torch.load(PRETRAIN, map_location=device)
     if arm == "p2":
@@ -271,7 +331,7 @@ def ckpt_path(arm, winners=False, tag=None):
 
 
 def train(arm, device, epochs=40, batch=32, lr=3e-5, seed=1337, winners=False,
-          tag=None, warm_from=None, ckpt_policy="best", **kw):
+          tag=None, warm_from=None, ckpt_policy="best", outcome=False, **kw):
     """`warm_from` pins the warm-start checkpoint explicitly, overriding the
     `ft_<tag>.pth` convention -- a **curriculum** phase warm-starts from another
     arm's shipped checkpoint (e.g. the scaffolded P5-v3) and must not have to copy
@@ -281,7 +341,7 @@ def train(arm, device, epochs=40, batch=32, lr=3e-5, seed=1337, winners=False,
     fine-tunes all take their best val at epoch 0-1; `"best"` (the default) is the
     unchanged §16/P5 policy."""
     torch.manual_seed(seed)
-    _, stoi, vocab_size = ext_vocab(arm)
+    _, stoi, vocab_size = ext_vocab(arm, outcome)
     (Xtr, Ytr), (Xva, Yva) = build_dataset(arm, stoi, winners=winners, **kw)
     base = ckpt_path(arm, tag=tag)
     warm = warm_from or (base if (winners and os.path.exists(base)) else None)
@@ -338,8 +398,8 @@ def train(arm, device, epochs=40, batch=32, lr=3e-5, seed=1337, winners=False,
 
 
 # ------------------------------------------------------------------ sample
-def load_ft(arm, device, winners=False, tag=None):
-    _, _, vocab_size = ext_vocab(arm)
+def load_ft(arm, device, winners=False, tag=None, outcome=False):
+    _, _, vocab_size = ext_vocab(arm, outcome)
     model = GPTLanguageModel(vocab_size, N_EMBD, BLOCK_SIZE, N_HEAD, N_LAYER, DROPOUT)
     model.load_state_dict(torch.load(ckpt_path(arm, winners, tag=tag),
                                      map_location=device))
@@ -348,15 +408,20 @@ def load_ft(arm, device, winners=False, tag=None):
 
 def sample(arm, device, n=256, batch=32, max_tokens=256, temperature=0.7,
            seed=1337, out=None, inductor_bias=0.0, cls="nb", winners=False,
-           tag=None):
+           tag=None, outcome=False, bins=None):
+    """`bins` is WP-OUTCOME 4-bin request (e.g. `["MET"]*4`), inserted between the
+    class token and `VSS`. `bins=None` samples the plain class-token prefix every
+    other arm uses -- which on an outcome-vocab checkpoint is the UNCONDITIONED
+    arm, i.e. the base-distribution-damage control."""
     torch.manual_seed(seed)
-    devs, stoi, _ = ext_vocab(arm)
+    devs, stoi, _ = ext_vocab(arm, outcome)
     itos = {i: d for i, d in enumerate(devs)}
-    model = load_ft(arm, device, winners=winners, tag=tag)
+    model = load_ft(arm, device, winners=winners, tag=tag, outcome=outcome)
+    cond = [stoi[t] for t in tokens_for(bins)] if bins else []
     if arm == "p1":
         prefix = [stoi["<LNA>"], VSS_ID]
     elif arm == "p5":
-        prefix = [stoi["<LNA_NB>" if cls == "nb" else "<LNA_WB>"], VSS_ID]
+        prefix = [stoi["<LNA_NB>" if cls == "nb" else "<LNA_WB>"]] + cond + [VSS_ID]
     else:
         prefix = [VSS_ID]
     otag = f"{tag or arm}{'v2' if winners else ''}"
@@ -389,7 +454,8 @@ def sample(arm, device, n=256, batch=32, max_tokens=256, temperature=0.7,
                          "circuit_tokens": len(circ)})
             produced += 1
         print(f"  [{produced}/{n}] {steps} steps", flush=True)
-    json.dump({"arm": arm, "prefix": prefix, "seed": seed, "meta": meta},
+    json.dump({"arm": arm, "prefix": prefix, "bins": bins, "seed": seed,
+               "meta": meta},
               open(os.path.join(out, "meta.json"), "w"), indent=2)
     term = sum(m["terminated"] for m in meta)
     print(f"[{arm}] sampled {produced} -> {out} in {time.time()-t0:.0f}s; "
@@ -431,25 +497,41 @@ def main():
     ap.add_argument("--warm-from", default=None,
                     help="explicit warm-start checkpoint, overriding the "
                          "ft_<tag>.pth convention (curriculum phase 2, FINDINGS §18)")
+    ap.add_argument("--outcome", action="store_true",
+                    help="WP-OUTCOME: extend the vocab with the 16 outcome tokens "
+                         "(implied by --outcome-file)")
+    ap.add_argument("--outcome-file", default=None,
+                    help="WP-OUTCOME conditioned training rows (_out_emit.py); "
+                         "TRAIN-only, so the validation set is unchanged")
+    ap.add_argument("--outcome-bins", default=None,
+                    help="WP-OUTCOME sampling request: 4 comma-separated bins in "
+                         "S11,S21,IDD,NF order (e.g. MET,MET,MET,MET). Omit to "
+                         "sample the plain class-token prefix (unconditioned).")
     ap.add_argument("--ckpt-policy", choices=["best", "final"], default="best",
                     help="ship the best-val epoch (default, = P5/§16 policy) or the "
                          "final epoch (fixed-length curriculum tail)")
     args = ap.parse_args()
+    outcome = bool(args.outcome or args.outcome_file)
+    bins = ([b.strip() for b in args.outcome_bins.split(",")]
+            if args.outcome_bins else None)
+    if bins and len(bins) != 4:
+        raise SystemExit("--outcome-bins wants exactly 4 bins (S11,S21,IDD,NF)")
     dkw = {}
     if args.arm == "p5":
         dkw = {"templates": not args.no_templates,
                "templates_file": args.templates_file,
                "winners_file": args.winners_file,
-               "external": args.external_corpus}
+               "external": args.external_corpus,
+               "outcome_file": args.outcome_file}
 
     if args.do in ("train", "both"):
         train(args.arm, args.device, epochs=args.epochs, seed=args.seed,
               winners=args.winners, tag=args.tag, warm_from=args.warm_from,
-              ckpt_policy=args.ckpt_policy, **dkw)
+              ckpt_policy=args.ckpt_policy, outcome=outcome, **dkw)
     if args.do in ("sample", "both"):
         sample(args.arm, args.device, n=args.n, seed=args.seed, out=args.out,
                inductor_bias=args.inductor_bias, cls=args.cls,
-               winners=args.winners, tag=args.tag)
+               winners=args.winners, tag=args.tag, outcome=outcome, bins=bins)
 
 
 if __name__ == "__main__":

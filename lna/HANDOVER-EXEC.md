@@ -1984,6 +1984,79 @@ LNA_OP_SUBSAMPLE=0 python lna/size.py ...   # final points only
 LNA_OP_LOG=0 python lna/campaign.py ...     # off entirely
 ```
 
+### ▸ Sub-block: WP-ATTRIB — the no-learning baseline, and the blind spot in NDL / spec-L0 (owner: the WP-ATTRIB executor)
+
+**Files owned:** `lna/grammar_gen.py` (new), `lna/_attrib_pools.py`,
+`lna/_attrib_size.py`, `lna/_attrib_report.py`, `lna/_attrib_audit.py`,
+`lna/_attrib_sample.py`, `lna/_attrib_gpu_sample.sh`,
+`lna/plans2/10-WP-ATTRIB.md`, FINDINGS **§31**, JOURNEY stage **27**, the
+Block-3 note in `STRUCTURE_LOGIC.md`, this sub-block. Nothing shared was edited
+(`size.py`, `critic_gnn.py`, `surrogate.py`, `extract.py`, `search.py`,
+`finetune.py`, the specs and the screen are all untouched). Store recipe
+**`attrib-v1`**; snapshot **`v6-attrib`**. Full measured detail in **§31**;
+pre-registration committed `ab5e633` before any feature code existed.
+
+**★★★ The headline.** Four arms, 256 samples each, one identical funnel:
+**GR** (grammar-only, no learning) · **GR+RAG** (grammar + retrieval) ·
+**G2** (upstream `Pretrain.pth`, prefix-12) · **G3** (P5-v7, adopted).
+
+| arm | L0 % | **NDL@256** | copies % | **all-MOS conducting** | qualifying | sized | **near** | **feas** | best S21 |
+|---|---|---|---|---|---|---|---|---|---|
+| **GR** | **65.6** | **168** | 0.0 | 5 (**3.0%**) | 85 | 10 | **0** | **0** | −0.06 |
+| **GR+RAG** | **67.2** | **172** | 0.0 | 7 (4.1%) | 74 | 10 | **0** | **0** | +2.48 |
+| G2 | 26.6 | 16 | 45.7 | 35 (51.5%) | 2 | 2 | 0 | 0 | −8.15 |
+| **G3** | 65.2 | 63 | 50.0 | **113 (67.7%)** | 9 | 9 | **2** | **1** | **+13.37** |
+
+**A generator with no learning in it beats the adopted checkpoint on BOTH
+metrics this program uses to decide what to adopt, and then produces nothing.**
+The first stage with discriminative power is the first one that runs ngspice.
+
+**★★ A new `wifi24` TIER-2 FEASIBLE design, from the adopted generator.**
+`0da2f0c7b263eee5` (`p5v7_s1337/seq0039`, 10 devices): S11 **−30.68** /
+S21 **13.37** / Idd **2.24** / **NF 1.697**; replay 3/3, 10/10 in box,
+unconditionally stable in band (K_min 3.03) **and** over 0.1–20 GHz (2.68),
+novel vs ref-v3 (nearest `corpus:476`, **0.527**). The program's tier-2 record
+goes **2 → 3**, and this is the second whose topology came out of the generator.
+
+**Three things the next session should know.**
+
+1. **The cheap metric repair is measured and is a USER decision.** Reporting the
+   **all-MOS-conducting rate** beside NDL in the frozen protocol row costs ~70 s
+   per 256-sample pool, needs no new harness, and is the only column that
+   separated these four arms. Changing the adoption rule is a frozen-protocol
+   change — the §14.5 / §14.6 governance class — so it is proposed, not taken.
+2. **The retired uncertainty gate is a working OOD detector.** §20.3 retired
+   03-SEARCH §4 rule 2 as inert (2/110 on a live pool). It fires on **73–76%**
+   of the no-learning candidates and **0–11%** of the learned ones.
+3. **The motif scarcity is a data fact, not a model fact.** Random wiring emits
+   the source-driven input at **48.4%**, P5-v7 at **14.4%** — §29.6's mix
+   argument, confirmed from the other side. New source-driven *data* is the
+   lever; steering is not.
+
+⚠ **Store note.** +26 L2 rows under recipe `attrib-v1`
+(`provenance.attrib_arm` ∈ {GR, GR+RAG, G3}); 5 further sizings were `skipped`
+by the `(wl_hash, spec)` dedup because G2's and four of G3's picks already
+carried a `wifi24` label — expected, because this selector deliberately does not
+drop already-sized candidates (that would shrink pools asymmetrically by store
+history). `data/topo_labels.jsonl` was committed with three other agents
+appending live, so that commit carries their rows too.
+
+⚠ **Sizing-half power, stated.** 31 sizings; Fisher one-sided on near-feasible
+is p = 0.077 pooling all no-learning arms against P5-v7. The decisive numbers
+are upstream (113/167 vs 5/168 conducting) and qualitative (0 of 22 no-learning
+candidates above +2.5 dB of gain).
+
+```bash
+python lna/grammar_gen.py --selftest
+python lna/grammar_gen.py --arm gr|rag --n 128 --seed 1337 --out DIR
+wsl -e bash lna/_attrib_gpu_sample.sh
+python lna/_attrib_pools.py --stage gen|bias|pool
+"<analoggenie py>" lna/search.py --rank --pool-json lna/out/_at/pool.json --snapshot v6-attrib --out lna/out/_at/rank.json
+python lna/_attrib_size.py --rank-json lna/out/_at/rank.json --k 10 --shard 0/2 --out lna/out/_at/sized_a.json
+python lna/_attrib_report.py --spec wifi24 --md
+python lna/_attrib_audit.py --wl 0da2f0c7b263eee5 --reps 3
+```
+
 ## 1. TL;DR — what shipped this session
 
 | Plan item | Status | Key result |

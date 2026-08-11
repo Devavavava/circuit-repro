@@ -6271,3 +6271,396 @@ accuracy, which is exactly what more topologies and post-cutover data buy.
   as a fourth surface. Its cross-family rho of 0.786 says the *retired* quantity
   was learnable, and nothing about the series-Rs one.
 
+
+## 31. Phase 2/3 — **WP-ATTRIB**: the program's first no-learning baseline, and the discovery that its two headline generation metrics cannot see what the generator supplies (Session 7)
+
+> Owner: the WP-ATTRIB executor. Files: `lna/grammar_gen.py` (new, the
+> no-learning generator), `lna/_attrib_pools.py`, `lna/_attrib_size.py`,
+> `lna/_attrib_report.py`, `lna/_attrib_audit.py`, `lna/_attrib_sample.py`,
+> `lna/_attrib_gpu_sample.sh`, `lna/plans2/10-WP-ATTRIB.md`, FINDINGS **§31**,
+> JOURNEY stage **27**, `STRUCTURE_LOGIC.md` Block 3. Store recipe
+> **`attrib-v1`**. Snapshot **`v6-attrib`**. Pre-registered and committed
+> (`ab5e633`) **before a line of `grammar_gen.py` existed**.
+
+**The question.** The record brackets the extremes of "does the learned
+generator matter?" — the upstream pretrained checkpoint scores NDL@256 = 16
+against P5-v7's 79, and gates have been closed both with the generator (§29) and
+without it (§15, §25) — but it contains **no no-learning baseline**, so every
+"the generator did X" claim is un-attributed. §29.12 established that *a
+capability negative is only as strong as the selector that produced its
+candidates*; the symmetric rule for a capability **positive** is that it is only
+as strong as the baseline it is measured against.
+
+**Headline.** Four arms, 256 samples each, one identical funnel. **A generator
+with no learning in it at all beats the adopted P5-v7 checkpoint on BOTH of this
+program's headline generation metrics — spec-L0 pass rate (65.6% vs 65.2%) and
+NDL@256 (168 vs 63) — and then produces nothing.** The separation appears at the
+first stage that touches a simulator: after rule-based bias, **3.0% of GR's
+screen-passing samples have all MOS conducting against P5-v7's 67.7%**, and the
+median grammar-only circuit has **zero** conducting transistors. At equal sizing
+budget the no-learning arms return **0 near-feasible and 0 feasible** designs
+against P5-v7's 2 and 1, and not one of their 22 sized candidates reaches
+positive gain worth the name (best S21 **+2.48 dB**, against P5-v7's **+13.37**).
+
+**★★ And the P5-v7 arm produced a fully audited, novel, unconditionally stable
+`wifi24` TIER-2 FEASIBLE design** — `0da2f0c7b263eee5`
+(`out/_at/p5v7_s1337/seq0039`, 10 devices, 3 inductors):
+
+| metric | measured | required | |
+|---|---|---|---|
+| `s11_db` | **−30.68** | ≤ −10 | PASS |
+| `s21_db` | **13.37** | ≥ 12 | PASS |
+| `idd_ma` | **2.24** | ≤ 5 | PASS |
+| **`nf_db`** | **1.697** | ≤ 2.5 | **PASS** |
+| K_min in-band / 0.1–20 GHz | **3.03 / 2.68** | ≥ 1 | unconditional |
+| WL hash in `ref-v3[198h/d05390da]` | **absent** (nearest `corpus:476`, 0.527) | — | novel |
+
+Audit (`_attrib_audit.py`): **replay 3/3 OK**, **10/10 parameters in box**,
+stability re-measured over both windows, `spec.feasible()` re-derived rather
+than trusted. The program's tier-2 record was two designs (§13: `seq0220` and
+the hand `ref24_tapped`); this is the third, and the second whose topology came
+out of the learned generator.
+
+### 31.1 The arms, and three protocol-integrity checks that had to pass first
+
+| arm | what it is | learned content |
+|---|---|---|
+| **GR** | `grammar_gen.py`: random device multiset in `wifi24`'s `[3,16]` budget, uniformly random wiring (MOS bulk included), serialized through the same upstream `build_connection_matrix → dfs_all_paths` path the corpus / archetypes / externals / `moves.py` mutants all use | **none** |
+| **GR+RAG** | GR, seeded with the sub-graph induced by the first 12–24 tokens of a retrieved corpus LNA traversal (eligible under `wifi24.seed_filter`), completed randomly-legally | **none** (retrieval only) |
+| **G2** | upstream `Pretrain.pth`, no fine-tune, prefix-12 conditioning — its best known operating point | upstream pretrain |
+| **G3** | **P5-v7** `ft_p5v7_v2.pth`, the adopted baseline, unconditioned `<LNA_NB>` | full lineage |
+
+Each arm is 256 samples in the frozen protocol's canonical two-half shape
+(128 @ seed 1337 + 128 @ seed 2338).
+
+1. **G2 *is* the frozen P0 baseline, re-measured.** It reads **NDL@256 = 16**
+   identically under **ref-v1, ref-v2 and ref-v3** — the pretrained model never
+   saw an archetype or an external, so all three references agree by
+   construction, and 16 is exactly `HANDOVER-EXEC` finding #4's number.
+2. **G3 reproduces the published P5-v7 row byte-for-byte.** The 128 samples at
+   seed 1337 are **byte-identical** to the first 128 files of the committed
+   `lna/out/ft_p5v7_nb_s1337` pool, and that pool still reads spec-L0 69.1% /
+   **NDL 79** / copies 46.9% under ref-v3. ⚠ The two-half shape scores G3 at
+   **NDL 63**, not 79: a single continuous 256-draw at one seed happened to hit
+   more distinct novel hashes than 128 + 128 from two seeds (36 + 29, 63 after
+   dedup). Both numbers are reported; every arm here is measured in the same
+   two-half shape, which is what makes the columns comparable.
+3. **GR emits nothing outside the representation.** 512 grammar circuits,
+   **65,238 tokens, 0 out of the frozen 1005-token vocabulary**; 128/128
+   proposals serialize in every half (**construction rate 100%**, 1 draw in 512
+   needed a second repair attempt); every emitted graph re-parses,
+   `Topology.valid`, and re-satisfies the rule table when re-derived from the
+   *decoded* topology rather than from the assignment that built it
+   (`grammar_gen.py --selftest`, GREEN under both interpreters, with the
+   vocabulary-capacity literals cross-checked against `genie_common.DEVICES`).
+
+**What "legal" was allowed to mean** is the load-bearing design decision, and
+every rule is justified by a mechanism, never by "helps LNAs": connectivity
+(a disconnected graph has **no** covering Eulerian traversal, so
+`emit_sequence` returns `None`); a terminal on `VSS` (the traversal's
+`start_node`); terminals on `VIN*`/`VOUT*` (the representation encodes ports
+**as nets**, and a net no pin touches never appears in the token stream); two
+terminals on every internal node (a one-terminal node is a floating node, i.e. a
+singular matrix); per-kind counts inside the vocabulary's capacity (a 16th
+capacitor would emit `C16`, which does not exist). **Not** applied: archetype
+fragments, motif preference, device-ratio priors, the `max_inductors ≤ 3` L0
+criterion, bulk-to-rail conventions, or any notion of device roles.
+⚠ **One recorded restriction:** bipolars are excluded from the kind set, because
+`has_transistor` counts MOS only (§19.1 gap a) and `bias.py` has no base-bias
+rule (§19.1 gap b) — including them would have measured two known harness gaps
+rather than the grammar.
+
+### 31.2 ★★★ The funnel — one table, four arms, `wifi24`, ref-v3
+
+| arm | n | valid | L0 | L0 % | **NDL@256** | copies % | med NN | ind ratio | **all-MOS conducting** | novel WL | qualifying | sized | **near** | **feas** | SPICE-min | near/min | **feas-novel/min** |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| **GR** grammar-only | 256 | 100.0 | 168 | **65.6** | **168** | **0.0** | 0.497 | 0.199 | 5 (**3.0%**) | 168 | 85 | 10 | **0** | **0** | 36.1 | 0.000 | **0.000** |
+| **GR+RAG** | 256 | 100.0 | 172 | **67.2** | **172** | **0.0** | 0.531 | 0.204 | 7 (**4.1%**) | 172 | 74 | 10 | **0** | **0** | 35.1 | 0.000 | **0.000** |
+| **G2** pretrained pfx-12 | 256 | 96.9 | 68 | 26.6 | 16 | 45.7 | 1.000 | 0.141 | 35 (51.5%) | 16 | **2** | 2 | 0 | 0 | 8.3 | 0.000 | 0.000 |
+| **G3** P5-v7 (adopted) | 256 | 99.6 | 167 | 65.2 | 63 | 50.0 | 1.000 | 0.217 | 113 (**67.7%**) | 63 | **9** | 9 | **2** | **1** | 36.4 | **0.055** | **0.027** |
+
+Gain and violation on the sized candidates — the column that actually separates
+them:
+
+| arm | best viol | median viol | **best S21** | median S21 | S21 > 0 | S21 ≥ 12 | best S11 | best NF |
+|---|---|---|---|---|---|---|---|---|
+| GR | 1.248 | 3.704 | **−0.06** | −1.08 | 0/10 | 0 | −28.77 | 3.11 |
+| GR+RAG | 1.226 | 5.325 | **+2.48** | −2.87 | 1/10 | 0 | −22.92 | 3.03 |
+| G2 | 5.756 | 13.684 | −8.15 | −8.15 | 0/2 | 0 | −8.65 | 6.36 |
+| **G3** | **0.000** | 3.981 | **+13.37** | −1.31 | 2/9 | **1** | **−30.68** | **1.31** |
+
+⚠ **The "best violation" column is a trap, for the third time.** GR's 1.248 and
+GR+RAG's 1.226 belong to near-passive networks reading S21 −0.06 dB and −0.18 dB
+that pass S11/Idd/NF *by producing no gain* — exactly the degenerate optimum
+§15.5 item 5 warned about on `wideband-sdr` and §20.4 confirmed on `dhruva-s`.
+Read the S21 column, not the violation column.
+
+**Cheap addendum — the same generation statistics under `dhruva-l5`'s screen, no
+sizing:** GR **L0 77.3% / NDL 198**, GR+RAG **84.0% / 215**, G2 30.5% / 19,
+G3 67.2% / 64. The inversion is *larger* on the harder spec, because
+`dhruva-l5`'s wider `device_budget [3,21]` and `max_inductors 6` remove the two
+criteria that were costing the grammar arm anything at all.
+
+### 31.3 ★★ Where the metrics stop working, and where the simulator starts
+
+**L0 is nearly blind here.** Criterion-by-criterion pass rates over all 256
+samples show why the grammar arm clears a screen designed for real LNAs:
+
+| arm | has_transistor | device_budget | has_ports | single_input | not_floating | has_inductor | max_inductors |
+|---|---|---|---|---|---|---|---|
+| GR | 96.9 | 100.0 | 100.0 | 100.0 | 100.0 | **81.2** | **87.1** |
+| GR+RAG | 99.6 | 100.0 | 100.0 | 100.0 | 100.0 | 84.4 | 83.2 |
+| G2 | 99.2 | 96.9 | **86.7** | **73.0** | 100.0 | **46.5** | 93.0 |
+| G3 | 100.0 | 99.6 | 89.1 | 89.5 | 100.0 | 81.6 | 95.3 |
+
+Four of the seven criteria are 100% for GR *by construction* — three of them
+(`has_ports`, `single_input`, `not_floating`) are the validity rules the
+serializer already requires, so **L0 is partly re-checking what a decodable
+sequence necessarily satisfies**. The only criteria that cost the grammar arm
+anything are the two inductor-count ones, and uniform kind sampling produces an
+inductor share of 0.199 — inside the band real LNAs occupy. **A structural
+screen cannot distinguish a circuit from a random graph with the right census.**
+
+**NDL is worse than blind — it is inverted.** GR tops the metric at **168 vs
+63** for exactly the reason it is worthless as a capability proxy: a random
+graph is essentially never a copy of anything (copies 0.0%, median NN-sim 0.497
+against the adopted generator's 1.000). Every ADOPT/REJECT decision in this
+program's history has been gated on NDL@256 at equal-or-better inductor ratio
+(§24.3, §28, §29.8), and a generator with **no learning in it** would win that
+comparison outright. NDL measures *not-copying*; it has never measured *working*,
+and until this section nothing in the record forced the distinction.
+
+**★ The first stage that separates the arms is the first one that runs ngspice.**
+`bias.insert_bias(sweep=True, inductor_q=12)` at default v1 rules, over each
+arm's screen-passing population:
+
+| arm | screen-passing | biased + simulable | **all MOS conducting** | mean fraction of MOS conducting | median fraction | **zero conducting** | mean n_MOS |
+|---|---|---|---|---|---|---|---|
+| GR | 168 | 168 | 5 (**3.0%**) | 0.154 | **0.000** | **65.5%** | 3.99 |
+| GR+RAG | 172 | 172 | 7 (4.1%) | 0.202 | **0.000** | 56.4% | 4.68 |
+| G2 | 68 | 68 | 35 (51.5%) | 0.609 | 1.000 | 32.4% | 3.28 |
+| **G3** | 167 | 167 | **113 (67.7%)** | **0.750** | **1.000** | **18.0%** | 2.67 |
+
+**The median grammar-only circuit has zero conducting transistors.** Every arm
+is 100% "biased + simulable" — the deck builds and ngspice solves — so this is
+not a harness failure; it is that a uniformly random wiring almost never gives a
+MOSFET a gate, a source and a drain in an arrangement that carries current, and
+`bias.py`'s R-GATE rule cannot rescue what has no DC path to rescue. **That, and
+not novelty or structural plausibility, is what 11.8M parameters of next-token
+imitation buy.** (113/167 vs 5/168 is overwhelming; nothing downstream in this
+section has comparable statistical power — see §31.6.)
+
+### 31.4 The rung-0 selector was held fixed — and it inverted too
+
+Per §29.12's lesson, the selector is the same object for all four arms:
+{L0-passing} ∩ {novel vs ref-v3} ∩ {WL-deduped} ∩ {`_match_struct.port_src`},
+with **all four arms' qualifying candidates in ONE pool JSON ranked by ONE
+critic-v2 GNN ensemble** (`search.rank_pool`, snapshot `v6-attrib` = 2756 rows,
+leak-free: the 30 store rows sharing a pool WL hash were dropped before
+training; holdout ρ(S21) **0.839**, ρ(S11) 0.581, rank acc 0.844).
+
+| arm | 256 → L0 | → novel | → WL-distinct | → **port_src** | shortfall vs k=10 |
+|---|---|---|---|---|---|
+| GR | 168 | 168 | 168 | **85** | — |
+| GR+RAG | 172 | 172 | 172 | **74** | — |
+| G2 | 68 | 19 | 16 | **2** | **8 short** |
+| G3 | 167 | 70 | 63 | **9** | **1 short** |
+
+**★ The source-driven input motif — the single structural predictor §29 measured
+as carrying the whole match/no-match split — is emitted by RANDOM WIRING at
+48.4%, and by the adopted generator at 14.4%** (over all analysable samples;
+GR+RAG 45.7%, G2 32.6%). §29.6 explained the low rate as a training-mix
+dilution: the 118-archetype channel is 98.6% gate-driven and drags the mix's
+motif share to 0.2176, which the generator reproduces at 0.88×. This is the
+complement of that measurement from the other side — **the motif is not scarce
+in graph space at all; it is scarce in the training data, and the model learned
+the scarcity.** The same holds for device count: 37.9% of GR samples carry ≥12
+devices against G3's 12.1%, and of the *qualifying* candidates **GR has 35 with
+≥12 devices and G3 has 0** — §29.5's "motif-bearing AND ≥12 devices AND novel
+AND screen-passing" conjunction, which v7 satisfied once per 256 samples on the
+`dhruva-l5` screen, is satisfied 35 times per 256 by random wiring. It buys
+nothing, which is the point of §31.2's table.
+
+**⚠ The uncertainty gate — inert everywhere else in this program — fires on 70%
+of this pool.** §20.3 recommended retiring 03-SEARCH §4's rule 2 because ensemble
+σ on mutants was *systematically smaller* than the holdout p90 (22/213, then
+8/213, then 2/110 on a live generated pool). Here **119/170** candidates exceed
+it: **GR 62/85 (73%), GR+RAG 56/74 (76%), G2 0/2, G3 1/9 (11%)**. The gate is
+not broken — it was being fed distributions that were never far enough away.
+**A no-learning arm is the first thing this program has built that is genuinely
+off-distribution for the critic, and the retired rule identifies it almost
+perfectly.** That also qualifies the selection honestly: the critic's ranking
+of GR's 85 candidates is a ranking it has no basis for, so GR's "top 10" is
+close to an arbitrary 10 — a caveat that runs *against* GR and is stated as such.
+
+### 31.5 Sizing, at equal budget, and the audited winner
+
+Every candidate got the identical protocol, imported from `search.py` rather
+than restated so it cannot drift: `size.size_topology(seed=1, inductor_q=12,
+n_candidates=4, sgd_iters=5, cgd_iters=1)` then a box-clamped
+`size.polish(budget=60)`, on the current harness (multi-finger
+`W_FINGER = 2e-6`, NF gated — `wifi24` feasibility here is **tier-2**). Mean
+evaluations per candidate 217 / 210 / 248 / 243 — within 15% across arms, so the
+per-SPICE-minute normalisation is not doing hidden work.
+
+31 sizings, **6,951 ngspice evaluations ≈ 115.9 SPICE-minutes**, 15.1 min wall
+over two shards. 26 rows appended under recipe `attrib-v1`
+(`provenance.attrib_arm` ∈ {GR, GR+RAG, G3}); **5 were `skipped` by the store's
+`(wl_hash, spec)` dedup** — G2's and four of G3's picks already carried a
+`wifi24` label from earlier campaigns, which is expected because this selector
+deliberately does **not** drop already-sized candidates (dropping them would
+shrink the pools asymmetrically by store history). Their sizing results are in
+`out/_at/sized_*.json` and are counted in the funnel.
+
+**★★ `0da2f0c7b263eee5` — `p5v7_s1337/seq0039`, 10 devices, 3 inductors, straight
+out of the adopted generator's unconditioned pool — is `wifi24` TIER-2 FEASIBLE**
+(S11 **−30.68** / S21 **13.37** / Idd **2.24** / NF **1.697**, objective −0.550),
+**replay 3/3 OK, 10/10 in box, unconditionally stable in band (K_min 3.03) and
+over 0.1–20 GHz (K_min 2.68), WL hash absent from ref-v3** with nearest
+neighbour `corpus:476` at cosine **0.527** — further from anything in the
+reference than §29's `80aaf9f4` was (0.845). Attribution, precisely: the
+**topology is the generator's** (no `moves` edit, no crossover, no archetype);
+this work package contributed the fixed rung-0 selector and the existing sizing
+path. The same graph had been sized against `dhruva-l1` and `dhruva-l5` before
+and is infeasible on both — it is a `wifi24` design, and nothing here claims
+more. `iip3_dbm` remains `unsupported` (tier-3) and stability is still
+ideal-element frequency-domain: the same two qualifications §27.4/§29 carry.
+
+### 31.6 The registered decision rule, and what the statistics do and do not support
+
+The rule registered in `plans2/10` §3: if `R(GR+RAG)` lands within 2× of
+`R(G3)` on feasible-novel per SPICE-minute, the harness is the product; if the
+no-learning arms collapse, the generator's lift is quantified.
+
+**Verdict: the no-learning arms collapse.** `R(GR) = R(GR+RAG) = R(G2) = 0.000`
+against `R(G3) = 0.027` feasible-novel per SPICE-minute; on the declared
+tie-breaker, `0.000` against **0.055** near-feasible per SPICE-minute. The ratio
+is not a factor — it is the difference between something and nothing at this
+budget, on 22 no-learning sizings against 9.
+
+**⚠ Stated honestly, the *sizing* half of that verdict is small-n.** Fisher
+one-sided on near-feasible: G3 2/9 vs GR 0/10 gives **p = 0.21**; against all 22
+no-learning sizings pooled, **p = 0.077**. Neither clears 0.05. What is
+overwhelming is upstream — 113/167 vs 5/168 conducting — and the qualitative gain
+gap (best S21 +13.37 dB vs +2.48 dB, with 0 of 22 no-learning candidates above
++2.5 dB) is a category difference rather than a marginal one. **The claim this
+section supports is "the learned generator supplies DC-viable, gain-capable
+structure that syntax plus retrieval does not," measured at n≈170 per arm; the
+claim it does not support is a precise multiplier on feasible-novel yield.**
+
+### 31.7 The seven pre-registered predictions, scored
+
+| # | prediction | outcome |
+|---|---|---|
+| 1 | GR passes L0 at ≥ 15%, and yields ~0 near-feasible per SPICE-minute | **both right, the first badly under-called** — 65.6%, and 0.000 |
+| 2 | GR's NDL@256 is high, plausibly the highest — *a prediction that NDL is a weak proxy* | **right** — 168 vs 63; GR+RAG higher still at 172 |
+| 3 | GR+RAG lifts L0 over GR **and** its novelty is copy-dominated | **half right.** L0 67.2% vs 65.6% ✓; **novelty is NOT copy-dominated — 0.0% copies, NDL 172 > GR's 168.** Mechanism: the declared fallback variant fixes only a *sub-graph* (mean 4.04 of 9.87 devices) and completes the rest at random, so an exact reproduction of a corpus graph is essentially impossible. §28.6's law ("steering toward memorised structure returns copies") governs a *model* being steered; a random completer has nothing memorised to return. The law's scope is now bounded by a case that does not obey it. |
+| 4 | G2 lands between GR and G3 on L0 | **wrong** — G2 is *below both* at 26.6% (vs 65.6 / 65.2). The NDL ballpark half is exactly right: **16**, reproducing the frozen P0 baseline under all three references |
+| 5 | G3 wins feasible-novel per SPICE-minute by > 2× | **right, and by more than the form of the prediction allowed** — every other arm is 0 |
+| 6 | zero arms produce a `wifi24` tier-2 feasible at this budget | **wrong** — G3 produced one, audited (§31.5). The program's tier-2 record goes 2 → 3 |
+| 7 | the qualifying-pool shortfall binds on ≥ 1 arm | **right, on the two *learned* arms** — G2 has 2 of 10 and G3 has 9 of 10, while the no-learning arms have 85 and 74 to spare |
+
+### 31.8 What this changes
+
+1. **The two metrics that gate every generator decision in this program cannot
+   see the property that matters, and one of them is anti-correlated with it.**
+   `NDL@256` and `spec-L0` are both maximised here by an arm with zero learning
+   and 3% conduction. This is not an argument to abandon them — NDL exists to
+   stop the memorization failure mode (§14.5) and does that job — but **no
+   adoption decision should ever again rest on NDL alone.** The cheapest fix is
+   already measured and costs ~70 s per 256-sample pool: **report the
+   all-MOS-conducting rate beside NDL in the frozen protocol row.** It is the
+   first number in the funnel with any discriminative power, it needs no new
+   harness (`bias.insert_bias` already computes it), and it would have been the
+   column that separated these four arms at a glance. *Whether it becomes part
+   of the adoption rule is a frozen-protocol change and therefore the user's
+   decision, not the executor's* — the same governance class as §14.5's ref-v2
+   rebaseline and §14.6's Gate-C1 restatement.
+2. **"The harness is the product" is refuted as stated, and the honest split is
+   now measurable.** The harness (screen + bias + rung-0 + critic + ZOAF) turns
+   P5-v7's stream into 2 near-feasible and 1 tier-2 feasible design per 9
+   sizings; fed a syntactically perfect no-learning stream at the *same* budget
+   through the *same* selector, it returns nothing. The generator is not
+   decorative. **But it is also not where the difficulty is concentrated:** what
+   it supplies is DC-viability and gain-capability, not novelty (a random graph
+   is more novel) and not structural plausibility (a random graph passes the same
+   screen).
+3. **The motif scarcity is confirmed from the opposite direction.** §29.6 argued
+   from the training mix that the source-driven input is rare because the
+   archetype channel is 98.6% gate-driven. Random wiring emits it at **48.4%**
+   against P5-v7's 14.4% — so the motif is abundant in graph space and the model
+   learned its scarcity from the data. Every lever tried so far (winners
+   feedback §28, prefix conditioning §29.7, row re-weighting §29.8) raised the
+   rate and lowered NDL because all three pointed at memorised structure; this
+   measurement says the missing ingredient really is *new source-driven data*,
+   and puts a number on how much of graph space the mix is suppressing.
+4. **The retired uncertainty gate has one job left.** §20.3 retired 03-SEARCH
+   §4 rule 2 as inert. It fires on 73–76% of the no-learning candidates and 0–11%
+   of the learned ones — i.e. it is a working *out-of-distribution detector*, just
+   not a working *hard-case detector*. If any future channel feeds the critic
+   genuinely novel graph distributions, this is the instrument that will say so.
+5. **`grammar_gen.py` is now the program's null hypothesis.** Any future claim of
+   the form "the generator/search/loop produced X" has a cheap, seeded,
+   deterministic control available: 256 legal circuits in ~50 s of CPU, no GPU,
+   through the identical funnel.
+
+### 31.9 Limits of this measurement, stated up front
+
+* **One spec.** Everything sized is `wifi24`. The generation half carries a
+  `dhruva-l5` addendum (§31.2) and the inversion is larger there, but no
+  no-learning arm was sized against a dhruva band.
+* **k = 10 per arm.** The sizing half is 31 runs; §31.6 gives the Fisher numbers
+  rather than implying significance the design cannot deliver.
+* **The rung-0 selector is uniform but not neutral.** It embeds `port_src`
+  (a predictor derived from the store's own labels, §29.3) and a critic that is
+  off-distribution for the no-learning arms (§31.4). Both were held identical
+  across arms, which is what the comparison requires; neither is a fair *ranking*
+  of a random graph, and the caveat runs against the no-learning arms.
+* **GR+RAG ran the declared fallback variant** (retrieved sub-graph fixed,
+  random completion, normal serialization) — pre-registered in `plans2/10` §1.2
+  with its reason, not chosen after seeing a result. The retrieved seed's
+  non-port structural nets (`VB*` etc.) become ordinary internal nodes because
+  `templates.emit_sequence` serializes against the four-port list; the seed is a
+  **graph-level** seed, and this is recorded rather than smoothed over.
+* **SPICE-minutes count sizing evaluations only** (`loop.spice_curve`'s
+  convention). The bias-conduction stage's ngspice cost is reported separately
+  and is near-identical across arms (70.2 s / 70.7 s / 19.5 s / 79.0 s).
+* **Bipolars are out of GR's kind set** (§31.1) — a deviation from "pure syntax"
+  with its reason recorded.
+
+### 31.10 Regression, cost, and artefacts
+
+Full suite green **before and after**, identical readings: vocab **MATCH**,
+screen **114/192 (59.4%)**, `pipeline_yield` **40/42 (95.2%)** (the known 1081
+singular matrix), `check_ref` / `check_nf` / `check_bjt` / `check_op` **GREEN**,
+`check_stab` **harness GREEN** (its pre-existing `dhruva-l2` advisory is
+unchanged by this work package), `calibrate_specs` **ALL ACCEPTANCE CRITERIA
+MET**, plus the new `grammar_gen.py --selftest` **GREEN**.
+
+**Cost.** 512 grammar circuits (~3.3 min CPU, no GPU) + 256 GPU samples
+(64 s on the 4 GB card, checked free before the burst) + 575 bias sweeps
+(~4 min) + one critic-v2 ensemble train (1426 s CPU on 2047 rows) + 31 sizings
+(**6,951 ngspice evaluations ≈ 115.9 SPICE-minutes**, 15.1 min wall over two
+shards) + one full audit. **+26 L2 rows** under recipe `attrib-v1` (store
+2760 → 2786). Snapshot **`v6-attrib`** pins `topo_labels=2760 / l1_labels=102`
+so every number above is reproducible against a store three other agents were
+writing to.
+
+Artefacts under `lna/out/_at/` (gitignored, as `_m/` and `_nf/` are):
+`gen_stats.json`, `bias_stats.json`, `bias_detail.json`, `pool.json`,
+`rank.json`, `sized_a.json` / `sized_b.json`, `funnel.json`, and the four sample
+pools. The pools regenerate exactly from committed code:
+`python lna/grammar_gen.py --arm gr|rag --n 128 --seed 1337|2338 --out DIR`.
+
+```bash
+python lna/grammar_gen.py --selftest
+python lna/grammar_gen.py --arm gr --n 128 --seed 1337 --out lna/out/_at/gr_s1337
+wsl -e bash lna/_attrib_gpu_sample.sh                       # arm G3 (GPU, ~1 min)
+python lna/_attrib_pools.py --stage gen|bias|pool
+"<analoggenie py>" lna/search.py --rank --pool-json lna/out/_at/pool.json \
+    --snapshot v6-attrib --out lna/out/_at/rank.json
+python lna/_attrib_size.py --rank-json lna/out/_at/rank.json --k 10 \
+    --shard 0/2 --out lna/out/_at/sized_a.json
+python lna/_attrib_report.py --spec wifi24 --md
+python lna/_attrib_audit.py --wl 0da2f0c7b263eee5 --reps 3
+```

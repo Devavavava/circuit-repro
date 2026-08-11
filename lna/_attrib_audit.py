@@ -30,21 +30,20 @@ from topology import Topology                                     # noqa: E402
 
 
 def audit(wl, reps=3, recipe="attrib-v1"):
-    rows = [r for r in ds.load("topo_labels")
-            if r.get("wl_hash") == wl
-            and (r.get("provenance") or {}).get("recipe", recipe) is not None]
-    rows = [r for r in rows if (r.get("provenance") or {}).get("recipe") == recipe] or rows
+    allrows = [r for r in ds.load("topo_labels") if r.get("wl_hash") == wl]
+    rows = [r for r in allrows
+            if (r.get("zoaf_cfg") or {}).get("recipe") == recipe] or allrows
     if not rows:
         raise SystemExit(f"no store row with wl_hash {wl}")
     row = rows[-1]
     spec = size._spec_for_sizing(row["spec"])
     topo = Topology((row.get("graph") or {})["tokens"])
-    params = row["params"]
+    params = row["best_params"]
     m0 = row["metrics"]
     print(f"=== WP-ATTRIB audit: {wl} vs {row['spec']} ===")
     print(f"arm={(row.get('provenance') or {}).get('attrib_arm')} "
           f"devices={topo.n_devices} inductors={topo.n_inductors} "
-          f"recipe={(row.get('provenance') or {}).get('recipe')}")
+          f"recipe={(row.get('zoaf_cfg') or {}).get('recipe')}")
     print(f"stored: " + " ".join(f"{k}={m0.get(k)}" for k in
                                  ("s11_db", "s21_db", "idd_ma", "nf_db")))
 
@@ -92,8 +91,9 @@ def main():
     prepared = size.prepared_body(topo, inductor_q=12)
     if prepared:
         body, _, _ = prepared
-        f0 = spec.band["f0"]
-        for label, lo, hi in (("in-band", spec.band["f_lo"], spec.band["f_hi"]),
+        f0 = float(spec.band["f0"])
+        for label, lo, hi in (("in-band", float(spec.band["f_lo"]),
+                               float(spec.band["f_hi"])),
                               ("0.1-20 GHz", 1e8, 2e10)):
             try:
                 st = E.measure_stability(body, params, f0, lo, hi, npts=201)

@@ -315,6 +315,32 @@ outright (`FINDINGS §18.5`).
   statistic they target and lower NDL. The law is about **where the steering
   signal points** — at structure the model has already memorised — not about
   which channel carries it.
+- **★ The generator now has a no-learning control, and it inverts both
+  headline metrics** (`lna/grammar_gen.py`, `FINDINGS §31`). A grammar-only
+  generator — random device multiset inside the spec's `device_budget`,
+  uniformly random wiring (MOS bulk included), serialized through this same
+  upstream `build_connection_matrix → dfs_all_paths` path, with well-formedness
+  rules limited to what a *decodable, simulable* circuit requires — beats the
+  adopted P5-v7 on `wifi24` **spec-L0 (65.6% vs 65.2%)** and on **NDL@256
+  (168 vs 63)**, because a random graph is never a copy of anything. The
+  separation appears only at the first stage that runs a simulator: after
+  `bias.insert_bias`, **3.0% of the grammar arm's screen-passing samples have
+  all MOS conducting against P5-v7's 67.7%**, the median random circuit has
+  **zero** conducting transistors, and at equal sizing budget the no-learning
+  arms return 0 near-feasible designs where P5-v7 returns 2 plus one audited
+  `wifi24` tier-2 feasible. **What this block's training buys is DC viability
+  and gain capability — not novelty (a random graph is more novel) and not
+  structural plausibility (a random graph passes the same screen).** The
+  consequence for governance is stated in Block 10 and in `JOURNEY`'s current
+  frontier: NDL measures *not-copying* and has never measured *working*.
+- **The source-driven input motif is abundant in graph space and scarce only
+  in the data** (`FINDINGS §31.4`). Random wiring emits it at **48.4%**; the
+  adopted generator at **14.4%**. `§29.6` inferred that from the training mix
+  (the archetype channel is 98.6% gate-driven); this is the same conclusion
+  measured from the opposite side, and it is why the three steering levers
+  (`§28`, `§29.7`, `§29.8`) could only trade novelty for rate — they pointed at
+  memorised structure, and the structure the mix is missing is not there to
+  point at.
 
 ## 4. The evaluation ladder
 

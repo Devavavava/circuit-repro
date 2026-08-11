@@ -1544,12 +1544,101 @@ v0 already preserves 11/11 argmins while skipping 42.9% — and to retrain on th
 post-cutover points stage 25's logging is now accumulating, since nothing here
 can enter today's sizing loop until they exist.
 
+## 27. The null hypothesis nobody had run — a generator with no learning in it beats the adopted one on both headline metrics, and then produces nothing
+
+**Context.** Seven sessions of this program are built on two numbers:
+`spec-L0` pass rate and `NDL@256`. Every generator adoption decision — P5-v6
+rejected, P5-v7 adopted, the curriculum arms rejected, P5-v8 rejected, P5-v9m
+rejected — was gated on them. Stage 24 had just established the rule that *a
+capability negative is only as strong as the selector that produced its
+candidates*. The symmetric rule for a capability **positive** is that it is only
+as strong as the baseline it is compared against, and the record contained **no
+no-learning baseline at all**: the weakest thing ever measured was the upstream
+pretrained checkpoint, which is still a transformer trained on 3,351 circuits.
+
+**Decision, and who made it.** The user named the work package: build the
+missing rungs of the ladder — a grammar-only generator, a grammar-plus-retrieval
+generator, the pretrained checkpoint, and the adopted P5-v7 — and push all four
+through one identical funnel with the rung-0 selector *held fixed*, because
+stage 24's lesson is that the selector is where a comparison silently breaks.
+The executor pre-registered `plans2/10-WP-ATTRIB.md` — the four arms, the
+justification of every well-formedness rule as *required for validity* rather
+than *good for LNAs*, seven numbered predictions and an explicit decision rule —
+and committed it (`ab5e633`) before a line of `grammar_gen.py` existed.
+
+**Result — the inversion.** The grammar arm draws a random device multiset
+inside the spec's device budget, wires every pin uniformly at random including
+MOS bulk, and serializes through the same upstream Eulerian pipeline the corpus
+and archetypes use. It clears `wifi24`'s L0 screen at **65.6%** against P5-v7's
+65.2%, and scores **NDL@256 = 168** against P5-v7's 63 — because a random graph
+is never a copy of anything. On `dhruva-l5` the gap is wider still (77.3% / 198
+vs 67.2% / 64). **A generator with no learning in it wins both of the metrics
+this program has used to decide what to adopt.**
+
+**And then the simulator speaks.** After rule-based bias, **3.0%** of the
+grammar arm's screen-passing samples have all their MOS conducting, against
+**67.7%** for P5-v7 — the *median* random circuit has zero conducting
+transistors, on 168 samples against 167. At equal sizing budget through the same
+fixed selector, the no-learning arms return **0 near-feasible and 0 feasible**
+designs and not one of 22 sized candidates reaches useful gain (best S21
+**+2.48 dB**). P5-v7 returns 2 near-feasible, and one of them is a fully audited
+`wifi24` **tier-2 feasible** design — `0da2f0c7b263eee5`, 10 devices, S11 −30.68
+/ S21 13.37 / Idd 2.24 / **NF 1.697**, replay 3/3, 10/10 in box, unconditionally
+stable in band and over 0.1–20 GHz, novel against ref-v3 with its nearest
+neighbour at cosine 0.527. The program's tier-2 record goes from two designs to
+three.
+
+**Understanding.** What the 11.8M-parameter fine-tune buys is not novelty — a
+random graph is more novel — and not structural plausibility — a random graph
+passes the same screen. It is **DC viability and gain capability**: an
+arrangement in which transistors actually conduct and a signal actually gets
+amplified. Neither of the program's headline generation metrics can see that
+property, and one of them is actively anti-correlated with it. The cheapest
+repair is already measured and costs about seventy seconds per pool: report the
+all-MOS-conducting rate beside NDL. Whether it joins the adoption rule is a
+frozen-protocol change and therefore the user's call, exactly like the ref-v2
+rebaseline and the Gate-C1 restatement before it.
+
+Two further things fell out. The source-driven input motif that stage 24 showed
+carries the whole match/no-match split is emitted by **random wiring at 48.4%**
+and by the adopted generator at **14.4%** — confirming from the opposite
+direction that the motif is abundant in graph space and scarce only in the
+training mix, which is why every steering lever tried so far bought rate and
+lost novelty. And the uncertainty gate retired in stage 16 as permanently inert
+fires on **73–76%** of the no-learning candidates against 0–11% of the learned
+ones: it was never broken, it had simply never been shown anything genuinely
+off-distribution. `grammar_gen.py` is now this program's null hypothesis, and it
+costs fifty seconds of CPU to run.
+
+**Honesty note carried forward.** The sizing half of this comparison is 31 runs;
+Fisher one-sided on near-feasible gives p = 0.077 pooling all no-learning arms
+against P5-v7, which does not clear 0.05. The decisive statistics are upstream
+(113/167 vs 5/168 conducting) and qualitative (0 of 22 no-learning candidates
+above +2.5 dB of gain). The claim supported is "the learned generator supplies
+DC-viable, gain-capable structure that syntax plus retrieval does not"; the
+claim *not* supported is a precise multiplier on feasible-novel yield.
+
 ## Current frontier
 
 As of this document's writing (`lna-data`, commit `5be4de3` and whatever
 concurrent work is layered on top of it), the following are open, live, or
 explicitly deferred to the user:
 
+- **The program's two headline generation metrics have a measured blind
+  spot (stage 27).** A grammar-only generator with **no learning in it** beats
+  the adopted P5-v7 on both `spec-L0` pass rate (65.6% vs 65.2%) and
+  **NDL@256 (168 vs 63)**, and then returns 0 near-feasible designs where
+  P5-v7 returns 2 and one audited `wifi24` tier-2 feasible. The first stage
+  with any discriminative power is **all-MOS-conducting after bias**
+  (3.0% vs 67.7%), which costs ~70 s per 256-sample pool and is already
+  computed by `bias.insert_bias`. **Adding it beside NDL in the frozen
+  protocol row is a frozen-protocol change and therefore an explicit user
+  decision**, same class as the ref-v2 rebaseline and the Gate-C1
+  restatement. Until then, no adoption decision should rest on NDL alone.
+- **`lna/grammar_gen.py` is the program's null hypothesis** and costs ~50 s of
+  CPU for 256 legal circuits. Any future "the generator / search / loop
+  produced X" claim now has a cheap, seeded, deterministic control available
+  through the identical funnel.
 - **Gate D3 is MET on all four dhruva bands** — stage 23 on one 20-device
   search-derived design (`ace8383c`), and stage 24 on `dhruva-l5` **twice
   more**, once by a **generator-emitted** topology with no `moves` edit

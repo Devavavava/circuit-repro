@@ -750,6 +750,71 @@ only arm with usable ensemble uncertainty (ρ(σ,|error|) ≈ 0.53–0.54).
   ρ(S21) jump from 0.221→0.585 on the very next retrain is mostly the data
   becoming visible, not a modeling change (`FINDINGS §14.2`).
 
+### 7a. Diagnosis heads — a SEPARATE model (WP-DIAGHEADS, `plans2/13`)
+
+The margin head answers *"will this candidate miss?"*. Two **per-device** heads
+on the same backbone answer *"which device"*, so a move selector can aim:
+
+* **(a) noise share** — per-device logit → masked softmax over the graph's
+  noise-capable devices (NM/PM/R/L; capacitors are noiseless by construction,
+  not by inference). Trained with soft-target cross-entropy against the share of
+  the **excess** noise factor F−1 that `size._noise_budget_row` already stores on
+  every NF-gated L2 row. Element→device is mechanical from `to_spice.emit`
+  (`M{dev}` / `R{dev}` / `RQ{dev}` → the inductor that resistor models); the
+  harness elements `rns` (source), `rnl` (the noise deck's 50 Ω load) and
+  bias.py's `rbias*` map to no device and are dropped. `rnl` matters: it is the
+  top contributor in **36.2%** of stored budgets and its share is a pure function
+  of the design's gain (0.71 of F−1 below 0 dB S21, 0.006 above 20 dB —
+  `FINDINGS §34.2`), so a budget read off a gainless design is mostly measuring
+  the measurement.
+* **(b) conduction / inversion region** — per-MOSFET 3-way {off, weak/moderate,
+  strong}, `off` at bias.py's own 50 µA threshold and the weak/strong cut at
+  `gm/Id = 14 V⁻¹`. This is the axis `bias.saturated` provably cannot see
+  (`FINDINGS §30.5`, confirmed on 4,096 devices in §34.2: it calls **99.0%** of
+  weak-inversion devices saturated and scores **AUC 0.552** on weak-vs-strong
+  *with a full DC solve in hand*).
+
+Both diagnosis losses are **masked**, so a row without a diagnosis label trains
+the margin head exactly as before — deliberately, so that the multi-task-vs-
+margin-only comparison is a comparison of models and not of training sets.
+Labels come from one era only (`w_finger = 2 µm`, post-§27) and one snapshot
+(**`v7-diag`**, the first ever taken of `op_points`).
+
+**Holdout (family split, ens-3, 328 test rows):** dominant-device **top-1
+0.596** / top-2 0.813 / ρ(share) 0.628 against a 0.191 uniform base rate, a
+0.307 best-constant, and a **0.131** "it's the input device" heuristic;
+conduction **AUC 0.949**, weak-vs-strong **AUC 0.858**, 3-class accuracy 0.793.
+
+**★ They are NOT part of critic v1.** On the same splits in the same process,
+adding the heads costs ρ(S21) **0.862 → 0.771** (4.5× the pre-registered ±0.02
+tolerance) and halves `unc_cal` **0.549 → 0.247** — the ensemble σ that Block 8's
+`mean − β·σ` rule consumes. Block 10's adopt-only-if-better therefore keeps the
+incumbent: `train_one(diag=False)` is byte-for-byte critic v1 and stays the
+default; `--diag` is opt-in and is never what `search.py` or
+`evolve_score.Scorer` loads. Suspected mechanism (untested): the multi-task arm
+early-stops on its own combined objective and converges much sooner (917 s vs
+1,554 s), so the margin head stops training while still improving. The two λ
+were fixed a priori precisely so this could not be rescued by tuning.
+
+**Conduction labels are only well-posed at a converged point.** The critic's
+input is (topology, spec) and carries no `x`, so an operating point read at an
+arbitrary inner-ZOAF step is not a function of the model's input.
+`lna/_diag_harvest.py` is what makes the label exist at scale: one bare `op` at
+each stored design's own `best_params`, stamped `recipe = diagheads-v1` and
+`deck = op_probe` (a third deck value beside WP-OBSERVE's `sizing` / `noise`).
+It took `op_points` from 194 rows / 391 device reads to **1,529 / 4,096** in
+642 s with zero failures.
+
+**What the heads are for** (`_diag_pilot.py`, `FINDINGS §34.6`): filtering
+`moves.py` proposals by the mechanism that addresses the predicted defect —
+degeneration/cascode/swap/stage on a dominant MOS, load-swap/passive-swap/
+match-element on a dominant passive, plus rejection sampling so the edit actually
+touches the named device. Measured against random move selection at equal SPICE
+budget it wins the pre-registered metric (mean Δ feasibility score −1.049 vs
+−1.432) **by removing disasters rather than finding wins**, and on 2 of 5 parents
+it could propose nothing legal at all — the binding constraint is now `moves.py`'s
+passive/matching repertoire, not the diagnosis.
+
 ## 7b. The point surrogate (WP-SURROGATE v0)
 
 Block 7's critic scores a **topology**; this scores a **point inside one**.

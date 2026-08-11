@@ -42,7 +42,7 @@ def _row(tag, te, mean, std, sigma_norm):
     return out
 
 
-def run(snapshot=None, n_models=3, out=None):
+def run(snapshot=None, n_models=3, out=None, only=None):
     data = critic.load_dataset(snapshot=snapshot)
     n_noise, n_cond = G.attach_diag(data, snapshot=snapshot)
     sigma = critic._sigma_s21(snapshot=snapshot)
@@ -62,6 +62,8 @@ def run(snapshot=None, n_models=3, out=None):
     splits.append(("source-shift",
                    [d for d in tr2 if id(d) not in va2_ids],
                    [d for d in tr2 if id(d) in va2_ids], te2))
+    if only:
+        splits = [s for s in splits if s[0] == only]
     res = {"snapshot": snapshot, "n_models": n_models, "sigma_S21": sigma,
            "n_noise_rows": n_noise, "n_cond_rows": n_cond, "rows": []}
     for split_name, a, b, c in splits:
@@ -130,8 +132,11 @@ def main():
     ap.add_argument("--snapshot")
     ap.add_argument("--n-models", type=int, default=3)
     ap.add_argument("--out", default="lna/data/reports/diagheads-nonreg.json")
+    ap.add_argument("--only", choices=("family-holdout", "source-shift"),
+                    help="run one split (the other half is already in the JSON)")
     a = ap.parse_args()
-    return run(snapshot=a.snapshot, n_models=a.n_models, out=a.out)
+    return run(snapshot=a.snapshot, n_models=a.n_models, out=a.out,
+               only=a.only)
 
 
 if __name__ == "__main__":

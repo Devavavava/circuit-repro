@@ -6956,3 +6956,341 @@ python lna/_out_report.py --pool lna/out/_o/pool.json --rank lna/out/_o/rank.jso
     --sized lna/out/_o/sized_a.json lna/out/_o/sized_b.json --gen lna/out/_o/gen_stats.json
 python lna/_attrib_audit.py --wl ce39a77c91974013 --reps 3 --recipe outcome-v1
 ```
+
+---
+
+## 34. Phase 2 — **WP-DIAGHEADS**: the critic learns to say *which device*, and a pointed edit beats a random one (Session 7)
+
+> Owner: the WP-DIAGHEADS executor. Files: `lna/plans2/13-WP-DIAGHEADS.md`
+> (pre-registered and committed at `ebc42fb`, **before** the first head was
+> trained and before a single pilot sizing), `lna/critic_gnn.py`,
+> `lna/_diag_harvest.py`, `lna/_diag_parents.py`, `lna/_diag_pilot.py`,
+> FINDINGS **§34**, JOURNEY stage **29**, `STRUCTURE_LOGIC.md` Block 7.
+> Store recipe **`diagheads-v1`** (harvested op rows) and source arm
+> **`diagheads-pilot`** (the pilot's L2 rows). Snapshot **`v7-diag`**.
+> `lna/moves.py` was used READ-ONLY. Nothing frozen was touched.
+
+**The premise.** The critic predicts a 4-vector of margins for a whole topology
+and *pools its per-node embeddings away* to do it. It can say "this candidate
+will miss"; it cannot say "and here is the device that is missing it". So
+`evolve.py` mutates uniformly at random over 17 move classes — the selector has
+no opinion about **where** on the graph to cut. Meanwhile the store has been
+carrying two per-device supervision signals that nothing had ever read as
+labels: §26's per-element noise budgets and §30's per-device operating points.
+
+**Headline.** The critic's per-device embeddings — which the margin head has
+always pooled away — already know **where** a design's noise comes from and
+which of its transistors are actually conducting. On a family holdout:
+dominant-noise-device **top-1 0.596** against a measured 0.191 uniform base rate,
+a 0.307 best-constant baseline and a **0.131** "it's the input device"
+heuristic; conduction **AUC 0.949** and weak-vs-strong inversion **AUC 0.858** —
+the latter on an axis where `bias.saturated` scores **0.552** *with a full DC
+solve in hand*. Both pre-registered Bar-1 gates are met. **Bar 2 is not:**
+bolting the heads onto the shipped critic costs ρ(S21) **0.862 → 0.771** and
+halves the uncertainty calibration `search.py` depends on (0.549 → 0.247), so
+the diagnosis heads ship as a **separate model** and critic v1 is untouched.
+And the demonstration: pointing `moves.py` where the heads point beat random
+move selection on the pre-registered metric (mean Δ feasibility score **−1.049
+vs −1.432**) — but it wins by **removing disasters, not by finding wins**, and
+the only feasible child in the entire pilot came from a random `rewire`.
+
+Getting there required fixing the label supply first: `op_points.jsonl` went
+**194 → 1,529 rows** (391 → **4,096** device reads) via a read-only op harvest,
+because WP-OBSERVE's table could not have trained anything.
+
+### 34.1 The label audit, done before any training — and it inverted the brief
+
+| label source | rows | device targets | verdict |
+|---|---|---|---|
+| `topo_labels.provenance.noise_budget`, multi-finger era | **1,355** (796 distinct `wl_hash`, 7 specs) | 5,618 | rich |
+| `op_points.jsonl` as WP-OBSERVE left it | 194 rows / **391 device rows** | 374 of them `off`, 28 topologies, **30 rows at a converged point** | unusable |
+
+The WP was written expecting the noise budgets to be the thin set. They are the
+rich one. And the op table's problem is not only volume: **164 of its 194 rows
+are inner-ZOAF trajectory points of a single 2-device `gps-l1` demo circuit**,
+where every device is genuinely off because the trajectory had not converged yet.
+
+There is a second, structural reason those rows cannot be the label, and it is
+the one that decided the design: **the critic's input is (topology, spec) and
+contains no `x`.** The same topology is off at one point of a ZOAF trajectory
+and saturated at another, so a conduction label read at an arbitrary inner point
+is *not a function of the model's input*. Only a **converged** point is.
+
+**So the WP pre-registered a read-only op harvest** (`_diag_harvest.py`), which
+is §30.5's own method applied at scale: for each multi-finger-era L2 row that
+already carries a noise budget, rebuild the deck with `size.prepared_body` and
+run **one bare `op` at that row's own stored `best_params`**. No re-sizing, no
+metric re-measured, no row mutated, nothing adopted.
+
+| | before | after |
+|---|---|---|
+| op rows | 194 | **1,529** |
+| device-level rows | 391 | **4,096** (harvested: 4,096 MOS reads on 1,335 designs) |
+| region census | off 374 / sat 8 / sub 5 / triode 4 | **sat 2,532 / off 657 / sub 621 / triode 286** |
+| failures | — | **0 prep, 0 op, 642 s wall** |
+
+Snapshot **`v7-diag`** pins `topo_labels` (2,786 lines), `op_points` (1,529) and
+`l1_labels` (102). `op_points` had never been snapshotted; §30.6 item 3 asked
+whoever trained on it first to fix that, and this is that.
+
+### 34.2 ★ Two harness facts the budget was hiding, both measured on 1,355 designs
+
+**(a) 36.2% of the stored noise budgets have the harness's own 50 Ω load as their
+top contributor to F−1 — and it is a pure gain artefact.** `rnl` is the load
+resistor `build_noise_deck` terminates the output with. It is not a design
+device, and it was excluded from the per-device label *before* any accuracy
+number existed (plans2/13 §1a). Binned by the design's own gain:
+
+| S21 (dB) | n | `rnl` is top-1 | mean `rnl` share of F−1 |
+|---|---|---|---|
+| < 0 | 383 | **88.5%** | 0.714 |
+| 0 – 6 | 133 | 59.4% | 0.430 |
+| 6 – 12 | 219 | 27.4% | 0.269 |
+| 12 – 20 | 294 | 4.4% | 0.117 |
+| ≥ 20 | 326 | **0.0%** | 0.006 |
+
+That is load noise referred to the input through the gain, behaving exactly as it
+must — which is a second, independent validation of §26's instrument, and a
+warning label for any future reader of a stored budget: **on a design with no
+gain, the "noise budget" is mostly measuring the measurement.** §26.2's exemplar
+never showed this because it was a 30 dB design.
+
+**(b) §30.5's headline generalises from 25 transistors to 4,096.** The claim was
+that `bias.saturated` cannot distinguish weak from strong inversion because
+BSIM4's `Vdsat` collapses to ~55 mV in weak inversion. Measured on the harvest:
+
+| | measured |
+|---|---|
+| weak-inversion (`sub`) devices that `bias.saturated` calls **saturated** | **615 / 621 = 99.0%** |
+| `gm/Id` in the `sub` group | median **17.3** (p10 15.4, p90 20.8) |
+| `gm/Id` in the `sat` group | median **10.1** (p10 4.2, p90 **14.0**) |
+| `bias.saturated` used as a **weak-vs-strong score**, AUC | **0.552** — chance, *with a full DC solve in hand* |
+| `bias.saturated` used as a **conducting-vs-off** score, AUC | 0.737 |
+
+§30.5's 17–20 vs 10–12 split holds for the `sub` group and is *wider than
+reported* on the saturated side (p90 = 14.0, not 12). The pre-registered
+`gm/Id = 14 V⁻¹` cut therefore sits exactly on the boundary, and the resulting
+class is **not** a relabelling of `region`: 258 of the 2,532 `sat`-region devices
+score `gm/Id ≥ 14` and are labelled weak/moderate, while 620 of 621 `sub` devices
+are. The head is being asked a question the region rule does not answer.
+
+### 34.3 The heads
+
+One backbone, three read-outs. The backbone is **unchanged** from critic v1 —
+bipartite device↔net message passing, per-pin-role maps, 3 rounds, h = 64 — on
+purpose: the question was whether the *existing* representation already knows
+where the defect is, not whether a bigger one could be made to.
+
+* **margin head** (existing): `[sum-pool, max-pool, spec] → 4`, masked Huber +
+  S21 rank-hinge. `train_one(diag=False)` is byte-for-byte critic v1's loop.
+* **(a) noise share**: per-device `[h_d, spec] → 1` logit, masked softmax
+  cross-entropy against the **soft** target (the stored `frac_excess`
+  renormalised over attributable devices). Mask = NM/PM/R/L; capacitors are
+  excluded because they are noiseless **by construction**, not by inference.
+* **(b) conduction / region**: per-device `[h_d, spec] → 3` logits over
+  {off, weak/moderate, strong}, masked to MOSFETs.
+
+`L = L_margin + 0.5·L_noise + 0.5·L_cond`, both λ fixed a priori and never
+tuned. Every diagnosis term is masked, so **a row with no diagnosis label trains
+the margin head exactly as it always did** — which is what keeps §34.5's
+non-regression comparison unconfounded rather than a comparison of two different
+training sets.
+
+Element→device mapping is mechanical from `to_spice.emit` (`M{dev}`, `R{dev}`,
+`RQ{dev}` → the inductor that resistor models); `rns`, `rnl` and `rbias*` map to
+nothing and are dropped.
+
+### 34.4 ★★ Bar 1 — both heads clear, on a family holdout
+
+`critic_gnn.py --diag-eval --snapshot v7-diag --n-models 3`, 5-family-split
+holdout (train 2,085 / val 369 / **test 328**, whole WL families withheld; no
+row-level split appears anywhere in this WP).
+
+**(a) Which device dominates the noise**, 166 labelled test rows:
+
+| | value |
+|---|---|
+| **TOP-1 accuracy** | **0.596** (bar 0.55) |
+| top-2 accuracy | 0.813 |
+| ρ(predicted share, measured `frac_excess`), pooled over devices | **0.628** |
+| baseline — uniform over noise-capable devices | 0.191 |
+| baseline — best constant name (*always NM1*, fitted on train) | 0.307 |
+| baseline — highest-degree device (whole label set) | 0.289 |
+| baseline — **the input device** (the designer's first guess, whole label set) | **0.131** |
+
+The head is **1.9×** the best non-learned constant and **3.1×** the uniform base
+rate. The pre-registered anti-prior check (P5) passes: top-1 exceeds the constant
+on **each of the three largest test specs** — wifi24 0.446 (n=74), dhruva-l5
+0.806 (n=31), dhruva-s 0.680 (n=25) — and is flat in graph size (0.59 / 0.58 /
+0.60 across the 5-/10-/15-device buckets). ⚠ `wideband-sdr` scores 0.286 on
+**n = 7** and is below the constant there; it is not one of the three largest and
+the pooled claim does not rest on it, but it is the weakest cell in the table.
+
+⚠ **The "input device is the noisy one" heuristic scores 0.131 — worse than
+guessing uniformly.** That is §26's headline ("the l5 barrier was assumed to be
+the input stage's noise; it is not, mostly") re-measured across 1,355 designs
+rather than one, and it is why a *learned* head is worth its cost here.
+
+**(b) Conduction and inversion region**, 864 labelled test devices
+(off 163 / weak 180 / strong 521):
+
+| | value |
+|---|---|
+| **AUC conducting vs off** | **0.949** (bar 0.75) |
+| **AUC weak vs strong** (n = 701) | **0.858** (bar 0.70) |
+| 3-class argmax accuracy | 0.793 |
+| `bias.saturated` as a weak-vs-strong score, **with the DC solve in hand** | **0.552** |
+
+The second row is the point of the head. The L1 predicate is not merely worse —
+it is at chance on this axis *even though it gets to look at the operating
+point*, while the head reads only the graph and the spec, **before any SPICE
+runs at all**.
+
+### 34.5 ★★ Bar 2 — the multi-task model **regresses** the shipped critic, so the diagnosis heads ship SEPARATELY
+
+`_diag_nonreg.py` trains both arms **in one process on literally the same
+splits** with the same train-fitted spec scaler, so a difference between them is
+a difference of models and not of splits. Family holdout, ens-3, snapshot
+`v7-diag`, 328 test rows:
+
+| model | ρ(S11) | **ρ(S21)** | ρ(Idd) | ρ(NF) | rankacc | prec@20 | skill | **unc_cal** | C1 |
+|---|---|---|---|---|---|---|---|---|---|
+| **margin-only** (critic v1's loop, unchanged) | 0.606 | **0.862** | 0.538 | 0.744 | 0.867 | 0.924 | 0.838 | **0.549** | YES |
+| multi-task (+ both diagnosis heads) | 0.586 | **0.771** | 0.467 | 0.678 | 0.810 | 0.879 | 0.740 | **0.247** | YES |
+
+**ρ(S21) falls by 0.091 — 4.5× the pre-registered ±0.02 tolerance — so Bar 2 is
+NOT MET and the pre-registered consequence fires: the diagnosis heads ship as a
+SEPARATE model, not as an upgrade to critic v1.** `train_one(diag=False)` is
+byte-for-byte the v1 loop and remains the default; `--diag` is opt-in and is
+never what `search.py` or `evolve_score.Scorer` loads. Block 10's
+adopt-only-if-better applied to a critic version, as §14/§21 applied it to
+generator versions.
+
+⚠ **Two things make this more than a shrug.** Every margin metric moves the same
+way — S11, Idd, NF, rank accuracy, prec@20 and skill all drop together, so this
+is capacity or optimisation, not noise on one head. And **`unc_cal` falls from
+0.549 to 0.247**: the ensemble σ that `search.py`'s `mean − β·σ` rule consumes
+(Block 8) is *half* as good at ranking the model's own error. That is the single
+most expensive thing to lose, and it is the clearest argument against shipping
+the multi-task model even if ρ(S21) had squeaked through.
+
+**The likely mechanism, stated as a hypothesis and not a result.** The
+multi-task arm early-stops on its OWN objective (margins + both diagnosis terms,
+as it must) and it converges **much sooner** — 917 s against margin-only's
+1,554 s for the same three models. The diagnosis losses fall fast and start
+dominating the validation signal, so the margin head stops being trained while it
+is still improving. The obvious fixes — early-stop on the margin term alone, or
+sweep the two λ — were both **excluded by the pre-registration on purpose**
+(plans2/13 §2: "the two λ = 0.5 are fixed a priori and will not be tuned; if the
+multi-task model regresses on margins, the answer is a separate model, not a λ
+sweep"). Recorded here as the first thing a follow-up should try.
+
+### 34.6 ★ The demonstration — targeted vs random moves, and the honest reading
+
+Five pre-registered near-miss parents (`_diag_parents.py`, deterministic rule,
+committed before training). **The model that chose the moves had every one of
+those parents' WL families removed from its training pool** (2,782 → 1,980 train
+rows, 116 rows dropped), so the targeting is a genuine holdout prediction, not
+homework being marked. On those five held-out parents the head named the true
+dominant device on **4 of 5** (`8c7592ea`→NM1 ✓, `f3f16e7e`→NM1 ✓,
+`7499599e`→NM1 ✗ (true R1), `c944366e`→L1 ✓, `396b9032`→L1 ✓).
+
+Both arms draw from the same `moves.mutate` process with the same legality
+checks; only the filter differs. **18 sizings** (the pre-registered 20 minus two
+slots the targeted arm could not legally fill), 7,136 ngspice evaluations,
+30.8 min wall.
+
+| arm | n | mean Δfs | **median Δfs** | worst | best | Δfs > 0 | feasible |
+|---|---|---|---|---|---|---|---|
+| **TARGETED** | 8 | **−1.049** | **−0.789** | **−3.41** | −0.088 | 0 | 0 |
+| RANDOM | 10 | −1.432 | −0.340 | **−8.19** | **+2.70** | 1 | **1** |
+
+**P4 is met on the pre-registered metric** — mean Δ feasibility score,
+targeted − random = **+0.383** — and the paired-by-parent version agrees in sign
+(mean +1.018 over the 4 parents with both arms sized). **And the pre-registered
+metric flatters it.** Three things the mean hides, all of which belong in the
+record:
+
+1. **Targeted wins by having no disasters, not by having successes.** Its worst
+   child is −3.41 against random's −8.19; its *median* is worse (−0.789 vs
+   −0.340). Constraining the move class to the mechanism that addresses the
+   predicted defect removes the structure-destroying edits (`rewire`,
+   `passive_type_swap` on a matching element) — it does not find better ones.
+2. **The only feasible design in the whole pilot came from the random arm** —
+   a `rewire` on `c944366e` (Δfs **+2.704**, the one child that beat its parent).
+   It is on the one parent whose targeted arm was empty, so it does not enter the
+   paired comparison; it does enter the pooled mean, *against* the targeted arm,
+   which is the direction that makes the +0.383 a floor rather than a ceiling.
+   It is still the single most useful result of the experiment and it was random.
+3. **Targeted is only ahead on 2 of the 4 paired parents** (+1.32 and +3.72
+   against −0.55 and −0.42). At n = 8 vs 10 **no significance is claimed**, as
+   pre-registered.
+
+⚠ **The failure mode worth carrying forward.** On two of the five parents the
+targeted arm could not fill its slots at all: when the head points at an
+inductor's Q resistor, the allowed classes are the three passive-side moves, and
+on a `wifi24` circuit already at its inductor budget **none of them can produce a
+legal child** (2,000 proposals, 686 of which produced no legal move of any kind;
+the pre-registered class-only fallback also returned nothing). *The diagnosis was
+right and the move set had no answer to it.* That is a statement about
+`moves.py`'s coverage of passive/matching edits, not about the head — and it is
+the concrete next thing to fix if this is to become a search rule.
+
+Every child was sized identically (`n_candidates=8, sgd_iters=8, cgd_iters=2,
+inductor_q=12, seed=0` — `evolve.py`'s own defaults), and the parents' own
+margins came from other campaigns' budgets, which is why the comparison is
+**between arms on a balanced parent set** and never child-vs-parent in absolute
+terms. Two of the 18 children re-derived keys already in the store
+(`26db0915`/dhruva-s, `396b9032`/wifi24) and were correctly deduplicated by
+`append_l2` rather than double-labelled.
+
+### 34.7 What it cost, and how to reproduce it
+
+| item | cost |
+|---|---|
+| op harvest (1,335 designs, one bare `op` each) | **642 s**, 0 failures |
+| diagnosis holdout eval, ens-3 | 1,857 s CPU |
+| Bar-2 non-regression, both arms x both splits, ens-3 | one process, see `data/reports/diagheads-nonreg.json` |
+| pilot | **18 sizings, 7,136 ngspice evaluations, 30.8 min wall** |
+| store growth | `topo_labels` 2,786 -> **2,802** (16 rows, `source_arm = diagheads-pilot`; 2 of the 18 children re-derived existing keys and were deduplicated); `op_points` 194 -> **1,529** |
+
+Snapshot **`v7-diag`** pins `topo_labels = 2786`, `op_points = 1529`,
+`l1_labels = 102` by line count + sha256; every number above is quoted against
+it. Reports in `lna/data/reports/diagheads-2026-08-11.json` and
+`diagheads-nonreg.json`; run artefacts under `lna/out/_diag/` (gitignored, like
+`_at/` and `_nf/`).
+
+```bash
+python lna/_diag_harvest.py                     # idempotent, resumes
+python lna/_diag_parents.py 5                   # the pre-registered parents
+"<analoggenie py>" lna/critic_gnn.py --diag-eval --snapshot v7-diag --n-models 3
+"<analoggenie py>" -u lna/_diag_nonreg.py --snapshot v7-diag --n-models 3
+"<analoggenie py>" -c "import sys;sys.path.insert(0,'lna');import _diag_pilot as P;P.predict('lna/out/_diag/heads.json',n_models=3)"
+python lna/_diag_pilot.py --plan
+python lna/_diag_pilot.py --size
+```
+
+### 34.8 Follow-ups
+
+1. **The move set is now the bottleneck, not the diagnosis.** Two of five
+   targeted arms could not be filled because the head pointed at a passive whose
+   only prescribed edits were illegal on that circuit. Either widen `moves.py`'s
+   passive/matching repertoire or let the targeting fall through to the
+   *second*-ranked device, which the head already provides (top-2 is 0.813
+   against top-1's 0.596).
+2. **The pilot never re-sized the parents under the pilot's own ZOAF budget** —
+   deliberately, to stay inside the pre-registered 20-sizing budget, and the
+   balanced design makes the parent offset cancel between arms. Five more
+   sizings would let the child-vs-parent numbers be read absolutely as well.
+3. **Head (c), binding-constraint prediction, was not attempted.** It was a
+   stretch conditioned on (a) and (b) clearing, which they did; the session ran
+   out of CPU, not out of reasons.
+4. **`gm/Id` is now logged at a converged point on 1,335 designs.** §30.6 item 1
+   asked for "does gm/Id predict NF margin across the store" — the rows exist
+   now and the query needs no new SPICE.
+5. ⚠ **The uncertainty gate was not re-measured for the multi-task model**
+   beyond the `unc_cal` column. §20.3 retired the σ-gate and §31 rehabilitated
+   it as an OOD detector; whether the diagnosis heads change the ensemble's σ
+   behaviour is untested.
+
+---

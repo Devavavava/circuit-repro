@@ -1675,6 +1675,63 @@ unconditioned fine-tune. And the funnel added a second independent instance of t
 session's other lesson — the frozen novelty protocol could not see the difference
 between a pool of passive networks and a pool of amplifiers.
 
+## 29. The critic learns to point — and the pointing costs it its ranking
+
+**Context.** The critic had one job and one shape: predict a whole topology's
+margin vector, which it does by pooling its per-device embeddings away. It could
+say *"this candidate will miss"* and never *"and here is the device that is
+missing it"* — which is why `evolve.py` still mutates uniformly at random over 17
+move classes, with no opinion about **where** on the graph to cut. Two per-device
+supervision signals had been sitting in the store the whole time without ever
+being read as labels: §26's per-element noise budgets (on 1,355 rows) and §30's
+per-device operating points. This stage asked whether the same backbone can
+localise a defect, and — the part that makes it a capability rather than a metric
+— whether localising it makes search better. `plans2/13-WP-DIAGHEADS.md` was
+committed with both eval bars, the five pilot parents named by hash, the move
+policy and the 20-sizing budget, before any head was trained.
+
+**Decision.** The first real decision was made *before* the modelling: an audit
+of the label supply found the brief's expectation inverted. The noise budgets
+were rich; `op_points.jsonl` was 391 device rows of which 374 were `off`, 164 of
+its 194 rows the un-converged inner trajectory of a single 2-device demo circuit.
+Worse, an inner-ZOAF row is the wrong *kind* of label: the critic's input is
+(topology, spec) and contains no `x`, so conduction at an arbitrary trajectory
+point is not a function of the model's input. Rather than train a head on it, the
+executor pre-registered a read-only harvest — §30.5's own method at scale, one
+bare `op` at each stored design's own `best_params` — and took the first snapshot
+`op_points` had ever had. The second decision was to honour the pre-registered
+consequence when the non-regression bar failed, instead of tuning the two λ that
+had been fixed a priori precisely so that this could not be quietly rescued.
+
+**Result.** On a family holdout the heads clear both Bar-1 gates: dominant-noise
+device **top-1 0.596** against a 0.191 uniform base rate, a 0.307 best-constant,
+and a **0.131** "it's the input device" heuristic that is *worse than guessing*;
+conduction **AUC 0.949**, weak-vs-strong inversion **AUC 0.858** on an axis where
+`bias.saturated` scores **0.552 with a full DC solve in hand**. The harvest also
+generalised §30.5's 25-transistor observation to 4,096: the L1 predicate calls
+**99.0%** of weak-inversion devices saturated. **Bar 2 failed** — the multi-task
+model's ρ(S21) drops 0.862 → 0.771 and its uncertainty calibration halves
+(0.549 → 0.247) — so the diagnosis heads ship as a **separate model** and critic
+v1 is byte-for-byte untouched. In the pilot, targeted moves beat random ones on
+the pre-registered metric (mean Δ feasibility score −1.049 vs −1.432) but by
+**removing disasters, not by finding wins**: the targeted median is *worse*, and
+the only feasible child in 18 sizings came from a random `rewire`.
+
+**Understanding.** Three things this stage changed about how the program should
+be read. First, **a per-device signal was available for free the whole time** —
+the budgets were being written as input features and never as labels — and the
+thing that unlocked it was not a model but noticing that a label has to be a
+function of the model's input. Second, **localisation and ranking compete for the
+same capacity**: the same backbone can do either well and does both worse, and
+the cost lands hardest on the ensemble σ that search actually consumes, which is
+the most expensive thing in the model to damage. Third, and most usefully, **the
+pilot moved the bottleneck**: on two of five parents the head pointed at a
+passive whose prescribed edits were all illegal on that circuit, so the diagnosis
+was right and `moves.py` had no answer. The next constraint on pointed search is
+the move repertoire, not the pointing — and the honest summary of the whole
+experiment is that a diagnosis head buys a *narrower loss distribution*, which is
+worth having and is not the same thing as buying better designs.
+
 ## Current frontier
 
 As of this document's writing (`lna-data`, commit `5be4de3` and whatever

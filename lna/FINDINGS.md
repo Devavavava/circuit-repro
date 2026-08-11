@@ -5984,7 +5984,7 @@ on.
 
 ### 30.6 Follow-ups
 
-1. **The table has 156 rows.** Everything above §30.5 is instrument validation;
+1. **The table has 168 rows.** Everything above §30.5 is instrument validation;
    the science starts when a campaign fills it. The cheapest first real question
    is 30.5's: regress NF margin on per-device `gm/Id` and region census across
    the store, conditioned on `harness.w_finger` (the §27 cutover) — no new SPICE.
@@ -6000,8 +6000,16 @@ on.
    ingested externals include one SiGe HBT LNA (`ihp-gps-lna-npn`) and no op row
    has been taken on it. The parameter list is `check_bjt`'s, so it should work;
    "should" is not "does".
-5. ⚠ **`lna/data/topo_labels.jsonl` is left uncommitted by this WP** (3 demo
-   `gps-l1` rows for corpus 466, `provenance.source_arm = "wpobserve-demo"`,
-   recipes `candidate-v1` and `wpobserve-demo`), for the Session-5 reason: the
+5. ⚠ **`lna/data/topo_labels.jsonl` is left uncommitted by this WP** (4 demo
+   `gps-l1` rows: three for corpus 466 under recipes `candidate-v1` /
+   `wpobserve-demo`, one for corpus 467 under `candidate-v1+bo2` from the
+   best-of-k path check; all carry
+   `provenance.source_arm = "wpobserve-demo"`), for the Session-5 reason: the
    shared store had another agent appending to it live, and whoever commits it
    next commits their rows too.
+6. **All four wiring points were exercised end to end before shipping**, not
+   just the two the demo used: `size_topology` (ordinary + repeat probe),
+   `size_best_of_k` (winner's 12 rows only, stamped `candidate-v1+bo2` with
+   `provenance.bo_seed`), `_size_ref` (`size.py --anchor`, which dedups and
+   therefore also proves op rows are correctly *not* written when the L2 row is
+   skipped), and `log_l2_result` (the noise-deck row).

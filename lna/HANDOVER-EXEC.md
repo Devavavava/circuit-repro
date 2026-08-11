@@ -1971,10 +1971,11 @@ a repeat probe, ~0.4 MB/probe — turn it down before a large σ campaign). Row 
 **~2.65 kB** at 16 devices vs `sim_points`' 377 B, so at 1/8 the new table grows
 *more slowly* (≈331 B/eval) than the one it accompanies.
 
-**⚠ Store note:** 3 demo L2 rows (`gps-l1`, corpus 466,
-`provenance.source_arm = "wpobserve-demo"`) plus their point/op rows were
-written. `lna/data/topo_labels.jsonl` was left **uncommitted** — the shared store
-had another agent appending live, same call as Session 5.
+**⚠ Store note:** 4 demo L2 rows (`gps-l1`; corpus 466 x3 and corpus 467 x1 from
+the best-of-k path check, all `provenance.source_arm = "wpobserve-demo"`) plus
+their point/op rows were written. `lna/data/topo_labels.jsonl` was left
+**uncommitted** — the shared store had another agent appending live, same call as
+Session 5.
 
 ```bash
 python lna/ref/check_op.py              # golden + invariance + deck parity

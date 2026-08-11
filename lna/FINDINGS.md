@@ -5786,3 +5786,222 @@ recipe `match-v1` (store 2642 -> 2756). Analysis artefacts under `lna/out/_m/`
 committed token+params files so both claims replay from the repo alone:
 `lna/out/match_dhruva_l5_seq0173.{tokens.txt,params.json}` and
 `lna/out/match_dhruva_l5_swap_cascode.{tokens.txt,params.json}`.
+
+## 30. Phase 3 — **WP-OBSERVE**: the pipeline was still throwing away the inside of every simulation (Session 7)
+
+> Owner: the WP-OBSERVE executor. Files: `lna/plans2/09-WP-OBSERVE.md`
+> (pre-registered and committed at `b08dda8`, **before** any feature code),
+> `lna/extract.py`, `lna/datastore.py`, `lna/size.py`, `lna/ref/check_op.py`
+> (new, joins the regression set), `.gitignore`, FINDINGS **§30**, JOURNEY stage
+> **25**, STRUCTURE_LOGIC Blocks 5/6. New table `lna/data/op_points.jsonl`
+> (append-only, gitignored). Nothing frozen was touched.
+
+**The premise.** Block 6 exists because "the pipeline was throwing away its most
+expensive byproduct" — 26 MB / 66,664 `sim_points` rows are what stopping that
+looks like. Every one of those 66,664 evaluations also solved a **full DC
+operating point** and discarded it: `run_and_extract` runs `op` and parses one
+scalar (`idd`) out of it. The same mistake, one level down, still in progress.
+
+### 30.1 The read-out is passive, and that is measured rather than asserted
+
+ngspice exposes BSIM4 instance quantities as `@m<dev>[<param>]`. Probed against
+this build: **`id, gm, gds, gmbs, vgs, vds, vbs, vth, vdsat, cgg, cgs, cgd`
+exist; `cd, ids, is, ig, ib, vth0, rg, von, beta, gmb` do not** (`Error: no such
+parameter`). There is no BSIM4 `region` output, so region is derived from
+`(id, vgs, vth, vds, vdsat)` using **bias.py's own thresholds** (`ID_MIN` 50 µA,
+`VDS_MARGIN` 1.5) so an op row and an L1 row cannot disagree about whether a
+device is on.
+
+Capture adds `print` lines to the control block between the existing `print idd`
+and the existing `sp`, and **nothing else** — no `save` (gotcha N1: a `save`
+before `sp` restricts the saved set and silently deletes the S-parameters), no
+extra analysis, no extra ngspice invocation. `ref/check_op.py` is the golden and
+reports four things, all GREEN:
+
+| check | result |
+|---|---|
+| default deck byte-unchanged when capture is off; probe contains no `save` | YES / YES (6 print-only lines) |
+| **metric vector with the probe vs without**, at `repr` precision | **18 of 18 identical, 0 differ** |
+| **captured Id/gm vs an independent bare-`op` probe** sharing no code path | **relative error 0.0e+00 on both devices** |
+| **series-Rs noise deck vs sizing deck share a DC solution** | **worst relative difference 0.0e+00** over 2 devices x 7 params |
+
+The last row is the one worth pausing on. `build_noise_deck` has asserted since
+WP-D1 that its DC is identical to the sizing deck's — that is the entire
+justification for measuring NF on a different deck than S-parameters — and
+**nobody had ever tested it.** It was registered in advance as the prediction
+most likely to fail (plans2/09 §3, P5). It holds exactly. That claim is now a
+measurement, and it is what makes `log_l2_result` able to harvest an operating
+point from the NF deck it was already running.
+
+### 30.2 Overhead: below the noise floor of a shared machine
+
+Measured with the three arms **interleaved** and reported as medians, because a
+block-A-then-block-B timing on this machine measures the other agent's load, not
+the feature — an early sequential version of this same benchmark swung from
+**−1% to +33% on identical code**.
+
+| benchmark | capture off | capture on | capture + row assembly |
+|---|---|---|---|
+| 20 interleaved evals, `ref24_tapped` (medians of 4 repetitions) | baseline | −2.7 … +1.5% | **+0.46 / +0.63 / +0.92 / +2.72%** (median ≈ **+0.9%**) |
+| full sizing run, corpus 466 vs `gps-l1`, 136 evals, 6 devices | 14.76 s | — | 14.64 s (**−0.80%**) |
+| full sizing run, `80aaf9f4` vs `dhruva-l5`, 16 devices | 23.0 s | — | 22.8 s (**−0.70%**) |
+
+**Target < 5%: met with an order of magnitude to spare.** The pre-registered
+< 2% (P1) holds at the median; the honest statement is that capture-on and
+capture-off are **not separable** at this sample size on a loaded machine, and
+the end-to-end numbers come out slightly *negative*, which is noise, not a
+speed-up. At the default 1-in-8 inner sampling the per-run cost is ≈ **0.1%**.
+
+**⚠ One real defect found and fixed on the way, which would have cost every
+future logging feature.** `datastore.git_sha()` shelled out to `git rev-parse`
+**per row**. That is invisible at one L2 row per five-minute sizing run and
+ruinous at op-row rates: on Windows the subprocess costs ~50 ms, and the first
+benchmark measured **+99% overhead** — the row assembly was *twice* the
+simulation. It is now memoized per process (the value cannot meaningfully change
+inside one run; a mid-run commit would make the pre-commit rows the lie, not the
+post-commit ones). `row_l2` and `row_l1` get the same saving for free.
+
+### 30.3 Volume: the new table stays smaller than the one it rides along with
+
+| row source | devices | bytes/row |
+|---|---|---|
+| existing `sim_points` row (66,664 of them, 26 MB) | — | **377** |
+| `ref24_tapped` bench row | 2 MOS | 1,573 |
+| corpus 466 sizing run | 2 MOS | 1,676 – 1,779 |
+| `80aaf9f4` (the Gate-D3 generator design) | 4 MOS, 16 nodes | 2,537 – **2,753** |
+
+Pre-registered P4 was 1.5–2.5 kB for a 10–16-device LNA; the measured median at
+16 devices is **2.65 kB**, so **P4 under-predicted the high end** and is recorded
+as such. The byte-budget rule survives anyway: at the default 1-in-8 that is
+**331 bytes per ngspice evaluation against `sim_points`' 377**, i.e. the op table
+still grows more slowly than the point table it accompanies.
+
+**The policy, all of it in `size.OpSink` so no driver can drift from it:**
+
+* the **final/best point** of every sizing run is always captured — `add(...,
+  stage="final")` is called directly, never through the sampler, so no rate and
+  no dedup can drop the point that gets quoted as a result;
+* a **repeat probe** captures **every** evaluation (`LNA_OP_SUBSAMPLE_PROBE`,
+  default 1) — the whole point of a repeat probe is to explain *why* two seeds
+  disagree, which needs the trajectory, not a sample of it. Cost stated rather
+  than hidden: **~0.4 MB per probe run** (137 rows), so a large σ campaign should
+  set that variable down;
+* ordinary **inner ZOAF** points at **1-in-`LNA_OP_SUBSAMPLE`, default 8**;
+* `LNA_OP_LOG=0` turns the whole mechanism off for a session, same shape as
+  `LNA_NF_GATE`.
+
+Sampling is **deterministic by call index, not random**: two runs of the same
+seed must produce the same table, because snapshots and replay fences are worth
+more here than a marginally unbiased sample.
+
+### 30.4 Where the rows come from, and what they are stamped with
+
+Wired at four points, chosen so the coverage follows the designs the program
+actually quotes rather than just the drivers that happen to call `size_topology`:
+
+1. `make_objective` / `size_topology` — the ZOAF inner loop and its endpoint.
+2. `size_best_of_k` — each seed collects, only the **winning** seed's rows are
+   kept (best-of-k already multiplies the sim cost by k; it should not also
+   multiply the table). `zoaf_cfg.seeds` still records what was tried.
+3. `_size_ref` — the reference-deck sizings, keyed `ref:<deck>` exactly as their
+   L2 rows are.
+4. **`log_l2_result`** — the hub `search.py`, `evolve.py`, `d3_campaign.py`,
+   `nf_campaign.py`, `nf_moves.py`, `g4_search.py` and `relabel_mf.py` all log
+   through. Here the operating point is harvested from the **NF deck that was
+   already going to run**, and the per-element noise budget is attached by
+   **reuse** of the `_noise_budget_row` dict that already goes into provenance —
+   never a second `measure_noise_budget` call.
+
+Op rows flush **only when the L2 row was actually appended**, exactly like point
+rows, so a deduplicated re-label never duplicates the inside of the run either.
+
+Every row carries the Block-6 label-domain stamps in `harness`: `recipe`,
+`w_finger` / `mos_fingers`, `inductor_q`, `nf_method`, `nf_gated`, `bias_rules`,
+`op_schema`, and **`deck`** — which of the two decks the op came from. `deck` is
+the one stamp that is not obvious from the others and it is the one that keeps
+30.1's parity result honest: if a future harness change breaks the sizing/noise
+DC equality, the two populations remain separable rather than silently mixed.
+`op_schema` is the era counter for the read-out itself, the same discipline
+`nf_method` applies to the NF harness.
+
+**Demo run** (corpus 466 vs `gps-l1`, 136 evaluations): **156 op rows, 278 KiB** —
+18 from the ordinary run (17 subsampled + 1 final), 137 from a repeat probe
+(136 + 1 final), and 1 `stage="label"` row captured off the noise deck with the
+noise budget attached. `stage` counts `{zoaf: 153, final: 2, label: 1}`,
+`deck` counts `{sizing: 155, noise: 1}`.
+
+### 30.5 ★ The first thing the instrument said: **44% of the transistors in this program's headline designs are in weak inversion, and the existing saturation predicate cannot see it**
+
+One read-only capture per design at each row's **own stored `best_params`** — no
+re-sizing, no store writes, one ngspice run each:
+
+| design | spec | dev | MOS | sat | triode | **sub** | off | S21 |
+|---|---|---|---|---|---|---|---|---|
+| `80aaf9f4` (Gate D3, generator-emitted) | dhruva-l5 | 16 | 4 | 3 | 0 | **1** | 0 | 30.11 |
+| `ace8383c` (Gate D3, search-derived) | dhruva-l5 | 20 | 6 | 2 | 0 | **4** | 0 | 22.30 |
+| `ced0d8bd` | dhruva-l5 | 20 | 6 | 2 | 0 | **4** | 0 | 38.11 |
+| `78f5cc9c` (Gate D3, swap+cascode) | dhruva-l5 | 11 | 3 | 2 | 0 | **1** | 0 | 24.56 |
+| `8c7592ea` | dhruva-l5 | 16 | 4 | 3 | 0 | **1** | 0 | 33.18 |
+| `396b9032` (wifi24 tier-2) | wifi24 | 9 | 2 | 2 | 0 | 0 | 0 | 15.36 |
+
+**11 of 25 MOSFETs (44%) carry milliamps at a *negative* gate overdrive**, and
+**not one device anywhere is in triode or off.** `ace8383c` in detail:
+
+```
+dev      Id mA   gm mS    Vgs     Vth     Vov     Vds   Vdsat   gm/Id
+mnm1     0.510   8.868   0.2352  0.2721  -0.0369  0.4456  0.0564  17.4
+mnm2     2.146  37.137   0.2363  0.2721  -0.0358  0.4482  0.0566  17.3
+mnm3     0.507   8.781   0.2363  0.2721  -0.0358  0.4482  0.0566  17.3
+mnm4     6.941  80.041   0.3230  0.2716  +0.0515  0.6626  0.0875  11.5
+mnm5     1.484  25.686   0.2363  0.2721  -0.0358  0.4482  0.0566  17.3
+mnm6     0.504   5.096   0.3461  0.2714  +0.0747  0.7178  0.0985  10.1
+```
+
+`gm/Id` separates cleanly into **17–20 V⁻¹ for the sub group and 10–12 V⁻¹ for
+the saturated group** — i.e. the sizer independently converged on *moderate
+inversion for the gain/input devices and strong inversion for the current-hungry
+output stage*, which is textbook RF biasing that nothing in this pipeline was
+told to do and nobody here had ever observed it doing.
+
+**And the methodological half, which is the more important one.**
+`bias.saturated` calls a device saturated when `|Vds| >= 1.5|Vdsat|`. In weak
+inversion BSIM4's `Vdsat` **collapses to ~55 mV**, so every one of those
+negative-overdrive devices passes that test by 5–8×: **`bias.saturated` reports
+all 25 of these transistors as saturated.** The L1 predicate the program has
+used since WP-BIAS cannot distinguish weak from strong inversion, and until this
+table existed there was no way to notice. That is not a bug in `bias.py` — it
+answers the question it was built for (is the device conducting?) — but every
+statement of the form "N of 41 corpus circuits are saturated" means *conducting
+with adequate Vds headroom*, not *in strong inversion*, and should be read that
+way from here on.
+
+⚠ **This is one capture per design, at one corner, on the ideal-element
+behavioural harness.** It is a description of what the sizer converged to, not a
+claim that weak inversion is *why* these designs work. The obvious follow-up —
+does `gm/Id` predict NF margin across the store now that it is logged — is one
+query away and was deliberately left for the session that has the rows to do it
+on.
+
+### 30.6 Follow-ups
+
+1. **The table has 156 rows.** Everything above §30.5 is instrument validation;
+   the science starts when a campaign fills it. The cheapest first real question
+   is 30.5's: regress NF margin on per-device `gm/Id` and region census across
+   the store, conditioned on `harness.w_finger` (the §27 cutover) — no new SPICE.
+2. **`polish` and `constrained_descent` are deliberately NOT hooked.** Their
+   endpoints are covered through `log_l2_result`, and hooking their inner loops
+   would double the table for refinement passes whose trajectories are much less
+   informative than ZOAF's (they start from an already-good point). If a session
+   wants those trajectories, the `OpSink` is reusable as-is.
+3. **`op_points` is in no snapshot, by design.** It is a byproduct table, not a
+   training set; whoever first trains on it should pin a snapshot at that moment
+   and say so, exactly as `v4-train`/`v5-train` did for the L2 table.
+4. **The BJT read-out is written but untested against a real circuit** — the nine
+   ingested externals include one SiGe HBT LNA (`ihp-gps-lna-npn`) and no op row
+   has been taken on it. The parameter list is `check_bjt`'s, so it should work;
+   "should" is not "does".
+5. ⚠ **`lna/data/topo_labels.jsonl` is left uncommitted by this WP** (3 demo
+   `gps-l1` rows for corpus 466, `provenance.source_arm = "wpobserve-demo"`,
+   recipes `candidate-v1` and `wpobserve-demo`), for the Session-5 reason: the
+   shared store had another agent appending to it live, and whoever commits it
+   next commits their rows too.

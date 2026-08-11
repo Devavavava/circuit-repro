@@ -430,6 +430,23 @@ uncollected scratch directories in `%TEMP%` from earlier callers that
   to **3.012469 dB vs the analytic 3.0103 dB**. Rows measured before this fix
   carry a different `nf_method` and are never used as an NF training target
   (Block 6).
+- **The operating point**, passively (`op_probe_lines` / `parse_op` /
+  `mos_region`, WP-OBSERVE). Every evaluation already solves a full DC operating
+  point; until Session 7 the extractor ran `op` and kept one scalar out of it
+  (`idd`). It now reads back per-device `id/gm/gds/gmbs/vgs/vds/vbs/vth/vdsat`
+  (+ a derived region) for MOSFETs and `ic/ib/vbe/vbc/gm/cpi/cmu` for bipolars,
+  plus node voltages and source branch currents. The mechanism is **`print`
+  lines and nothing else** — spliced between the existing `print idd` and the
+  existing `sp`, with **no `save`** (gotcha N1: a `save` before `sp` restricts
+  ngspice's saved set and silently deletes the S-parameters) and **no extra
+  ngspice invocation**. `ref/check_op.py` is the golden: captured Id/gm against
+  an independent bare-`op` probe (relative error **0.0e+00**), the metric vector
+  bit-identical with the probe present and absent (**18 of 18** at `repr`
+  precision), and the first numerical test of the standing claim that the
+  series-Rs noise deck shares the sizing deck's DC solution (**0.0e+00**) —
+  which is what lets `size.log_l2_result` harvest an operating point from the NF
+  deck it was already running. Measured cost is below this machine's noise floor
+  (`FINDINGS §30.2`): end-to-end sizing runs come out at −0.8% / −0.7%.
 
 `lna/size.py` runs **ZOAF**, a zeroth-order (gradient-free) black-box
 optimizer (`misc/ZOAF`), over the `.param` surface in `[0,1]^d` (log-scale for
@@ -479,6 +496,16 @@ GENERATION").
 
 **Design decisions:**
 
+- **Observation is free; discarding it is the expensive choice.** The op
+  read-out was added on exactly the argument that produced Block 6 in the first
+  place — the simulation had already been paid for. `size.OpSink` holds the
+  whole volume policy so no driver can drift from it: the final/best point of
+  every sizing run is always captured, a repeat probe captures every evaluation
+  (`LNA_OP_SUBSAMPLE_PROBE`, default 1), ordinary inner ZOAF points are sampled
+  1-in-8 (`LNA_OP_SUBSAMPLE`), and `LNA_OP_LOG=0` disables it. Sampling is
+  deterministic by call index, never random, so the same seed produces the same
+  table. `polish` and `constrained_descent` inner loops are deliberately NOT
+  hooked; their endpoints are covered through `log_l2_result`.
 - The NF-harness rewrite (series-Rs, not port-referred) is the single most
   consequential correction in the eval ladder: the old method flattered every
   design by +0.55…+12.58 dB (median +2.32), including two designs that read
@@ -498,14 +525,28 @@ GENERATION").
 ## 6. The label store
 
 **Not trained** — an append-only JSONL store (`lna/datastore.py`) that is "the
-product" every learned component (Block 7) trains against. Three tables —
+product" every learned component (Block 7) trains against. Four tables —
 `topo_labels.jsonl` (L2, one sizing outcome per (topology, spec), the
 expensive prize), `l1_labels.jsonl` (L1, cheap operating-point sweeps),
-`sim_points.jsonl` (point rows inside a ZOAF run, gitignored) — plus a
+`sim_points.jsonl` (point rows inside a ZOAF run, gitignored),
+`op_points.jsonl` (op rows — the *inside* of an evaluation, gitignored) — plus a
 `snapshots.json` index that pins named training sets by exact line count +
 sha256, so `load(table, snapshot=name)` always returns exactly the rows a
 critic version trained on, and any post-hoc mutation is detected as a hash
 mismatch rather than silently served.
+
+An **op row** (`row_op`, WP-OBSERVE) is what a point row would be if it had not
+thrown away everything but the metric vector: per-device operating point, node
+voltages, source branch currents, a region census, and — when one had already
+been computed for that point — the per-element noise budget, attached by reuse
+and never re-measured. It is stamped like a `sim_points` row (`wl_hash`, `spec`,
+`x`) plus the decoded `params` (an `x` is meaningless without the `kind_ranges`
+box that decoded it) plus a `harness` block carrying `recipe`, `w_finger` /
+`mos_fingers`, `inductor_q`, `nf_method`, `nf_gated`, `bias_rules`, `op_schema`
+and `deck` — the last being *which* of the two decks the op came from, so the
+sizing-deck and noise-deck populations stay separable even if a future harness
+change breaks the DC equality `FINDINGS §30.1` measured. It is in no snapshot:
+it is a byproduct table, and whoever first trains on it pins one then.
 
 Every L2 row carries `margins` (`margins_for`, `spec.feasible()` re-expressed
 as a per-metric signed normalized slack — the actual learning target, never a
@@ -550,10 +591,17 @@ and writing a morning report (`lna/data/reports/`).
 
 - Recipe/provenance-as-label-domain is the single mechanism protecting every
   downstream number (critic training, σ, novelty accounting) from silently
-  mixing incompatible measurements — the same discipline applied at four
-  separate junctures (NF method, NF gating, device budget, sizing recipe)
-  rather than one central flag, because each domain break happened at a
-  different session and had to be caught after the fact.
+  mixing incompatible measurements — the same discipline applied at five
+  separate junctures (NF method, NF gating, device budget, sizing recipe, and
+  now the op read-out's `op_schema`) rather than one central flag, because each
+  domain break happened at a different session and had to be caught after the
+  fact.
+- **Every table's growth is budgeted against the table before it.** `op_points`
+  rows are ~2.65 kB against `sim_points`' measured 377 B, so the 1-in-8 default
+  inner-sampling rate is set so the new table grows *more slowly* (≈331 B per
+  ngspice evaluation) than the one it rides along with — a logging feature that
+  becomes the largest thing in `lna/data/` is a logging feature the next session
+  turns off.
 - Family splits (not row splits) are what makes the critic's "family holdout"
   number meaningful at all; the same near-duplicate-dense corpus property
   that makes row splits leak is what makes WL-kNN "embarrassingly strong" as

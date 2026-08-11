@@ -1376,6 +1376,92 @@ selector that produced its candidates, and from now on it has to name it.**
 
 ---
 
+## 25. The instrument that was never built — the pipeline was still discarding the inside of every simulation
+
+**Context.** Block 6 of the architecture exists because of one lesson, stated in
+stage 5: the pipeline was throwing away its most expensive byproduct. Twenty-six
+megabytes of `sim_points` rows are what stopping that looked like. But every one
+of those 66,664 evaluations had also solved a **full DC operating point** —
+every device's current, transconductance, terminal voltages, threshold — and
+`extract.run_and_extract` ran `op`, parsed one scalar out of it (`idd`), and
+discarded the rest. The same mistake, one level down, still in progress after
+seven sessions of building on top of it.
+
+**Decision, and who made it.** The user named it as a work package. The executor
+pre-registered `plans2/09-WP-OBSERVE.md` — design, the three ngspice rules the
+capture had to obey, the volume policy, and **five numbered predictions** — and
+committed it (`b08dda8`) before writing a line of feature code, per this
+program's standing norm. The design decision inside that plan was to make the
+capture **print-only**: no `save` (gotcha N1 — a `save` before `sp` restricts
+ngspice's saved set and silently deletes the S-parameters), no extra analysis,
+no extra ngspice invocation, so that the deck's numerical result cannot move and
+the claim "passive" is testable rather than rhetorical.
+
+**Result — the instrument.** `extract.py` reads back
+`id/gm/gds/gmbs/vgs/vds/vbs/vth/vdsat` per MOSFET (BSIM4 exposes no `region`, so
+that is derived using `bias.py`'s own `ID_MIN`/`VDS_MARGIN` thresholds so an op
+row and an L1 row cannot disagree), `ic/ib/vbe/vbc/gm/cpi/cmu` per bipolar, node
+voltages and source branch currents. `datastore.py` gained the append-only,
+gitignored `op_points` table; `size.OpSink` holds the whole volume policy in one
+place. `ref/check_op.py` is the golden and joins the regression set: captured
+Id/gm against an **independent** bare-`op` probe agree to **0.0e+00 relative
+error**, and the metric vector is **identical in all 18 metrics at `repr`
+precision** with the probe present and absent. Overhead is below this machine's
+noise floor — end-to-end sizing runs measured **−0.8% and −0.7%** (FINDINGS
+§30.2), against a 5% budget.
+
+**A prediction registered because it was likely to fail, and it held.**
+`build_noise_deck` has asserted since the WP-D1 NF rewrite that its DC solution
+is identical to the sizing deck's — that is the entire justification for
+measuring NF on a *different* deck than the S-parameters — and **nobody had ever
+tested it.** It was written into the plan as P5, "the prediction most likely to
+be wrong." Worst relative difference across every device and parameter:
+**0.0e+00**. A four-session-old documentation claim is now a measurement, and it
+is what lets `log_l2_result` harvest an operating point from the NF deck it was
+already running — which is how the op table covers `search.py`, `evolve.py`,
+`d3_campaign.py`, `nf_campaign.py`, `nf_moves.py`, `g4_search.py` and
+`relabel_mf.py` without touching any of them.
+
+**A defect found by the benchmark, not by the feature.** `datastore.git_sha()`
+shelled out to `git rev-parse` **per row**. Invisible at one L2 row per
+five-minute sizing run; at op-row rates it measured a **+99% overhead** — the row
+assembly was twice the simulation. Memoized per process now, which every future
+logging feature inherits.
+
+**★ And the first thing the instrument said, on its first read.** One read-only
+capture per design at each row's own stored `best_params`, across six headline
+designs: **11 of 25 MOSFETs (44%) carry milliamps at a *negative* gate
+overdrive**, and **not one device anywhere is in triode or off**. `gm/Id`
+separates cleanly — **17–20 V⁻¹** for the weak-inversion group, **10–12 V⁻¹** for
+the saturated one — i.e. the sizer independently converged on moderate inversion
+for the gain/input devices and strong inversion for the current-hungry output
+stage. Textbook RF biasing that nothing in this pipeline was told to do, and that
+nobody here had ever observed it doing, because there was no quantity in the
+stored row that could have shown it.
+
+**The half of that result that is a correction, not a discovery.**
+`bias.saturated` calls a device saturated when `|Vds| ≥ 1.5|Vdsat|`. In weak
+inversion BSIM4's `Vdsat` collapses to ~55 mV, so every one of those
+negative-overdrive devices clears that test by 5–8×: **the predicate reports all
+25 of these transistors as saturated.** It is not a bug — it answers the question
+it was built for — but every statement in this history of the form "N of 41
+corpus circuits are saturated" means *conducting with adequate Vds headroom*, not
+*in strong inversion*, and has to be read that way from here on (stage 18's
+table, and finding #9's original off-MOS split, are the ones this touches).
+
+**Understanding.** The pattern this stage adds is narrow and, in retrospect,
+embarrassingly simple: **when a program has already decided that discarding a
+paid-for byproduct is the cardinal sin, it should check whether it is still
+committing it one level down.** Block 6 was written about exactly this and the
+op point sat inside every one of its rows, unread, for seven sessions. The
+corollary for the record-keeping: a logging feature ships with its golden or it
+does not ship — a wrong `gm` in a million rows is worse than no `gm` at all,
+because it will be believed. That is why `check_op.py` exists before any campaign
+has filled the table, and why the honest headline of this stage is *156 rows and
+a validated instrument*, not a result.
+
+---
+
 ## Current frontier
 
 As of this document's writing (`lna-data`, commit `5be4de3` and whatever
@@ -1442,6 +1528,18 @@ explicitly deferred to the user:
 - **`iip3_dbm` remains `unsupported` on every spec** (tier-3, needs a
   two-tone/harmonic-balance harness — the VACASK bookmark in the project
   memory index is where that would start).
+- **`op_points.jsonl` exists, is validated, and is nearly empty** (stage 25).
+  156 rows from a demo run; everything measured so far is instrument
+  validation plus one read-only survey of six stored designs. The cheapest
+  first real question needs no new SPICE: regress NF margin on per-device
+  `gm/Id` and region census across the store as a campaign fills the table,
+  conditioned on `harness.w_finger` (the stage-23 cutover). The BJT read-out
+  is written but has never been run against the one ingested SiGe HBT LNA.
+- ⚠ **"Saturated" in this history means *conducting with Vds headroom*, not
+  *in strong inversion*** — stage 25 measured that `bias.saturated`'s
+  `|Vds| ≥ 1.5|Vdsat|` test passes trivially in weak inversion, where BSIM4's
+  `Vdsat` collapses to ~55 mV. Nothing measured under it is wrong; the label
+  is narrower than it reads.
 
 **Standing honesty mechanisms**, established over the course of this history
 and expected to hold going forward:

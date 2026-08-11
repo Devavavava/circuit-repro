@@ -1926,6 +1926,63 @@ feasible is claimed.**
 4. `check_stab`'s store-wide re-audit on the new emission (§27's item 1) is still
    open; this session did not touch it.
 
+### ▸ Sub-block: WP-OBSERVE — the pipeline stops discarding the inside of every simulation (owner: the WP-OBSERVE executor)
+
+**Files owned:** `lna/plans2/09-WP-OBSERVE.md` (pre-registered, committed at
+`b08dda8` **before** any feature code), `lna/extract.py`, `lna/datastore.py`,
+`lna/size.py`, `lna/ref/check_op.py` (new), `.gitignore`, FINDINGS **§30**,
+JOURNEY stage **25**, STRUCTURE_LOGIC Blocks 5/6, this sub-block. New table
+`lna/data/op_points.jsonl` (append-only, gitignored, in no snapshot). Nothing
+frozen touched; `surrogate.py`/`critic_gnn.py` (concurrent agent) not touched.
+
+**What shipped.** Every ngspice evaluation already solved a full DC operating
+point and `run_and_extract` kept one scalar out of it. It is now read back
+**passively**: per-device `id/gm/gds/gmbs/vgs/vds/vbs/vth/vdsat` + derived region
+(MOS), `ic/ib/vbe/vbc/gm/cpi/cmu` (BJT), node voltages, branch currents — via
+`print` lines only, **no `save`** (gotcha N1), **no extra ngspice invocation**,
+deck byte-identical when capture is off. `size.OpSink` owns the volume policy;
+`log_l2_result` harvests the op from the **NF deck that already runs**, which is
+how `search.py`/`evolve.py`/`d3_campaign.py`/`nf_campaign.py`/`nf_moves.py`/
+`g4_search.py`/`relabel_mf.py` are covered without editing any of them. The
+per-element noise budget is attached **by reuse** of `_noise_budget_row`.
+
+| golden (`ref/check_op.py`, joins the regression set) | result |
+|---|---|
+| captured Id/gm vs an independent bare-`op` probe | **0.0e+00** relative |
+| metric vector with probe vs without, `repr` precision | **18/18 identical** |
+| noise deck vs sizing deck share a DC solution (never tested before) | **0.0e+00** |
+| overhead, end-to-end sizing runs (6-dev / 16-dev) | **−0.80% / −0.70%** (target < 5%) |
+
+**★ First reading of the instrument.** Across six headline designs at their own
+stored `best_params`: **11 of 25 MOSFETs (44%) carry milliamps at negative gate
+overdrive**, 0 in triode, 0 off; `gm/Id` splits **17–20 V⁻¹ (weak inversion,
+gain/input devices)** vs **10–12 V⁻¹ (output stage)**. ⚠ **`bias.saturated`
+cannot see this** — in weak inversion BSIM4's `Vdsat` collapses to ~55 mV, so
+`|Vds| ≥ 1.5|Vdsat|` passes by 5–8× and the predicate calls all 25 saturated.
+"Saturated" in this program's history means *conducting with Vds headroom*.
+
+**⚠ Defect fixed on the way:** `datastore.git_sha()` shelled out per row (~50 ms
+on Windows) — measured **+99% overhead** at op-row rates. Memoized per process;
+`row_l2`/`row_l1` benefit too.
+
+**Knobs / volume.** `LNA_OP_LOG=0` off; `LNA_OP_SUBSAMPLE` (default **8**) for
+inner ZOAF points; `LNA_OP_SUBSAMPLE_PROBE` (default **1** = every evaluation of
+a repeat probe, ~0.4 MB/probe — turn it down before a large σ campaign). Row size
+**~2.65 kB** at 16 devices vs `sim_points`' 377 B, so at 1/8 the new table grows
+*more slowly* (≈331 B/eval) than the one it accompanies.
+
+**⚠ Store note:** 3 demo L2 rows (`gps-l1`, corpus 466,
+`provenance.source_arm = "wpobserve-demo"`) plus their point/op rows were
+written. `lna/data/topo_labels.jsonl` was left **uncommitted** — the shared store
+had another agent appending live, same call as Session 5.
+
+```bash
+python lna/ref/check_op.py              # golden + invariance + deck parity
+python lna/ref/check_op.py --overhead   # interleaved 3-arm benchmark
+LNA_OP_SUBSAMPLE=0 python lna/size.py ...   # final points only
+LNA_OP_LOG=0 python lna/campaign.py ...     # off entirely
+```
+
 ## 1. TL;DR — what shipped this session
 
 | Plan item | Status | Key result |

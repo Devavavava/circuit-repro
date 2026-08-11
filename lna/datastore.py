@@ -8,6 +8,7 @@ torch-free analysis env as spec.py/size.py:
     lna/data/topo_labels.jsonl   L2 rows  -- one (topology, spec) sizing outcome  [in git]
     lna/data/l1_labels.jsonl     L1 rows  -- one topology bias/op-point sweep      [in git while small]
     lna/data/sim_points.jsonl    point rows -- one ngspice eval inside a ZOAF run  [gitignored]
+    lna/data/op_points.jsonl     op rows -- the INSIDE of one eval (WP-OBSERVE)    [gitignored]
     lna/data/snapshots.json      named snapshots: {name: {table: {lines, sha256}}}
 
 Contracts that the rest of the phase relies on (00-OVERVIEW rules 4 + 01-DATA):
@@ -43,6 +44,7 @@ TABLES = {
     "topo_labels": "topo_labels.jsonl",   # L2 -- expensive, the prize
     "l1_labels":   "l1_labels.jsonl",     # L1 -- cheap, abundant
     "sim_points":  "sim_points.jsonl",    # point rows -- free byproduct, gitignored
+    "op_points":   "op_points.jsonl",     # op rows -- the inside of an eval, gitignored
 }
 SNAPSHOTS = "snapshots.json"
 
@@ -140,13 +142,28 @@ def append_l2(row, repeat_probe=False):
 
 
 # ------------------------------------------------------------------ row schema
+_GIT_SHA = []                 # memo: [] = not looked up yet, [value] = looked up
+
+
 def git_sha():
-    try:
-        out = subprocess.run(["git", "rev-parse", "--short", "HEAD"],
-                             cwd=HERE, capture_output=True, text=True, timeout=10)
-        return out.stdout.strip() or None
-    except Exception:
-        return None
+    """Short HEAD sha, looked up ONCE per process.
+
+    It used to shell out on every row. That is invisible at one L2 row per
+    5-minute sizing run and ruinous at op-row rates: on Windows the subprocess
+    costs ~50 ms, which measured as a ~100% overhead on a 52 ms evaluation --
+    the row assembly was twice the simulation. The value cannot meaningfully
+    change inside one process anyway: it identifies the code that is already
+    loaded, and a mid-run commit would make the pre-commit rows the lie, not
+    the post-commit ones."""
+    if not _GIT_SHA:
+        try:
+            out = subprocess.run(["git", "rev-parse", "--short", "HEAD"],
+                                 cwd=HERE, capture_output=True, text=True,
+                                 timeout=10)
+            _GIT_SHA.append(out.stdout.strip() or None)
+        except Exception:
+            _GIT_SHA.append(None)
+    return _GIT_SHA[0]
 
 
 def _now():
@@ -258,6 +275,63 @@ def row_point(wl_hash, spec_name, x, metrics):
     """One ngspice eval inside a ZOAF run (free byproduct)."""
     return _jsonify({"kind": "point", "wl_hash": wl_hash, "spec": spec_name,
                      "x": list(x), "metrics": metrics})
+
+
+def row_op(wl_hash, spec_name, op, metrics=None, x=None, params=None,
+           stage=None, eval_i=None, harness=None, provenance=None,
+           noise_budget=None, repeat_probe=False):
+    """One evaluation's INSIDE: per-device operating point, node voltages, and
+    (when one was already computed for that point) the per-element noise budget.
+
+    Stamped like a `sim_points` row -- `wl_hash`, `spec`, `x` -- PLUS the decoded
+    `params` (an `x` is meaningless without the `kind_ranges` box that decoded
+    it) PLUS the Block-6 harness stamps in `harness`: `recipe`, `w_finger` /
+    `mos_fingers`, `inductor_q`, `nf_method`, `nf_gated`, `bias_rules`, and
+    `deck` (which of the two decks the op came from -- the port-driven sizing
+    deck or the series-Rs noise deck). Rows from different harness eras have to
+    stay distinguishable forever; `op_schema` is the counter that makes a change
+    to the read-out itself visible the same way `nf_method` makes an NF-harness
+    change visible.
+
+    `op` is `extract.parse_op`'s dict. Nothing here re-measures anything: every
+    value was produced by an ngspice run the pipeline was already paying for."""
+    devices = (op or {}).get("devices") or {}
+    row = {
+        "kind": "op",
+        "op_schema": (op or {}).get("schema"),
+        "wl_hash": wl_hash,
+        "spec": spec_name,
+        "stage": stage,
+        "eval_i": eval_i,
+        "x": list(x) if x is not None else None,
+        "params": params,
+        "devices": devices,
+        "nodes": (op or {}).get("nodes") or {},
+        "branches": (op or {}).get("branches") or {},
+        "n_devices": len(devices),
+        "regions": _region_census(devices),
+        "metrics": metrics,
+        "noise_budget": noise_budget,
+        "harness": dict(harness or {}, deck=(op or {}).get("deck")),
+        "provenance": provenance or {},
+        "git_sha": git_sha(),
+        "ts": _now(),
+    }
+    if repeat_probe:
+        row["repeat_probe"] = True
+    return _jsonify(row)
+
+
+def _region_census(devices):
+    """{region: count} over the MOSFETs in an op dict -- the one summary worth
+    materializing, because 'how many devices are actually in saturation' is the
+    question four separate sessions had to re-derive by hand."""
+    out = {}
+    for d in devices.values():
+        r = d.get("region")
+        if r:
+            out[r] = out.get(r, 0) + 1
+    return out
 
 
 # ------------------------------------------------------------------ snapshots

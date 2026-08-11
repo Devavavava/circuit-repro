@@ -61,6 +61,10 @@ lna/out/*_train_*.json
 # Label store (plans2/01-DATA §2): L2/L1 tables + snapshots are precious and
 # stay in git; the point-row table is a bulky, regenerable-ish byproduct.
 lna/data/sim_points.jsonl
+# The op-row table (plans2/09-WP-OBSERVE): same reason, more so -- an op row is
+# ~5x a point row, because it carries every device's operating point and every
+# node voltage instead of one metric vector.
+lna/data/op_points.jsonl
 
 # ─── Python / OS noise ────────────────────────────────────────────────────
 __pycache__/

@@ -110,13 +110,155 @@ def _stability_meas(f0, f_lo, f_hi):
     ]
 
 
-def control_block(f0, f_lo, f_hi, supply):
+# ------------------------------------------------------------- op capture
+# WP-OBSERVE (plans2/09-WP-OBSERVE.md). Every evaluation in this pipeline solves
+# a full DC operating point and then throws it away to keep a seven-number metric
+# vector. These helpers read it back out of the run that already happened.
+#
+# THREE RULES, all load-bearing:
+#   1. NEVER `save`. `save @m1[id]` before `sp` *restricts* ngspice's saved set
+#      and silently deletes the S-parameters (gotcha N1). Single-`op` device
+#      parameters need no `save` at all -- measured, not assumed.
+#   2. No extra invocation. The probe lines ride along in the deck the caller was
+#      already going to run.
+#   3. Print-only: no analysis, no `.option`, no `let`, so the solved circuit
+#      cannot move. `ref/check_op.py` proves the metrics are bit-identical with
+#      the probe present and absent.
+#
+# Parameter availability was probed against this ngspice/BSIM4 build: id, gm,
+# gds, gmbs, vgs, vds, vbs, vth, vdsat, cgg, cgs, cgd exist; cd / ids / is / ig /
+# ib / vth0 / rg / von / beta / gmb do NOT ("Error: no such parameter"). BSIM4
+# here has no `region` output, so region is DERIVED below from
+# (id, vgs, vth, vds, vdsat) using bias.py's own thresholds.
+MOS_OP_PARAMS = ("id", "gm", "gds", "gmbs", "vgs", "vds", "vbs", "vth", "vdsat")
+BJT_OP_PARAMS = ("ic", "ib", "vbe", "vbc", "gm", "cpi", "cmu")
+OP_SCHEMA = 1                # bump when the read-out or the region rule changes
+
+_ID_MIN = 50e-6              # A -- bias.ID_MIN ("conducting")
+_VDS_MARGIN = 1.5            # bias.VDS_MARGIN (|Vds| >= 1.5|Vdsat| -> saturated)
+_OP_DEV_RE = re.compile(r"^([MQ])(\w*)", re.IGNORECASE)
+_OP_VAL_RE = re.compile(rf"@(\w+)\[(\w+)\]\s*=\s*{_NUM}", re.IGNORECASE)
+_OP_NODE_RE = re.compile(rf"^\s*([A-Za-z_][\w#.]*)\s*=\s*{_NUM}\s*$")
+_OP_BEGIN, _OP_END = "op_nodes_begin", "op_nodes_end"
+_OP_NOT_A_NODE = ("idd",)    # `let` vectors that share the op plot with the nodes
+
+
+def op_devices(body):
+    """(mosfets, bipolars) element names present in a deck body, lowercased.
+
+    to_spice emits MOSFETs as `M<dev>` and bipolars as `Q<dev>`; bias.py's
+    inserted scaffold is `RBIAS*`/`CBYP*`/`VBGEN*`, none of which start with M or
+    Q. ngspice lowercases element names, so the `@m1[...]` spelling is derived
+    from the deck rather than costing a probe run -- the same trick
+    `noise_elements` uses."""
+    mos, bjt = [], []
+    for ln in body.splitlines():
+        m = _OP_DEV_RE.match(ln.strip())
+        if not m:
+            continue
+        (mos if m.group(1).upper() == "M" else bjt).append(
+            (m.group(1) + m.group(2)).lower())
+    return mos, bjt
+
+
+def op_probe_lines(body, nodes=True, chunk=8):
+    """ngspice control lines that dump the operating point. PRINT ONLY.
+
+    `chunk` keeps each `print` under ngspice's line-wrap width -- the same reason
+    `measure_noise_budget` chunks at 8."""
+    mos, bjt = op_devices(body)
+    vecs = [f"@{d}[{p}]" for d in mos for p in MOS_OP_PARAMS]
+    vecs += [f"@{d}[{p}]" for d in bjt for p in BJT_OP_PARAMS]
+    lines = ["print " + " ".join(vecs[i:i + chunk])
+             for i in range(0, len(vecs), chunk)]
+    if nodes:
+        # `print all` dumps every vector of the op plot, so node names need not be
+        # enumerated (generated topologies have arbitrary ones). The echo markers
+        # bound the dump so the metric parse can never mistake a node name for a
+        # `meas` result.
+        lines += [f"echo {_OP_BEGIN}", "print all", f"echo {_OP_END}"]
+    return lines
+
+
+def mos_region(d):
+    """'off' | 'sub' | 'triode' | 'sat' from one MOSFET's op dict, or None.
+
+    Deliberately the SAME thresholds `bias.conducting` / `bias.saturated` use
+    (|Id| >= 50 uA; |Vds| >= 1.5|Vdsat|), so an op row and an L1 row can never
+    disagree about whether a device is on. 'sub' is conducting-but-below-threshold
+    (|Vgs| < |Vth|) -- the case neither bias predicate can express, and the one
+    that explains a device carrying current with no gate overdrive."""
+    idv = d.get("id")
+    if idv is None:
+        return None
+    if abs(idv) < _ID_MIN:
+        return "off"
+    vgs, vth = d.get("vgs"), d.get("vth")
+    if vgs is not None and vth is not None and abs(vgs) < abs(vth):
+        return "sub"
+    vds, vdsat = d.get("vds"), d.get("vdsat")
+    if vds is None or vdsat is None:
+        return None
+    return "sat" if abs(vds) >= _VDS_MARGIN * abs(vdsat) else "triode"
+
+
+def parse_op(out):
+    """ngspice stdout -> {schema, devices, nodes, branches}.
+
+    `devices` maps the lowercased element name to its parameter dict plus a
+    derived `region` and `vov = vgs - vth`. `nodes` holds real net voltages;
+    model-internal nodes (`m1#body`, `m1#gate`, `m1#dbody`, `m1#sbody` -- four per
+    MOSFET, artefacts of rgatemod/rbodymod, all ~1e-11 V) are dropped, and
+    `*#branch` currents go to `branches`, because that is where per-source
+    current -- including the supply -- actually lives."""
+    devices = {}
+    for m in _OP_VAL_RE.finditer(out):
+        try:
+            val = float(m.group(3))
+        except ValueError:
+            continue
+        devices.setdefault(m.group(1).lower(), {})[m.group(2).lower()] = val
+    for name, d in devices.items():
+        if "vgs" in d and "vth" in d:
+            d["vov"] = round(d["vgs"] - d["vth"], 9)
+        r = mos_region(d) if name.startswith("m") else None
+        if r:
+            d["region"] = r
+    nodes, branches = {}, {}
+    seg = out.split(_OP_BEGIN)
+    if len(seg) > 1:
+        for ln in seg[1].split(_OP_END)[0].splitlines():
+            mm = _OP_NODE_RE.match(ln)
+            if not mm:
+                continue
+            name = mm.group(1).lower()
+            try:
+                val = float(mm.group(2))
+            except ValueError:
+                continue
+            if name.endswith("#branch"):
+                branches[name[:-7]] = val
+            elif "#" in name or name in _OP_NOT_A_NODE:
+                continue                    # model-internal node / derived vector
+            else:
+                nodes[name] = val
+    return {"schema": OP_SCHEMA, "devices": devices, "nodes": nodes,
+            "branches": branches}
+
+
+def control_block(f0, f_lo, f_hi, supply, op_probe=None):
     """op + Idd + S-parameters + stability. NF is NOT taken from this (port-driven)
     deck: inoise referred to the S-param port is unphysical with gain (finding #7).
-    The trusted NF comes from the separate series-Rs deck (measure_nf)."""
+    The trusted NF comes from the separate series-Rs deck (measure_nf).
+
+    `op_probe` (control lines from `op_probe_lines`) is spliced in between
+    `print idd` and `sp`: print-only, no `save` (gotcha N1), no extra analysis.
+    With it None the returned string is byte-identical to the pre-WP-OBSERVE one.
+    """
     return "\n".join([
         ".control", "op",
         f"let idd = -i({supply})", "print idd",
+    ] + list(op_probe or []) + [
         f"sp lin 101 {f_lo:g} {f_hi:g} 1",
         "let s11db = db(mag(S_1_1)+1e-30)",
         "let s21db = db(mag(S_2_1)+1e-30)",
@@ -128,27 +270,36 @@ def control_block(f0, f_lo, f_hi, supply):
     ] + _stability_lets() + _stability_meas(f0, f_lo, f_hi) + [".endc", ".end"])
 
 
-def build_deck(body, params, f0, f_lo, f_hi, supply=None):
+def build_deck(body, params, f0, f_lo, f_hi, supply=None, op_probe=None):
     supply = supply or _supply_name(body)
     lines = [body.rstrip()]
     if params:
         lines.append(".param " + " ".join(f"{k}={v}" for k, v in params.items()))
-    lines.append(control_block(f0, f_lo, f_hi, supply))
+    lines.append(control_block(f0, f_lo, f_hi, supply, op_probe=op_probe))
     return "\n".join(lines) + "\n"
 
 
-def run_and_extract(body, params, spec):
-    """Run one ngspice evaluation; return a metrics dict (or None on failure)."""
+def run_and_extract(body, params, spec, op_capture=None):
+    """Run one ngspice evaluation; return a metrics dict (or None on failure).
+
+    WP-OBSERVE: if `op_capture` is a dict it is filled IN PLACE with the operating
+    point (`parse_op` shape) read out of the SAME ngspice process -- the `op` this
+    deck already runs. The return value is unaffected, so every existing caller is
+    untouched, and with `op_capture=None` the deck text is byte-identical."""
     band = spec.band
     f0 = float(band.get("f0", 2.442e9))
     f_lo = float(band.get("f_lo", f0 * 0.98))
     f_hi = float(band.get("f_hi", f0 * 1.02))
-    deck = build_deck(body, params, f0, f_lo, f_hi)
+    probe = op_probe_lines(body) if op_capture is not None else None
+    deck = build_deck(body, params, f0, f_lo, f_hi, op_probe=probe)
     out = run_deck(deck, "size_", "c.cir")
     if out is None:
         return None
     if "singular matrix" in out.lower():
         return None
+    if op_capture is not None:
+        op_capture.update(parse_op(out))
+        op_capture["deck"] = "sizing"
 
     def g(name):
         m = re.search(rf"{name}\s*=\s*{_NUM}", out, re.IGNORECASE)
@@ -240,7 +391,8 @@ def measure_stability(body, params, f0, f_lo, f_hi, npts=201):
     return res if res["k_min"] is not None else None
 
 
-def build_noise_deck(body, params, f0, f_lo, f_hi, rs=50.0, rl=50.0):
+def build_noise_deck(body, params, f0, f_lo, f_hi, rs=50.0, rl=50.0,
+                     op_probe=None):
     """Rewrite a port-driven DUT body into a **series-Rs noise deck**.
 
     NF from `inoise_spectrum` with an S-parameter *port* source is unphysical
@@ -278,7 +430,7 @@ def build_noise_deck(body, params, f0, f_lo, f_hi, rs=50.0, rl=50.0):
         deck.append(".param " + " ".join(f"{k}={v}" for k, v in params.items()))
     nf_idx = round((f0 - f_lo) / (f_hi - f_lo) * 50) if f_hi > f_lo else 0
     nf_idx = max(0, min(50, nf_idx))
-    deck += [".control", "op",
+    deck += [".control", "op"] + list(op_probe or []) + [
              f"noise v({node_out}) Vnz lin 51 {f_lo:g} {f_hi:g}",
              "setplot noise1",
              f"let nfv = 10*log10((inoise_spectrum*inoise_spectrum)/{K4TRS:.6e})",
@@ -287,18 +439,29 @@ def build_noise_deck(body, params, f0, f_lo, f_hi, rs=50.0, rl=50.0):
     return "\n".join(deck) + "\n", node_in, node_out
 
 
-def measure_nf(body, params, spec, rs=50.0):
+def measure_nf(body, params, spec, rs=50.0, op_capture=None):
     """Physical noise figure at f0 via a series-Rs source (finding #7 fix).
 
     Returns nf_db (float) or None on failure. Separate from run_and_extract's
     op/sp block: NF needs a different input drive (series-Rs, not a port), so it
     is a second ~1 s ngspice call, made once per label at the sized point rather
-    than every ZOAF iteration."""
+    than every ZOAF iteration.
+
+    WP-OBSERVE: this deck runs its own `op`, so passing an `op_capture` dict
+    harvests the operating point from it at zero extra cost. That is what gives
+    `size.log_l2_result` -- the hub every polish/search driver logs through --
+    device-level data with no new ngspice invocation anywhere. The noise deck's
+    DC is identical to the sizing deck's by construction (both port sources were
+    `dc 0` and the blocking caps are kept); `ref/check_op.py` tests that claim
+    numerically rather than trusting this docstring, and the stored row records
+    which deck it came from either way."""
     band = spec.band
     f0 = float(band.get("f0", 2.442e9))
     f_lo = float(band.get("f_lo", f0 * 0.98))
     f_hi = float(band.get("f_hi", f0 * 1.02))
-    deck, _, _ = build_noise_deck(body, params, f0, f_lo, f_hi, rs=rs)
+    probe = op_probe_lines(body) if op_capture is not None else None
+    deck, _, _ = build_noise_deck(body, params, f0, f_lo, f_hi, rs=rs,
+                                  op_probe=probe)
     if deck is None:
         return None
     out = run_deck(deck, "nf_", "nf.cir")
@@ -306,6 +469,9 @@ def measure_nf(body, params, spec, rs=50.0):
         return None
     if "singular matrix" in out.lower():
         return None
+    if op_capture is not None:
+        op_capture.update(parse_op(out))
+        op_capture["deck"] = "noise"
     m = re.search(rf"m_nf_f0\s*=\s*{_NUM}", out, re.IGNORECASE)
     return float(m.group(1)) if m else None
 

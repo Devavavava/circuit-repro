@@ -76,9 +76,13 @@ def nf_is_gated(spec):
     return bool(c) and c.get("status") != "unsupported"
 
 
-def eval_metrics(body, params, spec, nf_gated=None):
-    """One full L2 evaluation: op/sp/stability, plus the series-Rs NF when gated."""
-    m = E.run_and_extract(body, params, spec)
+def eval_metrics(body, params, spec, nf_gated=None, op_capture=None):
+    """One full L2 evaluation: op/sp/stability, plus the series-Rs NF when gated.
+
+    `op_capture` (WP-OBSERVE) is a dict filled in place with the operating point
+    read out of the op/sp run that happens anyway -- no extra ngspice call, and
+    the metrics returned are bit-identical either way (`ref/check_op.py`)."""
+    m = E.run_and_extract(body, params, spec, op_capture=op_capture)
     if m is None:
         return None
     if nf_is_gated(spec) if nf_gated is None else nf_gated:
@@ -87,14 +91,137 @@ def eval_metrics(body, params, spec, nf_gated=None):
     return m
 
 
-def make_objective(body, spec, sizable, fixed, points=None):
+# --------------------------------------------- op-row capture (WP-OBSERVE)
+# plans2/09-WP-OBSERVE.md. The ZOAF loop already solves a full DC operating
+# point per evaluation and keeps one metric vector; this is where the rest of it
+# is kept instead of discarded. Nothing here runs ngspice -- it only decides
+# WHICH already-running evaluations carry a print probe, and assembles rows.
+def _op_enabled():
+    """Master switch. LNA_OP_LOG=0 turns the whole mechanism off for a session
+    without a code edit (same shape as LNA_NF_GATE)."""
+    return os.environ.get("LNA_OP_LOG", "1").strip().lower() not in (
+        "0", "false", "no")
+
+
+def _op_subsample():
+    """1-in-N for INNER ZOAF evaluations. Default 8, justified in plans2/09 2.5:
+    an op row is ~5x a sim_points row, so 1/8 keeps the new table growing more
+    slowly than the point table it rides along with (~250 vs 377 bytes per
+    evaluation), while still leaving 6-50 samples of the optimizer's trajectory
+    on a typical 50-400 evaluation run. 0 = inner sampling off (the final point
+    is still always logged); 1 = every evaluation."""
+    try:
+        return max(0, int(os.environ.get("LNA_OP_SUBSAMPLE", "8")))
+    except ValueError:
+        return 8
+
+
+def _op_subsample_probe():
+    """1-in-N for a REPEAT PROBE's evaluations. Default 1 = every one of them.
+
+    A repeat probe exists to measure ZOAF's own label noise, and the question the
+    op table can answer that the metric table cannot is *why* two seeds of the
+    same (topology, spec) disagree -- which basin, which devices went off, which
+    stage stopped saturating. That needs the whole trajectory, not a sample of
+    it. The cost is real and is stated rather than hidden: at ~2.6 kB/row and
+    ~140 evaluations, a probe run writes ~0.4 MB. Set LNA_OP_SUBSAMPLE_PROBE to
+    the ordinary rate (or 0) before a large sigma campaign."""
+    try:
+        return max(0, int(os.environ.get("LNA_OP_SUBSAMPLE_PROBE", "1")))
+    except ValueError:
+        return 1
+
+
+def _op_harness(cfg):
+    """The Block-6 label-domain stamps an op row must carry forever, so rows
+    from different harness eras stay distinguishable. `deck` is filled by
+    `row_op` from the capture itself; `nf_method` is refined per row."""
+    h = {k: (cfg or {}).get(k) for k in ("recipe", "inductor_q", "nf_gated",
+                                         "w_finger", "mos_fingers")}
+    h["bias_rules"] = os.environ.get("LNA_BIAS_RULES") or None
+    h["op_schema"] = E.OP_SCHEMA
+    return h
+
+
+class OpSink:
+    """Volume policy + row assembly for one sizing run's operating points.
+
+    Policy, in one place so no driver can drift from it:
+      * the FINAL/best point of a run is always captured -- `add(...,
+        stage="final")` is called directly, never through `want`, so no sampling
+        rate and no dedup can drop the point that gets quoted as the result;
+      * a REPEAT PROBE captures every evaluation by default (rate 1) -- those
+        rows are the label-noise measurement and are worth their bytes;
+      * ordinary inner ZOAF evaluations are captured every `subsample`-th call.
+
+    Deterministic by call index rather than random: two runs of the same seed
+    must produce the same table, because snapshots and replay fences are worth
+    more here than a marginally unbiased sample."""
+
+    def __init__(self, wl_hash, spec, harness=None, provenance=None,
+                 subsample=None, enabled=None, repeat_probe=False):
+        self.wl_hash, self.spec = wl_hash, spec
+        self.harness = harness or {}
+        self.provenance = provenance or {}
+        self.repeat_probe = bool(repeat_probe)
+        if subsample is None:
+            subsample = (_op_subsample_probe() if self.repeat_probe
+                         else _op_subsample())
+        self.subsample = subsample
+        self.enabled = _op_enabled() if enabled is None else enabled
+        self.rows, self.n_evals = [], 0
+
+    def want(self):
+        """Should the NEXT inner evaluation carry an op probe?"""
+        if not self.enabled:
+            return False
+        return self.subsample > 0 and (self.n_evals % self.subsample == 0)
+
+    def tick(self):
+        self.n_evals += 1
+
+    def add(self, op, x=None, params=None, metrics=None, stage="zoaf",
+            noise_budget=None):
+        """Buffer one row. Silent no-op when disabled or when the capture came
+        back empty (a failed sim), so a caller never has to guard."""
+        if not self.enabled or not op or not op.get("devices"):
+            return
+        harness = dict(self.harness)
+        if (metrics or {}).get("nf_method"):
+            harness["nf_method"] = metrics["nf_method"]
+        self.rows.append(ds.row_op(
+            self.wl_hash, self.spec.name, op, metrics=metrics, x=x,
+            params=params, stage=stage, eval_i=self.n_evals, harness=harness,
+            provenance=self.provenance, noise_budget=noise_budget,
+            repeat_probe=self.repeat_probe))
+
+    def flush(self):
+        """Append the buffer to the store. Logging is additive: a failure warns
+        and is swallowed, exactly like the L2/point hooks."""
+        if not self.rows:
+            return 0
+        try:
+            n = ds.append_all("op_points", self.rows)
+        except Exception as e:
+            print(f"  [log] WARN: op-row logging failed: {e}")
+            return 0
+        self.rows = []
+        return n
+
+
+def make_objective(body, spec, sizable, fixed, points=None, op_sink=None):
     """sizable: {param_name: kind}; fixed: {param_name: literal}. Returns
     (objective_func for ZOAF, names, decode(x)->metrics helper).
 
     If `points` (a list) is given, every ngspice eval appends `(x, metrics)` to
     it -- the free point-row byproduct (01-DATA §1). This only *reads* x and the
     metrics the objective already computed, so the returned objective value is
-    byte-for-byte unchanged (the additive-hook invariant)."""
+    byte-for-byte unchanged (the additive-hook invariant).
+
+    `op_sink` (an `OpSink`, WP-OBSERVE) does the same one level down: it decides
+    which evaluations carry the print-only op probe and buffers the resulting
+    rows. Same invariant -- the probe adds no analysis, so the objective value is
+    unchanged whether or not a given evaluation is sampled."""
     names = list(sizable)
     ranges = kind_ranges(spec)
     nf_gated = nf_is_gated(spec)
@@ -109,13 +236,20 @@ def make_objective(body, spec, sizable, fixed, points=None):
             params[name] = f"{v:.6g}"
         return params
 
-    def evaluate(x):
-        return eval_metrics(body, decode(x), spec, nf_gated=nf_gated)
+    def evaluate(x, op_capture=None):
+        return eval_metrics(body, decode(x), spec, nf_gated=nf_gated,
+                            op_capture=op_capture)
 
     def objective_func(x):
-        m = evaluate(x)
+        cap = {} if (op_sink is not None and op_sink.want()) else None
+        m = evaluate(x, op_capture=cap)
         if points is not None:
             points.append(([float(v) for v in x], m))
+        if cap is not None:
+            op_sink.add(cap, x=[float(v) for v in x], params=decode(x),
+                        metrics=m, stage="zoaf")
+        if op_sink is not None:
+            op_sink.tick()
         return SIM_FAIL_PENALTY if m is None else spec.objective(m)
 
     return objective_func, names, decode, evaluate
@@ -192,7 +326,7 @@ def _zoaf_cfg(seed, n_candidates, sgd_iters, cgd_iters, recipe="anchor-v1",
     return cfg
 
 
-def _enrich_nf(body, params, spec, m):
+def _enrich_nf(body, params, spec, m, op_capture=None):
     """Replace the port-based (unphysical, finding #7) nf_db with the series-Rs NF
     measured at the sized point. Additive: NF is `unsupported` in the sizing spec,
     so this changes only the logged metric, never sizing/feasibility/objective.
@@ -201,7 +335,7 @@ def _enrich_nf(body, params, spec, m):
     if m is None:
         return m
     try:
-        nf = E.measure_nf(body, params, spec)
+        nf = E.measure_nf(body, params, spec, op_capture=op_capture)
         if nf is not None:
             return dict(m, nf_db=nf, nf_method="series_rs")
     except Exception:
@@ -250,9 +384,13 @@ def _noise_budget_row(body, params, spec, top=6):
 
 
 def _log_l2(spec, metrics, feasible, n_evals, points, best_x, best_params,
-            best_obj, topo, wl_hash, provenance, zoaf_cfg, repeat_probe=False):
-    """Append an L2 row (+ its point rows) to the label store. Logging must never
-    break a sizing run, so any failure is warned and swallowed."""
+            best_obj, topo, wl_hash, provenance, zoaf_cfg, repeat_probe=False,
+            op_sink=None):
+    """Append an L2 row (+ its point rows + its op rows) to the label store.
+    Logging must never break a sizing run, so any failure is warned and
+    swallowed. Op rows follow the point rows' rule exactly: they are written only
+    when the L2 row itself was appended, so a deduplicated re-label never
+    duplicates the inside of the run either."""
     try:
         row = ds.row_l2(spec, metrics, feasible, n_evals, best_x=best_x,
                         best_params=best_params, best_obj=best_obj, topo=topo,
@@ -261,7 +399,9 @@ def _log_l2(spec, metrics, feasible, n_evals, points, best_x, best_params,
         if status == "appended" and points:
             ds.append_all("sim_points",
                           [ds.row_point(wl_hash, spec.name, x, m) for x, m in points])
+        n_op = op_sink.flush() if (status == "appended" and op_sink) else 0
         extra = f" +{len(points)} points" if status == "appended" and points else ""
+        extra += f" +{n_op} op" if n_op else ""
         print(f"  [log] L2 {status}: ({wl_hash}, {spec.name}){extra}")
         return status
     except Exception as e:                       # logging is additive, never fatal
@@ -780,7 +920,8 @@ def size_match_first(topo, spec, seed=1, inductor_q=12, budget=8,
 
 def size_topology(topo, spec, seed=1, n_candidates=6, sgd_iters=6, cgd_iters=1,
                   provenance=None, log=True, repeat_probe=False, inductor_q=None,
-                  curate=False, prior_params=None, enrich_nf=None):
+                  curate=False, prior_params=None, enrich_nf=None,
+                  collect_op=False):
     """Bias-insert, then ZOAF-size a generated topology against `spec`.
 
     With `log=True` (default for CLI paths) the completed sizing run is appended
@@ -788,7 +929,14 @@ def size_topology(topo, spec, seed=1, n_candidates=6, sgd_iters=6, cgd_iters=1,
     (`size.py --no-log`) and from callers that only want the score. `inductor_q`
     (default None = ideal, unchanged) gives inductors finite Q so real
     inductor-bearing topologies do not hit the ideal-branch singularity that
-    finding #10 / R1 flagged -- HANDOVER-EXEC §6.1's "size with inductor_q=12"."""
+    finding #10 / R1 flagged -- HANDOVER-EXEC §6.1's "size with inductor_q=12".
+
+    WP-OBSERVE: when op logging is on, the final/best point's operating point is
+    always captured and the inner ZOAF points are subsampled (`OpSink`). With
+    `log=True` the rows are flushed alongside the L2 row; with `collect_op=True`
+    they are returned in the result as `op_rows` instead, so a caller that does
+    its own logging (`size_best_of_k`) can keep the winning seed's rows and drop
+    the rest."""
     import bias
     from novelty import wl_features
     kw = {"inductor_q": inductor_q} if inductor_q else {}
@@ -804,27 +952,37 @@ def size_topology(topo, spec, seed=1, n_candidates=6, sgd_iters=6, cgd_iters=1,
     if not sizable:
         return None
     points = [] if log else None
+    cfg = _zoaf_cfg(seed, n_candidates, sgd_iters, cgd_iters, recipe,
+                    inductor_q=inductor_q, spec=spec)
+    sink = None
+    if (log or collect_op) and _op_enabled():
+        sink = OpSink(wl_features(topo)[0], spec, harness=_op_harness(cfg),
+                      provenance=provenance, repeat_probe=repeat_probe)
     obj, names, decode, evaluate = make_objective(body, spec, sizable, fixed,
-                                                  points=points)
+                                                  points=points, op_sink=sink)
     best_x, best_obj, n_evals = run_zoaf(obj, names, seed=seed,
                                          n_candidates=n_candidates,
                                          sgd_iters=sgd_iters, cgd_iters=cgd_iters)
-    m = evaluate(best_x)
+    fin = {} if sink is not None else None
+    m = evaluate(best_x, op_capture=fin)
     # `enrich_nf` defaults to `log` (unchanged behaviour); pass True to get the
     # physical NF on a throwaway run too (benchmark cells, best-of-k seeds).
     if log if enrich_nf is None else enrich_nf:
         m = _enrich_nf(body, decode(best_x), spec, m)   # physical NF for the row
     feas, viol = (spec.feasible(m) if m is not None else (False, None))
+    if sink is not None:                   # the endpoint is never subsampled away
+        sink.add(fin, x=[float(v) for v in best_x], params=decode(best_x),
+                 metrics=m, stage="final")
     if log:
         _log_l2(spec, m, feas, n_evals, points, best_x, decode(best_x), best_obj,
-                topo, wl_features(topo)[0], provenance,
-                _zoaf_cfg(seed, n_candidates, sgd_iters, cgd_iters, recipe,
-                          inductor_q=inductor_q, spec=spec),
-                repeat_probe=repeat_probe)
+                topo, wl_features(topo)[0], provenance, cfg,
+                repeat_probe=repeat_probe, op_sink=sink)
     if m is None:
-        return {"metrics": None, "feasible": False, "n_evals": n_evals}
+        return {"metrics": None, "feasible": False, "n_evals": n_evals,
+                "op_rows": (sink.rows if (sink and collect_op) else None)}
     return {"metrics": m, "feasible": feas, "viol": viol, "n_evals": n_evals,
             "best_obj": best_obj, "n_params": len(names),
+            "op_rows": (sink.rows if (sink and collect_op) else None),
             "best_params": decode(best_x)}   # so callers can polish/curate from here
 
 
@@ -858,7 +1016,8 @@ def size_best_of_k(topo, spec, seeds=(1, 2, 3), provenance=None, log=True,
     runs = []
     for s in seeds:
         try:
-            r = size_topology(topo, spec, seed=s, log=False, enrich_nf=True, **kw)
+            r = size_topology(topo, spec, seed=s, log=False, enrich_nf=True,
+                              collect_op=True, provenance=provenance, **kw)
         except Exception as e:
             print(f"  [bo{len(seeds)}] seed {s} FAILED: {e}")
             continue
@@ -892,7 +1051,23 @@ def size_best_of_k(topo, spec, seeds=(1, 2, 3), provenance=None, log=True,
                             zoaf_cfg=cfg)
             row["label_sigma"] = spread
             status, _ = ds.append_l2(row, repeat_probe=repeat_probe)
-            print(f"  [log] L2 {status} (bo{len(seeds)}, winner seed {seed_best})")
+            # WP-OBSERVE: keep the WINNING seed's op rows only. The losing seeds
+            # ran, but their endpoints are not the label, and best-of-k already
+            # multiplies the sim cost by k -- it should not also multiply the
+            # table. `zoaf_cfg.seeds` records what was tried either way.
+            n_op = 0
+            if status == "appended" and best.get("op_rows"):
+                rows = [dict(r, harness=dict(r.get("harness") or {},
+                                             recipe=cfg["recipe"]),
+                             provenance=dict(r.get("provenance") or {},
+                                             bo_seed=seed_best))
+                        for r in best["op_rows"]]
+                try:
+                    n_op = ds.append_all("op_points", rows)
+                except Exception as e:
+                    print(f"  [log] WARN: op-row logging failed: {e}")
+            print(f"  [log] L2 {status} (bo{len(seeds)}, winner seed {seed_best})"
+                  + (f" +{n_op} op" if n_op else ""))
         except Exception as e:                   # logging is additive, never fatal
             print(f"  [log] WARN: bo{len(seeds)} logging failed: {e}")
     return best
@@ -986,24 +1161,38 @@ def log_l2_result(spec, topo, metrics, feasible, best_params, provenance, recipe
                   n_evals, inductor_q=12, repeat_probe=True):
     """Append an already-computed sizing result (curated ZOAF or polish) as one L2
     row without re-sizing -- so a boundary/polish win is recorded exactly as found.
-    Reconstructs the body only to enrich the physical NF."""
+    Reconstructs the body only to enrich the physical NF.
+
+    WP-OBSERVE: that NF enrichment runs its own `op`, so the operating point of
+    the point actually being claimed is harvested from it -- no extra ngspice
+    call. This is the hub every polish/search driver logs through (`search.py`,
+    `evolve.py`, `d3_campaign.py`, `nf_campaign.py`, `nf_moves.py`,
+    `g4_search.py`, `relabel_mf.py`), so wiring it here is what makes the op
+    table cover the designs the program actually quotes. The per-element noise
+    budget, when one was computed for this point, is attached by REUSE -- the
+    same dict that goes into provenance, never a second measurement."""
     import bias
     from novelty import wl_features
     kw = {"inductor_q": inductor_q} if inductor_q else {}
     nl, _, rep, _ = bias.insert_bias(topo, sweep=True, **kw)
-    m = metrics
-    prov = provenance
+    cfg = _zoaf_cfg(0, 0, 0, 0, recipe, inductor_q=inductor_q, spec=spec)
+    m, prov, sink, nb = metrics, provenance, None, None
     if not rep.get("skipped") and nl.two_port:
         body = E.body_of(nl.emit())
-        m = _enrich_nf(body, best_params, spec, metrics)
+        cap = {} if _op_enabled() else None
+        m = _enrich_nf(body, best_params, spec, metrics, op_capture=cap)
         if nf_is_gated(spec) and (m or {}).get("nf_db") is not None:
             nb = _noise_budget_row(body, best_params, spec)
             if nb:                       # input features for the critic (WP-L5)
                 prov = dict(provenance or {}, noise_budget=nb)
+        if cap and cap.get("devices"):
+            sink = OpSink(wl_features(topo)[0], spec, harness=_op_harness(cfg),
+                          provenance=provenance, repeat_probe=repeat_probe)
+            sink.add(cap, params=best_params, metrics=m, stage="label",
+                     noise_budget=nb)
     _log_l2(spec, m, feasible, n_evals, None, None, best_params, None, topo,
-            wl_features(topo)[0], prov,
-            _zoaf_cfg(0, 0, 0, 0, recipe, inductor_q=inductor_q, spec=spec),
-            repeat_probe=repeat_probe)
+            wl_features(topo)[0], prov, cfg, repeat_probe=repeat_probe,
+            op_sink=sink)
     return m
 
 
@@ -1066,28 +1255,35 @@ def _size_ref(deck, sizable, fixed, spec_name, recipe, label, seed=1, log=True):
           "gating on S11/S21/Idd.")
     body = E.body_of(os.path.join(HERE, "ref", deck))
     points = [] if log else None
+    cfg = _zoaf_cfg(seed, 8, 8, 2, recipe, spec=spec)
+    prov = {"source_arm": recipe.split("-")[0], "ref_deck": deck, "seed": seed}
+    # reference decks have no token topology; key their op rows by the deck name
+    # for the same reason the L2 row below does.
+    sink = (OpSink(f"ref:{deck}", spec, harness=_op_harness(cfg), provenance=prov)
+            if (log and _op_enabled()) else None)
     obj, names, decode, evaluate = make_objective(body, spec, sizable, fixed,
-                                                  points=points)
+                                                  points=points, op_sink=sink)
     print(f"{label} vs {spec_name}: {len(names)} params, ZOAF (feasibility-first).")
     best_x, best_obj, n_evals = run_zoaf(obj, names, seed=seed)
-    m = evaluate(best_x)
-    prov = {"source_arm": recipe.split("-")[0], "ref_deck": deck, "seed": seed}
+    fin = {} if sink is not None else None
+    m = evaluate(best_x, op_capture=fin)
     # reference decks have no token topology, so key them by deck name -- otherwise
     # every ref row hashes to (None, spec) and they collide.
     if m is None:
         print(f"\nZOAF: {n_evals} sims -- sizing FAILED (no metrics; deck params?)")
         if log:
             _log_l2(spec, None, False, n_evals, points, best_x, decode(best_x),
-                    best_obj, None, f"ref:{deck}", prov,
-                    _zoaf_cfg(seed, 8, 8, 2, recipe, spec=spec))
+                    best_obj, None, f"ref:{deck}", prov, cfg, op_sink=sink)
         return False, None
     if log:
         m = _enrich_nf(body, decode(best_x), spec, m)   # physical NF for the row
     feas, viol = spec.feasible(m)
+    if sink is not None:
+        sink.add(fin, x=[float(v) for v in best_x], params=decode(best_x),
+                 metrics=m, stage="final")
     if log:
         _log_l2(spec, m, feas, n_evals, points, best_x, decode(best_x), best_obj,
-                None, f"ref:{deck}", prov, _zoaf_cfg(seed, 8, 8, 2, recipe,
-                                                    spec=spec))
+                None, f"ref:{deck}", prov, cfg, op_sink=sink)
     print(f"\nZOAF: {n_evals} sims, best objective {best_obj:.4f}")
     print(spec.report(m))
     print("\nsized values:")

@@ -558,7 +558,7 @@ def _psum(c):
     return np.clip(np.nan_to_num(out, nan=0.0, posinf=1.0, neginf=0.0), -5, 5)
 
 
-def splits(cache, meta, seed=0, holdout_frac=0.15):
+def splits(cache, meta, seed=0, holdout_frac=0.15, val_frac=0.05):
     """Row index sets for the three pre-registered strata (plans2/12 section 2.3).
 
     NEVER a row-level split of the whole store: the family split fixes which
@@ -577,9 +577,12 @@ def splits(cache, meta, seed=0, holdout_frac=0.15):
             held_runs.add(max(rs))              # the LAST run of a repeat-sized topo
     in_held = np.isin(cache["row_run"], sorted(held_runs))
     train_pool = (st == 0) & (~in_held)
-    pt = rng.rand(len(st)) < holdout_frac
-    idx = {"train": np.where(train_pool & (~pt))[0],
+    u = rng.rand(len(st))
+    pt = u < holdout_frac                       # REPORTED interpolation stratum
+    pv = (u >= holdout_frac) & (u < holdout_frac + val_frac)   # model selection only
+    idx = {"train": np.where(train_pool & (~pt) & (~pv))[0],
            "point": np.where(train_pool & pt)[0],
+           "point_val": np.where(train_pool & pv)[0],
            "run":   np.where((st == 0) & in_held)[0],
            "val":   np.where(st == 1)[0],
            "cross": np.where(st == 2)[0]}
@@ -625,7 +628,12 @@ def train(arm="node", seed=0, epochs=60, batch=512, h=64, lr=3e-3, device="cpu",
     opt = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=1e-5)
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=epochs)
     tr_t = torch.tensor(tr.astype(np.int64), device=device)
+    # Model selection uses BOTH regimes -- unseen families AND unseen points of
+    # seen families -- because early-stopping on the cross-family loss alone
+    # would deliberately under-fit the interpolation case this surrogate is
+    # mostly deployed in. Neither reported stratum is used for selection.
     va_t = torch.tensor(idx["val"].astype(np.int64), device=device)
+    pv_t = torch.tensor(idx["point_val"].astype(np.int64), device=device)
 
     def zloss(ix):
         pred = _forward(model, T, ix)
@@ -646,20 +654,22 @@ def train(arm="node", seed=0, epochs=60, batch=512, h=64, lr=3e-3, device="cpu",
             loss = zloss(perm[b:b + batch])
             loss.backward()
             opt.step()
-            tot += float(loss) * min(batch, len(perm) - b)
+            tot += float(loss.detach()) * min(batch, len(perm) - b)
         sched.step()
         model.eval()
         with torch.no_grad():
             vs = [float(zloss(va_t[b:b + 4096])) for b in range(0, len(va_t), 4096)]
-        v = float(np.mean(vs))
+            ps = [float(zloss(pv_t[b:b + 4096])) for b in range(0, len(pv_t), 4096)]
+        v = 0.5 * float(np.mean(vs)) + 0.5 * float(np.mean(ps))
         if v < best - 1e-4:
             best, bad = v, 0
             best_state = dict((k, x.detach().clone()) for k, x in model.state_dict().items())
         else:
             bad += 1
         if verbose and (ep % 5 == 0 or ep == epochs - 1):
-            print("  [%s s%d] ep %3d  train %.4f  val %.4f  (best %.4f)"
-                  % (arm, seed, ep, tot / max(len(perm), 1), v, best))
+            print("  [%s s%d] ep %3d  train %.4f  sel %.4f  (fam %.4f  pt %.4f)  best %.4f"
+                  % (arm, seed, ep, tot / max(len(perm), 1), v,
+                     float(np.mean(vs)), float(np.mean(ps)), best))
         if bad >= 12:
             break
     if best_state is not None:
@@ -667,11 +677,22 @@ def train(arm="node", seed=0, epochs=60, batch=512, h=64, lr=3e-3, device="cpu",
     if not os.path.isdir(CKPT_DIR):
         os.makedirs(CKPT_DIR)
     path = os.path.join(CKPT_DIR, "%s_s%d.pt" % (arm, seed))
-    torch.save({"state": model.state_dict(), "arm": arm, "h": h, "mu": mu, "sd": sd,
+    torch.save({"state": model.state_dict(), "arm": arm, "h": h,
+                "mu": [float(v) for v in mu], "sd": [float(v) for v in sd],
                 "max_params": meta["max_params"], "val": best, "seed": seed}, path)
     if verbose:
         print("  [%s s%d] saved %s (val %.4f)" % (arm, seed, os.path.basename(path), best))
     return path, best
+
+
+def _torch_load(path, device):
+    """torch 2.6+ defaults `weights_only=True`, which rejects the numpy scalars
+    older checkpoints carry; torch 2.0 has no such kwarg. Handle both."""
+    import torch
+    try:
+        return torch.load(path, map_location=device)
+    except Exception:
+        return torch.load(path, map_location=device, weights_only=False)
 
 
 def predict(paths, device="cpu", chunk=8192):
@@ -682,12 +703,12 @@ def predict(paths, device="cpu", chunk=8192):
     N = cache["Y"].shape[0]
     acc = np.zeros((N, len(METRICS)), np.float64)
     for p in paths:
-        ck = torch.load(p, map_location=device)
+        ck = _torch_load(p, device)
         model = make_model(ck["arm"], ck["h"], ck["max_params"], len(METRICS)).to(device)
         model.load_state_dict(ck["state"])
         model.eval()
-        mu = torch.tensor(ck["mu"], device=device)
-        sd = torch.tensor(ck["sd"], device=device)
+        mu = torch.tensor(np.asarray(ck["mu"], np.float32), device=device)
+        sd = torch.tensor(np.asarray(ck["sd"], np.float32), device=device)
         out = np.zeros((N, len(METRICS)), np.float32)
         with torch.no_grad():
             for b in range(0, N, chunk):
@@ -699,17 +720,17 @@ def predict(paths, device="cpu", chunk=8192):
 
 # ============================================================ STEP 3: evaluation
 def _ranks(a):
+    """Average ranks (ties shared), O(n log n) -- the store has long flat tails
+    (every dead point reads S21 = -600), so ties must not be broken by order."""
     o = np.argsort(a, kind="mergesort")
+    sa = a[o]
     r = np.empty(len(a), np.float64)
-    r[o] = np.arange(len(a), dtype=np.float64)
-    s = np.sort(a)                                    # average ranks over ties
-    i = 0
-    while i < len(s):
+    i, n = 0, len(a)
+    while i < n:
         j = i
-        while j + 1 < len(s) and s[j + 1] == s[i]:
+        while j + 1 < n and sa[j + 1] == sa[i]:
             j += 1
-        if j > i:
-            r[np.isclose(a, s[i])] = 0.5 * (i + j)
+        r[o[i:j + 1]] = 0.5 * (i + j)
         i = j + 1
     return r
 
@@ -780,7 +801,8 @@ def _metric_dict(vec):
     return dict((m, from_model(m, vec[i])) for i, m in enumerate(METRICS))
 
 
-def replay_gate(P, cache, meta, spec, which="cross", delta=0.5, warmup=8, cal=True):
+def replay_gate(P, cache, meta, spec, which="cross", delta=0.5, warmup=8, cal=True,
+                held=()):
     """Replay every stored ZOAF run with a surrogate pre-gate. ZERO new SPICE.
 
     A block of point rows IS a sizing run, in the order ngspice saw it. Walk it
@@ -797,11 +819,20 @@ def replay_gate(P, cache, meta, spec, which="cross", delta=0.5, warmup=8, cal=Tr
     row_run = cache["row_run"]
     starts = np.searchsorted(row_run, np.arange(len(meta["runs"])), "left")
     ends = np.searchsorted(row_run, np.arange(len(meta["runs"])), "right")
-    want = {"cross": 2, "val": 1, "train": 0}[which]
+    # "held_run" is the WARM-START deployment, and the one this program actually
+    # hits every night: size_best_of_k re-sizes the same topology with 3 seeds, so
+    # runs 2 and 3 are always "a new run of a topology we have already explored".
+    held = set(held)
+    want = {"cross": 2, "val": 1, "train": 0, "held_run": 0}[which]
     n_sim = n_tot = n_runs = n_keep = 0
+    n_tol = n_flip = 0
     degrade, kept_sim, kept_tot = [], 0, 0
     for ri, run in enumerate(meta["runs"]):
         if split_of_topo[run["topo"]] != want:
+            continue
+        if which == "held_run" and ri not in held:
+            continue
+        if which == "train" and ri in held:
             continue
         a, b = int(starts[ri]), int(ends[ri])
         if b - a != run["n"]:
@@ -834,12 +865,20 @@ def replay_gate(P, cache, meta, spec, which="cross", delta=0.5, warmup=8, cal=Tr
             kept_tot += run["n"]
         else:
             degrade.append(float(ftrue[gate_arg] - ftrue[true_arg]))
+        # decision relevance: does the run's ANSWER move, not just its argmin?
+        if ftrue[gate_arg] <= ftrue[true_arg] + 0.05:
+            n_tol += 1
+        if (ftrue[gate_arg] < 0) != (ftrue[true_arg] < 0):
+            n_flip += 1
     if not n_runs:
         return None
     out = {"stratum": which, "delta": delta, "warmup": warmup, "cal": bool(cal),
            "runs": n_runs, "sims": n_sim, "points": n_tot,
            "skipped_pct": 100.0 * (1 - n_sim / float(n_tot)),
            "runs_argmin_preserved": n_keep,
+           "runs_within_0p05": n_tol,
+           "pct_runs_within_0p05": 100.0 * n_tol / float(n_runs),
+           "runs_feasibility_flipped": n_flip,
            "pct_runs_preserved": 100.0 * n_keep / float(n_runs),
            "skipped_pct_on_preserved_runs":
                100.0 * (1 - kept_sim / float(kept_tot)) if kept_tot else 0.0,
@@ -850,11 +889,12 @@ def replay_gate(P, cache, meta, spec, which="cross", delta=0.5, warmup=8, cal=Tr
 
 def print_gate(g):
     print("  delta %-5s cal=%-5s | runs %3d | sims %6d/%6d  skipped %5.1f%% | "
-          "argmin kept %3d/%-3d (%5.1f%%) | skipped-on-kept %5.1f%% | "
-          "degrade mean %.3f max %.3f"
+          "argmin kept %3d/%-3d (%5.1f%%) | within .05 %5.1f%% | feas-flip %d | "
+          "skipped-on-kept %5.1f%% | degrade mean %.3f max %.3f"
           % (g["delta"], g["cal"], g["runs"], g["sims"], g["points"],
              g["skipped_pct"], g["runs_argmin_preserved"], g["runs"],
-             g["pct_runs_preserved"], g["skipped_pct_on_preserved_runs"],
+             g["pct_runs_preserved"], g["pct_runs_within_0p05"],
+             g["runs_feasibility_flipped"], g["skipped_pct_on_preserved_runs"],
              g["objective_degradation_mean"], g["objective_degradation_max"]))
 
 
@@ -874,6 +914,9 @@ def main():
     ap.add_argument("-n", type=int, default=8, help="rows for --validate-join")
     ap.add_argument("--delta", type=float, default=0.5)
     ap.add_argument("--warmup", type=int, default=8)
+    ap.add_argument("--oracle", action="store_true",
+                    help="run the gate on the TRUE metrics -- the ceiling of the "
+                         "skip mechanism itself, independent of any model")
     ap.add_argument("--out", default=None, help="write a JSON report here")
     a = ap.parse_args()
     seeds = [int(s) for s in a.seeds.split(",") if s.strip() != ""]
@@ -911,12 +954,29 @@ def main():
                   % a.warmup)
             print("      exceeds the incumbent best by more than delta.")
             gates = []
-            for which in ("cross", "train"):
-                print("\n[%s families]" % which)
+            if a.oracle:
+                # The control: a PERFECT surrogate. It can only skip points that
+                # truly do not beat the incumbent, so preservation is 100% by
+                # construction and the skip rate is the mechanism's ceiling --
+                # the number every model result below should be read against.
+                print(chr(10) + "[ORACLE -- true metrics as predictions; the ceiling]")
+                for which in ("cross", "held_run", "train"):
+                    g = replay_gate(cache["Y"].astype(np.float64), cache, meta,
+                                    spec, which=which, delta=0.0,
+                                    warmup=a.warmup, cal=False, held=held)
+                    if g is not None:
+                        g["arm"] = "oracle"
+                        g["stratum"] = which + "/oracle"
+                        gates.append(g)
+                        print("  %-6s" % which, end="")
+                        print_gate(g)
+            for which in ("cross", "held_run", "train"):
+                print(chr(10) + "[%s]" % which)
                 for cal in (True, False):
                     for d in (0.0, 0.1, 0.25, 0.5, 1.0, 2.0, 5.0):
                         g = replay_gate(P, cache, meta, spec, which=which,
-                                        delta=d, warmup=a.warmup, cal=cal)
+                                        delta=d, warmup=a.warmup, cal=cal,
+                                        held=held)
                         if g is None:
                             continue
                         g["arm"] = a.arm

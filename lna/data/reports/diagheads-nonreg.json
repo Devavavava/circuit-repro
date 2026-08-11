@@ -40,6 +40,48 @@
    "secs": 917.4,
    "n_train": 2085,
    "n_val": 369
+  },
+  {
+   "tag": "margin-only",
+   "n_test": 1223,
+   "rho_S11": 0.5845436951250313,
+   "rho_S21": 0.6303295922871778,
+   "rho_Idd": 0.37203345739525817,
+   "rho_NF": 0.47702425266629017,
+   "rankacc": 0.7483320652071906,
+   "prec20": 0.7020408163265306,
+   "skill": 0.48016536143701416,
+   "base": 0.4268192968111202,
+   "unc_cal": 0.48316702446181936,
+   "C1": true,
+   "split": "source-shift",
+   "secs": 1697.7,
+   "n_train": 1299,
+   "n_val": 260
+  },
+  {
+   "tag": "multi-task",
+   "n_test": 1223,
+   "rho_S11": 0.5430236581834694,
+   "rho_S21": 0.5898606682225014,
+   "rho_Idd": 0.3822362839482868,
+   "rho_NF": 0.4717250527244544,
+   "rankacc": 0.7283673802342688,
+   "prec20": 0.6489795918367347,
+   "skill": 0.3875920696381263,
+   "base": 0.4268192968111202,
+   "unc_cal": 0.48744573436997557,
+   "C1": true,
+   "split": "source-shift",
+   "secs": 1277.2,
+   "n_train": 1299,
+   "n_val": 260
   }
- ]
+ ],
+ "note": "family-holdout and source-shift were run as two invocations of _diag_nonreg.py (the first was reaped mid source-shift); both used the same snapshot, the same n_models and the same deterministic splits, and within each split both arms were trained in one process",
+ "deltas": {
+  "family-holdout": -0.09078014179895,
+  "source-shift": -0.04046892406467639
+ },
+ "bar2_met": false
 }

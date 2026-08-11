@@ -786,9 +786,11 @@ Labels come from one era only (`w_finger = 2 µm`, post-§27) and one snapshot
 conduction **AUC 0.949**, weak-vs-strong **AUC 0.858**, 3-class accuracy 0.793.
 
 **★ They are NOT part of critic v1.** On the same splits in the same process,
-adding the heads costs ρ(S21) **0.862 → 0.771** (4.5× the pre-registered ±0.02
-tolerance) and halves `unc_cal` **0.549 → 0.247** — the ensemble σ that Block 8's
-`mean − β·σ` rule consumes. Block 10's adopt-only-if-better therefore keeps the
+adding the heads costs ρ(S21) **0.862 → 0.771** on family holdout (4.5× the
+pre-registered ±0.02 tolerance) and **0.630 → 0.590** on source shift, and
+halves `unc_cal` **0.549 → 0.247** — the ensemble σ that Block 8's
+`mean − β·σ` rule consumes (source-shift `unc_cal` is unaffected, 0.483 vs
+0.487, so the σ cost appears exactly where the shipped rule is measured). Block 10's adopt-only-if-better therefore keeps the
 incumbent: `train_one(diag=False)` is byte-for-byte critic v1 and stays the
 default; `--diag` is opt-in and is never what `search.py` or
 `evolve_score.Scorer` loads. Suspected mechanism (untested): the multi-task arm

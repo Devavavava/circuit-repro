@@ -296,3 +296,31 @@ difference is the filter.
 * The shared store carries uncommitted rows from concurrent agents; committing
   the data files commits theirs too (established practice since Session 5) and
   the commit message says so.
+
+
+---
+
+## 7. Outcome (appended after execution, 2026-08-11)
+
+Recorded here so this document is not read as a promise. Full detail in
+FINDINGS **§34**.
+
+| pre-registered claim | verdict |
+|---|---|
+| **P1** dominant-noise top-1 >= 0.55, above both baselines, and above the constant on each of the three largest specs | **MET** (0.596; uniform 0.191, constant 0.307; wifi24 0.446 / dhruva-l5 0.806 / dhruva-s 0.680) |
+| **P2** conducting-vs-off AUC >= 0.75, weak-vs-strong >= 0.70 | **MET** (0.949 / 0.858; `bias.saturated` measures 0.552 on the second) |
+| **P3** margin heads not regressed | **NOT MET** -- rho(S21) 0.862 -> 0.771 family holdout, 0.630 -> 0.590 source shift. Pre-registered consequence executed: the diagnosis heads ship as a **separate model**; critic v1 unchanged. |
+| **P4** targeted beats random on mean delta feasibility score | **MET** (-1.049 vs -1.432) -- but by a smaller downside tail, not a better upside; the only feasible child came from the random arm |
+| **P5** risk that head (a) is only the device prior | **not realised** -- it beats the 0.307 constant on every large spec and is flat in graph size |
+| **P6** risk that head (b) is data-gated | **not realised after the harvest** -- 864 labelled test devices, all three classes present |
+| head **(c)** binding-constraint prediction (stretch) | **not attempted** -- ran out of CPU, not out of reasons |
+
+Two departures from the plan, both recorded rather than smoothed:
+
+* the harvest budget was pre-registered as 1,400 `op` runs / one hour; the actual
+  cost was **1,335 runs / 642 s**, inside budget;
+* the pilot ran **18 of the 20** registered sizings, because on one parent the
+  targeted arm could not propose a single legal child (the head pointed at an
+  inductor's Q resistor on a circuit already at its inductor budget) and the
+  pre-registered class-only fallback also returned nothing. The shortfall is a
+  reported result, not a silently rebalanced experiment.

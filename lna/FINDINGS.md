@@ -7158,6 +7158,22 @@ a difference of models and not of splits. Family holdout, ens-3, snapshot
 | **margin-only** (critic v1's loop, unchanged) | 0.606 | **0.862** | 0.538 | 0.744 | 0.867 | 0.924 | 0.838 | **0.549** | YES |
 | multi-task (+ both diagnosis heads) | 0.586 | **0.771** | 0.467 | 0.678 | 0.810 | 0.879 | 0.740 | **0.247** | YES |
 
+Source shift (train 1299 / val 260 / **test 1223** — the corpus+refs+templates →
+generated shift that matters for ranking generated candidates), same protocol:
+
+| model | ρ(S11) | **ρ(S21)** | ρ(Idd) | ρ(NF) | rankacc | prec@20 | skill | unc_cal | C1 |
+|---|---|---|---|---|---|---|---|---|---|
+| **margin-only** | 0.585 | **0.630** | 0.372 | 0.477 | 0.748 | 0.702 | 0.480 | 0.483 | YES |
+| multi-task | 0.543 | **0.590** | 0.382 | 0.472 | 0.728 | 0.649 | 0.388 | 0.487 | YES |
+
+**Both splits regress** (−0.091 and −0.040, against a ±0.02 tolerance), so the
+verdict does not hinge on either one alone. ⚠ One asymmetry worth recording: the
+`unc_cal` collapse is **family-holdout only** (0.549 → 0.247); on the source
+shift the two models' uncertainty calibration is identical (0.483 vs 0.487). So
+whatever the diagnosis heads cost the ensemble σ, it is not a uniform property of
+the multi-task model — it shows up exactly where the shipped selection rule is
+measured.
+
 **ρ(S21) falls by 0.091 — 4.5× the pre-registered ±0.02 tolerance — so Bar 2 is
 NOT MET and the pre-registered consequence fires: the diagnosis heads ship as a
 SEPARATE model, not as an upgrade to critic v1.** `train_one(diag=False)` is

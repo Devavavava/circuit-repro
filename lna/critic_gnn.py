@@ -28,6 +28,7 @@ source-shift **0.609** vs 0.585 / 0.370) and, uniquely, its ensemble std ranks
 sweep: ridge ties its source-shift precision@20% and beats its rho(S11) there.
 """
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -47,6 +48,38 @@ DEV_TYPES = ["NM", "PM", "R", "C", "L"]
 ROLES = ["D", "G", "S", "B", "P", "N"]
 MOS_PINS, PASSIVE_PINS = ["D", "G", "S", "B"], ["P", "N"]
 
+# ------------------------------------------------- WP-DIAGHEADS (plans2/13) --
+# The diagnosis heads read the SAME per-device embeddings the margin head pools
+# away. Labels come from two places the store has always had and nobody read as
+# supervision: the per-element noise budget on every NF-gated L2 row (FINDINGS
+# 26) and the per-device operating point (FINDINGS 30).
+NOISE_KINDS = ("NM", "PM", "R", "L")   # capacitors are noiseless BY CONSTRUCTION
+COND_CLASSES = ("off", "weak", "strong")
+GM_ID_SPLIT = 14.0        # V^-1; midpoint of 30.5's measured 17-20 vs 10-12 gap
+ID_CONDUCTING = 50e-6     # == bias.conducting / extract.mos_region, never a new one
+MF_W_FINGER = 2e-06       # the post-27 multi-finger era; eras are never pooled
+
+
+def elem_to_dev(elem):
+    """ngspice element name -> topology device name, exactly as `to_spice.emit`
+    writes it: `M{dev}` for a MOSFET, `R{dev}` for a resistor, `RQ{dev}` for an
+    inductor's finite-Q resistor. Returns None for the harness elements that are
+    not topology devices (`rns` the 50-ohm source, `rnl` the 50-ohm load,
+    `rbias*` from bias.py)."""
+    e = (elem or "").lower()
+    if e in ("rns", "rnl") or e.startswith("rbias"):
+        return None
+    if e.startswith("rq"):
+        return e[2:].upper()
+    if e.startswith(("m", "r")):
+        return e[1:].upper()
+    return None
+
+
+def dev_names(topo):
+    """The device order every per-device tensor in this module uses."""
+    return sorted(d for d in topo.devices if base_of(d) in DEV_TYPES)
+
 
 # --------------------------------------------------------------- graph -> tensors
 def _net_class(members):
@@ -63,7 +96,7 @@ def _net_class(members):
 
 
 def graph_tensors(topo):
-    devs = sorted(d for d in topo.devices if base_of(d) in DEV_TYPES)
+    devs = dev_names(topo)
     roots = list(topo.nodes.keys())
     ri = {r: i for i, r in enumerate(roots)}
     pin2root = {m: r for r, members in topo.nodes.items() for m in members}
@@ -123,7 +156,17 @@ def build_batch(data):
 
 # --------------------------------------------------------------- model
 class MPNN(nn.Module):
-    def __init__(self, h=64, rounds=3, n_spec=len(critic.SPEC_FEATS), n_out=4):
+    """Shared backbone; up to three read-outs.
+
+    `diag=True` adds the WP-DIAGHEADS per-device heads (plans2/13 section 2).
+    They read `hd` -- the per-device embeddings the margin head pools away --
+    concatenated with the same spec-conditioning vector, so the diagnosis is
+    spec-relative in exactly the way the margin prediction is. The backbone is
+    byte-identical to critic v1's either way: the whole question is whether the
+    EXISTING representation already knows where the defect is."""
+
+    def __init__(self, h=64, rounds=3, n_spec=len(critic.SPEC_FEATS), n_out=4,
+                 diag=False):
         super().__init__()
         self.rounds = rounds
         self.dev_in = nn.Linear(len(DEV_TYPES), h)
@@ -134,8 +177,14 @@ class MPNN(nn.Module):
         self.net_upd = nn.Linear(h, h)
         self.head = nn.Sequential(nn.Linear(2 * h + n_spec, h), nn.ReLU(),
                                   nn.Linear(h, n_out))
+        self.diag = diag
+        if diag:
+            self.noise_head = nn.Sequential(nn.Linear(h + n_spec, h), nn.ReLU(),
+                                            nn.Linear(h, 1))
+            self.cond_head = nn.Sequential(nn.Linear(h + n_spec, h), nn.ReLU(),
+                                           nn.Linear(h, len(COND_CLASSES)))
 
-    def forward(self, dev, net, adj, dmask, spec):
+    def embed(self, dev, net, adj):
         hd = torch.relu(self.dev_in(dev))          # [B,nD,H]
         hn = torch.relu(self.net_in(net))          # [B,nN,H]
         for _ in range(self.rounds):
@@ -145,10 +194,198 @@ class MPNN(nn.Module):
             dev_in = sum(adj[:, r] @ self.net_msg[r](hn)
                          for r in range(len(ROLES)))
             hd = torch.relu(hd + self.dev_upd(dev_in))
+        return hd
+
+    def forward(self, dev, net, adj, dmask, spec):
+        hd = self.embed(dev, net, adj)
         m = dmask.unsqueeze(-1)                     # [B,nD,1]
         s = (hd * m).sum(1)                         # masked sum pool
         mx = (hd + (1 - m) * -1e9).max(1).values    # masked max pool
         return self.head(torch.cat([s, mx, spec], -1))    # [B,4]
+
+    def forward_all(self, dev, net, adj, dmask, spec):
+        """(margins [B,4], noise logits [B,nD], conduction logits [B,nD,3])."""
+        hd = self.embed(dev, net, adj)
+        m = dmask.unsqueeze(-1)
+        s = (hd * m).sum(1)
+        mx = (hd + (1 - m) * -1e9).max(1).values
+        marg = self.head(torch.cat([s, mx, spec], -1))
+        if not self.diag:
+            return marg, None, None
+        sp = spec.unsqueeze(1).expand(-1, hd.shape[1], -1)
+        z = torch.cat([hd, sp], -1)                 # [B,nD,H+n_spec]
+        return marg, self.noise_head(z).squeeze(-1), self.cond_head(z)
+
+
+# ================================================== WP-DIAGHEADS: the labels
+# plans2/13 section 1. Two supervision signals the store has always carried and
+# nobody ever read AS LABELS. Both are attached per (topology, spec) L2 row, both
+# are masked, and a row that has neither still trains the margin head -- which is
+# what makes the non-regression comparison in section 3 fair rather than
+# confounded (the margin head sees an identical training set either way).
+
+
+def _params_key(params):
+    return hashlib.md5(json.dumps(params or {}, sort_keys=True)
+                       .encode()).hexdigest()
+
+
+def noise_labels(row, topo):
+    """{device: share of F-1}, renormalised over the devices we can attribute.
+
+    The stored budget lists the top contributors by share of the EXCESS noise
+    factor. Two of its entries are harness, not design -- `rns` (the 50-ohm
+    source, already excluded upstream) and `rnl` (the 50-ohm load of the noise
+    deck, the true top-1 in 36.2% of stored budgets) -- plus bias.py's inserted
+    `rbias*`. Those are dropped by `elem_to_dev` and the remainder renormalised,
+    so this head answers "which DEVICE dominates", never "which element"."""
+    if (row.get("zoaf_cfg") or {}).get("w_finger") != MF_W_FINGER:
+        return None                              # Block 6: eras are never pooled
+    b = (row.get("provenance") or {}).get("noise_budget")
+    if not b:
+        return None
+    names = set(dev_names(topo))
+    out = {}
+    for t in (b.get("top") or []):
+        dev = elem_to_dev(t.get("elem"))
+        if dev in names:
+            out[dev] = max(0.0, float(t.get("frac_excess") or 0.0))
+    tot = sum(out.values())
+    if len(out) < 2 or tot <= 0:
+        return None                  # a one-device label makes top-1 vacuous
+    return dict((k, v / tot) for k, v in out.items())
+
+
+def cond_labels(op_row, topo):
+    """{MOSFET: 0 off / 1 weak-moderate / 2 strong} at a CONVERGED point.
+
+    `off` uses bias.py's own 50 uA threshold (via `extract.mos_region`'s
+    constant) so an op row and an L1 row can never disagree; the weak/strong cut
+    is gm/Id at 14 V^-1, the midpoint of FINDINGS 30.5's measured 17-20 vs 10-12
+    gap. This is the axis the L1 predicate provably cannot see: in weak inversion
+    BSIM4's Vdsat collapses to ~55 mV, so |Vds| >= 1.5|Vdsat| passes by 5-8x and
+    `bias.saturated` calls every one of them saturated."""
+    names = set(dev_names(topo))
+    out = {}
+    for elem, d in ((op_row or {}).get("devices") or {}).items():
+        if not elem.lower().startswith("m"):
+            continue
+        dev = elem[1:].upper()
+        if dev not in names or base_of(dev) not in ("NM", "PM"):
+            continue
+        idv, gm = d.get("id"), d.get("gm")
+        if idv is None:
+            continue
+        if abs(idv) < ID_CONDUCTING:
+            out[dev] = 0
+        elif gm is None:
+            continue
+        else:
+            out[dev] = 1 if abs(gm) / abs(idv) >= GM_ID_SPLIT else 2
+    return out or None
+
+
+def load_op_index(snapshot=None):
+    """(wl_hash, spec, params-hash) -> op row, CONVERGED points of one era only.
+
+    `stage in {label, final}` is the whole filter that matters: an inner-ZOAF row
+    labels a point, and the critic's input carries no point (plans2/13 1b)."""
+    idx = {}
+    for r in ds.load("op_points", snapshot=snapshot):
+        h = r.get("harness") or {}
+        if h.get("w_finger") != MF_W_FINGER:
+            continue
+        if r.get("stage") not in ("label", "final"):
+            continue
+        idx[(r.get("wl_hash"), r.get("spec"),
+             _params_key(r.get("params")))] = r
+    return idx
+
+
+def attach_diag(data, snapshot=None, op_index=None):
+    """Hang `noise_lab` / `cond_lab` on the dicts `critic.load_dataset` returns."""
+    idx = load_op_index(snapshot=snapshot) if op_index is None else op_index
+    n_noise = n_cond = 0
+    for d in data:
+        r = d["row"]
+        d["noise_lab"] = noise_labels(r, d["topo"])
+        n_noise += d["noise_lab"] is not None
+        op = idx.get((r.get("wl_hash"), r.get("spec"),
+                      _params_key(r.get("best_params"))))
+        d["cond_lab"] = cond_labels(op, d["topo"]) if op else None
+        n_cond += d["cond_lab"] is not None
+    return n_noise, n_cond
+
+
+def build_diag_batch(data, maxD):
+    """Per-device label tensors aligned to `graph_tensors`' device order."""
+    B = len(data)
+    ntgt = np.zeros((B, maxD), np.float32)
+    nmask = np.zeros((B, maxD), np.float32)
+    nrow = np.zeros((B,), np.float32)
+    ctgt = np.zeros((B, maxD), np.int64)
+    cmask = np.zeros((B, maxD), np.float32)
+    for k, d in enumerate(data):
+        names = dev_names(d["topo"])
+        nl = d.get("noise_lab")
+        if nl:
+            nrow[k] = 1.0
+            for i, nm in enumerate(names[:maxD]):
+                if base_of(nm) in NOISE_KINDS:
+                    nmask[k, i] = 1.0
+                    ntgt[k, i] = nl.get(nm, 0.0)
+        cl = d.get("cond_lab")
+        if cl:
+            for i, nm in enumerate(names[:maxD]):
+                if nm in cl:
+                    cmask[k, i] = 1.0
+                    ctgt[k, i] = cl[nm]
+    return {"ntgt": torch.tensor(ntgt), "nmask": torch.tensor(nmask),
+            "nrow": torch.tensor(nrow), "ctgt": torch.tensor(ctgt),
+            "cmask": torch.tensor(cmask)}
+
+
+def _noise_loss(logit, D):
+    """Masked softmax cross-entropy against the SOFT share target."""
+    mask, tgt, row = D["nmask"], D["ntgt"], D["nrow"]
+    if float(row.sum()) == 0.0:
+        return logit.sum() * 0.0
+    logp = torch.log_softmax(logit + (mask - 1.0) * 1e9, dim=-1)
+    ce = -(tgt * logp * mask).sum(-1)
+    return (ce * row).sum() / row.sum().clamp(min=1.0)
+
+
+def _cond_loss(logit, D):
+    mask, tgt = D["cmask"], D["ctgt"]
+    n = mask.sum()
+    if float(n) == 0.0:
+        return logit.sum() * 0.0
+    logp = torch.log_softmax(logit, dim=-1)
+    ll = torch.gather(logp, 2, tgt.unsqueeze(-1)).squeeze(-1)
+    return -(ll * mask).sum() / n.clamp(min=1.0)
+
+
+def _auc(y, score):
+    """Mann-Whitney AUC with tie-averaged ranks; nan if a class is absent."""
+    y = np.asarray(y, float)
+    sc = np.asarray(score, float)
+    n1 = float((y == 1).sum())
+    n0 = float((y == 0).sum())
+    if n1 == 0 or n0 == 0:
+        return float("nan")
+    order = np.argsort(sc, kind="mergesort")
+    sv = sc[order]
+    r = np.empty(len(sv), float)
+    i = 0
+    while i < len(sv):
+        j = i
+        while j + 1 < len(sv) and sv[j + 1] == sv[i]:
+            j += 1
+        r[i:j + 1] = (i + 1 + j + 1) / 2.0
+        i = j + 1
+    ranks = np.empty(len(sc), float)
+    ranks[order] = r
+    return float((ranks[y == 1].sum() - n1 * (n1 + 1) / 2.0) / (n1 * n0))
 
 
 # --------------------------------------------------------------- train / predict
@@ -170,25 +407,53 @@ def _masked_huber(pred, true, mask, delta=1.0):
     return l.sum() / mask.sum().clamp(min=1.0)
 
 
-def train_one(train, val, sigma_norm, seed=0, epochs=400, h=64, lr=3e-3):
+W_NOISE = 0.5      # plans2/13 section 2: fixed a priori, NOT tuned
+W_COND = 0.5
+
+
+def train_one(train, val, sigma_norm, seed=0, epochs=400, h=64, lr=3e-3,
+              diag=False):
+    """With `diag=False` this is byte-for-byte critic v1's training loop.
+
+    With `diag=True` the same backbone additionally carries the two per-device
+    diagnosis heads; the extra loss terms are masked, so rows without a diagnosis
+    label contribute exactly what they always did. Early stopping then watches
+    the model's OWN objective (margins + diagnosis), which is why the margin-only
+    model is retrained separately for the non-regression comparison rather than
+    read off this one."""
     torch.manual_seed(seed)
-    model = MPNN(h=h)
+    model = MPNN(h=h, diag=diag)
     opt = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=1e-4)
     Xtr = build_batch(train)
     Xva = build_batch(val) if val else None
+    Dtr = build_diag_batch(train, Xtr[0].shape[1]) if diag else None
+    Dva = (build_diag_batch(val, Xva[0].shape[1])
+           if (diag and Xva is not None) else None)
     best, best_state, patience = 1e9, None, 0
     for ep in range(epochs):
         model.train()
         opt.zero_grad()
-        pred = model(*Xtr[:5])
+        if diag:
+            pred, nlg, clg = model.forward_all(*Xtr[:5])
+        else:
+            pred, nlg, clg = model(*Xtr[:5]), None, None
         loss = (_masked_huber(pred, Xtr[5], Xtr[6])
                 + 0.5 * _rank_hinge(pred, Xtr[5], sigma_norm))
+        if diag:
+            loss = loss + W_NOISE * _noise_loss(nlg, Dtr) + W_COND * _cond_loss(
+                clg, Dtr)
         loss.backward()
         opt.step()
         if Xva is not None:
             model.eval()
             with torch.no_grad():
-                vloss = _masked_huber(model(*Xva[:5]), Xva[5], Xva[6]).item()
+                if diag:
+                    vp, vn, vc = model.forward_all(*Xva[:5])
+                    vloss = (_masked_huber(vp, Xva[5], Xva[6])
+                             + W_NOISE * _noise_loss(vn, Dva)
+                             + W_COND * _cond_loss(vc, Dva)).item()
+                else:
+                    vloss = _masked_huber(model(*Xva[:5]), Xva[5], Xva[6]).item()
             if vloss < best - 1e-4:
                 best, best_state, patience = vloss, {k: v.clone() for k, v in
                                                      model.state_dict().items()}, 0
@@ -208,21 +473,31 @@ def predict(model, data):
         return model(*X[:5]).numpy()
 
 
-def ensemble_predict(train, val, test, sigma_norm, n=5):
-    preds = [predict(train_one(train, val, sigma_norm, seed=s), test)
+def ensemble_predict(train, val, test, sigma_norm, n=5, diag=False):
+    preds = [predict(train_one(train, val, sigma_norm, seed=s, diag=diag), test)
              for s in range(n)]
     P = np.stack(preds)
     return P.mean(0), P.std(0)
 
 
+def predict_diag(model, data):
+    """(noise logits, conduction log-probs) padded to the batch device max."""
+    model.eval()
+    with torch.no_grad():
+        X = build_batch(data)
+        _, nlg, clg = model.forward_all(*X[:5])
+        return nlg.numpy(), torch.log_softmax(clg, -1).numpy()
+
+
 # --------------------------------------------------------------- eval
-def evaluate_gnn(train, val, test, label, sigma):
+def evaluate_gnn(train, val, test, label, sigma, diag=False, n_models=5):
     global _SPEC_MU
     sigma_norm = sigma / 12.0
     S = np.array([critic.spec_vector(d["spec"]) for d in train], np.float32)
     _SPEC_MU = (S.mean(0), S.std(0) + 1e-6)      # spec scaler fit on TRAIN only
     Yte = np.array([d["y"] for d in test])
-    mean, std = ensemble_predict(train, val, test, sigma_norm, n=5)
+    mean, std = ensemble_predict(train, val, test, sigma_norm, n=n_models,
+                                 diag=diag)
     s21 = 1
     rhos = [critic.spearman(Yte[:, k], mean[:, k]) for k in range(3)]
     nf_i = [i for i, d in enumerate(test) if d.get("y_nf") is not None]
@@ -245,7 +520,7 @@ def evaluate_gnn(train, val, test, label, sigma):
     print(f"{'model':<10} {'rho_S11':>8} {'rho_S21':>8} {'rho_Idd':>8} "
           f"{'rho_NF':>8} {'rankacc':>8} {'prec@20':>8} {'enrich':>7} "
           f"{'ofceil':>7} {'skill':>7} {'unc_cal':>8} {'C1?':>5}")
-    print(f"{'gnn(ens5)':<10} {rhos[0]:>8.3f} {rhos[1]:>8.3f} {rhos[2]:>8.3f} "
+    print(f"{('gnn+diag' if diag else 'gnn(ens5)'):<10} {rhos[0]:>8.3f} {rhos[1]:>8.3f} {rhos[2]:>8.3f} "
           f"{rho_nf:>8.3f} {racc:>8.3f} {st['prec']:>8.3f} {st['enrich']:>7.2f} "
           f"{st['frac_ceiling']:>7.3f} {st['skill']:>7.3f} {cal:>8.3f} {c1:>5}")
     print(f"  near-feasible {st['n_near']}/{len(test)} = base {st['base']:.3f}; "
@@ -474,8 +749,204 @@ def _print_mutant(reg, rows, infos, gate):
                           r["prec"], r["skill"], r["n_above_gate"], r["n"]))
 
 
-def run_eval(snapshot=None, sigma_recipe=None):
+# ============================================ WP-DIAGHEADS: the diagnosis eval
+def _dom_baselines(train, test):
+    """The two NON-LEARNED baselines the head has to beat (plans2/13 1a).
+
+    `uniform` is 1/(noise-capable devices) averaged over the test rows -- the
+    honest base rate for a chooser that knows only which elements can make noise.
+    `constant` is the single most frequent dominant device NAME in TRAIN, applied
+    to each test row (falling back to that row's first noise-capable device if
+    the name is absent). It is the check on P5: a head that has merely learned
+    "the first NMOS usually dominates" cannot beat it."""
+    from collections import Counter
+    cnt = Counter()
+    for d in train:
+        nl = d.get("noise_lab")
+        if nl:
+            cnt[max(nl, key=nl.get)] += 1
+    order = [nm for nm, _ in cnt.most_common()]
+    uni, maj = [], []
+    for d in test:
+        nl = d.get("noise_lab")
+        if not nl:
+            continue
+        true = max(nl, key=nl.get)
+        noisy = [x for x in dev_names(d["topo"]) if base_of(x) in NOISE_KINDS]
+        if not noisy:
+            continue
+        uni.append(1.0 / len(noisy))
+        pick = next((nm for nm in order if nm in noisy), noisy[0])
+        maj.append(1.0 if pick == true else 0.0)
+    return (float(np.mean(uni)) if uni else float("nan"),
+            float(np.mean(maj)) if maj else float("nan"),
+            order[0] if order else None)
+
+
+def diag_metrics(te, nlg, clp):
+    """Everything plans2/13 section 3 Bar 1 asks for, on one holdout."""
+    from collections import Counter
+    top1, top2, ps, ts, per_spec, per_nd = [], [], [], [], {}, {}
+    for i, d in enumerate(te):
+        nl = d.get("noise_lab")
+        if not nl:
+            continue
+        names = dev_names(d["topo"])
+        idxs = [j for j, nm in enumerate(names) if base_of(nm) in NOISE_KINDS]
+        if len(idxs) < 2:
+            continue
+        sc = np.array([nlg[i, j] for j in idxs], float)
+        rank = [names[idxs[k]] for k in np.argsort(-sc)]
+        true = max(nl, key=nl.get)
+        hit = 1.0 if rank[0] == true else 0.0
+        top1.append(hit)
+        top2.append(1.0 if true in rank[:2] else 0.0)
+        e = np.exp(sc - sc.max())
+        e = e / e.sum()
+        for k, j in enumerate(idxs):
+            ps.append(float(e[k]))
+            ts.append(float(nl.get(names[j], 0.0)))
+        per_spec.setdefault(d["spec"], []).append(hit)
+        per_nd.setdefault(len(names) // 5 * 5, []).append(hit)
+    y_cond, s_cond, y_ws, s_ws, acc = [], [], [], [], []
+    cls = Counter()
+    for i, d in enumerate(te):
+        cl = d.get("cond_lab")
+        if not cl:
+            continue
+        for j, nm in enumerate(dev_names(d["topo"])):
+            c = cl.get(nm)
+            if c is None:
+                continue
+            pr = np.exp(np.array(clp[i, j], float))
+            pr = pr / pr.sum()
+            cls[c] += 1
+            y_cond.append(0 if c == 0 else 1)
+            s_cond.append(1.0 - float(pr[0]))
+            acc.append(1.0 if int(np.argmax(pr)) == c else 0.0)
+            if c in (1, 2):
+                y_ws.append(1 if c == 1 else 0)
+                s_ws.append(float(pr[1] / max(1e-12, pr[1] + pr[2])))
+    return {
+        "n_noise_rows": len(top1),
+        "top1": float(np.mean(top1)) if top1 else float("nan"),
+        "top2": float(np.mean(top2)) if top2 else float("nan"),
+        "rho_share": critic.spearman(np.array(ts), np.array(ps)) if ts else float("nan"),
+        "per_spec": dict((k, (len(v), float(np.mean(v)))) for k, v in
+                         sorted(per_spec.items())),
+        "per_ndev": dict((k, (len(v), float(np.mean(v)))) for k, v in
+                         sorted(per_nd.items())),
+        "n_cond_dev": len(y_cond),
+        "cond_classes": dict((COND_CLASSES[k], v) for k, v in sorted(cls.items())),
+        "auc_conducting": _auc(y_cond, s_cond),
+        "auc_weak_strong": _auc(y_ws, s_ws),
+        "acc3": float(np.mean(acc)) if acc else float("nan"),
+        "n_weak_strong": len(y_ws),
+    }
+
+
+def fit_diag(data, sigma_norm, n_models=3, k_holdout=0.25, exclude_fams=()):
+    """Train the multi-task ensemble on a family split of `data`.
+
+    `exclude_fams` drops every row whose WL family contains one of the given
+    wl_hashes BEFORE splitting -- the pilot needs a model that has never seen its
+    parents' families, or it would be marking its own homework exactly the way
+    FINDINGS 15.4 warned about."""
+    global _SPEC_MU
+    pool = data
+    if exclude_fams:
+        rows = [d["row"] for d in data]
+        drop = set()
+        for mem in ds._families(rows):
+            hs = set(rows[i].get("wl_hash") for i in mem)
+            if hs & set(exclude_fams):
+                drop |= set(mem)
+        pool = [d for i, d in enumerate(data) if i not in drop]
+    sp = ds.family_split(k_holdout=k_holdout, rows=[d["row"] for d in pool])
+    id2d = dict((id(d["row"]), d) for d in pool)
+    tr = [id2d[id(r)] for r in sp["train"] if id(r) in id2d]
+    va = [id2d[id(r)] for r in sp["val"] if id(r) in id2d]
+    te = [id2d[id(r)] for r in sp["test"] if id(r) in id2d]
+    S = np.array([critic.spec_vector(d["spec"]) for d in tr], np.float32)
+    _SPEC_MU = (S.mean(0), S.std(0) + 1e-6)
+    models = [train_one(tr, va, sigma_norm, seed=k, diag=True)
+              for k in range(n_models)]
+    return models, tr, va, te
+
+
+def diag_predict_ens(models, items):
+    NL = []
+    CL = []
+    for m in models:
+        a, b = predict_diag(m, items)
+        NL.append(a)
+        CL.append(b)
+    return np.mean(NL, 0), np.mean(CL, 0)
+
+
+def diag_eval(snapshot=None, sigma_recipe=None, n_models=3, k_holdout=0.25,
+              out=None):
     data = critic.load_dataset(snapshot=snapshot)
+    n_noise, n_cond = attach_diag(data, snapshot=snapshot)
+    n_cdev = sum(len(d["cond_lab"]) for d in data if d.get("cond_lab"))
+    n_ndev = sum(len(d["noise_lab"]) for d in data if d.get("noise_lab"))
+    sigma = critic._sigma_s21(recipe=sigma_recipe, snapshot=snapshot)
+    print("WP-DIAGHEADS diagnosis eval -- snapshot=%s, %d L2 rows" %
+          (snapshot, len(data)))
+    print("  noise-share labels : %d rows / %d device targets" % (n_noise, n_ndev))
+    print("  conduction labels  : %d rows / %d device targets" % (n_cond, n_cdev))
+    t0 = time.time()
+    models, tr, va, te = fit_diag(data, sigma / 12.0, n_models=n_models,
+                                  k_holdout=k_holdout)
+    nlg, clp = diag_predict_ens(models, te)
+    m = diag_metrics(te, nlg, clp)
+    uni, maj, majname = _dom_baselines(tr, te)
+    m.update(baseline_uniform=uni, baseline_constant=maj,
+             baseline_constant_name=majname, n_train=len(tr), n_val=len(va),
+             n_test=len(te), n_models=n_models, snapshot=snapshot,
+             secs=round(time.time() - t0, 1))
+    print("")
+    print("=== family holdout: train %d / val %d / test %d (ens-%d) ==="
+          % (len(tr), len(va), len(te), n_models))
+    print("-- head (a) dominant-noise device --")
+    print("  labelled test rows          : %d" % m["n_noise_rows"])
+    print("  TOP-1 accuracy              : %.4f   (bar 0.55)" % m["top1"])
+    print("  top-2 accuracy              : %.4f" % m["top2"])
+    print("  baseline uniform 1/n_noisy  : %.4f" % m["baseline_uniform"])
+    print("  baseline constant %-9s : %.4f" % (str(m["baseline_constant_name"]),
+                                               m["baseline_constant"]))
+    print("  rho(pred share, frac_excess): %.4f" % m["rho_share"])
+    print("  per spec (n, top1): %s" % json.dumps(m["per_spec"]))
+    print("  per n_devices bucket: %s" % json.dumps(m["per_ndev"]))
+    print("-- head (b) conduction / inversion region --")
+    print("  labelled test devices       : %d  classes %s"
+          % (m["n_cond_dev"], json.dumps(m["cond_classes"])))
+    print("  AUC conducting vs off       : %.4f   (bar 0.75)" % m["auc_conducting"])
+    print("  AUC weak vs strong (n=%d)   : %.4f   (bar 0.70; the L1 predicate is "
+          "structurally 0.5 here)" % (m["n_weak_strong"], m["auc_weak_strong"]))
+    print("  3-class argmax accuracy     : %.4f" % m["acc3"])
+    ok_a = (m["top1"] >= 0.55 and m["top1"] > m["baseline_uniform"]
+            and m["top1"] > m["baseline_constant"])
+    ok_b = (m["auc_conducting"] >= 0.75 and m["auc_weak_strong"] >= 0.70)
+    m["bar_a_met"] = bool(ok_a)
+    m["bar_b_met"] = bool(ok_b)
+    print("")
+    print("  Bar 1(a) %s   Bar 1(b) %s   [%.1fs]"
+          % ("MET" if ok_a else "NOT MET", "MET" if ok_b else "NOT MET",
+             m["secs"]))
+    if out:
+        with open(out, "w") as fh:
+            json.dump(m, fh, indent=1, default=float)
+        print("wrote " + out)
+    return 0
+
+
+def run_eval(snapshot=None, sigma_recipe=None, diag=False, n_models=5):
+    data = critic.load_dataset(snapshot=snapshot)
+    if diag:
+        n_noise, n_cond = attach_diag(data, snapshot=snapshot)
+        print("multi-task: %d/%d rows carry a noise-share label, %d a conduction "
+              "label" % (n_noise, len(data), n_cond))
     sigma = critic._sigma_s21(recipe=sigma_recipe, snapshot=snapshot)
     print(f"GNN critic -- {len(data)} rows, sigma_S21={sigma:.3f}, "
           f"generated {sum(d['gen'] for d in data)}, "
@@ -487,7 +958,8 @@ def run_eval(snapshot=None, sigma_recipe=None):
     va = [id2d[id(r)] for r in sp["val"] if id(r) in id2d]
     te = [id2d[id(r)] for r in sp["test"] if id(r) in id2d]
     if len(te) >= 3:
-        evaluate_gnn(tr, va, te, "family-holdout split", sigma)
+        evaluate_gnn(tr, va, te, "family-holdout split", sigma, diag=diag,
+                     n_models=n_models)
     tr2, te2 = critic._source_shift(data)
     if len(te2) >= 3:
         # carve a small val off train2 for early stopping (identity-based split;
@@ -496,13 +968,18 @@ def run_eval(snapshot=None, sigma_recipe=None):
         va2 = [d for d in tr2 if id(d) in va2_ids]
         tr2b = [d for d in tr2 if id(d) not in va2_ids]
         evaluate_gnn(tr2b, va2, te2, "source-shift (corpus+ref+tmpl -> generated)",
-                     sigma)
+                     sigma, diag=diag, n_models=n_models)
     return 0
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--eval", action="store_true")
+    ap.add_argument("--diag", action="store_true",
+                    help="train the WP-DIAGHEADS multi-task model (plans2/13); "
+                         "with --eval this is the margin-head non-regression run")
+    ap.add_argument("--diag-eval", action="store_true",
+                    help="per-device diagnosis holdout eval (family split)")
     ap.add_argument("--mutant-eval", action="store_true",
                     help="score the evolve-run rows off-distribution (FINDINGS "
                          "§15.4), leak-free by family CV")
@@ -518,8 +995,12 @@ def main():
                            sigma_recipe=args.sigma_recipe,
                            n_models=args.n_models, folds=args.folds,
                            regimes=tuple(args.regimes.split(",")), out=args.out)
+    if args.diag_eval:
+        return diag_eval(snapshot=args.snapshot, sigma_recipe=args.sigma_recipe,
+                         n_models=args.n_models, out=args.out)
     if args.eval:
-        return run_eval(snapshot=args.snapshot, sigma_recipe=args.sigma_recipe)
+        return run_eval(snapshot=args.snapshot, sigma_recipe=args.sigma_recipe,
+                        diag=args.diag, n_models=args.n_models)
     ap.error("give --eval")
 
 

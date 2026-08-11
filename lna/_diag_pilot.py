@@ -139,10 +139,12 @@ def touches(parent_nl, child_nl, dom):
     return False
 
 
-def _draw(nl, spec, ctx, rng, n, parent_wl, accept=None, tries=800):
+def _draw(nl, spec, ctx, rng, n, parent_wl, accept=None, tries=800,
+          seen=None):
     import collections
     import moves as M
-    got, seen = [], set([parent_wl])
+    got = []
+    seen = set([parent_wl]) if seen is None else seen
     stats = collections.Counter()
     frozen = json.dumps(nl, sort_keys=True)
     for _ in range(tries):
@@ -199,18 +201,22 @@ def plan(heads_path, out_path):
         rnd, srnd = _draw(nl, spec, ctx, random.Random(SEED_RANDOM + i), N_CHILD,
                           p["wl_hash"])
         dom = p["dom"]
+        seen = set([p["wl_hash"]])
         tgt, stgt = _draw(nl, spec, ctx, random.Random(SEED_TARGETED + i), N_CHILD,
-                          p["wl_hash"],
+                          p["wl_hash"], tries=2000, seen=seen,
                           accept=lambda nm, ch: (nm in allowed
                                                  and touches(nl, ch, dom)))
         fallback = 0
         if len(tgt) < N_CHILD:
+            # pre-registered fallback: keep the move-CLASS filter, drop the
+            # locality requirement, and count it.
             fallback = N_CHILD - len(tgt)
             more, s2 = _draw(nl, spec, ctx, random.Random(SEED_TARGETED + 100 + i),
-                             N_CHILD - len(tgt), p["wl_hash"],
-                             accept=lambda nm, ch: nm in allowed)
+                             N_CHILD - len(tgt), p["wl_hash"], tries=2000,
+                             seen=seen, accept=lambda nm, ch: nm in allowed)
             tgt += more
             stgt["fallback_stats"] = s2
+            stgt["fallback_filled"] = len(more)
         rec = dict(p)
         rec.pop("tokens", None)
         rec.update(parent_tokens=p["tokens"], allowed=sorted(allowed),
@@ -339,6 +345,11 @@ def report(res):
     print("%-10s %5s %6s %10s %10s %8s %8s" % ("arm", "n", "sized", "mean d_fs",
                                                "mean d_worst", "n d_fs>0", "feas"))
     summ = {}
+    pairs = {}
+    for r in rows:
+        if r.get("d_fs") is not None:
+            pairs.setdefault(r["parent"], {}).setdefault(r["arm"], []).append(
+                r["d_fs"])
     for arm in ("targeted", "random"):
         a = [r for r in rows if r["arm"] == arm]
         ok = [r for r in a if r.get("d_fs") is not None]
@@ -351,6 +362,21 @@ def report(res):
         print("%-10s %5d %6d %10.4f %10.4f %8d %8d"
               % (arm, len(a), len(ok), mfs, mw, pos, feas))
     res["summary"] = summ
+    both = [k for k, v in pairs.items() if "targeted" in v and "random" in v]
+    if both:
+        dd = [sum(pairs[k]["targeted"]) / len(pairs[k]["targeted"])
+              - sum(pairs[k]["random"]) / len(pairs[k]["random"]) for k in both]
+        res["paired_parents"] = both
+        res["paired_delta"] = dd
+        res["paired_mean"] = sum(dd) / len(dd)
+        res["paired_wins"] = sum(1 for x in dd if x > 0)
+        print("")
+        print("  paired by parent (%d parents with both arms sized): "
+              "mean per-parent (targeted - random) d_fs = %+.4f, "
+              "targeted ahead on %d/%d"
+              % (len(both), res["paired_mean"], res["paired_wins"], len(both)))
+        for k, x in zip(both, dd):
+            print("     %-18s %+.4f" % (k, x))
     if summ["targeted"]["sized"] and summ["random"]["sized"]:
         d = summ["targeted"]["mean_d_fs"] - summ["random"]["mean_d_fs"]
         print("")

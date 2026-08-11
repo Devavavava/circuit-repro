@@ -20,6 +20,7 @@ import glob
 import json
 import os
 import sys
+import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -46,6 +47,23 @@ ARMS = [
 ]
 
 
+#: the wb channel is measured under `wideband-sdr`, the way every published wb
+#: row in this program was (`_ndl_refv3.POOLS`). It is secondary here -- the
+#: funnel is nb/`wifi24` -- so it gets the frozen-protocol row and nothing else.
+WB_ARMS = [
+    ("P5V7", [os.path.join(HERE, "out", "ft_p5v7_wb_s1337")]),
+    ("OUT-U", [os.path.join(OUT, "ft_p5out_wb_uncond_s1337")]),
+    ("OUT-C", [os.path.join(OUT, "ft_p5out_wb_met_s1337")]),
+    ("OUT-S", [os.path.join(OUT, "ft_p5outs_wb_met_s1337")]),
+]
+
+#: sampling-noise replicates of the primary channel (registered in plans2/11 5.1)
+REPLICA_ARMS = [
+    ("OUT-C@2338", [os.path.join(OUT, "ft_p5out_nb_met_s2338")]),
+    ("OUT-S@2338", [os.path.join(OUT, "ft_p5outs_nb_met_s2338")]),
+]
+
+
 def _files(dirs):
     out = []
     for d in dirs:
@@ -55,18 +73,71 @@ def _files(dirs):
 
 def stage_gen(specs=("wifi24",)):
     rows = {}
-    for name in specs:
-        spec = Spec.load(name)
-        for key, _, dirs in ARMS:
-            if not _files(dirs):
-                print("  %-6s POOL MISSING %s" % (key, dirs))
-                continue
-            m = NV.evaluate(dirs, spec=spec, ref=NV.DEFAULT_REF)
-            rows["%s|%s" % (name, key)] = m
-            NV._print_row("%s/%s" % (name, key), m)
+    todo = [(n, k, d) for n in specs
+            for k, _, d in ARMS] +            [("wifi24", k, d) for k, d in REPLICA_ARMS] +            [("wideband-sdr", k, d) for k, d in WB_ARMS]
+    cache = {}
+    for name, key, dirs in todo:
+        spec = cache.setdefault(name, Spec.load(name))
+        if not _files(dirs):
+            print("  %-10s POOL MISSING %s" % (key, dirs))
+            continue
+        m = NV.evaluate(dirs, spec=spec, ref=NV.DEFAULT_REF)
+        rows["%s|%s" % (name, key)] = m
+        NV._print_row("%s/%s" % (name, key), m)
     with open(os.path.join(OUT, "gen_stats.json"), "w", encoding="utf-8") as fh:
         json.dump(rows, fh, indent=2)
     return rows
+
+
+def stage_bias(spec_name="wifi24"):
+    """All-MOS-conducting rate after rule-based bias, over each arm's
+    SCREEN-PASSING samples (the population the sizer would ever see).
+
+    NOT pre-registered: added after FINDINGS 31.8 landed, whose first
+    recommendation is to report this number beside NDL because it is "the first
+    number in the funnel with any discriminative power". It is reported here as a
+    descriptive measurement, never as a decision input -- changing the adoption
+    rule is a frozen-protocol decision and the user's, not an executor's. It is
+    also the highest-powered readout this work package has of whether the model
+    used the label, because it runs over ~170 samples per arm rather than the ~10
+    the sizing budget allows. Default bias rules (v1 R-GATE only), inductor_q=12.
+    """
+    import bias
+    spec = Spec.load(spec_name)
+    out = {}
+    for key, _, dirs in ARMS:
+        n_pass = n_ok = n_cond = n_all = n_skip = 0
+        t0 = time.time()
+        for f in _files(dirs):
+            try:
+                topo = Topology(parse_arrow_file(f))
+            except Exception:                                     # noqa: BLE001
+                continue
+            if not spec.structural_screen(topo)[0]:
+                continue
+            n_pass += 1
+            try:
+                nl, ins, rep, swept = bias.insert_bias(topo, sweep=True,
+                                                       inductor_q=12)
+            except Exception:                                     # noqa: BLE001
+                continue
+            if rep.get("skipped") or swept is None:
+                n_skip += 1
+                continue
+            n_ok += 1
+            n_cond += swept.get("n_conducting") or 0
+            n_all += int(bool(swept.get("all_conduct")))
+        pct = 100.0 * n_all / max(n_pass, 1)
+        out[key] = {"screen_pass": n_pass, "biased_ok": n_ok, "skipped": n_skip,
+                    "all_conduct": n_all, "sum_conducting_mos": n_cond,
+                    "all_conduct_pct": pct,
+                    "wall_s": round(time.time() - t0, 1)}
+        print("  %-6s screen-pass %4d  biased+simulable %4d  all-MOS-conducting "
+              "%4d (%.1f%% of screen-pass)  %ss"
+              % (key, n_pass, n_ok, n_all, pct, out[key]["wall_s"]), flush=True)
+    with open(os.path.join(OUT, "bias_stats.json"), "w", encoding="utf-8") as fh:
+        json.dump(out, fh, indent=2)
+    return out
 
 
 def stage_pool(spec_name="wifi24", out_path=None):
@@ -129,13 +200,15 @@ def stage_pool(spec_name="wifi24", out_path=None):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--stage", choices=["gen", "pool"], required=True)
+    ap.add_argument("--stage", choices=["gen", "bias", "pool"], required=True)
     ap.add_argument("--spec", default="wifi24")
     ap.add_argument("--out")
     a = ap.parse_args()
     os.makedirs(OUT, exist_ok=True)
     if a.stage == "gen":
         stage_gen()
+    elif a.stage == "bias":
+        stage_bias(a.spec)
     else:
         stage_pool(a.spec, a.out)
     return 0

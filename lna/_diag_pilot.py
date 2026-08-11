@@ -144,8 +144,11 @@ def _draw(nl, spec, ctx, rng, n, parent_wl, accept=None, tries=800):
     import moves as M
     got, seen = [], set([parent_wl])
     stats = collections.Counter()
+    frozen = json.dumps(nl, sort_keys=True)
     for _ in range(tries):
-        child, name = M.mutate(nl, rng, ctx)
+        # a fresh copy per proposal: not every move in MOVES copies before it
+        # edits, and the parent has to survive `tries` proposals unchanged.
+        child, name = M.mutate(M.copy_nl(nl), rng, ctx)
         stats["proposed"] += 1
         if not child:
             stats["no_move"] += 1
@@ -166,6 +169,8 @@ def _draw(nl, spec, ctx, rng, n, parent_wl, accept=None, tries=800):
         stats["kept"] += 1
         if len(got) >= n:
             break
+    if json.dumps(nl, sort_keys=True) != frozen:
+        raise AssertionError("a move mutated the parent netlist in place")
     return got, dict(stats)
 
 

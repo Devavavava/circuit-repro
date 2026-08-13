@@ -2257,6 +2257,58 @@ python lna/_harden_simul.py --vdd-check --best lna/out/_harden/best_blend1.json 
 python lna/_harden_simul.py --emit --best lna/out/_harden/best_blend1.json                                   # writes dhruva-simul.{params,meta}.json
 ```
 
+### ▸ Sub-block: WP-PGAIN - ★★★ Gate **D6** (gain programmability) met under a proposed mapping, and the map of where this amplifier may be loaded (owner: the gain-programmability executor)
+
+**Files owned:** `lna/pgain.py` (new), `lna/_pgain_mech.py` (new),
+`lna/_pgain_probe.py` + `lna/_pgain_docs.py` (scratch), `lna/out/pgain_*`,
+FINDINGS **SS42**, JOURNEY stage **37**, this sub-block. **No shared file
+edited** - switches are inserted by netlist post-processing in this module's
+own code; `size.py`, `templates.py` and the specs are read-only here. Inserted
+elements are named `MSWG*/RSWG*/CSWG*/VSWG*`, disjoint from the bias scaffold,
+so the `^(RBIAS|CBYP|VBGEN)` contract extends to
+`^(RBIAS|CBYP|VBGEN|MSWG|RSWG|CSWG|VSWG)` unambiguously when someone needs it.
+
+**Verdict: D6 MET under the mapping proposed in FINDINGS SS42.1 - which needs
+user sign-off before the ladder in `plans2/14-DHRUVA-SIMUL.md` SS2 may be
+updated.** Four states on one netlist / one sizing / three gate voltages; spans
+**11.23-11.46 dB** on the four bands (gate: >= 10.6 in >= 3 steps); S11
+<= -10 dB band-wide and Idd 12.963 mA in **every** state; max-gain state
+identical to the SS35.2 D4-SIM row on every gate. Replay 3/3, spread 0.0000.
+
+**Read SS42.6 clause 1 before quoting the pass.** Every mechanism that holds
+the match sits behind the last gain stage, so the low-gain states buy range and
+**no** IIP3 - and the paper specifies IIP3 *at min gain*. The mechanisms that
+would buy linearity are precisely the ones the 0.001 dB match margin forbids.
+
+**Two things the next executor should take from this regardless of D6:**
+
+1. **`size.prepared_body` node names are randomised per process** (SS42.2).
+   Element names are stable; node names are not. Any tool that post-processes
+   an emitted netlist must resolve nodes structurally -
+   `_pgain_mech.resolve_nodes()` is a worked example with cross-checks. A prior
+   draft of this very work package produced a full set of numbers that were all
+   void for this reason.
+2. **The loading map (SS42.3) is reusable.** It says, mechanism-independently,
+   which nodes of `ace8383c` can be touched at all. Anything that wants to add
+   a switch, a tap, a feedback path or a probe to this design should read it
+   first.
+
+**Commands**
+
+```bash
+export NGSPICE="C:/msys64/ucrt64/bin/ngspice_con.exe"
+python lna/pgain.py --probe                                       # the loading map (SS42.3)
+python lna/pgain.py --wall                                        # authority-vs-match sweep, all mechanisms (SS42.4)
+python lna/pgain.py --mech out-bank --tune --even                 # the shipped state table (SS42.5)
+python lna/pgain.py --mech out-bank --tune --even --sizing simul  # same on the WP-HARDEN point
+python lna/pgain.py --mech bypass  --tune --sizing simul          # stage-bypass, only legal on the hardened point
+python lna/pgain.py --replay --mech out-bank --even --reps 3      # replay fence
+python lna/pgain.py --report                                      # every stored mechanism table + verdict
+```
+
+`--all` tunes every mechanism; `--sizing {l5,simul}` picks the substrate, and
+every emitted row records which one it used.
+
 ## 1. TL;DR — what shipped this session
 
 | Plan item | Status | Key result |

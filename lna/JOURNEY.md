@@ -1890,6 +1890,59 @@ Not adopted as the designated point — `plans2/14-DHRUVA-SIMUL.md` is
 unchanged, both points are on file, and the choice (best NF/S21 slack vs.
 best S11/Idd/VDD robustness) is left to the user.
 
+## 37. WP-PGAIN - the gain-programmability gate falls, and the map of where this amplifier is allowed to be touched
+
+**The stage.** Tier-3 item two: gain programmability, >= 10.6 dB in >= 3 steps
+(`plans2/14-DHRUVA-SIMUL.md` SS1.2, upgrade #6), recorded since stage 30 as
+"NOT ATTEMPTED - no switchable DOFs". The task came with its own framing
+attached: *propose* what "programmable" means, do not assume it.
+
+**The decision, and who made it.** The mapping in FINDINGS SS42.1 is
+**proposed by this executor and awaits user sign-off** - deliberately the same
+shape as the program's earlier S21-for-voltage-gain decision, and written down
+before any measurement so it could not be shaped by the answer. One netlist,
+one set of device sizes, states differing *only* in control voltages on
+inserted MOS switch gates. The one clause added beyond the brief is clause 4:
+the max-gain state must still pass the whole D4-SIM gate set. Without it every
+mechanism can manufacture a span by ruining its own top state, and the gate
+would measure nothing.
+
+**What actually happened first was a harness defect.** A prior stopped agent
+had left a draft that inserted switches by literal node name. Those names are
+not stable: `size.prepared_body` renumbers internal nodes per *process*, so the
+same deck text measured 35.94, 30.26 and 25.24 dB of gain in three consecutive
+runs while the untouched design replayed at 35.961 exactly. Everything in that
+draft was void, and the replacement resolves every circuit role structurally
+from element names, cross-checking each one against a second element that must
+touch it. The lesson is bigger than this work package: **element names are the
+contract, node names are an implementation detail**, and every future
+netlist-post-processing tool in this tree needs to know it.
+
+**The result.** Gate **D6 MET** under the proposed mapping, on the designated
+D4-SIM point, unresized: four states, spans 11.23-11.46 dB across the four
+bands, S11 <= -10 dB held band-wide in every state, Idd 12.963 mA *identical*
+in every state, max-gain state unchanged from SS35.2 on every gate including
+NF, replay 3/3 spread 0.0000. The mechanism is a three-branch switched bank on
+the output stage's drain; the switches are 8/8/16 um NMOS inside the spec's own
+sizing box, and the three states are three gate voltages at the rails.
+
+**The understanding - which matters more than the pass.** Five mechanisms were
+built and swept, and the interesting output is not the one that worked but the
+map of the four that did not. This amplifier has a **0.001 dB** band-wide match
+margin, and that margin turns out to be a *spatial* constraint: the input
+combiner, the recombine node, the tuned-stage drain and the output stage's gate
+are all match-forbidden - loading the recombine node by enough to move the gain
+10.6 dB costs 4.63 dB of match, and loading the input combiner costs 6.77 dB.
+Only the output stage's drain and VOUT1 tolerate loading at all, and there the
+match *improves*. So the gain control had nowhere to go but the very back of
+the amplifier - and gain control at the back of an amplifier buys range without
+buying linearity, while the paper specifies IIP3 precisely *at* the
+minimum-gain setting. The gate as mapped is met; the thing the paper actually
+wants from a gain-programmable LNA is, at this match margin, **not available
+anywhere in this topology**. That is the finding to carry forward, and it
+points the same direction stage 31 already did: margin is the currency, and
+this design has almost none to spend.
+
 ## Current frontier
 
 As of this document's writing (`lna-data`, commit `5be4de3` and whatever

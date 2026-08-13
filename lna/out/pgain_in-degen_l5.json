@@ -1,0 +1,271 @@
+{
+ "mech": "in-degen",
+ "desc": "(a') switched source-degeneration ladder under the combiner's CS pair MNM2/MNM5 (3 rungs)",
+ "sizing": "l5",
+ "dofs": {
+  "pRSWGID1": 5.0,
+  "pWSWGID1": 0.00015,
+  "pRSWGID2": 20.0,
+  "pWSWGID2": 0.00015,
+  "pRSWGID3": 20.0,
+  "pWSWGID3": 0.0002
+ },
+ "fixed": {},
+ "n_states": 4,
+ "objective": "max-span",
+ "dof_box": {
+  "pRSWGID1": {
+   "value": 5.0,
+   "kind": "R",
+   "box": [
+    50.0,
+    20000.0
+   ],
+   "in_box": false
+  },
+  "pWSWGID1": {
+   "value": 0.00015,
+   "kind": "W",
+   "box": [
+    1e-06,
+    0.00019999999999999998
+   ],
+   "in_box": true
+  },
+  "pRSWGID2": {
+   "value": 20.0,
+   "kind": "R",
+   "box": [
+    50.0,
+    20000.0
+   ],
+   "in_box": false
+  },
+  "pWSWGID2": {
+   "value": 0.00015,
+   "kind": "W",
+   "box": [
+    1e-06,
+    0.00019999999999999998
+   ],
+   "in_box": true
+  },
+  "pRSWGID3": {
+   "value": 20.0,
+   "kind": "R",
+   "box": [
+    50.0,
+    20000.0
+   ],
+   "in_box": false
+  },
+  "pWSWGID3": {
+   "value": 0.0002,
+   "kind": "W",
+   "box": [
+    1e-06,
+    0.00019999999999999998
+   ],
+   "in_box": true
+  }
+ },
+ "states": [
+  [
+   "S0",
+   {
+    "dhruva-s": {
+     "s21_db": 32.96419,
+     "s11_max_db": -10.30836,
+     "idd_ma": 12.905959999999999,
+     "nf_db": 0.9893351,
+     "k_min": 20.70474
+    },
+    "dhruva-l1": {
+     "s21_db": 34.85023,
+     "s11_max_db": -10.30836,
+     "idd_ma": 12.905959999999999,
+     "nf_db": 1.11474,
+     "k_min": 20.70474
+    },
+    "dhruva-l2": {
+     "s21_db": 35.27125,
+     "s11_max_db": -10.30836,
+     "idd_ma": 12.905959999999999,
+     "nf_db": 1.315717,
+     "k_min": 20.70474
+    },
+    "dhruva-l5": {
+     "s21_db": 35.30367,
+     "s11_max_db": -10.30836,
+     "idd_ma": 12.905959999999999,
+     "nf_db": 1.373402,
+     "k_min": 20.70474
+    }
+   }
+  ],
+  [
+   "S1",
+   {
+    "dhruva-s": {
+     "s21_db": 31.89286,
+     "s11_max_db": -10.44165,
+     "idd_ma": 12.80241,
+     "nf_db": null,
+     "k_min": 21.96478
+    },
+    "dhruva-l1": {
+     "s21_db": 33.88638,
+     "s11_max_db": -10.44165,
+     "idd_ma": 12.80241,
+     "nf_db": null,
+     "k_min": 21.96478
+    },
+    "dhruva-l2": {
+     "s21_db": 34.34522,
+     "s11_max_db": -10.44165,
+     "idd_ma": 12.80241,
+     "nf_db": null,
+     "k_min": 21.96478
+    },
+    "dhruva-l5": {
+     "s21_db": 34.3818,
+     "s11_max_db": -10.44165,
+     "idd_ma": 12.80241,
+     "nf_db": null,
+     "k_min": 21.96478
+    }
+   }
+  ],
+  [
+   "S2",
+   {
+    "dhruva-s": {
+     "s21_db": 30.10699,
+     "s11_max_db": -10.0812,
+     "idd_ma": 12.467600000000001,
+     "nf_db": null,
+     "k_min": 24.39805
+    },
+    "dhruva-l1": {
+     "s21_db": 32.30143,
+     "s11_max_db": -10.0812,
+     "idd_ma": 12.467600000000001,
+     "nf_db": null,
+     "k_min": 24.39805
+    },
+    "dhruva-l2": {
+     "s21_db": 32.85068,
+     "s11_max_db": -10.0812,
+     "idd_ma": 12.467600000000001,
+     "nf_db": null,
+     "k_min": 24.39805
+    },
+    "dhruva-l5": {
+     "s21_db": 32.90001,
+     "s11_max_db": -10.0812,
+     "idd_ma": 12.467600000000001,
+     "nf_db": null,
+     "k_min": 24.39805
+    }
+   }
+  ],
+  [
+   "S3",
+   {
+    "dhruva-s": {
+     "s21_db": 29.73649,
+     "s11_max_db": -10.00754,
+     "idd_ma": 12.22767,
+     "nf_db": null,
+     "k_min": 24.91863
+    },
+    "dhruva-l1": {
+     "s21_db": 32.00135,
+     "s11_max_db": -10.00754,
+     "idd_ma": 12.22767,
+     "nf_db": null,
+     "k_min": 24.91863
+    },
+    "dhruva-l2": {
+     "s21_db": 32.59705,
+     "s11_max_db": -10.00754,
+     "idd_ma": 12.22767,
+     "nf_db": null,
+     "k_min": 24.91863
+    },
+    "dhruva-l5": {
+     "s21_db": 32.65459,
+     "s11_max_db": -10.00754,
+     "idd_ma": 12.22767,
+     "nf_db": null,
+     "k_min": 24.91863
+    }
+   }
+  ]
+ ],
+ "state_controls": [
+  [
+   "S0",
+   {
+    "pVSWGID1": 1.1,
+    "pVSWGID2": 0.0,
+    "pVSWGID3": 0.0
+   }
+  ],
+  [
+   "S1",
+   {
+    "pVSWGID1": 0.0,
+    "pVSWGID2": 1.1,
+    "pVSWGID3": 0.0
+   }
+  ],
+  [
+   "S2",
+   {
+    "pVSWGID1": 0.0,
+    "pVSWGID2": 0.0,
+    "pVSWGID3": 1.1
+   }
+  ],
+  [
+   "S3",
+   {
+    "pVSWGID1": 0.0,
+    "pVSWGID2": 0.0,
+    "pVSWGID3": 0.0
+   }
+  ]
+ ],
+ "spans": {
+  "dhruva-s": 3.2277000000000022,
+  "dhruva-l1": 2.848880000000001,
+  "dhruva-l2": 2.674199999999999,
+  "dhruva-l5": 2.649079999999998
+ },
+ "checks": {
+  "steps": 3,
+  "n_steps_ok": true,
+  "monotonic": true,
+  "span_ok": false,
+  "s11_ok": true,
+  "idd_ok": true,
+  "maxstate_s21_ok": true,
+  "maxstate_nf_ok": true,
+  "D6": false,
+  "worst_s11_max_db": -10.00754,
+  "s11_break_db": 0.0,
+  "worst_span_db": 2.649079999999998,
+  "span_short_db": 7.9509,
+  "sizing": "l5"
+ },
+ "s11_ok_depth": 3,
+ "s11_ok_span_db": 2.649079999999998,
+ "descent": {
+  "evals": 300,
+  "best": [
+   0.0,
+   -2.649079999999998
+  ]
+ }
+}

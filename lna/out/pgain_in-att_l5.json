@@ -1,0 +1,243 @@
+{
+ "mech": "in-att",
+ "desc": "(a) switched shunt attenuator bank on the INPUT COMBINER node (3 branches, cumulative)",
+ "sizing": "l5",
+ "dofs": {
+  "pWSWGIA1": 1e-06,
+  "pWSWGIA2": 1e-06,
+  "pWSWGIA3": 1e-06
+ },
+ "fixed": {
+  "pCSWG": 1e-11
+ },
+ "n_states": 4,
+ "objective": "max-span",
+ "dof_box": {
+  "pWSWGIA1": {
+   "value": 1e-06,
+   "kind": "W",
+   "box": [
+    1e-06,
+    0.00019999999999999998
+   ],
+   "in_box": true
+  },
+  "pWSWGIA2": {
+   "value": 1e-06,
+   "kind": "W",
+   "box": [
+    1e-06,
+    0.00019999999999999998
+   ],
+   "in_box": true
+  },
+  "pWSWGIA3": {
+   "value": 1e-06,
+   "kind": "W",
+   "box": [
+    1e-06,
+    0.00019999999999999998
+   ],
+   "in_box": true
+  }
+ },
+ "states": [
+  [
+   "S0",
+   {
+    "dhruva-s": {
+     "s21_db": 33.72017,
+     "s11_max_db": -9.967074,
+     "idd_ma": 12.96318,
+     "nf_db": 0.869516,
+     "k_min": 19.92034
+    },
+    "dhruva-l1": {
+     "s21_db": 35.53062,
+     "s11_max_db": -9.967074,
+     "idd_ma": 12.96318,
+     "nf_db": 0.9966852,
+     "k_min": 19.92034
+    },
+    "dhruva-l2": {
+     "s21_db": 35.92789,
+     "s11_max_db": -9.967074,
+     "idd_ma": 12.96318,
+     "nf_db": 1.196872,
+     "k_min": 19.92034
+    },
+    "dhruva-l5": {
+     "s21_db": 35.95814,
+     "s11_max_db": -9.967074,
+     "idd_ma": 12.96318,
+     "nf_db": 1.253804,
+     "k_min": 19.92034
+    }
+   }
+  ],
+  [
+   "S1",
+   {
+    "dhruva-s": {
+     "s21_db": 33.08445,
+     "s11_max_db": -11.55023,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 23.91902
+    },
+    "dhruva-l1": {
+     "s21_db": 34.81804,
+     "s11_max_db": -11.55023,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 23.91902
+    },
+    "dhruva-l2": {
+     "s21_db": 35.13023,
+     "s11_max_db": -11.55023,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 23.91902
+    },
+    "dhruva-l5": {
+     "s21_db": 35.14441,
+     "s11_max_db": -11.55023,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 23.91902
+    }
+   }
+  ],
+  [
+   "S2",
+   {
+    "dhruva-s": {
+     "s21_db": 32.48988,
+     "s11_max_db": -12.56951,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 27.91771
+    },
+    "dhruva-l1": {
+     "s21_db": 34.15796,
+     "s11_max_db": -12.56951,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 27.91771
+    },
+    "dhruva-l2": {
+     "s21_db": 34.39908,
+     "s11_max_db": -12.56951,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 27.91771
+    },
+    "dhruva-l5": {
+     "s21_db": 34.40002,
+     "s11_max_db": -12.56951,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 27.91771
+    }
+   }
+  ],
+  [
+   "S3",
+   {
+    "dhruva-s": {
+     "s21_db": 31.93172,
+     "s11_max_db": -12.86076,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 31.9164
+    },
+    "dhruva-l1": {
+     "s21_db": 33.54337,
+     "s11_max_db": -12.86076,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 31.9164
+    },
+    "dhruva-l2": {
+     "s21_db": 33.72429,
+     "s11_max_db": -12.86076,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 31.9164
+    },
+    "dhruva-l5": {
+     "s21_db": 33.71412,
+     "s11_max_db": -12.86076,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 31.9164
+    }
+   }
+  ]
+ ],
+ "state_controls": [
+  [
+   "S0",
+   {
+    "pVSWGIA1": 0.0,
+    "pVSWGIA2": 0.0,
+    "pVSWGIA3": 0.0
+   }
+  ],
+  [
+   "S1",
+   {
+    "pVSWGIA1": 1.1,
+    "pVSWGIA2": 0.0,
+    "pVSWGIA3": 0.0
+   }
+  ],
+  [
+   "S2",
+   {
+    "pVSWGIA1": 1.1,
+    "pVSWGIA2": 1.1,
+    "pVSWGIA3": 0.0
+   }
+  ],
+  [
+   "S3",
+   {
+    "pVSWGIA1": 1.1,
+    "pVSWGIA2": 1.1,
+    "pVSWGIA3": 1.1
+   }
+  ]
+ ],
+ "spans": {
+  "dhruva-s": 1.7884500000000045,
+  "dhruva-l1": 1.987249999999996,
+  "dhruva-l2": 2.2035999999999945,
+  "dhruva-l5": 2.244019999999999
+ },
+ "checks": {
+  "steps": 3,
+  "n_steps_ok": true,
+  "monotonic": true,
+  "span_ok": false,
+  "s11_ok": false,
+  "idd_ok": true,
+  "maxstate_s21_ok": true,
+  "maxstate_nf_ok": true,
+  "D6": false,
+  "worst_s11_max_db": -9.967074,
+  "s11_break_db": 0.0329,
+  "worst_span_db": 1.7884500000000045,
+  "span_short_db": 8.8115,
+  "sizing": "l5"
+ },
+ "s11_ok_depth": 0,
+ "s11_ok_span_db": 0.0,
+ "descent": {
+  "evals": 264,
+  "best": [
+   0.03292599999999979,
+   -2.244019999999999
+  ]
+ }
+}

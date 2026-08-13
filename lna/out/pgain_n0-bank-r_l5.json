@@ -1,0 +1,273 @@
+{
+ "mech": "n0-bank-r",
+ "desc": "(b) recombine-node bank, literal series-RESISTOR reading (3 branches, R in the spec box)",
+ "sizing": "l5",
+ "dofs": {
+  "pRSWGNR1": 12800.0,
+  "pWSWGNR1": 1e-06,
+  "pRSWGNR2": 12800.0,
+  "pWSWGNR2": 1e-06,
+  "pRSWGNR3": 12800.0,
+  "pWSWGNR3": 1e-06
+ },
+ "fixed": {
+  "pCSWG": 1e-11
+ },
+ "n_states": 4,
+ "objective": "max-span",
+ "dof_box": {
+  "pRSWGNR1": {
+   "value": 12800.0,
+   "kind": "R",
+   "box": [
+    50.0,
+    20000.0
+   ],
+   "in_box": true
+  },
+  "pWSWGNR1": {
+   "value": 1e-06,
+   "kind": "W",
+   "box": [
+    1e-06,
+    0.00019999999999999998
+   ],
+   "in_box": true
+  },
+  "pRSWGNR2": {
+   "value": 12800.0,
+   "kind": "R",
+   "box": [
+    50.0,
+    20000.0
+   ],
+   "in_box": true
+  },
+  "pWSWGNR2": {
+   "value": 1e-06,
+   "kind": "W",
+   "box": [
+    1e-06,
+    0.00019999999999999998
+   ],
+   "in_box": true
+  },
+  "pRSWGNR3": {
+   "value": 12800.0,
+   "kind": "R",
+   "box": [
+    50.0,
+    20000.0
+   ],
+   "in_box": true
+  },
+  "pWSWGNR3": {
+   "value": 1e-06,
+   "kind": "W",
+   "box": [
+    1e-06,
+    0.00019999999999999998
+   ],
+   "in_box": true
+  }
+ },
+ "states": [
+  [
+   "S0",
+   {
+    "dhruva-s": {
+     "s21_db": 33.70967,
+     "s11_max_db": -9.996504,
+     "idd_ma": 12.96318,
+     "nf_db": 0.8676733,
+     "k_min": 19.98167
+    },
+    "dhruva-l1": {
+     "s21_db": 35.51806,
+     "s11_max_db": -9.996504,
+     "idd_ma": 12.96318,
+     "nf_db": 0.9956412,
+     "k_min": 19.98167
+    },
+    "dhruva-l2": {
+     "s21_db": 35.91601,
+     "s11_max_db": -9.996504,
+     "idd_ma": 12.96318,
+     "nf_db": 1.196094,
+     "k_min": 19.98167
+    },
+    "dhruva-l5": {
+     "s21_db": 35.9464,
+     "s11_max_db": -9.996504,
+     "idd_ma": 12.96318,
+     "nf_db": 1.253072,
+     "k_min": 19.98167
+    }
+   }
+  ],
+  [
+   "S1",
+   {
+    "dhruva-s": {
+     "s21_db": 33.70455,
+     "s11_max_db": -9.969773,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 19.9919
+    },
+    "dhruva-l1": {
+     "s21_db": 35.50321,
+     "s11_max_db": -9.969773,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 19.9919
+    },
+    "dhruva-l2": {
+     "s21_db": 35.89307,
+     "s11_max_db": -9.969773,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 19.9919
+    },
+    "dhruva-l5": {
+     "s21_db": 35.92197,
+     "s11_max_db": -9.969773,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 19.9919
+    }
+   }
+  ],
+  [
+   "S2",
+   {
+    "dhruva-s": {
+     "s21_db": 33.69939,
+     "s11_max_db": -9.943148,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 20.00229
+    },
+    "dhruva-l1": {
+     "s21_db": 35.48829,
+     "s11_max_db": -9.943148,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 20.00229
+    },
+    "dhruva-l2": {
+     "s21_db": 35.87008,
+     "s11_max_db": -9.943148,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 20.00229
+    },
+    "dhruva-l5": {
+     "s21_db": 35.89749,
+     "s11_max_db": -9.943148,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 20.00229
+    }
+   }
+  ],
+  [
+   "S3",
+   {
+    "dhruva-s": {
+     "s21_db": 33.69419,
+     "s11_max_db": -9.916629,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 20.01283
+    },
+    "dhruva-l1": {
+     "s21_db": 35.47329,
+     "s11_max_db": -9.916629,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 20.01283
+    },
+    "dhruva-l2": {
+     "s21_db": 35.84703,
+     "s11_max_db": -9.916629,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 20.01283
+    },
+    "dhruva-l5": {
+     "s21_db": 35.87297,
+     "s11_max_db": -9.916629,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 20.01283
+    }
+   }
+  ]
+ ],
+ "state_controls": [
+  [
+   "S0",
+   {
+    "pVSWGNR1": 0.0,
+    "pVSWGNR2": 0.0,
+    "pVSWGNR3": 0.0
+   }
+  ],
+  [
+   "S1",
+   {
+    "pVSWGNR1": 1.1,
+    "pVSWGNR2": 0.0,
+    "pVSWGNR3": 0.0
+   }
+  ],
+  [
+   "S2",
+   {
+    "pVSWGNR1": 1.1,
+    "pVSWGNR2": 1.1,
+    "pVSWGNR3": 0.0
+   }
+  ],
+  [
+   "S3",
+   {
+    "pVSWGNR1": 1.1,
+    "pVSWGNR2": 1.1,
+    "pVSWGNR3": 1.1
+   }
+  ]
+ ],
+ "spans": {
+  "dhruva-s": 0.015480000000003713,
+  "dhruva-l1": 0.044769999999999754,
+  "dhruva-l2": 0.06898000000000337,
+  "dhruva-l5": 0.07342999999999478
+ },
+ "checks": {
+  "steps": 3,
+  "n_steps_ok": true,
+  "monotonic": true,
+  "span_ok": false,
+  "s11_ok": false,
+  "idd_ok": true,
+  "maxstate_s21_ok": true,
+  "maxstate_nf_ok": true,
+  "D6": false,
+  "worst_s11_max_db": -9.916629,
+  "s11_break_db": 0.0834,
+  "worst_span_db": 0.015480000000003713,
+  "span_short_db": 10.5845,
+  "sizing": "l5"
+ },
+ "s11_ok_depth": 0,
+ "s11_ok_span_db": 0.0,
+ "descent": {
+  "evals": 300,
+  "best": [
+   0.25051600000000424,
+   -0.07342999999999478
+  ]
+ }
+}

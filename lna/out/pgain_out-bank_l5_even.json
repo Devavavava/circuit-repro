@@ -1,0 +1,270 @@
+{
+ "mech": "out-bank",
+ "desc": "(b') the same load bank on the OUTPUT-STAGE drain (3 branches, cumulative, switch-as-element)",
+ "sizing": "l5",
+ "roles": {
+  "comb": "n6",
+  "g1": "n9",
+  "cgd": "n0",
+  "g2": "n11",
+  "g3": "n4",
+  "g4": "n2",
+  "g5": "n3",
+  "g6": "n1",
+  "recomb": "n5",
+  "tank": "n7",
+  "outd": "n8"
+ },
+ "inserted": [
+  "CSWGOB1 n8 nswaOB1 {pCSWG}",
+  "MSWGOB1 nswaOB1 nswgOB1 0 0 nmos W={pWSWGOB1} L=45n NF={max(1,ceil(pWSWGOB1/2e-06))}",
+  "RSWGGOB1 nswgOB1 nswcOB1 10k",
+  "VSWGOB1 nswcOB1 0 dc {pVSWGOB1}",
+  "CSWGOB2 n8 nswaOB2 {pCSWG}",
+  "MSWGOB2 nswaOB2 nswgOB2 0 0 nmos W={pWSWGOB2} L=45n NF={max(1,ceil(pWSWGOB2/2e-06))}",
+  "RSWGGOB2 nswgOB2 nswcOB2 10k",
+  "VSWGOB2 nswcOB2 0 dc {pVSWGOB2}",
+  "CSWGOB3 n8 nswaOB3 {pCSWG}",
+  "MSWGOB3 nswaOB3 nswgOB3 0 0 nmos W={pWSWGOB3} L=45n NF={max(1,ceil(pWSWGOB3/2e-06))}",
+  "RSWGGOB3 nswgOB3 nswcOB3 10k",
+  "VSWGOB3 nswcOB3 0 dc {pVSWGOB3}"
+ ],
+ "dofs": {
+  "pWSWGOB1": 8e-06,
+  "pWSWGOB2": 8e-06,
+  "pWSWGOB3": 1.6e-05
+ },
+ "fixed": {
+  "pCSWG": 1e-11
+ },
+ "n_states": 4,
+ "objective": "even-step",
+ "dof_box": {
+  "pWSWGOB1": {
+   "value": 8e-06,
+   "kind": "W",
+   "box": [
+    1e-06,
+    0.00019999999999999998
+   ],
+   "in_box": true
+  },
+  "pWSWGOB2": {
+   "value": 8e-06,
+   "kind": "W",
+   "box": [
+    1e-06,
+    0.00019999999999999998
+   ],
+   "in_box": true
+  },
+  "pWSWGOB3": {
+   "value": 1.6e-05,
+   "kind": "W",
+   "box": [
+    1e-06,
+    0.00019999999999999998
+   ],
+   "in_box": true
+  }
+ },
+ "states": [
+  [
+   "S0",
+   {
+    "dhruva-s": {
+     "s21_db": 33.66212,
+     "s11_max_db": -10.00361,
+     "idd_ma": 12.96318,
+     "nf_db": 0.867168,
+     "k_min": 20.09189
+    },
+    "dhruva-l1": {
+     "s21_db": 35.47817,
+     "s11_max_db": -10.00361,
+     "idd_ma": 12.96318,
+     "nf_db": 0.9954,
+     "k_min": 20.09189
+    },
+    "dhruva-l2": {
+     "s21_db": 35.87709,
+     "s11_max_db": -10.00361,
+     "idd_ma": 12.96318,
+     "nf_db": 1.195923,
+     "k_min": 20.09189
+    },
+    "dhruva-l5": {
+     "s21_db": 35.9075,
+     "s11_max_db": -10.00361,
+     "idd_ma": 12.96318,
+     "nf_db": 1.252911,
+     "k_min": 20.09189
+    }
+   }
+  ],
+  [
+   "S1",
+   {
+    "dhruva-s": {
+     "s21_db": 29.21575,
+     "s11_max_db": -10.17613,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 59.30499
+    },
+    "dhruva-l1": {
+     "s21_db": 30.87091,
+     "s11_max_db": -10.17613,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 59.30499
+    },
+    "dhruva-l2": {
+     "s21_db": 31.16777,
+     "s11_max_db": -10.17613,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 59.30499
+    },
+    "dhruva-l5": {
+     "s21_db": 31.17805,
+     "s11_max_db": -10.17613,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 59.30499
+    }
+   }
+  ],
+  [
+   "S2",
+   {
+    "dhruva-s": {
+     "s21_db": 26.2812,
+     "s11_max_db": -10.25095,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 98.51809
+    },
+    "dhruva-l1": {
+     "s21_db": 27.87115,
+     "s11_max_db": -10.25095,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 98.51809
+    },
+    "dhruva-l2": {
+     "s21_db": 28.127,
+     "s11_max_db": -10.25095,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 98.51809
+    },
+    "dhruva-l5": {
+     "s21_db": 28.12926,
+     "s11_max_db": -10.25095,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 98.51809
+    }
+   }
+  ],
+  [
+   "S3",
+   {
+    "dhruva-s": {
+     "s21_db": 22.43652,
+     "s11_max_db": -10.31714,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 172.7155
+    },
+    "dhruva-l1": {
+     "s21_db": 24.09175,
+     "s11_max_db": -10.31714,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 172.7155
+    },
+    "dhruva-l2": {
+     "s21_db": 24.4275,
+     "s11_max_db": -10.31714,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 172.7155
+    },
+    "dhruva-l5": {
+     "s21_db": 24.44693,
+     "s11_max_db": -10.31714,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 172.7155
+    }
+   }
+  ]
+ ],
+ "state_controls": [
+  [
+   "S0",
+   {
+    "pVSWGOB1": 0.0,
+    "pVSWGOB2": 0.0,
+    "pVSWGOB3": 0.0
+   }
+  ],
+  [
+   "S1",
+   {
+    "pVSWGOB1": 1.1,
+    "pVSWGOB2": 0.0,
+    "pVSWGOB3": 0.0
+   }
+  ],
+  [
+   "S2",
+   {
+    "pVSWGOB1": 1.1,
+    "pVSWGOB2": 1.1,
+    "pVSWGOB3": 0.0
+   }
+  ],
+  [
+   "S3",
+   {
+    "pVSWGOB1": 1.1,
+    "pVSWGOB2": 1.1,
+    "pVSWGOB3": 1.1
+   }
+  ]
+ ],
+ "spans": {
+  "dhruva-s": 11.2256,
+  "dhruva-l1": 11.386419999999998,
+  "dhruva-l2": 11.449590000000004,
+  "dhruva-l5": 11.46057
+ },
+ "checks": {
+  "steps": 3,
+  "n_steps_ok": true,
+  "monotonic": true,
+  "span_ok": true,
+  "s11_ok": true,
+  "idd_ok": true,
+  "maxstate_s21_ok": true,
+  "maxstate_nf_ok": true,
+  "D6": true,
+  "worst_s11_max_db": -10.00361,
+  "s11_break_db": 0.0,
+  "worst_span_db": 11.2256,
+  "span_short_db": 0.0,
+  "sizing": "l5"
+ },
+ "s11_ok_depth": 3,
+ "s11_ok_span_db": 11.2256,
+ "descent": {
+  "evals": 300,
+  "best": [
+   0.0,
+   1.537811995499999
+  ]
+ }
+}

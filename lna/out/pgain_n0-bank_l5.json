@@ -1,0 +1,243 @@
+{
+ "mech": "n0-bank",
+ "desc": "(b) switched load bank on the RECOMBINE node n0 (3 branches, cumulative, switch-as-element)",
+ "sizing": "l5",
+ "dofs": {
+  "pWSWGNB1": 1e-06,
+  "pWSWGNB2": 1e-06,
+  "pWSWGNB3": 1e-06
+ },
+ "fixed": {
+  "pCSWG": 1e-11
+ },
+ "n_states": 4,
+ "objective": "max-span",
+ "dof_box": {
+  "pWSWGNB1": {
+   "value": 1e-06,
+   "kind": "W",
+   "box": [
+    1e-06,
+    0.00019999999999999998
+   ],
+   "in_box": true
+  },
+  "pWSWGNB2": {
+   "value": 1e-06,
+   "kind": "W",
+   "box": [
+    1e-06,
+    0.00019999999999999998
+   ],
+   "in_box": true
+  },
+  "pWSWGNB3": {
+   "value": 1e-06,
+   "kind": "W",
+   "box": [
+    1e-06,
+    0.00019999999999999998
+   ],
+   "in_box": true
+  }
+ },
+ "states": [
+  [
+   "S0",
+   {
+    "dhruva-s": {
+     "s21_db": 33.70958,
+     "s11_max_db": -10.00245,
+     "idd_ma": 12.96318,
+     "nf_db": 0.8674337,
+     "k_min": 19.98488
+    },
+    "dhruva-l1": {
+     "s21_db": 35.51866,
+     "s11_max_db": -10.00245,
+     "idd_ma": 12.96318,
+     "nf_db": 0.9955433,
+     "k_min": 19.98488
+    },
+    "dhruva-l2": {
+     "s21_db": 35.91673,
+     "s11_max_db": -10.00245,
+     "idd_ma": 12.96318,
+     "nf_db": 1.196033,
+     "k_min": 19.98488
+    },
+    "dhruva-l5": {
+     "s21_db": 35.94712,
+     "s11_max_db": -10.00245,
+     "idd_ma": 12.96318,
+     "nf_db": 1.253017,
+     "k_min": 19.98488
+    }
+   }
+  ],
+  [
+   "S1",
+   {
+    "dhruva-s": {
+     "s21_db": 33.31349,
+     "s11_max_db": -9.144076,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 21.35133
+    },
+    "dhruva-l1": {
+     "s21_db": 34.78537,
+     "s11_max_db": -9.144076,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 21.35133
+    },
+    "dhruva-l2": {
+     "s21_db": 34.94039,
+     "s11_max_db": -9.144076,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 21.35133
+    },
+    "dhruva-l5": {
+     "s21_db": 34.92775,
+     "s11_max_db": -9.144076,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 21.35133
+    }
+   }
+  ],
+  [
+   "S2",
+   {
+    "dhruva-s": {
+     "s21_db": 32.89692,
+     "s11_max_db": -8.454147,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 22.92084
+    },
+    "dhruva-l1": {
+     "s21_db": 34.04687,
+     "s11_max_db": -8.454147,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 22.92084
+    },
+    "dhruva-l2": {
+     "s21_db": 33.99991,
+     "s11_max_db": -8.454147,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 22.92084
+    },
+    "dhruva-l5": {
+     "s21_db": 33.95354,
+     "s11_max_db": -8.454147,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 22.92084
+    }
+   }
+  ],
+  [
+   "S3",
+   {
+    "dhruva-s": {
+     "s21_db": 32.46829,
+     "s11_max_db": -7.894943,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 24.69341
+    },
+    "dhruva-l1": {
+     "s21_db": 33.32186,
+     "s11_max_db": -7.894943,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 24.69341
+    },
+    "dhruva-l2": {
+     "s21_db": 33.11043,
+     "s11_max_db": -7.894943,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 24.69341
+    },
+    "dhruva-l5": {
+     "s21_db": 33.03789,
+     "s11_max_db": -7.894943,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 24.69341
+    }
+   }
+  ]
+ ],
+ "state_controls": [
+  [
+   "S0",
+   {
+    "pVSWGNB1": 0.0,
+    "pVSWGNB2": 0.0,
+    "pVSWGNB3": 0.0
+   }
+  ],
+  [
+   "S1",
+   {
+    "pVSWGNB1": 1.1,
+    "pVSWGNB2": 0.0,
+    "pVSWGNB3": 0.0
+   }
+  ],
+  [
+   "S2",
+   {
+    "pVSWGNB1": 1.1,
+    "pVSWGNB2": 1.1,
+    "pVSWGNB3": 0.0
+   }
+  ],
+  [
+   "S3",
+   {
+    "pVSWGNB1": 1.1,
+    "pVSWGNB2": 1.1,
+    "pVSWGNB3": 1.1
+   }
+  ]
+ ],
+ "spans": {
+  "dhruva-s": 1.2412899999999993,
+  "dhruva-l1": 2.196799999999996,
+  "dhruva-l2": 2.8063000000000002,
+  "dhruva-l5": 2.909230000000001
+ },
+ "checks": {
+  "steps": 3,
+  "n_steps_ok": true,
+  "monotonic": true,
+  "span_ok": false,
+  "s11_ok": false,
+  "idd_ok": true,
+  "maxstate_s21_ok": true,
+  "maxstate_nf_ok": true,
+  "D6": false,
+  "worst_s11_max_db": -7.894943,
+  "s11_break_db": 2.1051,
+  "worst_span_db": 1.2412899999999993,
+  "span_short_db": 9.3587,
+  "sizing": "l5"
+ },
+ "s11_ok_depth": 0,
+ "s11_ok_span_db": 0.0,
+ "descent": {
+  "evals": 264,
+  "best": [
+   4.506834,
+   -2.909230000000001
+  ]
+ }
+}

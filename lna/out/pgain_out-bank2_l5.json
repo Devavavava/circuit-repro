@@ -1,0 +1,299 @@
+{
+ "mech": "out-bank2",
+ "desc": "(b'') load bank split across the output-stage drain and VOUT1 (4 branches, cumulative)",
+ "sizing": "l5",
+ "dofs": {
+  "pWSWGO21": 0.0001414213562373095,
+  "pWSWGO22": 0.0001414213562373095,
+  "pWSWGO23": 0.0001414213562373095,
+  "pWSWGO24": 0.0001
+ },
+ "fixed": {
+  "pCSWG": 1e-11
+ },
+ "n_states": 5,
+ "objective": "max-span",
+ "dof_box": {
+  "pWSWGO21": {
+   "value": 0.0001414213562373095,
+   "kind": "W",
+   "box": [
+    1e-06,
+    0.00019999999999999998
+   ],
+   "in_box": true
+  },
+  "pWSWGO22": {
+   "value": 0.0001414213562373095,
+   "kind": "W",
+   "box": [
+    1e-06,
+    0.00019999999999999998
+   ],
+   "in_box": true
+  },
+  "pWSWGO23": {
+   "value": 0.0001414213562373095,
+   "kind": "W",
+   "box": [
+    1e-06,
+    0.00019999999999999998
+   ],
+   "in_box": true
+  },
+  "pWSWGO24": {
+   "value": 0.0001,
+   "kind": "W",
+   "box": [
+    1e-06,
+    0.00019999999999999998
+   ],
+   "in_box": true
+  }
+ },
+ "states": [
+  [
+   "S0",
+   {
+    "dhruva-s": {
+     "s21_db": 32.79183,
+     "s11_max_db": -10.04015,
+     "idd_ma": 12.96318,
+     "nf_db": 0.8676637,
+     "k_min": 21.38884
+    },
+    "dhruva-l1": {
+     "s21_db": 34.84494,
+     "s11_max_db": -10.04015,
+     "idd_ma": 12.96318,
+     "nf_db": 0.9957249,
+     "k_min": 21.38884
+    },
+    "dhruva-l2": {
+     "s21_db": 35.31108,
+     "s11_max_db": -10.04015,
+     "idd_ma": 12.96318,
+     "nf_db": 1.196208,
+     "k_min": 21.38884
+    },
+    "dhruva-l5": {
+     "s21_db": 35.35,
+     "s11_max_db": -10.04015,
+     "idd_ma": 12.96318,
+     "nf_db": 1.25319,
+     "k_min": 21.38884
+    }
+   }
+  ],
+  [
+   "S1",
+   {
+    "dhruva-s": {
+     "s21_db": 18.65401,
+     "s11_max_db": -10.37661,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 135.4601
+    },
+    "dhruva-l1": {
+     "s21_db": 23.15863,
+     "s11_max_db": -10.37661,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 135.4601
+    },
+    "dhruva-l2": {
+     "s21_db": 24.94822,
+     "s11_max_db": -10.37661,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 135.4601
+    },
+    "dhruva-l5": {
+     "s21_db": 25.20152,
+     "s11_max_db": -10.37661,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 135.4601
+    }
+   }
+  ],
+  [
+   "S2",
+   {
+    "dhruva-s": {
+     "s21_db": 10.59188,
+     "s11_max_db": -10.39951,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 546.142
+    },
+    "dhruva-l1": {
+     "s21_db": 15.29465,
+     "s11_max_db": -10.39951,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 546.142
+    },
+    "dhruva-l2": {
+     "s21_db": 17.40234,
+     "s11_max_db": -10.39951,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 546.142
+    },
+    "dhruva-l5": {
+     "s21_db": 17.72411,
+     "s11_max_db": -10.39951,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 546.142
+    }
+   }
+  ],
+  [
+   "S3",
+   {
+    "dhruva-s": {
+     "s21_db": 6.470595,
+     "s11_max_db": -10.41386,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 1128.713
+    },
+    "dhruva-l1": {
+     "s21_db": 11.1536,
+     "s11_max_db": -10.41386,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 1128.713
+    },
+    "dhruva-l2": {
+     "s21_db": 13.27398,
+     "s11_max_db": -10.41386,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 1128.713
+    },
+    "dhruva-l5": {
+     "s21_db": 13.59963,
+     "s11_max_db": -10.41386,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 1128.713
+    }
+   }
+  ],
+  [
+   "S4",
+   {
+    "dhruva-s": {
+     "s21_db": 2.908548,
+     "s11_max_db": -10.41598,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 2185.559
+    },
+    "dhruva-l1": {
+     "s21_db": 7.448539,
+     "s11_max_db": -10.41598,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 2185.559
+    },
+    "dhruva-l2": {
+     "s21_db": 9.563309,
+     "s11_max_db": -10.41598,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 2185.559
+    },
+    "dhruva-l5": {
+     "s21_db": 9.892938,
+     "s11_max_db": -10.41598,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 2185.559
+    }
+   }
+  ]
+ ],
+ "state_controls": [
+  [
+   "S0",
+   {
+    "pVSWGO21": 0.0,
+    "pVSWGO22": 0.0,
+    "pVSWGO23": 0.0,
+    "pVSWGO24": 0.0
+   }
+  ],
+  [
+   "S1",
+   {
+    "pVSWGO21": 1.1,
+    "pVSWGO22": 0.0,
+    "pVSWGO23": 0.0,
+    "pVSWGO24": 0.0
+   }
+  ],
+  [
+   "S2",
+   {
+    "pVSWGO21": 1.1,
+    "pVSWGO22": 1.1,
+    "pVSWGO23": 0.0,
+    "pVSWGO24": 0.0
+   }
+  ],
+  [
+   "S3",
+   {
+    "pVSWGO21": 1.1,
+    "pVSWGO22": 1.1,
+    "pVSWGO23": 1.1,
+    "pVSWGO24": 0.0
+   }
+  ],
+  [
+   "S4",
+   {
+    "pVSWGO21": 1.1,
+    "pVSWGO22": 1.1,
+    "pVSWGO23": 1.1,
+    "pVSWGO24": 1.1
+   }
+  ]
+ ],
+ "spans": {
+  "dhruva-s": 29.883281999999998,
+  "dhruva-l1": 27.396401,
+  "dhruva-l2": 25.747770999999997,
+  "dhruva-l5": 25.457062
+ },
+ "checks": {
+  "steps": 4,
+  "n_steps_ok": true,
+  "monotonic": true,
+  "span_ok": true,
+  "s11_ok": true,
+  "idd_ok": true,
+  "maxstate_s21_ok": true,
+  "maxstate_nf_ok": true,
+  "D6": true,
+  "worst_s11_max_db": -10.04015,
+  "s11_break_db": 0.0,
+  "worst_span_db": 25.457062,
+  "span_short_db": 0.0,
+  "sizing": "l5"
+ },
+ "s11_ok_depth": 4,
+ "s11_ok_span_db": 25.457062,
+ "descent": {
+  "evals": 300,
+  "best": [
+   0.0,
+   -25.457062
+  ]
+ }
+}

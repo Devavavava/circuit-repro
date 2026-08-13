@@ -1,0 +1,273 @@
+{
+ "mech": "out-bank-r",
+ "desc": "(b') output-stage drain bank, literal series-RESISTOR reading (3 branches, R in the spec box)",
+ "sizing": "l5",
+ "dofs": {
+  "pRSWGOR1": 50.0,
+  "pWSWGOR1": 6.4e-05,
+  "pRSWGOR2": 50.0,
+  "pWSWGOR2": 6.4e-05,
+  "pRSWGOR3": 50.0,
+  "pWSWGOR3": 6.4e-05
+ },
+ "fixed": {
+  "pCSWG": 1e-11
+ },
+ "n_states": 4,
+ "objective": "max-span",
+ "dof_box": {
+  "pRSWGOR1": {
+   "value": 50.0,
+   "kind": "R",
+   "box": [
+    50.0,
+    20000.0
+   ],
+   "in_box": true
+  },
+  "pWSWGOR1": {
+   "value": 6.4e-05,
+   "kind": "W",
+   "box": [
+    1e-06,
+    0.00019999999999999998
+   ],
+   "in_box": true
+  },
+  "pRSWGOR2": {
+   "value": 50.0,
+   "kind": "R",
+   "box": [
+    50.0,
+    20000.0
+   ],
+   "in_box": true
+  },
+  "pWSWGOR2": {
+   "value": 6.4e-05,
+   "kind": "W",
+   "box": [
+    1e-06,
+    0.00019999999999999998
+   ],
+   "in_box": true
+  },
+  "pRSWGOR3": {
+   "value": 50.0,
+   "kind": "R",
+   "box": [
+    50.0,
+    20000.0
+   ],
+   "in_box": true
+  },
+  "pWSWGOR3": {
+   "value": 6.4e-05,
+   "kind": "W",
+   "box": [
+    1e-06,
+    0.00019999999999999998
+   ],
+   "in_box": true
+  }
+ },
+ "states": [
+  [
+   "S0",
+   {
+    "dhruva-s": {
+     "s21_db": 33.3683,
+     "s11_max_db": -10.01741,
+     "idd_ma": 12.96318,
+     "nf_db": 0.8673797,
+     "k_min": 20.75203
+    },
+    "dhruva-l1": {
+     "s21_db": 35.25542,
+     "s11_max_db": -10.01741,
+     "idd_ma": 12.96318,
+     "nf_db": 0.9955324,
+     "k_min": 20.75203
+    },
+    "dhruva-l2": {
+     "s21_db": 35.67348,
+     "s11_max_db": -10.01741,
+     "idd_ma": 12.96318,
+     "nf_db": 1.196038,
+     "k_min": 20.75203
+    },
+    "dhruva-l5": {
+     "s21_db": 35.70624,
+     "s11_max_db": -10.01741,
+     "idd_ma": 12.96318,
+     "nf_db": 1.253023,
+     "k_min": 20.75203
+    }
+   }
+  ],
+  [
+   "S1",
+   {
+    "dhruva-s": {
+     "s21_db": 29.61557,
+     "s11_max_db": -10.16341,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 54.47047
+    },
+    "dhruva-l1": {
+     "s21_db": 31.29553,
+     "s11_max_db": -10.16341,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 54.47047
+    },
+    "dhruva-l2": {
+     "s21_db": 31.59562,
+     "s11_max_db": -10.16341,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 54.47047
+    },
+    "dhruva-l5": {
+     "s21_db": 31.60578,
+     "s11_max_db": -10.16341,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 54.47047
+    }
+   }
+  ],
+  [
+   "S2",
+   {
+    "dhruva-s": {
+     "s21_db": 26.9725,
+     "s11_max_db": -10.23562,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 88.1889
+    },
+    "dhruva-l1": {
+     "s21_db": 28.56646,
+     "s11_max_db": -10.23562,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 88.1889
+    },
+    "dhruva-l2": {
+     "s21_db": 28.81624,
+     "s11_max_db": -10.23562,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 88.1889
+    },
+    "dhruva-l5": {
+     "s21_db": 28.81673,
+     "s11_max_db": -10.23562,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 88.1889
+    }
+   }
+  ],
+  [
+   "S3",
+   {
+    "dhruva-s": {
+     "s21_db": 24.93957,
+     "s11_max_db": -10.27813,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 121.9073
+    },
+    "dhruva-l1": {
+     "s21_db": 26.48744,
+     "s11_max_db": -10.27813,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 121.9073
+    },
+    "dhruva-l2": {
+     "s21_db": 26.70964,
+     "s11_max_db": -10.27813,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 121.9073
+    },
+    "dhruva-l5": {
+     "s21_db": 26.7048,
+     "s11_max_db": -10.27813,
+     "idd_ma": 12.96318,
+     "nf_db": null,
+     "k_min": 121.9073
+    }
+   }
+  ]
+ ],
+ "state_controls": [
+  [
+   "S0",
+   {
+    "pVSWGOR1": 0.0,
+    "pVSWGOR2": 0.0,
+    "pVSWGOR3": 0.0
+   }
+  ],
+  [
+   "S1",
+   {
+    "pVSWGOR1": 1.1,
+    "pVSWGOR2": 0.0,
+    "pVSWGOR3": 0.0
+   }
+  ],
+  [
+   "S2",
+   {
+    "pVSWGOR1": 1.1,
+    "pVSWGOR2": 1.1,
+    "pVSWGOR3": 0.0
+   }
+  ],
+  [
+   "S3",
+   {
+    "pVSWGOR1": 1.1,
+    "pVSWGOR2": 1.1,
+    "pVSWGOR3": 1.1
+   }
+  ]
+ ],
+ "spans": {
+  "dhruva-s": 8.428729999999998,
+  "dhruva-l1": 8.767980000000001,
+  "dhruva-l2": 8.963839999999998,
+  "dhruva-l5": 9.001440000000002
+ },
+ "checks": {
+  "steps": 3,
+  "n_steps_ok": true,
+  "monotonic": true,
+  "span_ok": false,
+  "s11_ok": true,
+  "idd_ok": true,
+  "maxstate_s21_ok": true,
+  "maxstate_nf_ok": true,
+  "D6": false,
+  "worst_s11_max_db": -10.01741,
+  "s11_break_db": 0.0,
+  "worst_span_db": 8.428729999999998,
+  "span_short_db": 2.1713,
+  "sizing": "l5"
+ },
+ "s11_ok_depth": 3,
+ "s11_ok_span_db": 8.428729999999998,
+ "descent": {
+  "evals": 300,
+  "best": [
+   0.0,
+   -9.001440000000002
+  ]
+ }
+}

@@ -2124,6 +2124,41 @@ design cannot enter, which makes D6 (stage 37) a prerequisite for a
 like-for-like D5 rather than its successor. Flagged for the user, not acted
 on; nothing in the design was touched to improve any number here.
 
+## 38. The literature check — nine external systems surveyed before further architecture bets
+
+**Decision** (user-directed, 2026-08-13): before committing to further
+architecture work, survey nine external AI-circuit-design systems from their
+primary sources — AstRL, AutoCircuit-RL, AnalogGym, DynaOpt, the Cao/RoSE
+domain-knowledge DRL line, Krylov's threshold-spec inverse design, AlphaChip,
+the AlphaDev/PrefixRL/CktGNN cluster, and ORACLE — extracting representation,
+action/state design, algorithms, simulator integration, reward design,
+surrogates, and data generation, then synthesize without presupposing this
+program's architecture.
+
+**Result**: `lna/SURVEY-AI-CIRCUIT-DESIGN.md` — per-system construction notes
+(paper + code level, UNVERIFIED items flagged), twelve cross-cutting findings,
+seven conclusions. Nine parallel research agents, all primary-source fetches.
+
+**Understanding gained, most load-bearing first**: (1) the field's reward
+function has converged on exactly the clipped symmetric normalized deficit
+this program already uses — that sub-problem is settled; (2) for
+single-target sizing, BO and supervised inverse models beat RL by 10–100× in
+simulation count everywhere a head-to-head exists (AnalogGym: BO at ~117 evals
+vs RL at ~6,842); RL pays only when amortized across many spec targets;
+(3) validity must be constructional (masking, grammar, repair) — every system
+without it tops out below ~83% validity, and AstRL's ablations show masking
+removal collapses everything to 0; (4) semantics-in-state (operating point,
+truth tables, executed registers) beats structure-only representations in
+every system that tried both; (5) surrogates inside an optimization loop need
+uncertainty + elite-regime grounding — proxy-truth correlation collapses
+precisely among good solutions (AlphaChip τ≈0.05 vs timing); (6) the
+strongest single transferable trick is Krylov's dataset construction
+(feasible-direction spec relaxation + lexicographic-argmax relabeling), which
+makes plain supervised regression competitive with RL at a fraction of the
+data; (7) grammar-only and untuned-frontier-LLM null hypotheses beat bespoke
+learned systems on at least one task in this survey — consonant with this
+program's own stage-27 finding that `grammar_gen.py` beats P5-v7 on NDL@256.
+
 ## Current frontier
 
 As of this document's writing (`lna-data`, commit `5be4de3` and whatever

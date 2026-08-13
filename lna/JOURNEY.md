@@ -1769,6 +1769,45 @@ harder for this design, not easier; and **S11 margin is 0.001–0.002 dB on
 every row** — the match is the binding constraint by construction, and no
 corner or parasitic has been asked to move it yet.
 
+## 34. The sweep the headline was hiding from — S11 knife-edge as predicted, Idd co-fragile, noise robust
+
+**Decision (stage 30's upgrade ladder, executed as pure measurement).** Before
+hardening the D4-SIM point, measure its fragility: perturb temperature, supply,
+every passive value, and inductor Q around the shipped `dhruva-l5` sizing of
+`ace8383c`, re-measuring the four-band simultaneous gates at the fixed point —
+nothing resized. Named a **sensitivity** sweep, deliberately: the 45 nm
+behavioral models have no process-corner cards, so no fab-corner claim is
+available at this fidelity, and pretending otherwise would be the exact kind
+of quiet overreach this document exists to prevent.
+
+**Result (FINDINGS §39).** Stage 30's prediction was half right. S11 flips
+almost immediately (−1% supply, +1% passives, one Q step, +13 °C) — but **Idd
+is just as fragile** (0.037 mA of margin; +1% VDD or −1% passives flips it),
+and there is **no passing supply tolerance at all**: ±1% VDD fails one gate or
+the other. Temperature is one-sided (cold improves everything; +40 °C fails).
+The design **fails when its inductors get better** — Q = 16/20 flip S11 and
+Idd, because the match is partly loss-damped and one Q-loss resistor carries
+DC. Meanwhile **NF and S21 never flip anywhere on the sweep**, including the
+85 °C + VDD×1.1 combo (NF worst margin +0.50 dB): the noise story is robust;
+the bias point and match are knife-edge. Hardening targets, measured: S11 ≤
+−10.44 at nominal, NF margin ≥ 0.75 dB kept, and — the striking one —
+**4.5 mA of Idd headroom**, which is honestly read not as a margin target but
+as the measured cost of *fixed-voltage bias*: real parts hold Idd over PVT
+with a current-mirror/constant-gm bias, a DOF the vocabulary does not have.
+
+**Understanding.** Both knife-edge constraints are knife-edge **by
+construction**: `constrained_descent` pins S11 and Idd at their gates while
+descending NF, so the shipped point provably sits on the boundary of exactly
+the two constraints the sweep found fragile — the sweep priced the objective's
+shape, not bad luck. The two load-bearing craft points: an invariance control
+(`.temp 27` must reproduce the baseline exactly — it does, drift 0.0) is what
+separates "the circuit moved" from "the instrument moved"; and the sweep
+needed **no shared-file edit at all** — temperature is a card appended to the
+deck body, supply and Q ride the same last-`.param`-wins override the shipped
+flow itself depends on. The cheapest robustness lever found: the point
+*improves* at low Q, so the Q=12 assumption is currently load-bearing in the
+lucky direction.
+
 ## Current frontier
 
 As of this document's writing (`lna-data`, commit `5be4de3` and whatever

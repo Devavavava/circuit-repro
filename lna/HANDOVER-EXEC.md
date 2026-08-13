@@ -2089,6 +2089,54 @@ flow, 3-port differential harness, switchable-DOF search, corner sweeps.
 python lna/repro/dhruva-best/recreate.py --cross   # the 16-cell D4-SIM matrix
 ```
 
+## Session 9 (2026-08-13) — concurrent agents on `lna-data` (upgrade ladder)
+
+> Same convention as Sessions 5–7: each agent owns a clearly-marked sub-block
+> below. Append yours; do not edit another's. Commit only your own files with
+> explicit path adds.
+
+### ▸ Sub-block: WP-SENS — the sensitivity sweep on the D4-SIM point (owner: the sensitivity executor)
+
+**Files owned:** `lna/corners.py` (new), FINDINGS **§39**, JOURNEY stage
+**34**, this sub-block. **No shared file edited** — temperature is a `.temp`
+card appended to the deck body; VDD and inductor Q ride the existing
+last-`.param`-wins override (`build_deck` appends params after the body
+defaults — the mechanism the shipped flow itself uses for `pVDD`). Results in
+`lna/out/_sens_d4sim.json` (gitignored). No store rows written.
+
+**What it is:** a **SENSITIVITY** sweep, not corners — the 45 nm behavioral
+include has no process-corner cards. Axes at the fixed `dhruva-l5` sizing of
+`ace8383c` (four-band simultaneous gates re-measured per perturbation, the
+`recreate.py --cross` protocol): temp −40…85 °C · pVDD ±10% · all R/C/L
+globally ±10% (`RQL*` loss tracks its inductor by construction) · inductor Q
+8…20 · worst-two-axes combo. Controls: baseline reproduces §35.3 to the
+digit; `.temp 27` invariance drift **0.0**.
+
+**Headline (FINDINGS §39):** §35.5 was half right. **S11 flips at ±1%**
+(VDD −1%, passives +1%, Q 16, +40 °C) — and **Idd is co-fragile** (0.037 mA
+margin: VDD +1%, passives −1%, +40 °C all flip it). **No passing VDD
+tolerance exists** at this point. Cold improves everything; **better
+inductors FAIL** (Q 16/20 — the match is partly loss-damped and RQL2 carries
+DC; Q 8/10 pass with NF margin left). **NF and S21 never flip anywhere**,
+combo (85 °C + VDD×1.1) included — NF worst margin +0.504 dB, S21 +1.81 dB.
+K_min 17.3–23.2 throughout: stability is not sensitivity-limited.
+
+**Hardening targets measured (for the margin-hardening agent):** nominal
+S11_max ≤ **−10.44** · keep NF margin ≥ **0.75 dB** · S21 margin ≥ 1.91 dB ·
+Idd headroom **4.52 mA** — the last honestly read as "fixed-voltage `pVB`
+bias is the defect": a constant-gm/current-mirror bias DOF (absent from the
+vocabulary) is how real parts hold Idd over PVT; 4.5 mA of static headroom is
+the price of not having one. Both knife-edges are **by construction**
+(`constrained_descent` `keep="s11idd"` pins exactly those two at the gate).
+⚠ Adjacent, not acted on: the shipped params carry **pVDD = 1.1 V** while the
+spec text says "@ 1.2 V" — a nominal-VDD spec/harness decision for the user
+(+9% VDD ≈ +1.9 mA Idd at fixed sizing, per this sweep).
+
+```bash
+python lna/corners.py --axis all      # ~120 evals: baseline, 4 axes, combo, report
+python lna/corners.py --axis report   # re-print from lna/out/_sens_d4sim.json
+```
+
 ## 1. TL;DR — what shipped this session
 
 | Plan item | Status | Key result |

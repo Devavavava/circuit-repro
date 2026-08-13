@@ -7395,3 +7395,82 @@ simply never measured before because the old benchmark never asked.
 3. **Fidelity caveats carry over verbatim** from REPORT §5: 45 nm behavioral
    BSIM4 (not the paper's 65 nm silicon), ideal passives at Q=12, no corners,
    no package/layout, gain mapped as S21 into 50 Ω.
+
+## 39. Phase 3 — WP-SENS: the sensitivity sweep on the D4-SIM point — S11 is knife-edge as predicted, **Idd is co-fragile**, and NF/S21 never flip (Session 9, 2026-08-13)
+
+**What this is and is not.** A **sensitivity** sweep, not a corner sweep: the
+45 nm behavioral BSIM4 include carries no process-corner cards, so fast/slow
+devices cannot be simulated at this fidelity. Axes: circuit temperature
+(−40…85 °C), supply (pVDD ±10%), **all** R/C/L values globally (±10%, the two
+`RQL* = ω₀L/Q` loss resistors tracking their inductors by construction),
+inductor Q (8…20, nominal 12), and the worst two-axis combination. Under each
+perturbation the four-band simultaneous gates are re-measured at the **fixed**
+`dhruva-l5` sizing of `ace8383c` (the §35.3 point) — nothing resized, nothing
+tuned. Driver `lna/corners.py` (new; touches no shared file — temperature is a
+`.temp` card appended to the deck body, VDD/Q ride the existing
+last-`.param`-wins override that the shipped flow itself uses).
+
+**Controls.** Baseline reproduces §35.3 to the digit (worst margins +0.0008 dB
+S11 / +3.727 dB S21 / +0.037 mA Idd / +1.247 dB NF); the `.temp 27` injection
+control is **exactly** invariant (drift 0.0 on every margin). NF-at-temperature
+caveat, stated not corrected: the series-Rs harness references the frozen
+300 K constant while the whole simulated circuit (source resistor included)
+sits at the swept temperature, so hot rows slightly overstate NF and cold rows
+slightly understate it.
+
+### 39.1 The flip table (worst margin over the four bands, per perturbation)
+
+| axis | first flip | direction/size | what flips | notes |
+|---|---|---|---|---|
+| temperature | **+40 °C** | +13 °C above nominal | **s11 −0.052, idd −0.51 mA** | cold IMPROVES everything (−40 °C: every margin grows) |
+| supply | **±1%** | either direction | ↓1%: s11 −0.032 · ↑1%: idd −0.17 mA | **no passing VDD tolerance exists** at this point |
+| passives | **±1%** | either direction | ↓1%: idd −0.064 · ↑1%: s11 −0.042 | R↓ raises current; L/C↑ moves the match |
+| inductor Q | **Q = 16** | first grid step up | s11 −0.024, idd −0.063 | **better inductors FAIL** (loss was damping the match; RQL2 carries DC). Q = 8/10 PASS with NF margin left (+1.01 at Q=8) |
+| combo (85 °C + VDD×1.1) | — | mandated extremes | s11 −0.194, **idd −4.48 mA** | NF still passes: +0.563 |
+
+At the harshest single cells: 85 °C alone → S11 −0.284 / Idd −2.36 over;
+VDD×0.9 alone → S11 −0.420 (worst S11 anywhere except passives×1.1's −0.437);
+passives×0.9 → Idd −1.06. **Idd tracks VDD at ~15%/10% and temperature at
+~+1 mA / +12 °C** — weak-inversion bias under a fixed-voltage `pVB`.
+K_min never leaves 17.3–23.2 (in-band): stability is not sensitivity-limited.
+NF's worst value anywhere on the sweep, combo included, is margin **+0.504 dB**
+(85 °C); S21's is **+1.81 dB** (VDD×0.9). **Neither ever flips.**
+
+### 39.2 What a hardened point must carry at nominal (to survive this sweep)
+
+| constraint | baseline margin | worst under sweep | needed at nominal |
+|---|---|---|---|
+| S11 (band-wide) | +0.0008 dB | −0.437 dB | **≥ +0.44 dB** (S11_max ≤ −10.44) |
+| Idd | +0.037 mA | −4.48 mA | **≥ +4.52 mA** (Idd ≤ ~8.5 mA) — but see below |
+| NF (worst band) | +1.247 dB | +0.504 dB | ≥ +0.74 dB |
+| S21 (worst band) | +3.727 dB | +1.81 dB | ≥ +1.91 dB |
+
+**The honest reading of the Idd number:** 4.5 mA of static headroom (35% of
+budget) is what *fixed-voltage-bias* sizing needs to ride out temp+supply —
+which is really a measurement that **Idd-vs-environment is a bias-regulation
+problem, not a sizing-margin problem**. A constant-gm / current-mirror bias
+DOF (the way real parts hold Idd over PVT) would collapse most of that 4.5 mA
+without spending gain or noise; no such DOF exists in the vocabulary today.
+The S11 target (≤ −10.44 at nominal) and the NF floor (keep ≥ 0.75 dB of
+margin) are the actionable calibration for the margin-hardening resize.
+
+**Two fragility mechanisms worth naming.** (1) Both knife-edge constraints
+are knife-edge **by construction**: `constrained_descent` (`keep="s11idd"`)
+descends NF while pinning S11 and Idd at their gate values, so the shipped
+point *provably* sits at the boundary of exactly those two — the sweep
+measures the cost of that objective shape. (2) The design **fails when its
+inductors get better** (Q 16/20): the match is partly loss-damped and RQL2
+sits in a DC path. A hardened point should be re-checked at Q = {8, 20}, not
+only Q = 12.
+
+**Scope note (adjacent, not acted on):** the shipped params carry
+`pVDD = 1.1` (the `to_spice` default), while the paper condition — and the
+spec text "Idd ≤ 13 mA @ 1.2 V" — is 1.2 V. The sweep perturbs around the
+shipped 1.1 V. Whether the nominal itself should be 1.2 V is a spec/harness
+decision for the user, flagged here because a +9% nominal VDD step would, per
+this sweep, add ~+1.9 mA of Idd at fixed sizing.
+
+```bash
+python lna/corners.py --axis all        # baseline+invariance, 4 axes, combo, report
+python lna/corners.py --axis report     # re-print from lna/out/_sens_d4sim.json
+```

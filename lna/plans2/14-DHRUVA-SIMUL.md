@@ -48,9 +48,9 @@ moves the match; hardening it is upgrade #1 in §4.
 
 | requirement | target | achieved | status |
 |---|---|---|---|
-| IIP3 (at min-gain setting) | ≥ −7.4 dBm (L5/L2) / −7.6 (L1) / −8.7 (S) | — | **UNMEASURED** (no two-tone/HB harness; `iip3_dbm` is `unsupported` in every spec) |
-| Gain programmability | ≥ 10.6 dB range, ≥ 3 steps | — | **NOT ATTEMPTED** (one fixed operating point; no switchable DOFs in the search space) |
-| Differential output | imbalance ≤ 0.22 dB / ≤ 0.9° | — | **NOT ATTEMPTED** (design is single-ended; no 3-port harness) |
+| IIP3 (at min-gain setting) | ≥ −7.4 dBm (L5/L2) / −7.6 (L1) / −8.7 (S) | −30.3…−32.8 dBm (fixed max gain; OIP3 +3.2…+3.4) | **MEASURED, FAILED 0/4** (§37 transient + §40 HB agree to 0.08 dB; output-swing wall — see §2 ladder) |
+| Gain programmability | ≥ 10.6 dB range, ≥ 3 steps | 11.2–11.5 dB span, 4 monotonic states, S11/Idd held in every state | **MET under proposed mapping** (§42; sign-off pending) |
+| Differential output | imbalance ≤ 0.22 dB / ≤ 0.9° | 0.119 dB / 0.34° band-wide worst (hardened host, active balun; all four-band gates pass there) | **imbalance MET** (§41; gain-convention ruling pending) |
 
 ### 1.3 Standing fidelity caveats (carry over from `repro/dhruva-best/REPORT.md` §5)
 
@@ -68,10 +68,32 @@ constraint-shape parity at this fidelity, not silicon parity.
 |---|---|---|
 | D0/D1/D2 | tier-1 (S11 band-wide, S21@f0, Idd) per band / all four bands, one topology | MET (sessions 3–4) |
 | D3 | tier-2 (+ NF, series-Rs) on all four bands | MET (multi-finger cutover, FINDINGS §27) |
-| **D4-SIM** | **tier-1+tier-2 on all four bands at ONE fixed sizing** | **MET 2026-08-13** (FINDINGS §35 — 16/16 matrix cells pass; designated point = l5 sizing) |
-| D5 (next) | D4-SIM **and** measured IIP3 ≥ target | **OPEN — blocked on a linearity harness** |
-| D6 | + gain programmability (≥10.6 dB / ≥3 steps) | OPEN — needs switchable DOFs in spec+search |
-| D7 | + differential output within imbalance spec | OPEN — needs 3-port harness + differential topology support |
+| **D4-SIM** | **tier-1+tier-2 on all four bands at ONE fixed sizing** | **MET 2026-08-13** (FINDINGS §35 — 16/16 matrix cells pass; designated point = l5 sizing; a margin-hardened alternate `dhruva-simul` exists, §36 — designation decision pending) |
+| **D5** | D4-SIM **and** measured IIP3 ≥ target | **MEASURED 2026-08-13 — FAILED 0/4** (two independent harnesses, transient §37 + harmonic balance §40, agree to 0.08 dB: IIP3 −30.3…−32.8 dBm vs −7.4…−8.7 targets; OIP3 flat at +3.2…+3.4 dBm across bands *and* sizings — an output-swing-budget wall on the 1.1 V envelope, not a sizing problem; passing at measured gain needs OIP3 22–50× the whole DC budget. **Topology/bias change required.**) |
+| **D6** | + gain programmability (≥10.6 dB / ≥3 steps) | **MET 2026-08-13 under a PROPOSED mapping** (§42 — 4 states, 11.2–11.5 dB span, S11 held in every state; mapping sign-off pending; caveat: all match-legal mechanisms are output-side, so low-gain states buy no linearity) |
+| **D7** | + differential output within imbalance spec | **imbalance MET 2026-08-13** (§41 — CS+CG split-phase active balun, 0.119 dB / 0.34° band-wide worst on the hardened host; ALL four-band gates pass there with the balun, Idd 9.25 mA; the l5 host fails Idd only. Gain-convention decision pending: mixed-mode Sds21 passes, per-leg reads 2.85 dB short) |
+
+**Ladder-order flag (from both D5 harnesses):** the paper's IIP3 is specified at
+its *min-gain* setting, which a fixed-gain design cannot enter — so D6's
+programmable range is a **prerequisite** for a like-for-like D5 measurement,
+not its successor. A future D5 pass should be judged at the min-gain state of
+a D6-compliant configuration.
+
+### 2.1 Decision queue (2026-08-13, wave close — user rulings needed)
+
+1. **Designation + supply nominal.** `dhruva-simul` (§36) dominates the l5
+   point on robustness (S11 −11.01, Idd 8.21 mA) and is the only sizing that
+   (a) survives pVDD = 1.2 V — the spec text's own nominal — and (b) can host
+   the balun (§41) and the switch bank (§42) inside the Idd gate. Designate
+   it? And gate Dhruva claims at 1.1 V (harness continuity) or 1.2 V
+   (spec-faithful)? Pre-designation check: re-run it through the live
+   WP-SENS sweep (`lna/corners.py`).
+2. **D6 gate mapping sign-off** — the five clauses in FINDINGS §42.1.
+3. **D7 gain convention** — mixed-mode Sds21 (standard, gated in §41) vs
+   per-leg vs voltage-gain analogue (+3.01 dB).
+4. **Linearity strategy for D5** — the wall is physical at this envelope:
+   linearity-aware output-stage search, a documented power-envelope
+   deviation, or record-and-pivot.
 
 The 4×4 cross matrix (every sizing × every band spec): all 16 cells pass
 tier-1+tier-2; the l5 sizing has the best worst-case NF margin (+1.247 dB),

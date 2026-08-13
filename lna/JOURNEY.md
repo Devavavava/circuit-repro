@@ -2157,12 +2157,32 @@ explicitly deferred to the user:
   sizing, all four bands at once* closed the day it was set: the `dhruva-l5`
   sizing of `ace8383c` passes tier-1+tier-2 on all four bands simultaneously
   (worst NF margin +1.25 dB, worst S21 margin +3.7 dB, 16/16 matrix cells
-  PASS across all four sizings). **The Dhruva frontier is now tier-3 and
-  fidelity**: IIP3 (no two-tone/HB harness — the VACASK bookmark), output
-  balance (no 3-port differential harness), gain programmability (no
-  switchable DOFs), plus the 0.001 dB S11 margin that no corner or parasitic
-  has yet been asked to move (`lna/plans2/14-DHRUVA-SIMUL.md` §4 is the
-  upgrade ladder).
+  PASS across all four sizings).
+- **The upgrade-ladder wave (stages 31–37, seven work packages, one day)
+  measured the whole tier-3 frontier.** Standing state: **D5 (IIP3) is
+  MEASURED and FAILED 0/4** — two independent, golden-validated harnesses
+  (ngspice two-tone transient, stage 32/§37; VACASK harmonic balance, stage
+  35/§40) agree to 0.08 dB that IIP3 is −30…−33 dBm against −7.4…−8.7
+  targets, with OIP3 pinned flat at +3.2…+3.4 dBm across bands *and*
+  sizings — an output-swing wall on the 1.1 V envelope; **the topology/bias
+  must change, and both harnesses flag that a like-for-like D5 must be judged
+  at the min-gain state of a D6 configuration** (the ladder order inverts).
+  **D6 (programmability) is MET under a proposed mapping awaiting user
+  sign-off** (stage 37/§42: 11.2–11.5 dB span, 4 monotonic states, S11 held
+  band-wide in every state — but every match-legal mechanism is output-side,
+  so low-gain states buy no linearity). **D7 imbalance is MET on the hardened
+  host** (stage 36/§41: CS+CG split-phase active balun, 0.119 dB/0.34°
+  band-wide; ALL four-band gates pass there at Idd 9.25 mA; the l5 host fails
+  Idd only; the differential *gain* convention is an open user ruling).
+  Robustness: the S11 knife-edge is measured (stage 34/§39: ±1% VDD or
+  passives flips S11/Idd on the shipped point; NF/S21 never flip) and closed
+  by the **hardened `dhruva-simul` sizing** (stage 31/§36: S11 −11.01, Idd
+  8.21 mA, passes both 1.1 V and 1.2 V nominals — the only sizing that hosts
+  the balun and the switch bank inside the Idd gate; designation pending).
+  Polish/descent now **refuse K_min < 1 steps** (stage 33/§38). The
+  wave-close decision queue is `lna/plans2/14-DHRUVA-SIMUL.md` §2.1:
+  designation + supply nominal, D6 mapping, D7 gain convention, D5 linearity
+  strategy.
 - **A hardened alternative to `dhruva-l5` now exists but is NOT designated
   (stage 31, FINDINGS §36)**: `dhruva-simul` (S11max −11.01 dB, Idd
   8.205 mA, both ~4× the shipped point's margins) trades away most of

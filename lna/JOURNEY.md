@@ -2064,6 +2064,66 @@ against a 30 dB target), so the pass is recorded together with the reading it
 depends on and the reading under which it would fail.
 
 
+## 32. WP-IIP3 — the cheap harness meant as a stopgap turns into the second opinion, and a golden that fails teaches more than one that passes
+
+**Decision (stage 30's upgrade ladder, item 2).** Build the *coarse* IIP3
+prototype: a two-tone transient plus coherent FFT in ngspice, to "turn the D5
+wall into a number in a day" while the proper harmonic-balance harness
+(item 4) was assumed to be weeks away. Item 4 landed the same session by
+another agent (stage 35), so the cheap harness was finished anyway and used
+for what it had unexpectedly become — an **independent second opinion** on the
+program's first tier-3 measurement, built without sharing a line of code.
+
+**Result (FINDINGS §37).** Gate **D5 fails on all four bands** by
+**21.7–25.4 dB** — IIP3 −32.78 / −32.73 / −32.20 / −30.36 dBm against targets
+−7.4 / −7.4 / −7.6 / −8.7. The two harnesses, running different simulators,
+different BSIM4 versions (4.5 vs 4.8.3), a different analysis kind and a
+different extraction estimator, **agree to 0.08 dB** on every band — smaller
+than either harness's own tone-spacing sensitivity. The golden agrees with
+closed form to 0.020 dB against a 0.25 dB tolerance stated before the run.
+
+**The finding worth keeping is a failure, not a pass.** The golden's G1
+check runs the reference with its cubic coefficient set to zero, so every IM3
+bin can contain *only* numerical distortion. At the harness's obvious default
+timestep it read **−104.9 dBc and FAILED** the bar written into the file
+beforehand. The fix was to converge the method rather than move the bar
+(10 ps → 5 ps, where the numerical intermodulation drops into the broadband
+floor and stops moving under further refinement). The general lesson is
+sharper than the fix: **a noise floor measured on product-free bins does not
+bound numerical distortion**, because numerical distortion is a *distortion*
+process and lands on exactly the frequencies you are trying to read. The
+harness's own measured floor looked reassuring — 40-plus dB below the IM3 —
+while the real numerical error sat 10 dB *above* that floor, on top of the
+signal. Only a null circuit could see it.
+
+**A second failure, caught by a cross-check rather than by inspection.** The
+first complete four-band run measured each band's *own* sizing instead of the
+one designated D4-SIM sizing at all four f0s. Every deck ran, every sweep was
+clean, every slope was 3.0, every number was plausible. What caught it was
+requiring the transient's small-signal gain to reproduce the audited
+S-parameter S21 — 36.47 dB against the designated point's 33.73 dB at the S
+band. That check is now printed on every band (worst Δ 0.02 dB), and the
+wrong run was kept deliberately: measured across four independently-descended
+sizings, the topology's OIP3 spans only 1.75 dB.
+
+**Understanding.** Three things. First, the flat OIP3 — **+3.17…+3.35 dBm
+across four bands whose gain varies by 2.25 dB, and +2.44…+4.19 dBm across
+four different sizings** — says linearity here is a property of the output
+stage's swing budget on a 1.1 V / 13 mA envelope, not of the band, the match,
+or the parameter set. That is what converts "this design misses IIP3" into
+"no sizing of this topology meets IIP3": passing at the measured gain would
+need an output intercept **22–50× the entire DC power budget**, and even
+granting the paper's whole min-gain allowance for free leaves ~14.8 dB
+missing. Second, the two independent harnesses reaching the same number to
+0.08 dB is worth more than either alone, and it happened only because a
+"stopgap" was finished after its own justification had evaporated — cheap
+redundant measurement is how a program earns the right to believe its own
+tier-3 numbers. Third, the gate ladder's ordering now looks wrong from both
+sides: the paper's IIP3 is specified at *min gain*, a condition a fixed-gain
+design cannot enter, which makes D6 (stage 37) a prerequisite for a
+like-for-like D5 rather than its successor. Flagged for the user, not acted
+on; nothing in the design was touched to improve any number here.
+
 ## Current frontier
 
 As of this document's writing (`lna-data`, commit `5be4de3` and whatever

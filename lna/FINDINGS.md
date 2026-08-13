@@ -8397,3 +8397,236 @@ python lna/_diff_balun.py --kind cscg --core simul --replay   # re-audit it
 python lna/_diff_balun.py --kind cscg --curve                 # the l5 Idd cost curve
 python lna/_diff_balun.py --kind dpair --curve                # structural comparison
 ```
+
+## 37. Phase 3 — ★★★ WP-IIP3: the D5 wall measured a **second, independent way** — ngspice two-tone transient agrees with VACASK harmonic balance to **0.08 dB**, and the design's OIP3 is a flat +3.3 dBm no matter which sizing you pick (Session 9, 2026-08-13)
+
+**What this is.** `plans2/14-DHRUVA-SIMUL.md` §4 upgrade **#2** — "prototype
+IIP3 in ngspice: two-tone transient + FFT at f0 per band … turns the D5 wall
+into a number in a day". It was specified as the *coarse* stand-in for
+upgrade #4's proper harmonic-balance harness. Both landed the same session by
+different agents, so what was meant as a stopgap became something better: an
+**independent cross-check of Gate D5 by a different simulator, a different
+BSIM4 version, a different analysis kind and a different extraction estimator**.
+§40 is the HB half; this is the transient half. They were built without
+sharing code — only the golden's closed-form references are common by design.
+
+Files: `lna/iip3.py` (harness), `lna/ref/check_iip3.py` (golden),
+`lna/_iip3_floor.py` (the timestep characterisation below). Artefacts
+`lna/out/_iip3_d4sim.json` + `_iip3_own_sizing.json` (gitignored).
+
+### 37.1 The golden — closed form, two reference networks, GREEN before any design number
+
+The reference is a memoryless polynomial amplifier `y = a1·x + a3·x³` built
+from a B-source. No BSIM, no PDK, no fitting: `A_IP3² = (4/3)·a1/|a3|` at the
+nonlinearity's input node, referred back to available power through whatever
+linear network sits in front of it. Tolerances were written into the file
+**before** the run and were not moved.
+
+| check | network | reference | measured |
+|---|---|---|---|
+| **G1** | C | `a3 = 0`, so every IM3 bin is *by construction* pure numerics | **−133.1 dBc** (bar ≤ −110) |
+| **G2** | R (algebraic) | (10, −200) → **−1.761 dBm**; (4, −50) → **+0.280 dBm** | err **−0.020 / −0.019 dB**, slope **3.0000 / 3.0000** |
+| **G3** | C (reactive) | (10, −200) → **−0.890 dBm**; (4, −50) → **+1.151 dBm** | err **−0.018 / −0.018 dB**, slope **2.9997 / 3.0005** |
+| **G4** | C | same point at `tmax/2` | **ΔIM3 = +0.0019 dB** (bar < 0.5) |
+
+Stated tolerance **0.25 dB**; worst achieved **0.020 dB**, i.e. 12× inside it.
+The residual is *physical* — it is the `(9/4)a3A³` compression term biasing the
+small-signal gain line at the lowest sweep point, and §40's G2 sees the same
+effect through a completely different simulator.
+
+**Why two networks.** The prior draft's reference was purely resistive: a
+B-source between resistors has **no reactance at all**, so ngspice's
+integrator contributes nothing and a golden built only on it certifies the
+arithmetic while silently exempting the numerics. Network **C** adds a shunt
+`Cin` at the nonlinearity input and an `Rout/Cout/Rload` divider after it, both
+first-order with closed-form transfers
+`H = 0.5/(1 + j2πf·25·C)`, so the analytic IIP3 is still exact
+(`IIP3 = 10log10(A_IP3²/(|H|²·400)·1e3)`) but every measured quantity has now
+been through trapezoidal integration on a nonuniform grid *and* the resampler.
+That is the numerical path the LNA measurement actually takes.
+
+### 37.2 ★ The finding the golden earned: **the obvious timestep is not good enough, and the error hides exactly where you look for signal**
+
+G1 is the check that pays for the whole file. With `a3 = 0` the reference is
+exactly linear, so anything in the IM3 bins is the harness's own numerical
+intermodulation. It is **not** broadband noise — it lands *on* the IM3
+frequencies, which is precisely where a product-free "noise floor" estimate
+cannot see it:
+
+| `tmax` | IM3 bin | vs fundamental | product-free floor bin |
+|---|---|---|---|
+| 20 ps | −104.96 dBm | **−97.8 dBc** | −113.1 dBm |
+| 10 ps | −111.99 dBm | **−104.9 dBc** | −115.3 dBm |
+| **5 ps** | −140.23 dBm | **−133.1 dBc** | −140.3 dBm |
+| 2.5 ps | −140.13 dBm | **−133.0 dBc** | −140.3 dBm |
+
+At the harness's original 10 ps default, G1 **FAILED** its pre-registered
+−110 dBc bar. The response was to converge the method, not to move the bar:
+at 5 ps the IM3 bins have collapsed into the broadband floor (−140.2 vs
+−140.3 dBm — they are no longer distinguishable) and a further halving moves
+nothing. **5 ps is the first step size at which the harness's own
+intermodulation provably vanishes**, and it is the shipped default.
+Regenerate with `python lna/_iip3_floor.py`.
+
+The general lesson, worth carrying to any future transient-distortion
+measurement: *a spectral floor measured on product-free bins does not bound
+numerical distortion*, because numerical distortion is a distortion process
+and obeys the same frequency algebra as the signal. Only a null circuit
+(`a3 = 0`) or a step-refinement test can see it.
+
+### 37.3 Method, and the fences on it
+
+Coherent sampling throughout: `f0` snapped to a 1 MHz grid, tones at
+`f0 ± 1 MHz` (**dF = 2 MHz**, matching §40), IM3 at `f0 ∓ 3 MHz`, DFT window
+**1 µs** so the bin spacing is exactly 1 MHz — every tone and every product
+lands dead-centre in a bin, rectangular window, no leakage and no window-gain
+correction anywhere. `wrdata`'s nonuniform (xscale,value) pairs (gotcha N2)
+are linearly resampled onto a 32768-point uniform grid and linearly detrended.
+
+The sp `portnum`/`z0` sources are analysis-internal, so port 1 is replaced by
+an explicit Thevenin two-tone drive behind 50 Ω and port 2 by an explicit
+50 Ω load; `P_in` is **available** power per tone. **Nothing else in the deck
+is touched** — no solver option added, no device value changed.
+
+Extraction is the classical **slope-intercept**: a slope-1 fundamental line at
+the small-signal gain and a least-squares slope-3 IM3 line, intersected. The
+free-slope fit of `P_im3` vs `P_in` is reported alongside as the 3:1 check, and
+the per-point `P_in + (P_fund − P_im3)/2` median is kept as an independent
+estimator. Points enter the fit only if the IM3 clears the *measured* floor by
+≥ 10 dB and the gain has not sagged > 0.5 dB.
+
+Fences on the reported numbers:
+
+- **Timestep**: `tmax` → `tmax/2` on the live design, per band —
+  **ΔIM3 = +0.002 / +0.002 / +0.004 / +0.027 dB**, ΔIIP3 ≤ 0.011 dB.
+- **Solver tolerance**: `reltol` 1e-3 → 1e-5 with `vntol` 1e-9 / `abstol`
+  1e-15 moves the L5 IIP3 by **0.004 dB** — the stock deck tolerances are not
+  what limits this (so, unlike the HB harness where §40.1's G0 shows default
+  reltol produces a +111.9 dB error, no tolerance line is needed here).
+- **Detrending**: linear detrend vs mean-removal moves the L5 IM3 by 0.02 dB.
+- **3:1 slope**: 2.991–2.995 over a 24 dB fitted span, IM3-line fit residual
+  ≤ 0.30 dB, per-point IIP3 spread ≤ 0.07 dB.
+- **Drive-level independence**: the per-point IIP3 is flat to **0.06 dB**
+  across the 24 dB of `P_in` that enters the fit; the two rejected high-power
+  points (−48, −40 dBm) are rejected by the *compression* guard, which is the
+  guard doing its job rather than a tuning knob.
+- **Gain cross-check** (below) against the audited S-parameter claim.
+
+### 37.4 A harness bug this file should record, and the check that caught it
+
+The first full run measured `dhruva-<band>.sp` per band — each band's **own**
+sizing, i.e. the retired per-band D3 answer — instead of the one designated
+D4-SIM sizing at all four f0s. It failed silently: every deck runs, every
+sweep is clean, every slope is 3.0, and every IIP3 is plausible.
+
+What caught it was the **small-signal gain cross-check**: the transient's own
+gain must reproduce the audited `sp` S21 from §35.2's `l5` row. The wrong
+decks read 36.47 dB at the S band against the designated point's 33.73 dB.
+That check is now a permanent, printed part of every band's output:
+
+| band | transient gain | audited sp S21 (§35.2) | Δ |
+|---|---|---|---|
+| l5 | 35.96 | 35.96 | **−0.00** |
+| l2 | 35.93 | 35.93 | **−0.00** |
+| l1 | 35.53 | 35.54 | **−0.01** |
+| s | 33.71 | 33.73 | **−0.02** |
+
+Beyond catching the mix-up, this is an independent validation of the whole
+transient port setup — Thevenin drive, terminations, DFT scaling, dBm
+conventions — against a claim measured through an entirely different ngspice
+analysis. `--sizing own` reruns the per-band variant deliberately (§37.6).
+
+### 37.5 ★ The number: Gate D5 FAILS on all four bands, 21.7–25.4 dB short
+
+One fixed sizing (`dhruva-l5` of `ace8383c2fa68d03`, the designated D4-SIM
+point), `dhruva-l5.sp` measured at all four band f0s, 6 drive levels per band
+from −80 to −40 dBm/tone, 4 surviving the guards:
+
+| band | f0 (MHz) | **IIP3 (dBm)** | target | **margin** | OIP3 | gain | slope | ΔS21 |
+|---|---|---|---|---|---|---|---|---|
+| dhruva-l5 | 1176.45 | **−32.78** | ≥ −7.4 | **−25.38** | +3.17 | 35.96 | 2.992 | −0.00 |
+| dhruva-l2 | 1227.60 | **−32.73** | ≥ −7.4 | **−25.33** | +3.20 | 35.93 | 2.991 | −0.00 |
+| dhruva-l1 | 1575.42 | **−32.20** | ≥ −7.6 | **−24.60** | +3.33 | 35.53 | 2.992 | −0.01 |
+| dhruva-s | 2492.03 | **−30.36** | ≥ −8.7 | **−21.66** | +3.35 | 33.71 | 2.995 | −0.02 |
+
+**Gate D5: FAILED, 0/4 bands** — confirming §40 by an independent route. As
+that section says and this one repeats: this was the predicted outcome
+(§35.5.1) and the design was **not touched** to improve it.
+
+### 37.6 ★★ Cross-method agreement — the result this session could not have had from either half alone
+
+Same design, same four bands, same 2 MHz spacing, same available-power
+convention; **everything else different**: ngspice 45.2 transient + coherent
+DFT (BSIM 4.5) vs VACASK 0.3.4.rc1 harmonic balance (BSIM 4.8.3, §40.2),
+slope-intercept vs median-of-per-point extraction, independent implementations.
+
+| band | this WP (transient) | §40 (HB) | **Δ** | per-point median (this WP) | Δ, median vs median |
+|---|---|---|---|---|---|
+| l5 | −32.78 | −32.76 | **0.02** | −32.81 | 0.05 |
+| l2 | −32.73 | −32.70 | **0.03** | −32.76 | 0.06 |
+| l1 | −32.20 | −32.14 | **0.06** | −32.23 | 0.09 |
+| s | −30.36 | −30.28 | **0.08** | −30.38 | 0.10 |
+
+**Worst disagreement 0.08 dB** on the headline estimator, ≤ 0.10 dB
+like-for-like. For a tier-3 metric that was `unsupported` in every spec at the
+start of this session, D5 is now pinned by two harnesses that agree to under a
+tenth of a dB and each carry their own closed-form golden. §40's tone-spacing
+fence (0.43 dB over 1→10 MHz) is larger than the entire inter-method spread,
+which is the honest bound on what "IIP3 of this design" means.
+
+### 37.7 The honest reading — and one datum §40 does not have
+
+§40.4's verdict is confirmed and this WP can sharpen it. **OIP3 is +3.17 …
++3.35 dBm, flat to 0.18 dB across all four bands** while the gain varies by
+2.25 dB: linearity is set by the output stage's swing budget, not the band,
+not the match. IIP3 differs between bands *only* because gain does.
+
+The new datum: `--sizing own` measured the **four different shipped `mf2-v1`
+sizings** of this topology at their own bands (IIP3 −32.78 / −31.58 / −33.31 /
+−34.03 dBm at gains 35.96 / 35.78 / 36.82 / 36.47 dB). Their OIP3 spans
+**+2.44 … +4.19 dBm** — 1.75 dB across four independently-descended parameter
+sets. So the +3 dBm output intercept is a property of **the topology on this
+power budget**, not of the l5 sizing choice. That closes the "maybe another
+sizing is more linear" escape hatch with a measurement rather than an argument.
+
+Quantitatively, with `P_dc = 1.1 V × 12.963 mA = 14.26 mW (+11.54 dBm)`:
+
+- To pass **at the measured gain**, the design needs OIP3 = +25.0 … +28.6 dBm
+  — **22× to 50× its entire DC power budget**. No amplifier class does that;
+  this is outside the physics of the power budget, not inside the sizing space.
+- Granting the *entire* min-gain correction for free (10.6 dB of
+  programmability, OIP3 unchanged) gives IIP3 ≈ −22.2 dBm — **still ~14.8 dB
+  short**, exactly §40.4's figure.
+- At the lowest gain the **spec ladder itself permits** (22.3 dB on L5/L2),
+  the measured OIP3 yields IIP3 = −19.1 dBm: an **11.7 dB output-linearity
+  shortfall**. On the S band, whose gain floor is 30 dB, the shortfall is
+  **17.9 dB**.
+
+**D5 implication: the topology must change** — this is not "close" and it is
+not a sizing problem. The five-stage, weak-inversion, maximum-gain
+construction that made D3 and D4-SIM comfortable is the same construction that
+puts D5 out of reach, and the fixed-gain caveat accounts for less than half
+the miss.
+
+⚠ **Gate-ladder ordering, for the user.** `14-DHRUVA-SIMUL.md` §2 lists
+D5 (IIP3) *before* D6 (gain programmability). Both halves of the D5
+measurement now say the paper's IIP3 condition is a **min-gain** condition
+that a fixed-gain design cannot enter, so D6 is closer to a **prerequisite**
+for a like-for-like D5 than a successor to it — and §42 reports D6 met under
+a proposed mapping the same session. Whether to reorder the ladder is a user
+decision; both measurements are on file either way.
+
+⚠ Inherited unchanged: every §35.5.3 / REPORT §5 fidelity caveat (45 nm
+behavioral BSIM4, ideal Q = 12 passives, no corners, no layout parasitics).
+And §40.4's tension with §36 stands — WP-HARDEN's point drops Idd 37%, and
+IIP3 scales with bias headroom, so it is likely *further* from D5. Neither
+D5 harness has measured `dhruva-simul` — and note it ships as
+`.params.json`/`.meta.json` only, so it needs a standalone `dhruva-simul.sp`
+emitted before `--sizing simul` can reach it (the harness says so and exits).
+
+```bash
+python lna/ref/check_iip3.py                    # the golden -- GREEN first
+python lna/iip3.py --band all --conv            # the D4-SIM point, 4 bands
+python lna/iip3.py --band all --sizing own      # the retired per-band points
+python lna/_iip3_floor.py                       # the tmax characterisation
+```

@@ -2496,6 +2496,84 @@ python lna/_diff_balun.py --kind dpair --curve                # structural compa
 python lna/_diff_balun.py --kind cscg --show-deck             # the grafted 3-port deck
 ```
 
+### ▸ Sub-block: WP-IIP3 — the ngspice two-tone transient harness, and D5 confirmed by a second method (owner: the two-tone IIP3 executor)
+
+**Files owned:** `lna/iip3.py` (new), `lna/ref/check_iip3.py` (new, rewritten
+from a stopped agent's uncommitted draft), `lna/_iip3_floor.py` (new),
+FINDINGS **§37**, JOURNEY stage **32**, this sub-block. **No shared file
+edited** — `extract.py` is imported read-only for `NGSPICE`/`scratch` only, and
+the shipped `dhruva-*.sp` decks are read, never written (the two-tone drive is
+spliced in memory). Artefacts `lna/out/_iip3_d4sim.json`,
+`_iip3_own_sizing.json` (gitignored). No store rows written. Private,
+pid-scoped ngspice scratch under `lna/out/_iip3/tmp<pid>`, deleted at exit.
+
+**What it is.** Stage-30 ladder item **2**: two-tone transient + coherent DFT,
+the cheap D5 prototype. Item 4 (the HB harness, the WP-HB sub-block below)
+landed the same session, so this became the **independent cross-check**
+instead of the stopgap — different simulator, different BSIM4 version
+(4.5 vs 4.8.3), different analysis kind, different estimator, no shared code.
+
+**★ The number: Gate D5 FAILS 0/4 bands** on the designated `dhruva-l5` sizing
+of `ace8383c`, and **agrees with WP-HB to ≤ 0.08 dB on every band**:
+
+| band | IIP3 | target | margin | OIP3 | gain | slope | WP-HB | Δ |
+|---|---|---|---|---|---|---|---|---|
+| l5 | **−32.78** | −7.4 | **−25.38** | +3.17 | 35.96 | 2.992 | −32.76 | 0.02 |
+| l2 | **−32.73** | −7.4 | **−25.33** | +3.20 | 35.93 | 2.991 | −32.70 | 0.03 |
+| l1 | **−32.20** | −7.6 | **−24.60** | +3.33 | 35.53 | 2.992 | −32.14 | 0.06 |
+| s | **−30.36** | −8.7 | **−21.66** | +3.35 | 33.71 | 2.995 | −30.28 | 0.08 |
+
+**Golden GREEN before any design number** (`check_iip3.py`): memoryless
+`y = a1x + a3x³` B-source, closed-form `A_IP3² = (4/3)a1/|a3|`, on **two**
+reference networks — algebraic (isolates the extraction arithmetic) and
+first-order reactive (certifies integrator + resampler, transfers
+`H = 0.5/(1+j2πf·25·C)` still closed form). Stated tolerance 0.25 dB, worst
+achieved **0.020 dB**; slope 2.9997–3.0005.
+
+**⚠ Two failures worth your attention — both are the point, not the noise.**
+
+1. **The obvious timestep was wrong, and the harness's own floor could not
+   see it.** G1 (`a3 = 0`, so every IM3 bin is pure numerics) read
+   **−104.9 dBc at tmax = 10 ps and FAILED** its pre-registered −110 dBc bar,
+   while the product-free "floor" bins looked 40 dB clean. Numerical
+   distortion is a *distortion* process — it lands **on** the IM3
+   frequencies. Converged the method, not the bar: at **5 ps** the IM3 bins
+   collapse into the broadband floor (−140.2 vs −140.3 dBm) and stop moving
+   at 2.5 ps. **`TMAX = 5e-12` is a measured choice**; `lna/_iip3_floor.py`
+   regenerates the table. Carry this to any future transient-distortion work.
+2. **The first full run measured the wrong decks** — `dhruva-<band>.sp` (each
+   band's own sizing, the retired D3 answer) instead of `dhruva-l5.sp` at all
+   four f0s. It failed *silently*: clean sweeps, 3.0 slopes, plausible
+   numbers. Caught by the **gain cross-check** now printed on every band —
+   the transient's small-signal gain must reproduce §35.2's audited sp S21
+   (worst Δ **0.02 dB**). If you build any new drive-level harness in this
+   tree, wire that check in first.
+
+**The honest reading (FINDINGS §37.7).** OIP3 is **+3.17…+3.35 dBm, flat to
+0.18 dB** across four bands whose gain varies 2.25 dB — and **+2.44…+4.19 dBm
+across all four shipped sizings** (`--sizing own`, the kept wrong run). So the
++3 dBm output intercept belongs to **the topology on this power budget**, not
+to a sizing choice: passing at the measured gain needs OIP3 = 22–50× the whole
+14.26 mW DC budget, and granting the full 10.6 dB min-gain allowance for free
+still leaves ~14.8 dB missing. **D5 verdict: the topology must change.**
+⚠ Ladder ordering flagged for the user — the paper's IIP3 is a *min-gain*
+spec, so D6 (WP-PGAIN) reads as a prerequisite for a like-for-like D5, not its
+successor. Nothing was tuned; the decks are byte-identical apart from the
+port-source swap.
+
+**Fences:** timestep tmax→tmax/2 per band ΔIM3 ≤ 0.027 dB · reltol 1e-3→1e-5
+(+vntol 1e-9/abstol 1e-15) 0.004 dB · detrend vs mean-removal 0.02 dB · 3:1
+slope 2.991–2.995 over a 24 dB fitted span · per-point IIP3 spread ≤ 0.07 dB ·
+gain vs audited sp S21 ≤ 0.02 dB. `check_ref` / `check_nf` / `check_op` GREEN
+after.
+
+```bash
+python lna/ref/check_iip3.py                    # the golden -- GREEN first
+python lna/iip3.py --band all --conv            # the D4-SIM point, 4 bands
+python lna/iip3.py --band all --sizing own      # the retired per-band points
+python lna/_iip3_floor.py                       # the tmax characterisation
+```
+
 ## 1. TL;DR — what shipped this session
 
 | Plan item | Status | Key result |

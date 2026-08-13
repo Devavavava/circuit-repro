@@ -53,7 +53,11 @@ python lna/repro/dhruva-best/recreate.py --band s --noise-budget
 
 # Gate-D4-SIM matrix (FINDINGS §35): every shipped sizing evaluated against
 # ALL FOUR band specs -- one fixed sizing, all bands simultaneously. All 16
-# cells PASS; the designated single-LNA point is the dhruva-l5 sizing:
+# cells PASS. Designated single-LNA point since 2026-08-13 (user ruling,
+# plans2/14-DHRUVA-SIMUL.md §2.1): the margin-hardened dhruva-simul.params.json
+# at pVDD=1.2 V (FINDINGS §36; survives the full corners.py sweep). The
+# dhruva-l5 sizing was the first D4-SIM closure and stays archived here
+# (⚠ it fails the Idd gate at 1.2 V):
 python lna/repro/dhruva-best/recreate.py --cross
 
 # rebuild the dhruva-<band>.sp deck files from tokens.json + params.json:

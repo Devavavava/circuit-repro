@@ -51,6 +51,7 @@ from topology import Topology       # noqa: E402
 REPRO = os.path.join(HERE, "repro", "dhruva-best")
 BANDS = {"s": "dhruva-s", "l1": "dhruva-l1", "l2": "dhruva-l2", "l5": "dhruva-l5"}
 POINT = "l5"                        # the designated D4-SIM sizing (FINDINGS SS35.3)
+VDD_NOM = None                      # None = the point's own pVDD; else override (V)
 OUT = os.path.join(HERE, "out", "_sens_d4sim.json")
 
 # one-at-a-time grids; mandated extremes plus inner points so the flip SIZE is
@@ -72,6 +73,8 @@ def load_point():
     body, sizable, fixed = prep
     params = json.load(open(os.path.join(REPRO, f"dhruva-{POINT}.params.json"),
                             encoding="utf-8"))
+    if VDD_NOM is not None:
+        params["pVDD"] = f"{float(VDD_NOM):.6g}"   # sweep runs around this nominal
     specs = {t: S._spec_for_sizing(n) for t, n in BANDS.items()}
     return body, sizable, params, specs
 
@@ -245,7 +248,16 @@ if __name__ == "__main__":
     ap.add_argument("--axis", required=True,
                     choices=["baseline", "temp", "vdd", "passives", "q",
                              "combo", "report", "all"])
+    ap.add_argument("--point", default="l5",
+                    help="which repro sizing to sweep: dhruva-<point>.params.json")
+    ap.add_argument("--vdd-nominal", type=float, default=None,
+                    help="override the point's pVDD nominal (V) for the whole sweep")
     a = ap.parse_args()
+    POINT = a.point
+    VDD_NOM = a.vdd_nominal
+    if a.point != "l5" or a.vdd_nominal is not None:
+        tag = a.point + (f"_v{a.vdd_nominal:g}" if a.vdd_nominal is not None else "")
+        OUT = os.path.join(HERE, "out", f"_sens_d4sim_{tag}.json")
     if a.axis == "all":
         for ax in ("baseline", "temp", "vdd", "passives", "q", "combo"):
             print(f"--- axis: {ax} ---")

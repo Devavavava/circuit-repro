@@ -2179,10 +2179,14 @@ explicitly deferred to the user:
   by the **hardened `dhruva-simul` sizing** (stage 31/§36: S11 −11.01, Idd
   8.21 mA, passes both 1.1 V and 1.2 V nominals — the only sizing that hosts
   the balun and the switch bank inside the Idd gate; designation pending).
-  Polish/descent now **refuse K_min < 1 steps** (stage 33/§38). The
-  wave-close decision queue is `lna/plans2/14-DHRUVA-SIMUL.md` §2.1:
-  designation + supply nominal, D6 mapping, D7 gain convention, D5 linearity
-  strategy.
+  Polish/descent now **refuse K_min < 1 steps** (stage 33/§38). **All four
+  wave-close rulings were taken by the user the same day**
+  (`14-DHRUVA-SIMUL.md` §2.1): `dhruva-simul` is the designated D4-SIM point,
+  gated at **pVDD = 1.2 V** (it passed the live sensitivity sweep at that
+  nominal with zero flips before designation); the §42.1 D6 mapping is
+  approved as written; differential gain gates on mixed-mode Sds21; and the
+  linearity answer is a **≤1.2 V linearity-aware redesign (WP-LIN, Session
+  10)**, judged at the D6 min-gain state.
 - **A hardened alternative to `dhruva-l5` now exists but is NOT designated
   (stage 31, FINDINGS §36)**: `dhruva-simul` (S11max −11.01 dB, Idd
   8.205 mA, both ~4× the shipped point's margins) trades away most of

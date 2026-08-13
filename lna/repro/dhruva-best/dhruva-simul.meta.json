@@ -1,0 +1,125 @@
+{
+ "wl_hash": "ace8383c2fa68d03",
+ "spec": "dhruva-simul (all four dhruva bands at one fixed sizing)",
+ "recipe": "mf2-v1+harden-v1",
+ "provenance": {
+  "parent_point": "dhruva-l5.params.json (recipe mf2-v1, the Gate-D4-SIM designated point of FINDINGS SS35, worst NF margin +1.247 dB / worst S21 margin +3.7 dB / S11max -10.001 / Idd 12.963)",
+  "how": "lna/_harden_simul.py TWO-STAGE multi-spec constrained descent (WP-SENS calibration, FINDINGS SS39): stage 1 target=s11 (minimize band-wide s11_max, Idd<=13 only, nf_floor=1.0) from the l5 point, 600 scores, landed s11_max=-14.071/idd=12.412 (lna/out/_harden/best.json). Stage 2 target=idd (minimize Idd subject to s11_max<=s11_floor, nf_floor=0.75, s21_floor=2.0, Idd<=13) starting from stage 1's params, 500 scores -- this is the emitted point.",
+  "seed": 0,
+  "budget": 500,
+  "n_scores": 500,
+  "n_scores_total_both_stages": 1100,
+  "s11_floor_db": -11.0,
+  "floors": {
+   "nf_margin_db": 0.75,
+   "s21_margin_db": 2.0,
+   "k_min": 1.0
+  },
+  "frontier_explored": {
+   "note": "s21_floor=2.0/nf_floor=0.75 held fixed across all three points; only s11_floor varied. Idd bottoms out ~8.15-8.2 mA once S11 clears about -10.5 dB -- NF/S21 floors, not S11 headroom, become the binding constraint on further Idd reduction past that point.",
+   "s11_only (stage 1, s11_floor unconstrained, idd not targeted)": {"s11_max_db": -14.07135, "idd_ma": 12.41172, "nf_worst_margin_db": 1.0, "s21_worst_margin_db": 0.417, "file": "lna/out/_harden/best.json"},
+   "emitted (s11_floor=-11.0, this point)": {"s11_max_db": -11.01182, "idd_ma": 8.205426, "nf_worst_margin_db": 0.774, "s21_worst_margin_db": 2.003, "file": "lna/out/_harden/best_blend1.json"},
+   "s11_floor=-10.5 (base target, not stretch)": {"s11_max_db": -10.50953, "idd_ma": 8.149728, "nf_worst_margin_db": 0.753, "s21_worst_margin_db": 2.01, "file": "lna/out/_harden/best_blend2.json", "verdict": "dominated by the emitted point: 0.50 dB worse S11 margin for only 0.056 mA less Idd"}
+  }
+ },
+ "harness": {
+  "inductor_q": 12,
+  "w_finger": 2e-06,
+  "nf_gated": true,
+  "nf_method": "series_rs"
+ },
+ "final_score": {
+  "shortfall": 0.0,
+  "target": "idd",
+  "value": 8.205426
+ },
+ "audit": {
+  "replay": "5/5 feasible on all four specs, spread 0.0000 on every gated metric (s11_max_db/s21_db/idd_ma/nf_db) -- deterministic ngspice",
+  "in_box": "20/20 sizable params inside kind_ranges",
+  "k_min_in_band": 17.20612,
+  "k_min_wide_0p1_20ghz": 8.507,
+  "novelty": "unchanged vs ace8383c2fa68d03 -- same tokens.json, only device values resized",
+  "command": "python lna/_harden_simul.py --audit --best lna/out/_harden/best_blend1.json"
+ },
+ "worst_case_margins_at_1p1v": {
+  "s11_margin_db_vs_-10gate": 1.012,
+  "s11_margin_db_vs_-10p5_target": 0.512,
+  "s11_margin_db_vs_-11_stretch": 0.012,
+  "s21_margin_db_worst_band": "s",
+  "s21_margin_db": 2.003,
+  "nf_margin_db_worst_band": "l5",
+  "nf_margin_db": 0.774,
+  "idd_margin_ma_vs_13cap": 4.795
+ },
+ "designation_recommendation": "Candidate alternative to dhruva-l5 for the D4-SIM designated point -- NOT auto-adopted (plans2/14-DHRUVA-SIMUL.md unchanged per instructions; user decides). Trades most of l5's NF/S21 slack for S11 robustness (stretch target -11 dB cleared) and ~37% Idd reduction (12.963->8.205 mA @ 1.1V), which is also the difference between PASS and FAIL at pVDD=1.2V: the l5 point's Idd rises to 14.879 mA (FAILS the 13 mA gate on all four bands at 1.2V) while this point rises only to 9.463 mA (PASSES with 3.5 mA to spare).",
+ "dual_vdd_eval": {
+  "1.1": {
+   "s": {
+    "s11_max_db": -11.01182,
+    "s21_db": 32.00334,
+    "idd_ma": 8.205426,
+    "nf_db": 1.330953,
+    "k_min": 17.20612,
+    "feasible": true
+   },
+   "l1": {
+    "s11_max_db": -11.01182,
+    "s21_db": 32.28245,
+    "idd_ma": 8.205426,
+    "nf_db": 1.459076,
+    "k_min": 17.20612,
+    "feasible": true
+   },
+   "l2": {
+    "s11_max_db": -11.01182,
+    "s21_db": 31.64658,
+    "idd_ma": 8.205426,
+    "nf_db": 1.666644,
+    "k_min": 17.20612,
+    "feasible": true
+   },
+   "l5": {
+    "s11_max_db": -11.01182,
+    "s21_db": 31.50062,
+    "idd_ma": 8.205426,
+    "nf_db": 1.726034,
+    "k_min": 17.20612,
+    "feasible": true
+   }
+  },
+  "1.2": {
+   "s": {
+    "s11_max_db": -11.4839,
+    "s21_db": 33.45364,
+    "idd_ma": 9.462705999999999,
+    "nf_db": 1.201075,
+    "k_min": 17.15841,
+    "feasible": true
+   },
+   "l1": {
+    "s11_max_db": -11.4839,
+    "s21_db": 33.88141,
+    "idd_ma": 9.462705999999999,
+    "nf_db": 1.337285,
+    "k_min": 17.15841,
+    "feasible": true
+   },
+   "l2": {
+    "s11_max_db": -11.4839,
+    "s21_db": 33.31876,
+    "idd_ma": 9.462705999999999,
+    "nf_db": 1.546609,
+    "k_min": 17.15841,
+    "feasible": true
+   },
+   "l5": {
+    "s11_max_db": -11.4839,
+    "s21_db": 33.18364,
+    "idd_ma": 9.462705999999999,
+    "nf_db": 1.605977,
+    "k_min": 17.15841,
+    "feasible": true
+   }
+  }
+ }
+}

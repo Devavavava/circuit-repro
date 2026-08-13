@@ -1843,6 +1843,53 @@ flow itself depends on. The cheapest robustness lever found: the point
 *improves* at low Q, so the Q=12 assumption is currently load-bearing in the
 lucky direction.
 
+## 31. WP-HARDEN — the margin-hardening resize closes the loop stage 30 opened, and finds the frontier is flatter than expected
+
+**Decision (stage 30's upgrade ladder, item 1, calibrated by stage 34's
+sweep).** Re-size the shipped `dhruva-l5` D4-SIM point to spend its NF/S21
+slack on S11 and Idd robustness — the two axes stage 34 measured as
+knife-edge — while holding the sweep-derived floors (S11 ≤ −10.44, NF margin
+≥ 0.75 dB) as hard constraints. Implemented as a sidecar
+(`lna/_harden_simul.py`) rather than a `size.py` edit, since `size.py` was a
+concurrent agent's file this wave; same lexicographic kept-floor scoring
+shape as `constrained_descent`, same read-only sizing APIs `recreate.py
+--cross` already uses.
+
+**Result (FINDINGS §36).** A two-stage descent: first, how far can S11 go
+with only Idd capped? Answer — **−14.07 dB**, twelve dB past the −10.5
+target, and Idd barely moved (12.96 → 12.41 mA). Second, starting from
+there, minimize Idd with S11 held at the −11 dB stretch floor and NF/S21
+kept at their sweep-derived floors: **Idd fell 37%, to 8.205 mA**, while S11
+settled at exactly −11.012 dB — the descent spent precisely the slack it was
+given, no more. A control run relaxing the S11 floor to −10.5 found almost
+no further Idd gain (8.150 mA, 0.06 mA better) for half a dB of S11 given
+back — **the frontier is flat**: past ≈−10.5 dB, Idd's ceiling is the NF/S21
+floors, not S11 headroom. Evidence ladder: 5/5 replay, spread 0.0000; 20/20
+in-box; all four bands re-measured feasible, fresh from the emitted params
+file on disk; K_min 17.2 in-band / 8.5 wide; novelty unchanged (same
+`tokens.json`, same `ace8383c` hash).
+
+**The finding that changes the picture: both pVDD rows.** Stage 34 flagged
+the pending 1.1-vs-1.2 V nominal decision as "adjacent, not acted on." This
+WP measured it directly — and the shipped `dhruva-l5` point **fails D4-SIM
+outright at 1.2 V** (Idd rises to 14.879 mA, over the 13 mA cap, on all four
+bands), while the hardened point holds with 3.5 mA to spare and its other
+margins *improve* at the higher rail. Whichever way the VDD-nominal decision
+lands, the hardened point is the one still standing.
+
+**Understanding.** Two things worth keeping. First, the "spend slack on the
+weakest constraint" intuition that motivated this WP was only half right —
+S11 turned out to have enormous slack (12 dB worth) that cost almost nothing
+to take, while Idd's real ceiling was never S11 at all, it was the NF/S21
+floors this WP itself imposed; finding that boundary needed a second,
+differently-targeted descent, not a single multi-objective one. Second, a
+robustness resize done for one reason (S11's 0.001 dB match cliff) paid off
+on a completely different, undiscovered cliff (the 1.2 V Idd wall) — the
+value of measuring margins broadly, not just on the axis you set out to fix.
+Not adopted as the designated point — `plans2/14-DHRUVA-SIMUL.md` is
+unchanged, both points are on file, and the choice (best NF/S21 slack vs.
+best S11/Idd/VDD robustness) is left to the user.
+
 ## Current frontier
 
 As of this document's writing (`lna-data`, commit `5be4de3` and whatever
@@ -1882,6 +1929,15 @@ explicitly deferred to the user:
   switchable DOFs), plus the 0.001 dB S11 margin that no corner or parasitic
   has yet been asked to move (`lna/plans2/14-DHRUVA-SIMUL.md` §4 is the
   upgrade ladder).
+- **A hardened alternative to `dhruva-l5` now exists but is NOT designated
+  (stage 31, FINDINGS §36)**: `dhruva-simul` (S11max −11.01 dB, Idd
+  8.205 mA, both ~4× the shipped point's margins) trades away most of
+  `dhruva-l5`'s NF/S21 slack, and is the only one of the two that survives a
+  pVDD = 1.2 V nominal (`dhruva-l5` fails the Idd gate at 1.2 V — 14.879 mA
+  vs the 13 mA cap, all four bands). Both points are on file
+  (`lna/repro/dhruva-best/dhruva-{l5,simul}.*`); which one is "the" D4-SIM
+  point, and whether the harness nominal should move to 1.2 V, are open user
+  decisions.
 - **`wideband-sdr`, under the corrected spec (stage 19), has never once
   produced a design that holds S11 band-wide** — 0/134 stored rows, at any
   NF/gain trade-off, under the metric the spec always meant to enforce. The

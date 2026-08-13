@@ -2196,6 +2196,67 @@ python lna/_stabguard_accept.py       # truth table + both cases + legacy repro
 LNA_STAB_GUARD=0 python ...           # session-wide pre-guard behavior
 ```
 
+### ▸ Sub-block: WP-HARDEN — margin-hardening resize of the D4-SIM point (owner: the margin-hardening executor)
+
+**Files owned:** `lna/_harden_simul.py` (new sidecar; `size.py` not touched),
+`lna/repro/dhruva-best/dhruva-simul.{params,meta}.json` (new — does NOT
+overwrite any shipped `dhruva-{s,l1,l2,l5}.*` file, does NOT change the
+designated point in `plans2/14-DHRUVA-SIMUL.md`), FINDINGS **§36**, JOURNEY
+stage **31** + a frontier bullet, this sub-block. Working state (not
+committed — gitignored under `lna/out/_*`): `lna/out/_harden/` (three
+descent runs: `best.json` intermediate, `best_blend1.json` = the emitted
+point, `best_blend2.json` = the dominated control).
+
+**What shipped.** Stage-30/34's upgrade #1: a fixed re-sizing of `ace8383c`
+starting from the shipped `dhruva-l5` D4-SIM point, spending its NF/S21
+slack on the two axes WP-SENS (§39) found knife-edge — S11 and Idd — while
+holding WP-SENS's sweep-derived floors (NF margin ≥0.75 dB, an S21 floor of
+2.0 dB approximating its ≈1.91 dB survival need) as hard constraints. A
+two-stage descent: stage 1 (minimize S11, Idd≤13 only) found S11 has ~12 dB
+of nearly-free slack (−14.07 dB reachable, Idd barely moves); stage 2
+(minimize Idd, S11 held ≥ the −11 dB stretch floor) spent that slack,
+landing **S11max −11.012 dB, Idd 8.205 mA (−37% from 12.963)**. A control
+run relaxing the S11 floor to −10.5 found the frontier is flat past that
+point (0.06 mA more Idd for 0.5 dB less S11 margin — dominated, not
+adopted). Full margin table, both-VDD rows, and the flat-frontier reading in
+**FINDINGS §36**.
+
+**★ The headline is the 1.2 V row, not the 1.1 V one.** Both points were
+evaluated at pVDD=1.1 V (harness nominal) **and** 1.2 V (spec text), per the
+executor brief — the shipped `dhruva-l5` point **fails D4-SIM outright at
+1.2 V** (Idd rises to 14.879 mA, over the 13 mA cap, on all four bands,
+matching WP-SENS's predicted +9%-VDD → +1.9 mA to three digits); the
+hardened point holds at 1.2 V with 3.5 mA to spare and its other margins
+*improve*. This resolves nothing about which VDD nominal is correct (still a
+pending user decision, §39.2) but does mean the two shipped points are not
+interchangeable under it.
+
+**Evidence ladder (FINDINGS §36.4):** 5/5 replay on all four specs, spread
+0.0000 on every gated metric; 20/20 sizable params in-box; all four bands
+re-measured feasible fresh from the emitted `dhruva-simul.params.json` on
+disk (not carried over in-process); K_min 17.2 in-band / 8.5 wide
+(0.1–20 GHz); novelty unchanged (`tokens.json` untouched, same `ace8383c`
+hash — only device values differ from `dhruva-l5`).
+
+**Scope discipline, explicit.** Not adopted as the designated point — both
+`dhruva-l5` and `dhruva-simul` are on file, `plans2/14-DHRUVA-SIMUL.md` is
+byte-unchanged, and the choice (best NF/S21 slack vs. best S11/Idd/VDD
+robustness) is a user decision, same class as the pending VDD-nominal one.
+This point has **not** been re-run through the live WP-SENS sweep
+(`lna/corners.py`) — its NF/S21 margins were built to WP-SENS's calibration
+targets but that is a design target, not confirmation; running the actual
+sweep against `dhruva-simul` is the natural next check before any
+designation.
+
+```bash
+python lna/_harden_simul.py --run --target s11 --budget 600 --best lna/out/_harden/best.json               # stage 1
+python lna/_harden_simul.py --run --target idd --s11-floor -11.0 --nf-floor 0.75 --s21-floor 2.0 \
+       --start-best lna/out/_harden/best.json --budget 500 --best lna/out/_harden/best_blend1.json          # stage 2 (emitted)
+python lna/_harden_simul.py --audit --best lna/out/_harden/best_blend1.json                                  # 5x replay + in-box + wide stability
+python lna/_harden_simul.py --vdd-check --best lna/out/_harden/best_blend1.json                              # both-VDD rows
+python lna/_harden_simul.py --emit --best lna/out/_harden/best_blend1.json                                   # writes dhruva-simul.{params,meta}.json
+```
+
 ## 1. TL;DR — what shipped this session
 
 | Plan item | Status | Key result |

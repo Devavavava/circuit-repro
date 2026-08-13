@@ -7474,3 +7474,86 @@ this sweep, add ~+1.9 mA of Idd at fixed sizing.
 python lna/corners.py --axis all        # baseline+invariance, 4 axes, combo, report
 python lna/corners.py --axis report     # re-print from lna/out/_sens_d4sim.json
 ```
+
+## 38. Phase 2/3 — WP-STABGUARD: stability enters the optimizer's acceptance rule — polish/descent can no longer walk a design from K ≥ 1 to K < 1 (Session 9, 2026-08-13)
+
+Stage-30 upgrade ladder item 3, queued since Session 4 (§13: "polish walked
+`seq0220` into K_min 0.832 because stability is in no objective"; re-confirmed
+§14.3, §15.5, §20). Driver: `python lna/_stabguard_accept.py`.
+
+### 38.1 What changed — and what deliberately did not
+
+* **`size.polish` and `size.constrained_descent` now refuse an otherwise
+  accepted step whose in-band K_min crosses ≥ 1 → < 1** (`size._stab_ok`).
+  An already-unstable incumbent moves freely (a recovery is never blocked;
+  once it crosses 1 the guard locks it), an unmeasured K never blocks
+  (defensive), and an unstable **start** is flagged — `stab_guard.start_unstable`
+  in the returned dict plus a printed `[stab] WARN` — never silently kept.
+  **Zero extra ngspice calls**: K_min rides the `sp` run every evaluation
+  already makes (§13's harness). Default **ON**; `LNA_STAB_GUARD=0` is the
+  session escape hatch (same shape as `LNA_NF_GATE`). Both loops return a
+  `stab_guard` dict (`on/start_k_min/final_k_min/n_refused/start_unstable`),
+  and `_zoaf_cfg` stamps **`stab_guard`** on every row so the label domains
+  stay separable — every row written before this stamp is implicitly
+  `stab_guard: false` (the WP-D1 / mf2 precedent).
+* **Plain ZOAF (`run_zoaf`/`make_objective`) is deliberately NOT guarded.**
+  Its scalar objective is the frozen label definition (01-DATA fixed budget);
+  injecting stability into it would re-domain every future `candidate-v1`/
+  `curated-v1` row — a WP-D1-class governance change, **proposed, not taken**.
+  ZOAF has no incumbent-transition semantics to guard ("refuse a step" does
+  not map onto population sampling), and its K<1 landings (§14.3's 8/84 cells,
+  §15.5's 21/60 control sizings) stay visible through the advisory `k_min`
+  already in every metric vector. Measured A/B: `size_topology` guard on/off,
+  same seed, same topology → **metrics repr-identical**.
+
+### 38.2 Acceptance — the two known K<1 wifi24 cases, through the polish path
+
+Anchors = the stored `curated-v1+mf2-v1` rows; polish at its original default
+budget (80), guard OFF vs ON, otherwise identical (polish has no RNG, so the
+arms can differ only through the guard). Current multi-finger harness:
+
+| case | point | S11max | S21 | Idd | NF | K_min | verdict |
+|---|---|---|---|---|---|---|---|
+| seq0009 | anchor re-measured | −9.734 | 13.090 | 3.986 | 1.601 | **3.077** | tier-2 FEAS |
+| seq0009 | polish, both arms | −12.435 | 14.130 | 4.121 | 1.539 | 3.293 | FEAS, refused=0 |
+| seq0220 | anchor re-measured | −10.941 | 12.786 | 2.445 | 1.781 | **3.780** | tier-2 FEAS |
+| seq0220 | polish, both arms | −15.342 | 15.806 | 3.376 | 1.422 | 1.906 | FEAS, refused=0 |
+
+**★ The wifi24 tier-2 claim SURVIVES a stability guard, with a number:
+K_min = 3.78 at the claim row** (`seq0220` curated, as Session 4 predicted),
+and the guarded polish *improves* the point (NF 1.78 → 1.42) while staying
+stable (K 1.91). On both designs the fresh box-clamped polish never even
+attempts a crossing (refused = 0, guarded and unguarded outcomes identical) —
+though seq0220's run does spend stability margin (3.78 → 1.91), which is
+exactly the drift the guard exists to floor.
+
+### 38.3 The historical failure surface — reproduced to the third digit, and the flag fires
+
+Single-finger legacy reproduction (`bias.insert_bias` wrapped with
+`w_finger=None`, tier-1 gating — the pre-cutover harness Session 4 measured):
+
+* the curated anchor re-measures **K_min 4.077** (Session 4 recorded 4.08);
+  the stored `polish-v1` point re-measures **K_min 0.8317** — the recorded
+  **0.832**, to the third digit. The artifact is real and reproducible.
+* **polish guard-on FROM that unstable point fires the flag live** —
+  `[stab] WARN: polish start K_min=0.868 < 1 (potentially unstable start --
+  flagged, not blocked)` — and the ascent then *recovers* it to **K 2.473**,
+  feasible; the guard never blocked the recovery, as designed.
+* ⚠ A fresh 80-eval polish from the curated anchor does **not** reproduce the
+  4.08 → 0.832 walk even guard-off: the historical walk went through
+  out-of-box territory, and the Track-B box clamp (§13) already removed that
+  particular path. The guard is the belt to the clamp's suspenders — §15.5's
+  21/60 control-arm K<1 sizings say the exposure class is real beyond this
+  pair. **No in-vivo refusal fired in this acceptance set** (stated, not
+  hidden); the refusal predicate itself is pinned by an 8/8 truth-table
+  selftest in `_stabguard_accept.py`.
+
+### 38.4 Regression — green before and after, values unchanged
+
+vocab **MATCH** · screen **114/192 (59.4%)** · pipeline_yield **40/42 (95.2%,**
+the known 1081 singular matrix) · `check_ref` / `check_nf` / `check_bjt` /
+`check_op` **GREEN** · `check_stab` **harness GREEN** (the dhruva-l2
+CONDITIONAL note on the old `rfbcs3` winner is §27.5's documented pre-existing
+state, unchanged) · `calibrate_specs` **ALL ACCEPTANCE CRITERIA MET**.
+Behavior changes ONLY inside `polish`/`constrained_descent` acceptance and the
+additive `zoaf_cfg.stab_guard` stamp; no regression number moved.

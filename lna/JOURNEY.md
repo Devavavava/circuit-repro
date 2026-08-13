@@ -1769,6 +1769,41 @@ harder for this design, not easier; and **S11 margin is 0.001–0.002 dB on
 every row** — the match is the binding constraint by construction, and no
 corner or parasitic has been asked to move it yet.
 
+## 33. The optimizer learns to keep its footing — stability enters the acceptance rule
+
+**Decision (stage 30's upgrade ladder, item 3 — queued since Session 4).**
+Put stability into the polish/curated objective, at minimum by refusing a
+step that takes K_min below 1. The failure was measured long before it was
+fixed: polish walked `seq0220` from K_min 4.08 to 0.832 with nothing in the
+objective to stop it, and §15's control arms landed 21 of 60 sizings at
+K < 1.
+
+**Result (FINDINGS §38).** `polish` and `constrained_descent` now refuse an
+otherwise-accepted step whose in-band K_min crosses ≥ 1 → < 1; an unstable
+*start* is flagged, never silently kept, and a recovery is never blocked.
+Zero extra SPICE (K rides the S-matrix run every evaluation already makes);
+default ON with `LNA_STAB_GUARD=0` as the hatch; every new row stamps
+`zoaf_cfg.stab_guard` so the domains stay separable. Acceptance: the two
+known K<1 wifi24 cases re-run — **the tier-2 claim survives with K_min =
+3.78** at the claim row, and the single-finger reproduction re-measures the
+historical unstable polish point at **0.8317 vs the recorded 0.832**, where
+the guard's start-flag fires live and the ascent recovers it to K 2.47.
+Plain ZOAF is deliberately unguarded — its scalar is the frozen label
+definition, and re-domaining every future label is a governance decision,
+proposed rather than taken. Quartet and every golden green before and after,
+no regression number moved.
+
+**Understanding.** Two things worth keeping. First, the box clamp had already
+closed the *specific* road to 0.832 — the historical walk went out-of-box, and
+a clamped polish from the same start no longer attempts the crossing — so the
+guard fired zero refusals on the very case that motivated it; its value is the
+floor it puts under every *future* trajectory (seq0220's fresh polish still
+spent stability margin 3.78 → 1.91 with nothing to stop it going further).
+Second, the guard belongs at the acceptance rule, not in the objective: an
+incumbent-transition test costs nothing, cannot distort the label definition,
+and separates "don't create instability" (guarded) from "instability exists in
+ZOAF's landings" (still advisory, still visible, still a different problem).
+
 ## 34. The sweep the headline was hiding from — S11 knife-edge as predicted, Idd co-fragile, noise robust
 
 **Decision (stage 30's upgrade ladder, executed as pure measurement).** Before

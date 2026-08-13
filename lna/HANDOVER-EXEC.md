@@ -2137,6 +2137,65 @@ python lna/corners.py --axis all      # ~120 evals: baseline, 4 axes, combo, rep
 python lna/corners.py --axis report   # re-print from lna/out/_sens_d4sim.json
 ```
 
+### ▸ Sub-block: WP-STABGUARD — stability enters the optimizer's acceptance rule (owner: the stability-guard executor)
+
+**Files owned:** `lna/size.py` (sole owner this wave), `lna/_stabguard_accept.py`
+(new), FINDINGS **§38**, JOURNEY stage **33**, this sub-block. No store rows
+written (`LNA_OP_LOG=0`, `log=False` throughout the acceptance runs). Full
+measured detail in **FINDINGS §38**.
+
+**What shipped.** Stage-30 ladder item 3, queued since Session 4:
+`size.polish` and `size.constrained_descent` now **refuse an otherwise
+accepted step whose in-band K_min crosses ≥ 1 → < 1** (`size._stab_ok`). An
+unstable *start* is flagged (`stab_guard.start_unstable` + a printed `[stab]
+WARN`), never silently kept; a recovery is never blocked, and once K crosses 1
+the guard locks it. **Zero extra ngspice calls** (K_min rides the `sp` run
+every evaluation already makes). Default **ON**; `LNA_STAB_GUARD=0` is the
+session hatch. Both loops return a `stab_guard` dict; `_zoaf_cfg` stamps
+**`stab_guard`** on every row (label-domain separability, WP-D1 precedent —
+every pre-existing row is implicitly `stab_guard: false`).
+
+**Scope decision, justified:** plain ZOAF is deliberately NOT guarded — its
+scalar objective is the frozen label definition (01-DATA), re-domaining every
+future `candidate-v1`/`curated-v1` row is a WP-D1-class governance change
+(proposed, not taken), and "refuse a step" has no incumbent to refuse from in
+population sampling. Measured: `size_topology` guard on/off, same seed →
+metrics repr-identical. ZOAF's K<1 landings stay visible via the advisory
+`k_min` in every metric vector.
+
+**Acceptance (the two known K<1 wifi24 cases, polish at its original default
+budget 80, arms differing only in the guard):**
+
+| case | point | S11max | S21 | Idd | NF | K_min | verdict |
+|---|---|---|---|---|---|---|---|
+| seq0009 | curated anchor re-measured | −9.73 | 13.09 | 3.99 | 1.60 | **3.08** | tier-2 FEAS |
+| seq0009 | polish (both arms identical) | −12.44 | 14.13 | 4.12 | 1.54 | 3.29 | FEAS, refused=0 |
+| seq0220 | curated anchor re-measured | −10.94 | 12.79 | 2.45 | 1.78 | **3.78** | tier-2 FEAS |
+| seq0220 | polish (both arms identical) | −15.34 | 15.81 | 3.38 | 1.42 | 1.91 | FEAS, refused=0 |
+
+**★ The wifi24 tier-2 claim survives a stability guard: K_min = 3.78** at the
+claim row (Session 4 predicted it would — now said with a number), and the
+guarded polish improves the point (NF 1.78 → 1.42, K 1.91). On the
+**single-finger legacy reproduction** the stored polish-v1 point re-measures
+**K_min 0.8317 vs Session 4's recorded 0.832**, the start-flag fires live, and
+the ascent recovers it to K 2.47. ⚠ Honest limits: a fresh *box-clamped*
+polish no longer reproduces the historical 4.08 → 0.832 walk even guard-off
+(the §13 clamp already closed that road), so **no in-vivo refusal fired** in
+this acceptance set — the refusal predicate is pinned by an 8/8 truth-table
+selftest instead; and seq0220's fresh polish still spent stability margin
+3.78 → 1.91, which is the drift the guard now floors at 1.
+
+**Regression green before AND after, values unchanged:** vocab MATCH, screen
+114/192 (59.4%), pipeline_yield 40/42 (95.2%, known 1081),
+`check_ref`/`check_nf`/`check_bjt`/`check_op` GREEN, `check_stab` harness
+GREEN (dhruva-l2 CONDITIONAL on the old `rfbcs3` winner = §27.5's documented
+pre-existing state), `calibrate_specs` ALL MET.
+
+```bash
+python lna/_stabguard_accept.py       # truth table + both cases + legacy repro
+LNA_STAB_GUARD=0 python ...           # session-wide pre-guard behavior
+```
+
 ## 1. TL;DR — what shipped this session
 
 | Plan item | Status | Key result |

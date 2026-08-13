@@ -64,6 +64,39 @@ def kind_ranges(spec):
     }
 
 
+def _stab_guard_on():
+    """Stability guard master switch (WP-STABGUARD, 2026-08-13). Default ON.
+
+    When on, the step-acceptance loops (`polish`, `constrained_descent`) refuse
+    any accepted step that takes in-band K_min from >= 1 to < 1 -- the failure
+    mode Session 4 measured (polish walked `seq0220` from K_min 4.08 to 0.832
+    because stability was in no objective) and §15.5/§20 kept re-confirming.
+    K is free: the S-matrix `sp` run already computes it on every evaluation,
+    so the guard adds ZERO ngspice calls. `LNA_STAB_GUARD=0` disables it for a
+    session (escape hatch, same shape as LNA_NF_GATE) -- e.g. to reproduce a
+    pre-guard campaign's exact trajectory."""
+    return os.environ.get("LNA_STAB_GUARD", "1").strip().lower() not in (
+        "0", "false", "no")
+
+
+def _stab_ok(cur_m, new_m):
+    """May a step from `cur_m` to `new_m` be accepted, stability-wise?
+
+    Blocks ONLY the K_min >= 1 -> < 1 transition, and only when K is measured
+    on both sides: an already-unstable incumbent may move freely (a recovery
+    must never be blocked, and once it crosses 1 the guard locks it there), and
+    an unmeasured K never blocks (defensive -- the guard must not brick a deck
+    whose S-matrix extraction failed). Advisory metrics stay advisory
+    everywhere else; this is a guard on the *optimizer's* acceptance, not a new
+    gate in `spec.feasible`."""
+    if not _stab_guard_on() or cur_m is None or new_m is None:
+        return True
+    kc, kn = cur_m.get("k_min"), new_m.get("k_min")
+    if kc is None or kn is None:
+        return True
+    return kn >= 1.0 or kc < 1.0
+
+
 def nf_is_gated(spec):
     """Does this spec gate nf_db as a hard constraint? (WP-D1 step 4.)
 
@@ -312,6 +345,13 @@ def _zoaf_cfg(seed, n_candidates, sgd_iters, cgd_iters, recipe="anchor-v1",
            "inductor_q": inductor_q}
     if spec is not None:
         cfg["nf_gated"] = nf_is_gated(spec)
+    # Stability guard state (WP-STABGUARD, 2026-08-13). The guard changes what
+    # polish/constrained_descent will accept, so rows produced with it on vs
+    # off are DIFFERENT label domains for any polish/descent-derived point
+    # (plain ZOAF rows are unaffected by it -- the stamp still records the
+    # session state so pooled analyses can condition on it, WP-D1 precedent).
+    # Every row written before this stamp exists is implicitly stab_guard:false.
+    cfg["stab_guard"] = _stab_guard_on()
     # MOS gate geometry (2026-08-10 cutover, FINDINGS §26/§27). Emitting
     # single-finger devices put 26-40% of the excess noise factor into BSIM4's
     # gate-electrode resistance, so NF numbers before and after the cutover are
@@ -496,7 +536,14 @@ def polish(topo, spec, prior_params, budget=80, inductor_q=12, exclude=()):
     feasibility-first scalar, has a gradient right at the boundary (it trades a
     near-miss's slack on a passing constraint for the one it violates). Perturbs
     only the sizable device/bias params (match held via prior values); ~budget sims.
-    Returns {metrics, feasible, best_params, n_evals, min_margin} or None."""
+
+    STABILITY GUARD (WP-STABGUARD): a step that improves the margin but takes
+    in-band K_min from >= 1 to < 1 is REFUSED (`_stab_ok`; LNA_STAB_GUARD=0
+    disables). A start point already at K_min < 1 is not silently accepted --
+    it is flagged in the returned `stab_guard` dict (`start_unstable`) and the
+    ascent is free to recover it; once K_min crosses 1 the guard locks it.
+    Returns {metrics, feasible, best_params, n_evals, min_margin, stab_guard}
+    or None."""
     import bias
     from datastore import margins_for
     kw = {"inductor_q": inductor_q} if inductor_q else {}
@@ -548,6 +595,12 @@ def polish(topo, spec, prior_params, budget=80, inductor_q=12, exclude=()):
             except (TypeError, ValueError):
                 pass
     best_mm, best_m = min_margin(params)
+    start_k = best_m.get("k_min") if best_m else None
+    start_unstable = start_k is not None and start_k < 1.0
+    if start_unstable and _stab_guard_on():
+        print(f"  [stab] WARN: polish start K_min={start_k:.3g} < 1 "
+              f"(potentially unstable start -- flagged, not blocked)")
+    n_refused = 0
     n, step = 1, 0.15
     while n < budget and step > 0.02:
         improved = False
@@ -567,7 +620,10 @@ def polish(topo, spec, prior_params, budget=80, inductor_q=12, exclude=()):
                 mm, m = min_margin(trial)
                 n += 1
                 if mm > best_mm:
-                    best_mm, best_m, params, improved = mm, m, trial, True
+                    if _stab_ok(best_m, m):
+                        best_mm, best_m, params, improved = mm, m, trial, True
+                    else:                          # margin up, but K >=1 -> <1
+                        n_refused += 1
                 if n >= budget:
                     break
             if n >= budget:
@@ -576,7 +632,11 @@ def polish(topo, spec, prior_params, budget=80, inductor_q=12, exclude=()):
             step *= 0.6
     feas = best_m is not None and spec.feasible(best_m)[0]
     return {"metrics": best_m, "feasible": feas, "best_params": params,
-            "n_evals": n, "min_margin": best_mm}
+            "n_evals": n, "min_margin": best_mm,
+            "stab_guard": {"on": _stab_guard_on(), "start_k_min": start_k,
+                           "final_k_min": (best_m or {}).get("k_min"),
+                           "n_refused": n_refused,
+                           "start_unstable": start_unstable}}
 
 
 def prepared_body(topo, inductor_q=12, w_finger=_UNSET):
@@ -626,7 +686,12 @@ def constrained_descent(topo, spec, prior_params, target=("nf_db", "min"),
       jitter  fractional log-uniform perturbation of the start point (multi-seed
               diversity); the jittered start is used only if it stays in region.
 
-    Returns {metrics, feasible, best_params, n_evals, target, shortfall} or None.
+    STABILITY GUARD (WP-STABGUARD): identical to `polish`'s -- an otherwise
+    accepted step whose K_min crosses >= 1 -> < 1 is refused; an unstable start
+    is flagged (`stab_guard.start_unstable`), never silently kept.
+
+    Returns {metrics, feasible, best_params, n_evals, target, shortfall,
+    stab_guard} or None.
     """
     prep = prepared or prepared_body(topo, inductor_q=inductor_q)
     if prep is None:
@@ -679,6 +744,12 @@ def constrained_descent(topo, spec, prior_params, target=("nf_db", "min"),
             except (TypeError, ValueError):
                 pass
     best_s, best_m = score(params)
+    start_k = best_m.get("k_min") if best_m else None
+    start_unstable = start_k is not None and start_k < 1.0
+    if start_unstable and _stab_guard_on():
+        print(f"  [stab] WARN: descent start K_min={start_k:.3g} < 1 "
+              f"(potentially unstable start -- flagged, not blocked)")
+    n_refused = 0
     n = 1
     if jitter > 0:
         trial = dict(params)
@@ -693,7 +764,10 @@ def constrained_descent(topo, spec, prior_params, target=("nf_db", "min"),
         s, m = score(trial)
         n += 1
         if s[0] <= best_s[0]:             # keep the jitter only if still in region
-            best_s, best_m, params = s, m, trial
+            if _stab_ok(best_m, m):
+                best_s, best_m, params = s, m, trial
+            else:
+                n_refused += 1
 
     order = [k for k in sizable if k in params]
 
@@ -723,7 +797,10 @@ def constrained_descent(topo, spec, prior_params, target=("nf_db", "min"),
             s, m = score(trial)
             n += 1
             if s < best_s:
-                best_s, best_m, params, improved = s, m, trial, True
+                if _stab_ok(best_m, m):
+                    best_s, best_m, params, improved = s, m, trial, True
+                else:
+                    n_refused += 1
         for name in order:
             try:
                 base = float(params[name])
@@ -739,8 +816,11 @@ def constrained_descent(topo, spec, prior_params, target=("nf_db", "min"),
                 s, m = score(trial)
                 n += 1
                 if s < best_s:
-                    best_s, best_m, params, improved = s, m, trial, True
-                    base = cand
+                    if _stab_ok(best_m, m):
+                        best_s, best_m, params, improved = s, m, trial, True
+                        base = cand
+                    else:
+                        n_refused += 1
                 if n >= budget:
                     break
             if n >= budget:
@@ -753,7 +833,11 @@ def constrained_descent(topo, spec, prior_params, target=("nf_db", "min"),
     feas = best_m is not None and spec.feasible(best_m)[0]
     return {"metrics": best_m, "feasible": feas, "best_params": params,
             "n_evals": n, "target": (tsign * best_s[1] if best_s[1] < 1e8 else None),
-            "shortfall": best_s[0]}
+            "shortfall": best_s[0],
+            "stab_guard": {"on": _stab_guard_on(), "start_k_min": start_k,
+                           "final_k_min": (best_m or {}).get("k_min"),
+                           "n_refused": n_refused,
+                           "start_unstable": start_unstable}}
 
 
 def match_param_names(topo, sizable):

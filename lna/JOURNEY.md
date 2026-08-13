@@ -1943,6 +1943,77 @@ anywhere in this topology**. That is the finding to carry forward, and it
 points the same direction stage 31 already did: margin is the currency, and
 this design has almost none to spend.
 
+## 35. WP-HB — the D5 wall becomes a number, and the number says the topology is wrong
+
+**Decision (stage 30's upgrade ladder, item 4 — the user's call, 2026-08-13).**
+Stand up the *proper* IIP3 harness: two-tone **harmonic balance** in VACASK
+0.3.4.rc1, an open-source simulator with the frequency-domain steady-state
+engine ngspice does not have. Explicitly scoped: target the program's
+**existing 45 nm behavioral BSIM4 models**, so the numbers stay comparable
+with everything measured so far — the IHP SG13G2 PDK migration, the other
+half of that upgrade item, was deliberately **not** started. Gate D5 had been
+open since stage 30 with `iip3_dbm` marked `unsupported` in every spec.
+
+**Golden first, and one of the checks was worth more than the rest.** Four
+closed-form checks before any design number was read (FINDINGS §40.1): a
+memoryless cubic reproduced to six significant figures (+21.2494 dBm analytic,
+−0.002 dB extracted error), and — the one that earned its keep — a **negative
+control** that runs the same circuit at the simulator's *default* tolerance
+and demands it **fail**. It does, spectacularly: the IM3 line drops into
+Newton residual noise and the harness reports **+133 dBm instead of +21**.
+Without that check, `options reltol=1e-6` is an unexplained line someone
+deletes in six months and the harness silently starts passing everything. Two
+further checks run the *sibling* transient harness's own closed-form
+references through the HB path, so the two D5 harnesses are anchored to
+identical ground rather than merely agreeing.
+
+**The port had to be proved, not assumed.** The program's BSIM4 cards
+(`level=54`, `version=4.0`) are not obviously portable: ngspice runs them as
+BSIM 4.5, and VACASK's OSDI model doesn't even recognise the version string
+and falls back to BSIM4.8.3. Two different BSIM4 implementations, and they
+agree to **36 nA on Idd (12.96322 vs 12.96318 mA)**, **2 µV worst-case across
+all 19 DC nodes**, and **0.0003 dB on S21 at all four band centres** — the
+latter measured against a *live* ngspice run of the same deck, not a recorded
+number.
+
+**Result (FINDINGS §40.3).** On the designated D4-SIM point, one fixed sizing,
+all four bands: IIP3 **−32.76 / −32.70 / −32.14 / −30.28 dBm** against targets
+−7.4 / −7.4 / −7.6 / −8.7. **Gate D5 fails 0/4, by 21–25 dB.** Fenced: IM3
+slope 2.96–2.97 over six uncompressed drive levels, per-point spread ≤0.43 dB,
+invariant to solver tolerance across five decades and to harmonic count 4…8,
+and it repeats: a second full 32-point run reproduces all four numbers to
+every digit. And it cross-checks against a completely different method —
+the sibling's ngspice **two-tone transient + FFT** harness, run on the same
+four decks, reads −33.31 / −31.58 / −32.78 / −34.03 against HB's
+−33.31 / −31.58 / −32.76 / −33.99: **worst disagreement 0.04 dB**, on two
+different simulators with two different BSIM4 implementations.
+
+**Understanding.** The comfortable excuse was available and it does not hold.
+The paper specifies IIP3 at *minimum* gain and this design has one fixed
+~36 dB point, so it cannot even enter the paper's measurement condition —
+that was the standing expectation for why D5 would look bad. But the measured
+**OIP3 is only +3.2…+3.4 dBm, and flat to 0.24 dB across all four bands**
+while the gain varies by 2.2 dB: linearity here is set by the output stage's
+swing budget, not by band, match or gain. Grant the design the entire ≥10.6 dB
+programmability range the spec asks for, for free, and assume the ideal case
+where OIP3 survives the backoff untouched, and it still lands ~14.8 dB short.
+**More than half the miss survives the most generous possible correction.**
+Passing would need OIP3 ≈ +14.9 dBm from a 1.1 V rail at 12.96 mA, against
++3.2 measured.
+
+So D5 is not a sizing problem, and stage 34's and stage 31's "margin is the
+currency" reading now has a hard floor under it: the five-stage,
+weak-inversion, maximum-gain construction that made D3 and D4-SIM *easy* is
+the same construction that puts D5 out of reach. It also lands exactly where
+stage 37 arrived from the other direction — gain control could only go at the
+back of the amplifier, which buys range without buying linearity. Two
+independent work packages, two different methods, same verdict: **closing D5
+requires changing what this circuit is, not re-sizing what it has.** Worth
+noting against stage 31 as well: the hardened point spends 37% of the bias
+current to buy S11/VDD robustness, and IIP3 is bought *with* bias current —
+the two robustness axes pull opposite ways, and the program now has a
+measurement for both instead of an intuition.
+
 ## Current frontier
 
 As of this document's writing (`lna-data`, commit `5be4de3` and whatever

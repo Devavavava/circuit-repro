@@ -7902,3 +7902,235 @@ for, at the cost of an S-band max-gain margin of only 0.39 dB.
    routing** - a real switched bank pays all three.
 5. **The state count is the minimum the spec asks for** (4 states / 3 steps).
    Nothing here explores whether a finer ladder stays monotonic.
+
+## 40. Phase 3 — ★★★ WP-HB: the D5 wall becomes a number — harmonic balance in VACASK says the D4-SIM design misses IIP3 by **21–25 dB**, and the miss is *not* explained by the min-gain condition (Session 9, 2026-08-13)
+
+**What this is.** `plans2/14-DHRUVA-SIMUL.md` §4 upgrade **#4**, taken in its
+"proper IIP3 harness" half only. Gate **D5** has been open since Session 8
+with `iip3_dbm` marked `unsupported` in every spec, because ngspice has no
+harmonic-balance engine. This WP stands up a real one — two-tone HB in
+**VACASK 0.3.4.rc1** — validates it against closed form, proves the program's
+existing 45 nm BSIM4 cards load and reproduce ngspice in it, and measures the
+designated Gate-D4-SIM point.
+
+**User decision, 2026-08-13, recorded:** target the **current 45 nm
+behavioral BSIM4 models**, so the numbers stay comparable with everything the
+program has measured. The **IHP SG13G2 PDK migration — the other half of
+upgrade #4 — was deliberately NOT started.** Nothing was vendored into the
+repo; no PDK is on disk.
+
+Files: `lna/ref/check_hb.py` (golden), `lna/hb/{port45.py,hb_iip3.py,README.md}`,
+`lna/hb/hb_iip3_d4sim.json`. Install location, version and every gotcha are in
+`lna/hb/README.md`.
+
+### 40.1 The golden, and a negative control that earns its keep
+
+No design number was read before `lna/ref/check_hb.py` printed **GREEN**.
+Four checks, all closed-form, no BSIM anywhere:
+
+| check | reference | result |
+|---|---|---|
+| **G0** | *negative control*: same circuit at VACASK's **default** reltol | IM3 phasor `6.0e-16` instead of `9.375e-5` → **IIP3 +133.18 dBm vs +21.25 analytic, +111.9 dB error** — the guard bites |
+| **G1** | memoryless cubic VCCS `i = −(a1·v + a3·v³)`, a1=10, a3=−1, RL=1 Ω; analytic `A_IP3 = sqrt(4/3·|a1/a3|) = 3.65148 V` = **+21.2494 dBm** at 50 Ω | IIP3 error **−0.002 / −0.010 / −0.039 dB** at A = 0.05/0.1/0.2 V; IM3 slope **3.0000**; phasor convention factor **0.9994** (HB phasors are PEAK) |
+| **G2a** | the sibling transient golden's own reference: `y = a1x + a3x³` behind Thevenin 50 Ω/50 Ω, `(a1,a3) = (10,−200)`, analytic **−1.761 dBm** | max err **0.200 dB** (bar 0.25), slope **3.000**, gain err −0.039 dB |
+| **G2b** | same, `(a1,a3) = (4,−50)`, analytic **+0.280 dBm** | max err **0.198 dB**, slope **3.000**, gain err −0.039 dB |
+
+G1 reproduces the closed form to six significant figures: the fundamental
+comes back `0.499719` against `a1A + (9/4)a3A³`, the IM3 `9.375e-5` against
+`(3/4)|a3|A³`. **G0 is the finding worth keeping**: `options reltol=1e-6` is
+not hygiene. At the default tolerance the IM3 line lands in Newton residual
+noise and the harness would have reported a *passing* +133 dBm. Any future
+reader who deletes that line as cargo cult is caught by G0.
+
+**G2 exists so the two D5 harnesses are commensurable.** It runs the *exact*
+closed-form references, port network, `(a1,a3)` pairs and available-power
+sweeps of `lna/ref/check_iip3.py` (the sibling ngspice two-tone transient
+golden) through the HB path. The residual ~0.2 dB at the top of each sweep is
+**physical** compression from the `(9/4)a3A³` term, not numerics — it is
+shared by both methods by construction.
+
+Every convention is deliberately identical to `lna/iip3.py`: `P_in` =
+available power per tone `A_emf²/(8·50)`, `P_out` = `peak²/(2·50)`, `P_im3` =
+the **worse** of the two IM3 sidebands, `IIP3 = P_in + (P_fund − P_im3)/2`
+taken as the **median over uncompressed points** (gain within 0.5 dB of
+small-signal), 3:1 slope guard, **2 MHz** tone spacing.
+
+### 40.2 Model compatibility — MEASURED, and better than it had any right to be
+
+The pre-condition for the whole WP: do the program's BSIM4 cards (AutoCkt's
+`45nm_bulk.txt`, `level=54`, `version=4.0`) even load in VACASK, and do they
+give the same circuit? `port45.py` converts the shipped deck grammar to a
+VACASK netlist against the shipped `spice/bsim4v8.osdi`; `--op` and `--gain`
+then run **live ngspice on the same deck** and compare — nothing is carried
+over from a previous session.
+
+The two simulators are **not running the same BSIM4**. ngspice reports
+`BSIM 4.5`; VACASK's OSDI model warns `unknown BSIM4 version. Working now
+with BSIM4.8.3` — the card's `version=4.0` is silently not honored. They
+agree anyway:
+
+| quantity | VACASK | ngspice | delta |
+|---|---|---|---|
+| **Idd** | **12.96322 mA** | **12.96318 mA** | **+36 nA (+0.0003 %)** |
+| DC solution, **all 19 nodes** | — | — | **worst 2.05 µV** (at `n7`) |
+| S21 @ 1176.45 MHz | 35.9608 dB | 35.9610 dB | −0.0002 dB |
+| S21 @ 1227.60 MHz | 35.9307 dB | 35.9310 dB | −0.0003 dB |
+| S21 @ 1575.42 MHz | 35.5346 dB | 35.5349 dB | −0.0003 dB |
+| S21 @ 2492.03 MHz | 33.7267 dB | 33.7269 dB | −0.0002 dB |
+
+The S21 column is also an independent re-confirmation of §35.1's gain row from
+a second simulator. **Verdict: the models load and the port is faithful.**
+The `rshunt` equivalence is load-bearing and explicit (ngspice's
+`.option rshunt=1e12` becomes 1 TΩ to ground on every node; six gates in this
+design have no other DC path), and the S-parameter ports become a physical
+50 Ω testbench where `S21 = 2·V(p2)/V_emf` exactly.
+
+### 40.3 ★ The number: Gate D5 FAILS on all four bands, by 21–25 dB
+
+One fixed sizing (`dhruva-l5` of `ace8383c2fa68d03`, the designated D4-SIM
+point), 8 drive levels per band from −75 to −40 dBm/tone, 2 MHz spacing:
+
+| band | f0 (MHz) | **IIP3 (dBm)** | target | **margin** | OIP3 | gain | slope | kept | spread |
+|---|---|---|---|---|---|---|---|---|---|
+| dhruva-l5 | 1176.45 | **−32.76** | ≥ −7.4 | **−25.36** | +3.20 | 35.96 | 2.96 | 6/8 | 0.42 |
+| dhruva-l2 | 1227.60 | **−32.70** | ≥ −7.4 | **−25.30** | +3.23 | 35.93 | 2.96 | 6/8 | 0.43 |
+| dhruva-l1 | 1575.42 | **−32.14** | ≥ −7.6 | **−24.54** | +3.39 | 35.53 | 2.96 | 6/8 | 0.40 |
+| dhruva-s  | 2492.03 | **−30.28** | ≥ −8.7 | **−21.58** | +3.44 | 33.73 | 2.97 | 6/8 | 0.26 |
+
+**Gate D5: FAILED, 0/4 bands.** This was the predicted outcome (§35.5.1,
+`14-DHRUVA-SIMUL.md` §3.1) and it is reported straight. Every row carries its
+own evidence: the IM3 grows at 2.96–2.97 dB/dB over the six uncompressed
+points (bar 3 ± 0.3), the per-point IIP3 spread is ≤ 0.43 dB, and the
+harness's small-signal gain matches ngspice's S21 to 0.0003 dB.
+
+**Replay fence.** Two independent full runs of the 32-point matrix (the
+second after the harness's retry/slope code was finalised) return
+**−32.762 / −32.698 / −32.139 / −30.283 dBm** — identical to every digit
+printed above, spread **0.000 dB**. The `dhruva-l2` rows are the ones that
+walked the nharm ladder (6 and 7); they reproduce as exactly as the rest.
+
+### 40.4 ★★ The honest reading: min-gain does not explain the miss
+
+The paper specifies IIP3 **at its minimum-gain setting**, and this design has
+one fixed ~34–36 dB point with no gain programmability, so it cannot even
+enter the paper's measurement condition. That caveat is real — and it is
+**not big enough**.
+
+The design's **OIP3 is only +3.2 … +3.4 dBm**, and it is remarkably flat
+across all four bands (0.24 dB spread) even though the gain varies by 2.2 dB.
+Linearity here is set by the output stage's swing budget, not by the input
+match or the band. Now grant the design, for free, the *entire* gain
+programmability range the spec asks for (≥ 10.6 dB, §1.2 of
+`14-DHRUVA-SIMUL.md`) and assume the ideal case where backing gain off leaves
+OIP3 untouched:
+
+```
+IIP3(min gain) ≈ −32.76 + 10.6 = −22.2 dBm   vs target −7.4 dBm
+                                             → still ~14.8 dB short
+```
+
+So **more than half the miss survives the most generous possible correction
+for the min-gain condition.** To pass at a 22.3 dB min-gain setting the design
+would need **OIP3 ≈ +14.9 dBm**, against +3.2 measured — an ~11.7 dB
+output-linearity shortfall on a 1.1 V rail at 12.96 mA. This is a
+**topology/bias-budget verdict, not a sizing one**: it says the five-stage,
+weak-inversion, maximum-gain construction that made D3/D4-SIM easy is exactly
+what makes D5 unreachable, and that closing D5 requires changing what the
+circuit *is*, not re-sizing what it has.
+
+**Tension worth recording with WP-HARDEN (§36).** That WP's hardened point
+drops Idd 37 % (12.963 → 8.205 mA) to buy S11/VDD robustness. IIP3 scales
+with bias current and headroom, so the hardened point is very likely
+*further* from D5, not closer. The two robustness axes pull opposite ways and
+the program now has a measurement for both. `dhruva-simul` has **not** been
+measured here — it is the obvious next HB run and is cheap (`--iip3` on that
+deck).
+
+### 40.5 Numerical fences, and a VACASK bug found and worked around
+
+Fences on the reported number (`--fence`, at Pin = −70 dBm/tone):
+
+- **reltol** 1e-4 … 1e-9: IIP3 constant to **0.000 dB**.
+- **nharm = immax** 4 … 8: constant to **≤ 0.001 dB** on every band.
+- **tone spacing** 1 → 10 MHz: **0.43 dB** total, monotone — a real, mild
+  memory effect. The reported 2 MHz is the pessimistic end and matches the
+  sibling harness.
+- Upper vs lower IM3 sideband: **0.02 dB** apart at 10 MHz, 0.15 dB at 1 MHz.
+
+**A VACASK 0.3.4.rc1 bug, recorded for whoever meets it next.** The simulator
+**aborts** on a few specific *(f0, tone spacing, nharm)* spectrum
+combinations — e.g. `dhruva-l2` (1227.6 MHz) at 2 MHz spacing with `nharm` 4
+or 5. It is **spectrum construction, not convergence**: it reproduces
+identically at *every* drive level including zero amplitude, and clears at
+nharm 3, 6, 7, 8. Its only symptom is a **secondary** crash —
+
+```
+terminate called ... filesystem_error: cannot remove: The process cannot
+access the file because it is being used by another process [hb1.raw]
+```
+
+— with **empty stdout** and a **zero-length** `hb1.raw`: VACASK unlinking its
+own still-open output file on the error path, which destroys the real message.
+It reads like a Windows file-locking problem and is not one; that misreading
+cost real debugging time here. `two_tone()` walks `NHARM_LADDER = (5,6,7)`
+and records the nharm each row used (l2 needed 6 or 7); this is safe
+**because the fence proves it does not move the answer** (≤0.001 dB over
+nharm 4…8).
+
+### 40.6 Cross-check against the sibling ngspice transient harness
+
+`lna/iip3.py` (WP-IIP3, a concurrent agent — files untouched here) measures
+the same quantity by two-tone transient + coherent FFT. **Its FINDINGS §37 was
+not yet written when this section was appended**, so the comparison below is
+provisional and should be re-made against §37 as published.
+
+**Which claim each harness measures had to be established first.** The
+sibling's per-band rows carry small-signal gains of 36.82 dB (l1), 35.78 (l2),
+35.96 (l5) and 36.47 (s). Those are the **own-sizing diagonal** of §35.2's
+matrix (sizing l1 at spec l1 = 36.8; sizing s at spec s = 36.5) — *not* the
+fixed `dhruva-l5` sizing, whose gains are 35.53 / 33.73 dB at l1 / s and which
+`--gain` pins against live ngspice to 0.0003 dB. So that harness is measuring
+**each band on its own per-band deck**, a different claim from D4-SIM's
+one-fixed-sizing. `hb_iip3.py --own` measures that same claim, which makes the
+comparison exact:
+
+| band | deck | transient (ngspice, FFT) | **HB (VACASK)** | **delta** |
+|---|---|---|---|---|
+| dhruva-l1 | `dhruva-l1.sp` | −33.31 dBm | **−33.31 dBm** | **0.00 dB** |
+| dhruva-l2 | `dhruva-l2.sp` | −31.58 dBm | **−31.58 dBm** | **0.01 dB** |
+| dhruva-l5 | `dhruva-l5.sp` | −32.78 dBm | **−32.76 dBm** | **0.02 dB** |
+| dhruva-s  | `dhruva-s.sp`  | −34.03 dBm | **−33.99 dBm** | **0.04 dB** |
+
+**Four bands, worst disagreement 0.04 dB.** Two independent simulators, two
+different BSIM4 implementations (4.5 vs 4.8.3), and two completely different
+numerical methods — time-stepping plus coherent FFT versus a frequency-domain
+Newton solve — landing inside a twentieth of a dB on ~−33 dBm intercepts.
+Combined with G2, where both harnesses' *goldens* are anchored to the same
+closed-form references, this is about as strong as a two-method agreement
+gets. It is what licenses treating the D5 verdict as a property of the
+**design** rather than of either tool.
+
+Note the two claims give genuinely different numbers per band — the fixed l5
+sizing reads −30.28 dBm at the S band against −33.99 for the S sizing on its
+own deck — so which one is quoted matters. **§40.3's headline is the fixed
+D4-SIM sizing**, because that is the standing benchmark (`14-DHRUVA-SIMUL.md`
+§1). Both sets fail every target by >21 dB, so the distinction changes no
+verdict. The per-band own-sizing set is in
+`lna/hb/hb_iip3_ownsizing.json`; the transient numbers above were read from
+that harness's working artefacts (`lna/out/_iip3_*.json`, gitignored) since
+§37 was unwritten, and should be re-checked against §37 as published.
+
+### 40.7 What this does NOT close
+
+1. **D5 is failed, not blocked.** The wall is gone — the number exists, it is
+   fenced and cross-checked — but the design does not clear it, and §40.4
+   argues no re-sizing will.
+2. **Only the D4-SIM point carries the headline.** `dhruva-simul` (§36) is
+   unmeasured here.
+3. **IIP3 only.** No P1dB, no NF-under-blocker, no ACPR; the harness supports
+   them but they were not asked for.
+4. **§35.3's fidelity caveats carry over verbatim** — 45 nm behavioral BSIM4,
+   ideal passives at Q = 12, no corners, no package/layout parasitics. HB
+   removes the *method* uncertainty from IIP3; it removes none of the *model*
+   uncertainty. A 21–25 dB miss is far outside any of it, which is precisely
+   why the verdict is safe to act on.

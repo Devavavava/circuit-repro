@@ -2309,6 +2309,97 @@ python lna/pgain.py --report                                      # every stored
 `--all` tunes every mechanism; `--sizing {l5,simul}` picks the substrate, and
 every emitted row records which one it used.
 
+### ▸ Sub-block: WP-HB — the harmonic-balance IIP3 harness, and the D5 verdict (owner: the HB executor)
+
+**Files owned:** `lna/ref/check_hb.py` (golden), `lna/hb/port45.py`,
+`lna/hb/hb_iip3.py`, `lna/hb/README.md`, `lna/hb/hb_iip3_d4sim.json`,
+`lna/hb/hb_iip3_ownsizing.json` (all new), FINDINGS **§40**, JOURNEY stage
+**35**, this sub-block. `lna/iip3.py` and `lna/ref/check_iip3.py` (the
+concurrent transient harness) were **read but never touched**. No shipped
+deck, params file, spec or plan doc changed.
+
+**Scope, explicit.** `plans2/14-DHRUVA-SIMUL.md` §4 upgrade **#4**, its "proper
+IIP3 harness" half only. **User decision 2026-08-13: target the CURRENT 45 nm
+behavioral BSIM4 models** so numbers stay comparable with the program's
+existing results — the **IHP SG13G2 PDK migration was NOT started** and
+nothing was vendored into the repo.
+
+**★ The headline: Gate D5 is FAILED, not blocked.** The designated D4-SIM
+point (`dhruva-l5` sizing of `ace8383c`), one fixed sizing, all four bands:
+
+| band | IIP3 (dBm) | target | margin |
+|---|---|---|---|
+| dhruva-l5 | **−32.76** | −7.4 | **−25.36** |
+| dhruva-l2 | **−32.70** | −7.4 | **−25.30** |
+| dhruva-l1 | **−32.14** | −7.6 | **−24.54** |
+| dhruva-s  | **−30.28** | −8.7 | **−21.58** |
+
+**★★ And min-gain does not excuse it.** OIP3 is **+3.2…+3.4 dBm, flat to
+0.24 dB** across all four bands. Grant the design the *entire* ≥10.6 dB
+programmability range the spec asks for, at unchanged OIP3, and it is **still
+~14.8 dB short**. Passing at a 22.3 dB min-gain setting needs OIP3 ≈ +14.9 dBm
+from a 1.1 V rail at 12.96 mA. That is a topology/bias-budget verdict, not a
+sizing one — same conclusion WP-PGAIN reached from the other side (§42), and
+in direct tension with WP-HARDEN (§36), whose −37 % Idd buys S11/VDD
+robustness with the very current IIP3 is made of.
+
+**Evidence ladder.** Golden `check_hb.py` **GREEN** — 4 closed-form checks
+including a **negative control** proving `options reltol=1e-6` is load-bearing
+(at default reltol the same circuit reads **+133 dBm instead of +21**), plus
+two checks that push `check_iip3.py`'s *own* references through the HB path so
+the two harnesses are commensurable. Model compat **measured live, not
+assumed**: Idd **12.96322 (VACASK) vs 12.96318 mA (ngspice), +36 nA**; worst
+DC node delta **2.05 µV** over all 19 nodes; S21 within **0.0003 dB** at all
+four f0s — and the two simulators are not even running the same BSIM4
+(ngspice 4.5, VACASK 4.8.3; the card's `version=4.0` is silently ignored).
+Fences: IM3 slope 2.96–2.97, spread ≤0.43 dB, invariant to reltol over five
+decades and to nharm 4…8; tone spacing costs 0.43 dB over 1→10 MHz.
+**Replay: a second full 32-point run reproduces all four numbers to every
+digit** (spread 0.000 dB). Cross-method, on the four per-band decks the
+sibling transient harness actually measures (`--own`): transient
+−33.31 / −31.58 / −32.78 / −34.03 vs HB **−33.31 / −31.58 / −32.76 / −33.99**
+— **worst disagreement 0.04 dB** across two simulators, two BSIM4
+implementations and two entirely different numerical methods.
+
+**⚠ Two gotchas that cost real time — read before touching VACASK.**
+1. **A VACASK 0.3.4.rc1 abort that lies about its cause.** Certain
+   *(f0, tone spacing, nharm)* spectrum combinations (e.g. `dhruva-l2` at
+   2 MHz spacing, nharm 4 or 5) abort with
+   `filesystem_error: cannot remove ... hb1.raw ... used by another process`,
+   **empty stdout** and a **zero-length** `hb1.raw`. It is **not** a file lock
+   and **not** a convergence failure — it reproduces at *every* drive level
+   including zero and clears at nharm 3/6/7/8, i.e. it is spectrum
+   construction, and the filesystem error is VACASK unlinking its own
+   still-open output file on the error path. `two_tone()` walks
+   `NHARM_LADDER=(5,6,7)`; the fence proves that moves the answer by ≤0.001 dB.
+2. **openvaf needs `--target x86_64-pc-windows-gnu`.** There is no MSVC linker
+   here and the `link` on PATH is GNU coreutils' `link`, which openvaf picks
+   up and fails on. The harness writes the `.vacaskrc.toml` for you; only the
+   golden compiles Verilog-A, the design decks use the prebuilt `.osdi`.
+
+**Install:** `C:\Users\Devavrat\tools\vacask_0.3.4.rc1\vacask_0.3.4.rc1_windows-x86_64`
+(`VACASK_HOME` overrides). Nothing installed into the repo. Full details,
+including the raw-file reader and every convention shared with `lna/iip3.py`,
+in `lna/hb/README.md`.
+
+**Commands**
+
+```bash
+python lna/ref/check_hb.py                            # golden — must print GREEN first
+python lna/hb/hb_iip3.py --op                         # Idd + all 19 DC nodes vs LIVE ngspice
+python lna/hb/hb_iip3.py --gain                       # HB gain vs LIVE ngspice sp S21
+python lna/hb/hb_iip3.py --iip3 --json lna/hb/hb_iip3_d4sim.json      # the D5 number (fixed l5 sizing)
+python lna/hb/hb_iip3.py --iip3 --own --json lna/hb/hb_iip3_ownsizing.json  # each band on its OWN deck
+python lna/hb/hb_iip3.py --fence                      # reltol / nharm / tone-spacing fences
+```
+
+**Next, cheapest first:** (1) `--iip3` on `dhruva-simul` (§36) — one command,
+and §40.4 predicts it is *worse*; (2) reconcile the per-band table against
+FINDINGS §37 once the transient harness publishes (its working rows appear to
+be the per-band **own-sizing** diagonal, not the fixed D4-SIM point — see
+§40.6); (3) the harness already supports P1dB/blocker work if D5 is ever
+re-attempted on a different topology.
+
 ## 1. TL;DR — what shipped this session
 
 | Plan item | Status | Key result |

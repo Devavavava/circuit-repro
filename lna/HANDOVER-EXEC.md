@@ -2400,6 +2400,102 @@ be the per-band **own-sizing** diagonal, not the fixed D4-SIM point — see
 §40.6); (3) the harness already supports P1dB/blocker work if D5 is ever
 re-attempted on a different topology.
 
+
+### ▸ Sub-block: WP-DIFF — the 3-port harness and the active balun, ★★★ Gate D7's spec MET on the hardened point (owner: the differential executor)
+
+**Files owned:** `lna/diff3.py` (new), `lna/ref/check_diff.py` (new),
+`lna/templates.py` (**additive only** — three new functions, nothing existing
+touched), `lna/_diff_balun.py` (new), `lna/out/diff_balun_*.params.json`,
+FINDINGS **§41**, JOURNEY stage **36**, this sub-block. **No shared file
+edited** apart from the additive `templates.py` block; `lna/size.py`,
+`lna/extract.py`, `lna/to_spice.py` and every shipped `repro/dhruva-best/*`
+params file were used **READ-ONLY** (verified untouched in git). No store rows
+written.
+
+**Route decision (user, 2026-08-13):** the ACTIVE BALUN — a differential output
+stage from the existing MOS/R/C/L vocabulary. **No vocabulary/emitter
+extension, no coupled-inductor (K) elements.**
+
+**What shipped.**
+1. `lna/diff3.py` — 3-port harness (port 1 = single-ended in, port 2 =
+   INVERTING leg, port 3 = non-inverting). Per-leg gain, mixed-mode
+   `Sds21 = (S21−S31)/√2`, band-wide S11, Idd, differential NF (series-Rs,
+   `noise v(n2,n3)`), and imbalance as one complex ratio `r = −(S21/S31)` —
+   `db(mag(r))` and `ph(r)` **are** the standard amplitude/phase imbalance, no
+   wrap arithmetic. Mixed-mode K advisory only. Two ngspice calls per point,
+   ~0.12 s.
+2. `lna/ref/check_diff.py` — **GREEN**, five closed forms: ideal balun (0.0 dB /
+   0.0°, +3.0103 dB identity, S11 floor −600), RC-skew (0.1314508 dB /
+   9.942971° vs analytic 0.131451 / 9.94297), **polarity trip-wire**
+   (in-phase splitter must read 180.0000°), differential NF 3.012469 vs
+   3.0103, band-wide worst case (0.2501049 dB / 13.68376° vs 0.250105 /
+   13.6838). Run it before trusting any number below.
+3. `lna/templates.py` — `diff_pair_balun`, `cs_cg_balun`, `balun_stage`.
+   Assistant-authored generic textbook (gmb_cg / nc_cgcs precedent), the
+   engineering argument in each docstring. **NOT enumerated by `archetypes()`**
+   (to_spice is 2-port, so a VOUT2 netlist has no default emission path) —
+   **all 148 archetypes re-emit byte-identical, sha256
+   `9f3b6894c84717160d80e09064f0ad232dbe92283df8516e0cc18cd539be8ebf`, before
+   and after.**
+4. `lna/_diff_balun.py` — graft at `VOUT1` (the far side of the core's own
+   AC-coupling cap `CC6`, so core DC is untouched by construction), core
+   FROZEN, 13 stage parameters boxed by the dhruva specs' own `kind_ranges`,
+   own descent (`--curve` = Idd ceiling sweep; default = two-phase).
+
+**★★★ Headline (FINDINGS §41.4).** `cscg` on the **hardened `dhruva-simul`**
+point (§36) meets **every four-band gate simultaneously at one fixed sizing**:
+imbalance **0.119 dB / 0.339°** (targets 0.22 / 0.9), S11 **−10.936**, Sds21
+**30.22 / 30.67 / 30.05 / 29.91** (targets 30 / 25.4 / 22.3 / 22.3), NF **1.339
+/ 1.464 / 1.684 / 1.738**, **Idd 9.250 mA** (budget 13), mixed-mode K_min 64.7.
+Replay 3/3 in-process **and again from a separate process, spread 0.0000**;
+13/13 in-box. Cost of the differential output: **+1.045 mA, −1.6 dB gain,
++0.017 dB NF**.
+
+**On the DESIGNATED l5 point (§41.5): imbalance MET (0.218 dB / 0.586°) and
+every gate MET except Idd — 14.757 vs 13.000, over by 1.757 mA.** Not the
+balun's fault: that point spends 12.963 of 13.000 mA, so it cannot host *any*
+conducting output stage. Ceiling sweep puts the feasibility boundary there at
+14.30–14.76 mA.
+
+**⚠ The gain gate is convention-dependent and the pass depends on the reading.**
+At the binding S-band f0 against 30 dB: per-leg **27.15**, mixed-mode Sds21
+**30.22** (what is GATED — the standard mixed-mode S-parameter), voltage-gain
+analogue `Sds21 + 3.0103` = **33.23** (the direct analogue of REPORT §5's
+"voltage gain adopted as S21 into 50 Ω"). Passes on two readings, **fails by
+2.85 dB on per-leg**. `_diff_balun.py` prints all three. If the user rules that
+each leg must independently make the number, this is not a pass.
+
+**★ The structural finding (§41.6): input impedance decided which balun works,
+not balance.** `dpair` balances fine (0.121 dB / 0.799° at the four f0) but
+presents a kΩ *gate* at the graft node where the core's match was sized against
+a 50 Ω port — §39's knife-edge does the rest: S11 −10.001 → **−9.328, FAIL at
+every Idd ceiling**, unrepairable with any parameter the stage owns. `cscg`'s
+common-gate leg presents ~85 Ω there and S11 survives (−10.031, better than the
+untouched core). `dpair` also misses band-wide phase (0.925°) via the
+tail-impedance tilt the docstring predicted.
+
+**⚠ Methodological warning worth carrying forward (§41.7).** This search
+reported the stage at **22.3 → 20.2 → 23.7 mA**, each with a clean replay
+fence, before the right answer (**14.76**) fell out. Causes, both fixed:
+log-uniform multi-start over 13 parameters never finds the operating basin, and
+first-improvement coordinate descent follows dict order when one violation term
+is much sharper than another. The fix was seeding from the stage's own
+small-signal analysis against the *measured* core (op read-out: R_o ≈ 101 Ω at
+the graft node, g_m/I_d ≈ 17 /V) plus best-of-all-coordinates descent. **A
+replay fence proves determinism, not correctness.**
+
+**Regression:** `check_diff` GREEN (new); `check_ref` / `check_nf` / `check_op`
+untouched and unaffected — no shared measurement path was modified.
+
+```bash
+python lna/ref/check_diff.py                                  # golden, first
+python lna/_diff_balun.py --kind cscg --core simul            # the D7 point
+python lna/_diff_balun.py --kind cscg --core simul --replay   # re-audit it
+python lna/_diff_balun.py --kind cscg --curve                 # l5 Idd cost curve
+python lna/_diff_balun.py --kind dpair --curve                # structural comparison
+python lna/_diff_balun.py --kind cscg --show-deck             # the grafted 3-port deck
+```
+
 ## 1. TL;DR — what shipped this session
 
 | Plan item | Status | Key result |

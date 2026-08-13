@@ -8134,3 +8134,266 @@ that harness's working artefacts (`lna/out/_iip3_*.json`, gitignored) since
    removes the *method* uncertainty from IIP3; it removes none of the *model*
    uncertainty. A 21–25 dB miss is far outside any of it, which is precisely
    why the verdict is safe to act on.
+
+## 41. Phase 3 — ★★★ WP-DIFF: a 3-port harness, an assistant-authored active balun, and **Gate D7's differential-output spec MET** on the hardened point — while the designated l5 point turns out to have no room for any output stage at all (Session 9, 2026-08-13)
+
+Upgrade-ladder item 5 (`plans2/14-DHRUVA-SIMUL.md` §4). The differential-output
+requirement — imbalance ≤ 0.22 dB / ≤ 0.9° — had been tier-3 "NOT ATTEMPTED"
+since the benchmark was written (§35.5, plan §1.2), for two reasons: no 3-port
+harness, and a single-ended designated design. Both are addressed here.
+**Route decision: user directive, 2026-08-13 — the ACTIVE BALUN, built from the
+existing MOS/R/C/L vocabulary; no vocabulary/emitter extension, no
+coupled-inductor (K) elements.** Files: `lna/diff3.py` (harness),
+`lna/ref/check_diff.py` (golden), `lna/templates.py` (the stages, additive),
+`lna/_diff_balun.py` (graft + sizing), `lna/out/diff_balun_*.params.json`.
+
+### 41.1 The harness, and the golden it is not trusted without
+
+`lna/diff3.py` measures a body declaring THREE S-parameter ports — 1 =
+single-ended RF input, 2 = the INVERTING output leg, 3 = the non-inverting one
+— returning, from two ngspice calls: per-leg gain, mixed-mode differential gain
+`Sds21 = (S21−S31)/√2`, band-wide S11, Idd, differential NF (series-Rs,
+`noise v(n2,n3)` — the finding-#7 fix, verbatim), and the imbalance as one
+complex ratio `r = −(S21/S31)`, whose magnitude in dB and argument in degrees
+**are** the standard amplitude/phase imbalance, with no wrap arithmetic.
+Stability is the (input, differential-output) 2-port reduction of the 3-port
+matrix — advisory, never gated, same standing as extract's K.
+
+**`lna/ref/check_diff.py` — GREEN. Five closed-form references, all
+device-model-free (E-sources + R/C), all run through diff3's own code paths:**
+
+| # | reference | measured | closed form |
+|---|---|---|---|
+| A | ideal balun (E-sources ±2 through 50 Ω) | legs **0.0 / 0.0 dB**, imb **0.0 dB / 0.0°**, Sds21−leg **3.0103 dB**, S11 floor −600 dB | exact 0 / 0 / 20log₁₀√2 |
+| B | RC-skewed leg, x = 2πf·50·C | **0.1314508 dB / 9.942971°** | 0.131451 dB / 9.94297° |
+| C | polarity trip-wire (in-phase splitter, both legs +2) | **180.0000°** | must be ≈180°, not ≈0° |
+| D | differential NF, Rs = 50 noisy + one equal 50 Ω | **3.012469 dB** | 3.0103 dB |
+| E | band-wide worst case of B (skew monotonic → lands at f_hi) | **0.2501049 dB / 13.68376°** | 0.250105 dB / 13.6838° |
+
+C is load-bearing: a stage that merely *splits* without inverting cannot read
+as a pass. E is load-bearing for every claim below, because every imbalance
+number here is a worst case over 1.1–2.5 GHz, not a value at one f0.
+
+### 41.2 The stage — assistant-authored, generic textbook, and TWO of them
+
+Both live in `lna/templates.py` (`diff_pair_balun`, `cs_cg_balun`,
+`balun_stage`), each authored with its engineering argument in the docstring —
+same provenance class and the same blind-protocol standing as `gmb_cg_lna` /
+`nc_cgcs_lna`. Nothing is derived from the paper; the shapes were chosen from
+this program's own wall and from the note `nc_cgcs_lna` has carried since
+blind-v1 ("the differential CG/CS pair needs a balanced output our harness does
+not have"). They are **deliberately NOT enumerated by `archetypes()`**:
+`to_spice.Netlist` emits exactly two ports, so a VOUT2-bearing netlist has no
+default emission path. **Verified: all 148 archetypes re-emit byte-identical
+(sha256 `9f3b6894c84717160d80e09064f0ad232dbe92283df8516e0cc18cd539be8ebf`)
+before and after the addition.**
+
+* **`dpair`** — single-ended-driven differential pair, resistive tail,
+  independent widths and drain loads. Its imbalance is ≈1/(1+2·g_m·Z_T); Z_T is
+  headroom-limited (I·R_T eats the 1.1 V rail) and capacitively shunted at RF,
+  so the residual is a *frequency tilt* that asymmetry can null at one point
+  only. A MOS tail current source is offered (`tail="M"`) but the specs pin
+  `l_fixed = 45 nm`, where r_o at ~1 mA is no better than the resistor.
+* **`cscg`** — CS + CG split-phase splitter. No tail node at all: the two legs
+  are `g_m,cs·Z_L1` against `(g_m+g_mb),cg·Z_L2`, both flat over the band
+  because a leg driving a 50 Ω port sees only tens of ohms, putting its drain
+  pole picoseconds away. Its price is that the CG leg *loads* the node it
+  splits — which turns out to be the reason it is the one that works (§41.6).
+
+### 41.3 The graft, and what is frozen
+
+`ace8383c2fa68d03`, **core FROZEN** — all 30 core parameters read-only from the
+shipped params files (verified untouched in git at commit time). The graft
+point is `VOUT1`, the far side of the core's own output AC-coupling cap `CC6`,
+so the core's DC operating point is untouched by construction; the two
+`to_spice` port-2 lines are removed and the stage's legs become ports 2/3. The
+only free parameters are the stage's own 13, all boxed by the dhruva specs' own
+`kind_ranges` (so "in-box" means what it means everywhere else): **13/13 in-box
+at both winners.** `lna/size.py` was another agent's file this wave and was
+used READ-ONLY; the descent lives in `_diff_balun._descend`.
+
+Two hosts were measured: the **designated D4-SIM point** (`dhruva-l5`, §35.3)
+and the **margin-hardened point** (`dhruva-simul`, §36, landed the same
+session) — the latter because the first host's Idd headroom is 0.037 mA.
+
+### 41.4 ★★★ The result on the hardened point — every four-band gate MET, balun attached
+
+`cscg` on `dhruva-simul`, one fixed sizing, all four bands at once. Replay
+**3/3 in-process and again from a separate process, spread 0.0000 on every
+reported metric**:
+
+| band (f0) | Sds21 | target | leg 2 | leg 3 | **imb mag** | **imb phase** | NF | NF target |
+|---|---|---|---|---|---|---|---|---|
+| dhruva-s (2.49203 GHz) | 30.22 | 30.0 | 27.15 | 27.26 | **−0.118 dB** | **−0.313°** | 1.339 | 3.5 |
+| dhruva-l1 (1.57542) | 30.67 | 25.4 | 27.60 | 27.72 | **−0.119** | **−0.302°** | 1.464 | 2.7 |
+| dhruva-l2 (1.22760) | 30.05 | 22.3 | 26.98 | 27.10 | **−0.119** | **−0.323°** | 1.684 | 2.5 |
+| dhruva-l5 (1.17645) | 29.91 | 22.3 | 26.84 | 26.96 | **−0.119** | **−0.329°** | 1.738 | 2.5 |
+
+| gate | target | achieved | margin | verdict |
+|---|---|---|---|---|
+| output imbalance, magnitude | ≤ 0.22 dB | **0.119** (band-wide worst 0.119) | +0.101 | **MET** |
+| output imbalance, phase | ≤ 0.9° | **0.329** (band-wide worst 0.339) | +0.561 | **MET** |
+| S11, band-wide 1.1–2.5 GHz | ≤ −10 dB | **−10.936** | +0.936 | **MET** |
+| Sds21 @ s / l1 / l2 / l5 f0 | ≥ 30 / 25.4 / 22.3 / 22.3 | **30.22 / 30.67 / 30.05 / 29.91** | +0.22 / +5.27 / +7.75 / +7.61 | **MET** |
+| NF @ the same f0 | ≤ 3.5 / 2.7 / 2.5 / 2.5 | **1.339 / 1.464 / 1.684 / 1.738** | +2.16 / +1.24 / +0.82 / +0.76 | **MET** |
+| Idd @ 1.1 V | ≤ 13 mA | **9.250** | +3.75 | **MET** |
+| stability (advisory) | K ≥ 1 | mixed-mode K_min **64.7** | ~65× | MET |
+
+**The whole differential output costs 1.045 mA** (8.205 → 9.250) and **1.6 dB**
+of gain (baseline Sds21-equivalent 32.003/32.282/31.647/31.501 → −1.78 / −1.61
+/ −1.60 / −1.59 dB), and **essentially nothing in noise: +0.008 / +0.005 /
++0.017 / +0.012 dB** — Friis doing its job behind ~32 dB of core gain, measured
+rather than assumed. S11 moves +0.076 dB (−11.012 → −10.936) and still clears
+by 0.94 dB.
+
+⚠ **The gain verdict is convention-dependent, and the convention is stated
+rather than buried.** Three readings of the same measurement at the binding
+S-band f0 against a 30 dB target: per-leg **27.15**, mixed-mode Sds21 **30.22**
+(GATED here — the standard mixed-mode S-parameter), voltage-gain analogue
+`20log₁₀|S21−S31| = Sds21 + 3.0103` = **33.23** (the direct analogue of the
+single-ended "voltage gain adopted as S21 into 50 Ω" mapping, REPORT §5). The
+gate passes on the middle and loosest readings and **fails by 2.85 dB on the
+strictest (per-leg)**. `lna/_diff_balun.py` prints all three on every audit.
+**If the user rules that each leg must independently make the gain number, this
+result is not a pass** — that is a spec-reading decision, flagged not taken.
+
+### 41.5 The designated l5 point — imbalance MET, and Idd the only casualty
+
+Same stage, same protocol, on the §35.3 designated point:
+
+| band (f0) | Sds21 | target | **imb mag** | **imb phase** | NF |
+|---|---|---|---|---|---|
+| dhruva-s | 30.02 | 30.0 | 0.218 dB | −0.583° | 0.881 |
+| dhruva-l1 | 31.87 | 25.4 | 0.216 | −0.181° | 1.003 |
+| dhruva-l2 | 32.30 | 22.3 | 0.216 | +0.016° | 1.213 |
+| dhruva-l5 | 32.34 | 22.3 | 0.215 | +0.049° | 1.265 |
+
+Worst over the four f0: **0.218 dB / 0.583°**; band-wide worst **0.218 dB /
+0.586°** — inside spec on both readings. S11_max **−10.031** (better than the
+untouched core's −10.00078), NF margins +2.62/+1.70/+1.29/+1.24, all Sds21
+targets met. **Idd 14.757 mA — the only failing gate, over by +1.757 mA
+(13.5 %).** Cost against the same core re-measured 2-port the same day: gain
+−3.71/−3.67/−3.63/−3.62 dB, NF +0.014/+0.008/+0.017/+0.012 dB, Idd
+**+1.794 mA**.
+
+**The reason is not the balun — it is the host.** The l5 point draws 12.963 of
+a 13.000 mA budget (§35.3, 0.037 mA of margin), so it cannot host *any*
+conducting output stage, differential or otherwise: a balun costing 1.0–1.8 mA
+busts it by construction. §39 already said this in a different vocabulary
+("Idd is co-fragile"); this is the same fact with a circuit attached to it.
+Idd-ceiling sweep on this host (an independent feasibility descent per ceiling):
+
+| Idd ceiling (mA) | 13.0 | 13.5 | 14.0 | 15.0 | 16.0 | 18.0 | 21.0 | 25.0 |
+|---|---|---|---|---|---|---|---|---|
+| Idd reached | 14.299 | 14.299 | 14.299 | 14.979 | 15.186 | **14.757** | 14.757 | 14.757 |
+| all gates met | no | no | no | no | **yes** | **yes** | **yes** | **yes** |
+
+The infeasible rows miss by very little — at 14.299 mA the shortfall is 0.02 dB
+of S-band Sds21 and 0.006 dB of S11 — so the feasibility boundary on this host
+sits between **14.30 and 14.76 mA**, ~1.3 mA above what the budget allows.
+
+### 41.6 ★ Why the split-phase stage passes where the differential pair cannot — a structural result about this core
+
+`dpair` was run through the identical protocol on the l5 host. It is
+**infeasible at every Idd ceiling**, always for the same two reasons:
+
+| | `cscg` | `dpair` |
+|---|---|---|
+| imbalance @ the four f0 | 0.218 dB / 0.583° **PASS** | 0.121 dB / 0.799° **PASS** |
+| imbalance band-wide | 0.218 dB / 0.586° **PASS** | 0.129 dB / **0.925° FAIL** |
+| S11_max | **−10.031 PASS** | **−9.328 FAIL (+0.672)** |
+| cheapest Idd reached | 14.757 (feasible) | 16.350 (never feasible) |
+
+Both mechanisms were written into the templates docstrings before they were
+measured:
+
+1. **Input impedance is a first-class constraint when the match is
+   knife-edge.** The differential pair's input is a *gate* — kΩ at the graft
+   node, where the core's match was sized against a **50 Ω port**. §39's
+   knife-edge (0.0008 dB of S11 margin, flips at ±1 % of anything) does exactly
+   what §39 predicted: −10.001 → −9.33. The split-phase stage's CG leg plus its
+   source resistor present **~85 Ω** there — near enough to the 50 Ω the core
+   was matched against that S11 survives and even *improves* to −10.031. The
+   descent could not repair `dpair` with any parameter it owns: it drove the
+   bias divider to the 50 Ω box floor trying to shunt the node and still only
+   reached ~1.9 kΩ.
+2. **Tail-limited phase tilt.** `dpair`'s phase imbalance runs −0.742° at
+   2.49 GHz to +0.799° at 1.18 GHz — nulled mid-band, unavoidable at the edges
+   of a 2:1 span. It clears 0.9° at the four f0 by 0.10° and misses band-wide by
+   0.025°. `cscg`, which has no tail node, tilts by 0.63° in total (l5 host) and
+   **0.027°** (hardened host) across the same span.
+
+**A third structural note, from the two hosts:** the hardened core is the
+*better* host for this stage not only because of its Idd headroom but because
+its output node is higher-impedance (its MNM6 load is `pR4V` = 434.07 Ω against
+the l5 point's 132.71 Ω). The 2-port baseline pays that as loss into the 50 Ω
+port; the balun, whose CG input is a few hundred ohms, does not — which is why
+the insertion loss is 1.6 dB there and 3.7 dB on l5.
+
+### 41.7 The methodological finding — the first three answers were 6–14 mA wrong
+
+The Idd numbers above are the output of a **ceiling sweep with physics-seeded
+starts**, and the earlier, weaker searches were badly wrong in a way worth
+recording because it will recur:
+
+| attempt | reported l5 Idd | what was wrong |
+|---|---|---|
+| two-phase, log-uniform multi-start, first-improvement descent | **22.27** | never left the start basin |
+| + Idd-ceiling continuation | **20.21** | ditto, continuation trapped on the S21 boundary |
+| + ceiling sweep (still log-uniform starts) | **23.73** | ditto |
+| **+ small-signal seed + best-of-all-coordinates descent** | **14.76** | — |
+
+Two causes, both measured and both fixed: (a) a log-uniform multi-start over 13
+parameters essentially never lands near this stage's operating basin, and (b)
+first-improvement coordinate descent follows whichever parameter comes first in
+the dict, because the imbalance term is far sharper than the gain term. The
+seed that fixed it is the stage's own small-signal analysis against the
+*measured* core (op read-out: MNM6 at 3.32 mA with g_ds 2.35 mS into
+`pR4V` = 132.7 Ω → graft-node driving impedance R_o ≈ 101 Ω; g_m/I_d ≈ 17 /V in
+the weak inversion these designs sit in), which says the CG leg's gain saturates
+at R_e/R_o however much current is spent, so gain is bought by making g_m·R_o
+of order 1 — not large. **A search not seeded from physics reported this stage
+as 4× more expensive than it is, three times in a row, each time with a clean
+replay fence on the wrong answer.**
+
+### 41.8 What this does and does not close
+
+**Closes:** the D7 *measurement* gap outright — there is now a golden-validated
+3-port harness, and the differential-output spec has a number on all four
+bands. On the **hardened** point the full simultaneous set (imbalance + S11 +
+Sds21 + NF + Idd, four bands, one fixed sizing) is **MET**.
+
+**Does not close:**
+
+1. **The designated D4-SIM point does not host it** — Idd 14.757 vs 13. Whether
+   the program's headline point should move from `dhruva-l5` to
+   `dhruva-simul` is a user decision, and this measurement is an argument for
+   it, not a licence to make it.
+2. **The gain reading is a convention** (§41.4) and the per-leg reading fails
+   by ~2.85 dB. Unresolved by design.
+3. **The core was frozen.** This measures what a balun costs *bolted onto* an
+   existing point, not what a jointly-sized differential LNA would cost. A joint
+   re-size is the obvious next move and was not attempted.
+4. **50 Ω per leg is doing a lot of work.** A real differential LNA output
+   drives an on-chip differential load, not two 50 Ω ports; most of the
+   insertion loss and much of the current is the price of the port drive.
+   Whether the differential output should be referenced to something other than
+   2×50 Ω is a spec decision for the user, flagged not taken.
+5. **Common-mode is not gated.** The 2-port reduction used for K excludes the
+   common-mode response; CMRR is not measured, and the spec as recorded does
+   not ask for it.
+6. **Fidelity caveats carry over verbatim** from §35.5 / REPORT §5 — and one
+   new one that dominates the rest here: a real balun's imbalance is set mostly
+   by **layout mismatch between the two legs**, which this harness cannot see at
+   all. The 0.119 dB / 0.339° is a schematic-level number and should be read as
+   an upper bound on how good the topology can be, never as a silicon
+   prediction.
+7. **D5 (IIP3) and D6 are untouched by this work package.**
+
+```bash
+python lna/ref/check_diff.py                                  # the golden, first
+python lna/_diff_balun.py --kind cscg --core simul            # the D7 point
+python lna/_diff_balun.py --kind cscg --core simul --replay   # re-audit it
+python lna/_diff_balun.py --kind cscg --curve                 # the l5 Idd cost curve
+python lna/_diff_balun.py --kind dpair --curve                # structural comparison
+```

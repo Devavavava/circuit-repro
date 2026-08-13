@@ -2014,6 +2014,56 @@ current to buy S11/VDD robustness, and IIP3 is bought *with* bias current —
 the two robustness axes pull opposite ways, and the program now has a
 measurement for both instead of an intuition.
 
+## 36. ★★★ WP-DIFF — the output learns to be two wires, and the benchmark's last untried spec falls on the hardened point
+
+**Decision (user, 2026-08-13; stage 30's upgrade ladder, item 5).** Close the
+differential-output gap the ACTIVE-BALUN way: build a 3-port harness, author a
+balun output stage from the existing MOS/R/C/L vocabulary, and graft it onto
+the designated design. Explicitly ruled out in the same breath: extending the
+device vocabulary, and coupled-inductor (K) elements — i.e. no passive
+transformer balun. The stage had to be an *amplifier*, authored by the
+assistant as generic textbook and attributed as such, on the `gmb_cg` /
+`nc_cgcs` precedent.
+
+**Result (FINDINGS §41).** Golden first, as always: `check_diff.py` pins the
+new harness against five closed forms — an ideal E-source balun (exactly 0 dB /
+0°, and the +3.0103 dB differential identity), an RC-skewed balun matched to
+its analytic magnitude *and* phase, a **polarity trip-wire** (an in-phase
+splitter must read ~180°, so a circuit that merely splits cannot fake a pass),
+a 3.0103 dB differential-NF reference, and a band-wide worst-case check.
+Two stages were authored and both were measured. On the **hardened**
+`dhruva-simul` point (§36, landed the same session), the CS+CG split-phase
+balun meets **every four-band gate at one fixed sizing**: imbalance
+**0.119 dB / 0.339°** against 0.22 dB / 0.9°, S11 −10.94, Sds21
+30.22/30.67/30.05/29.91, NF 1.34–1.74, **Idd 9.25 mA** — the whole differential
+output costing **1.045 mA, 1.6 dB of gain, and 0.017 dB of noise**. On the
+*designated* `dhruva-l5` point the same stage meets the imbalance spec too
+(0.218 dB / 0.586°) and every other gate — and misses Idd by 1.76 mA, because
+that point already spends 12.963 of its 13.000 mA budget and therefore cannot
+host **any** conducting output stage.
+
+**Understanding.** Three things this stage taught that the numbers alone do not
+say. First, **which balun works was decided by input impedance, not by
+balance**: the textbook differential pair balances fine but presents a kΩ gate
+where the core's match was sized against a 50 Ω port, and §39's knife-edge does
+the rest (−10.001 → −9.33 dB, failed). The split-phase CS+CG stage passes
+largely because its common-gate leg *replaces the load it displaces* — a result
+about this core's fragility as much as about the stage. Second, the
+long-standing "differential output" gap was **never really a topology problem**;
+it was a measurement problem plus 1 mA of headroom, and the headroom came from
+another agent's margin-hardening work the same day. The two work packages only
+compose because both refused to move the other's files. Third, and least
+comfortable: this search reported the stage's cost as **22.3, then 20.2, then
+23.7 mA — each with a clean replay fence — before physics-seeded starts and a
+best-of-all-coordinates descent found 14.8.** A reproducible wrong answer is
+still a wrong answer; the replay fence proves determinism, not correctness, and
+the only thing that caught it here was a hand calculation of what the stage
+*should* cost. Finally, the honest asterisk: the gain gate is convention-
+dependent (per-leg 27.15 / mixed-mode 30.22 / voltage-gain analogue 33.23
+against a 30 dB target), so the pass is recorded together with the reading it
+depends on and the reading under which it would fail.
+
+
 ## Current frontier
 
 As of this document's writing (`lna-data`, commit `5be4de3` and whatever

@@ -1,0 +1,105 @@
+{
+ "parent": "ace8383c2fa68d03 @ dhruva-simul.params.json (core FROZEN)",
+ "stage": "templates.balun_stage('cscg')",
+ "attribution": "assistant-authored generic textbook stage (gmb_cg/nc_cgcs precedent); blind protocol",
+ "recipe": "diff-balun-v1",
+ "seed": 1337,
+ "sims": 2996,
+ "search_objective_dropped_terms": [],
+ "balun_params": {
+  "pBCBGV": 7.1428571428571424e-12,
+  "pBRBSV": 531.9832308702713,
+  "pBRBB1V": 17391.304347826088,
+  "pBRBB2V": 10080.000000000002,
+  "pBRBGSV": 20000.0,
+  "pBRBGGV": 20000.0,
+  "pBCBCGV": 1e-11,
+  "pBMBSW": 6.216167429370294e-06,
+  "pBMBGW": 1.962616822429907e-05,
+  "pBRBLNV": 1151.1313170541284,
+  "pBRBLPV": 3309.905899999999,
+  "pBCBONV": 1e-11,
+  "pBCBOPV": 1e-11
+ },
+ "dof_kinds": {
+  "pBCBGV": "C",
+  "pBRBSV": "R",
+  "pBRBB1V": "R",
+  "pBRBB2V": "R",
+  "pBRBGSV": "R",
+  "pBRBGGV": "R",
+  "pBCBCGV": "C",
+  "pBMBSW": "W",
+  "pBMBGW": "W",
+  "pBRBLNV": "R",
+  "pBRBLPV": "R",
+  "pBCBONV": "C",
+  "pBCBOPV": "C"
+ },
+ "phase1": {
+  "viol": 0.013556666666666217,
+  "idd_ma": 10.836739999999999
+ },
+ "result": {
+  "s11_max_db": -10.93566,
+  "idd_ma": 9.249532,
+  "mm_k_min": 64.73477,
+  "imb_mag_wc_db": 0.1194749,
+  "imb_phase_wc_deg": 0.3385606,
+  "worst_f0_imb_mag_db": 0.119473,
+  "worst_f0_imb_phase_deg": 0.3286467,
+  "bands": [
+   {
+    "f0": 2492030000.0,
+    "s11_db": -10.94394,
+    "s21p_db": 27.14606,
+    "s21n_db": 27.26379,
+    "sd21_db": 30.21539,
+    "imb_mag_db": -0.1177357,
+    "imb_phase_deg": -0.3131571,
+    "nf_db": 1.338615
+   },
+   {
+    "f0": 1575420000.0,
+    "s11_db": -11.05186,
+    "s21p_db": 27.60068,
+    "s21n_db": 27.71999,
+    "sd21_db": 30.67081,
+    "imb_mag_db": -0.1193098,
+    "imb_phase_deg": -0.3022959,
+    "nf_db": 1.463971
+   },
+   {
+    "f0": 1227600000.0,
+    "s11_db": -12.07965,
+    "s21p_db": 26.98335,
+    "s21n_db": 27.10282,
+    "sd21_db": 30.05356,
+    "imb_mag_db": -0.119473,
+    "imb_phase_deg": -0.3231314,
+    "nf_db": 1.683544
+   },
+   {
+    "f0": 1176450000.0,
+    "s11_db": -12.39437,
+    "s21p_db": 26.839,
+    "s21n_db": 26.95846,
+    "sd21_db": 29.9092,
+    "imb_mag_db": -0.1194608,
+    "imb_phase_deg": -0.3286467,
+    "nf_db": 1.737899
+   }
+  ]
+ },
+ "verdict": {
+  "imbalance_mag": true,
+  "imbalance_phase": true,
+  "s21_diff": true,
+  "s21_per_leg": false,
+  "nf": true,
+  "s11": true,
+  "idd": true
+ },
+ "idd_cost_curve": [],
+ "replay_spread_max": 0.0
+}

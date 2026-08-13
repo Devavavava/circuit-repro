@@ -1,0 +1,186 @@
+{
+ "parent": "ace8383c2fa68d03 @ dhruva-l5.params.json (core FROZEN)",
+ "stage": "templates.balun_stage('cscg')",
+ "attribution": "assistant-authored generic textbook stage (gmb_cg/nc_cgcs precedent); blind protocol",
+ "recipe": "diff-balun-v1",
+ "seed": 1337,
+ "sims": 10611,
+ "search_objective_dropped_terms": [],
+ "balun_params": {
+  "pBCBGV": 1e-11,
+  "pBRBSV": 84.9045,
+  "pBRBB1V": 18608.695652173916,
+  "pBRBB2V": 9000.0,
+  "pBRBGSV": 20000.0,
+  "pBRBGGV": 20000.0,
+  "pBCBCGV": 1e-11,
+  "pBMBSW": 1.308411214953271e-05,
+  "pBMBGW": 1.7468774565464234e-05,
+  "pBRBLNV": 753.7077057500001,
+  "pBRBLPV": 1070.0,
+  "pBCBONV": 1e-11,
+  "pBCBOPV": 1e-11
+ },
+ "dof_kinds": {
+  "pBCBGV": "C",
+  "pBRBSV": "R",
+  "pBRBB1V": "R",
+  "pBRBB2V": "R",
+  "pBRBGSV": "R",
+  "pBRBGGV": "R",
+  "pBCBCGV": "C",
+  "pBMBSW": "W",
+  "pBMBGW": "W",
+  "pBRBLNV": "R",
+  "pBRBLPV": "R",
+  "pBCBONV": "C",
+  "pBCBOPV": "C"
+ },
+ "phase1": {
+  "viol": 0.0,
+  "idd_ma": 14.75736
+ },
+ "result": {
+  "s11_max_db": -10.0313,
+  "idd_ma": 14.75736,
+  "mm_k_min": 437.1182,
+  "imb_mag_wc_db": 0.2182777,
+  "imb_phase_wc_deg": 0.5857835,
+  "worst_f0_imb_mag_db": 0.2182612,
+  "worst_f0_imb_phase_deg": 0.5826619,
+  "bands": [
+   {
+    "f0": 2492030000.0,
+    "s11_db": -10.04478,
+    "s21p_db": 27.12094,
+    "s21n_db": 26.90268,
+    "sd21_db": 30.02268,
+    "imb_mag_db": 0.2182612,
+    "imb_phase_deg": -0.5826619,
+    "nf_db": 0.8809658
+   },
+   {
+    "f0": 1575420000.0,
+    "s11_db": -11.00745,
+    "s21p_db": 28.96509,
+    "s21n_db": 28.74867,
+    "sd21_db": 31.86784,
+    "imb_mag_db": 0.2164149,
+    "imb_phase_deg": -0.1813319,
+    "nf_db": 1.002612
+   },
+   {
+    "f0": 1227600000.0,
+    "s11_db": -12.43196,
+    "s21p_db": 29.39532,
+    "s21n_db": 29.17979,
+    "sd21_db": 32.29852,
+    "imb_mag_db": 0.2155338,
+    "imb_phase_deg": 0.01569975,
+    "nf_db": 1.212868
+   },
+   {
+    "f0": 1176450000.0,
+    "s11_db": -12.91372,
+    "s21p_db": 29.433,
+    "s21n_db": 29.21763,
+    "sd21_db": 32.33628,
+    "imb_mag_db": 0.2153701,
+    "imb_phase_deg": 0.04906945,
+    "nf_db": 1.264714
+   }
+  ]
+ },
+ "verdict": {
+  "imbalance_mag": true,
+  "imbalance_phase": true,
+  "s21_diff": true,
+  "s21_per_leg": false,
+  "nf": true,
+  "s11": true,
+  "idd": false
+ },
+ "idd_cost_curve": [
+  {
+   "ceiling_ma": 13.0,
+   "feasible": false,
+   "idd_ma": 14.299479999999999,
+   "violation": 0.018373999999999075,
+   "s11_max_db": -9.994308,
+   "worst_sd21_shortfall_db": 0.02096999999999838,
+   "worst_imb_mag_db": 0.003772956,
+   "worst_imb_phase_deg": 0.3381143
+  },
+  {
+   "ceiling_ma": 13.5,
+   "feasible": false,
+   "idd_ma": 14.299479999999999,
+   "violation": 0.018373999999999075,
+   "s11_max_db": -9.994308,
+   "worst_sd21_shortfall_db": 0.02096999999999838,
+   "worst_imb_mag_db": 0.003772956,
+   "worst_imb_phase_deg": 0.3381143
+  },
+  {
+   "ceiling_ma": 14.0,
+   "feasible": false,
+   "idd_ma": 14.299479999999999,
+   "violation": 0.018373999999999075,
+   "s11_max_db": -9.994308,
+   "worst_sd21_shortfall_db": 0.02096999999999838,
+   "worst_imb_mag_db": 0.003772956,
+   "worst_imb_phase_deg": 0.3381143
+  },
+  {
+   "ceiling_ma": 15.0,
+   "feasible": false,
+   "idd_ma": 14.97941,
+   "violation": 0.020906666666666258,
+   "s11_max_db": -10.07457,
+   "worst_sd21_shortfall_db": 0.06271999999999878,
+   "worst_imb_mag_db": 0.1637469,
+   "worst_imb_phase_deg": 0.4407119
+  },
+  {
+   "ceiling_ma": 16.0,
+   "feasible": true,
+   "idd_ma": 15.1857,
+   "violation": 0.0,
+   "s11_max_db": -10.05771,
+   "worst_sd21_shortfall_db": 0.0,
+   "worst_imb_mag_db": 0.04850243,
+   "worst_imb_phase_deg": 0.3154708
+  },
+  {
+   "ceiling_ma": 18.0,
+   "feasible": true,
+   "idd_ma": 14.75736,
+   "violation": 0.0,
+   "s11_max_db": -10.0313,
+   "worst_sd21_shortfall_db": 0.0,
+   "worst_imb_mag_db": 0.2182612,
+   "worst_imb_phase_deg": 0.5826619
+  },
+  {
+   "ceiling_ma": 21.0,
+   "feasible": true,
+   "idd_ma": 14.75736,
+   "violation": 0.0,
+   "s11_max_db": -10.0313,
+   "worst_sd21_shortfall_db": 0.0,
+   "worst_imb_mag_db": 0.2182612,
+   "worst_imb_phase_deg": 0.5826619
+  },
+  {
+   "ceiling_ma": 25.0,
+   "feasible": true,
+   "idd_ma": 14.75736,
+   "violation": 0.0,
+   "s11_max_db": -10.0313,
+   "worst_sd21_shortfall_db": 0.0,
+   "worst_imb_mag_db": 0.2182612,
+   "worst_imb_phase_deg": 0.5826619
+  }
+ ],
+ "replay_spread_max": 0.0
+}

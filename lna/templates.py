@@ -476,6 +476,172 @@ def nc_cgcs_lna(n_stages=1, load="tank"):
     return nl
 
 
+# ------------------------------------- differential-output stages (WP-DIFF, D7)
+# ASSISTANT-AUTHORED, generic textbook -- same provenance class and the same
+# blind-protocol standing as `gmb_cg_lna` / `nc_cgcs_lna` above. These were
+# chosen from this program's OWN measured wall (the D4-SIM design is
+# single-ended; the standing benchmark asks for a balanced output at
+# <= 0.22 dB / <= 0.9 deg, plans2/14-DHRUVA-SIMUL.md SS1.2 tier-3) and from the
+# note `nc_cgcs_lna` has carried since blind-v1 -- "the differential CG/CS pair
+# needs a balanced output our harness does not have". Nothing here is derived
+# from any paper's circuit content. User decision 2026-08-13: the ACTIVE-BALUN
+# route, existing MOS/R/C/L vocabulary only -- no emitter/vocabulary extension
+# and no coupled-inductor (K) elements.
+#
+# Convention for both blocks: a single-ended node `node` in, two legs out --
+# `outn` is the INVERTING leg and `outp` the non-inverting one, which is the
+# port-2/port-3 polarity `lna/diff3.py` reads (so a stage wired backwards shows
+# up as ~180 deg of phase imbalance, not as a fake pass). Both legs leave
+# through their own AC-coupling capacitor, the same `Cout` convention every
+# archetype above uses.
+#
+# DELIBERATELY NOT ENUMERATED BY `archetypes()`. `to_spice.Netlist` emits
+# exactly two S-parameter ports (VIN1 -> port 1, VOUT1 -> port 2), so a
+# VOUT2-bearing netlist has no default emission path, and adding one would be a
+# shared-file change plus a re-domaining of every archetype index. These blocks
+# are consumed by the 3-port WP-DIFF harness (`lna/diff3.py`,
+# `lna/_diff_balun.py`), which emits them itself. Every default path through
+# this module is therefore byte-identical to before this block existed --
+# verified by re-emitting all 148 archetypes and diffing.
+def diff_pair_balun(nl, N, node, tail="R", couple_in=True,
+                    outn="VOUT1", outp="VOUT2"):
+    """ACTIVE BALUN #1 -- single-ended-driven DIFFERENTIAL PAIR (textbook).
+
+    `node` drives one gate; the other gate is AC-grounded, so the second device
+    is a common-gate amplifier fed from the shared tail node and its drain
+    swings ANTI-phase to the driven drain. Both drains carry a resistive load
+    to VDD, so the stage is broadband (no tank, no coupled inductor).
+
+    What sets the balance -- state it before sizing anything: with a finite
+    tail impedance Z_T the undriven leg is short of the driven one by roughly
+    1/(1 + 2*gm*Z_T), in BOTH magnitude and phase. So the pair is a balun only
+    to the extent that gm*Z_T is large, and `Z_T` is the honest constraint:
+      * a tail RESISTOR is limited by headroom -- I_tail * R_T eats the 1.1 V
+        rail, so ~400 Ohm at ~1 mA is the practical ceiling, i.e. gm*Z_T ~ 8;
+      * a tail CURRENT SOURCE (`tail="M"`) would normally fix that, but this
+        program's specs pin `l_fixed = 45 nm`, and a 45 nm device's r_o at
+        ~1 mA is a few hundred Ohm -- no better than the resistor. It is
+        offered here so that claim is measurable, not assumed.
+      * the tail node's own capacitance (both sources' C_gs/C_sb) shunts Z_T
+        at RF, which is what turns the residual into a *phase* error that
+        GROWS with frequency.
+    The compensation knob is deliberate ASYMMETRY -- the two widths and the two
+    drain loads are independent parameters, so a sizer can null the imbalance,
+    but only at one frequency: the residual tilts across a 2:1 band. That is a
+    structural property of this stage, not a sizing failure.
+
+    `couple_in=False` omits the input coupling capacitor, for grafting onto a
+    node that is ALREADY AC-coupled (the D4-SIM design's output boundary is
+    exactly such a cap); the driven gate is then DC-set by the divider alone.
+    """
+    gp = N.new()
+    if couple_in:
+        nl.append(["Cbi", node, gp, "capacitor"])
+    else:
+        gp = node
+    gn = N.new()
+    nbb = N.new()
+    nl.append(["Rbb1", "VDD", nbb, "resistor"])          # gate bias divider
+    nl.append(["Rbb2", nbb, "VSS", "resistor"])
+    nl.append(["Rbgp", nbb, gp, "resistor"])             # feed the driven gate
+    nl.append(["Rbgn", nbb, gn, "resistor"])             # feed the quiet gate
+    nl.append(["Cbgn", gn, "VSS", "capacitor"])          # ...and AC-ground it
+    nt = N.new()
+    dn = N.new()
+    dp = N.new()
+    nl.append(["Mbp", dn, gp, nt, "VSS", "nmos4"])       # driven -> INVERTING leg
+    nl.append(["Mbn", dp, gn, nt, "VSS", "nmos4"])       # CG side -> non-inverting
+    if tail == "M":
+        ntb = N.new()
+        nl.append(["Rbt1", "VDD", ntb, "resistor"])      # tail-device gate bias
+        nl.append(["Rbt2", ntb, "VSS", "resistor"])
+        nl.append(["Mbt", nt, ntb, "VSS", "VSS", "nmos4"])
+    else:
+        nl.append(["Rbt", nt, "VSS", "resistor"])        # tail resistor
+    nl.append(["Rbln", "VDD", dn, "resistor"])           # independent drain loads:
+    nl.append(["Rblp", "VDD", dp, "resistor"])           # the imbalance-null knob
+    nl.append(["Cbon", dn, outn, "capacitor"])
+    nl.append(["Cbop", dp, outp, "capacitor"])
+    return nl
+
+
+def cs_cg_balun(nl, N, node, couple_cg=True, outn="VOUT1", outp="VOUT2"):
+    """ACTIVE BALUN #2 -- CS + CG SPLIT-PHASE stage (textbook phase splitter).
+
+    Two independent paths hang off the SAME node:
+        node --(C)--> gate of Mbs  (common source)  -> drain swings INVERTED
+        node --------> source of Mbg (common gate)  -> drain swings IN PHASE
+    each with its own resistive load to VDD and its own output coupling cap.
+
+    Why this shape, stated as the structural argument it is: the differential
+    pair's imbalance is set by a tail node whose impedance is capacitively
+    shunted, so its error is frequency-dependent by construction. This stage
+    has NO tail node. Its two legs are `gm_cs * Z_L1` against
+    `(gm_cg + gmb_cg) * Z_L2`, both of which are FLAT over the band whenever
+    the drain poles sit above it (they do: a leg that drives a 50 Ohm port
+    through its coupling cap sees only tens of Ohms, so R*C_drain is
+    picoseconds). Balance is then a match of two DC-ish products -- exactly the
+    continuous trade a sizer is for -- and the residual does not tilt with
+    frequency the way a tail-limited pair's does.
+
+    The price, equally structural: the common-gate leg's input impedance is
+    ~1/(gm+gmb), so this stage LOADS the node it splits, where a differential
+    pair (gate input) does not. That is not automatically a loss -- the load it
+    replaces at an output boundary is a 50 Ohm port, and 1/(gm+gmb) is the same
+    order -- but it does couple the stage's bias current to the gain the
+    preceding stage delivers, and the body effect makes the CG leg's
+    transconductance the LARGER of the two (gm + gmb, not gm), so the widths
+    and loads must be asymmetric to balance. Both are sizer knobs.
+
+    `couple_cg=False` ties the CG source straight to `node` (no series cap).
+    Use it when `node` is already an AC-coupling capacitor's far side: a series
+    cap there would put a high-pass on the CG leg ONLY -- its corner is set by
+    the ~1/(gm+gmb) source impedance, so it lands near a GHz and shows up as
+    degrees of phase imbalance -- while the CS leg's gate cap works against a
+    ~10 kOhm bias resistor and has no corner anywhere near the band. Sharing
+    one coupling cap makes that pole COMMON to both legs, where it cancels in
+    the ratio.
+    """
+    gcs = N.new()
+    nl.append(["Cbg", node, gcs, "capacitor"])           # CS gate: DC-blocked
+    nsrc = N.new()
+    if couple_cg:
+        nl.append(["Cbs", node, nsrc, "capacitor"])
+    else:
+        nsrc = node
+    nl.append(["Rbs", nsrc, "VSS", "resistor"])          # CG source DC return
+    nbb = N.new()
+    nl.append(["Rbb1", "VDD", nbb, "resistor"])          # one shared divider
+    nl.append(["Rbb2", nbb, "VSS", "resistor"])
+    nl.append(["Rbgs", nbb, gcs, "resistor"])            # CS gate feed
+    gcg = N.new()
+    nl.append(["Rbgg", nbb, gcg, "resistor"])            # CG gate feed
+    nl.append(["Cbcg", gcg, "VSS", "capacitor"])         # ...AC-grounded
+    dn = N.new()
+    dp = N.new()
+    nl.append(["Mbs", dn, gcs, "VSS", "VSS", "nmos4"])   # CS -> INVERTING leg
+    nl.append(["Mbg", dp, gcg, nsrc, "VSS", "nmos4"])    # CG -> non-inverting leg
+    nl.append(["Rbln", "VDD", dn, "resistor"])
+    nl.append(["Rblp", "VDD", dp, "resistor"])
+    nl.append(["Cbon", dn, outn, "capacitor"])
+    nl.append(["Cbop", dp, outp, "capacitor"])
+    return nl
+
+
+def balun_stage(kind, node, **kw):
+    """Build a standalone differential-output stage netlist. `kind` is one of
+    `dpair` / `dpair_m` / `cscg`; returns the netlist rows only (the caller
+    supplies the core it hangs off)."""
+    nl, N = [], Nets()
+    if kind == "dpair":
+        return diff_pair_balun(nl, N, node, tail="R", **kw)
+    if kind == "dpair_m":
+        return diff_pair_balun(nl, N, node, tail="M", **kw)
+    if kind == "cscg":
+        return cs_cg_balun(nl, N, node, **kw)
+    raise ValueError(f"unknown balun kind: {kind}")
+
+
 # --------------------------------------------------------------- enumeration
 def archetypes():
     """Yield (name, netlist, spec, band) for every distinct valid, screen-passing

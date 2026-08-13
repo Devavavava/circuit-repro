@@ -216,6 +216,36 @@ def cmd_build_decks(bands):
         print(f"wrote {path}")
 
 
+def cmd_cross():
+    """The Gate-D4-SIM matrix (FINDINGS SS35): every shipped per-band sizing
+    evaluated against ALL FOUR band specs -- does one FIXED sizing meet every
+    band's tier-1+tier-2 gates simultaneously? 16 cells, nothing resized."""
+    body, sizable, fixed = build_body()
+    specs = {t: S._spec_for_sizing(n) for t, n in BANDS.items()}
+    all_ok = True
+    for px in BANDS:
+        params = params_of(px)
+        row_ok = True
+        for sx in BANDS:
+            m = S.eval_metrics(body, params, specs[sx], nf_gated=True)
+            if m is None:
+                print(f"sizing={px:<3} spec={BANDS[sx]:<10} SIM FAILED")
+                row_ok = False
+                continue
+            feas, viol = specs[sx].feasible(m)
+            row_ok &= bool(feas)
+            tnf = specs[sx].constraints["nf_db"]["max"]
+            print(f"sizing={px:<3} spec={BANDS[sx]:<10} "
+                  f"S11max={m['s11_max_db']:>8.3f}  S21={m['s21_db']:>7.3f}  "
+                  f"Idd={m['idd_ma']:>6.3f}  NF={m['nf_db']:>6.3f} (<= {tnf})  "
+                  f"{'PASS' if feas else 'FAIL viol=%.3f' % viol}")
+        print(f"  -> sizing '{px}' simultaneous on all four bands: "
+              f"{'YES' if row_ok else 'no'}")
+        print()
+        all_ok &= row_ok
+    return all_ok
+
+
 def cmd_resize(band_tag, seed=0, budget=400):
     """Re-derive a band's sizing from scratch via the same recipe that found
     it: constrained_descent minimizing nf_db, starting from THIS design's own
@@ -244,10 +274,14 @@ if __name__ == "__main__":
     ap.add_argument("--build-decks", action="store_true", help="(re)write the dhruva-<band>.sp files from tokens+params")
     ap.add_argument("--resize", metavar="BAND", choices=["s", "l1", "l2", "l5"],
                     help="re-derive a band's sizing from scratch via constrained_descent")
+    ap.add_argument("--cross", action="store_true",
+                    help="Gate-D4-SIM matrix: every sizing vs every band spec (FINDINGS SS35)")
     a = ap.parse_args()
 
     bands = list(BANDS) if a.band == "all" else [a.band]
 
+    if a.cross:
+        sys.exit(0 if cmd_cross() else 1)
     if a.resize:
         sys.exit(0 if cmd_resize(a.resize) else 1)
     if a.build_decks:

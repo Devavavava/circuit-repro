@@ -51,6 +51,11 @@ python lna/repro/dhruva-best/recreate.py --audit
 # per-element noise budget (extract.measure_noise_budget) for one band:
 python lna/repro/dhruva-best/recreate.py --band s --noise-budget
 
+# Gate-D4-SIM matrix (FINDINGS §35): every shipped sizing evaluated against
+# ALL FOUR band specs -- one fixed sizing, all bands simultaneously. All 16
+# cells PASS; the designated single-LNA point is the dhruva-l5 sizing:
+python lna/repro/dhruva-best/recreate.py --cross
+
 # rebuild the dhruva-<band>.sp deck files from tokens.json + params.json:
 python lna/repro/dhruva-best/recreate.py --build-decks
 

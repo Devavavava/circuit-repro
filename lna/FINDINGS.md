@@ -7310,3 +7310,88 @@ python lna/_diag_pilot.py --size
    behaviour is untested.
 
 ---
+
+## 35. Phase 3 — ★★★ the Dhruva benchmark restated to SIMULTANEOUS — and it was already met: one fixed sizing of `ace8383c` clears tier-1+tier-2 on all four bands at once (Session 8, 2026-08-13)
+
+**Provenance of the restatement.** User directive, 2026-08-13: record the
+per-band GNSS (Dhruva) benchmark as MET, and restate the standing benchmark as
+**simultaneous** — one LNA, one fixed sizing, every band's gates at once. The
+per-band record (one topology, four per-band parameter sets, §27.4) closes the
+old bar; this section measures the new one. Gate name: **D4-SIM**
+(`lna/plans2/14-DHRUVA-SIMUL.md`).
+
+### 35.1 Protocol
+
+The question is a 4×4 matrix: each of the four shipped `mf2-v1` sizings of
+`ace8383c2fa68d03` (`lna/repro/dhruva-best/dhruva-{s,l1,l2,l5}.params.json`,
+verbatim — nothing resized) evaluated against **all four** band specs.
+Shared body from `size.prepared_body` (multi-finger emission, `w_finger=2 µm`,
+`inductor_q=12` — the honest post-cutover harness), `size.eval_metrics` with
+`nf_gated=True`, `spec.feasible()` re-measured per cell, not trusted. Each
+cell gates `s11_max_db` (held over the full 1.1–2.5 GHz range — every dhruva
+spec always gated the match band-wide), `s21_db` @ that spec's f0, `idd_ma`,
+and `nf_db` @ that spec's f0 (series-Rs). Driver:
+`lna/repro/dhruva-best/recreate.py --cross`.
+
+### 35.2 The matrix — 16/16 cells PASS
+
+Every sizing is simultaneously feasible on all four bands. NF @ each spec's
+f0 (dB), with S21 @ f0 in parentheses:
+
+| sizing ↓ / spec → | dhruva-s (NF≤3.5, S21≥30) | dhruva-l1 (≤2.7, ≥25.4) | dhruva-l2 (≤2.5, ≥22.3) | dhruva-l5 (≤2.5, ≥22.3) | simultaneous |
+|---|---|---|---|---|---|
+| s  | 1.288 (36.5) | 1.504 (34.9) | 1.925 (33.1) | 2.055 (32.7) | **YES** |
+| l1 | 1.045 (37.7) | 1.220 (36.8) | 1.471 (35.4) | 1.541 (35.2) | **YES** |
+| l2 | 1.143 (39.1) | 1.291 (37.5) | 1.506 (35.8) | 1.567 (35.5) | **YES** |
+| **l5** | **0.867 (33.7)** | **0.995 (35.5)** | **1.196 (35.9)** | **1.253 (36.0)** | **YES** |
+
+S11_max is −10.000…−10.002 dB (band-wide, shared across cells of a row) and
+Idd 12.96–13.00 mA on every row — both were already common to all four specs.
+
+### 35.3 The headline point and its fence
+
+**Worst-case margins per fixed sizing** (min over the four specs):
+
+| sizing | worst NF margin | worst S21 margin | S11 margin | Idd margin |
+|---|---|---|---|---|
+| s  | +0.445 | +6.47 | 0.001 | 0.000 |
+| l1 | +0.959 | +7.68 | 0.000 | 0.003 |
+| l2 | +0.933 | +9.06 | 0.002 | 0.011 |
+| **l5** | **+1.247** | +3.73 | 0.001 | 0.037 |
+
+The **`dhruva-l5` sizing is the designated D4-SIM point**: NF ≤ 1.253 dB at
+all four f0s, S21 33.7–36.0 dB, one fixed 12.963 mA operating point,
+unconditionally stable (K_min 19.91 in-band / 10.26 over 0.1–20 GHz, §27.4 /
+REPORT §3.2 — same deck, unchanged by this measurement). **Replay fence:
+3/3 repeats on all four specs, spread 0.0000 on every gated metric.** In-box
+30/30 and novelty vs ref-v3 are inherited unchanged from the package audit
+(REPORT §3) — same params, same body.
+
+### 35.4 Why it was already true
+
+Nothing here is luck. (a) Every dhruva spec always gated **S11 band-wide**
+(1.1–2.5 GHz), so all four sizings were forced to hold the match everywhere,
+not at their own f0. (b) The §27.4 winner's gain ripple over the whole range
+is only 2.3–4.4 dB against 3.7+ dB of worst-case gain slack (§4.1 of REPORT),
+so off-tune S21 never falls below any band's floor. (c) The multi-finger
+cutover left 1–2.2 dB of own-band NF margin, and off-tune NF rises by at most
+~0.8 dB across the range (the l5 row: 0.867 → 1.253) — the margin absorbs it.
+The per-band re-sizing was buying margin, not feasibility. The claim was
+simply never measured before because the old benchmark never asked.
+
+### 35.5 What this does NOT close
+
+1. **Tier-3 is untouched**: IIP3 (`unsupported`, no two-tone/HB harness),
+   differential output balance (single-ended design, no 3-port harness), gain
+   programmability (≥10.6 dB / ≥3 steps — no switchable DOFs). The paper's
+   full spec is NOT met; the paper's IIP3 is specified at *min-gain*, and this
+   design has one fixed ~34–36 dB gain point, which will make IIP3 *harder*
+   than the paper's operating condition, not easier.
+2. **S11 margin is 0.001–0.002 dB** on every row — the binding constraint of
+   the whole family, by construction of `constrained_descent` (`keep=s11idd`).
+   Any parasitic, corner, or layout effect that moves the match flips D4-SIM.
+   A margin-hardening resize (target S11 ≤ −10.5…−11 at fixed NF budget) is
+   the cheapest robustness buy available.
+3. **Fidelity caveats carry over verbatim** from REPORT §5: 45 nm behavioral
+   BSIM4 (not the paper's 65 nm silicon), ideal passives at Q=12, no corners,
+   no package/layout, gain mapped as S21 into 50 Ω.

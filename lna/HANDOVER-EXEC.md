@@ -2057,6 +2057,38 @@ python lna/_attrib_report.py --spec wifi24 --md
 python lna/_attrib_audit.py --wl 0da2f0c7b263eee5 --reps 3
 ```
 
+## Session 8 (2026-08-13) — ★★★ the benchmark restated to SIMULTANEOUS, and Gate D4-SIM closes the same day
+
+**Files owned:** `lna/plans2/14-DHRUVA-SIMUL.md` (new — the standing
+benchmark doc, replacing the lost `08-DHRUVA-GOAL.md`), FINDINGS **§35**,
+JOURNEY stage **30** + the frontier bullet, `lna/repro/dhruva-best/recreate.py`
+(`--cross`, additive) + its README. No store rows written; nothing frozen
+touched.
+
+**The user's directive:** record the per-band Dhruva benchmark as MET, and
+restate the standing benchmark to *one LNA, one fixed sizing, all
+specifications at once*. **Measured the same day: it was already met.** The
+4×4 matrix (each shipped `mf2-v1` sizing of `ace8383c` × each band spec) is
+**16/16 PASS**; the designated single-LNA point is the **`dhruva-l5` sizing**:
+NF **0.867 / 0.995 / 1.196 / 1.253** dB at the S/L1/L2/L5 f0s (limits
+3.5/2.7/2.5/2.5), S21 33.7–36.0 dB, S11 −10.001 held 1.1–2.5 GHz, Idd 12.963,
+K_min 19.9 in-band / 10.3 wide. Replay fence 3/3 × 4 specs, spread 0.0000.
+Why it fell out: the specs always gated S11 *band-wide*, ripple (2.3–4.4 dB)
+< gain slack, and the mf2 NF margins absorb the ≤0.8 dB off-tune NF rise —
+per-band re-sizing was buying margin, not feasibility (§35.4).
+
+**Gate ladder now:** D0–D4 MET → **D5 (IIP3) is the frontier**, blocked on a
+two-tone/HB harness; then D6 (gain programmability), D7 (differential).
+Upgrade order in `14-DHRUVA-SIMUL.md` §4: (1) margin-hardening resize — the
+S11 margin is **0.001 dB**, the one flimsy number in the headline; (2) an
+ngspice two-tone IIP3 prototype (a day, turns D5 into a number); (3) stability
+into the polish objective (queued since Session 4); later the VACASK/IHP HB
+flow, 3-port differential harness, switchable-DOF search, corner sweeps.
+
+```bash
+python lna/repro/dhruva-best/recreate.py --cross   # the 16-cell D4-SIM matrix
+```
+
 ## 1. TL;DR — what shipped this session
 
 | Plan item | Status | Key result |

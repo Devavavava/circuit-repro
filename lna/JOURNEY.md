@@ -1732,6 +1732,43 @@ the move repertoire, not the pointing — and the honest summary of the whole
 experiment is that a diagnosis head buys a *narrower loss distribution*, which is
 worth having and is not the same thing as buying better designs.
 
+## 30. ★★★ The benchmark restated to simultaneous — and the answer was already yes
+
+**Decision (the user's, 2026-08-13).** Record the per-band Dhruva/GNSS
+benchmark as MET — one topology, four per-band sizings, tier-1+tier-2 on every
+band (stage 23) — and restate the standing benchmark: **one LNA, one fixed
+sizing, all four bands' specifications at once.** The old bar allowed the
+program to re-size per band; the new one does not. Gate name **D4-SIM**,
+recorded in `lna/plans2/14-DHRUVA-SIMUL.md` (which also restates the target
+ladder, since `08-DHRUVA-GOAL.md` lived in the since-removed `lna-plans`
+worktree and is no longer on disk).
+
+**Result (FINDINGS §35).** The new gate was measured the same day it was set,
+and it was **already met — by all four shipped sizings**. The 4×4 matrix
+(each `mf2-v1` parameter set of `ace8383c` evaluated against every band spec,
+16 cells) is 16/16 PASS. The designated D4-SIM point is the `dhruva-l5`
+sizing: **NF 0.867 / 0.995 / 1.196 / 1.253 dB at the S / L1 / L2 / L5 f0s
+against limits 3.5 / 2.7 / 2.5 / 2.5** — worst margin +1.247 dB — with S21
+33.7–36.0 dB (worst margin +3.7 dB), S11 −10.001 dB held over the whole
+1.1–2.5 GHz range, one fixed 12.963 mA operating point, unconditionally
+stable in-band and 0.1–20 GHz. Replay fence 3/3, spread 0.0000, every gated
+metric, every band. Driver: `recreate.py --cross`, committed with the package.
+
+**Understanding.** The result was latent in decisions made months of stages
+ago, and nobody had asked the question. Every dhruva spec gates **S11
+band-wide, not at f0** — so every sizing was already forced to hold the match
+across the whole reconfiguration range; the winner's gain ripple over that
+range (2.3–4.4 dB) is smaller than its worst-case gain slack; and the
+multi-finger cutover's 1–2.2 dB of own-band NF margin absorbs the ≤0.8 dB
+off-tune NF rise. The per-band re-sizing was buying margin, not feasibility.
+Two honest edges: the benchmark that is now met is **tier-1+tier-2
+simultaneous** — tier-3 (IIP3, differential balance, gain programmability)
+remains unmeasured, and the paper specifies IIP3 at *min gain* while this
+design sits at one fixed ~34–36 dB point, so the linearity question is
+harder for this design, not easier; and **S11 margin is 0.001–0.002 dB on
+every row** — the match is the binding constraint by construction, and no
+corner or parasitic has been asked to move it yet.
+
 ## Current frontier
 
 As of this document's writing (`lna-data`, commit `5be4de3` and whatever
@@ -1761,6 +1798,16 @@ explicitly deferred to the user:
   **only**; whether either closes `l2`/`l1`/`s` is an open, cheap question and
   is the natural next claim. Stage 22's "0.81 dB short on `dhruva-l5`" is
   superseded — it was measured through the pre-cutover single-finger harness.
+- **Gate D4-SIM is MET (stage 30)** — the benchmark restated to *one fixed
+  sizing, all four bands at once* closed the day it was set: the `dhruva-l5`
+  sizing of `ace8383c` passes tier-1+tier-2 on all four bands simultaneously
+  (worst NF margin +1.25 dB, worst S21 margin +3.7 dB, 16/16 matrix cells
+  PASS across all four sizings). **The Dhruva frontier is now tier-3 and
+  fidelity**: IIP3 (no two-tone/HB harness — the VACASK bookmark), output
+  balance (no 3-port differential harness), gain programmability (no
+  switchable DOFs), plus the 0.001 dB S11 margin that no corner or parasitic
+  has yet been asked to move (`lna/plans2/14-DHRUVA-SIMUL.md` §4 is the
+  upgrade ladder).
 - **`wideband-sdr`, under the corrected spec (stage 19), has never once
   produced a design that holds S11 band-wide** — 0/134 stored rows, at any
   NF/gain trade-off, under the metric the spec always meant to enforce. The

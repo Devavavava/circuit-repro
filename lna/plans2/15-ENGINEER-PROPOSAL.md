@@ -438,6 +438,16 @@ annoyance.
 
 ## 7. Decision queue (user rulings requested)
 
+**RULED (user, 2026-08-14): all decisions approved as recommended, including
+D-6.** The user's words: "i've been through your engineer proposal, im fine
+with all your decisions - i do want to try D6 as well (the re-aim)". D-6
+executes as a two-line structure: current work fast-forwarded to `main`
+(535104c→5b4b5c2), a separate `engineer` branch forked at the same tip and
+managed independently; the lines combine where possible (training data via
+the store sync tool, shared core per the engineer charter's policy). D-1
+(WP-LIN) remains gated on the separate 16-WP-LIN sign-off, whose own
+D-1…D-9 internal decision points are still open.
+
 | # | Decision | Recommendation |
 |---|---|---|
 | D-1 | Run N1 (WP-LIN) with the three upgrades of §4.1-N1 | Yes — already-ruled WP-LIN, upgraded, no scope change |

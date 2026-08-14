@@ -9,3 +9,19 @@
 *.cir text eol=lf
 *.sh  text eol=lf
 *.py  text eol=lf
+
+# Append-only store tables (lna/datastore.py) and the playbook edge log
+# (lna/playbook.py) are combined ACROSS git lines (main/lna-data vs engineer)
+# only through lna/sync_lines.py (plans2/15-ENGINEER-PROPOSAL.md SS5.6), never
+# through a git merge/rebase of these files directly. Reason: git's line-based
+# text merge can reorder, interleave, or duplicate independently-appended
+# JSONL lines across a 3-way merge, and datastore.py's snapshots pin an exact
+# (line count, sha256-of-byte-prefix) -- a merge that changes so much as one
+# byte's position anywhere in the pinned prefix makes every existing snapshot
+# for that table permanently unverifiable (datastore.load raises on the
+# mismatch). `-merge -diff` disables git's content merge and content diff for
+# these paths so a conflicting cross-line merge fails loudly (a real git
+# conflict marker) instead of silently interleaving; the actual cross-line
+# combination path is always `python lna/sync_lines.py --source ... --dest ...`.
+lna/data/*.jsonl        -merge -diff
+lna/playbook/edges.jsonl -merge -diff

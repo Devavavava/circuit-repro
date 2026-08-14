@@ -667,11 +667,30 @@ falls — with full detail in FINDINGS §43.*
 
 | pre-registered claim | verdict |
 |---|---|
-| **P1** designated point's baseline OIP3 below the l5 point's | *(pending)* |
-| **P2** current-limited, not voltage-limited | *(pending)* |
-| **P3** the ~12 dB + ~8–9 dB decomposition | *(pending)* |
-| **P4** the §42.3 match wall has lifted on this host | *(pending)* |
-| **P5** F / G / H killed early | *(pending)* |
-| **P6** candidate B eaten by the Idd gate | *(pending)* |
-| **P7** a nominal-only pass under the sensitivity sweep | *(pending)* |
-| **Gate D5 at the D6 min-gain state, 1.2 V** | *(pending)* |
+| **P1** designated point's baseline OIP3 below the l5 point's | **CONFIRMED (rung 0), two-harness.** OIP3 −1.4…−2.5 dBm; **5.1–5.8 dB below** the l5 point's +3.2…+3.4 at 1.1 V like-for-like (FINDINGS §44.5). Cross-checked in VACASK HB (§44.9): OIP3 −1.3…−2.3 at max gain, agreeing with transient to 0.07–0.20 dB (0.08 dB at the ruled 1.2 V). |
+| **P2** current-limited, not voltage-limited | **CONFIRMED (rung 0), three ways.** Current limit binds by 6.93×=16.8 dB over headroom; +100 mV rail moves OIP3 +0.61 dB (<2 dB bar); OIP3 orders with Iq·\|Z_ac\| at Spearman ρ=1.0000 (FINDINGS §44.4). |
+| **P3** the ~12 dB + ~8–9 dB decomposition | *(partial — rung 0, two-harness)* The ~12 dB half is measured to buy **0 dB IIP3** (output-side S3, IIP3 −34 at min ≈ −34.5 at max) — confirmed cross-method in HB (§44.9: IIP3 pinned −33…−34 while OIP3 falls to −13 at S3); the ~8–9 dB output-OIP3 half and the front-side half need rungs 1–4 (not run). |
+| **P4** the §42.3 match wall has lifted on this host | *(pending — rung 1)* not run; needs `pgain.py --probe/--wall --sizing simul`. |
+| **P5** F / G / H killed early | *(pending — rungs 1/3)* not run. |
+| **P6** candidate B eaten by the Idd gate | *(pending — rung 3, D-6 union config)* not run. |
+| **P7** a nominal-only pass under the sensitivity sweep | *(pending — rung 4)* not run. |
+| **Gate D5 at the D6 min-gain state, 1.2 V** | **FAILED 0/4 bands (rung 0), 26.6–27.7 dB short — TWO-harness measured.** IIP3 ≈ −34 dBm vs ≥ −7.4/−7.6/−8.7; OIP3 −13.0…−13.3 at S3/1.2 V (FINDINGS §44.2). **HB agrees, 0/4 fail at every configuration (§44.9); all four configs reached, so §7 D-8's asterisk is RESOLVED** — the D5 baseline is two-harness measured, not one. |
+
+**Rung-0 outcome note (2026-08-14, Session 10, executed on `main` per the RHEL
+port — FINDINGS §44).** Rung 0 — and only rung 0, per user sign-off — ran. It
+closed §1.3 items 1–3: `dhruva-simul.sp` emitted at both rails + the D6 S3
+variant; the point's first-ever IIP3/OIP3 measured, replay-fenced (0.0000 dB
+in-process and separate-process), at max gain and the D6 min-gain state, both
+rails; the §2.1 op table re-derived (reproduces every digit); the §2.2 four-
+point falsification test run. **P1 and P2 both confirmed; D5 FAILS 0/4 at the
+ruled condition.** The transient numbers were first reported under D-8 (VACASK HB
+was blocked on this box — Windows path in `check_hb.py`, `VACASK_HOME` unset).
+**VACASK was then built for RHEL the same day, `check_hb` went GREEN, and all four
+configurations were re-measured in harmonic balance (FINDINGS §44.9): HB FAILS D5
+0/4 at every configuration, agreeing with the transient half to 0.08 dB at the
+ruled 1.2 V nominal. All four configs were reached, so D-8's asterisk is
+resolved — the D5 baseline is two-harness measured.** No candidate mechanism,
+screen, or surrogate was run (rungs 1–4 remain). Candidate N is **not** recorded (its bar is 2-of-5 met;
+recording it is a §7 D-1 user decision). No spec was re-negotiated, no budget
+widened, no frozen-protocol content or D5 row touched. Deviations recorded in
+FINDINGS §44.7.

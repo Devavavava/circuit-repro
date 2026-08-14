@@ -85,11 +85,15 @@ def trace_of(envr, every=TRACE_EVERY):
 
 
 def run(task_id=SMOKE, budget=None, seed=1, algo="cmaes", log=True, out=None,
-        verbose=True):
+        verbose=True, traj_path=None):
     task = get(task_id, seed=seed, **({"budget": budget} if budget else {}))
     run_id = EV._run_id(task)
+    # traj_path lets a parallel driver (score_run.py) point each cell's trajectory
+    # at its OWN file, so concurrent processes never write the canonical
+    # trajectories.jsonl at once; default None keeps the canonical append path.
     logger = (TrajectoryLogger(run_id=run_id, meta={"algo": algo,
-                                                    "driver": "baseline_run"})
+                                                    "driver": "baseline_run"},
+                               **({"path": traj_path} if traj_path else {}))
               if log else None)
     envr = Env(task, logger=logger)
     if verbose:

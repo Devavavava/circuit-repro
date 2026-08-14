@@ -93,11 +93,15 @@ def trace_of(envr, every=TRACE_EVERY):
     return out
 
 
-def run(task_id=SMOKE, budget=None, seed=1, log=True, out=None, verbose=True):
+def run(task_id=SMOKE, budget=None, seed=1, log=True, out=None, verbose=True,
+        traj_path=None):
     task = get(task_id, seed=seed, **({"budget": budget} if budget else {}))
     run_id = EV._run_id(task)
+    # traj_path: see baseline_run.run -- each parallel cell writes its own
+    # trajectory file; default None keeps the canonical append path.
     logger = (TrajectoryLogger(run_id=run_id, meta={"algo": "random",
-                                                    "driver": "random_run"})
+                                                    "driver": "random_run"},
+                               **({"path": traj_path} if traj_path else {}))
               if log else None)
     envr = Env(task, logger=logger)
     if verbose:

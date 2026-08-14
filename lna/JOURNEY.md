@@ -2263,6 +2263,60 @@ frozen protocol, and no gate verdict; it changed what the program can trust
 under itself. Next stop is user rulings (§43.9 + 16-WP-LIN's D-1…D-9),
 then WP-LIN.
 
+## 41. The re-aim — every proposal decision approved, the program becomes two lines, and the engineer line is founded the same day
+
+**Decision** (user, 2026-08-14): "i've been through your engineer proposal,
+im fine with all your decisions - i do want to try D6 as well (the re-aim) -
+perhaps what you can do is make our current work the main branch, and create
+an engineer fork and we'll manage them separately and combine whatever parts
+can be combined (training data being generated for example, common models
+etc)". Every §7 decision of 15-ENGINEER-PROPOSAL is now RULED as
+recommended, and D-6 — the product is the engineer, dhruva the flagship
+case study — is adopted as a two-line structure rather than a pivot.
+
+**Result.** (1) **`main` now IS the current work** — fast-forwarded
+535104c→5b4b5c2→134978e, a pure ff both times, no conflicts possible; the
+LNA program continues on `lna-data` and fast-forwards main. (2) **The
+`engineer` line exists**: branch + worktree forked at the same tip,
+first commit `912bac1` — `engineer/00-CHARTER.md` (the product, non-goals,
+the two-line management policy: shared core lands on main first and merges
+main→engineer, engineer inventions return by explicit cherry-pick only,
+data combines via the sync tool, models are never binary-shared),
+`engineer/env.py` (Task/evaluate/observe/trajectory-log over the lna core,
+read-only, with a walk-up runtime-dep shim verified on both the junction
+and rebind paths), `engineer/tasks.py` (benchmark registry v0: 8 tasks
+pinned by exact ref_ts so no store append can move a frozen budget —
+`--check` re-derives all pins GREEN; all tier-2, and the charter states
+plainly that no tier-3 task exists until WP-LIN binds the two-tone
+harness), and `engineer/baseline_run.py` (the smoke: CMA-ES through the
+env on wifi24-smoke, 150 evals = 300 ngspice calls in 15.1 s, infeasible
+on s11 by 0.25 normalized at that budget, reproduced to the digit —
+reported honestly beside the published 336-eval figure). (3) **The
+combining machinery is real**: `lna/sync_lines.py` (prefix-preserving,
+snapshot-safe union of the append-only stores + playbook, --check GREEN,
+identity dry-run over the live store appends 0) and `.gitattributes` now
+mark every jsonl table `-merge` so a raw git merge fails loudly instead of
+silently interleaving a snapshot's pinned byte prefix. (4) The founding
+took two attempts: subagents inherit the coordinator's worktree pin, so
+the first founding agent could not write into the engineer worktree at
+all — it converted the block into finished research (the registry, the
+binding numbers, the shim design), and the coordinator moved its own
+session pin, fixed the missing runtime-dep junctions, and relaunched.
+Goldens GREEN in both worktrees.
+
+**Understanding.** The re-aim cost one afternoon because the proposal's
+claim held: the engineer product already existed inside the LNA program —
+the founding commit contains no new capability, only a clean surface
+(Task/evaluate/observe), a benchmark whose budgets are pinned against
+drift, and a charter whose real content is the *management policy* for
+letting two lines share one append-only data engine without corrupting
+each other. The honest edges are stated where they bite: the benchmark
+has no linearity rung until WP-LIN lands on the LNA line, wideband-sdr
+anchors on a pre-cutover row, and the smoke budget is deliberately too
+small to pass — a benchmark that starts honest stays honest. Open next:
+the E-queue (E-1…E-5) on the engineer line, WP-LIN sign-off (16-WP-LIN
+D-1…D-9) and §43.9 R-a…R-f on this line.
+
 ## Current frontier
 
 As of this document's writing (`lna-data`, commit `5be4de3` and whatever

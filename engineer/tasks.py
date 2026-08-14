@@ -67,8 +67,10 @@ from spec import Spec                           # noqa: E402
 
 # --------------------------------------------------------------- the registry
 # Frozen 2026-08-14 against `lna/data/topo_labels.jsonl` at 4,074 L2 rows.
-# `ref_evals` is the pinned row's own `n_evals`; `budget` equals it except where
-# a task exists to be cheap (the smoke).
+# `ref_evals` is the pinned row's own `n_evals`; `budget` equals it except (a)
+# where a task exists to be cheap (the smoke) or (b) where the pinned row is an
+# era-relabeled row (n_evals=0 by construction) and the budget is inherited from
+# the original campaign -- see wideband-sdr-t2-a and R-2 in 00-CHARTER.md §7.
 _ROWS = [
     # id                    spec            wl_hash             dev  budget  ref_evals  ref_ts                       feas   ref_obj              era
     ("wifi24-smoke",        "wifi24",       "4b351a49fa6e4f23",  10,   150,     336, "2026-08-11T07:31:52+00:00", True,  -0.7324616666666666, "current",
@@ -82,12 +84,14 @@ _ROWS = [
      "Small (d is the smallest in the registry) and the reference is INFEASIBLE "
      "at obj +7.92 -- a task where the incumbent did not solve it, which is the "
      "kind a benchmark needs and a leaderboard usually lacks."),
-    ("wideband-sdr-t2-a",   "wideband-sdr", "e56f5b775362195d",   6,   136,     136, "2026-08-09T11:45:22+00:00", False,  3.3402730595238097, "pre-cutover",
-     "ERA CAVEAT, stated rather than absorbed: no current-era row exists for any "
-     "wideband-sdr topology, so this task's reference (ingest-v1, w_finger unset) "
-     "predates the multi-finger cutover and its NF in particular is not "
-     "comparable to a number measured today. The DECK is current-era either way "
-     "-- what is stale is the reference, not the environment."),
+    ("wideband-sdr-t2-a",   "wideband-sdr", "e56f5b775362195d",   6,   136,       0, "2026-08-14T10:47:16+00:00", False,  None,               "current",
+     "R-2 executed 2026-08-14: re-labeled under era 2026-08-14-relabel (w_finger=2e-6, "
+     "series_rs NF, stab harness). ref_ts is the relabeled row (n_evals=0 by "
+     "construction -- a re-label is one measurement of one stored point, not a "
+     "campaign); budget=136 is inherited from the original 136-eval campaign "
+     "(ingest-v1, ts=2026-08-09T11:45:22). Old ref NF 8.27 dB; new ref NF 6.28 dB "
+     "(d=-1.99 dB, era-attributable, fence PASS). ref_obj dropped to None: the "
+     "relabeled row carries no best_obj (it is not a search result)."),
     ("dhruva-l1-t2-a",      "dhruva-l1",    "439032fd40e7e504",  18,   392,     392, "2026-08-10T10:45:44+00:00", True,   None,               "current",
      "The flagship case study's L1 band. 18 devices, the largest deck here."),
     ("dhruva-l2-t2-a",      "dhruva-l2",    "439032fd40e7e504",  18,   266,     266, "2026-08-10T07:55:06+00:00", True,   None,               "current",
@@ -159,7 +163,13 @@ def cmd_check():
 
     Three claims are checked, all of which this file makes in prose above: the
     pinned row still exists; the selection rule still selects it; and no spec has
-    started supporting `iip3_dbm` behind the registry's back."""
+    started supporting `iip3_dbm` behind the registry's back.
+
+    Era-relabeled rows carry n_evals=0 by construction (a re-label measures one
+    stored point once, not a new campaign). For tasks pinned to such rows the
+    pinned-row lookup searches all rows (not just n_evals>0 ones), and a matching
+    n_evals=0 against a registry ref_evals=0 is correct -- it means the budget is
+    set independently from the era-matched reference row."""
     rows = ds.load("topo_labels")
     bad = 0
     print(f"store: {len(rows)} L2 rows")
@@ -167,7 +177,12 @@ def cmd_check():
         cand = [r for r in rows if r.get("spec") == t.spec
                 and r.get("wl_hash") == t.wl_hash
                 and (r.get("graph") or {}).get("tokens") and r.get("n_evals")]
-        pinned = [r for r in cand if r.get("ts") == t.ref_ts]
+        # Pinned-row lookup: use all token-carrying rows so that era-relabeled
+        # rows (n_evals=0) can be pinned explicitly.
+        all_topo = [r for r in rows if r.get("spec") == t.spec
+                    and r.get("wl_hash") == t.wl_hash
+                    and (r.get("graph") or {}).get("tokens")]
+        pinned = [r for r in all_topo if r.get("ts") == t.ref_ts]
         withobj = [r for r in cand if isinstance(r.get("best_obj"), (int, float))]
         rule = (withobj or cand)[-1] if cand else None
         msgs = []

@@ -1,0 +1,56 @@
+{
+  "id": "wideband-sdr-band-wide-match-wall",
+  "type": "diagnosis",
+  "trigger": {
+    "family": [
+      "wideband-sdr",
+      "lna"
+    ],
+    "analysis": [
+      "sp",
+      "s-parameter",
+      "sizing"
+    ],
+    "failure_signature": [
+      "band-match-wall",
+      "topology-exhaustion"
+    ],
+    "keywords": [
+      "wideband",
+      "s11_max",
+      "ripple",
+      "inductorless",
+      "multi-path-feedback",
+      "archetype",
+      "library"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "**Sharper diagnosis: `s11_max_db ≤ −10 dB` has never once been cleared by any of the 134 stored rows, at any NF/gain trade-off** — versus 29/134 (22%) that had passed the wrong, easy gate.",
+      "source": "JOURNEY stage 19 (FINDINGS §22.5)"
+    },
+    {
+      "quote": "the motif that carries all four dhruva bands carries **nothing** there — 0 of 119 graphs have ever held that band match, source-driven ones peaking at −6.61 dB — so stage 19's topology-library reading stands untouched.",
+      "source": "JOURNEY stage 24 (FINDINGS §29.11)"
+    },
+    {
+      "quote": "Six of the twelve surveyed literature designs are explicitly 0-inductor, which is evidence the wall is a **topology-library gap** (no archetype here implements a multi-path feedback match like Sobhy et al., TMTT 2011) rather than a physical impossibility",
+      "source": "JOURNEY stage 19"
+    }
+  ],
+  "rule": "Add a multi-path-feedback match archetype to the library before spending any further sizing or generation budget on wideband-sdr's band-wide S11.",
+  "applicability": {
+    "applies": "The wideband-sdr spec under its corrected metric (s11_max_db, gain tightened 12 -> 14 dB against measured silicon). The wall is measured across 134 stored rows and 119 graphs, by two different instruments.",
+    "not": "This is a library gap, not a physical ceiling -- twelve surveyed measured-silicon designs clear it, six of them with zero inductors. Do not read it as 'wideband-sdr is infeasible'; read it as 'the archetype is missing'."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 19",
+    "JOURNEY stage 24",
+    "FINDINGS §22.4",
+    "FINDINGS §22.5",
+    "FINDINGS §29.11"
+  ],
+  "created": "2026-08-14"
+}

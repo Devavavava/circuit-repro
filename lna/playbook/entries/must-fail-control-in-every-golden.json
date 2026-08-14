@@ -1,0 +1,64 @@
+{
+  "id": "must-fail-control-in-every-golden",
+  "type": "harness-rule",
+  "trigger": {
+    "family": [
+      "any"
+    ],
+    "analysis": [
+      "any",
+      "golden",
+      "harmonic-balance",
+      "transient",
+      "3-port"
+    ],
+    "failure_signature": [
+      "numerical-artefact",
+      "instrument-perturbation"
+    ],
+    "keywords": [
+      "golden",
+      "negative-control",
+      "reltol",
+      "tolerance",
+      "tripwire",
+      "bar",
+      "null-circuit"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "| **G0** | *negative control*: same circuit at VACASK's **default** reltol | IM3 phasor `6.0e-16` instead of `9.375e-5` → **IIP3 +133.18 dBm vs +21.25 analytic, +111.9 dB error** — the guard bites |",
+      "source": "FINDINGS §40.1"
+    },
+    {
+      "quote": "**G0 is the finding worth keeping**: `options reltol=1e-6` is not hygiene. At the default tolerance the IM3 line lands in Newton residual noise and the harness would have reported a *passing* +133 dBm. Any future reader who deletes that line as cargo cult is caught by G0.",
+      "source": "FINDINGS §40.1"
+    },
+    {
+      "quote": "At the harness's original 10 ps default, G1 **FAILED** its pre-registered −110 dBc bar. The response was to converge the method, not to move the bar",
+      "source": "FINDINGS §37.2"
+    },
+    {
+      "quote": "a **polarity trip-wire** (an in-phase splitter must read ~180°, so a circuit that merely splits cannot fake a pass)",
+      "source": "JOURNEY stage 36 (check_diff.py)"
+    }
+  ],
+  "rule": "Ship every golden with at least one control that must FAIL, and when a golden fails, converge the method instead of moving the bar.",
+  "applicability": {
+    "applies": "Every harness with a numerical knob whose necessity is not self-evident (solver tolerance, timestep, harmonic count) and every harness where a degenerate circuit could fake a pass.",
+    "not": "A must-fail control only guards the mechanism it exercises; G0 catches tolerance, G1 catches timestep, the polarity tripwire catches a splitter. It cannot certify the model or the port -- that is a separate measurement."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 35 (WP-HB)",
+    "JOURNEY stage 32 (WP-IIP3)",
+    "JOURNEY stage 36 (WP-DIFF)",
+    "FINDINGS §40.1",
+    "FINDINGS §37.2",
+    "lna/ref/check_hb.py",
+    "lna/ref/check_iip3.py",
+    "lna/ref/check_diff.py"
+  ],
+  "created": "2026-08-14"
+}

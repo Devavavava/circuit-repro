@@ -1,0 +1,53 @@
+{
+  "id": "judge-linearity-at-the-min-gain-state",
+  "type": "strategy",
+  "trigger": {
+    "family": [
+      "dhruva",
+      "gnss",
+      "lna"
+    ],
+    "analysis": [
+      "two-tone",
+      "harmonic-balance",
+      "iip3",
+      "gain-programmability"
+    ],
+    "failure_signature": [
+      "iip3-wall",
+      "spec-governance"
+    ],
+    "keywords": [
+      "iip3",
+      "min-gain",
+      "d5",
+      "d6",
+      "gate-ladder",
+      "programmability"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "Both halves of the D5 measurement now say the paper's IIP3 condition is a **min-gain** condition that a fixed-gain design cannot enter, so D6 is closer to a **prerequisite** for a like-for-like D5 than a successor to it",
+      "source": "FINDINGS §37.7"
+    },
+    {
+      "quote": "gain control at the back of an amplifier buys range without buying linearity, while the paper specifies IIP3 precisely *at* the minimum-gain setting",
+      "source": "JOURNEY stage 37 (WP-PGAIN)"
+    }
+  ],
+  "rule": "Measure IIP3 at the min-gain state of the programmability configuration, and treat gain programmability as a prerequisite of the linearity gate rather than its successor.",
+  "applicability": {
+    "applies": "Any spec whose linearity number is quoted at a gain setting the design cannot enter; the ladder order must follow the measurement condition, not the document order.",
+    "not": "Does not rescue a design whose miss survives the whole min-gain allowance -- granting the full 10.6 dB for free still left ~14.8 dB missing on the D4-SIM point. Reordering the ladder is a user decision, flagged and not taken."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 32 (WP-IIP3)",
+    "JOURNEY stage 37 (WP-PGAIN)",
+    "FINDINGS §37.7",
+    "FINDINGS §42.6",
+    "lna/plans2/14-DHRUVA-SIMUL.md §2.1"
+  ],
+  "created": "2026-08-14"
+}

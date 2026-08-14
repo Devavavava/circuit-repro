@@ -1,0 +1,60 @@
+{
+  "id": "era-cutover-is-a-new-label-domain",
+  "type": "harness-rule",
+  "trigger": {
+    "family": [
+      "any"
+    ],
+    "analysis": [
+      "any",
+      "training",
+      "labeling"
+    ],
+    "failure_signature": [
+      "era-mismatch",
+      "label-domain-mismatch",
+      "surrogate-era"
+    ],
+    "keywords": [
+      "era",
+      "cutover",
+      "relabel",
+      "label-domain",
+      "recipe",
+      "stamp",
+      "snapshot",
+      "pooling"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "`zoaf_cfg.nf_gated` is stamped on every row — **rows with nf_gated true/false are different label domains, and every pre-session row is implicitly false.**",
+      "source": "FINDINGS §13.1"
+    },
+    {
+      "quote": "**the `nf_db` column is the RETIRED port-referred NF** (finding #7) — the one that flattered every design without exception, and which reads as low as **-18.94 dB** in this table. It is learned here as a fourth response surface because it is a real deterministic function of the same deck; it must **never** be pooled with, ranked against, or substituted for a `series_rs` NF;",
+      "source": "FINDINGS §33.2"
+    },
+    {
+      "quote": "the relabel must re-measure the **whole metric vector**, because the match moves too — a row has to carry the metrics that go with its geometry.",
+      "source": "JOURNEY stage 23"
+    }
+  ],
+  "rule": "Stamp every harness change on every row, never pool two eras in one training set or ranking, and relabel append-only behind an old-geometry replay fence.",
+  "applicability": {
+    "applies": "All 66,664 sim_points rows and most L2 rows predate three cutovers (multi-finger, series-Rs NF, stability guard). Any learned component, benchmark table or capability claim must state which era its rows came from.",
+    "not": "The doctrine is not 'discard the old rows' -- pre-cutover data is still valid inside its own domain (the surrogate's mechanism result is era-independent even though its numbers are not). What is forbidden is mixing, substituting or ranking across the stamp."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 11 (WP-D1)",
+    "JOURNEY stage 23 (multi-finger cutover)",
+    "JOURNEY stage 26 (WP-SURROGATE)",
+    "FINDINGS §13.1",
+    "FINDINGS §27.3",
+    "FINDINGS §33.2",
+    "FINDINGS §38.1",
+    "lna/datastore.py"
+  ],
+  "created": "2026-08-14"
+}

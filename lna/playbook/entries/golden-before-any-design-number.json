@@ -1,0 +1,61 @@
+{
+  "id": "golden-before-any-design-number",
+  "type": "strategy",
+  "trigger": {
+    "family": [
+      "any"
+    ],
+    "analysis": [
+      "any",
+      "golden",
+      "noise",
+      "sp",
+      "harmonic-balance",
+      "3-port"
+    ],
+    "failure_signature": [
+      "harness-artefact",
+      "metric-blind-spot"
+    ],
+    "keywords": [
+      "golden",
+      "closed-form",
+      "green",
+      "validation",
+      "regression",
+      "check",
+      "reference"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "No design number was read before `lna/ref/check_hb.py` printed **GREEN**. Four checks, all closed-form, no BSIM anywhere",
+      "source": "FINDINGS §40.1"
+    },
+    {
+      "quote": "Golden-locked: `extract.py --selftest` reads **3.012469 dB vs the analytic 3.0103**, and `ref/check_nf.py` is GREEN across an Rn sweep (worst error 0.002 dB).",
+      "source": "FINDINGS §13.1"
+    },
+    {
+      "quote": "the honest headline of this stage is *156 rows and a validated instrument*, not a result.",
+      "source": "JOURNEY stage 25"
+    }
+  ],
+  "rule": "Validate every new harness against closed form and print GREEN before reading a single design number from it.",
+  "applicability": {
+    "applies": "Every measurement capability added to this tree; the regression quartet (now check_ref/check_nf/check_stab/check_bjt/check_op/check_hb/check_iip3/check_diff) is required green before AND after every work package.",
+    "not": "A golden certifies the arithmetic, not the claim -- see must-fail-control-in-every-golden for the numerics and cross-simulator-port-must-be-measured for the model. A golden built only on a purely resistive reference silently exempts the integrator."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 11 (WP-D1)",
+    "JOURNEY stage 25 (WP-OBSERVE)",
+    "JOURNEY stage 35 (WP-HB)",
+    "JOURNEY stage 36 (WP-DIFF)",
+    "FINDINGS §13.1",
+    "FINDINGS §30.1",
+    "FINDINGS §40.1",
+    "FINDINGS §41.1"
+  ],
+  "created": "2026-08-14"
+}

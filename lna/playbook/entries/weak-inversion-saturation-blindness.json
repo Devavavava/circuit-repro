@@ -1,0 +1,59 @@
+{
+  "id": "weak-inversion-saturation-blindness",
+  "type": "harness-rule",
+  "trigger": {
+    "family": [
+      "any",
+      "lna",
+      "dhruva"
+    ],
+    "analysis": [
+      "op",
+      "dc",
+      "bias"
+    ],
+    "failure_signature": [
+      "weak-inversion-blindness",
+      "metric-blind-spot"
+    ],
+    "keywords": [
+      "saturated",
+      "vdsat",
+      "weak-inversion",
+      "gm-id",
+      "bias",
+      "region",
+      "bsim4",
+      "overdrive"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "dev      Id mA   gm mS    Vgs     Vth     Vov     Vds   Vdsat   gm/Id\nmnm1     0.510   8.868   0.2352  0.2721  -0.0369  0.4456  0.0564  17.4\nmnm2     2.146  37.137   0.2363  0.2721  -0.0358  0.4482  0.0566  17.3\nmnm4     6.941  80.041   0.3230  0.2716  +0.0515  0.6626  0.0875  11.5",
+      "source": "FINDINGS §30.5 (ngspice op read-out on ace8383c at its own best_params)"
+    },
+    {
+      "quote": "`bias.saturated` calls a device saturated when `|Vds| >= 1.5|Vdsat|`. In weak inversion BSIM4's `Vdsat` **collapses to ~55 mV**, so every one of those negative-overdrive devices passes that test by 5–8×: **`bias.saturated` reports all 25 of these transistors as saturated.**",
+      "source": "FINDINGS §30.5"
+    },
+    {
+      "quote": "| weak-inversion (`sub`) devices that `bias.saturated` calls **saturated** | **615 / 621 = 99.0%** |\n| `bias.saturated` used as a **weak-vs-strong score**, AUC | **0.552** — chance, *with a full DC solve in hand* |",
+      "source": "FINDINGS §34.2 (harvest, 4,096 devices)"
+    }
+  ],
+  "rule": "Classify inversion level from gm/Id (sub ~17-20 V^-1, sat ~10-12 V^-1), never from bias.saturated's |Vds| >= 1.5|Vdsat| predicate.",
+  "applicability": {
+    "applies": "Every statement in this program's history of the form 'N of 41 corpus circuits are saturated' -- it means CONDUCTING WITH ADEQUATE VDS HEADROOM, not IN STRONG INVERSION, and must be read that way. Also the argument for a gm/Id reparameterization of the sizing space (15-ENGINEER §1.4 item 6).",
+    "not": "Not a bug in bias.py -- the predicate answers the question it was built for (is the device conducting?), where it scores AUC 0.737. Nothing measured under it is wrong; the label is narrower than it reads."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 25 (WP-OBSERVE)",
+    "JOURNEY stage 29 (WP-DIAGHEADS)",
+    "FINDINGS §30.5",
+    "FINDINGS §34.2",
+    "lna/bias.py",
+    "lna/extract.py"
+  ],
+  "created": "2026-08-14"
+}

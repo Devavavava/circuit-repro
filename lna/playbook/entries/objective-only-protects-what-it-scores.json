@@ -1,0 +1,67 @@
+{
+  "id": "objective-only-protects-what-it-scores",
+  "type": "anti-pattern",
+  "trigger": {
+    "family": [
+      "any",
+      "lna"
+    ],
+    "analysis": [
+      "sizing",
+      "polish",
+      "constrained-descent",
+      "sp"
+    ],
+    "failure_signature": [
+      "objective-omission",
+      "s11-knife-edge"
+    ],
+    "keywords": [
+      "polish",
+      "objective",
+      "stability",
+      "k-factor",
+      "box",
+      "clamp",
+      "slack",
+      "acceptance",
+      "descent"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "The *same* `seq0220` topology sized by curated ZOAF is fine (K_min 4.08) while its polished row is not — **the min-margin polish walked it into a potentially unstable region, because stability is in no objective.**",
+      "source": "FINDINGS §13.2"
+    },
+    {
+      "quote": "The min-margin ascent scaled each parameter by (1 ± step) and never consulted `kind_ranges(spec)`, so it walked outside the spec's declared device limits. [...] Audit: **6 of 19 feasible rows**, all polish-derived",
+      "source": "FINDINGS §13.3"
+    },
+    {
+      "quote": "Both knife-edge constraints are knife-edge **by construction**: `constrained_descent` (`keep=\"s11idd\"`) descends NF while pinning S11 and Idd at their gate values, so the shipped point *provably* sits at the boundary of exactly those two — the sweep measures the cost of that objective shape.",
+      "source": "FINDINGS §39.2"
+    },
+    {
+      "quote": "once a design's gain is well above its floor, polish values that surplus at exactly zero, so it can never trade gain slack for noise",
+      "source": "JOURNEY stage 17"
+    }
+  ],
+  "rule": "Put every constraint a claim depends on into the optimizer's acceptance rule, and read any constraint the objective pins as sitting exactly on its boundary.",
+  "applicability": {
+    "applies": "Every ascent/descent pass in size.py and every future acceptance rule. The corollary for slack: a min-margin objective values surplus at zero and can never trade it, so a metric that needs slack spent on it needs its own mode (constrained_descent).",
+    "not": "The guard belongs at the ACCEPTANCE rule, not in the objective -- injecting stability into plain ZOAF's scalar would re-domain every future label, which is a governance change, proposed rather than taken. Note also that the box clamp had already closed the specific historical road, so the stability guard fired zero in-vivo refusals on the very case that motivated it; its value is the floor under FUTURE trajectories."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 11 (Session 4)",
+    "JOURNEY stage 17 (WP-NF)",
+    "JOURNEY stage 33 (WP-STABGUARD)",
+    "JOURNEY stage 34 (WP-SENS)",
+    "FINDINGS §13.2",
+    "FINDINGS §13.3",
+    "FINDINGS §38.1",
+    "FINDINGS §39.2",
+    "lna/size.py"
+  ],
+  "created": "2026-08-14"
+}

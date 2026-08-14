@@ -1,0 +1,58 @@
+{
+  "id": "unenforced-metric-comes-due",
+  "type": "anti-pattern",
+  "trigger": {
+    "family": [
+      "any",
+      "wideband-sdr",
+      "lna"
+    ],
+    "analysis": [
+      "any",
+      "noise",
+      "sp"
+    ],
+    "failure_signature": [
+      "metric-blind-spot",
+      "spec-governance"
+    ],
+    "keywords": [
+      "advisory",
+      "gate",
+      "metric",
+      "s11_max",
+      "nf",
+      "port-referred",
+      "spec",
+      "definition"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "**Measured domain shift — the port NF flattered every single design.** series_rs minus port-referred was **always positive**: min +0.55, median +2.32, mean +3.93, max +12.58 dB. Two rows had read physically impossible *negative* noise figures (−8.31 → +3.48, −4.52 → +3.71).",
+      "source": "FINDINGS §13.1"
+    },
+    {
+      "quote": "the constraint key was `s11_db`, which `extract.py` computes **at the reporting frequency f0 only** — not `s11_max_db` (worst case over `[f_lo, f_hi]`, also computed, just never gated).",
+      "source": "FINDINGS §22.2"
+    },
+    {
+      "quote": "of **14 distinct feasible designs, tier-1 (S11/S21/Idd) held for all 14, but tier-2 (NF-gated) held for only 2**",
+      "source": "JOURNEY stage 11 (the NF-gate survivor contrast)"
+    }
+  ],
+  "rule": "Build the physically-correct version of every advisory or assumed metric and diff it against the one in use before any claim rests on it.",
+  "applicability": {
+    "applies": "Any metric marked advisory, unsupported, or documented-but-unverified. A supported-but-MISSING metric must count as fully violated, or it flattens the objective. Both instances here were one-directional and large.",
+    "not": "The store's feasible bool was never wrong in the S11 case -- it correctly judged the spec as literally written. The defect was the SPEC not matching its own documented intent, which is why the audit has to compare the metric against its documentation and its sibling specs, not against the store."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 11 (WP-D1)",
+    "JOURNEY stage 19 (wideband-sdr recalibration)",
+    "FINDINGS §13.1",
+    "FINDINGS §22.2",
+    "FINDINGS §22.4"
+  ],
+  "created": "2026-08-14"
+}

@@ -1,0 +1,65 @@
+{
+  "id": "steering-toward-memorized-structure-returns-copies",
+  "type": "anti-pattern",
+  "trigger": {
+    "family": [
+      "any",
+      "dhruva",
+      "wifi24"
+    ],
+    "analysis": [
+      "generation",
+      "fine-tune",
+      "sampling"
+    ],
+    "failure_signature": [
+      "copy-migration",
+      "novelty-collapse"
+    ],
+    "keywords": [
+      "prefix",
+      "conditioning",
+      "reweight",
+      "winners",
+      "copies",
+      "novelty",
+      "curriculum",
+      "steering"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "**A 4.8× rate increase yields zero extra usable candidates** — every additional motif-bearing sample is an exact copy, and corpus copying rises 32.0% → 71.9%.",
+      "source": "FINDINGS §29.7"
+    },
+    {
+      "quote": "one template-free epoch took verbatim archetype copies from 37.9%→6.6% while corpus copies rose 31.6%→60.5% — **\"the copying does not stop, it migrates.\"**",
+      "source": "JOURNEY stage 14 (curriculum experiment)"
+    },
+    {
+      "quote": "**\"Removing structure relocates copying; adding structure dissolves it\"**",
+      "source": "JOURNEY stage 21 (P5-v7, FINDINGS §24.2)"
+    },
+    {
+      "quote": "what matters is still whether the channel carries structure the model has not memorised. Outcome labels are not that structure; the rows carrying them were.",
+      "source": "FINDINGS §32.6"
+    }
+  ],
+  "rule": "Move a generator by adding structure it has not memorised; never by steering, re-weighting or prompting it toward structure it already has.",
+  "applicability": {
+    "applies": "Every generator feedback channel: winners feedback, prefix conditioning, row re-weighting, outcome conditioning. Nine real ingested circuits (5.8% of training rows) bought +27 nb NDL where three steering channels bought none.",
+    "not": "The law is about copying, not about rates -- the steering levers DO move the targeted statistic (motif rate 0.032 -> 0.926 under prefix control). They just buy no usable yield. Also, adding structure is not free: the same +27 NDL cost 11.4 points of structural yield and a wb inductor-ratio regression."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 14 (control + curriculum)",
+    "JOURNEY stage 21 (P5-v7)",
+    "JOURNEY stage 24 (WP-MATCH)",
+    "JOURNEY stage 28 (WP-OUTCOME)",
+    "FINDINGS §29.7",
+    "FINDINGS §29.8",
+    "FINDINGS §24.2",
+    "FINDINGS §32.6"
+  ],
+  "created": "2026-08-14"
+}

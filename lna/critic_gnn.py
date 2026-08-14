@@ -59,6 +59,20 @@ GM_ID_SPLIT = 14.0        # V^-1; midpoint of 30.5's measured 17-20 vs 10-12 gap
 ID_CONDUCTING = 50e-6     # == bias.conducting / extract.mos_region, never a new one
 MF_W_FINGER = 2e-06       # the post-27 multi-finger era; eras are never pooled
 
+# ------------------------------------ WP-OPFEAT (plans2/15 §1.4 item 1) --------
+# Per-device operating point as an INPUT feature, not a label. Cao et al.'s S6/S5
+# ablation (SURVEY-AI-CIRCUIT-DESIGN §5) prices this lever at ~10-15 accuracy
+# points; it reads exactly the seven scalars WP-DIAGHEADS already joins as
+# supervision, through the SAME (wl_hash, spec, params) key, and hands them to
+# `dev_in` instead of to a head. Behind `--op-features`, default OFF: widening
+# `dev_feat` changes `MPNN.dev_in`'s shape, so the two arms share no checkpoint
+# and the comparison is necessarily a fresh retrain of both.
+OP_FEATS = ("id", "gm", "gds", "vth", "vdsat", "vds", "vgs")
+OP_LOG = ("id", "gm", "gds")   # decade-spanning -> log10(|x|+eps) BEFORE z-scoring
+OP_LOG_EPS = 1e-15             # a floor ~3 decades under the smallest cut-off leak
+_OP_ON = False                 # the --op-features flag; `dev_feat_dim` is its reader
+_OP_MU = None                  # (mean, std) of the TRANSFORMED scalars, fit on train
+
 
 def elem_to_dev(elem):
     """ngspice element name -> topology device name, exactly as `to_spice.emit`
@@ -119,6 +133,53 @@ def graph_tensors(topo):
 _SPEC_MU = None      # (mean, std) of the spec-conditioning vector, fit on train
 
 
+# ------------------------------------------------ WP-OPFEAT: the tensor side --
+def dev_feat_dim():
+    """Width of `dev_feat`: the type one-hot, plus the OP block when it is on.
+
+    With the flag OFF this is `len(DEV_TYPES)` and every shape in the module is
+    byte-identical to critic v1's -- which is what lets `surrogate.py` keep
+    calling `graph_tensors` and subclassing `MPNN` unchanged."""
+    return len(DEV_TYPES) + (len(OP_FEATS) + 1 if _OP_ON else 0)
+
+
+def _op_transform(vals):
+    """Raw op scalars -> the space the z-score is taken in.
+
+    id/gm/gds span DECADES (a cut-off device leaks ~1e-12 A where a biased one
+    carries ~1e-3 A), so they go through log10(|x| + OP_LOG_EPS) first: a linear
+    z-score would collapse every conducting device onto one indistinguishable
+    value and let the handful of off devices set the whole scale. The four
+    voltages (vth, vdsat, vds, vgs) are already O(0.05-1 V) and stay linear.
+    |x| because a PMOS carries id/gm/vds negative and the magnitude is the
+    physically meaningful part -- sign is already implied by the type one-hot."""
+    return [float(np.log10(abs(v) + OP_LOG_EPS)) if f in OP_LOG else float(v)
+            for f, v in zip(OP_FEATS, vals)]
+
+
+def _op_block(topo, op_dev, nD):
+    """(nD, len(OP_FEATS)+1) rows in `graph_tensors`' device order.
+
+    The last column is the PRESENCE MASK. A device with no joined op row -- every
+    R/C/L by construction, plus a MOS whose row the join missed -- gets mask 0 and
+    zeros in the value columns, and post-z-score a zero IS the train mean, so the
+    imputation carries no information and the mask column says so explicitly."""
+    W = len(OP_FEATS)
+    blk = np.zeros((nD, W + 1), np.float32)
+    if not op_dev:
+        return blk
+    mu, sd = (_OP_MU if _OP_MU is not None
+              else (np.zeros(W, np.float32), np.ones(W, np.float32)))
+    for i, nm in enumerate(dev_names(topo)):
+        if i >= nD:
+            break
+        v = op_dev.get(nm)
+        if v is not None:
+            blk[i, :W] = (np.asarray(_op_transform(v), np.float32) - mu) / sd
+            blk[i, W] = 1.0
+    return blk
+
+
 def build_batch(data):
     """Pad graphs to batch-max device/net counts; return tensors + device mask.
 
@@ -128,13 +189,16 @@ def build_batch(data):
     maxD = max(t[0].shape[0] for t in tens)
     maxN = max(t[1].shape[0] for t in tens)
     B = len(tens)
-    dev = np.zeros((B, maxD, len(DEV_TYPES)), np.float32)
+    dev = np.zeros((B, maxD, dev_feat_dim()), np.float32)
     net = np.zeros((B, maxN, 5), np.float32)
     adj = np.zeros((B, len(ROLES), maxD, maxN), np.float32)
     dmask = np.zeros((B, maxD), np.float32)
     for k, (df, nf, ra) in enumerate(tens):
         nD, nN = df.shape[0], nf.shape[0]
-        dev[k, :nD] = df
+        dev[k, :nD, :len(DEV_TYPES)] = df
+        if _OP_ON:                       # `op_dev` comes from `attach_op`
+            dev[k, :nD, len(DEV_TYPES):] = _op_block(
+                data[k]["topo"], data[k].get("op_dev"), nD)
         net[k, :nN] = nf
         adj[k, :, :nD, :nN] = ra
         dmask[k, :nD] = 1.0
@@ -166,10 +230,14 @@ class MPNN(nn.Module):
     EXISTING representation already knows where the defect is."""
 
     def __init__(self, h=64, rounds=3, n_spec=len(critic.SPEC_FEATS), n_out=4,
-                 diag=False):
+                 diag=False, n_dev=None):
         super().__init__()
         self.rounds = rounds
-        self.dev_in = nn.Linear(len(DEV_TYPES), h)
+        # `n_dev` defaults to whatever `build_batch` is currently emitting, so the
+        # --op-features arm widens the input embedding and NOTHING else; callers
+        # that supply their own device features (surrogate.py) pass it explicitly
+        # or overwrite `dev_in` outright.
+        self.dev_in = nn.Linear(dev_feat_dim() if n_dev is None else n_dev, h)
         self.net_in = nn.Linear(5, h)
         self.dev_msg = nn.ModuleList([nn.Linear(h, h) for _ in ROLES])   # net<-dev
         self.net_msg = nn.ModuleList([nn.Linear(h, h) for _ in ROLES])   # dev<-net
@@ -315,6 +383,85 @@ def attach_diag(data, snapshot=None, op_index=None):
         d["cond_lab"] = cond_labels(op, d["topo"]) if op else None
         n_cond += d["cond_lab"] is not None
     return n_noise, n_cond
+
+
+# ------------------------------------------------- WP-OPFEAT: the join side ----
+# Deliberately the SAME join as `attach_diag` above -- same index, same key, same
+# case normalisation -- so the feature and the diagnosis labels can never point
+# at different devices of the same row.
+def op_dev_vectors(op_row, topo):
+    """{DEVICE: [id, gm, gds, vth, vdsat, vds, vgs]} for the MOSFETs of `topo`.
+
+    Case: an op row keys ngspice ELEMENTS lowercase (`mnm1`), the topology names
+    DEVICES uppercase (`NM1`); `elem_to_dev` is the one mapping between them and
+    is what `noise_labels` uses, so there is no second convention to drift."""
+    names = set(dev_names(topo))
+    out = {}
+    for elem, d in ((op_row or {}).get("devices") or {}).items():
+        if not elem.lower().startswith("m"):
+            continue
+        dev = elem_to_dev(elem)
+        if dev not in names or base_of(dev) not in ("NM", "PM"):
+            continue
+        vals = [d.get(f) for f in OP_FEATS]
+        if any(v is None for v in vals):
+            continue            # a partial op record is a MISS (mask 0), not a 0
+        out[dev] = [float(v) for v in vals]
+    return out or None
+
+
+def attach_op(data, snapshot=None, op_index=None):
+    """Hang `op_dev` on the dicts `critic.load_dataset` returns.
+
+    Returns (rows joined, MOS devices covered, MOS devices in the dataset) -- the
+    coverage triple, because a masked feature that is rarely present would show
+    no effect for reasons that have nothing to do with the model."""
+    idx = load_op_index(snapshot=snapshot) if op_index is None else op_index
+    n_row = n_dev = n_mos = 0
+    for d in data:
+        r = d["row"]
+        op = idx.get((r.get("wl_hash"), r.get("spec"),
+                      _params_key(r.get("best_params"))))
+        d["op_dev"] = op_dev_vectors(op, d["topo"]) if op else None
+        n_mos += sum(1 for x in dev_names(d["topo"])
+                     if base_of(x) in ("NM", "PM"))
+        if d["op_dev"]:
+            n_row += 1
+            n_dev += len(d["op_dev"])
+    return n_row, n_dev, n_mos
+
+
+def fit_op_scaler(train):
+    """Mean/std of the transformed op scalars over the TRAIN devices only.
+
+    Mirrors the `_SPEC_MU` pattern exactly: fit here, applied by `_op_block` to
+    whatever it is later handed, so val/test never contribute to their own
+    normalisation. A pool with no op data at all degrades to identity."""
+    global _OP_MU
+    rows = [_op_transform(v) for d in train
+            for v in (d.get("op_dev") or {}).values()]
+    if not rows:
+        _OP_MU = (np.zeros(len(OP_FEATS), np.float32),
+                  np.ones(len(OP_FEATS), np.float32))
+    else:
+        A = np.asarray(rows, np.float64)
+        _OP_MU = (A.mean(0).astype(np.float32),
+                  (A.std(0) + 1e-6).astype(np.float32))
+    return _OP_MU
+
+
+def _op_coverage(label, groups):
+    """Print per-split join coverage (rows and MOS devices)."""
+    for nm, sub in groups:
+        if not sub:
+            continue
+        j = sum(1 for d in sub if d.get("op_dev"))
+        nd = sum(len(d["op_dev"]) for d in sub if d.get("op_dev"))
+        nm_ = sum(1 for d in sub for x in dev_names(d["topo"])
+                  if base_of(x) in ("NM", "PM"))
+        print("  op coverage %s/%-5s: %4d/%4d rows = %.3f ; %5d/%5d MOS = %.3f"
+              % (label, nm, j, len(sub), j / len(sub), nd, nm_,
+                 nd / max(1, nm_)))
 
 
 def build_diag_batch(data, maxD):
@@ -495,6 +642,8 @@ def evaluate_gnn(train, val, test, label, sigma, diag=False, n_models=5):
     sigma_norm = sigma / 12.0
     S = np.array([critic.spec_vector(d["spec"]) for d in train], np.float32)
     _SPEC_MU = (S.mean(0), S.std(0) + 1e-6)      # spec scaler fit on TRAIN only
+    if _OP_ON:
+        fit_op_scaler(train)                     # ditto the op scaler
     Yte = np.array([d["y"] for d in test])
     mean, std = ensemble_predict(train, val, test, sigma_norm, n=n_models,
                                  diag=diag)
@@ -566,6 +715,8 @@ def _fit_ensemble(pool, sigma_norm, n_models, k_holdout=0.25, seed0=0):
     global _SPEC_MU
     S = np.array([critic.spec_vector(d["spec"]) for d in tr], np.float32)
     _SPEC_MU = (S.mean(0), S.std(0) + 1e-6)
+    if _OP_ON:
+        fit_op_scaler(tr)
     models = [train_one(tr, va, sigma_norm, seed=seed0 + s) for s in range(n_models)]
 
     def ens(items):
@@ -869,6 +1020,8 @@ def fit_diag(data, sigma_norm, n_models=3, k_holdout=0.25, exclude_fams=()):
     te = [id2d[id(r)] for r in sp["test"] if id(r) in id2d]
     S = np.array([critic.spec_vector(d["spec"]) for d in tr], np.float32)
     _SPEC_MU = (S.mean(0), S.std(0) + 1e-6)
+    if _OP_ON:
+        fit_op_scaler(tr)
     models = [train_one(tr, va, sigma_norm, seed=k, diag=True)
               for k in range(n_models)]
     return models, tr, va, te
@@ -941,8 +1094,20 @@ def diag_eval(snapshot=None, sigma_recipe=None, n_models=3, k_holdout=0.25,
     return 0
 
 
-def run_eval(snapshot=None, sigma_recipe=None, diag=False, n_models=5):
+def run_eval(snapshot=None, sigma_recipe=None, diag=False, n_models=5,
+             op_features=False):
+    global _OP_ON
     data = critic.load_dataset(snapshot=snapshot)
+    if op_features:
+        _OP_ON = True                # read by `dev_feat_dim` -> build_batch, MPNN
+        n_row, n_dev, n_mos = attach_op(data, snapshot=snapshot)
+        print("WP-OPFEAT: op features ON -- dev_feat width %d (%d type one-hot + "
+              "%d z-scored op scalars + 1 presence mask)"
+              % (dev_feat_dim(), len(DEV_TYPES), len(OP_FEATS)))
+        print("  join: %d/%d rows carry an op point (%.3f); %d/%d MOS devices "
+              "carry the 7 scalars (%.3f)"
+              % (n_row, len(data), n_row / max(1, len(data)), n_dev, n_mos,
+                 n_dev / max(1, n_mos)))
     if diag:
         n_noise, n_cond = attach_diag(data, snapshot=snapshot)
         print("multi-task: %d/%d rows carry a noise-share label, %d a conduction "
@@ -957,10 +1122,14 @@ def run_eval(snapshot=None, sigma_recipe=None, diag=False, n_models=5):
     tr = [id2d[id(r)] for r in sp["train"] if id(r) in id2d]
     va = [id2d[id(r)] for r in sp["val"] if id(r) in id2d]
     te = [id2d[id(r)] for r in sp["test"] if id(r) in id2d]
+    if op_features:
+        _op_coverage("family", (("train", tr), ("val", va), ("test", te)))
     if len(te) >= 3:
         evaluate_gnn(tr, va, te, "family-holdout split", sigma, diag=diag,
                      n_models=n_models)
     tr2, te2 = critic._source_shift(data)
+    if op_features:
+        _op_coverage("shift", (("train", tr2), ("test", te2)))
     if len(te2) >= 3:
         # carve a small val off train2 for early stopping (identity-based split;
         # data dicts hold numpy arrays, so never compare them by ==)
@@ -978,6 +1147,11 @@ def main():
     ap.add_argument("--diag", action="store_true",
                     help="train the WP-DIAGHEADS multi-task model (plans2/13); "
                          "with --eval this is the margin-head non-regression run")
+    ap.add_argument("--op-features", action="store_true", dest="op_features",
+                    help="WP-OPFEAT (plans2/15 §1.4 item 1): widen dev_feat with "
+                         "the 7 z-scored per-device operating-point scalars + a "
+                         "presence mask. Changes dev_in's shape -> no checkpoint "
+                         "compatibility with critic v1; both arms retrain")
     ap.add_argument("--diag-eval", action="store_true",
                     help="per-device diagnosis holdout eval (family split)")
     ap.add_argument("--mutant-eval", action="store_true",
@@ -1000,7 +1174,8 @@ def main():
                          n_models=args.n_models, out=args.out)
     if args.eval:
         return run_eval(snapshot=args.snapshot, sigma_recipe=args.sigma_recipe,
-                        diag=args.diag, n_models=args.n_models)
+                        diag=args.diag, n_models=args.n_models,
+                        op_features=args.op_features)
     ap.error("give --eval")
 
 

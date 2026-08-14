@@ -1,0 +1,52 @@
+{
+  "id": "search-must-be-seeded-from-physics",
+  "type": "anti-pattern",
+  "trigger": {
+    "family": [
+      "any",
+      "lna",
+      "dhruva"
+    ],
+    "analysis": [
+      "sizing",
+      "search",
+      "3-port"
+    ],
+    "failure_signature": [
+      "replay-false-confidence",
+      "objective-omission"
+    ],
+    "keywords": [
+      "multi-start",
+      "log-uniform",
+      "descent",
+      "seed",
+      "basin",
+      "coordinate",
+      "idd",
+      "balun"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "| two-phase, log-uniform multi-start, first-improvement descent | **22.27** | never left the start basin |\n| + Idd-ceiling continuation | **20.21** | ditto, continuation trapped on the S21 boundary |\n| + ceiling sweep (still log-uniform starts) | **23.73** | ditto |\n| **+ small-signal seed + best-of-all-coordinates descent** | **14.76** | — |",
+      "source": "FINDINGS §41.7"
+    },
+    {
+      "quote": "**A search not seeded from physics reported this stage as 4× more expensive than it is, three times in a row, each time with a clean replay fence on the wrong answer.**",
+      "source": "FINDINGS §41.7"
+    }
+  ],
+  "rule": "Seed a multi-start search from the circuit's own small-signal analysis against the measured operating point, and use best-of-all-coordinates rather than first-improvement descent.",
+  "applicability": {
+    "applies": "Any high-dimensional sizing of a newly authored stage, especially where one objective term (imbalance) is far sharper than another (gain) -- first-improvement then follows whichever parameter comes first in the dict.",
+    "not": "One work package, three attempts. The generic lesson (a reproducible answer is not a correct one) is carried by replay-fence-is-not-correctness; this entry is the specific repair."
+  },
+  "confidence": "unverified",
+  "sources": [
+    "JOURNEY stage 36 (WP-DIFF)",
+    "FINDINGS §41.7",
+    "lna/_diff_balun.py"
+  ],
+  "created": "2026-08-14"
+}

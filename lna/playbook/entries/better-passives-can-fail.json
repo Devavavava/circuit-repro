@@ -1,0 +1,50 @@
+{
+  "id": "better-passives-can-fail",
+  "type": "corner-lesson",
+  "trigger": {
+    "family": [
+      "dhruva",
+      "gnss",
+      "lna"
+    ],
+    "analysis": [
+      "sensitivity",
+      "sp"
+    ],
+    "failure_signature": [
+      "s11-knife-edge",
+      "harness-artefact"
+    ],
+    "keywords": [
+      "inductor",
+      "q",
+      "loss",
+      "damping",
+      "match",
+      "passives",
+      "sweep"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "| inductor Q | **Q = 16** | first grid step up | s11 −0.024, idd −0.063 | **better inductors FAIL** (loss was damping the match; RQL2 carries DC). Q = 8/10 PASS with NF margin left (+1.01 at Q=8) |",
+      "source": "FINDINGS §39.1"
+    },
+    {
+      "quote": "The design **fails when its inductors get better** (Q 16/20): the match is partly loss-damped and RQL2 sits in a DC path. A hardened point should be re-checked at Q = {8, 20}, not only Q = 12.",
+      "source": "FINDINGS §39.2"
+    }
+  ],
+  "rule": "Sweep component quality in both directions and re-check any match-critical point at Q = {8, 20}, not only at nominal.",
+  "applicability": {
+    "applies": "Designs whose input match is partly loss-damped, or where a Q-loss resistor sits in a DC path -- both are invisible in the nominal metric vector.",
+    "not": "One design, one sweep. The direction of the effect is design-specific: here the point IMPROVES at low Q, which means the Q=12 assumption is currently load-bearing in the lucky direction."
+  },
+  "confidence": "unverified",
+  "sources": [
+    "JOURNEY stage 34 (WP-SENS)",
+    "FINDINGS §39.1",
+    "FINDINGS §39.2"
+  ],
+  "created": "2026-08-14"
+}

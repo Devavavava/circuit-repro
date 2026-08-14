@@ -1,0 +1,55 @@
+{
+  "id": "numerical-distortion-lands-on-signal-bins",
+  "type": "harness-rule",
+  "trigger": {
+    "family": [
+      "any"
+    ],
+    "analysis": [
+      "transient",
+      "two-tone",
+      "fft",
+      "iip3"
+    ],
+    "failure_signature": [
+      "numerical-artefact"
+    ],
+    "keywords": [
+      "timestep",
+      "tmax",
+      "im3",
+      "noise-floor",
+      "fft",
+      "distortion",
+      "integration",
+      "null-circuit"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "| 10 ps | −111.99 dBm | **−104.9 dBc** | −115.3 dBm |\n| **5 ps** | −140.23 dBm | **−133.1 dBc** | −140.3 dBm |",
+      "source": "FINDINGS §37.2 (tmax, IM3 bin, vs fundamental, product-free floor bin)"
+    },
+    {
+      "quote": "*a spectral floor measured on product-free bins does not bound numerical distortion*, because numerical distortion is a distortion process and obeys the same frequency algebra as the signal. Only a null circuit (`a3 = 0`) or a step-refinement test can see it.",
+      "source": "FINDINGS §37.2"
+    },
+    {
+      "quote": "The harness's own measured floor looked reassuring — 40-plus dB below the IM3 — while the real numerical error sat 10 dB *above* that floor, on top of the signal. Only a null circuit could see it.",
+      "source": "JOURNEY stage 32"
+    }
+  ],
+  "rule": "Bound a transient distortion harness with a null circuit (a3 = 0) or a step-refinement test, never with a product-free noise-floor bin.",
+  "applicability": {
+    "applies": "Any time-domain distortion measurement -- IM3, IM2, ACPR, P1dB. The shipped tmax must be the first step size at which the harness's own intermodulation provably vanishes and further halving moves nothing.",
+    "not": "One harness, one measurement (though characterised over four step sizes). The reactive golden network matters: a purely resistive B-source reference has no reactance at all, so the integrator contributes nothing and the golden silently exempts the numerics."
+  },
+  "confidence": "unverified",
+  "sources": [
+    "JOURNEY stage 32 (WP-IIP3)",
+    "FINDINGS §37.1",
+    "FINDINGS §37.2",
+    "lna/_iip3_floor.py"
+  ],
+  "created": "2026-08-14"
+}

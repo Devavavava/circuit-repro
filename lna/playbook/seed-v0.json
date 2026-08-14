@@ -1,0 +1,1587 @@
+{
+  "_comment": "playbook v0 seed -- distilled from lna/JOURNEY.md (39 stages) and lna/FINDINGS.md by the N4 session, 2026-08-14. Reproduce the store with: python lna/playbook.py --add lna/playbook/seed-v0.json. Admission control and the confidence protocol are documented in lna/playbook/README.md. Evidence quotes are VERBATIM from the cited file, markdown emphasis included.",
+  "entries": [
+    {
+      "id": "iip3-output-swing-wall",
+      "type": "diagnosis",
+      "trigger": {
+        "family": ["dhruva", "gnss", "lna", "any"],
+        "analysis": ["two-tone", "harmonic-balance", "transient", "iip3"],
+        "failure_signature": ["iip3-wall", "output-swing-wall"],
+        "keywords": ["iip3", "oip3", "linearity", "swing", "headroom", "d5", "intercept", "bias-budget"]
+      },
+      "evidence": [
+        {
+          "quote": "| dhruva-l5 | 1176.45 | **−32.76** | ≥ −7.4 | **−25.36** | +3.20 | 35.96 | 2.96 | 6/8 | 0.42 |",
+          "source": "FINDINGS §40.3 (VACASK HB, fixed D4-SIM sizing)"
+        },
+        {
+          "quote": "The design's **OIP3 is only +3.2 … +3.4 dBm**, and it is remarkably flat across all four bands (0.24 dB spread) even though the gain varies by 2.2 dB. Linearity here is set by the output stage's swing budget, not by the input match or the band.",
+          "source": "FINDINGS §40.4"
+        },
+        {
+          "quote": "Their OIP3 spans **+2.44 … +4.19 dBm** — 1.75 dB across four independently-descended parameter sets. So the +3 dBm output intercept is a property of **the topology on this power budget**, not of the l5 sizing choice. That closes the \"maybe another sizing is more linear\" escape hatch with a measurement rather than an argument.",
+          "source": "FINDINGS §37.7"
+        },
+        {
+          "quote": "To pass **at the measured gain**, the design needs OIP3 = +25.0 … +28.6 dBm — **22× to 50× its entire DC power budget**. No amplifier class does that; this is outside the physics of the power budget, not inside the sizing space.",
+          "source": "FINDINGS §37.7"
+        }
+      ],
+      "rule": "When the output intercept is flat across bands AND across independently-descended sizings, stop sizing and change the topology or the bias/rail budget.",
+      "applicability": {
+        "applies": "Any linearity gate on a fixed power envelope. The diagnostic is the FLATNESS of OIP3 across sizings, not the size of the miss; two harnesses measured the same +3.2...+3.4 dBm on 1.1 V / 12.96 mA.",
+        "not": "Does not apply while OIP3 still moves with the parameter set -- then the sizing space is not exhausted. It also says nothing about a different envelope: passing needs OIP3 ~ +14.9 dBm even granting the whole min-gain allowance, so a rail/current change is the class of fix, not a re-descent."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 35 (WP-HB)",
+        "JOURNEY stage 32 (WP-IIP3)",
+        "FINDINGS §40.3",
+        "FINDINGS §40.4",
+        "FINDINGS §37.5",
+        "FINDINGS §37.7",
+        "lna/hb/hb_iip3.py",
+        "lna/iip3.py"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "judge-linearity-at-the-min-gain-state",
+      "type": "strategy",
+      "trigger": {
+        "family": ["dhruva", "gnss", "lna"],
+        "analysis": ["two-tone", "harmonic-balance", "iip3", "gain-programmability"],
+        "failure_signature": ["iip3-wall", "spec-governance"],
+        "keywords": ["iip3", "min-gain", "d5", "d6", "gate-ladder", "programmability"]
+      },
+      "evidence": [
+        {
+          "quote": "Both halves of the D5 measurement now say the paper's IIP3 condition is a **min-gain** condition that a fixed-gain design cannot enter, so D6 is closer to a **prerequisite** for a like-for-like D5 than a successor to it",
+          "source": "FINDINGS §37.7"
+        },
+        {
+          "quote": "gain control at the back of an amplifier buys range without buying linearity, while the paper specifies IIP3 precisely *at* the minimum-gain setting",
+          "source": "JOURNEY stage 37 (WP-PGAIN)"
+        }
+      ],
+      "rule": "Measure IIP3 at the min-gain state of the programmability configuration, and treat gain programmability as a prerequisite of the linearity gate rather than its successor.",
+      "applicability": {
+        "applies": "Any spec whose linearity number is quoted at a gain setting the design cannot enter; the ladder order must follow the measurement condition, not the document order.",
+        "not": "Does not rescue a design whose miss survives the whole min-gain allowance -- granting the full 10.6 dB for free still left ~14.8 dB missing on the D4-SIM point. Reordering the ladder is a user decision, flagged and not taken."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 32 (WP-IIP3)",
+        "JOURNEY stage 37 (WP-PGAIN)",
+        "FINDINGS §37.7",
+        "FINDINGS §42.6",
+        "lna/plans2/14-DHRUVA-SIMUL.md §2.1"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "match-margin-forbids-mid-chain-loading",
+      "type": "diagnosis",
+      "trigger": {
+        "family": ["dhruva", "gnss", "lna"],
+        "analysis": ["sp", "s-parameter", "gain-programmability", "loading-probe"],
+        "failure_signature": ["band-match-wall", "topology-exhaustion"],
+        "keywords": ["s11", "match", "margin", "loading", "switch", "programmability", "recombine"]
+      },
+      "evidence": [
+        {
+          "quote": "**Every node from the input combiner through MNM6's gate is match-forbidden**: loading them moves the input match by more than its entire margin - in the recombine/tank/gate cases before it has moved the gain by even 1 dB. **Only the output stage's drain and VOUT1 tolerate loading** - and there the match *improves* monotonically (-10.01 -> -10.36)",
+          "source": "FINDINGS §42.3"
+        },
+        {
+          "quote": "loading the recombine node by enough to move the gain 10.6 dB costs 4.63 dB of match, and loading the input combiner costs 6.77 dB",
+          "source": "JOURNEY stage 37"
+        }
+      ],
+      "rule": "Sweep an ideal blocked shunt load at every circuit role first and design any gain/attenuation mechanism only inside the match-legal set.",
+      "applicability": {
+        "applies": "Any design with a small band-wide S11 margin (this one is 0.001 dB) where a mechanism must be grafted onto an existing core; the probe is mechanism-independent and needs no new topology.",
+        "not": "Not a general statement about LNAs -- the forbidden set here is set by two 94 um CS devices whose C_gd couples the recombine node back to the input. Re-run the probe per design; do not carry this map to another topology."
+      },
+      "confidence": "unverified",
+      "sources": [
+        "JOURNEY stage 37 (WP-PGAIN)",
+        "FINDINGS §42.3",
+        "lna/pgain.py --probe"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "gate-driven-input-is-quiet-only-when-unmatched",
+      "type": "diagnosis",
+      "trigger": {
+        "family": ["dhruva", "gnss", "lna", "wideband-sdr"],
+        "analysis": ["sp", "noise", "s-parameter", "structural"],
+        "failure_signature": ["band-match-wall", "nf-wall"],
+        "keywords": ["s11", "match", "input", "gate", "source", "port", "nf", "motif"]
+      },
+      "evidence": [
+        {
+          "quote": "| gate-only | 31 | 2.20 | 3.77 | **7.52** | 187.85 | 3.2% | **0** |\n| port reaches a source | 139 | 1.19 | 1.96 | **2.97** | 3.95 | 41.0% | **54** |",
+          "source": "FINDINGS §29.4 (multi-finger dhruva rows that already hold the band match: rows, min NF, p25, median, p75, NF<=2.5, NF<=2.5 AND S21>=22.3)"
+        },
+        {
+          "quote": "**A gate-driven input in this program is quiet exactly when it does not match, and noisy when it does.** That is the whole of §27.6's puzzle: `seq0086` and `seq0085` read NF 1.02 / 0.96 dB *because* nothing at their port dissipates, and the same absence is why no parameter setting brings them to 50 Ω.",
+          "source": "FINDINGS §29.4"
+        },
+        {
+          "quote": "5.2× / 8.4× / 25× inside three independent provenance classes, and in the generator row at matched device counts and matched budgets (9.0 vs 9.2 devices, 224 vs 218 evaluations).",
+          "source": "FINDINGS §29.3"
+        },
+        {
+          "quote": "**The prediction the contingency table implies — that a source-driven input buys the match and costs roughly 2 dB of noise — was made before the edit and is what the simulator returned.** That is the causal claim the observational tables could not make on their own: same graph, one edit, match closes, noise pays.",
+          "source": "JOURNEY stage 24 (WP-MATCH)"
+        }
+      ],
+      "rule": "When a candidate reads sub-1 dB NF and refuses to match, check whether the port reaches only a gate and apply moves.m_input_class_swap before spending another sizing budget.",
+      "applicability": {
+        "applies": "Narrowband and band-wide S11 gates on this program's token vocabulary; the structural test is pure graph arithmetic (_match_struct.py) and needs no simulator.",
+        "not": "The observational tables are an association measured on this store, not a randomized experiment (§29.9 is the controlled version, n=2 parents). The diagnosis does NOT transfer to wideband-sdr: 0 of 119 source-driven graphs ever held that band match."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 24 (WP-MATCH)",
+        "FINDINGS §29.3",
+        "FINDINGS §29.4",
+        "FINDINGS §29.9",
+        "lna/_match_struct.py",
+        "lna/_match_sep.py"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "friis-grow-the-quietest-parent",
+      "type": "diagnosis",
+      "trigger": {
+        "family": ["dhruva", "gnss", "lna"],
+        "analysis": ["noise", "sp", "search"],
+        "failure_signature": ["nf-wall", "topology-exhaustion"],
+        "keywords": ["nf", "friis", "stage-add", "cascade", "gain", "parent", "knee"]
+      },
+      "evidence": [
+        {
+          "quote": "| `f57874` / `3e4a6a` (18/17 dev) | already at NF **3.70** with gain to spare | `3a5fc1` (**21 dev**) | 33.7 → **46.9** | 3.70 → **3.71** |\n| **`6f0d08` (17 dev)** | had the **noise** (3.33), lacked the **gain** (21.3) | **`ace838` (20 dev)** | 21.3 → **34.4** | 3.33 → **3.24** |",
+          "source": "FINDINGS §25.2"
+        },
+        {
+          "quote": "**The front is not a smooth exchange curve; it is two regimes with a knee, and §23 extrapolated across the knee.**",
+          "source": "FINDINGS §25.2"
+        },
+        {
+          "quote": "The practical lesson, which is the transferable one: **the parent to grow is the quietest one, not the best one.** `6f0d08` had the worst total violation of the three candidates (0.289 vs 0.059) and was the only one that could reach the gate.",
+          "source": "FINDINGS §25.2"
+        }
+      ],
+      "rule": "Apply a gain-stage-add move to the quietest parent, not the lowest-violation one, and never extrapolate an NF-per-dB-of-S21 exchange rate across the knee.",
+      "applicability": {
+        "applies": "Cascade noise problems where a candidate set contains both a relaxed frontier design and a quieter, gain-starved one. Extra gain lowers total NF only while the input stage is still over-driven to produce gain it should not have to.",
+        "not": "Does not apply once F has already collapsed to F1 -- there, +13 dB of new gain moved NF by 0.01 dB and four seeds converged at 3.71. It is also one campaign, not two independent observations."
+      },
+      "confidence": "unverified",
+      "sources": [
+        "JOURNEY stage 22",
+        "FINDINGS §25.2",
+        "FINDINGS §23.2"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "weak-inversion-saturation-blindness",
+      "type": "harness-rule",
+      "trigger": {
+        "family": ["any", "lna", "dhruva"],
+        "analysis": ["op", "dc", "bias"],
+        "failure_signature": ["weak-inversion-blindness", "metric-blind-spot"],
+        "keywords": ["saturated", "vdsat", "weak-inversion", "gm-id", "bias", "region", "bsim4", "overdrive"]
+      },
+      "evidence": [
+        {
+          "quote": "dev      Id mA   gm mS    Vgs     Vth     Vov     Vds   Vdsat   gm/Id\nmnm1     0.510   8.868   0.2352  0.2721  -0.0369  0.4456  0.0564  17.4\nmnm2     2.146  37.137   0.2363  0.2721  -0.0358  0.4482  0.0566  17.3\nmnm4     6.941  80.041   0.3230  0.2716  +0.0515  0.6626  0.0875  11.5",
+          "source": "FINDINGS §30.5 (ngspice op read-out on ace8383c at its own best_params)"
+        },
+        {
+          "quote": "`bias.saturated` calls a device saturated when `|Vds| >= 1.5|Vdsat|`. In weak inversion BSIM4's `Vdsat` **collapses to ~55 mV**, so every one of those negative-overdrive devices passes that test by 5–8×: **`bias.saturated` reports all 25 of these transistors as saturated.**",
+          "source": "FINDINGS §30.5"
+        },
+        {
+          "quote": "| weak-inversion (`sub`) devices that `bias.saturated` calls **saturated** | **615 / 621 = 99.0%** |\n| `bias.saturated` used as a **weak-vs-strong score**, AUC | **0.552** — chance, *with a full DC solve in hand* |",
+          "source": "FINDINGS §34.2 (harvest, 4,096 devices)"
+        }
+      ],
+      "rule": "Classify inversion level from gm/Id (sub ~17-20 V^-1, sat ~10-12 V^-1), never from bias.saturated's |Vds| >= 1.5|Vdsat| predicate.",
+      "applicability": {
+        "applies": "Every statement in this program's history of the form 'N of 41 corpus circuits are saturated' -- it means CONDUCTING WITH ADEQUATE VDS HEADROOM, not IN STRONG INVERSION, and must be read that way. Also the argument for a gm/Id reparameterization of the sizing space (15-ENGINEER §1.4 item 6).",
+        "not": "Not a bug in bias.py -- the predicate answers the question it was built for (is the device conducting?), where it scores AUC 0.737. Nothing measured under it is wrong; the label is narrower than it reads."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 25 (WP-OBSERVE)",
+        "JOURNEY stage 29 (WP-DIAGHEADS)",
+        "FINDINGS §30.5",
+        "FINDINGS §34.2",
+        "lna/bias.py",
+        "lna/extract.py"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "single-finger-gate-resistance-artefact",
+      "type": "harness-rule",
+      "trigger": {
+        "family": ["any", "lna", "dhruva"],
+        "analysis": ["noise", "noise-budget"],
+        "failure_signature": ["harness-artefact", "nf-wall"],
+        "keywords": ["nf", "noise", "rg", "finger", "w_finger", "layout", "gate-resistance", "budget"]
+      },
+      "evidence": [
+        {
+          "quote": "**The dominant per-MOSFET mechanism is `rg` — gate-electrode resistance — not `id`, the channel thermal noise everyone reasons about.** Across the four designs measured, `rg` carries **26.3 / 35.3 / 36.4 / 39.5 %** of F−1.",
+          "source": "FINDINGS §26.2"
+        },
+        {
+          "quote": "where `NF` is the **number of gate fingers**, a per-instance parameter our decks never set — so every device is one finger. For a 100–200 µm device at L = 45 nm that is hundreds of ohms in series with the gate. No one tapes that out",
+          "source": "FINDINGS §26.2"
+        },
+        {
+          "quote": "**NF delta (new − old): min −14.758 · p25 −4.018 · median −2.078 · p75 −1.101 · max +105.756 · mean −1.794. Improved: 1109/1240.**",
+          "source": "FINDINGS §27.3 (store-wide multi-finger relabel)"
+        }
+      ],
+      "rule": "Emit MOSFETs at a layout-calibrated finger width (w_finger = 2 um here) and treat finger count as a harness-fidelity parameter, never as a knob for closing a gate.",
+      "applicability": {
+        "applies": "Every NF number this program published before 2026-08-10 is pessimistic, typically by ~2 dB. Any noise-budget reading, any NF-based capability negative, and any cross-era NF comparison must be re-checked under the current w_finger stamp.",
+        "not": "A stored per-element noise budget on a low-gain design is measuring the instrument, not the design: on S21 < 0 dB rows the harness's own 50 ohm load rnl is the top F-1 contributor 88.5% of the time (FINDINGS §34.2a). Gate any budget label on the design's own gain."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 23 (multi-finger cutover)",
+        "FINDINGS §26.2",
+        "FINDINGS §26.3",
+        "FINDINGS §27.3",
+        "FINDINGS §34.2",
+        "lna/to_spice.py",
+        "lna/relabel_mf.py"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "era-cutover-is-a-new-label-domain",
+      "type": "harness-rule",
+      "trigger": {
+        "family": ["any"],
+        "analysis": ["any", "training", "labeling"],
+        "failure_signature": ["era-mismatch", "label-domain-mismatch", "surrogate-era"],
+        "keywords": ["era", "cutover", "relabel", "label-domain", "recipe", "stamp", "snapshot", "pooling"]
+      },
+      "evidence": [
+        {
+          "quote": "`zoaf_cfg.nf_gated` is stamped on every row — **rows with nf_gated true/false are different label domains, and every pre-session row is implicitly false.**",
+          "source": "FINDINGS §13.1"
+        },
+        {
+          "quote": "**the `nf_db` column is the RETIRED port-referred NF** (finding #7) — the one that flattered every design without exception, and which reads as low as **-18.94 dB** in this table. It is learned here as a fourth response surface because it is a real deterministic function of the same deck; it must **never** be pooled with, ranked against, or substituted for a `series_rs` NF;",
+          "source": "FINDINGS §33.2"
+        },
+        {
+          "quote": "the relabel must re-measure the **whole metric vector**, because the match moves too — a row has to carry the metrics that go with its geometry.",
+          "source": "JOURNEY stage 23"
+        }
+      ],
+      "rule": "Stamp every harness change on every row, never pool two eras in one training set or ranking, and relabel append-only behind an old-geometry replay fence.",
+      "applicability": {
+        "applies": "All 66,664 sim_points rows and most L2 rows predate three cutovers (multi-finger, series-Rs NF, stability guard). Any learned component, benchmark table or capability claim must state which era its rows came from.",
+        "not": "The doctrine is not 'discard the old rows' -- pre-cutover data is still valid inside its own domain (the surrogate's mechanism result is era-independent even though its numbers are not). What is forbidden is mixing, substituting or ranking across the stamp."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 11 (WP-D1)",
+        "JOURNEY stage 23 (multi-finger cutover)",
+        "JOURNEY stage 26 (WP-SURROGATE)",
+        "FINDINGS §13.1",
+        "FINDINGS §27.3",
+        "FINDINGS §33.2",
+        "FINDINGS §38.1",
+        "lna/datastore.py"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "s11-idd-knife-edge",
+      "type": "corner-lesson",
+      "trigger": {
+        "family": ["dhruva", "gnss", "lna"],
+        "analysis": ["sensitivity", "sp", "op"],
+        "failure_signature": ["s11-knife-edge", "bias-regulation"],
+        "keywords": ["s11", "idd", "sensitivity", "supply", "vdd", "temperature", "passives", "margin", "fragility"]
+      },
+      "evidence": [
+        {
+          "quote": "| supply | **±1%** | either direction | ↓1%: s11 −0.032 · ↑1%: idd −0.17 mA | **no passing VDD tolerance exists** at this point |",
+          "source": "FINDINGS §39.1"
+        },
+        {
+          "quote": "NF's worst value anywhere on the sweep, combo included, is margin **+0.504 dB** (85 °C); S21's is **+1.81 dB** (VDD×0.9). **Neither ever flips.**",
+          "source": "FINDINGS §39.1"
+        },
+        {
+          "quote": "| `dhruva-l5` (shipped) | **1.2 V** | −10.210 | **14.879** | 1.188 (l5) | 35.132 (s) | 19.673 | **FAILS — Idd 14.879 > 13 mA cap, all 4 bands** |",
+          "source": "FINDINGS §36.3 (independent WP, +1.916 mA measured against the sweep's predicted +1.9)"
+        }
+      ],
+      "rule": "Sweep temperature, supply, all passives and inductor Q at the fixed shipped point before designating it, and carry the sweep-derived nominal floors rather than the gate values.",
+      "applicability": {
+        "applies": "Any point produced by a kept-floor descent; the fragile axes are the pinned ones. Here: S11 <= -10.44 and Idd <= ~8.5 mA at nominal, NF margin >= 0.75 dB, S21 margin >= 1.91 dB.",
+        "not": "This is a SENSITIVITY result, never a corner/PVT claim -- the 45 nm behavioral BSIM4 include carries no process-corner cards, so fast/slow devices cannot be simulated at this fidelity. Do not quote it as fab-corner coverage."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 34 (WP-SENS)",
+        "JOURNEY stage 31 (WP-HARDEN)",
+        "FINDINGS §39.1",
+        "FINDINGS §39.2",
+        "FINDINGS §36.3",
+        "lna/corners.py"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "harden-against-the-measured-sweep",
+      "type": "strategy",
+      "trigger": {
+        "family": ["dhruva", "gnss", "lna", "any"],
+        "analysis": ["sensitivity", "sizing", "acceptance"],
+        "failure_signature": ["s11-knife-edge", "bias-regulation"],
+        "keywords": ["harden", "margin", "resize", "slack", "floor", "acceptance", "robustness", "vdd"]
+      },
+      "evidence": [
+        {
+          "quote": "**Idd fell 37%, to 8.205 mA**, while S11 settled at exactly −11.012 dB — the descent spent precisely the slack it was given, no more.",
+          "source": "JOURNEY stage 31 (WP-HARDEN), FINDINGS §36.1"
+        },
+        {
+          "quote": "a robustness resize done for one reason (S11's 0.001 dB match cliff) paid off on a completely different, undiscovered cliff (the 1.2 V Idd wall) — the value of measuring margins broadly, not just on the axis you set out to fix.",
+          "source": "JOURNEY stage 31"
+        }
+      ],
+      "rule": "Re-size the shipped point to hold the sweep-derived nominal floors as hard constraints, then re-check it at both supply nominals before designating it.",
+      "applicability": {
+        "applies": "Any designated point about to be frozen, and (15-ENGINEER §4.1-N1) any WP-LIN acceptance rule -- the sensitivity sweep belongs inside the acceptance rule from day one, not as a post-hoc audit.",
+        "not": "The frontier is flat past ~-10.5 dB: relaxing S11 further bought 0.06 mA of Idd for half a dB. Do not read 'spend slack on the weakest constraint' as a general rule -- S11 had 12 dB of nearly free slack while Idd's real ceiling was the NF/S21 floors. It also has NOT been re-run through the live sweep; the floors were a calibration target, not a guarantee."
+      },
+      "confidence": "unverified",
+      "sources": [
+        "JOURNEY stage 31 (WP-HARDEN)",
+        "FINDINGS §36.1",
+        "FINDINGS §36.5",
+        "lna/_harden_simul.py"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "better-passives-can-fail",
+      "type": "corner-lesson",
+      "trigger": {
+        "family": ["dhruva", "gnss", "lna"],
+        "analysis": ["sensitivity", "sp"],
+        "failure_signature": ["s11-knife-edge", "harness-artefact"],
+        "keywords": ["inductor", "q", "loss", "damping", "match", "passives", "sweep"]
+      },
+      "evidence": [
+        {
+          "quote": "| inductor Q | **Q = 16** | first grid step up | s11 −0.024, idd −0.063 | **better inductors FAIL** (loss was damping the match; RQL2 carries DC). Q = 8/10 PASS with NF margin left (+1.01 at Q=8) |",
+          "source": "FINDINGS §39.1"
+        },
+        {
+          "quote": "The design **fails when its inductors get better** (Q 16/20): the match is partly loss-damped and RQL2 sits in a DC path. A hardened point should be re-checked at Q = {8, 20}, not only Q = 12.",
+          "source": "FINDINGS §39.2"
+        }
+      ],
+      "rule": "Sweep component quality in both directions and re-check any match-critical point at Q = {8, 20}, not only at nominal.",
+      "applicability": {
+        "applies": "Designs whose input match is partly loss-damped, or where a Q-loss resistor sits in a DC path -- both are invisible in the nominal metric vector.",
+        "not": "One design, one sweep. The direction of the effect is design-specific: here the point IMPROVES at low Q, which means the Q=12 assumption is currently load-bearing in the lucky direction."
+      },
+      "confidence": "unverified",
+      "sources": [
+        "JOURNEY stage 34 (WP-SENS)",
+        "FINDINGS §39.1",
+        "FINDINGS §39.2"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "margin-is-the-currency",
+      "type": "corner-lesson",
+      "trigger": {
+        "family": ["dhruva", "gnss", "lna"],
+        "analysis": ["sizing", "sp", "op", "3-port"],
+        "failure_signature": ["objective-omission", "topology-exhaustion", "band-match-wall"],
+        "keywords": ["margin", "headroom", "idd", "budget", "balun", "designation", "tier-3"]
+      },
+      "evidence": [
+        {
+          "quote": "On the *designated* `dhruva-l5` point the same stage meets the imbalance spec too (0.218 dB / 0.586°) and every other gate — and misses Idd by 1.76 mA, because that point already spends 12.963 of its 13.000 mA budget and therefore cannot host **any** conducting output stage.",
+          "source": "JOURNEY stage 36 (WP-DIFF)"
+        },
+        {
+          "quote": "The gate as mapped is met; the thing the paper actually wants from a gain-programmable LNA is, at this match margin, **not available anywhere in this topology**. That is the finding to carry forward, and it points the same direction stage 31 already did: margin is the currency, and this design has almost none to spend.",
+          "source": "JOURNEY stage 37 (WP-PGAIN)"
+        }
+      ],
+      "rule": "Budget explicit leftover margin on every gated constraint at designation time, because the tier-3 gates are paid for out of leftover current and match margin.",
+      "applicability": {
+        "applies": "Any designation decision that will later have to host additional stages (balun, switch bank, linearization). The hardened point hosts both; the max-slack point hosts neither.",
+        "not": "The two robustness axes pull opposite ways: the hardened point spends 37% of the bias current to buy S11/VDD robustness, and IIP3 is bought WITH bias current, so it is likely further from D5, not closer. There is no single margin to maximise."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 31 (WP-HARDEN)",
+        "JOURNEY stage 36 (WP-DIFF)",
+        "JOURNEY stage 37 (WP-PGAIN)",
+        "FINDINGS §41.5",
+        "FINDINGS §42.3",
+        "FINDINGS §40.4"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "objective-only-protects-what-it-scores",
+      "type": "anti-pattern",
+      "trigger": {
+        "family": ["any", "lna"],
+        "analysis": ["sizing", "polish", "constrained-descent", "sp"],
+        "failure_signature": ["objective-omission", "s11-knife-edge"],
+        "keywords": ["polish", "objective", "stability", "k-factor", "box", "clamp", "slack", "acceptance", "descent"]
+      },
+      "evidence": [
+        {
+          "quote": "The *same* `seq0220` topology sized by curated ZOAF is fine (K_min 4.08) while its polished row is not — **the min-margin polish walked it into a potentially unstable region, because stability is in no objective.**",
+          "source": "FINDINGS §13.2"
+        },
+        {
+          "quote": "The min-margin ascent scaled each parameter by (1 ± step) and never consulted `kind_ranges(spec)`, so it walked outside the spec's declared device limits. [...] Audit: **6 of 19 feasible rows**, all polish-derived",
+          "source": "FINDINGS §13.3"
+        },
+        {
+          "quote": "Both knife-edge constraints are knife-edge **by construction**: `constrained_descent` (`keep=\"s11idd\"`) descends NF while pinning S11 and Idd at their gate values, so the shipped point *provably* sits at the boundary of exactly those two — the sweep measures the cost of that objective shape.",
+          "source": "FINDINGS §39.2"
+        },
+        {
+          "quote": "once a design's gain is well above its floor, polish values that surplus at exactly zero, so it can never trade gain slack for noise",
+          "source": "JOURNEY stage 17"
+        }
+      ],
+      "rule": "Put every constraint a claim depends on into the optimizer's acceptance rule, and read any constraint the objective pins as sitting exactly on its boundary.",
+      "applicability": {
+        "applies": "Every ascent/descent pass in size.py and every future acceptance rule. The corollary for slack: a min-margin objective values surplus at zero and can never trade it, so a metric that needs slack spent on it needs its own mode (constrained_descent).",
+        "not": "The guard belongs at the ACCEPTANCE rule, not in the objective -- injecting stability into plain ZOAF's scalar would re-domain every future label, which is a governance change, proposed rather than taken. Note also that the box clamp had already closed the specific historical road, so the stability guard fired zero in-vivo refusals on the very case that motivated it; its value is the floor under FUTURE trajectories."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 11 (Session 4)",
+        "JOURNEY stage 17 (WP-NF)",
+        "JOURNEY stage 33 (WP-STABGUARD)",
+        "JOURNEY stage 34 (WP-SENS)",
+        "FINDINGS §13.2",
+        "FINDINGS §13.3",
+        "FINDINGS §38.1",
+        "FINDINGS §39.2",
+        "lna/size.py"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "search-must-be-seeded-from-physics",
+      "type": "anti-pattern",
+      "trigger": {
+        "family": ["any", "lna", "dhruva"],
+        "analysis": ["sizing", "search", "3-port"],
+        "failure_signature": ["replay-false-confidence", "objective-omission"],
+        "keywords": ["multi-start", "log-uniform", "descent", "seed", "basin", "coordinate", "idd", "balun"]
+      },
+      "evidence": [
+        {
+          "quote": "| two-phase, log-uniform multi-start, first-improvement descent | **22.27** | never left the start basin |\n| + Idd-ceiling continuation | **20.21** | ditto, continuation trapped on the S21 boundary |\n| + ceiling sweep (still log-uniform starts) | **23.73** | ditto |\n| **+ small-signal seed + best-of-all-coordinates descent** | **14.76** | — |",
+          "source": "FINDINGS §41.7"
+        },
+        {
+          "quote": "**A search not seeded from physics reported this stage as 4× more expensive than it is, three times in a row, each time with a clean replay fence on the wrong answer.**",
+          "source": "FINDINGS §41.7"
+        }
+      ],
+      "rule": "Seed a multi-start search from the circuit's own small-signal analysis against the measured operating point, and use best-of-all-coordinates rather than first-improvement descent.",
+      "applicability": {
+        "applies": "Any high-dimensional sizing of a newly authored stage, especially where one objective term (imbalance) is far sharper than another (gain) -- first-improvement then follows whichever parameter comes first in the dict.",
+        "not": "One work package, three attempts. The generic lesson (a reproducible answer is not a correct one) is carried by replay-fence-is-not-correctness; this entry is the specific repair."
+      },
+      "confidence": "unverified",
+      "sources": [
+        "JOURNEY stage 36 (WP-DIFF)",
+        "FINDINGS §41.7",
+        "lna/_diff_balun.py"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "replay-fence-is-not-correctness",
+      "type": "anti-pattern",
+      "trigger": {
+        "family": ["any"],
+        "analysis": ["any", "sizing", "two-tone", "3-port"],
+        "failure_signature": ["replay-false-confidence", "attribution-error"],
+        "keywords": ["replay", "fence", "determinism", "reproducible", "correctness", "cross-check", "audit"]
+      },
+      "evidence": [
+        {
+          "quote": "this search reported the stage's cost as **22.3, then 20.2, then 23.7 mA — each with a clean replay fence** — before physics-seeded starts and a best-of-all-coordinates descent found 14.8. A reproducible wrong answer is still a wrong answer; the replay fence proves determinism, not correctness, and the only thing that caught it here was a hand calculation of what the stage *should* cost.",
+          "source": "JOURNEY stage 36 (WP-DIFF)"
+        },
+        {
+          "quote": "It failed silently: every deck runs, every sweep is clean, every slope is 3.0, and every IIP3 is plausible.",
+          "source": "FINDINGS §37.4 (the first four-band run measured the wrong decks)"
+        }
+      ],
+      "rule": "Pair every replay fence with an independent cross-check that could return a different number -- a hand calculation, a second harness, or an audited quantity the run must reproduce.",
+      "applicability": {
+        "applies": "Every headline claim. In §37.4 the check that caught it was requiring the transient's small-signal gain to reproduce the audited sp S21 (worst delta 0.02 dB); that check is now printed on every band.",
+        "not": "Not an argument against replay fences -- they catch a different, real defect class (start-point reconstruction, out-of-box drift, inconsistent (topo,params) pairs). Keep both."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 36 (WP-DIFF)",
+        "JOURNEY stage 32 (WP-IIP3)",
+        "FINDINGS §41.7",
+        "FINDINGS §37.4"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "replay-fence-before-any-reuse",
+      "type": "strategy",
+      "trigger": {
+        "family": ["any"],
+        "analysis": ["any", "sizing", "relabel"],
+        "failure_signature": ["label-domain-mismatch", "era-mismatch"],
+        "keywords": ["replay", "fence", "quarantine", "relabel", "polish", "audit", "reuse", "tokens"]
+      },
+      "evidence": [
+        {
+          "quote": "**Relabelled the 20 legacy rows** [...] rebuild each circuit from that row's **own** `graph.tokens`, fence with `size.replay_ok`, re-measure, and **append** a successor row with the recipe bumped [...] **20 relabelled, 0 quarantined, 0 failed.**",
+          "source": "FINDINGS §13.1"
+        },
+        {
+          "quote": "> 1317 pre-cutover NF-bearing L2 rows → 1245 distinct (design, spec, params).\n> **1240 relabeled, 6 quarantined, 0 failed**, 1974 s.",
+          "source": "FINDINGS §27.3"
+        },
+        {
+          "quote": "a new `_nf_gate_d3.py` rebuilds each topology from the row's own tokens, re-evaluates at the row's own `best_params`, and re-measures `spec.feasible()` from scratch — **replay 5/5 (and 3/3) identical, spread 0.0000 on every gated metric; in-box 30/30; novel against `ref-v3`**",
+          "source": "JOURNEY stage 22"
+        }
+      ],
+      "rule": "Re-evaluate a stored point from its own tokens and parameters before polishing, relabeling or claiming it, and quarantine the row rather than proceed when it does not reproduce.",
+      "applicability": {
+        "applies": "Every polish, reuse, relabel or headline gate claim. size.replay_ok exists because a start-point-reconstruction bug let parsed topology mismatch stored params when P5 arms reused seq*.txt filenames for different topologies.",
+        "not": "A passing fence licenses reuse, not belief in the number -- see replay-fence-is-not-correctness. And an independent code path (benchmark.py re-sizing from stored tokens) is a strictly stronger audit than a replay of stored parameters."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 8 (Stage 3 last-mile)",
+        "JOURNEY stage 22",
+        "FINDINGS §13.1",
+        "FINDINGS §27.3",
+        "FINDINGS §25.1",
+        "lna/size.py replay_ok"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "two-engine-cross-validation",
+      "type": "strategy",
+      "trigger": {
+        "family": ["any", "lna", "dhruva"],
+        "analysis": ["two-tone", "harmonic-balance", "transient", "iip3"],
+        "failure_signature": ["numerical-artefact", "replay-false-confidence"],
+        "keywords": ["cross-check", "second-opinion", "vacask", "ngspice", "harmonic-balance", "transient", "tier-3"]
+      },
+      "evidence": [
+        {
+          "quote": "| l5 | −32.78 | −32.76 | **0.02** | −32.81 | 0.05 |\n| s | −30.36 | −30.28 | **0.08** | −30.38 | 0.10 |",
+          "source": "FINDINGS §37.6 (ngspice two-tone transient vs VACASK harmonic balance)"
+        },
+        {
+          "quote": "**Four bands, worst disagreement 0.04 dB.** Two independent simulators, two different BSIM4 implementations (4.5 vs 4.8.3), and two completely different numerical methods — time-stepping plus coherent FFT versus a frequency-domain Newton solve — landing inside a twentieth of a dB on ~−33 dBm intercepts. [...] It is what licenses treating the D5 verdict as a property of the **design** rather than of either tool.",
+          "source": "FINDINGS §40.6"
+        },
+        {
+          "quote": "§40's tone-spacing fence (0.43 dB over 1→10 MHz) is larger than the entire inter-method spread, which is the honest bound on what \"IIP3 of this design\" means.",
+          "source": "FINDINGS §37.6"
+        }
+      ],
+      "rule": "Before believing a tier-3 number, measure it a second time with a different simulator, a different analysis kind and a different extraction estimator.",
+      "applicability": {
+        "applies": "Any metric newly promoted from 'unsupported'. The two harnesses here shared no code -- only the golden's closed-form references are common by design, which is what makes the agreement informative.",
+        "not": "Cross-method agreement removes METHOD uncertainty, not MODEL uncertainty: both harnesses still run 45 nm behavioral BSIM4, ideal Q=12 passives, no corners, no layout parasitics. A 21-25 dB miss is far outside any of it, which is why THAT verdict is safe to act on -- a 1 dB result would not be."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 35 (WP-HB)",
+        "JOURNEY stage 32 (WP-IIP3)",
+        "FINDINGS §37.6",
+        "FINDINGS §40.6",
+        "lna/iip3.py",
+        "lna/hb/hb_iip3.py"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "must-fail-control-in-every-golden",
+      "type": "harness-rule",
+      "trigger": {
+        "family": ["any"],
+        "analysis": ["any", "golden", "harmonic-balance", "transient", "3-port"],
+        "failure_signature": ["numerical-artefact", "instrument-perturbation"],
+        "keywords": ["golden", "negative-control", "reltol", "tolerance", "tripwire", "bar", "null-circuit"]
+      },
+      "evidence": [
+        {
+          "quote": "| **G0** | *negative control*: same circuit at VACASK's **default** reltol | IM3 phasor `6.0e-16` instead of `9.375e-5` → **IIP3 +133.18 dBm vs +21.25 analytic, +111.9 dB error** — the guard bites |",
+          "source": "FINDINGS §40.1"
+        },
+        {
+          "quote": "**G0 is the finding worth keeping**: `options reltol=1e-6` is not hygiene. At the default tolerance the IM3 line lands in Newton residual noise and the harness would have reported a *passing* +133 dBm. Any future reader who deletes that line as cargo cult is caught by G0.",
+          "source": "FINDINGS §40.1"
+        },
+        {
+          "quote": "At the harness's original 10 ps default, G1 **FAILED** its pre-registered −110 dBc bar. The response was to converge the method, not to move the bar",
+          "source": "FINDINGS §37.2"
+        },
+        {
+          "quote": "a **polarity trip-wire** (an in-phase splitter must read ~180°, so a circuit that merely splits cannot fake a pass)",
+          "source": "JOURNEY stage 36 (check_diff.py)"
+        }
+      ],
+      "rule": "Ship every golden with at least one control that must FAIL, and when a golden fails, converge the method instead of moving the bar.",
+      "applicability": {
+        "applies": "Every harness with a numerical knob whose necessity is not self-evident (solver tolerance, timestep, harmonic count) and every harness where a degenerate circuit could fake a pass.",
+        "not": "A must-fail control only guards the mechanism it exercises; G0 catches tolerance, G1 catches timestep, the polarity tripwire catches a splitter. It cannot certify the model or the port -- that is a separate measurement."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 35 (WP-HB)",
+        "JOURNEY stage 32 (WP-IIP3)",
+        "JOURNEY stage 36 (WP-DIFF)",
+        "FINDINGS §40.1",
+        "FINDINGS §37.2",
+        "lna/ref/check_hb.py",
+        "lna/ref/check_iip3.py",
+        "lna/ref/check_diff.py"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "numerical-distortion-lands-on-signal-bins",
+      "type": "harness-rule",
+      "trigger": {
+        "family": ["any"],
+        "analysis": ["transient", "two-tone", "fft", "iip3"],
+        "failure_signature": ["numerical-artefact"],
+        "keywords": ["timestep", "tmax", "im3", "noise-floor", "fft", "distortion", "integration", "null-circuit"]
+      },
+      "evidence": [
+        {
+          "quote": "| 10 ps | −111.99 dBm | **−104.9 dBc** | −115.3 dBm |\n| **5 ps** | −140.23 dBm | **−133.1 dBc** | −140.3 dBm |",
+          "source": "FINDINGS §37.2 (tmax, IM3 bin, vs fundamental, product-free floor bin)"
+        },
+        {
+          "quote": "*a spectral floor measured on product-free bins does not bound numerical distortion*, because numerical distortion is a distortion process and obeys the same frequency algebra as the signal. Only a null circuit (`a3 = 0`) or a step-refinement test can see it.",
+          "source": "FINDINGS §37.2"
+        },
+        {
+          "quote": "The harness's own measured floor looked reassuring — 40-plus dB below the IM3 — while the real numerical error sat 10 dB *above* that floor, on top of the signal. Only a null circuit could see it.",
+          "source": "JOURNEY stage 32"
+        }
+      ],
+      "rule": "Bound a transient distortion harness with a null circuit (a3 = 0) or a step-refinement test, never with a product-free noise-floor bin.",
+      "applicability": {
+        "applies": "Any time-domain distortion measurement -- IM3, IM2, ACPR, P1dB. The shipped tmax must be the first step size at which the harness's own intermodulation provably vanishes and further halving moves nothing.",
+        "not": "One harness, one measurement (though characterised over four step sizes). The reactive golden network matters: a purely resistive B-source reference has no reactance at all, so the integrator contributes nothing and the golden silently exempts the numerics."
+      },
+      "confidence": "unverified",
+      "sources": [
+        "JOURNEY stage 32 (WP-IIP3)",
+        "FINDINGS §37.1",
+        "FINDINGS §37.2",
+        "lna/_iip3_floor.py"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "passive-instrument-must-be-proved-passive",
+      "type": "harness-rule",
+      "trigger": {
+        "family": ["any"],
+        "analysis": ["op", "sp", "sensitivity", "logging"],
+        "failure_signature": ["instrument-perturbation", "harness-artefact"],
+        "keywords": ["probe", "hook", "logging", "save", "invariance", "control", "golden", "op-points"]
+      },
+      "evidence": [
+        {
+          "quote": "Capture adds `print` lines to the control block between the existing `print idd` and the existing `sp`, and **nothing else** — no `save` (gotcha N1: a `save` before `sp` restricts the saved set and silently deletes the S-parameters), no extra analysis, no extra ngspice invocation.",
+          "source": "FINDINGS §30.1"
+        },
+        {
+          "quote": "| **metric vector with the probe vs without**, at `repr` precision | **18 of 18 identical, 0 differ** |\n| **captured Id/gm vs an independent bare-`op` probe** sharing no code path | **relative error 0.0e+00 on both devices** |",
+          "source": "FINDINGS §30.1"
+        },
+        {
+          "quote": "the `.temp 27` injection control is **exactly** invariant (drift 0.0 on every margin)",
+          "source": "FINDINGS §39 (WP-SENS controls)"
+        },
+        {
+          "quote": "a logging feature ships with its golden or it does not ship — a wrong `gm` in a million rows is worse than no `gm` at all, because it will be believed.",
+          "source": "JOURNEY stage 25"
+        }
+      ],
+      "rule": "Ship a logging hook or a perturbation-injection mechanism only with a golden showing the metric vector is identical with the mechanism present and absent.",
+      "applicability": {
+        "applies": "Every instrument that rides an existing deck: op capture, noise-budget capture, temperature/supply injection, and any future post-sim hook that injects a margin table into agent context (15-ENGINEER §2.1).",
+        "not": "The invariance control proves the INSTRUMENT did not move; it says nothing about whether the quantity read is the right one. That needs an independent probe sharing no code path -- which is what caught nothing here and is exactly why it was run."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 25 (WP-OBSERVE)",
+        "JOURNEY stage 34 (WP-SENS)",
+        "FINDINGS §30.1",
+        "FINDINGS §39",
+        "lna/ref/check_op.py",
+        "lna/corners.py"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "element-names-are-the-contract",
+      "type": "harness-rule",
+      "trigger": {
+        "family": ["any"],
+        "analysis": ["netlist", "sp", "post-processing"],
+        "failure_signature": ["node-name-drift", "replay-false-confidence"],
+        "keywords": ["node", "element", "netlist", "insertion", "prepared_body", "to_spice", "renumber", "switch"]
+      },
+      "evidence": [
+        {
+          "quote": "| process | `CC1 VIN1 ...` | recombine node (MNM2 drain) | MNM6 gate |\n| 1 | `n2` | `n0` | `n8` |\n| 2 | `n4` | `n2` | `n6` |\n| 3 | `n2` | `n6` | `n7` |\n| 4 | `n5` | `n3` | `n9` |",
+          "source": "FINDINGS §42.2 (four consecutive processes, same tokens.json)"
+        },
+        {
+          "quote": "the symptom that exposed it was one deck text giving 35.94 / 30.26 / 25.24 dB S21 in three different processes while the untouched design replayed at exactly 35.961 every time.",
+          "source": "FINDINGS §42.2"
+        },
+        {
+          "quote": "**element names are the contract, node names are an implementation detail**, and every future netlist-post-processing tool in this tree needs to know it.",
+          "source": "JOURNEY stage 37"
+        }
+      ],
+      "rule": "Resolve every circuit role in a netlist post-processor from element names, cross-checked against a second element that must touch the node, and raise rather than guess when the contract drifts.",
+      "applicability": {
+        "applies": "Every insertion tool: switch banks, balun grafts, probe injection, linearization taps. Element names (CC*, LL*, MNM*, RR*) and the fixed nets (VIN1, VOUT1, p1, p2, VDD) ARE stable; internal n<k> names are not.",
+        "not": "One work package. The failure is silent -- the deck runs and returns a plausible number every time -- so the absence of an error is not evidence the tool is attached correctly."
+      },
+      "confidence": "unverified",
+      "sources": [
+        "JOURNEY stage 37 (WP-PGAIN)",
+        "FINDINGS §42.2",
+        "lna/_pgain_mech.py resolve_nodes()"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "cross-simulator-port-must-be-measured",
+      "type": "harness-rule",
+      "trigger": {
+        "family": ["any"],
+        "analysis": ["harmonic-balance", "op", "sp", "porting"],
+        "failure_signature": ["model-port-mismatch", "numerical-artefact"],
+        "keywords": ["vacask", "ngspice", "bsim4", "osdi", "version", "port", "rshunt", "model-card"]
+      },
+      "evidence": [
+        {
+          "quote": "The two simulators are **not running the same BSIM4**. ngspice reports `BSIM 4.5`; VACASK's OSDI model warns `unknown BSIM4 version. Working now with BSIM4.8.3` — the card's `version=4.0` is silently not honored.",
+          "source": "FINDINGS §40.2"
+        },
+        {
+          "quote": "| **Idd** | **12.96322 mA** | **12.96318 mA** | **+36 nA (+0.0003 %)** |\n| DC solution, **all 19 nodes** | — | — | **worst 2.05 µV** (at `n7`) |",
+          "source": "FINDINGS §40.2"
+        },
+        {
+          "quote": "terminate called ... filesystem_error: cannot remove: The process cannot\naccess the file because it is being used by another process [hb1.raw]",
+          "source": "FINDINGS §40.5 (VACASK 0.3.4.rc1 secondary crash; empty stdout, zero-length hb1.raw. It reads like a Windows file-locking problem and is not one -- it is spectrum construction, and clears at nharm 3, 6, 7, 8)"
+        }
+      ],
+      "rule": "Prove a second simulator's port on DC and S21 against a live run of the first before reading any design number from it, and never trust a model-card version string.",
+      "applicability": {
+        "applies": "Any migration to a second engine or a new PDK. Load-bearing details to re-check explicitly: rshunt equivalence (ngspice's .option rshunt=1e12 becomes 1 Tohm to ground on every node; six gates in this design have no other DC path) and the S-parameter port convention.",
+        "not": "A faithful port does not make the two engines interchangeable: an engine can abort on specific (f0, tone spacing, nharm) combinations and destroy its own error message on the way out. Walk a ladder and record which setting each row used, backed by a fence proving the setting does not move the answer."
+      },
+      "confidence": "unverified",
+      "sources": [
+        "JOURNEY stage 35 (WP-HB)",
+        "FINDINGS §40.2",
+        "FINDINGS §40.5",
+        "lna/hb/port45.py",
+        "lna/hb/README.md"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "unenforced-metric-comes-due",
+      "type": "anti-pattern",
+      "trigger": {
+        "family": ["any", "wideband-sdr", "lna"],
+        "analysis": ["any", "noise", "sp"],
+        "failure_signature": ["metric-blind-spot", "spec-governance"],
+        "keywords": ["advisory", "gate", "metric", "s11_max", "nf", "port-referred", "spec", "definition"]
+      },
+      "evidence": [
+        {
+          "quote": "**Measured domain shift — the port NF flattered every single design.** series_rs minus port-referred was **always positive**: min +0.55, median +2.32, mean +3.93, max +12.58 dB. Two rows had read physically impossible *negative* noise figures (−8.31 → +3.48, −4.52 → +3.71).",
+          "source": "FINDINGS §13.1"
+        },
+        {
+          "quote": "the constraint key was `s11_db`, which `extract.py` computes **at the reporting frequency f0 only** — not `s11_max_db` (worst case over `[f_lo, f_hi]`, also computed, just never gated).",
+          "source": "FINDINGS §22.2"
+        },
+        {
+          "quote": "of **14 distinct feasible designs, tier-1 (S11/S21/Idd) held for all 14, but tier-2 (NF-gated) held for only 2**",
+          "source": "JOURNEY stage 11 (the NF-gate survivor contrast)"
+        }
+      ],
+      "rule": "Build the physically-correct version of every advisory or assumed metric and diff it against the one in use before any claim rests on it.",
+      "applicability": {
+        "applies": "Any metric marked advisory, unsupported, or documented-but-unverified. A supported-but-MISSING metric must count as fully violated, or it flattens the objective. Both instances here were one-directional and large.",
+        "not": "The store's feasible bool was never wrong in the S11 case -- it correctly judged the spec as literally written. The defect was the SPEC not matching its own documented intent, which is why the audit has to compare the metric against its documentation and its sibling specs, not against the store."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 11 (WP-D1)",
+        "JOURNEY stage 19 (wideband-sdr recalibration)",
+        "FINDINGS §13.1",
+        "FINDINGS §22.2",
+        "FINDINGS §22.4"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "ndl-is-blind-to-function",
+      "type": "anti-pattern",
+      "trigger": {
+        "family": ["any", "wifi24", "dhruva"],
+        "analysis": ["generation", "novelty", "screen"],
+        "failure_signature": ["metric-blind-spot", "novelty-collapse"],
+        "keywords": ["ndl", "novelty", "grammar", "null", "spec-l0", "screen", "conducting", "adoption"]
+      },
+      "evidence": [
+        {
+          "quote": "**NDL is worse than blind — it is inverted.** GR tops the metric at **168 vs 63** for exactly the reason it is worthless as a capability proxy: a random graph is essentially never a copy of anything [...] NDL measures *not-copying*; it has never measured *working*, and until this section nothing in the record forced the distinction.",
+          "source": "FINDINGS §31.3"
+        },
+        {
+          "quote": "| GR | 168 | 168 | 5 (**3.0%**) | 0.154 | **0.000** | **65.5%** | 3.99 |\n| **G3** | 167 | 167 | **113 (67.7%)** | **0.750** | **1.000** | **18.0%** | 2.67 |",
+          "source": "FINDINGS §31.3 (screen-passing, biased+simulable, all MOS conducting, ... zero conducting)"
+        },
+        {
+          "quote": "the funnel added a second independent instance of this session's other lesson — the frozen novelty protocol could not see the difference between a pool of passive networks and a pool of amplifiers.",
+          "source": "JOURNEY stage 28"
+        },
+        {
+          "quote": "**A structural screen cannot distinguish a circuit from a random graph with the right census.**",
+          "source": "FINDINGS §31.3"
+        }
+      ],
+      "rule": "Report the all-MOS-conducting rate beside NDL@256 on every pool, and never rest an adoption decision on NDL alone.",
+      "applicability": {
+        "applies": "Every generator adoption decision, and any claim that a generation arm is 'better'. The conduction rate costs ~70 s per 256-sample pool and is already computed by bias.insert_bias.",
+        "not": "Adding conduction to the adoption rule is a FROZEN-PROTOCOL change and therefore an explicit user decision, same class as the ref-v2 rebaseline and the Gate-C1 restatement. Until it is taken, report it descriptively, never as a decision input."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 27 (WP-ATTRIB)",
+        "JOURNEY stage 28 (WP-OUTCOME)",
+        "FINDINGS §31.3",
+        "FINDINGS §31.8",
+        "FINDINGS §32.5",
+        "lna/grammar_gen.py"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "steering-toward-memorized-structure-returns-copies",
+      "type": "anti-pattern",
+      "trigger": {
+        "family": ["any", "dhruva", "wifi24"],
+        "analysis": ["generation", "fine-tune", "sampling"],
+        "failure_signature": ["copy-migration", "novelty-collapse"],
+        "keywords": ["prefix", "conditioning", "reweight", "winners", "copies", "novelty", "curriculum", "steering"]
+      },
+      "evidence": [
+        {
+          "quote": "**A 4.8× rate increase yields zero extra usable candidates** — every additional motif-bearing sample is an exact copy, and corpus copying rises 32.0% → 71.9%.",
+          "source": "FINDINGS §29.7"
+        },
+        {
+          "quote": "one template-free epoch took verbatim archetype copies from 37.9%→6.6% while corpus copies rose 31.6%→60.5% — **\"the copying does not stop, it migrates.\"**",
+          "source": "JOURNEY stage 14 (curriculum experiment)"
+        },
+        {
+          "quote": "**\"Removing structure relocates copying; adding structure dissolves it\"**",
+          "source": "JOURNEY stage 21 (P5-v7, FINDINGS §24.2)"
+        },
+        {
+          "quote": "what matters is still whether the channel carries structure the model has not memorised. Outcome labels are not that structure; the rows carrying them were.",
+          "source": "FINDINGS §32.6"
+        }
+      ],
+      "rule": "Move a generator by adding structure it has not memorised; never by steering, re-weighting or prompting it toward structure it already has.",
+      "applicability": {
+        "applies": "Every generator feedback channel: winners feedback, prefix conditioning, row re-weighting, outcome conditioning. Nine real ingested circuits (5.8% of training rows) bought +27 nb NDL where three steering channels bought none.",
+        "not": "The law is about copying, not about rates -- the steering levers DO move the targeted statistic (motif rate 0.032 -> 0.926 under prefix control). They just buy no usable yield. Also, adding structure is not free: the same +27 NDL cost 11.4 points of structural yield and a wb inductor-ratio regression."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 14 (control + curriculum)",
+        "JOURNEY stage 21 (P5-v7)",
+        "JOURNEY stage 24 (WP-MATCH)",
+        "JOURNEY stage 28 (WP-OUTCOME)",
+        "FINDINGS §29.7",
+        "FINDINGS §29.8",
+        "FINDINGS §24.2",
+        "FINDINGS §32.6"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "attribution-control-same-session",
+      "type": "strategy",
+      "trigger": {
+        "family": ["any"],
+        "analysis": ["generation", "fine-tune", "training"],
+        "failure_signature": ["attribution-error", "selector-artefact"],
+        "keywords": ["control", "attribution", "shuffled", "ablation", "variable", "isolate", "credit"]
+      },
+      "evidence": [
+        {
+          "quote": "`v7ctl` reproduced P5-v3 **to every measured digit** — nb NDL 52, spec-L0 80.5%, copies 69.5% (37.9%/31.6%), inductor ratio 0.224, wb NDL 21, spec-L0 37.5%, and a stage-B best-val of 0.2300 at epoch 1, P5-v3's documented value exactly — proving the pipeline deterministic under seed 1337 and that \"v7 − v7ctl is the nine ingested circuits and nothing else... the most important row in the section\"",
+          "source": "JOURNEY stage 21 (FINDINGS §24.1)"
+        },
+        {
+          "quote": "Conditioning **raised** nb NDL@256 from 79 to 99 (wb 41 to 89) and collapsed corpus copying from 32% to 6%; the shuffled control scored **115** and 5.5%. The novelty is real and it is not the labels",
+          "source": "JOURNEY stage 28"
+        }
+      ],
+      "rule": "Ship every new-data or new-channel arm with a same-session control that preserves everything except the variable under test.",
+      "applicability": {
+        "applies": "Any claim of the form 'X made the loop better' -- including, per 15-ENGINEER §2.2 item 4, any future claim that this playbook itself improved anything (run cold-start controls explicitly).",
+        "not": "A control that changes more than one thing proves nothing; the shuffled control worked because per-slot marginals and the joint bin distribution survived and only the label-to-topology correspondence died. Building a weaker control is worse than building none, because it will be believed."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 21 (P5-v7 / v7ctl)",
+        "JOURNEY stage 28 (WP-OUTCOME)",
+        "FINDINGS §24.1",
+        "FINDINGS §32.1",
+        "lna/plans2/15-ENGINEER-PROPOSAL.md §2.2"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "capability-negative-names-its-selector",
+      "type": "strategy",
+      "trigger": {
+        "family": ["any", "dhruva", "wideband-sdr"],
+        "analysis": ["generation", "search", "selection"],
+        "failure_signature": ["selector-artefact", "attribution-error", "topology-exhaustion"],
+        "keywords": ["capability", "negative", "selector", "pool", "candidate", "draw", "predictor"]
+      },
+      "evidence": [
+        {
+          "quote": "**a capability negative is only as strong as the selector that produced its candidates, and from now on it has to name it.**",
+          "source": "JOURNEY stage 24"
+        },
+        {
+          "quote": "§27.6's capability test drew the **12 most structurally distinct** candidates from the generator pool and concluded a capability limit. Re-drawing them by the *measured* predictor instead — every screen-passing, source-driven sample from the P5-v7 and P5-v8 narrowband pools, 29 distinct graphs, 26 of them novel — **24 of 29 close the band match**, and one closes the whole gate.",
+          "source": "JOURNEY stage 24"
+        }
+      ],
+      "rule": "Name the selector that produced the candidates whenever recording a capability negative, and re-draw the pool by any newly measured predictor before believing it.",
+      "applicability": {
+        "applies": "Every 'the generator/search/loop cannot do X' claim, and symmetrically to positives (stage 27 held the rung-0 selector fixed across all four arms for exactly this reason).",
+        "not": "One clean falsification instance. Note also the sibling failure this session recorded against itself: 'every design that closed both the band match and 22.3 dB of gain carried >=12 devices' was a true statement about which structures had been TRIED, not a property of the problem -- the swap mutant did it at 10."
+      },
+      "confidence": "unverified",
+      "sources": [
+        "JOURNEY stage 24 (WP-MATCH)",
+        "JOURNEY stage 27 (WP-ATTRIB)",
+        "FINDINGS §29.5",
+        "FINDINGS §29.10",
+        "FINDINGS §31.4"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "stop-sizing-build-an-instrument",
+      "type": "strategy",
+      "trigger": {
+        "family": ["any", "dhruva", "wideband-sdr"],
+        "analysis": ["any", "structural", "noise-budget", "op"],
+        "failure_signature": ["topology-exhaustion", "band-match-wall", "nf-wall"],
+        "keywords": ["instrument", "diagnosis", "decomposition", "wall", "sizing", "graph-arithmetic", "attribution"]
+      },
+      "evidence": [
+        {
+          "quote": "*When a capability question has been answered three times by a sizing run, stop sizing and build an instrument for the thing you are actually asking about.* The wall had been measured repeatedly and never diagnosed, because every previous attempt asked \"can this design be sized to match?\" instead of \"what do designs that match have that this one doesn't?\" The second question needed twenty lines of graph arithmetic and no simulator at all",
+          "source": "JOURNEY stage 24"
+        },
+        {
+          "quote": "A per-element noise decomposition (the new `extract.measure_noise_budget`, validated on a golden deck to 3.0103 dB *exactly* and with sum-closure 1.0000 on every real design) said the diagnosis was wrong: **26–40% of the excess noise factor on every dhruva design was BSIM4 gate-electrode resistance**",
+          "source": "JOURNEY stage 23"
+        }
+      ],
+      "rule": "After the third sizing run that answers the same capability question, build a decomposition instrument for the quantity actually in question instead of sizing again.",
+      "applicability": {
+        "applies": "Any named wall the record has sighted three or more times. Both instruments here overturned the standing diagnosis and both were cheap -- one needed no simulator at all, the other rode an existing deck.",
+        "not": "An instrument is not a fix: the match instrument produced a selection criterion and pointed at a move that had been sitting in moves.py unused the whole time. Budget for the instrument to relocate the problem, not to close it."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 23 (noise budget)",
+        "JOURNEY stage 24 (WP-MATCH)",
+        "JOURNEY stage 25 (WP-OBSERVE)",
+        "FINDINGS §26.2",
+        "FINDINGS §29.2",
+        "lna/_match_struct.py",
+        "lna/extract.py measure_noise_budget"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "golden-before-any-design-number",
+      "type": "strategy",
+      "trigger": {
+        "family": ["any"],
+        "analysis": ["any", "golden", "noise", "sp", "harmonic-balance", "3-port"],
+        "failure_signature": ["harness-artefact", "metric-blind-spot"],
+        "keywords": ["golden", "closed-form", "green", "validation", "regression", "check", "reference"]
+      },
+      "evidence": [
+        {
+          "quote": "No design number was read before `lna/ref/check_hb.py` printed **GREEN**. Four checks, all closed-form, no BSIM anywhere",
+          "source": "FINDINGS §40.1"
+        },
+        {
+          "quote": "Golden-locked: `extract.py --selftest` reads **3.012469 dB vs the analytic 3.0103**, and `ref/check_nf.py` is GREEN across an Rn sweep (worst error 0.002 dB).",
+          "source": "FINDINGS §13.1"
+        },
+        {
+          "quote": "the honest headline of this stage is *156 rows and a validated instrument*, not a result.",
+          "source": "JOURNEY stage 25"
+        }
+      ],
+      "rule": "Validate every new harness against closed form and print GREEN before reading a single design number from it.",
+      "applicability": {
+        "applies": "Every measurement capability added to this tree; the regression quartet (now check_ref/check_nf/check_stab/check_bjt/check_op/check_hb/check_iip3/check_diff) is required green before AND after every work package.",
+        "not": "A golden certifies the arithmetic, not the claim -- see must-fail-control-in-every-golden for the numerics and cross-simulator-port-must-be-measured for the model. A golden built only on a purely resistive reference silently exempts the integrator."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 11 (WP-D1)",
+        "JOURNEY stage 25 (WP-OBSERVE)",
+        "JOURNEY stage 35 (WP-HB)",
+        "JOURNEY stage 36 (WP-DIFF)",
+        "FINDINGS §13.1",
+        "FINDINGS §30.1",
+        "FINDINGS §40.1",
+        "FINDINGS §41.1"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "adopt-only-if-better",
+      "type": "strategy",
+      "trigger": {
+        "family": ["any"],
+        "analysis": ["generation", "training", "critic", "adoption"],
+        "failure_signature": ["novelty-collapse", "spec-governance"],
+        "keywords": ["adopt", "reject", "checkpoint", "baseline", "incumbent", "frozen-protocol", "inductor-ratio"]
+      },
+      "evidence": [
+        {
+          "quote": "**Checkpoint: REJECT.** Adopt-only-if-better fails on the **inductor-ratio clause in both channels** (nb 0.193 < 0.230, wb 0.137 > 0.132) before NDL is reached [...] More decisively than any clause: the arm's headline NDL gain is *beaten by its own shuffled control*, so there is nothing to adopt that the control would not also have earned.",
+          "source": "FINDINGS §32.6"
+        },
+        {
+          "quote": "**Verdict: ADOPT** anyway, on the nb channel's +27 margin and every copy-related tripwire moving the right direction on both channels — with both costs flagged for the next session rather than hidden.",
+          "source": "JOURNEY stage 21"
+        },
+        {
+          "quote": "The P5-v6 checkpoint itself was separately **rejected** under adopt-only-if-better on NDL grounds; the design survived anyway because it was replay-verified SPICE truth, not a model claim",
+          "source": "JOURNEY stage 11"
+        }
+      ],
+      "rule": "Adopt a new checkpoint or model only when it beats the incumbent on the frozen protocol at equal-or-better inductor ratio; ties go to the incumbent, and both the real costs and the real gains get stated even when the verdict is ADOPT.",
+      "applicability": {
+        "applies": "Every generator and critic version, and (15-ENGINEER §1.5 item 4) any learned component, judged on held-out DEPLOYMENT behaviour under the frozen protocol rather than on training curves.",
+        "not": "A rejected checkpoint does not invalidate a design it produced -- a replay-verified SPICE result survives independently of the model claim. And the gate itself is measurably blind (see ndl-is-blind-to-function); it is a floor, not a proof of capability."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 11",
+        "JOURNEY stage 14",
+        "JOURNEY stage 21",
+        "JOURNEY stage 28",
+        "FINDINGS §24.3",
+        "FINDINGS §32.6",
+        "FINDINGS §18.5"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "frozen-protocol-change-needs-user-signoff",
+      "type": "strategy",
+      "trigger": {
+        "family": ["any"],
+        "analysis": ["any", "governance"],
+        "failure_signature": ["spec-governance"],
+        "keywords": ["frozen", "protocol", "spec", "governance", "signoff", "rebaseline", "device_budget", "w_finger", "ruling"]
+      },
+      "evidence": [
+        {
+          "quote": "§14.2 and the Session-4 handover both flagged this as needing an explicit user decision, because it changes a *frozen* protocol. The decision was taken and this is the execution.",
+          "source": "FINDINGS §14.5"
+        },
+        {
+          "quote": "Finger count is a harness-fidelity parameter of exactly the same class as `inductor_q` and `device_budget`; changing it would move **every NF label in the store**, and changing it in order to close a gate is precisely what §13.5/§23/§25 refused to do.",
+          "source": "FINDINGS §26.3"
+        },
+        {
+          "quote": "measure the defect or the need, propose the fix, get the decision, execute it the same session, and record the correction's exact size — including when the correction reveals a wall (stage 19's 0/134) or an over-grant (stage 22's 21-vs-20) — rather than a clean restatement that hides what changed.",
+          "source": "JOURNEY, Standing honesty mechanisms"
+        }
+      ],
+      "rule": "Surface any change to a frozen protocol, a spec constraint or a harness-fidelity parameter as an explicit user decision, and record the correction's exact size when it lands.",
+      "applicability": {
+        "applies": "Frozen metrics (NDL reference, Gate C1 bar), spec constraints (wideband-sdr recalibration, device_budget), harness fidelity (w_finger, inductor_q, nf_gated, stab_guard), and the adoption rule itself.",
+        "not": "It is not a veto on measuring -- measure the defect first and hand up a proposal calibrated to something other than the gate. Executors may and do refuse to adopt their own measured fix (stage 23 refused w_finger until the user approved 2 um)."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 12 (ref-v2, Gate C1)",
+        "JOURNEY stage 19 (wideband-sdr)",
+        "JOURNEY stage 20 / 22 (device_budget)",
+        "JOURNEY stage 23 (w_finger)",
+        "FINDINGS §14.5",
+        "FINDINGS §14.6",
+        "FINDINGS §26.3"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "calibrate-fidelity-parameters-to-real-silicon",
+      "type": "strategy",
+      "trigger": {
+        "family": ["any", "dhruva", "gnss"],
+        "analysis": ["any", "governance", "sizing"],
+        "failure_signature": ["device-budget", "spec-governance"],
+        "keywords": ["device_budget", "calibration", "silicon", "corpus", "widening", "w_finger", "over-grant"]
+      },
+      "evidence": [
+        {
+          "quote": "18 → **21** on the four dhruva specs only [...] calibrated to **`ihp-gps-lna-npn` @ 21** — a real IHP SG13G2 **GPS-band** LNA in the corpus, the same navigation-receiver role these specs target, and **the largest real design in the 50-circuit reference set**, so 21 is where this line of justification runs out: no further widening has a corpus circuit to point at.",
+          "source": "FINDINGS §25.3"
+        },
+        {
+          "quote": "⚠ **Stated plainly: the gate needed 20 devices, not 21.** [...] A widening to 20 would have closed the gate identically. This is recorded because the next request of this kind should be sized to the measured need.",
+          "source": "FINDINGS §25.3"
+        },
+        {
+          "quote": "If it is adopted, the defensible rule is to fix a **finger width** (real RF practice is ~1–5 µm/finger) and derive `NF = ceil(W / w_finger)` — calibrated to layout practice, not to a target.",
+          "source": "FINDINGS §26.3"
+        }
+      ],
+      "rule": "Calibrate every budget or fidelity parameter to the nearest real measured silicon or layout practice, verify the new bound still binds, and report the over-grant when the result uses less than was approved.",
+      "applicability": {
+        "applies": "device_budget, w_finger, inductor_q, and any future vocabulary or box widening. Verify enforcement after the change: the 19-device align-lna-qm is still rejected under the 18 bound; 22 and 30 devices are still rejected under 21.",
+        "not": "Never calibrate to what closes the gate. Two consecutive grants (18, 21) both turned out larger than what the measured result actually used -- so the excess must be reported, and the honest answer when the gate needs more than the corpus can point at is to stop."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 20",
+        "JOURNEY stage 22",
+        "JOURNEY stage 23",
+        "FINDINGS §23.1",
+        "FINDINGS §25.3",
+        "FINDINGS §26.3"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "reference-expansion-perturbs-only-what-could-copy-it",
+      "type": "strategy",
+      "trigger": {
+        "family": ["any"],
+        "analysis": ["novelty", "generation", "governance"],
+        "failure_signature": ["novelty-collapse", "spec-governance"],
+        "keywords": ["ndl", "reference", "ref-v2", "ref-v3", "rebaseline", "digest", "version", "history"]
+      },
+      "evidence": [
+        {
+          "quote": "**The P0 baseline is untouched: 16 → 16, with 0.0% archetype copies.** A corpus-only arm cannot copy `templates.py`, so the reference extension bites *only* the template-trained arms — which is exactly the behaviour a correct fix should have.",
+          "source": "FINDINGS §14.5"
+        },
+        {
+          "quote": "the **measured correction was exactly zero on every one of 11 pools checked** — none of the nine new circuits had ever been in a training set, so **0 of 7 adopt/reject decisions flip**, this time provably rather than by audit",
+          "source": "JOURNEY stage 15 (ref-v3)"
+        },
+        {
+          "quote": "the correction is **not a constant offset** — it ranges 0 (for corpus-only arms, which cannot copy templates) to −50, scaling with how much archetype mass an arm trained on — and it is **not order-preserving**: P5-v2 rises from 5th to 3rd place under the new reference",
+          "source": "JOURNEY stage 12"
+        }
+      ],
+      "rule": "Version every novelty reference with a content digest, re-measure the affected arms under both versions, and expect a non-constant, non-order-preserving correction exactly where an arm could have copied the new content.",
+      "applicability": {
+        "applies": "Any reference/holdout/baseline expansion. The zero-correction result on ref-v3 is the standing sanity check: a reference expansion only perturbs history if something in that history could have copied the new content.",
+        "not": "An audit is weaker than a re-measurement. Stage 12's conclusion (no decision flips) was right but the REASONING originally given for it was wrong, and the corrected reasoning is what got recorded. Re-measure where you can; state which conclusions rest on monotonicity or inference."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 12 (ref-v2)",
+        "JOURNEY stage 15 (ref-v3)",
+        "FINDINGS §14.5",
+        "FINDINGS §19.3",
+        "lna/novelty.py"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "uncertainty-gate-needs-an-off-distribution-control",
+      "type": "diagnosis",
+      "trigger": {
+        "family": ["any"],
+        "analysis": ["critic", "search", "ensemble"],
+        "failure_signature": ["coverage-collapse", "selector-artefact"],
+        "keywords": ["uncertainty", "gate", "ensemble", "sigma", "trust-region", "off-distribution", "inert", "retire"]
+      },
+      "evidence": [
+        {
+          "quote": "the **uncertainty gate was found inert**: `n_high_unc = 0` across 80 generations in all four runs — the ensemble was *confidently wrong* off-distribution rather than visibly uncertain — while the **trust region** [...] was the rule that actually worked",
+          "source": "JOURNEY stage 13"
+        },
+        {
+          "quote": "Here **119/170** candidates exceed it: **GR 62/85 (73%), GR+RAG 56/74 (76%), G2 0/2, G3 1/9 (11%)**. The gate is not broken — it was being fed distributions that were never far enough away. **A no-learning arm is the first thing this program has built that is genuinely off-distribution for the critic, and the retired rule identifies it almost perfectly.**",
+          "source": "FINDINGS §31.4"
+        }
+      ],
+      "rule": "Feed a trust rule a deliberately off-distribution arm before retiring it as inert, because an inert gate may be measuring your candidate distribution rather than itself.",
+      "applicability": {
+        "applies": "Every trust mechanism measured and found not to fire: uncertainty gates, novelty thresholds, tripwires. grammar_gen.py costs ~50 s of CPU for 256 legal circuits and is the standing off-distribution control.",
+        "not": "The corollary cuts the other way too: when the gate DOES fire on 73% of a pool, the critic's ranking of that pool is a ranking it has no basis for, so the 'top 10' is close to an arbitrary 10 -- a caveat that runs against the arm being defended."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 13",
+        "JOURNEY stage 16",
+        "JOURNEY stage 27",
+        "FINDINGS §20.3",
+        "FINDINGS §31.4"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "critic-collapse-is-coverage-not-capacity",
+      "type": "diagnosis",
+      "trigger": {
+        "family": ["any", "dhruva", "wideband-sdr"],
+        "analysis": ["critic", "search", "training"],
+        "failure_signature": ["coverage-collapse", "surrogate-era"],
+        "keywords": ["critic", "rho", "holdout", "mutant", "coverage", "capacity", "distribution", "retrain"]
+      },
+      "evidence": [
+        {
+          "quote": "critic v1 held ρ(S21)≈0.83 on its own family holdout but **fell to ρ≈+0.17–0.20 on the mutant distribution search actually generates**, and on the elites it had *selected*, residual correlation ran 0 to −0.33",
+          "source": "JOURNEY stage 13"
+        },
+        {
+          "quote": "on selection-free control arms, ρ(feasibility) rose from +0.173→**+0.441** (dhruva-s) and +0.198→**+0.502** (wideband-sdr); on the elites the critic had actually *selected*, ρ went from *negative* (−0.224 on wideband-sdr) to **+0.479/+0.641**",
+          "source": "JOURNEY stage 16"
+        }
+      ],
+      "rule": "Evaluate a learned ranker on the exact distribution the search will generate, and repair a field collapse by covering that distribution before touching the model.",
+      "applicability": {
+        "applies": "Any surrogate or critic deployed inside a search loop; the standard frozen splits will not touch the mutant/elite distribution. v4-train held only 16 wideband-sdr and 24 dhruva-s rows out of 734 when the collapse was measured.",
+        "not": "Coverage is not an exhausted lever but it is also not the whole gap -- after the repair the critic still reached only ~55-60% of the in-distribution ceiling, and a leaky upper-bound test showed the remainder is a generalization gap ACROSS TOPOLOGY FAMILIES, not model capacity. Also re-check which arm is best at every retrain: ridge beat the shipped GNN on source-shift at v5-train."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 13",
+        "JOURNEY stage 16",
+        "FINDINGS §15.4",
+        "FINDINGS §20.2",
+        "lna/critic_gnn.py"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "three-failed-loops-means-topology",
+      "type": "strategy",
+      "trigger": {
+        "family": ["any", "dhruva", "wideband-sdr", "gnss"],
+        "analysis": ["any", "sizing", "search"],
+        "failure_signature": ["topology-exhaustion", "band-match-wall", "iip3-wall", "nf-wall"],
+        "keywords": ["escalate", "topology", "tuning", "loop", "wall", "archetype", "ruling"]
+      },
+      "evidence": [
+        {
+          "quote": "\"If the design hasn't converged after three designer-verifier loops, the problem is topology, not tuning — escalate\" — which is literally the D5 story, stated as a rule",
+          "source": "lna/plans2/15-ENGINEER-PROPOSAL.md §2.1 (Arcadia-1/analog-agents process invariant)"
+        },
+        {
+          "quote": "**D5 implication: the topology must change** — this is not \"close\" and it is not a sizing problem.",
+          "source": "FINDINGS §37.7"
+        },
+        {
+          "quote": "closing it \"needs a quieter input stage, not more devices\" — a topology question, not a sizing one",
+          "source": "JOURNEY stage 22 (dhruva-l5)"
+        },
+        {
+          "quote": "the story is 'S11 has never once been solved band-wide, at any NF/gain trade-off, in 134 attempts'",
+          "source": "JOURNEY stage 19 (wideband-sdr, FINDINGS §22.5)"
+        }
+      ],
+      "rule": "Escalate to the archetype library or the rulings queue once a target has survived three design-verify loops; do not spend a fourth on tuning.",
+      "applicability": {
+        "applies": "Any gate that has been measured, re-diagnosed and re-attempted without moving. The escalation target is a topology lever (a new archetype family, a vocabulary DOF, a rail/budget change) or a user ruling -- not another campaign.",
+        "not": "Escalate only after the confound check: stage 22's negative result on dhruva-l5 was flagged as confounded, and re-run unconfounded on the honest harness the SEARCH reached the gate easily (8 of the first 14 mutants tier-2 feasible). Escalating a confounded negative buys a topology project you did not need."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 19 (wideband-sdr)",
+        "JOURNEY stage 22 (dhruva-l5)",
+        "JOURNEY stage 32 / 35 (D5)",
+        "FINDINGS §22.5",
+        "FINDINGS §37.7",
+        "lna/plans2/15-ENGINEER-PROPOSAL.md §2.1"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "wideband-sdr-band-wide-match-wall",
+      "type": "diagnosis",
+      "trigger": {
+        "family": ["wideband-sdr", "lna"],
+        "analysis": ["sp", "s-parameter", "sizing"],
+        "failure_signature": ["band-match-wall", "topology-exhaustion"],
+        "keywords": ["wideband", "s11_max", "ripple", "inductorless", "multi-path-feedback", "archetype", "library"]
+      },
+      "evidence": [
+        {
+          "quote": "**Sharper diagnosis: `s11_max_db ≤ −10 dB` has never once been cleared by any of the 134 stored rows, at any NF/gain trade-off** — versus 29/134 (22%) that had passed the wrong, easy gate.",
+          "source": "JOURNEY stage 19 (FINDINGS §22.5)"
+        },
+        {
+          "quote": "the motif that carries all four dhruva bands carries **nothing** there — 0 of 119 graphs have ever held that band match, source-driven ones peaking at −6.61 dB — so stage 19's topology-library reading stands untouched.",
+          "source": "JOURNEY stage 24 (FINDINGS §29.11)"
+        },
+        {
+          "quote": "Six of the twelve surveyed literature designs are explicitly 0-inductor, which is evidence the wall is a **topology-library gap** (no archetype here implements a multi-path feedback match like Sobhy et al., TMTT 2011) rather than a physical impossibility",
+          "source": "JOURNEY stage 19"
+        }
+      ],
+      "rule": "Add a multi-path-feedback match archetype to the library before spending any further sizing or generation budget on wideband-sdr's band-wide S11.",
+      "applicability": {
+        "applies": "The wideband-sdr spec under its corrected metric (s11_max_db, gain tightened 12 -> 14 dB against measured silicon). The wall is measured across 134 stored rows and 119 graphs, by two different instruments.",
+        "not": "This is a library gap, not a physical ceiling -- twelve surveyed measured-silicon designs clear it, six of them with zero inductors. Do not read it as 'wideband-sdr is infeasible'; read it as 'the archetype is missing'."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 19",
+        "JOURNEY stage 24",
+        "FINDINGS §22.4",
+        "FINDINGS §22.5",
+        "FINDINGS §29.11"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "oracle-control-before-a-surrogate-claim",
+      "type": "strategy",
+      "trigger": {
+        "family": ["any"],
+        "analysis": ["surrogate", "sizing", "search"],
+        "failure_signature": ["surrogate-era", "attribution-error"],
+        "keywords": ["surrogate", "pre-gate", "oracle", "control", "skip", "waste", "zoaf", "argmin", "delta"]
+      },
+      "evidence": [
+        {
+          "quote": "| cross-family (cold start) | 49 | **82.6%** | 49/49 |\n| held-out run of a seen topology (**warm start**) | 11 | **90.1%** | 11/11 |",
+          "source": "FINDINGS §33.5 (oracle gate: true metrics as predictions)"
+        },
+        {
+          "quote": "**Between 78% and 90% of every ngspice call this pipeline has ever spent inside ZOAF was, in hindsight, unnecessary** — the point never beat the incumbent and never would have. That is a property of the *search*, not of any model, and it is the size of the prize a surrogate pre-gate is playing for.",
+          "source": "FINDINGS §33.5"
+        },
+        {
+          "quote": "\"82.6% skippable\" is a property of ZOAF's trajectory that no model was needed to measure, and reporting it first is what keeps \"62.8% skipped\" from reading as a model result.",
+          "source": "JOURNEY stage 26"
+        }
+      ],
+      "rule": "Run the gate with the true metrics as predictions and report that oracle skip rate before quoting any surrogate number.",
+      "applicability": {
+        "applies": "Any pre-gate, filter or acquisition function. The immediate measured lever here is gating size_best_of_k's seeds 2 and 3 -- a warm-start case the pipeline manufactures every night, where v0 preserves 11/11 argmins while skipping 42.9%.",
+        "not": "Nothing may land on surrogate evidence alone: every accepted point is verified with the real harness. The gate is MARGIN-limited by the surrogate's own point error (cold start needs Delta=5 to be safe, warm start Delta=2), so the savings curve moves with data, not with architecture. And v0's numbers are pre-cutover-era only."
+      },
+      "confidence": "unverified",
+      "sources": [
+        "JOURNEY stage 26 (WP-SURROGATE)",
+        "FINDINGS §33.2",
+        "FINDINGS §33.5",
+        "lna/surrogate.py",
+        "lna/plans2/12-WP-SURROGATE.md"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "diagnosis-and-ranking-compete-for-capacity",
+      "type": "diagnosis",
+      "trigger": {
+        "family": ["any"],
+        "analysis": ["critic", "search", "training"],
+        "failure_signature": ["coverage-collapse", "move-repertoire"],
+        "keywords": ["diagnosis", "heads", "multi-task", "pointing", "ranking", "calibration", "moves", "backbone"]
+      },
+      "evidence": [
+        {
+          "quote": "**Bar 2 failed** — the multi-task model's ρ(S21) drops 0.862 → 0.771 and its uncertainty calibration halves (0.549 → 0.247) — so the diagnosis heads ship as a **separate model** and critic v1 is byte-for-byte untouched.",
+          "source": "JOURNEY stage 29 (WP-DIAGHEADS)"
+        },
+        {
+          "quote": "targeted moves beat random ones on the pre-registered metric (mean Δ feasibility score −1.049 vs −1.432) but by **removing disasters, not by finding wins**: the targeted median is *worse*, and the only feasible child in 18 sizings came from a random `rewire`.",
+          "source": "JOURNEY stage 29"
+        },
+        {
+          "quote": "on two of five parents the head pointed at a passive whose prescribed edits were all illegal on that circuit, so the diagnosis was right and `moves.py` had no answer. The next constraint on pointed search is the move repertoire, not the pointing",
+          "source": "JOURNEY stage 29"
+        }
+      ],
+      "rule": "Ship diagnosis heads as a separate model from the ranker, and grow the move repertoire before expecting pointed search to find wins.",
+      "applicability": {
+        "applies": "Any plan to wire diagnosis into move-class/site priors (15-ENGINEER §1.4 item 3). The cost of multi-tasking lands hardest on the ensemble sigma that search actually consumes -- the most expensive thing in the model to damage.",
+        "not": "A diagnosis head still buys a NARROWER LOSS DISTRIBUTION, which is worth having and is not the same thing as buying better designs. And a label must be a function of the model's input: an inner-ZOAF conduction row is not, because the critic's input is (topology, spec) and contains no x."
+      },
+      "confidence": "unverified",
+      "sources": [
+        "JOURNEY stage 29 (WP-DIAGHEADS)",
+        "FINDINGS §34.5",
+        "FINDINGS §34.6",
+        "lna/plans2/13-WP-DIAGHEADS.md"
+      ],
+      "created": "2026-08-14"
+    },
+    {
+      "id": "pre-registration-before-code",
+      "type": "strategy",
+      "trigger": {
+        "family": ["any"],
+        "analysis": ["any", "governance", "training"],
+        "failure_signature": ["attribution-error", "spec-governance"],
+        "keywords": ["pre-registration", "predictions", "bars", "plan", "commit", "falsified", "honest"]
+      },
+      "evidence": [
+        {
+          "quote": "The executor pre-registered `plans2/09-WP-OBSERVE.md` — design, the three ngspice rules the capture had to obey, the volume policy, and **five numbered predictions** — and committed it (`b08dda8`) before writing a line of feature code",
+          "source": "JOURNEY stage 25"
+        },
+        {
+          "quote": "Three of my eight registered predictions were falsified: the cold-start correlation was much better than predicted, the within-family error did not reach the sigma floor, and the per-run residual calibration — predicted to matter more than the encoder — made things *worse*.",
+          "source": "JOURNEY stage 26"
+        },
+        {
+          "quote": "The second decision was to honour the pre-registered consequence when the non-regression bar failed, instead of tuning the two λ that had been fixed a priori precisely so that this could not be quietly rescued.",
+          "source": "JOURNEY stage 29"
+        }
+      ],
+      "rule": "Commit the plan, the bars and the numbered predictions before the first line of experiment code, and honour the pre-registered consequence when a bar fails.",
+      "applicability": {
+        "applies": "Every work package. The registered prediction most likely to be WRONG is the one worth writing down: WP-OBSERVE's P5 (that the noise deck and the sizing deck share a DC solution) had been an unverified four-session-old documentation claim, and it held at 0.0e+00.",
+        "not": "Pre-registration does not make a result significant -- stage 27's sizing half is 31 runs at p = 0.077, reported as not clearing 0.05 with the decisive statistics named separately (113/167 vs 5/168 conducting)."
+      },
+      "confidence": "verified",
+      "sources": [
+        "JOURNEY stage 25",
+        "JOURNEY stage 26",
+        "JOURNEY stage 27",
+        "JOURNEY stage 29",
+        "FINDINGS §18.0",
+        "FINDINGS §31.7"
+      ],
+      "created": "2026-08-14"
+    }
+  ],
+  "edges": [
+    {"src": "harden-against-the-measured-sweep", "type": "prevents", "dst": "s11-idd-knife-edge",
+     "note": "the hardened dhruva-simul sizing carries S11 -11.01 dB and Idd 8.205 mA and passes at both 1.1 V and 1.2 V nominals, where the shipped l5 point flips on +-1% VDD"},
+    {"src": "harden-against-the-measured-sweep", "type": "derived_from", "dst": "s11-idd-knife-edge",
+     "note": "the sweep supplied the nominal floors (S11 <= -10.44, NF margin >= 0.75 dB) the resize was run against"},
+    {"src": "s11-idd-knife-edge", "type": "derived_from", "dst": "objective-only-protects-what-it-scores",
+     "note": "knife-edge BY CONSTRUCTION: constrained_descent pins S11 and Idd at their gate values while descending NF"},
+    {"src": "better-passives-can-fail", "type": "derived_from", "dst": "s11-idd-knife-edge",
+     "note": "same sweep, the Q axis"},
+    {"src": "ndl-is-blind-to-function", "type": "contradicts", "dst": "adopt-only-if-better",
+     "note": "the adoption gate is NDL-based, and a generator with no learning in it wins that comparison outright (168 vs 63) while returning 0 near-feasible designs; the tension is live and its resolution is a frozen-protocol decision the user owns"},
+    {"src": "two-engine-cross-validation", "type": "validated", "dst": "iip3-output-swing-wall",
+     "note": "ngspice transient and VACASK HB agree to 0.08 dB on all four bands"},
+    {"src": "two-engine-cross-validation", "type": "prevents", "dst": "replay-fence-is-not-correctness",
+     "note": "a second, independently-implemented harness is the cross-check a replay fence cannot be"},
+    {"src": "replay-fence-is-not-correctness", "type": "contradicts", "dst": "replay-fence-before-any-reuse",
+     "note": "the fence is necessary and not sufficient: three reproducible wrong balun answers, and a whole four-band run on the wrong decks, all fenced clean"},
+    {"src": "search-must-be-seeded-from-physics", "type": "derived_from", "dst": "replay-fence-is-not-correctness",
+     "note": "FINDINGS 41.7 is the shared source; the physics seed is the repair"},
+    {"src": "element-names-are-the-contract", "type": "prevents", "dst": "replay-fence-is-not-correctness",
+     "note": "node-name drift produced three plausible, mutually inconsistent S21 readings while the untouched design replayed exactly"},
+    {"src": "must-fail-control-in-every-golden", "type": "prevents", "dst": "numerical-distortion-lands-on-signal-bins",
+     "note": "G1's a3=0 null circuit is the only thing that could see numerical IM3 sitting 10 dB above the product-free floor"},
+    {"src": "must-fail-control-in-every-golden", "type": "derived_from", "dst": "golden-before-any-design-number",
+     "note": "the refinement: a golden that only passes certifies less than one that also contains a check which must fail"},
+    {"src": "golden-before-any-design-number", "type": "prevents", "dst": "unenforced-metric-comes-due",
+     "note": "the port-referred NF survived the program's whole life because no golden existed for it; check_nf is what retired it"},
+    {"src": "single-finger-gate-resistance-artefact", "type": "validated", "dst": "era-cutover-is-a-new-label-domain",
+     "note": "the mf2 relabel is the doctrine's third instance and added the refinement that a circuit-changing cutover must re-measure the WHOLE metric vector"},
+    {"src": "gate-driven-input-is-quiet-only-when-unmatched", "type": "derived_from", "dst": "stop-sizing-build-an-instrument",
+     "note": "_match_struct.py is twenty lines of graph arithmetic and no simulator; three previous sightings of the wall were all sizing results"},
+    {"src": "capability-negative-names-its-selector", "type": "derived_from", "dst": "stop-sizing-build-an-instrument",
+     "note": "both rules came out of WP-MATCH: the instrument produced the predictor, the predictor re-drew the pool, the negative fell"},
+    {"src": "uncertainty-gate-needs-an-off-distribution-control", "type": "derived_from", "dst": "critic-collapse-is-coverage-not-capacity",
+     "note": "the gate was declared inert on exactly the mutant distributions the coverage diagnosis was about"},
+    {"src": "iip3-output-swing-wall", "type": "validated", "dst": "three-failed-loops-means-topology",
+     "note": "D5 is the escalation rule's cleanest instance: two work packages, two methods, one verdict -- change what the circuit is"},
+    {"src": "wideband-sdr-band-wide-match-wall", "type": "validated", "dst": "three-failed-loops-means-topology",
+     "note": "0/134 stored rows and 0/119 graphs, measured by two different instruments, before the topology-library reading was accepted"},
+    {"src": "judge-linearity-at-the-min-gain-state", "type": "derived_from", "dst": "iip3-output-swing-wall",
+     "note": "both D5 harnesses flag the min-gain condition as the measurement condition a fixed-gain design cannot enter"},
+    {"src": "judge-linearity-at-the-min-gain-state", "type": "derived_from", "dst": "match-margin-forbids-mid-chain-loading",
+     "note": "WP-PGAIN reached the same conclusion from the other direction: every match-legal mechanism is output-side, so low-gain states buy no linearity"},
+    {"src": "margin-is-the-currency", "type": "derived_from", "dst": "match-margin-forbids-mid-chain-loading",
+     "note": "the 0.001 dB band-wide match margin is what makes the forbidden set spatial and large"},
+    {"src": "calibrate-fidelity-parameters-to-real-silicon", "type": "derived_from", "dst": "frozen-protocol-change-needs-user-signoff",
+     "note": "the calibration standard is what makes the proposal handed up defensible rather than gate-convenient"},
+    {"src": "reference-expansion-perturbs-only-what-could-copy-it", "type": "derived_from", "dst": "frozen-protocol-change-needs-user-signoff",
+     "note": "ref-v2 was a frozen-protocol change taken to the user; ref-v3 is the template for proving a rebaseline changes nothing"},
+    {"src": "oracle-control-before-a-surrogate-claim", "type": "derived_from", "dst": "attribution-control-same-session",
+     "note": "same move one level down: measure what the control alone would have earned before crediting the model"},
+    {"src": "cross-simulator-port-must-be-measured", "type": "derived_from", "dst": "two-engine-cross-validation",
+     "note": "the port proof is the precondition the second-opinion result stands on"}
+  ]
+}

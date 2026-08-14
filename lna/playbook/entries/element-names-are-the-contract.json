@@ -1,0 +1,54 @@
+{
+  "id": "element-names-are-the-contract",
+  "type": "harness-rule",
+  "trigger": {
+    "family": [
+      "any"
+    ],
+    "analysis": [
+      "netlist",
+      "sp",
+      "post-processing"
+    ],
+    "failure_signature": [
+      "node-name-drift",
+      "replay-false-confidence"
+    ],
+    "keywords": [
+      "node",
+      "element",
+      "netlist",
+      "insertion",
+      "prepared_body",
+      "to_spice",
+      "renumber",
+      "switch"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "| process | `CC1 VIN1 ...` | recombine node (MNM2 drain) | MNM6 gate |\n| 1 | `n2` | `n0` | `n8` |\n| 2 | `n4` | `n2` | `n6` |\n| 3 | `n2` | `n6` | `n7` |\n| 4 | `n5` | `n3` | `n9` |",
+      "source": "FINDINGS §42.2 (four consecutive processes, same tokens.json)"
+    },
+    {
+      "quote": "the symptom that exposed it was one deck text giving 35.94 / 30.26 / 25.24 dB S21 in three different processes while the untouched design replayed at exactly 35.961 every time.",
+      "source": "FINDINGS §42.2"
+    },
+    {
+      "quote": "**element names are the contract, node names are an implementation detail**, and every future netlist-post-processing tool in this tree needs to know it.",
+      "source": "JOURNEY stage 37"
+    }
+  ],
+  "rule": "Resolve every circuit role in a netlist post-processor from element names, cross-checked against a second element that must touch the node, and raise rather than guess when the contract drifts.",
+  "applicability": {
+    "applies": "Every insertion tool: switch banks, balun grafts, probe injection, linearization taps. Element names (CC*, LL*, MNM*, RR*) and the fixed nets (VIN1, VOUT1, p1, p2, VDD) ARE stable; internal n<k> names are not.",
+    "not": "One work package. The failure is silent -- the deck runs and returns a plausible number every time -- so the absence of an error is not evidence the tool is attached correctly."
+  },
+  "confidence": "unverified",
+  "sources": [
+    "JOURNEY stage 37 (WP-PGAIN)",
+    "FINDINGS §42.2",
+    "lna/_pgain_mech.py resolve_nodes()"
+  ],
+  "created": "2026-08-14"
+}

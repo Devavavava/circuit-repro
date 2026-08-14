@@ -1,0 +1,55 @@
+{
+  "id": "friis-grow-the-quietest-parent",
+  "type": "diagnosis",
+  "trigger": {
+    "family": [
+      "dhruva",
+      "gnss",
+      "lna"
+    ],
+    "analysis": [
+      "noise",
+      "sp",
+      "search"
+    ],
+    "failure_signature": [
+      "nf-wall",
+      "topology-exhaustion"
+    ],
+    "keywords": [
+      "nf",
+      "friis",
+      "stage-add",
+      "cascade",
+      "gain",
+      "parent",
+      "knee"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "| `f57874` / `3e4a6a` (18/17 dev) | already at NF **3.70** with gain to spare | `3a5fc1` (**21 dev**) | 33.7 → **46.9** | 3.70 → **3.71** |\n| **`6f0d08` (17 dev)** | had the **noise** (3.33), lacked the **gain** (21.3) | **`ace838` (20 dev)** | 21.3 → **34.4** | 3.33 → **3.24** |",
+      "source": "FINDINGS §25.2"
+    },
+    {
+      "quote": "**The front is not a smooth exchange curve; it is two regimes with a knee, and §23 extrapolated across the knee.**",
+      "source": "FINDINGS §25.2"
+    },
+    {
+      "quote": "The practical lesson, which is the transferable one: **the parent to grow is the quietest one, not the best one.** `6f0d08` had the worst total violation of the three candidates (0.289 vs 0.059) and was the only one that could reach the gate.",
+      "source": "FINDINGS §25.2"
+    }
+  ],
+  "rule": "Apply a gain-stage-add move to the quietest parent, not the lowest-violation one, and never extrapolate an NF-per-dB-of-S21 exchange rate across the knee.",
+  "applicability": {
+    "applies": "Cascade noise problems where a candidate set contains both a relaxed frontier design and a quieter, gain-starved one. Extra gain lowers total NF only while the input stage is still over-driven to produce gain it should not have to.",
+    "not": "Does not apply once F has already collapsed to F1 -- there, +13 dB of new gain moved NF by 0.01 dB and four seeds converged at 3.71. It is also one campaign, not two independent observations."
+  },
+  "confidence": "unverified",
+  "sources": [
+    "JOURNEY stage 22",
+    "FINDINGS §25.2",
+    "FINDINGS §23.2"
+  ],
+  "created": "2026-08-14"
+}

@@ -1,0 +1,57 @@
+{
+  "id": "frozen-protocol-change-needs-user-signoff",
+  "type": "strategy",
+  "trigger": {
+    "family": [
+      "any"
+    ],
+    "analysis": [
+      "any",
+      "governance"
+    ],
+    "failure_signature": [
+      "spec-governance"
+    ],
+    "keywords": [
+      "frozen",
+      "protocol",
+      "spec",
+      "governance",
+      "signoff",
+      "rebaseline",
+      "device_budget",
+      "w_finger",
+      "ruling"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "§14.2 and the Session-4 handover both flagged this as needing an explicit user decision, because it changes a *frozen* protocol. The decision was taken and this is the execution.",
+      "source": "FINDINGS §14.5"
+    },
+    {
+      "quote": "Finger count is a harness-fidelity parameter of exactly the same class as `inductor_q` and `device_budget`; changing it would move **every NF label in the store**, and changing it in order to close a gate is precisely what §13.5/§23/§25 refused to do.",
+      "source": "FINDINGS §26.3"
+    },
+    {
+      "quote": "measure the defect or the need, propose the fix, get the decision, execute it the same session, and record the correction's exact size — including when the correction reveals a wall (stage 19's 0/134) or an over-grant (stage 22's 21-vs-20) — rather than a clean restatement that hides what changed.",
+      "source": "JOURNEY, Standing honesty mechanisms"
+    }
+  ],
+  "rule": "Surface any change to a frozen protocol, a spec constraint or a harness-fidelity parameter as an explicit user decision, and record the correction's exact size when it lands.",
+  "applicability": {
+    "applies": "Frozen metrics (NDL reference, Gate C1 bar), spec constraints (wideband-sdr recalibration, device_budget), harness fidelity (w_finger, inductor_q, nf_gated, stab_guard), and the adoption rule itself.",
+    "not": "It is not a veto on measuring -- measure the defect first and hand up a proposal calibrated to something other than the gate. Executors may and do refuse to adopt their own measured fix (stage 23 refused w_finger until the user approved 2 um)."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 12 (ref-v2, Gate C1)",
+    "JOURNEY stage 19 (wideband-sdr)",
+    "JOURNEY stage 20 / 22 (device_budget)",
+    "JOURNEY stage 23 (w_finger)",
+    "FINDINGS §14.5",
+    "FINDINGS §14.6",
+    "FINDINGS §26.3"
+  ],
+  "created": "2026-08-14"
+}

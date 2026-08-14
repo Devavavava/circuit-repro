@@ -29,6 +29,49 @@ Contracts that the rest of the phase relies on (00-OVERVIEW rules 4 + 01-DATA):
 Rows are assembled by the logging hooks in size.py (L2 + points) and bias.py
 (L1); `row_l2`/`row_l1` here are the single source of the row schema so the
 hooks stay thin.
+
+FAILURE SIGNATURES (`diagnosis`, plans2/15-ENGINEER-PROPOSAL §5.4)
+-----------------------------------------------------------------
+L2 and op rows may carry an OPTIONAL `diagnosis` field:
+
+    "diagnosis": {"signature": <controlled kebab token>,
+                  "detail":    <free text: the verbatim evidence>,
+                  "source":    <who said so: script/stage/session>}
+
+Why it exists: this program keeps re-discovering *named walls* -- the D5
+output-swing wall, the stage-34 S11 knife-edge, the stage-25 weak-inversion
+blindness, the wideband-sdr matching wall -- and rediscovers them by hand each
+time because nothing in the store is keyed by **what went wrong**, only by what
+the circuit was. A failure-keyed index collapses "different circuit, same
+disease" into one retrievable lesson (§5.4), which is what memory retrieval
+(N4) needs and what a diagnosis-steered move prior (§1.4 item 3) reads.
+
+Rules, in the same spirit as the rest of this module:
+
+  * **Optional and additive.** The key is written only when a caller supplies
+    one; every existing row and every row produced by an unchanged caller is
+    byte-identical to what it was. Old rows are **never** retro-filled -- a
+    diagnosis is a claim, and a claim needs the session that made it.
+  * **Controlled vocabulary.** `DIAGNOSIS_VOCAB` below is the closed set of
+    signatures. `diagnosis(sig, detail, source)` is the constructor and it
+    raises on an unknown signature (a typo'd wall name is a silent index leak,
+    and this is a user error worth catching loudly -- same doctrine as
+    `snapshot`). The row assemblers are deliberately *softer*: an unknown
+    signature reaching `row_l2`/`row_op` is kept verbatim and flagged
+    `off_vocab: true`, because a logging hook must never kill a sizing run.
+  * **`detail` keeps the verbatim evidence.** AnalogAgent's measured
+    context-attrition lesson (§2.2 item 2): "singular matrix: check nodes vin
+    and vin" must not decay into "sim failed". Put the simulator's own words
+    here, not a summary of them.
+  * **Adding a signature** is a code edit to `DIAGNOSIS_VOCAB` plus the stage
+    or FINDINGS entry that names the wall. The vocabulary is small on purpose;
+    a signature that fits no existing row is not yet a signature.
+  * **Point rows do not carry it.** `row_point` is the 377-byte free byproduct
+    of one ngspice call; a diagnosis is a judgement about a *design or a run*,
+    not about one evaluation of it, and inflating the largest table in the
+    store with per-eval verdicts would cost more than it could ever return.
+    Op rows do carry it -- an op row already IS the inside of one evaluation,
+    which is exactly where a per-device verdict belongs (WP-DIAGHEADS).
 """
 import hashlib
 import json
@@ -51,6 +94,56 @@ SNAPSHOTS = "snapshots.json"
 # Families are single-linkage clusters at WL-cosine >= this (01-DATA §2: the
 # same 0.9 threshold used to call two graphs "the same topology family").
 FAMILY_SIM = 0.9
+
+# ------------------------------------------------------- failure signatures
+# The closed vocabulary for `diagnosis.signature` (see the module docstring).
+# Every entry is a wall this program has ACTUALLY named and measured, with the
+# stage that named it -- the vocabulary is a record, not a taxonomy invented up
+# front. Kebab-case, lowercase, no synonyms: one wall, one token, forever.
+DIAGNOSIS_VOCAB = {
+    "output-swing-wall":
+        "linearity/IIP3 limited by available output swing on the supply "
+        "envelope, not by device sizing (D5, JOURNEY 37-38)",
+    "s11-knife-edge":
+        "input match satisfied only on a razor-thin bias/VDD slice; small "
+        "supply or process motion breaks it (stage 34)",
+    "weak-inversion-bias":
+        "devices sit in weak/moderate inversion where W/L intuition and "
+        "`bias.saturated` both fail (stage 25: 44% of headline devices)",
+    "matching-wall":
+        "the topology cannot present the required input impedance at all; "
+        "sizing cannot reach the match (stage 24, wideband-sdr)",
+    "gain-wall":
+        "S21 ceiling is set by the topology, not the sizing (stage 9 gps-l1, "
+        "finding #10)",
+    "nf-wall":
+        "noise figure floored by a dominant, un-sizable contributor -- lossy "
+        "match or input-device thermal share (stage 17, Gate D3)",
+    "idd-wall":
+        "supply current ceiling binds before any other constraint; more gm is "
+        "not purchasable (stage 34 / FINDINGS 39, the 1.2 V Idd wall)",
+    "source-shift-wall":
+        "the input signal lands on the wrong device pin (source instead of "
+        "gate), so the match/gain pair is structurally unreachable (stage 1)",
+    "stability-collapse":
+        "an accepted step took in-band K_min from >= 1 to < 1 -- gain bought "
+        "with stability (WP-STABGUARD)",
+    "balun-imbalance":
+        "differential amplitude/phase imbalance out of spec on a split-phase "
+        "or balun front end (D7)",
+    "bias-no-dc-path":
+        "a drain or source has no DC return; the operating point is not "
+        "physical before any sizing happens",
+    "sim-nonconvergence":
+        "ngspice failed to converge or returned a singular matrix; put the "
+        "simulator's own message in `detail`, never a summary of it",
+    "label-noise":
+        "the label is basin-dependent: re-seeding the same (topology, spec) "
+        "lands somewhere materially different (FINDINGS 14.1)",
+    "era-mismatch":
+        "the stored numbers were measured in a retired harness era and do not "
+        "reproduce under the current one (15-PROPOSAL 5.1; relabel_era.py)",
+}
 
 
 # --------------------------------------------------------------- low-level io
@@ -208,6 +301,50 @@ def margins_for(spec, metrics):
     return out
 
 
+def diagnosis(signature, detail="", source=None):
+    """Build a validated `diagnosis` dict for an L2 or op row (§5.4).
+
+    Raises ValueError on a signature outside `DIAGNOSIS_VOCAB`: a mistyped wall
+    name would index a lesson nobody can ever retrieve, which is exactly the
+    silent-corruption class this store's loud-failure doctrine exists for. Call
+    this in the caller, BEFORE the simulation, so a typo costs nothing.
+
+    `detail` should carry the verbatim evidence (the ngspice message, the two
+    numbers that crossed) rather than a paraphrase of it; `source` names who
+    made the claim -- a script filename, a JOURNEY stage, a session."""
+    if signature not in DIAGNOSIS_VOCAB:
+        raise ValueError(
+            f"unknown diagnosis signature {signature!r}; the vocabulary is "
+            f"closed -- know {sorted(DIAGNOSIS_VOCAB)}. Adding one is a code "
+            "edit to DIAGNOSIS_VOCAB plus the stage/FINDINGS entry that names "
+            "the wall.")
+    return {"signature": signature, "detail": str(detail or ""),
+            "source": str(source or "")}
+
+
+def _diagnosis_field(d):
+    """Normalize a caller-supplied diagnosis for a row, or None to omit the key.
+
+    Deliberately soft where `diagnosis()` is loud: this runs inside the logging
+    hooks, and logging is additive -- it must never break a sizing run. An
+    off-vocabulary signature is kept verbatim and flagged `off_vocab` so an
+    audit can find it later; a bare string is accepted as the signature."""
+    if not d:
+        return None
+    if isinstance(d, str):
+        d = {"signature": d}
+    if not isinstance(d, dict):
+        return None
+    sig = d.get("signature")
+    if not sig:
+        return None
+    out = {"signature": str(sig), "detail": str(d.get("detail") or ""),
+           "source": str(d.get("source") or "")}
+    if sig not in DIAGNOSIS_VOCAB:
+        out["off_vocab"] = True
+    return out
+
+
 def _graph_summary(topo):
     if topo is None:
         return {"tokens": None, "counts": None, "n_devices": None,
@@ -222,10 +359,15 @@ def _graph_summary(topo):
 
 
 def row_l2(spec, metrics, feasible, n_evals, best_x=None, best_params=None,
-           best_obj=None, topo=None, wl_hash=None, provenance=None, zoaf_cfg=None):
+           best_obj=None, topo=None, wl_hash=None, provenance=None, zoaf_cfg=None,
+           diagnosis=None):
     """Assemble one L2 row. `provenance` carries source_arm/seed/token_file/
     template_id; `wl_hash` is passed in (the caller already has it) or None for
-    reference decks with no token topology."""
+    reference decks with no token topology.
+
+    `diagnosis` (optional, §5.4) is a failure signature for this outcome -- see
+    the module docstring. The key is written only when one is supplied, so a
+    caller that does not pass it produces exactly the row it produced before."""
     row = {
         "kind": "L2",
         "wl_hash": wl_hash,
@@ -243,6 +385,9 @@ def row_l2(spec, metrics, feasible, n_evals, best_x=None, best_params=None,
         "git_sha": git_sha(),
         "ts": _now(),
     }
+    diag = _diagnosis_field(diagnosis)
+    if diag is not None:
+        row["diagnosis"] = diag
     return _jsonify(row)
 
 
@@ -279,7 +424,7 @@ def row_point(wl_hash, spec_name, x, metrics):
 
 def row_op(wl_hash, spec_name, op, metrics=None, x=None, params=None,
            stage=None, eval_i=None, harness=None, provenance=None,
-           noise_budget=None, repeat_probe=False):
+           noise_budget=None, repeat_probe=False, diagnosis=None):
     """One evaluation's INSIDE: per-device operating point, node voltages, and
     (when one was already computed for that point) the per-element noise budget.
 
@@ -294,7 +439,11 @@ def row_op(wl_hash, spec_name, op, metrics=None, x=None, params=None,
     change visible.
 
     `op` is `extract.parse_op`'s dict. Nothing here re-measures anything: every
-    value was produced by an ngspice run the pipeline was already paying for."""
+    value was produced by an ngspice run the pipeline was already paying for.
+
+    `diagnosis` (optional, §5.4) attaches a failure signature to THIS evaluation
+    -- the level at which a per-device verdict is actually meaningful. Omitted
+    entirely when not supplied, so the default row is unchanged."""
     devices = (op or {}).get("devices") or {}
     row = {
         "kind": "op",
@@ -319,6 +468,9 @@ def row_op(wl_hash, spec_name, op, metrics=None, x=None, params=None,
     }
     if repeat_probe:
         row["repeat_probe"] = True
+    diag = _diagnosis_field(diagnosis)
+    if diag is not None:
+        row["diagnosis"] = diag
     return _jsonify(row)
 
 
@@ -477,6 +629,15 @@ def _summary():
     snaps = load_snapshots()
     if snaps:
         print(f"  snapshots: {sorted(snaps)}")
+    tally = {}
+    for table in ("topo_labels", "op_points"):
+        for r in load(table):
+            d = r.get("diagnosis")
+            if d:
+                tally[d.get("signature")] = tally.get(d.get("signature"), 0) + 1
+    if tally:
+        print("  diagnoses: " + ", ".join(f"{k}={v}" for k, v in
+                                          sorted(tally.items(), key=lambda kv: -kv[1])))
 
 
 def main():
@@ -487,7 +648,14 @@ def main():
     ap.add_argument("--split", action="store_true",
                     help="show a family split of topo_labels (leakage check)")
     ap.add_argument("--k-holdout", type=float, default=0.3)
+    ap.add_argument("--vocab", action="store_true",
+                    help="print the closed failure-signature vocabulary (§5.4)")
     args = ap.parse_args()
+    if args.vocab:
+        print(f"diagnosis signatures ({len(DIAGNOSIS_VOCAB)}, closed set):")
+        for sig in sorted(DIAGNOSIS_VOCAB):
+            print(f"  {sig:<22} {DIAGNOSIS_VOCAB[sig]}")
+        return 0
     if args.snapshot:
         rec = snapshot(args.snapshot)
         print(f"snapshot {args.snapshot!r}: " +

@@ -1,0 +1,57 @@
+{
+  "id": "replay-fence-before-any-reuse",
+  "type": "strategy",
+  "trigger": {
+    "family": [
+      "any"
+    ],
+    "analysis": [
+      "any",
+      "sizing",
+      "relabel"
+    ],
+    "failure_signature": [
+      "label-domain-mismatch",
+      "era-mismatch"
+    ],
+    "keywords": [
+      "replay",
+      "fence",
+      "quarantine",
+      "relabel",
+      "polish",
+      "audit",
+      "reuse",
+      "tokens"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "**Relabelled the 20 legacy rows** [...] rebuild each circuit from that row's **own** `graph.tokens`, fence with `size.replay_ok`, re-measure, and **append** a successor row with the recipe bumped [...] **20 relabelled, 0 quarantined, 0 failed.**",
+      "source": "FINDINGS §13.1"
+    },
+    {
+      "quote": "> 1317 pre-cutover NF-bearing L2 rows → 1245 distinct (design, spec, params).\n> **1240 relabeled, 6 quarantined, 0 failed**, 1974 s.",
+      "source": "FINDINGS §27.3"
+    },
+    {
+      "quote": "a new `_nf_gate_d3.py` rebuilds each topology from the row's own tokens, re-evaluates at the row's own `best_params`, and re-measures `spec.feasible()` from scratch — **replay 5/5 (and 3/3) identical, spread 0.0000 on every gated metric; in-box 30/30; novel against `ref-v3`**",
+      "source": "JOURNEY stage 22"
+    }
+  ],
+  "rule": "Re-evaluate a stored point from its own tokens and parameters before polishing, relabeling or claiming it, and quarantine the row rather than proceed when it does not reproduce.",
+  "applicability": {
+    "applies": "Every polish, reuse, relabel or headline gate claim. size.replay_ok exists because a start-point-reconstruction bug let parsed topology mismatch stored params when P5 arms reused seq*.txt filenames for different topologies.",
+    "not": "A passing fence licenses reuse, not belief in the number -- see replay-fence-is-not-correctness. And an independent code path (benchmark.py re-sizing from stored tokens) is a strictly stronger audit than a replay of stored parameters."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 8 (Stage 3 last-mile)",
+    "JOURNEY stage 22",
+    "FINDINGS §13.1",
+    "FINDINGS §27.3",
+    "FINDINGS §25.1",
+    "lna/size.py replay_ok"
+  ],
+  "created": "2026-08-14"
+}

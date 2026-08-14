@@ -1,0 +1,63 @@
+{
+  "id": "ndl-is-blind-to-function",
+  "type": "anti-pattern",
+  "trigger": {
+    "family": [
+      "any",
+      "wifi24",
+      "dhruva"
+    ],
+    "analysis": [
+      "generation",
+      "novelty",
+      "screen"
+    ],
+    "failure_signature": [
+      "metric-blind-spot",
+      "novelty-collapse"
+    ],
+    "keywords": [
+      "ndl",
+      "novelty",
+      "grammar",
+      "null",
+      "spec-l0",
+      "screen",
+      "conducting",
+      "adoption"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "**NDL is worse than blind — it is inverted.** GR tops the metric at **168 vs 63** for exactly the reason it is worthless as a capability proxy: a random graph is essentially never a copy of anything [...] NDL measures *not-copying*; it has never measured *working*, and until this section nothing in the record forced the distinction.",
+      "source": "FINDINGS §31.3"
+    },
+    {
+      "quote": "| GR | 168 | 168 | 5 (**3.0%**) | 0.154 | **0.000** | **65.5%** | 3.99 |\n| **G3** | 167 | 167 | **113 (67.7%)** | **0.750** | **1.000** | **18.0%** | 2.67 |",
+      "source": "FINDINGS §31.3 (screen-passing, biased+simulable, all MOS conducting, ... zero conducting)"
+    },
+    {
+      "quote": "the funnel added a second independent instance of this session's other lesson — the frozen novelty protocol could not see the difference between a pool of passive networks and a pool of amplifiers.",
+      "source": "JOURNEY stage 28"
+    },
+    {
+      "quote": "**A structural screen cannot distinguish a circuit from a random graph with the right census.**",
+      "source": "FINDINGS §31.3"
+    }
+  ],
+  "rule": "Report the all-MOS-conducting rate beside NDL@256 on every pool, and never rest an adoption decision on NDL alone.",
+  "applicability": {
+    "applies": "Every generator adoption decision, and any claim that a generation arm is 'better'. The conduction rate costs ~70 s per 256-sample pool and is already computed by bias.insert_bias.",
+    "not": "Adding conduction to the adoption rule is a FROZEN-PROTOCOL change and therefore an explicit user decision, same class as the ref-v2 rebaseline and the Gate-C1 restatement. Until it is taken, report it descriptively, never as a decision input."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 27 (WP-ATTRIB)",
+    "JOURNEY stage 28 (WP-OUTCOME)",
+    "FINDINGS §31.3",
+    "FINDINGS §31.8",
+    "FINDINGS §32.5",
+    "lna/grammar_gen.py"
+  ],
+  "created": "2026-08-14"
+}

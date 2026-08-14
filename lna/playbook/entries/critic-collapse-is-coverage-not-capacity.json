@@ -1,0 +1,54 @@
+{
+  "id": "critic-collapse-is-coverage-not-capacity",
+  "type": "diagnosis",
+  "trigger": {
+    "family": [
+      "any",
+      "dhruva",
+      "wideband-sdr"
+    ],
+    "analysis": [
+      "critic",
+      "search",
+      "training"
+    ],
+    "failure_signature": [
+      "coverage-collapse",
+      "surrogate-era"
+    ],
+    "keywords": [
+      "critic",
+      "rho",
+      "holdout",
+      "mutant",
+      "coverage",
+      "capacity",
+      "distribution",
+      "retrain"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "critic v1 held ρ(S21)≈0.83 on its own family holdout but **fell to ρ≈+0.17–0.20 on the mutant distribution search actually generates**, and on the elites it had *selected*, residual correlation ran 0 to −0.33",
+      "source": "JOURNEY stage 13"
+    },
+    {
+      "quote": "on selection-free control arms, ρ(feasibility) rose from +0.173→**+0.441** (dhruva-s) and +0.198→**+0.502** (wideband-sdr); on the elites the critic had actually *selected*, ρ went from *negative* (−0.224 on wideband-sdr) to **+0.479/+0.641**",
+      "source": "JOURNEY stage 16"
+    }
+  ],
+  "rule": "Evaluate a learned ranker on the exact distribution the search will generate, and repair a field collapse by covering that distribution before touching the model.",
+  "applicability": {
+    "applies": "Any surrogate or critic deployed inside a search loop; the standard frozen splits will not touch the mutant/elite distribution. v4-train held only 16 wideband-sdr and 24 dhruva-s rows out of 734 when the collapse was measured.",
+    "not": "Coverage is not an exhausted lever but it is also not the whole gap -- after the repair the critic still reached only ~55-60% of the in-distribution ceiling, and a leaky upper-bound test showed the remainder is a generalization gap ACROSS TOPOLOGY FAMILIES, not model capacity. Also re-check which arm is best at every retrain: ridge beat the shipped GNN on source-shift at v5-train."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 13",
+    "JOURNEY stage 16",
+    "FINDINGS §15.4",
+    "FINDINGS §20.2",
+    "lna/critic_gnn.py"
+  ],
+  "created": "2026-08-14"
+}

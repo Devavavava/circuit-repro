@@ -1,0 +1,58 @@
+{
+  "id": "adopt-only-if-better",
+  "type": "strategy",
+  "trigger": {
+    "family": [
+      "any"
+    ],
+    "analysis": [
+      "generation",
+      "training",
+      "critic",
+      "adoption"
+    ],
+    "failure_signature": [
+      "novelty-collapse",
+      "spec-governance"
+    ],
+    "keywords": [
+      "adopt",
+      "reject",
+      "checkpoint",
+      "baseline",
+      "incumbent",
+      "frozen-protocol",
+      "inductor-ratio"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "**Checkpoint: REJECT.** Adopt-only-if-better fails on the **inductor-ratio clause in both channels** (nb 0.193 < 0.230, wb 0.137 > 0.132) before NDL is reached [...] More decisively than any clause: the arm's headline NDL gain is *beaten by its own shuffled control*, so there is nothing to adopt that the control would not also have earned.",
+      "source": "FINDINGS §32.6"
+    },
+    {
+      "quote": "**Verdict: ADOPT** anyway, on the nb channel's +27 margin and every copy-related tripwire moving the right direction on both channels — with both costs flagged for the next session rather than hidden.",
+      "source": "JOURNEY stage 21"
+    },
+    {
+      "quote": "The P5-v6 checkpoint itself was separately **rejected** under adopt-only-if-better on NDL grounds; the design survived anyway because it was replay-verified SPICE truth, not a model claim",
+      "source": "JOURNEY stage 11"
+    }
+  ],
+  "rule": "Adopt a new checkpoint or model only when it beats the incumbent on the frozen protocol at equal-or-better inductor ratio; ties go to the incumbent, and both the real costs and the real gains get stated even when the verdict is ADOPT.",
+  "applicability": {
+    "applies": "Every generator and critic version, and (15-ENGINEER §1.5 item 4) any learned component, judged on held-out DEPLOYMENT behaviour under the frozen protocol rather than on training curves.",
+    "not": "A rejected checkpoint does not invalidate a design it produced -- a replay-verified SPICE result survives independently of the model claim. And the gate itself is measurably blind (see ndl-is-blind-to-function); it is a floor, not a proof of capability."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 11",
+    "JOURNEY stage 14",
+    "JOURNEY stage 21",
+    "JOURNEY stage 28",
+    "FINDINGS §24.3",
+    "FINDINGS §32.6",
+    "FINDINGS §18.5"
+  ],
+  "created": "2026-08-14"
+}

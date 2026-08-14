@@ -1,0 +1,55 @@
+{
+  "id": "diagnosis-and-ranking-compete-for-capacity",
+  "type": "diagnosis",
+  "trigger": {
+    "family": [
+      "any"
+    ],
+    "analysis": [
+      "critic",
+      "search",
+      "training"
+    ],
+    "failure_signature": [
+      "coverage-collapse",
+      "move-repertoire"
+    ],
+    "keywords": [
+      "diagnosis",
+      "heads",
+      "multi-task",
+      "pointing",
+      "ranking",
+      "calibration",
+      "moves",
+      "backbone"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "**Bar 2 failed** — the multi-task model's ρ(S21) drops 0.862 → 0.771 and its uncertainty calibration halves (0.549 → 0.247) — so the diagnosis heads ship as a **separate model** and critic v1 is byte-for-byte untouched.",
+      "source": "JOURNEY stage 29 (WP-DIAGHEADS)"
+    },
+    {
+      "quote": "targeted moves beat random ones on the pre-registered metric (mean Δ feasibility score −1.049 vs −1.432) but by **removing disasters, not by finding wins**: the targeted median is *worse*, and the only feasible child in 18 sizings came from a random `rewire`.",
+      "source": "JOURNEY stage 29"
+    },
+    {
+      "quote": "on two of five parents the head pointed at a passive whose prescribed edits were all illegal on that circuit, so the diagnosis was right and `moves.py` had no answer. The next constraint on pointed search is the move repertoire, not the pointing",
+      "source": "JOURNEY stage 29"
+    }
+  ],
+  "rule": "Ship diagnosis heads as a separate model from the ranker, and grow the move repertoire before expecting pointed search to find wins.",
+  "applicability": {
+    "applies": "Any plan to wire diagnosis into move-class/site priors (15-ENGINEER §1.4 item 3). The cost of multi-tasking lands hardest on the ensemble sigma that search actually consumes -- the most expensive thing in the model to damage.",
+    "not": "A diagnosis head still buys a NARROWER LOSS DISTRIBUTION, which is worth having and is not the same thing as buying better designs. And a label must be a function of the model's input: an inner-ZOAF conduction row is not, because the critic's input is (topology, spec) and contains no x."
+  },
+  "confidence": "unverified",
+  "sources": [
+    "JOURNEY stage 29 (WP-DIAGHEADS)",
+    "FINDINGS §34.5",
+    "FINDINGS §34.6",
+    "lna/plans2/13-WP-DIAGHEADS.md"
+  ],
+  "created": "2026-08-14"
+}

@@ -104,9 +104,10 @@ Six levers, ordered by measured-evidence-per-effort; the first three are cheap:
    rows are free — and add the z-scored (id, gm, gds, vth, vdsat, vds, vgs)
    vector to critic/surrogate node features (post-cutover rows only, §5).
 2. **Verify rails/bias nets are first-class graph nodes** in `critic_gnn.py`'s
-   net partition. Cao's ablation says a *partial* graph is worse than none;
-   if supply/bias nets are currently pruned or pooled away, that's a measured
-   upgrade waiting.
+   net partition. *[Verified 2026-08-14: they already are — `graph_tensors`
+   keeps every electrical node and `_net_class` gives VDD/VSS/bias nets their
+   own roles. This lever is already implemented; the gap is item 1's dynamic
+   features, where `dev_feat` is a device-type one-hot only.]*
 3. **Diagnosis-steered moves**: noise-share/OP-region heads → non-uniform move
    selection in `evolve.py` (§1.3 above). This is AstRL's masking lesson
    translated: put knowledge in the *action distribution*, not the reward.
@@ -366,10 +367,14 @@ current-era numbers. Highest-leverage single action in the program:
 logging points + op rows. Every learned component downstream inherits the fix.
 Dedup key (wl_hash, spec) already prevents waste.
 
-**5.2 Fill `op_points.jsonl` as a side effect of everything.** Validated
-instrument, 156 rows, free to populate (stage 26). Rule: no campaign runs
-without the op hook on. This is S5 (semantics-in-state) as a data policy, and
-it feeds §1.4's items 1 and 3.
+**5.2 Fill `op_points.jsonl` as a side effect of everything.** *[Corrected
+2026-08-14 after the N2 audit: the table holds ~2,400 rows (~1,400 usable),
+not 156, and the hook is already default-ON (`LNA_OP_LOG=1`, measured
++0.27% of a sizing run). The real gap is that recent WP scripts call
+`eval_metrics` directly and bypass the OpSink — the 4-line wiring pattern is
+demonstrated in `relabel_era.py`.]* Rule: no campaign runs without the op
+hook wired. This is S5 (semantics-in-state) as a data policy, and it feeds
+§1.4's items 1 and 3.
 
 **5.3 Krylov relabeling over our own store.** From L2 rows, manufacture
 (threshold-spec, sizing) pairs: relax each measured performance in the feasible

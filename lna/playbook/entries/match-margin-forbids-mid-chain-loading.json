@@ -1,0 +1,52 @@
+{
+  "id": "match-margin-forbids-mid-chain-loading",
+  "type": "diagnosis",
+  "trigger": {
+    "family": [
+      "dhruva",
+      "gnss",
+      "lna"
+    ],
+    "analysis": [
+      "sp",
+      "s-parameter",
+      "gain-programmability",
+      "loading-probe"
+    ],
+    "failure_signature": [
+      "band-match-wall",
+      "topology-exhaustion"
+    ],
+    "keywords": [
+      "s11",
+      "match",
+      "margin",
+      "loading",
+      "switch",
+      "programmability",
+      "recombine"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "**Every node from the input combiner through MNM6's gate is match-forbidden**: loading them moves the input match by more than its entire margin - in the recombine/tank/gate cases before it has moved the gain by even 1 dB. **Only the output stage's drain and VOUT1 tolerate loading** - and there the match *improves* monotonically (-10.01 -> -10.36)",
+      "source": "FINDINGS §42.3"
+    },
+    {
+      "quote": "loading the recombine node by enough to move the gain 10.6 dB costs 4.63 dB of match, and loading the input combiner costs 6.77 dB",
+      "source": "JOURNEY stage 37"
+    }
+  ],
+  "rule": "Sweep an ideal blocked shunt load at every circuit role first and design any gain/attenuation mechanism only inside the match-legal set.",
+  "applicability": {
+    "applies": "Any design with a small band-wide S11 margin (this one is 0.001 dB) where a mechanism must be grafted onto an existing core; the probe is mechanism-independent and needs no new topology.",
+    "not": "Not a general statement about LNAs -- the forbidden set here is set by two 94 um CS devices whose C_gd couples the recombine node back to the input. Re-run the probe per design; do not carry this map to another topology."
+  },
+  "confidence": "unverified",
+  "sources": [
+    "JOURNEY stage 37 (WP-PGAIN)",
+    "FINDINGS §42.3",
+    "lna/pgain.py --probe"
+  ],
+  "created": "2026-08-14"
+}

@@ -113,6 +113,7 @@ def _emit(row, status, nf):
         suffix = QUAR
     old_recipe = (row.get("zoaf_cfg") or {}).get("recipe") or "unknown"
     new = dict(row)
+    new.pop("diagnosis", None)  # a diagnosis describes the parent's run, not this re-measured successor
     new["metrics"] = metrics
     new["margins"] = ds.margins_for(spec, metrics)
     new["zoaf_cfg"] = dict(row.get("zoaf_cfg") or {}, recipe=old_recipe + suffix)

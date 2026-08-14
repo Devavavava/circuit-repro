@@ -1,0 +1,52 @@
+{
+  "id": "uncertainty-gate-needs-an-off-distribution-control",
+  "type": "diagnosis",
+  "trigger": {
+    "family": [
+      "any"
+    ],
+    "analysis": [
+      "critic",
+      "search",
+      "ensemble"
+    ],
+    "failure_signature": [
+      "coverage-collapse",
+      "selector-artefact"
+    ],
+    "keywords": [
+      "uncertainty",
+      "gate",
+      "ensemble",
+      "sigma",
+      "trust-region",
+      "off-distribution",
+      "inert",
+      "retire"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "the **uncertainty gate was found inert**: `n_high_unc = 0` across 80 generations in all four runs — the ensemble was *confidently wrong* off-distribution rather than visibly uncertain — while the **trust region** [...] was the rule that actually worked",
+      "source": "JOURNEY stage 13"
+    },
+    {
+      "quote": "Here **119/170** candidates exceed it: **GR 62/85 (73%), GR+RAG 56/74 (76%), G2 0/2, G3 1/9 (11%)**. The gate is not broken — it was being fed distributions that were never far enough away. **A no-learning arm is the first thing this program has built that is genuinely off-distribution for the critic, and the retired rule identifies it almost perfectly.**",
+      "source": "FINDINGS §31.4"
+    }
+  ],
+  "rule": "Feed a trust rule a deliberately off-distribution arm before retiring it as inert, because an inert gate may be measuring your candidate distribution rather than itself.",
+  "applicability": {
+    "applies": "Every trust mechanism measured and found not to fire: uncertainty gates, novelty thresholds, tripwires. grammar_gen.py costs ~50 s of CPU for 256 legal circuits and is the standing off-distribution control.",
+    "not": "The corollary cuts the other way too: when the gate DOES fire on 73% of a pool, the critic's ranking of that pool is a ranking it has no basis for, so the 'top 10' is close to an arbitrary 10 -- a caveat that runs against the arm being defended."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 13",
+    "JOURNEY stage 16",
+    "JOURNEY stage 27",
+    "FINDINGS §20.3",
+    "FINDINGS §31.4"
+  ],
+  "created": "2026-08-14"
+}

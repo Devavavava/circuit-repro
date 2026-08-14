@@ -1,0 +1,65 @@
+{
+  "id": "gate-driven-input-is-quiet-only-when-unmatched",
+  "type": "diagnosis",
+  "trigger": {
+    "family": [
+      "dhruva",
+      "gnss",
+      "lna",
+      "wideband-sdr"
+    ],
+    "analysis": [
+      "sp",
+      "noise",
+      "s-parameter",
+      "structural"
+    ],
+    "failure_signature": [
+      "band-match-wall",
+      "nf-wall"
+    ],
+    "keywords": [
+      "s11",
+      "match",
+      "input",
+      "gate",
+      "source",
+      "port",
+      "nf",
+      "motif"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "| gate-only | 31 | 2.20 | 3.77 | **7.52** | 187.85 | 3.2% | **0** |\n| port reaches a source | 139 | 1.19 | 1.96 | **2.97** | 3.95 | 41.0% | **54** |",
+      "source": "FINDINGS §29.4 (multi-finger dhruva rows that already hold the band match: rows, min NF, p25, median, p75, NF<=2.5, NF<=2.5 AND S21>=22.3)"
+    },
+    {
+      "quote": "**A gate-driven input in this program is quiet exactly when it does not match, and noisy when it does.** That is the whole of §27.6's puzzle: `seq0086` and `seq0085` read NF 1.02 / 0.96 dB *because* nothing at their port dissipates, and the same absence is why no parameter setting brings them to 50 Ω.",
+      "source": "FINDINGS §29.4"
+    },
+    {
+      "quote": "5.2× / 8.4× / 25× inside three independent provenance classes, and in the generator row at matched device counts and matched budgets (9.0 vs 9.2 devices, 224 vs 218 evaluations).",
+      "source": "FINDINGS §29.3"
+    },
+    {
+      "quote": "**The prediction the contingency table implies — that a source-driven input buys the match and costs roughly 2 dB of noise — was made before the edit and is what the simulator returned.** That is the causal claim the observational tables could not make on their own: same graph, one edit, match closes, noise pays.",
+      "source": "JOURNEY stage 24 (WP-MATCH)"
+    }
+  ],
+  "rule": "When a candidate reads sub-1 dB NF and refuses to match, check whether the port reaches only a gate and apply moves.m_input_class_swap before spending another sizing budget.",
+  "applicability": {
+    "applies": "Narrowband and band-wide S11 gates on this program's token vocabulary; the structural test is pure graph arithmetic (_match_struct.py) and needs no simulator.",
+    "not": "The observational tables are an association measured on this store, not a randomized experiment (§29.9 is the controlled version, n=2 parents). The diagnosis does NOT transfer to wideband-sdr: 0 of 119 source-driven graphs ever held that band match."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 24 (WP-MATCH)",
+    "FINDINGS §29.3",
+    "FINDINGS §29.4",
+    "FINDINGS §29.9",
+    "lna/_match_struct.py",
+    "lna/_match_sep.py"
+  ],
+  "created": "2026-08-14"
+}

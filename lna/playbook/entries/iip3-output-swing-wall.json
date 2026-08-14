@@ -1,0 +1,67 @@
+{
+  "id": "iip3-output-swing-wall",
+  "type": "diagnosis",
+  "trigger": {
+    "family": [
+      "dhruva",
+      "gnss",
+      "lna",
+      "any"
+    ],
+    "analysis": [
+      "two-tone",
+      "harmonic-balance",
+      "transient",
+      "iip3"
+    ],
+    "failure_signature": [
+      "iip3-wall",
+      "output-swing-wall"
+    ],
+    "keywords": [
+      "iip3",
+      "oip3",
+      "linearity",
+      "swing",
+      "headroom",
+      "d5",
+      "intercept",
+      "bias-budget"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "| dhruva-l5 | 1176.45 | **−32.76** | ≥ −7.4 | **−25.36** | +3.20 | 35.96 | 2.96 | 6/8 | 0.42 |",
+      "source": "FINDINGS §40.3 (VACASK HB, fixed D4-SIM sizing)"
+    },
+    {
+      "quote": "The design's **OIP3 is only +3.2 … +3.4 dBm**, and it is remarkably flat across all four bands (0.24 dB spread) even though the gain varies by 2.2 dB. Linearity here is set by the output stage's swing budget, not by the input match or the band.",
+      "source": "FINDINGS §40.4"
+    },
+    {
+      "quote": "Their OIP3 spans **+2.44 … +4.19 dBm** — 1.75 dB across four independently-descended parameter sets. So the +3 dBm output intercept is a property of **the topology on this power budget**, not of the l5 sizing choice. That closes the \"maybe another sizing is more linear\" escape hatch with a measurement rather than an argument.",
+      "source": "FINDINGS §37.7"
+    },
+    {
+      "quote": "To pass **at the measured gain**, the design needs OIP3 = +25.0 … +28.6 dBm — **22× to 50× its entire DC power budget**. No amplifier class does that; this is outside the physics of the power budget, not inside the sizing space.",
+      "source": "FINDINGS §37.7"
+    }
+  ],
+  "rule": "When the output intercept is flat across bands AND across independently-descended sizings, stop sizing and change the topology or the bias/rail budget.",
+  "applicability": {
+    "applies": "Any linearity gate on a fixed power envelope. The diagnostic is the FLATNESS of OIP3 across sizings, not the size of the miss; two harnesses measured the same +3.2...+3.4 dBm on 1.1 V / 12.96 mA.",
+    "not": "Does not apply while OIP3 still moves with the parameter set -- then the sizing space is not exhausted. It also says nothing about a different envelope: passing needs OIP3 ~ +14.9 dBm even granting the whole min-gain allowance, so a rail/current change is the class of fix, not a re-descent."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 35 (WP-HB)",
+    "JOURNEY stage 32 (WP-IIP3)",
+    "FINDINGS §40.3",
+    "FINDINGS §40.4",
+    "FINDINGS §37.5",
+    "FINDINGS §37.7",
+    "lna/hb/hb_iip3.py",
+    "lna/iip3.py"
+  ],
+  "created": "2026-08-14"
+}

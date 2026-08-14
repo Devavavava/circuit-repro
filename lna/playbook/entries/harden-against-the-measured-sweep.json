@@ -1,0 +1,54 @@
+{
+  "id": "harden-against-the-measured-sweep",
+  "type": "strategy",
+  "trigger": {
+    "family": [
+      "dhruva",
+      "gnss",
+      "lna",
+      "any"
+    ],
+    "analysis": [
+      "sensitivity",
+      "sizing",
+      "acceptance"
+    ],
+    "failure_signature": [
+      "s11-knife-edge",
+      "bias-regulation"
+    ],
+    "keywords": [
+      "harden",
+      "margin",
+      "resize",
+      "slack",
+      "floor",
+      "acceptance",
+      "robustness",
+      "vdd"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "**Idd fell 37%, to 8.205 mA**, while S11 settled at exactly −11.012 dB — the descent spent precisely the slack it was given, no more.",
+      "source": "JOURNEY stage 31 (WP-HARDEN), FINDINGS §36.1"
+    },
+    {
+      "quote": "a robustness resize done for one reason (S11's 0.001 dB match cliff) paid off on a completely different, undiscovered cliff (the 1.2 V Idd wall) — the value of measuring margins broadly, not just on the axis you set out to fix.",
+      "source": "JOURNEY stage 31"
+    }
+  ],
+  "rule": "Re-size the shipped point to hold the sweep-derived nominal floors as hard constraints, then re-check it at both supply nominals before designating it.",
+  "applicability": {
+    "applies": "Any designated point about to be frozen, and (15-ENGINEER §4.1-N1) any WP-LIN acceptance rule -- the sensitivity sweep belongs inside the acceptance rule from day one, not as a post-hoc audit.",
+    "not": "The frontier is flat past ~-10.5 dB: relaxing S11 further bought 0.06 mA of Idd for half a dB. Do not read 'spend slack on the weakest constraint' as a general rule -- S11 had 12 dB of nearly free slack while Idd's real ceiling was the NF/S21 floors. It also has NOT been re-run through the live sweep; the floors were a calibration target, not a guarantee."
+  },
+  "confidence": "unverified",
+  "sources": [
+    "JOURNEY stage 31 (WP-HARDEN)",
+    "FINDINGS §36.1",
+    "FINDINGS §36.5",
+    "lna/_harden_simul.py"
+  ],
+  "created": "2026-08-14"
+}

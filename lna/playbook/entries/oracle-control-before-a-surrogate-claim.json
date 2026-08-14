@@ -1,0 +1,57 @@
+{
+  "id": "oracle-control-before-a-surrogate-claim",
+  "type": "strategy",
+  "trigger": {
+    "family": [
+      "any"
+    ],
+    "analysis": [
+      "surrogate",
+      "sizing",
+      "search"
+    ],
+    "failure_signature": [
+      "surrogate-era",
+      "attribution-error"
+    ],
+    "keywords": [
+      "surrogate",
+      "pre-gate",
+      "oracle",
+      "control",
+      "skip",
+      "waste",
+      "zoaf",
+      "argmin",
+      "delta"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "| cross-family (cold start) | 49 | **82.6%** | 49/49 |\n| held-out run of a seen topology (**warm start**) | 11 | **90.1%** | 11/11 |",
+      "source": "FINDINGS §33.5 (oracle gate: true metrics as predictions)"
+    },
+    {
+      "quote": "**Between 78% and 90% of every ngspice call this pipeline has ever spent inside ZOAF was, in hindsight, unnecessary** — the point never beat the incumbent and never would have. That is a property of the *search*, not of any model, and it is the size of the prize a surrogate pre-gate is playing for.",
+      "source": "FINDINGS §33.5"
+    },
+    {
+      "quote": "\"82.6% skippable\" is a property of ZOAF's trajectory that no model was needed to measure, and reporting it first is what keeps \"62.8% skipped\" from reading as a model result.",
+      "source": "JOURNEY stage 26"
+    }
+  ],
+  "rule": "Run the gate with the true metrics as predictions and report that oracle skip rate before quoting any surrogate number.",
+  "applicability": {
+    "applies": "Any pre-gate, filter or acquisition function. The immediate measured lever here is gating size_best_of_k's seeds 2 and 3 -- a warm-start case the pipeline manufactures every night, where v0 preserves 11/11 argmins while skipping 42.9%.",
+    "not": "Nothing may land on surrogate evidence alone: every accepted point is verified with the real harness. The gate is MARGIN-limited by the surrogate's own point error (cold start needs Delta=5 to be safe, warm start Delta=2), so the savings curve moves with data, not with architecture. And v0's numbers are pre-cutover-era only."
+  },
+  "confidence": "unverified",
+  "sources": [
+    "JOURNEY stage 26 (WP-SURROGATE)",
+    "FINDINGS §33.2",
+    "FINDINGS §33.5",
+    "lna/surrogate.py",
+    "lna/plans2/12-WP-SURROGATE.md"
+  ],
+  "created": "2026-08-14"
+}

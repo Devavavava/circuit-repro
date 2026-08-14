@@ -1,0 +1,56 @@
+{
+  "id": "reference-expansion-perturbs-only-what-could-copy-it",
+  "type": "strategy",
+  "trigger": {
+    "family": [
+      "any"
+    ],
+    "analysis": [
+      "novelty",
+      "generation",
+      "governance"
+    ],
+    "failure_signature": [
+      "novelty-collapse",
+      "spec-governance"
+    ],
+    "keywords": [
+      "ndl",
+      "reference",
+      "ref-v2",
+      "ref-v3",
+      "rebaseline",
+      "digest",
+      "version",
+      "history"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "**The P0 baseline is untouched: 16 → 16, with 0.0% archetype copies.** A corpus-only arm cannot copy `templates.py`, so the reference extension bites *only* the template-trained arms — which is exactly the behaviour a correct fix should have.",
+      "source": "FINDINGS §14.5"
+    },
+    {
+      "quote": "the **measured correction was exactly zero on every one of 11 pools checked** — none of the nine new circuits had ever been in a training set, so **0 of 7 adopt/reject decisions flip**, this time provably rather than by audit",
+      "source": "JOURNEY stage 15 (ref-v3)"
+    },
+    {
+      "quote": "the correction is **not a constant offset** — it ranges 0 (for corpus-only arms, which cannot copy templates) to −50, scaling with how much archetype mass an arm trained on — and it is **not order-preserving**: P5-v2 rises from 5th to 3rd place under the new reference",
+      "source": "JOURNEY stage 12"
+    }
+  ],
+  "rule": "Version every novelty reference with a content digest, re-measure the affected arms under both versions, and expect a non-constant, non-order-preserving correction exactly where an arm could have copied the new content.",
+  "applicability": {
+    "applies": "Any reference/holdout/baseline expansion. The zero-correction result on ref-v3 is the standing sanity check: a reference expansion only perturbs history if something in that history could have copied the new content.",
+    "not": "An audit is weaker than a re-measurement. Stage 12's conclusion (no decision flips) was right but the REASONING originally given for it was wrong, and the corrected reasoning is what got recorded. Re-measure where you can; state which conclusions rest on monotonicity or inference."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 12 (ref-v2)",
+    "JOURNEY stage 15 (ref-v3)",
+    "FINDINGS §14.5",
+    "FINDINGS §19.3",
+    "lna/novelty.py"
+  ],
+  "created": "2026-08-14"
+}

@@ -1,0 +1,62 @@
+{
+  "id": "passive-instrument-must-be-proved-passive",
+  "type": "harness-rule",
+  "trigger": {
+    "family": [
+      "any"
+    ],
+    "analysis": [
+      "op",
+      "sp",
+      "sensitivity",
+      "logging"
+    ],
+    "failure_signature": [
+      "instrument-perturbation",
+      "harness-artefact"
+    ],
+    "keywords": [
+      "probe",
+      "hook",
+      "logging",
+      "save",
+      "invariance",
+      "control",
+      "golden",
+      "op-points"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "Capture adds `print` lines to the control block between the existing `print idd` and the existing `sp`, and **nothing else** — no `save` (gotcha N1: a `save` before `sp` restricts the saved set and silently deletes the S-parameters), no extra analysis, no extra ngspice invocation.",
+      "source": "FINDINGS §30.1"
+    },
+    {
+      "quote": "| **metric vector with the probe vs without**, at `repr` precision | **18 of 18 identical, 0 differ** |\n| **captured Id/gm vs an independent bare-`op` probe** sharing no code path | **relative error 0.0e+00 on both devices** |",
+      "source": "FINDINGS §30.1"
+    },
+    {
+      "quote": "the `.temp 27` injection control is **exactly** invariant (drift 0.0 on every margin)",
+      "source": "FINDINGS §39 (WP-SENS controls)"
+    },
+    {
+      "quote": "a logging feature ships with its golden or it does not ship — a wrong `gm` in a million rows is worse than no `gm` at all, because it will be believed.",
+      "source": "JOURNEY stage 25"
+    }
+  ],
+  "rule": "Ship a logging hook or a perturbation-injection mechanism only with a golden showing the metric vector is identical with the mechanism present and absent.",
+  "applicability": {
+    "applies": "Every instrument that rides an existing deck: op capture, noise-budget capture, temperature/supply injection, and any future post-sim hook that injects a margin table into agent context (15-ENGINEER §2.1).",
+    "not": "The invariance control proves the INSTRUMENT did not move; it says nothing about whether the quantity read is the right one. That needs an independent probe sharing no code path -- which is what caught nothing here and is exactly why it was run."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 25 (WP-OBSERVE)",
+    "JOURNEY stage 34 (WP-SENS)",
+    "FINDINGS §30.1",
+    "FINDINGS §39",
+    "lna/ref/check_op.py",
+    "lna/corners.py"
+  ],
+  "created": "2026-08-14"
+}

@@ -1,0 +1,57 @@
+{
+  "id": "cross-simulator-port-must-be-measured",
+  "type": "harness-rule",
+  "trigger": {
+    "family": [
+      "any"
+    ],
+    "analysis": [
+      "harmonic-balance",
+      "op",
+      "sp",
+      "porting"
+    ],
+    "failure_signature": [
+      "model-port-mismatch",
+      "numerical-artefact"
+    ],
+    "keywords": [
+      "vacask",
+      "ngspice",
+      "bsim4",
+      "osdi",
+      "version",
+      "port",
+      "rshunt",
+      "model-card"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "The two simulators are **not running the same BSIM4**. ngspice reports `BSIM 4.5`; VACASK's OSDI model warns `unknown BSIM4 version. Working now with BSIM4.8.3` — the card's `version=4.0` is silently not honored.",
+      "source": "FINDINGS §40.2"
+    },
+    {
+      "quote": "| **Idd** | **12.96322 mA** | **12.96318 mA** | **+36 nA (+0.0003 %)** |\n| DC solution, **all 19 nodes** | — | — | **worst 2.05 µV** (at `n7`) |",
+      "source": "FINDINGS §40.2"
+    },
+    {
+      "quote": "terminate called ... filesystem_error: cannot remove: The process cannot\naccess the file because it is being used by another process [hb1.raw]",
+      "source": "FINDINGS §40.5 (VACASK 0.3.4.rc1 secondary crash; empty stdout, zero-length hb1.raw. It reads like a Windows file-locking problem and is not one -- it is spectrum construction, and clears at nharm 3, 6, 7, 8)"
+    }
+  ],
+  "rule": "Prove a second simulator's port on DC and S21 against a live run of the first before reading any design number from it, and never trust a model-card version string.",
+  "applicability": {
+    "applies": "Any migration to a second engine or a new PDK. Load-bearing details to re-check explicitly: rshunt equivalence (ngspice's .option rshunt=1e12 becomes 1 Tohm to ground on every node; six gates in this design have no other DC path) and the S-parameter port convention.",
+    "not": "A faithful port does not make the two engines interchangeable: an engine can abort on specific (f0, tone spacing, nharm) combinations and destroy its own error message on the way out. Walk a ladder and record which setting each row used, backed by a fence proving the setting does not move the answer."
+  },
+  "confidence": "unverified",
+  "sources": [
+    "JOURNEY stage 35 (WP-HB)",
+    "FINDINGS §40.2",
+    "FINDINGS §40.5",
+    "lna/hb/port45.py",
+    "lna/hb/README.md"
+  ],
+  "created": "2026-08-14"
+}

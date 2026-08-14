@@ -2215,6 +2215,54 @@ the editor, run one bounded loop unattended — measured by the same headline
 curve as everything else, with cold-start controls so the memory's value is a
 number, not a vibe.
 
+## 40. The execution wave — seven agents run the proposal's cheap levers, and three of the answers bite back
+
+**Decision** (user, 2026-08-14): "execute whatever changes we can right now,"
+Opus subagents for the complex tasks, Sonnet for the light ones. The
+coordinator ran seven agents in file-ownership lanes plus a full-store
+background job, goldens GREEN before and after; everything adoption-shaped
+was measured and *queued*, not adopted (FINDINGS §43, rulings §43.9).
+
+**Result.** Six new/changed artifacts and four numbers that matter.
+(1) **The store is now measured against the harness that exists**:
+`relabel_era.py` re-labeled all 1,247 stale designs (0 failures, ~40 min) —
+1,109 era-stale, median NF −2.1 dB, ~30 stored-FEASIBLE designs infeasible
+today, attribution *proven* by an old-geometry fence that reproduces stored
+numbers to 0.0000 dB — and the same fence caught 10 rows that fail to
+reproduce under ANY geometry (quarantine queue). (2) **The sizer met its
+null**: `null_sizer.py` binds CMA-ES to ZOAF's own objective, budget-matched
+at 336 evals, and the untuned null wins the first task 4/5 feasible vs 1/5,
+best −0.790 vs −0.733 — one task, no verdict, exactly why survey
+conclusion 7 exists. (3) **Cao's number reproduced on our critic**:
+`--op-features` (flag-gated, default path bitwise intact) lifts source-shift
+rho(S21) 0.665→0.848 (+0.183, within-spec wins on every spec) — and the
+agent caught why it must not ship as-is: op features exist only *after*
+sizing, and `rank_pool` scores un-sized candidates, so deployment would run
+entirely in the mask-0 regime. Bias state is worth +0.18 rho; the honest
+routes are predicted-OP features or post-sizing re-rank. (4) **The memory
+is machine-queryable**: playbook v0, 40 entries (29 verified under a
+two-independent-sources rule), 26 typed edges, and nine live corpus
+contradictions encoded as `contradicts` edges instead of smoothed away.
+Also: the rails-as-nodes lever was already implemented (audit), the
+matching-freeze lever was measured breakable and *correctly declined*
+(balun asymmetry is the documented D7 knob), `datastore` gained the closed
+diagnosis vocabulary, and WP-LIN is pre-registered as a 675-line DRAFT
+whose drafting found three rung-0 defects (the §1.2 IIP3 misattribution in
+the rulings doc, the missing `dhruva-simul.sp`, the l5-hard-coded
+`iip3.py`).
+
+**Understanding.** The proposal said the harness and the store were the
+program's real assets; the wave's numbers say the store had quietly become
+a liability (a simulator that no longer exists) and one afternoon of
+mechanical re-labeling fixed it — while the two "obvious" upgrades the
+survey recommended came back one-already-done and one-correctly-refused,
+which is what audits are for. The pattern that held all day: every claim
+that survived did so because a fence, a null, or a mask question was asked
+*before* the number was believed. The wave changed no designated point, no
+frozen protocol, and no gate verdict; it changed what the program can trust
+under itself. Next stop is user rulings (§43.9 + 16-WP-LIN's D-1…D-9),
+then WP-LIN.
+
 ## Current frontier
 
 As of this document's writing (`lna-data`, commit `5be4de3` and whatever

@@ -1,0 +1,56 @@
+{
+  "id": "pre-registration-before-code",
+  "type": "strategy",
+  "trigger": {
+    "family": [
+      "any"
+    ],
+    "analysis": [
+      "any",
+      "governance",
+      "training"
+    ],
+    "failure_signature": [
+      "attribution-error",
+      "spec-governance"
+    ],
+    "keywords": [
+      "pre-registration",
+      "predictions",
+      "bars",
+      "plan",
+      "commit",
+      "falsified",
+      "honest"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "The executor pre-registered `plans2/09-WP-OBSERVE.md` — design, the three ngspice rules the capture had to obey, the volume policy, and **five numbered predictions** — and committed it (`b08dda8`) before writing a line of feature code",
+      "source": "JOURNEY stage 25"
+    },
+    {
+      "quote": "Three of my eight registered predictions were falsified: the cold-start correlation was much better than predicted, the within-family error did not reach the sigma floor, and the per-run residual calibration — predicted to matter more than the encoder — made things *worse*.",
+      "source": "JOURNEY stage 26"
+    },
+    {
+      "quote": "The second decision was to honour the pre-registered consequence when the non-regression bar failed, instead of tuning the two λ that had been fixed a priori precisely so that this could not be quietly rescued.",
+      "source": "JOURNEY stage 29"
+    }
+  ],
+  "rule": "Commit the plan, the bars and the numbered predictions before the first line of experiment code, and honour the pre-registered consequence when a bar fails.",
+  "applicability": {
+    "applies": "Every work package. The registered prediction most likely to be WRONG is the one worth writing down: WP-OBSERVE's P5 (that the noise deck and the sizing deck share a DC solution) had been an unverified four-session-old documentation claim, and it held at 0.0e+00.",
+    "not": "Pre-registration does not make a result significant -- stage 27's sizing half is 31 runs at p = 0.077, reported as not clearing 0.05 with the decisive statistics named separately (113/167 vs 5/168 conducting)."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 25",
+    "JOURNEY stage 26",
+    "JOURNEY stage 27",
+    "JOURNEY stage 29",
+    "FINDINGS §18.0",
+    "FINDINGS §31.7"
+  ],
+  "created": "2026-08-14"
+}

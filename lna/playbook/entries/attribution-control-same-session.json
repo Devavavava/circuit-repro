@@ -1,0 +1,51 @@
+{
+  "id": "attribution-control-same-session",
+  "type": "strategy",
+  "trigger": {
+    "family": [
+      "any"
+    ],
+    "analysis": [
+      "generation",
+      "fine-tune",
+      "training"
+    ],
+    "failure_signature": [
+      "attribution-error",
+      "selector-artefact"
+    ],
+    "keywords": [
+      "control",
+      "attribution",
+      "shuffled",
+      "ablation",
+      "variable",
+      "isolate",
+      "credit"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "`v7ctl` reproduced P5-v3 **to every measured digit** — nb NDL 52, spec-L0 80.5%, copies 69.5% (37.9%/31.6%), inductor ratio 0.224, wb NDL 21, spec-L0 37.5%, and a stage-B best-val of 0.2300 at epoch 1, P5-v3's documented value exactly — proving the pipeline deterministic under seed 1337 and that \"v7 − v7ctl is the nine ingested circuits and nothing else... the most important row in the section\"",
+      "source": "JOURNEY stage 21 (FINDINGS §24.1)"
+    },
+    {
+      "quote": "Conditioning **raised** nb NDL@256 from 79 to 99 (wb 41 to 89) and collapsed corpus copying from 32% to 6%; the shuffled control scored **115** and 5.5%. The novelty is real and it is not the labels",
+      "source": "JOURNEY stage 28"
+    }
+  ],
+  "rule": "Ship every new-data or new-channel arm with a same-session control that preserves everything except the variable under test.",
+  "applicability": {
+    "applies": "Any claim of the form 'X made the loop better' -- including, per 15-ENGINEER §2.2 item 4, any future claim that this playbook itself improved anything (run cold-start controls explicitly).",
+    "not": "A control that changes more than one thing proves nothing; the shuffled control worked because per-slot marginals and the joint bin distribution survived and only the label-to-topology correspondence died. Building a weaker control is worse than building none, because it will be believed."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 21 (P5-v7 / v7ctl)",
+    "JOURNEY stage 28 (WP-OUTCOME)",
+    "FINDINGS §24.1",
+    "FINDINGS §32.1",
+    "lna/plans2/15-ENGINEER-PROPOSAL.md §2.2"
+  ],
+  "created": "2026-08-14"
+}

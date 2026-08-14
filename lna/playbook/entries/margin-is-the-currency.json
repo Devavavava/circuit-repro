@@ -1,0 +1,56 @@
+{
+  "id": "margin-is-the-currency",
+  "type": "corner-lesson",
+  "trigger": {
+    "family": [
+      "dhruva",
+      "gnss",
+      "lna"
+    ],
+    "analysis": [
+      "sizing",
+      "sp",
+      "op",
+      "3-port"
+    ],
+    "failure_signature": [
+      "objective-omission",
+      "topology-exhaustion",
+      "band-match-wall"
+    ],
+    "keywords": [
+      "margin",
+      "headroom",
+      "idd",
+      "budget",
+      "balun",
+      "designation",
+      "tier-3"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "On the *designated* `dhruva-l5` point the same stage meets the imbalance spec too (0.218 dB / 0.586°) and every other gate — and misses Idd by 1.76 mA, because that point already spends 12.963 of its 13.000 mA budget and therefore cannot host **any** conducting output stage.",
+      "source": "JOURNEY stage 36 (WP-DIFF)"
+    },
+    {
+      "quote": "The gate as mapped is met; the thing the paper actually wants from a gain-programmable LNA is, at this match margin, **not available anywhere in this topology**. That is the finding to carry forward, and it points the same direction stage 31 already did: margin is the currency, and this design has almost none to spend.",
+      "source": "JOURNEY stage 37 (WP-PGAIN)"
+    }
+  ],
+  "rule": "Budget explicit leftover margin on every gated constraint at designation time, because the tier-3 gates are paid for out of leftover current and match margin.",
+  "applicability": {
+    "applies": "Any designation decision that will later have to host additional stages (balun, switch bank, linearization). The hardened point hosts both; the max-slack point hosts neither.",
+    "not": "The two robustness axes pull opposite ways: the hardened point spends 37% of the bias current to buy S11/VDD robustness, and IIP3 is bought WITH bias current, so it is likely further from D5, not closer. There is no single margin to maximise."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 31 (WP-HARDEN)",
+    "JOURNEY stage 36 (WP-DIFF)",
+    "JOURNEY stage 37 (WP-PGAIN)",
+    "FINDINGS §41.5",
+    "FINDINGS §42.3",
+    "FINDINGS §40.4"
+  ],
+  "created": "2026-08-14"
+}

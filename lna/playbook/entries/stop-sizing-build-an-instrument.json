@@ -1,0 +1,57 @@
+{
+  "id": "stop-sizing-build-an-instrument",
+  "type": "strategy",
+  "trigger": {
+    "family": [
+      "any",
+      "dhruva",
+      "wideband-sdr"
+    ],
+    "analysis": [
+      "any",
+      "structural",
+      "noise-budget",
+      "op"
+    ],
+    "failure_signature": [
+      "topology-exhaustion",
+      "band-match-wall",
+      "nf-wall"
+    ],
+    "keywords": [
+      "instrument",
+      "diagnosis",
+      "decomposition",
+      "wall",
+      "sizing",
+      "graph-arithmetic",
+      "attribution"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "*When a capability question has been answered three times by a sizing run, stop sizing and build an instrument for the thing you are actually asking about.* The wall had been measured repeatedly and never diagnosed, because every previous attempt asked \"can this design be sized to match?\" instead of \"what do designs that match have that this one doesn't?\" The second question needed twenty lines of graph arithmetic and no simulator at all",
+      "source": "JOURNEY stage 24"
+    },
+    {
+      "quote": "A per-element noise decomposition (the new `extract.measure_noise_budget`, validated on a golden deck to 3.0103 dB *exactly* and with sum-closure 1.0000 on every real design) said the diagnosis was wrong: **26–40% of the excess noise factor on every dhruva design was BSIM4 gate-electrode resistance**",
+      "source": "JOURNEY stage 23"
+    }
+  ],
+  "rule": "After the third sizing run that answers the same capability question, build a decomposition instrument for the quantity actually in question instead of sizing again.",
+  "applicability": {
+    "applies": "Any named wall the record has sighted three or more times. Both instruments here overturned the standing diagnosis and both were cheap -- one needed no simulator at all, the other rode an existing deck.",
+    "not": "An instrument is not a fix: the match instrument produced a selection criterion and pointed at a move that had been sitting in moves.py unused the whole time. Budget for the instrument to relocate the problem, not to close it."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 23 (noise budget)",
+    "JOURNEY stage 24 (WP-MATCH)",
+    "JOURNEY stage 25 (WP-OBSERVE)",
+    "FINDINGS §26.2",
+    "FINDINGS §29.2",
+    "lna/_match_struct.py",
+    "lna/extract.py measure_noise_budget"
+  ],
+  "created": "2026-08-14"
+}

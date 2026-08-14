@@ -1,0 +1,59 @@
+{
+  "id": "single-finger-gate-resistance-artefact",
+  "type": "harness-rule",
+  "trigger": {
+    "family": [
+      "any",
+      "lna",
+      "dhruva"
+    ],
+    "analysis": [
+      "noise",
+      "noise-budget"
+    ],
+    "failure_signature": [
+      "harness-artefact",
+      "nf-wall"
+    ],
+    "keywords": [
+      "nf",
+      "noise",
+      "rg",
+      "finger",
+      "w_finger",
+      "layout",
+      "gate-resistance",
+      "budget"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "**The dominant per-MOSFET mechanism is `rg` — gate-electrode resistance — not `id`, the channel thermal noise everyone reasons about.** Across the four designs measured, `rg` carries **26.3 / 35.3 / 36.4 / 39.5 %** of F−1.",
+      "source": "FINDINGS §26.2"
+    },
+    {
+      "quote": "where `NF` is the **number of gate fingers**, a per-instance parameter our decks never set — so every device is one finger. For a 100–200 µm device at L = 45 nm that is hundreds of ohms in series with the gate. No one tapes that out",
+      "source": "FINDINGS §26.2"
+    },
+    {
+      "quote": "**NF delta (new − old): min −14.758 · p25 −4.018 · median −2.078 · p75 −1.101 · max +105.756 · mean −1.794. Improved: 1109/1240.**",
+      "source": "FINDINGS §27.3 (store-wide multi-finger relabel)"
+    }
+  ],
+  "rule": "Emit MOSFETs at a layout-calibrated finger width (w_finger = 2 um here) and treat finger count as a harness-fidelity parameter, never as a knob for closing a gate.",
+  "applicability": {
+    "applies": "Every NF number this program published before 2026-08-10 is pessimistic, typically by ~2 dB. Any noise-budget reading, any NF-based capability negative, and any cross-era NF comparison must be re-checked under the current w_finger stamp.",
+    "not": "A stored per-element noise budget on a low-gain design is measuring the instrument, not the design: on S21 < 0 dB rows the harness's own 50 ohm load rnl is the top F-1 contributor 88.5% of the time (FINDINGS §34.2a). Gate any budget label on the design's own gain."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 23 (multi-finger cutover)",
+    "FINDINGS §26.2",
+    "FINDINGS §26.3",
+    "FINDINGS §27.3",
+    "FINDINGS §34.2",
+    "lna/to_spice.py",
+    "lna/relabel_mf.py"
+  ],
+  "created": "2026-08-14"
+}

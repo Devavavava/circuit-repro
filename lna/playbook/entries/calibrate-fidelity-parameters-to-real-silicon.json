@@ -1,0 +1,58 @@
+{
+  "id": "calibrate-fidelity-parameters-to-real-silicon",
+  "type": "strategy",
+  "trigger": {
+    "family": [
+      "any",
+      "dhruva",
+      "gnss"
+    ],
+    "analysis": [
+      "any",
+      "governance",
+      "sizing"
+    ],
+    "failure_signature": [
+      "device-budget",
+      "spec-governance"
+    ],
+    "keywords": [
+      "device_budget",
+      "calibration",
+      "silicon",
+      "corpus",
+      "widening",
+      "w_finger",
+      "over-grant"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "18 → **21** on the four dhruva specs only [...] calibrated to **`ihp-gps-lna-npn` @ 21** — a real IHP SG13G2 **GPS-band** LNA in the corpus, the same navigation-receiver role these specs target, and **the largest real design in the 50-circuit reference set**, so 21 is where this line of justification runs out: no further widening has a corpus circuit to point at.",
+      "source": "FINDINGS §25.3"
+    },
+    {
+      "quote": "⚠ **Stated plainly: the gate needed 20 devices, not 21.** [...] A widening to 20 would have closed the gate identically. This is recorded because the next request of this kind should be sized to the measured need.",
+      "source": "FINDINGS §25.3"
+    },
+    {
+      "quote": "If it is adopted, the defensible rule is to fix a **finger width** (real RF practice is ~1–5 µm/finger) and derive `NF = ceil(W / w_finger)` — calibrated to layout practice, not to a target.",
+      "source": "FINDINGS §26.3"
+    }
+  ],
+  "rule": "Calibrate every budget or fidelity parameter to the nearest real measured silicon or layout practice, verify the new bound still binds, and report the over-grant when the result uses less than was approved.",
+  "applicability": {
+    "applies": "device_budget, w_finger, inductor_q, and any future vocabulary or box widening. Verify enforcement after the change: the 19-device align-lna-qm is still rejected under the 18 bound; 22 and 30 devices are still rejected under 21.",
+    "not": "Never calibrate to what closes the gate. Two consecutive grants (18, 21) both turned out larger than what the measured result actually used -- so the excess must be reported, and the honest answer when the gate needs more than the corpus can point at is to stop."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 20",
+    "JOURNEY stage 22",
+    "JOURNEY stage 23",
+    "FINDINGS §23.1",
+    "FINDINGS §25.3",
+    "FINDINGS §26.3"
+  ],
+  "created": "2026-08-14"
+}

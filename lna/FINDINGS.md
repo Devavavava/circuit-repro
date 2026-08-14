@@ -8630,3 +8630,179 @@ python lna/iip3.py --band all --conv            # the D4-SIM point, 4 bands
 python lna/iip3.py --band all --sizing own      # the retired per-band points
 python lna/_iip3_floor.py                       # the tmax characterisation
 ```
+
+## 43. Phase 4 — the execution wave: the proposal's cheap levers run in one afternoon, and three of them return numbers that change the program's self-image (2026-08-14)
+
+The 15-ENGINEER-PROPOSAL decision queue was executed on its
+no-ruling-required subset by a coordinated agent wave (four Opus builders,
+two Sonnet auditors, one Opus follow-up), one file-ownership lane each,
+goldens GREEN before and after every landing. Nothing below is an adoption;
+every adoption-shaped result is queued in §43.9.
+
+### 43.1 The era re-label — the store measured against the harness that exists
+
+`lna/relabel_era.py` (new) re-evaluated **1,247 stored designs** (32-design
+pilot + 1,215-design full run, 0 failures, ~2.0 s/design, ~40 min wall)
+under the current harness era, appending era-tagged repeat-probe rows —
+nothing mutated, all 8 snapshots still verify.
+
+* **1,109 of 1,215 full-run designs are era-stale** on at least one metric.
+  Medians: dNF **−2.1 dB** (the mf2-v1 gate-resistance removal, exactly as
+  FINDINGS 26/27 predicted), dS21 +0.5 dB, dS11max +0.07 dB (but max
+  +18.9 dB), dIdd ≈ 0.
+* **~30 designs the store records as FEASIBLE are infeasible today**
+  (15 in the feasible-heavy pilot batch, 15 more like-for-like flips in the
+  full run, +1 WP-D1 gating flip reported separately) — almost all via S11.
+* **Attribution is proven, not asserted**: an old-geometry (single-finger)
+  replay fence reproduces stored numbers at the stored point; the pilot's
+  32/32 passed with worst |delta| 0.0000 dB, so the cutover is the sole
+  cause of those deltas.
+* **The fence also caught 10 rows whose stored numbers do not reproduce
+  even under the old geometry** (worst |delta| 38.78 dB; 6 of 10 are
+  `dhruva-s` rows: 83f8537d, ceae4521, bd6e1ffd, 97086315, c29f096b,
+  d0db0e8e; plus c31aea04/wideband-sdr, 7aa51155/wifi24+dhruva-l1,
+  f7103126/dhruva-l1). These deltas are NOT era-attributable — quarantine
+  candidates, open item.
+* Consequence, now measured rather than argued: **any critic/surrogate
+  trained on pre-cutover rows is fitting a simulator that no longer
+  exists.** The store now carries a current-era row for every design.
+
+Also landed: `datastore.py` gains an optional `diagnosis` row field with a
+closed 14-signature vocabulary (loud constructor / soft normalizer, no
+retro-fill); `relabel_nf.py` no longer copies a parent's diagnosis onto a
+re-measured successor. The op hook turned out to be **already default-ON**
+(`LNA_OP_LOG=1`, measured +0.27% of a sizing run) — the real gap is that
+post-08-11 WP scripts call `eval_metrics` directly and bypass the OpSink;
+the 4-line wiring pattern is demonstrated in `relabel_era.py`.
+
+### 43.2 The sizer's null hypothesis — CMA-ES beats ZOAF on the first task tested
+
+`lna/null_sizer.py` (new) binds random search and a self-contained CMA-ES
+to the *identical* objective callable ZOAF uses (`size.make_objective`),
+with eval accounting proven identical by reproducing the stored ZOAF row
+bit-for-bit (best_obj −0.7324616667 = stored). Pilot: the only plain-ZOAF
+feasible wifi24 row in the modern label domain (wl 4b351a49, d=10), budget
+matched at 336 evals, 5 seeds/arm:
+
+| arm | feasible | best obj | median obj |
+|---|---|---|---|
+| random | 0/5 | +1.00 | +1.66 |
+| **CMA-ES** | **4/5** | **−0.790** | **−0.649** |
+| ZOAF (in-process) | 1/5 (+stored s0) | −0.546 (−0.7325 s0) | +1.22 |
+
+Random at 0/5 says the task is real; **the untuned null beats the
+incumbent at matched budget on hit-rate, best, and median** — one task, no
+generalization claim, but survey conclusion 7 ("run the cheap nulls")
+lands on our own sizer on its first try. Counterweight recorded: ZOAF's
+point carries a 9-dB-deeper S11 cushion that the objective pays nothing
+for — robustness must live in the objective before this comparison decides
+anything.
+
+### 43.3 The critic audits — one lever already done, one correctly declined
+
+* **Rails-as-nodes: already implemented.** `graph_tensors` keeps every
+  electrical node; `_net_class` gives VDD/VSS/IO/bias nets their own roles;
+  pin-role maps are genuinely per-role (D/G/S/B/P/N). The S6 lever-2
+  upgrade proposed in 15-ENGINEER-PROPOSAL was already true.
+* **Matching-freeze: measured breakable, deliberately declined.** Emission
+  gives every device an independent `.param`; no match-group concept
+  exists anywhere. But this program has **no current mirrors to protect**
+  (bias is resistive R-GATE), and balun-leg asymmetry is the *documented*
+  D7 imbalance-nulling knob (stored winner: pBMBSW 13.08 um vs pBMBGW
+  17.47 um, loads 1.42x apart). Freezing would break replay of stored
+  winners and remove a working mechanism. Declined for current archetypes;
+  the prospective-only design (match-group annotation + label-domain
+  stamp) is on record in the audit for any future symmetric-balun
+  experiment.
+
+### 43.4 OP features in the critic — Cao's ~10–15 points measured on our data, and a deployment gap the table cannot show
+
+`critic_gnn.py --op-features` (flag, default OFF, +181/−6, default path
+bitwise untouched): dev features widen 5→13 with 7 z-scored OP scalars
+(log10 on id/gm/gds) + presence mask, joined by the attach_diag key;
+train-only scaler. Join coverage 93.6% of rows. Both arms identical data
+(2855 rows) / splits / seeds (0,1,2; ens-3 both, reduced symmetrically
+from the shipped ens-5 for compute), diag heads OFF:
+
+| split | metric | baseline | op-feat | delta |
+|---|---|---|---|---|
+| family | rho(S21) | 0.855 | **0.920** | +0.065 |
+| family | rho(S11) | 0.625 | 0.596 | −0.029 |
+| family | prec@20% | 0.970 | 0.970 | 0 |
+| family | unc_cal | 0.434 | 0.527 | +0.093 |
+| shift | rho(S21) | 0.665 | **0.848** | **+0.183** |
+| shift | rho(S11) | 0.578 | 0.520 | −0.058 |
+| shift | prec@20% | 0.764 | **0.827** | +0.063 |
+| shift | unc_cal | 0.554 | 0.571 | +0.017 |
+
+Within-spec rho(S21) wins or ties on **every** spec on both splits (shift
+l1 .759→.915, wifi24 .595→.795) — real within-spec ranking, not spec
+discrimination. The baseline arm reproduces shipped v1's family 0.851 at
+0.855 (protocol check).
+
+**Why this is measured-not-adopted:** the op point exists only at the
+row's `best_params` — i.e. after the sizing the critic exists to avoid.
+`search.py:rank_pool` builds candidates with no `best_params`, so a
+deployed `--op-features` critic would score every pool item through the
+mask-0 branch it saw in ~7% of training. Availability leakage relative to
+deployment, not label leakage. What stands: **bias state is worth
++0.18 rho on the split that matters**; the two honest routes are feeding a
+*predicted* OP (surrogate.py's territory) or using op-features only for
+post-sizing re-rank/triage.
+
+### 43.5 Playbook v0 — the memory made machine-queryable, and the corpus argued back
+
+`lna/playbook.py` + `lna/playbook/` (stdlib-only, JSON): 40 distilled
+entries (29 verified under a >=2-independent-sources rule, 11 held at
+unverified), 26 typed edges (prevents/contradicts/derived_from/validated),
+closed failure-signature vocabulary, deterministic retrieval, `--check`
+validator GREEN (validates schema, evidence verbatim-quotes, edge
+endpoints, index sync, retrieval self-test). Distillation surfaced nine
+live corpus tensions now encoded as `contradicts` edges rather than
+smoothed — the sharpest: NDL is both the adoption gate and measurably
+blind (stage 27); replay fences are both the strongest evidence discipline
+and a documented source of false confidence (§41.7, §37.4); the two
+robustness axes pull opposite ways (§36 buys S11/VDD robustness with the
+same bias current §40.4 says IIP3 needs).
+
+### 43.6 WP-LIN pre-registered as a draft — and its rung-0 blockers found
+
+`plans2/16-WP-LIN.md` (675 lines, DRAFT — user sign-off pending): the
+candidate-mechanism table (A/A'/B/C/D/E/F/G/H plus the null N with a
+five-clause evidence bar), the fidelity ladder with SPICE-minute caps, the
+IIP3-head surrogate plan (propose-only, never in an acceptance claim), and
+the central pre-registered claim that the wall is a **current**-swing wall
+(the output device carries 15.1% of Idd and 100% of the swing; at the D6
+min-gain state the 22–25 dB gap decomposes into ~12 dB of front-side gain
+control + ~8–9 dB of real OIP3 costing ~1.2–1.6x the point's DC power).
+Drafting found real defects: **14-DHRUVA-SIMUL §1.2 attributes the l5
+IIP3 measurement to the designated dhruva-simul point** (never measured);
+`dhruva-simul.sp` does not exist on disk; `iip3.py` hard-codes the l5
+gain reference and has no `--vdd` — rung-0 blocking work, all recorded in
+the brief, none fixed silently.
+
+### 43.7 What the wave cost
+
+Roughly 2.5 h wall on an 8-core laptop: ~55 min of ngspice for the
+1,247-design re-label + pilots, ~50 min×2 (parallel) of CPU torch for the
+critic arms, the rest agent I/O. Goldens GREEN four times (baseline,
+post-N2, post-null pilot, post-wave).
+
+### 43.8 Corrections applied to standing documents
+
+15-ENGINEER-PROPOSAL §5.2 (op_points "156 rows, nearly empty" → ~2,400
+rows, hook already ON) and §1.4 item 2 (rails already first-class) —
+both stale the day after writing; corrected with dated audit notes.
+16-WP-LIN's documentation slots re-pointed to execution time (this wave
+claimed JOURNEY stage 40).
+
+### 43.9 Queued rulings this wave adds to §7 of 15-ENGINEER-PROPOSAL
+
+R-a: quarantine or re-derive the 10 fence-fail rows (§43.1). R-b: extend
+the null benchmark (2–3 in-house tasks + AnalogGym externals) before any
+ZOAF verdict. R-c: choose the OP-feature deployment route
+(predicted-OP vs post-sizing re-rank) before any critic adoption.
+R-d: 16-WP-LIN sign-off (incl. its D-1…D-9). R-e: correct
+14-DHRUVA-SIMUL §1.2's IIP3 attribution row (one-line fix, user owns the
+rulings doc). R-f: wire the OpSink pattern into live WP scripts
+(corners.py first) so op rows resume flowing.

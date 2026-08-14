@@ -1,0 +1,51 @@
+{
+  "id": "replay-fence-is-not-correctness",
+  "type": "anti-pattern",
+  "trigger": {
+    "family": [
+      "any"
+    ],
+    "analysis": [
+      "any",
+      "sizing",
+      "two-tone",
+      "3-port"
+    ],
+    "failure_signature": [
+      "replay-false-confidence",
+      "attribution-error"
+    ],
+    "keywords": [
+      "replay",
+      "fence",
+      "determinism",
+      "reproducible",
+      "correctness",
+      "cross-check",
+      "audit"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "this search reported the stage's cost as **22.3, then 20.2, then 23.7 mA — each with a clean replay fence** — before physics-seeded starts and a best-of-all-coordinates descent found 14.8. A reproducible wrong answer is still a wrong answer; the replay fence proves determinism, not correctness, and the only thing that caught it here was a hand calculation of what the stage *should* cost.",
+      "source": "JOURNEY stage 36 (WP-DIFF)"
+    },
+    {
+      "quote": "It failed silently: every deck runs, every sweep is clean, every slope is 3.0, and every IIP3 is plausible.",
+      "source": "FINDINGS §37.4 (the first four-band run measured the wrong decks)"
+    }
+  ],
+  "rule": "Pair every replay fence with an independent cross-check that could return a different number -- a hand calculation, a second harness, or an audited quantity the run must reproduce.",
+  "applicability": {
+    "applies": "Every headline claim. In §37.4 the check that caught it was requiring the transient's small-signal gain to reproduce the audited sp S21 (worst delta 0.02 dB); that check is now printed on every band.",
+    "not": "Not an argument against replay fences -- they catch a different, real defect class (start-point reconstruction, out-of-box drift, inconsistent (topo,params) pairs). Keep both."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 36 (WP-DIFF)",
+    "JOURNEY stage 32 (WP-IIP3)",
+    "FINDINGS §41.7",
+    "FINDINGS §37.4"
+  ],
+  "created": "2026-08-14"
+}

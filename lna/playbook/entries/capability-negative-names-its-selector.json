@@ -1,0 +1,54 @@
+{
+  "id": "capability-negative-names-its-selector",
+  "type": "strategy",
+  "trigger": {
+    "family": [
+      "any",
+      "dhruva",
+      "wideband-sdr"
+    ],
+    "analysis": [
+      "generation",
+      "search",
+      "selection"
+    ],
+    "failure_signature": [
+      "selector-artefact",
+      "attribution-error",
+      "topology-exhaustion"
+    ],
+    "keywords": [
+      "capability",
+      "negative",
+      "selector",
+      "pool",
+      "candidate",
+      "draw",
+      "predictor"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "**a capability negative is only as strong as the selector that produced its candidates, and from now on it has to name it.**",
+      "source": "JOURNEY stage 24"
+    },
+    {
+      "quote": "§27.6's capability test drew the **12 most structurally distinct** candidates from the generator pool and concluded a capability limit. Re-drawing them by the *measured* predictor instead — every screen-passing, source-driven sample from the P5-v7 and P5-v8 narrowband pools, 29 distinct graphs, 26 of them novel — **24 of 29 close the band match**, and one closes the whole gate.",
+      "source": "JOURNEY stage 24"
+    }
+  ],
+  "rule": "Name the selector that produced the candidates whenever recording a capability negative, and re-draw the pool by any newly measured predictor before believing it.",
+  "applicability": {
+    "applies": "Every 'the generator/search/loop cannot do X' claim, and symmetrically to positives (stage 27 held the rung-0 selector fixed across all four arms for exactly this reason).",
+    "not": "One clean falsification instance. Note also the sibling failure this session recorded against itself: 'every design that closed both the band match and 22.3 dB of gain carried >=12 devices' was a true statement about which structures had been TRIED, not a property of the problem -- the swap mutant did it at 10."
+  },
+  "confidence": "unverified",
+  "sources": [
+    "JOURNEY stage 24 (WP-MATCH)",
+    "JOURNEY stage 27 (WP-ATTRIB)",
+    "FINDINGS §29.5",
+    "FINDINGS §29.10",
+    "FINDINGS §31.4"
+  ],
+  "created": "2026-08-14"
+}

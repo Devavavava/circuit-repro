@@ -1,0 +1,60 @@
+{
+  "id": "s11-idd-knife-edge",
+  "type": "corner-lesson",
+  "trigger": {
+    "family": [
+      "dhruva",
+      "gnss",
+      "lna"
+    ],
+    "analysis": [
+      "sensitivity",
+      "sp",
+      "op"
+    ],
+    "failure_signature": [
+      "s11-knife-edge",
+      "bias-regulation"
+    ],
+    "keywords": [
+      "s11",
+      "idd",
+      "sensitivity",
+      "supply",
+      "vdd",
+      "temperature",
+      "passives",
+      "margin",
+      "fragility"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "| supply | **±1%** | either direction | ↓1%: s11 −0.032 · ↑1%: idd −0.17 mA | **no passing VDD tolerance exists** at this point |",
+      "source": "FINDINGS §39.1"
+    },
+    {
+      "quote": "NF's worst value anywhere on the sweep, combo included, is margin **+0.504 dB** (85 °C); S21's is **+1.81 dB** (VDD×0.9). **Neither ever flips.**",
+      "source": "FINDINGS §39.1"
+    },
+    {
+      "quote": "| `dhruva-l5` (shipped) | **1.2 V** | −10.210 | **14.879** | 1.188 (l5) | 35.132 (s) | 19.673 | **FAILS — Idd 14.879 > 13 mA cap, all 4 bands** |",
+      "source": "FINDINGS §36.3 (independent WP, +1.916 mA measured against the sweep's predicted +1.9)"
+    }
+  ],
+  "rule": "Sweep temperature, supply, all passives and inductor Q at the fixed shipped point before designating it, and carry the sweep-derived nominal floors rather than the gate values.",
+  "applicability": {
+    "applies": "Any point produced by a kept-floor descent; the fragile axes are the pinned ones. Here: S11 <= -10.44 and Idd <= ~8.5 mA at nominal, NF margin >= 0.75 dB, S21 margin >= 1.91 dB.",
+    "not": "This is a SENSITIVITY result, never a corner/PVT claim -- the 45 nm behavioral BSIM4 include carries no process-corner cards, so fast/slow devices cannot be simulated at this fidelity. Do not quote it as fab-corner coverage."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 34 (WP-SENS)",
+    "JOURNEY stage 31 (WP-HARDEN)",
+    "FINDINGS §39.1",
+    "FINDINGS §39.2",
+    "FINDINGS §36.3",
+    "lna/corners.py"
+  ],
+  "created": "2026-08-14"
+}

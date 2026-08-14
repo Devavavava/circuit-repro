@@ -1,0 +1,59 @@
+{
+  "id": "two-engine-cross-validation",
+  "type": "strategy",
+  "trigger": {
+    "family": [
+      "any",
+      "lna",
+      "dhruva"
+    ],
+    "analysis": [
+      "two-tone",
+      "harmonic-balance",
+      "transient",
+      "iip3"
+    ],
+    "failure_signature": [
+      "numerical-artefact",
+      "replay-false-confidence"
+    ],
+    "keywords": [
+      "cross-check",
+      "second-opinion",
+      "vacask",
+      "ngspice",
+      "harmonic-balance",
+      "transient",
+      "tier-3"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "| l5 | −32.78 | −32.76 | **0.02** | −32.81 | 0.05 |\n| s | −30.36 | −30.28 | **0.08** | −30.38 | 0.10 |",
+      "source": "FINDINGS §37.6 (ngspice two-tone transient vs VACASK harmonic balance)"
+    },
+    {
+      "quote": "**Four bands, worst disagreement 0.04 dB.** Two independent simulators, two different BSIM4 implementations (4.5 vs 4.8.3), and two completely different numerical methods — time-stepping plus coherent FFT versus a frequency-domain Newton solve — landing inside a twentieth of a dB on ~−33 dBm intercepts. [...] It is what licenses treating the D5 verdict as a property of the **design** rather than of either tool.",
+      "source": "FINDINGS §40.6"
+    },
+    {
+      "quote": "§40's tone-spacing fence (0.43 dB over 1→10 MHz) is larger than the entire inter-method spread, which is the honest bound on what \"IIP3 of this design\" means.",
+      "source": "FINDINGS §37.6"
+    }
+  ],
+  "rule": "Before believing a tier-3 number, measure it a second time with a different simulator, a different analysis kind and a different extraction estimator.",
+  "applicability": {
+    "applies": "Any metric newly promoted from 'unsupported'. The two harnesses here shared no code -- only the golden's closed-form references are common by design, which is what makes the agreement informative.",
+    "not": "Cross-method agreement removes METHOD uncertainty, not MODEL uncertainty: both harnesses still run 45 nm behavioral BSIM4, ideal Q=12 passives, no corners, no layout parasitics. A 21-25 dB miss is far outside any of it, which is why THAT verdict is safe to act on -- a 1 dB result would not be."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 35 (WP-HB)",
+    "JOURNEY stage 32 (WP-IIP3)",
+    "FINDINGS §37.6",
+    "FINDINGS §40.6",
+    "lna/iip3.py",
+    "lna/hb/hb_iip3.py"
+  ],
+  "created": "2026-08-14"
+}

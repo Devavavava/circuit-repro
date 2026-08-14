@@ -1,0 +1,65 @@
+{
+  "id": "three-failed-loops-means-topology",
+  "type": "strategy",
+  "trigger": {
+    "family": [
+      "any",
+      "dhruva",
+      "wideband-sdr",
+      "gnss"
+    ],
+    "analysis": [
+      "any",
+      "sizing",
+      "search"
+    ],
+    "failure_signature": [
+      "topology-exhaustion",
+      "band-match-wall",
+      "iip3-wall",
+      "nf-wall"
+    ],
+    "keywords": [
+      "escalate",
+      "topology",
+      "tuning",
+      "loop",
+      "wall",
+      "archetype",
+      "ruling"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "\"If the design hasn't converged after three designer-verifier loops, the problem is topology, not tuning — escalate\" — which is literally the D5 story, stated as a rule",
+      "source": "lna/plans2/15-ENGINEER-PROPOSAL.md §2.1 (Arcadia-1/analog-agents process invariant)"
+    },
+    {
+      "quote": "**D5 implication: the topology must change** — this is not \"close\" and it is not a sizing problem.",
+      "source": "FINDINGS §37.7"
+    },
+    {
+      "quote": "closing it \"needs a quieter input stage, not more devices\" — a topology question, not a sizing one",
+      "source": "JOURNEY stage 22 (dhruva-l5)"
+    },
+    {
+      "quote": "the story is 'S11 has never once been solved band-wide, at any NF/gain trade-off, in 134 attempts'",
+      "source": "JOURNEY stage 19 (wideband-sdr, FINDINGS §22.5)"
+    }
+  ],
+  "rule": "Escalate to the archetype library or the rulings queue once a target has survived three design-verify loops; do not spend a fourth on tuning.",
+  "applicability": {
+    "applies": "Any gate that has been measured, re-diagnosed and re-attempted without moving. The escalation target is a topology lever (a new archetype family, a vocabulary DOF, a rail/budget change) or a user ruling -- not another campaign.",
+    "not": "Escalate only after the confound check: stage 22's negative result on dhruva-l5 was flagged as confounded, and re-run unconfounded on the honest harness the SEARCH reached the gate easily (8 of the first 14 mutants tier-2 feasible). Escalating a confounded negative buys a topology project you did not need."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 19 (wideband-sdr)",
+    "JOURNEY stage 22 (dhruva-l5)",
+    "JOURNEY stage 32 / 35 (D5)",
+    "FINDINGS §22.5",
+    "FINDINGS §37.7",
+    "lna/plans2/15-ENGINEER-PROPOSAL.md §2.1"
+  ],
+  "created": "2026-08-14"
+}

@@ -788,20 +788,31 @@ def realize(nl, spec, wl_cache=None):
     import templates as T
     from topology import Topology
     from novelty import wl_features
+    # ImportError is NOT a no-path outcome: it means a dependency or pipeline
+    # module (templates/novelty, which pull in AnalogGenie + pandas lazily)
+    # failed to load, which once silently disabled realize() for a whole port
+    # era. Let it -- and only it -- propagate loudly; every other exception
+    # below is a legitimate "this candidate has no realization" and returns None.
     try:
         seq = T.emit_sequence(nl)
+    except ImportError:
+        raise
     except Exception:
         return None
     if not seq:
         return None
     try:
         topo = Topology(seq)
+    except ImportError:
+        raise
     except Exception:
         return None
     if not topo.valid:
         return None
     try:
         ok, _ = spec.structural_screen(topo)
+    except ImportError:
+        raise
     except Exception:
         return None
     if not ok:

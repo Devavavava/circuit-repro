@@ -1,0 +1,320 @@
+{
+ "kind": "engineer_baseline",
+ "schema": "engineer-result-v0",
+ "run_id": "gps-l1-t2-a-s4-b136-2026-08-14T152549+0000",
+ "algo": "random",
+ "arm": "random-search",
+ "arm_desc": "uniform random search in [0,1]^d (numpy.default_rng) -- the untuned null, driven through env.py's public API only",
+ "task": {
+  "id": "gps-l1-t2-a",
+  "spec": "gps-l1",
+  "wl_hash": "82e8ca6a4cc02a43",
+  "tier": 2,
+  "budget": 136,
+  "seed": 4,
+  "era": "current",
+  "n_devices": 6,
+  "ref": {
+   "ts": "2026-08-11T04:27:58+00:00",
+   "n_evals": 136,
+   "feasible": false,
+   "best_obj": 7.921651344444444
+  },
+  "notes": "Small (d is the smallest in the registry) and the reference is INFEASIBLE at obj +7.92 -- a task where the incumbent did not solve it, which is the kind a benchmark needs and a leaderboard usually lacks."
+ },
+ "seed": 4,
+ "n_params": 6,
+ "param_names": [
+  "pC1V",
+  "pC2V",
+  "pNM1W",
+  "pPM1W",
+  "pR1V",
+  "pR2V"
+ ],
+ "budget_evals": 136,
+ "n_evals": 136,
+ "ngspice_calls": 272,
+ "n_sim_fail": 0,
+ "evals_to_best": 17,
+ "best_obj": 11.446912444444443,
+ "feasible": false,
+ "viol": {
+  "nf_db": 7.983711,
+  "s11_db": 0.733448,
+  "s21_db": 1.729753
+ },
+ "metrics": {
+  "s11_db": -2.66552,
+  "s11_max_db": -2.65973,
+  "s21_db": -10.9463,
+  "s21_min_db": -10.9506,
+  "idd_ma": 6.8299530000000005e-09,
+  "nf_db": 16.17068,
+  "s22_db": -2.96648,
+  "s12_db": -10.9463,
+  "k_f0": 1.13532,
+  "k_min": 1.13449,
+  "mu_f0": 1.03017,
+  "mu_min": 1.03,
+  "mu_src_f0": 1.02741,
+  "mu_src_min": 1.02724,
+  "delta_f0": 0.478532,
+  "delta_max": 0.479563,
+  "stab_band": [
+   1565000000.0,
+   1586000000.0
+  ],
+  "s21_ripple_db": 0.00849999999999973,
+  "nf_method": "series_rs"
+ },
+ "margins": {
+  "nf_db": {
+   "achieved": 16.17068,
+   "required_min": null,
+   "required_max": 1.8,
+   "scale": 1.8,
+   "margin": -7.983711111111111,
+   "supported": true
+  },
+  "s11_db": {
+   "achieved": -2.66552,
+   "required_min": null,
+   "required_max": -10,
+   "scale": 10,
+   "margin": -0.733448,
+   "supported": true
+  },
+  "s21_db": {
+   "achieved": -10.9463,
+   "required_min": 15,
+   "required_max": null,
+   "scale": 15,
+   "margin": -1.7297533333333335,
+   "supported": true
+  },
+  "idd_ma": {
+   "achieved": 6.8299530000000005e-09,
+   "required_min": null,
+   "required_max": 3,
+   "scale": 3,
+   "margin": 0.999999997723349,
+   "supported": true
+  },
+  "iip3_dbm": {
+   "achieved": null,
+   "required_min": -10,
+   "required_max": null,
+   "scale": 10,
+   "margin": null,
+   "supported": false
+  }
+ },
+ "best_x": [
+  0.5003297120648612,
+  0.5974658410028173,
+  0.9348783961041196,
+  0.5888649666583986,
+  0.09348256345066186,
+  0.14646922718474464
+ ],
+ "best_params": {
+  "pNM1L": "45n",
+  "pPM1L": "45n",
+  "pVDD": "1.1",
+  "pVB": "0.5",
+  "pINDQ": "12",
+  "pINDW0": "1.25664e+10",
+  "pC1V": "7.08343e-13",
+  "pC2V": "1.1851e-12",
+  "pNM1W": "0.000141639",
+  "pPM1W": "2.26462e-05",
+  "pR1V": "87.5422",
+  "pR2V": "120.252"
+ },
+ "trace": [
+  {
+   "n": 10,
+   "best_obj": 16.590494777777778,
+   "feasible": false
+  },
+  {
+   "n": 20,
+   "best_obj": 11.446912444444443,
+   "feasible": false
+  },
+  {
+   "n": 30,
+   "best_obj": 11.446912444444443,
+   "feasible": false
+  },
+  {
+   "n": 40,
+   "best_obj": 11.446912444444443,
+   "feasible": false
+  },
+  {
+   "n": 50,
+   "best_obj": 11.446912444444443,
+   "feasible": false
+  },
+  {
+   "n": 60,
+   "best_obj": 11.446912444444443,
+   "feasible": false
+  },
+  {
+   "n": 70,
+   "best_obj": 11.446912444444443,
+   "feasible": false
+  },
+  {
+   "n": 80,
+   "best_obj": 11.446912444444443,
+   "feasible": false
+  },
+  {
+   "n": 90,
+   "best_obj": 11.446912444444443,
+   "feasible": false
+  },
+  {
+   "n": 100,
+   "best_obj": 11.446912444444443,
+   "feasible": false
+  },
+  {
+   "n": 110,
+   "best_obj": 11.446912444444443,
+   "feasible": false
+  },
+  {
+   "n": 120,
+   "best_obj": 11.446912444444443,
+   "feasible": false
+  },
+  {
+   "n": 130,
+   "best_obj": 11.446912444444443,
+   "feasible": false
+  }
+ ],
+ "trace_every": 10,
+ "algo_diag": {
+  "sampler": "uniform[0,1]^d",
+  "rng": "numpy.default_rng",
+  "seed": 4,
+  "draws": 136
+ },
+ "harness": {
+  "inductor_q": 12,
+  "nf_gated": true,
+  "stab_guard": true,
+  "ngspice_calls_per_eval": 2,
+  "eval_entry": "size.make_objective(...)[0]",
+  "w_finger": 2e-06,
+  "era": "current",
+  "deps": {
+   "models": "/home/dpatni/circuit-repro/AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt",
+   "zoaf": "/home/dpatni/circuit-repro/misc/ZOAF",
+   "rebound": true
+  },
+  "notes": []
+ },
+ "reference_row": {
+  "ts": "2026-08-11T04:27:58+00:00",
+  "n_evals": 136,
+  "recipe": "candidate-v1",
+  "seed": 7,
+  "w_finger": 2e-06,
+  "feasible": false,
+  "best_obj": 7.921651344444444,
+  "metrics": {
+   "delta_f0": 0.1538693,
+   "delta_max": 0.1548153,
+   "idd_ma": 6.6538160000000005e-09,
+   "k_f0": 1.00183,
+   "k_min": 1.001828,
+   "mu_f0": 1.00091,
+   "mu_min": 1.000909,
+   "mu_src_f0": 1.000913,
+   "mu_src_min": 1.000912,
+   "nf_db": 10.95131,
+   "nf_method": "series_rs",
+   "s11_db": -5.721585,
+   "s11_max_db": -5.718022,
+   "s12_db": -6.146231,
+   "s21_db": -6.146231,
+   "s21_min_db": -6.147521,
+   "s21_ripple_db": 0.0025500000000002743,
+   "s22_db": -5.698859,
+   "stab_band": [
+    1565000000.0,
+    1586000000.0
+   ]
+  },
+  "margins": {
+   "idd_ma": {
+    "achieved": 6.6538160000000005e-09,
+    "margin": 0.9999999977820613,
+    "required_max": 3,
+    "required_min": null,
+    "scale": 3,
+    "supported": true
+   },
+   "iip3_dbm": {
+    "achieved": null,
+    "margin": null,
+    "required_max": null,
+    "required_min": -10,
+    "scale": 10,
+    "supported": false
+   },
+   "nf_db": {
+    "achieved": 10.95131,
+    "margin": -5.084061111111111,
+    "required_max": 1.8,
+    "required_min": null,
+    "scale": 1.8,
+    "supported": true
+   },
+   "s11_db": {
+    "achieved": -5.721585,
+    "margin": -0.4278415,
+    "required_max": -10,
+    "required_min": null,
+    "scale": 10,
+    "supported": true
+   },
+   "s21_db": {
+    "achieved": -6.146231,
+    "margin": -1.4097487333333334,
+    "required_max": null,
+    "required_min": 15,
+    "scale": 15,
+    "supported": true
+   }
+  },
+  "provenance": {
+   "index": 466,
+   "inductor_q": 12,
+   "note": "repeat",
+   "source_arm": "wpobserve-demo"
+  }
+ },
+ "published": null,
+ "op_state": {
+  "n_devices": 2,
+  "subsample": 1,
+  "kept_in_memory": 8,
+  "flushed_to_store": 0
+ },
+ "trajectory": {
+  "path": "data/_score_traj/random_gps-l1-t2-a_s4.jsonl",
+  "rows": 136
+ },
+ "wall_s": 49.6,
+ "s_per_eval": 0.3644,
+ "git_sha": "870ea4f",
+ "ts": "2026-08-14T15:26:40+00:00"
+}

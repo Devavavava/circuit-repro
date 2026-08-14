@@ -1,0 +1,477 @@
+{
+ "kind": "engineer_baseline",
+ "schema": "engineer-result-v0",
+ "run_id": "dhruva-l2-t2-a-s4-b266-2026-08-14T152549+0000",
+ "algo": "cmaes",
+ "arm_desc": "CMA-ES (Hansen purecmaes defaults, box by clipping) -- imported verbatim from lna/null_sizer.py",
+ "task": {
+  "id": "dhruva-l2-t2-a",
+  "spec": "dhruva-l2",
+  "wl_hash": "439032fd40e7e504",
+  "tier": 2,
+  "budget": 266,
+  "seed": 4,
+  "era": "current",
+  "n_devices": 18,
+  "ref": {
+   "ts": "2026-08-10T07:55:06+00:00",
+   "n_evals": 266,
+   "feasible": true,
+   "best_obj": null
+  },
+  "notes": "Same topology as dhruva-l1-t2-a at a different band -- the registry's one controlled pair for asking whether a method transfers across a spec move with the structure held fixed."
+ },
+ "seed": 4,
+ "n_params": 18,
+ "param_names": [
+  "pC1V",
+  "pC2V",
+  "pC3V",
+  "pC4V",
+  "pC5V",
+  "pC6V",
+  "pC7V",
+  "pC8V",
+  "pL1V",
+  "pL2V",
+  "pNM1W",
+  "pNM2W",
+  "pNM3W",
+  "pNM4W",
+  "pNM5W",
+  "pR1V",
+  "pR2V",
+  "pR3V"
+ ],
+ "budget_evals": 266,
+ "n_evals": 266,
+ "ngspice_calls": 532,
+ "n_sim_fail": 0,
+ "evals_to_best": 231,
+ "best_obj": 1.075986547085202,
+ "feasible": false,
+ "viol": {
+  "s21_db": 0.075987
+ },
+ "metrics": {
+  "s11_db": -23.975,
+  "s11_max_db": -10.6088,
+  "s21_db": 20.6055,
+  "s21_min_db": 12.3277,
+  "idd_ma": 11.17187,
+  "nf_db": 2.408225,
+  "s22_db": -12.0361,
+  "s12_db": -65.6346,
+  "k_f0": 83.2622,
+  "k_min": 20.6416,
+  "mu_f0": 3.912,
+  "mu_min": 1.09282,
+  "mu_src_f0": 14.268,
+  "mu_src_min": 3.36192,
+  "delta_f0": 0.0136241,
+  "delta_max": 0.272568,
+  "stab_band": [
+   1100000000.0,
+   2500000000.0
+  ],
+  "s21_ripple_db": 8.761099999999999,
+  "nf_method": "series_rs"
+ },
+ "margins": {
+  "s11_max_db": {
+   "achieved": -10.6088,
+   "required_min": null,
+   "required_max": -10,
+   "scale": 10,
+   "margin": 0.060880000000000045,
+   "supported": true
+  },
+  "s21_db": {
+   "achieved": 20.6055,
+   "required_min": 22.3,
+   "required_max": null,
+   "scale": 22.3,
+   "margin": -0.07598654708520186,
+   "supported": true
+  },
+  "idd_ma": {
+   "achieved": 11.17187,
+   "required_min": null,
+   "required_max": 13,
+   "scale": 13,
+   "margin": 0.1406253846153846,
+   "supported": true
+  },
+  "nf_db": {
+   "achieved": 2.408225,
+   "required_min": null,
+   "required_max": 2.5,
+   "scale": 2.5,
+   "margin": 0.03671000000000006,
+   "supported": true
+  },
+  "iip3_dbm": {
+   "achieved": null,
+   "required_min": -7.4,
+   "required_max": null,
+   "scale": 7.4,
+   "margin": null,
+   "supported": false
+  }
+ },
+ "best_x": [
+  1.0,
+  0.8710801139131794,
+  0.6391335127102215,
+  0.2505088448655241,
+  0.7727739067101536,
+  0.7558996527880883,
+  0.6056791675410931,
+  0.8324326078328225,
+  0.7999184521605048,
+  0.6163913818136393,
+  0.8555499078685989,
+  0.7741535552039517,
+  0.47635527746672246,
+  0.5998869374167448,
+  0.6889507552196549,
+  0.48831142902367974,
+  0.28588521051678933,
+  0.7515438547444354
+ ],
+ "best_params": {
+  "pNM1L": "45n",
+  "pNM2L": "45n",
+  "pNM3L": "45n",
+  "pNM4L": "45n",
+  "pNM5L": "45n",
+  "pVDD": "1.1",
+  "pVB": "0.5",
+  "pINDQ": "12",
+  "pINDW0": "1.25664e+10",
+  "pC1V": "1e-11",
+  "pC2V": "5.0507e-12",
+  "pC3V": "1.47787e-12",
+  "pC4V": "1.88538e-13",
+  "pC5V": "3.00017e-12",
+  "pC6V": "2.74358e-12",
+  "pC7V": "1.23782e-12",
+  "pC8V": "4.1155e-12",
+  "pL1V": "6.85739e-09",
+  "pL2V": "3.34466e-09",
+  "pNM1W": "9.30349e-05",
+  "pNM2W": "6.04436e-05",
+  "pNM3W": "1.24769e-05",
+  "pNM4W": "2.40081e-05",
+  "pNM5W": "3.84854e-05",
+  "pR1V": "932.364",
+  "pR2V": "277.243",
+  "pR3V": "4513.69"
+ },
+ "trace": [
+  {
+   "n": 10,
+   "best_obj": 9.555562132804416,
+   "feasible": false
+  },
+  {
+   "n": 20,
+   "best_obj": 5.84644605277682,
+   "feasible": false
+  },
+  {
+   "n": 30,
+   "best_obj": 5.267630034770611,
+   "feasible": false
+  },
+  {
+   "n": 40,
+   "best_obj": 3.481530072507761,
+   "feasible": false
+  },
+  {
+   "n": 50,
+   "best_obj": 3.481530072507761,
+   "feasible": false
+  },
+  {
+   "n": 60,
+   "best_obj": 2.2561892816143496,
+   "feasible": false
+  },
+  {
+   "n": 70,
+   "best_obj": 2.2561892816143496,
+   "feasible": false
+  },
+  {
+   "n": 80,
+   "best_obj": 2.2561892816143496,
+   "feasible": false
+  },
+  {
+   "n": 90,
+   "best_obj": 2.2561892816143496,
+   "feasible": false
+  },
+  {
+   "n": 100,
+   "best_obj": 2.2561892816143496,
+   "feasible": false
+  },
+  {
+   "n": 110,
+   "best_obj": 2.2561892816143496,
+   "feasible": false
+  },
+  {
+   "n": 120,
+   "best_obj": 2.2561892816143496,
+   "feasible": false
+  },
+  {
+   "n": 130,
+   "best_obj": 1.4498275436357366,
+   "feasible": false
+  },
+  {
+   "n": 140,
+   "best_obj": 1.4498275436357366,
+   "feasible": false
+  },
+  {
+   "n": 150,
+   "best_obj": 1.4498275436357366,
+   "feasible": false
+  },
+  {
+   "n": 160,
+   "best_obj": 1.4498275436357366,
+   "feasible": false
+  },
+  {
+   "n": 170,
+   "best_obj": 1.4498275436357366,
+   "feasible": false
+  },
+  {
+   "n": 180,
+   "best_obj": 1.4498275436357366,
+   "feasible": false
+  },
+  {
+   "n": 190,
+   "best_obj": 1.3136193999999999,
+   "feasible": false
+  },
+  {
+   "n": 200,
+   "best_obj": 1.3136193999999999,
+   "feasible": false
+  },
+  {
+   "n": 210,
+   "best_obj": 1.3136193999999999,
+   "feasible": false
+  },
+  {
+   "n": 220,
+   "best_obj": 1.3136193999999999,
+   "feasible": false
+  },
+  {
+   "n": 230,
+   "best_obj": 1.3007834277337014,
+   "feasible": false
+  },
+  {
+   "n": 240,
+   "best_obj": 1.075986547085202,
+   "feasible": false
+  },
+  {
+   "n": 250,
+   "best_obj": 1.075986547085202,
+   "feasible": false
+  },
+  {
+   "n": 260,
+   "best_obj": 1.075986547085202,
+   "feasible": false
+  }
+ ],
+ "trace_every": 10,
+ "algo_diag": {
+  "lam": 12,
+  "mu": 6,
+  "mueff": 3.7295,
+  "sigma0": 0.3,
+  "box": "clip",
+  "restarts": 0,
+  "gens": 22,
+  "sigma_final": 0.11888192858177915
+ },
+ "harness": {
+  "inductor_q": 12,
+  "nf_gated": true,
+  "stab_guard": true,
+  "ngspice_calls_per_eval": 2,
+  "eval_entry": "size.make_objective(...)[0]",
+  "w_finger": 2e-06,
+  "era": "current",
+  "deps": {
+   "models": "/home/dpatni/circuit-repro/AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt",
+   "zoaf": "/home/dpatni/circuit-repro/misc/ZOAF",
+   "rebound": true
+  },
+  "notes": []
+ },
+ "reference_row": {
+  "ts": "2026-08-10T07:55:06+00:00",
+  "n_evals": 266,
+  "recipe": "mf2-v1",
+  "seed": 0,
+  "w_finger": 2e-06,
+  "feasible": true,
+  "best_obj": null,
+  "metrics": {
+   "delta_f0": 0.01787813,
+   "delta_max": 0.2088218,
+   "idd_ma": 12.998880000000002,
+   "k_f0": 45.6002,
+   "k_min": 13.08751,
+   "mu_f0": 6.536325,
+   "mu_min": 1.606353,
+   "mu_src_f0": 4.968908,
+   "mu_src_min": 3.002417,
+   "nf_db": 1.708716,
+   "nf_method": "series_rs",
+   "s11_db": -14.45457,
+   "s11_max_db": -10.0307,
+   "s12_db": -66.49951,
+   "s21_db": 26.80598,
+   "s21_min_db": 23.83004,
+   "s21_ripple_db": 2.9762400000000007,
+   "s22_db": -17.05017,
+   "stab_band": [
+    1100000000.0,
+    2500000000.0
+   ]
+  },
+  "margins": {
+   "idd_ma": {
+    "achieved": 12.998880000000002,
+    "margin": 8.615384615372735e-05,
+    "required_max": 13,
+    "required_min": null,
+    "scale": 13,
+    "supported": true
+   },
+   "iip3_dbm": {
+    "achieved": null,
+    "margin": null,
+    "required_max": null,
+    "required_min": -7.4,
+    "scale": 7.4,
+    "supported": false
+   },
+   "nf_db": {
+    "achieved": 1.708716,
+    "margin": 0.31651360000000006,
+    "required_max": 2.5,
+    "required_min": null,
+    "scale": 2.5,
+    "supported": true
+   },
+   "s11_max_db": {
+    "achieved": -10.0307,
+    "margin": 0.0030699999999999504,
+    "required_max": -10,
+    "required_min": null,
+    "scale": 10,
+    "supported": true
+   },
+   "s21_db": {
+    "achieved": 26.80598,
+    "margin": 0.2020618834080718,
+    "required_max": null,
+    "required_min": 22.3,
+    "scale": 22.3,
+    "supported": true
+   }
+  },
+  "provenance": {
+   "floor": 0.0,
+   "fresh": false,
+   "inductor_q": 12,
+   "keep": "tier1",
+   "mode": "nf",
+   "noise_budget": {
+    "f_hz": 1227600000.0,
+    "mos_mech_frac": {
+     "1overf": 0.17679,
+     "id": 0.80331,
+     "igd": 0.00271,
+     "igs": 0.00203,
+     "rbdb": 4e-05,
+     "rg": 0.01507
+    },
+    "nf_db_shares": 1.7135732904350254,
+    "source_frac": 0.6739732674248315,
+    "sum_closure": 0.9999997430708528,
+    "top": [
+     {
+      "elem": "rr1",
+      "frac_excess": 0.33961,
+      "frac_out": 0.11072,
+      "kind": "res"
+     },
+     {
+      "elem": "rql1",
+      "frac_excess": 0.15601,
+      "frac_out": 0.05086,
+      "kind": "res"
+     },
+     {
+      "elem": "mnm5",
+      "frac_excess": 0.14079,
+      "frac_out": 0.0459,
+      "kind": "mos"
+     },
+     {
+      "elem": "mnm2",
+      "frac_excess": 0.10603,
+      "frac_out": 0.03457,
+      "kind": "mos"
+     },
+     {
+      "elem": "rr2",
+      "frac_excess": 0.10029,
+      "frac_out": 0.0327,
+      "kind": "res"
+     }
+    ]
+   },
+   "seed": 1,
+   "source_arm": "nf-campaign",
+   "store_recipe": "mf2-v1",
+   "store_spec": "dhruva-l5",
+   "store_wl_hash": "439032fd40e7e504"
+  }
+ },
+ "published": null,
+ "op_state": {
+  "n_devices": 5,
+  "subsample": 1,
+  "kept_in_memory": 8,
+  "flushed_to_store": 0
+ },
+ "trajectory": {
+  "path": "data/_score_traj/cmaes_dhruva-l2-t2-a_s4.jsonl",
+  "rows": 266
+ },
+ "wall_s": 51.8,
+ "s_per_eval": 0.1946,
+ "git_sha": "870ea4f",
+ "ts": "2026-08-14T15:26:43+00:00"
+}

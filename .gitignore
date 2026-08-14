@@ -48,6 +48,12 @@ lna/out/_*
 lna/out/*.pre_*.json
 lna/out/*_train_*.json
 
+# engineer line: per-cell throwaway trajectory files score_run.py writes before
+# appending them into the canonical (committed) engineer/data/trajectories.jsonl
+# in one serial pass. Same `_` throwaway convention: reproducible from the
+# committed runner + result JSONs; the durable record is the canonical table.
+engineer/data/_*
+
 # ─── Runtime deps junctioned into a worktree ──────────────────────────────
 # `misc/ZOAF`, `AnalogGenie` (Dataset .npy) and `AutoCkt/repo` (the 45 nm model
 # include) are untracked upstream clones that exist only in the main checkout,

@@ -1,0 +1,540 @@
+{
+ "kind": "engineer_baseline",
+ "schema": "engineer-result-v0",
+ "run_id": "dhruva-l1-t2-a-s4-b392-2026-08-14T152549+0000",
+ "algo": "cmaes",
+ "arm_desc": "CMA-ES (Hansen purecmaes defaults, box by clipping) -- imported verbatim from lna/null_sizer.py",
+ "task": {
+  "id": "dhruva-l1-t2-a",
+  "spec": "dhruva-l1",
+  "wl_hash": "439032fd40e7e504",
+  "tier": 2,
+  "budget": 392,
+  "seed": 4,
+  "era": "current",
+  "n_devices": 18,
+  "ref": {
+   "ts": "2026-08-10T10:45:44+00:00",
+   "n_evals": 392,
+   "feasible": true,
+   "best_obj": null
+  },
+  "notes": "The flagship case study's L1 band. 18 devices, the largest deck here."
+ },
+ "seed": 4,
+ "n_params": 18,
+ "param_names": [
+  "pC1V",
+  "pC2V",
+  "pC3V",
+  "pC4V",
+  "pC5V",
+  "pC6V",
+  "pC7V",
+  "pC8V",
+  "pL1V",
+  "pL2V",
+  "pNM1W",
+  "pNM2W",
+  "pNM3W",
+  "pNM4W",
+  "pNM5W",
+  "pR1V",
+  "pR2V",
+  "pR3V"
+ ],
+ "budget_evals": 392,
+ "n_evals": 392,
+ "ngspice_calls": 784,
+ "n_sim_fail": 0,
+ "evals_to_best": 375,
+ "best_obj": -0.2514894709154946,
+ "feasible": true,
+ "viol": {},
+ "metrics": {
+  "s11_db": -14.3891,
+  "s11_max_db": -11.6526,
+  "s21_db": 26.0175,
+  "s21_min_db": 19.7266,
+  "idd_ma": 11.40768,
+  "nf_db": 2.250151,
+  "s22_db": -10.3694,
+  "s12_db": -57.1077,
+  "k_f0": 15.7478,
+  "k_min": 9.49719,
+  "mu_f0": 3.05394,
+  "mu_min": 1.21664,
+  "mu_src_f0": 4.67495,
+  "mu_src_min": 3.64362,
+  "delta_f0": 0.0823399,
+  "delta_max": 0.227457,
+  "stab_band": [
+   1100000000.0,
+   2500000000.0
+  ],
+  "s21_ripple_db": 6.9315,
+  "nf_method": "series_rs"
+ },
+ "margins": {
+  "s11_max_db": {
+   "achieved": -11.6526,
+   "required_min": null,
+   "required_max": -10,
+   "scale": 10,
+   "margin": 0.16525999999999996,
+   "supported": true
+  },
+  "s21_db": {
+   "achieved": 26.0175,
+   "required_min": 25.4,
+   "required_max": null,
+   "scale": 25.4,
+   "margin": 0.024311023622047234,
+   "supported": true
+  },
+  "idd_ma": {
+   "achieved": 11.40768,
+   "required_min": null,
+   "required_max": 13,
+   "scale": 13,
+   "margin": 0.12248615384615391,
+   "supported": true
+  },
+  "nf_db": {
+   "achieved": 2.250151,
+   "required_min": null,
+   "required_max": 2.7,
+   "scale": 2.7,
+   "margin": 0.16661074074074086,
+   "supported": true
+  },
+  "iip3_dbm": {
+   "achieved": null,
+   "required_min": -7.6,
+   "required_max": null,
+   "scale": 7.6,
+   "margin": null,
+   "supported": false
+  }
+ },
+ "best_x": [
+  0.8769555549729119,
+  0.7442174172326455,
+  0.8864089572054713,
+  0.5299817487769259,
+  0.6725920071581493,
+  0.7124155132889317,
+  0.7758981740228824,
+  0.3466814202894557,
+  0.8503597471613648,
+  0.6716526377787289,
+  0.6474881035665484,
+  0.7582974720012932,
+  0.5448161372985625,
+  0.6347936180342633,
+  0.4823178059441302,
+  0.5239742602083713,
+  0.3757530616120282,
+  0.8626262845936837
+ ],
+ "best_params": {
+  "pNM1L": "45n",
+  "pNM2L": "45n",
+  "pNM3L": "45n",
+  "pNM4L": "45n",
+  "pNM5L": "45n",
+  "pVDD": "1.1",
+  "pVB": "0.5",
+  "pINDQ": "12",
+  "pINDW0": "1.25664e+10",
+  "pC1V": "5.2104e-12",
+  "pC2V": "2.57891e-12",
+  "pC3V": "5.47802e-12",
+  "pC4V": "8.28846e-13",
+  "pC5V": "1.76451e-12",
+  "pC6V": "2.17901e-12",
+  "pC7V": "3.05025e-12",
+  "pC8V": "3.1383e-13",
+  "pL1V": "8.35328e-09",
+  "pL2V": "4.15182e-09",
+  "pNM1W": "3.08951e-05",
+  "pNM2W": "5.55732e-05",
+  "pNM3W": "1.79324e-05",
+  "pNM4W": "2.88855e-05",
+  "pNM5W": "1.28774e-05",
+  "pR1V": "1154.47",
+  "pR2V": "475.009",
+  "pR3V": "8781.63"
+ },
+ "trace": [
+  {
+   "n": 10,
+   "best_obj": 8.604042289319603,
+   "feasible": false
+  },
+  {
+   "n": 20,
+   "best_obj": 8.604042289319603,
+   "feasible": false
+  },
+  {
+   "n": 30,
+   "best_obj": 5.002310090113736,
+   "feasible": false
+  },
+  {
+   "n": 40,
+   "best_obj": 3.8830864050743656,
+   "feasible": false
+  },
+  {
+   "n": 50,
+   "best_obj": 3.391220541265675,
+   "feasible": false
+  },
+  {
+   "n": 60,
+   "best_obj": 3.391220541265675,
+   "feasible": false
+  },
+  {
+   "n": 70,
+   "best_obj": 1.3318198897637794,
+   "feasible": false
+  },
+  {
+   "n": 80,
+   "best_obj": 1.3318198897637794,
+   "feasible": false
+  },
+  {
+   "n": 90,
+   "best_obj": 1.3318198897637794,
+   "feasible": false
+  },
+  {
+   "n": 100,
+   "best_obj": 1.3318198897637794,
+   "feasible": false
+  },
+  {
+   "n": 110,
+   "best_obj": 1.3318198897637794,
+   "feasible": false
+  },
+  {
+   "n": 120,
+   "best_obj": 1.3318198897637794,
+   "feasible": false
+  },
+  {
+   "n": 130,
+   "best_obj": 1.3318198897637794,
+   "feasible": false
+  },
+  {
+   "n": 140,
+   "best_obj": 1.3318198897637794,
+   "feasible": false
+  },
+  {
+   "n": 150,
+   "best_obj": 1.2509403353747448,
+   "feasible": false
+  },
+  {
+   "n": 160,
+   "best_obj": 1.2509403353747448,
+   "feasible": false
+  },
+  {
+   "n": 170,
+   "best_obj": 1.2509403353747448,
+   "feasible": false
+  },
+  {
+   "n": 180,
+   "best_obj": 1.2509403353747448,
+   "feasible": false
+  },
+  {
+   "n": 190,
+   "best_obj": 1.2509403353747448,
+   "feasible": false
+  },
+  {
+   "n": 200,
+   "best_obj": 1.2509403353747448,
+   "feasible": false
+  },
+  {
+   "n": 210,
+   "best_obj": 1.2509403353747448,
+   "feasible": false
+  },
+  {
+   "n": 220,
+   "best_obj": 1.2509403353747448,
+   "feasible": false
+  },
+  {
+   "n": 230,
+   "best_obj": 1.2509403353747448,
+   "feasible": false
+  },
+  {
+   "n": 240,
+   "best_obj": 1.2509403353747448,
+   "feasible": false
+  },
+  {
+   "n": 250,
+   "best_obj": -0.1987619458465128,
+   "feasible": true
+  },
+  {
+   "n": 260,
+   "best_obj": -0.1987619458465128,
+   "feasible": true
+  },
+  {
+   "n": 270,
+   "best_obj": -0.1987619458465128,
+   "feasible": true
+  },
+  {
+   "n": 280,
+   "best_obj": -0.1987619458465128,
+   "feasible": true
+  },
+  {
+   "n": 290,
+   "best_obj": -0.1987619458465128,
+   "feasible": true
+  },
+  {
+   "n": 300,
+   "best_obj": -0.1987619458465128,
+   "feasible": true
+  },
+  {
+   "n": 310,
+   "best_obj": -0.1987619458465128,
+   "feasible": true
+  },
+  {
+   "n": 320,
+   "best_obj": -0.1987619458465128,
+   "feasible": true
+  },
+  {
+   "n": 330,
+   "best_obj": -0.1987619458465128,
+   "feasible": true
+  },
+  {
+   "n": 340,
+   "best_obj": -0.1987619458465128,
+   "feasible": true
+  },
+  {
+   "n": 350,
+   "best_obj": -0.1987619458465128,
+   "feasible": true
+  },
+  {
+   "n": 360,
+   "best_obj": -0.1987619458465128,
+   "feasible": true
+  },
+  {
+   "n": 370,
+   "best_obj": -0.1987619458465128,
+   "feasible": true
+  },
+  {
+   "n": 380,
+   "best_obj": -0.2514894709154946,
+   "feasible": true
+  },
+  {
+   "n": 390,
+   "best_obj": -0.2514894709154946,
+   "feasible": true
+  }
+ ],
+ "trace_every": 10,
+ "algo_diag": {
+  "lam": 12,
+  "mu": 6,
+  "mueff": 3.7295,
+  "sigma0": 0.3,
+  "box": "clip",
+  "restarts": 0,
+  "gens": 32,
+  "sigma_final": 0.05911847752394121
+ },
+ "harness": {
+  "inductor_q": 12,
+  "nf_gated": true,
+  "stab_guard": true,
+  "ngspice_calls_per_eval": 2,
+  "eval_entry": "size.make_objective(...)[0]",
+  "w_finger": 2e-06,
+  "era": "current",
+  "deps": {
+   "models": "/home/dpatni/circuit-repro/AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt",
+   "zoaf": "/home/dpatni/circuit-repro/misc/ZOAF",
+   "rebound": true
+  },
+  "notes": []
+ },
+ "reference_row": {
+  "ts": "2026-08-10T10:45:44+00:00",
+  "n_evals": 392,
+  "recipe": "mf2-v1",
+  "seed": 0,
+  "w_finger": 2e-06,
+  "feasible": true,
+  "best_obj": null,
+  "metrics": {
+   "delta_f0": 0.08003552,
+   "delta_max": 0.2046542,
+   "idd_ma": 12.9994,
+   "k_f0": 26.94396,
+   "k_min": 13.11317,
+   "mu_f0": 2.771842,
+   "mu_min": 1.616224,
+   "mu_src_f0": 3.678092,
+   "mu_src_min": 2.970153,
+   "nf_db": 1.587063,
+   "nf_method": "series_rs",
+   "s11_db": -11.98435,
+   "s11_max_db": -10.01911,
+   "s12_db": -62.61694,
+   "s21_db": 26.32481,
+   "s21_min_db": 23.85555,
+   "s21_ripple_db": 2.7113300000000002,
+   "s22_db": -9.308373,
+   "stab_band": [
+    1100000000.0,
+    2500000000.0
+   ]
+  },
+  "margins": {
+   "idd_ma": {
+    "achieved": 12.9994,
+    "margin": 4.615384615387523e-05,
+    "required_max": 13,
+    "required_min": null,
+    "scale": 13,
+    "supported": true
+   },
+   "iip3_dbm": {
+    "achieved": null,
+    "margin": null,
+    "required_max": null,
+    "required_min": -7.6,
+    "scale": 7.6,
+    "supported": false
+   },
+   "nf_db": {
+    "achieved": 1.587063,
+    "margin": 0.41219888888888895,
+    "required_max": 2.7,
+    "required_min": null,
+    "scale": 2.7,
+    "supported": true
+   },
+   "s11_max_db": {
+    "achieved": -10.01911,
+    "margin": 0.0019109999999999516,
+    "required_max": -10,
+    "required_min": null,
+    "scale": 10,
+    "supported": true
+   },
+   "s21_db": {
+    "achieved": 26.32481,
+    "margin": 0.03640984251968507,
+    "required_max": null,
+    "required_min": 25.4,
+    "scale": 25.4,
+    "supported": true
+   }
+  },
+  "provenance": {
+   "floor": 0.0,
+   "fresh": false,
+   "inductor_q": 12,
+   "keep": "tier1",
+   "mode": "nf",
+   "noise_budget": {
+    "f_hz": 1575420000.0,
+    "mos_mech_frac": {
+     "1overf": 0.14551,
+     "id": 0.83427,
+     "igd": 0.00262,
+     "igs": 0.00193,
+     "rbdb": 6e-05,
+     "rg": 0.01554
+    },
+    "nf_db_shares": 1.5850032538588055,
+    "source_frac": 0.6942240815813334,
+    "sum_closure": 1.0000001880531577,
+    "top": [
+     {
+      "elem": "rr1",
+      "frac_excess": 0.35505,
+      "frac_out": 0.10857,
+      "kind": "res"
+     },
+     {
+      "elem": "mnm5",
+      "frac_excess": 0.15082,
+      "frac_out": 0.04612,
+      "kind": "mos"
+     },
+     {
+      "elem": "mnm2",
+      "frac_excess": 0.11447,
+      "frac_out": 0.035,
+      "kind": "mos"
+     },
+     {
+      "elem": "rr2",
+      "frac_excess": 0.11112,
+      "frac_out": 0.03398,
+      "kind": "res"
+     },
+     {
+      "elem": "rql1",
+      "frac_excess": 0.09305,
+      "frac_out": 0.02845,
+      "kind": "res"
+     }
+    ]
+   },
+   "seed": 1,
+   "source_arm": "nf-campaign",
+   "store_recipe": "mf2-v1",
+   "store_spec": "dhruva-l2",
+   "store_wl_hash": "439032fd40e7e504"
+  }
+ },
+ "published": null,
+ "op_state": {
+  "n_devices": 5,
+  "subsample": 1,
+  "kept_in_memory": 8,
+  "flushed_to_store": 0
+ },
+ "trajectory": {
+  "path": "data/_score_traj/cmaes_dhruva-l1-t2-a_s4.jsonl",
+  "rows": 392
+ },
+ "wall_s": 60.3,
+ "s_per_eval": 0.1538,
+ "git_sha": "870ea4f",
+ "ts": "2026-08-14T15:26:52+00:00"
+}

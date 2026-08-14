@@ -103,6 +103,55 @@ test runs the mutation, then falls back to a stored L2 row's tokens for the
 a dep-availability gap the shim does not cover (`_bind_runtime_deps` resolves
 `zoaf` and the model card, not AnalogGenie), not a bug in `env.py`.
 
+## E-2 — benchmark curation + scoring protocol (2026-08-14)
+
+The registry (`tasks.py`) is a table; a benchmark is a table **plus a protocol**.
+E-2 added the protocol and produced the first result table under it.
+
+**The protocol is pre-registered.** `engineer/PROTOCOL.md` was written and
+committed **alone, before any scoring run** — its commit is the timestamp that
+forecloses E-2's falsifier ("a result table where the protocol was decided after
+the numbers were seen"). It fixes, with rationale and in advance: the 7 scoring
+tasks (smoke excluded), the matched per-task budget, the two null arms (CMA-ES,
+random), **N=5 seeds** (matched to FINDINGS §43.2), the metrics (feasible-rate,
+best objective, evals-to-first-feasible censored at budget, convergence curves),
+feasibility = `spec.feasible` exactly, the aggregation rule (per-task tables +
+scale-free median-rank; no cross-task objective mean), the modeling-vs-simulation
+time split, the determinism/replay tolerance, the §43.2 consistency check, and
+what changes numbers (era/harness/pin → re-run all) vs the protocol (task
+set/budget/N/metrics/aggregation → forbidden without a user ruling). It does
+**not** freeze the benchmark — that is ruling R-5, the user's call.
+
+**Re-run it.**
+
+```
+python engineer/score_run.py                 # full 7 tasks x 2 arms x 5 seeds, parallel
+python engineer/score_run.py --seeds 1       # fast shakedown
+python engineer/score_run.py --cell wifi24-t2-a cmaes 1   # one cell
+python engineer/score_run.py --aggregate-only             # rebuild board from JSONs
+```
+
+`score_run.py` **imports** `baseline_run.run` (CMA-ES) and `random_run.run`
+(random) — the optimizers are not re-forked. Each `(task, arm, seed)` cell runs
+as its own subprocess writing its own trajectory file; after all cells finish the
+runner appends those into the canonical `data/trajectories.jsonl` in one serial
+pass, so the append-only law holds under parallelism. The full run is
+**33,460 evals / 66,920 ngspice calls**, ~90 s wall on a 70-way pool
+(~4,050 s of simulation, modeling = 2.7% of wall).
+
+**Scoreboard: `data/scoreboard_v0.json`** (+ the human printout the runner emits).
+It carries the pre-registration SHA, the per-task × arm aggregates, the
+median-rank summary, the cost split, and the §43.2 consistency check. Per-cell
+result JSONs land as `data/{baseline_cmaes,random}_<task>_s<seed>_b<budget>.json`.
+
+**First result (v0):** CMA-ES median-rank 1, random 2 across all 7 tasks. CMA-ES
+is feasible on 4/7 tasks (5/5 seeds on dhruva-l5 and dhruva-s, 4/5 on wifi24,
+1/5 on dhruva-l1); random is 0/5 on every task. The **§43.2 reproduction is
+clean**: the scored `wifi24-t2-a` row is CMA-ES 4/5 (best −0.785, median −0.619)
+/ random 0/5 (best +1.00, median +1.66) vs published CMA-ES 4/5 (best −0.790,
+median −0.649) / random 0/5 (best +1.00, median +1.66) — **consistent within seed
+noise**, i.e. no harness or store drift.
+
 ## Environment
 
 `python` 3.14 + numpy, `ngspice` on PATH, and the three gitignored upstream

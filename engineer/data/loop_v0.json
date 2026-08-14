@@ -1,0 +1,100 @@
+{
+ "kind": "engineer_loop_board",
+ "schema": "engineer-loop-board-v0",
+ "prereg": {
+  "file": "engineer/E4-LOOP.md",
+  "sha": "e7937f5186e6ef94700b15081b5ec68413cbf340"
+ },
+ "task": "dhruva-l2-t2-a",
+ "n_seeds": 10,
+ "warm": {
+  "n_seeds": 10,
+  "feasible": "0/10",
+  "n_feasible": 0,
+  "novel_feasible": "0/10",
+  "n_novel_feasible": 0,
+  "best_obj_median": 1.723199,
+  "best_obj_best": 1.632747,
+  "total_ngspice_calls": 5320,
+  "sim_s_total": 94.8534,
+  "s_per_ngspice_call": 0.01783,
+  "ngspice_calls_per_feasible": null,
+  "ngspice_calls_per_feasible_novel": null,
+  "spice_min_total": 1.5809,
+  "spice_min_per_feasible": null,
+  "spice_min_per_feasible_novel": null,
+  "n_escalated": 10,
+  "terminals": {
+   "escalation-non-converged": 3,
+   "no-improvement-stop": 7
+  },
+  "diagnoses": {
+   "label-noise": 27,
+   "nf-wall": 13
+  },
+  "evals_total": 2660
+ },
+ "cold": {
+  "n_seeds": 10,
+  "feasible": "0/10",
+  "n_feasible": 0,
+  "novel_feasible": "0/10",
+  "n_novel_feasible": 0,
+  "best_obj_median": 1.702476,
+  "best_obj_best": 1.632747,
+  "total_ngspice_calls": 5320,
+  "sim_s_total": 95.1616,
+  "s_per_ngspice_call": 0.017888,
+  "ngspice_calls_per_feasible": null,
+  "ngspice_calls_per_feasible_novel": null,
+  "spice_min_total": 1.586,
+  "spice_min_per_feasible": null,
+  "spice_min_per_feasible_novel": null,
+  "n_escalated": 10,
+  "terminals": {
+   "escalation-non-converged": 5,
+   "no-improvement-stop": 5
+  },
+  "diagnoses": {
+   "label-noise": 27,
+   "nf-wall": 12,
+   "s11-knife-edge": 1
+  },
+  "evals_total": 2660
+ },
+ "baseline_floor": {
+  "source": "data/scoreboard_v0.1.json",
+  "arm": "cmaes",
+  "feasible": "1/10",
+  "n_feasible": 1,
+  "n_seeds": 10,
+  "budget_evals": 266,
+  "total_ngspice_calls": 5320,
+  "ngspice_calls_per_feasible": 5320.0,
+  "ngspice_calls_per_feasible_novel": null,
+  "sim_s_total": 596.33,
+  "s_per_ngspice_call": 0.1120921052631579,
+  "spice_min_total": 9.9388,
+  "spice_min_per_feasible": 9.9388,
+  "spice_min_per_feasible_novel": null,
+  "novel_note": "the cmaes null only sizes the pinned topology: its feasible-novel count is 0 (E4-LOOP.md \u00a77.2 caveat)."
+ },
+ "acceptance": {
+  "question": "does the unattended loop produce a feasible (novel) design at fewer SPICE-min/feasible than the cmaes null floor, at matched budget, with no human per iteration?",
+  "falsifier_verdict": {
+   "decidable": true,
+   "metric": "ngspice_calls_per_feasible (machine-independent)",
+   "baseline_floor_calls_per_feasible": 5320.0,
+   "loop_calls_per_feasible": null,
+   "beats_floor": false,
+   "loop_calls_per_feasible_novel": null,
+   "produced_any_feasible_novel": false,
+   "loop_spice_min_per_feasible": null,
+   "baseline_spice_min_per_feasible": 9.9388,
+   "falsified": true,
+   "falsified_reason": "loop produced 0 feasible designs; the null produced 1 -- loop cost is infinite per feasible, strictly worse than the floor"
+  }
+ },
+ "harness_git_sha": "e7937f5",
+ "ts": "2026-08-14T16:26:06+00:00"
+}

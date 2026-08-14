@@ -59,10 +59,10 @@ import baseline_run                                          # noqa: E402
 import random_run                                            # noqa: E402
 
 # ---- protocol constants, READ from PROTOCOL.md, not chosen here (PROTOCOL 4) ---
-N_SEEDS = 5                       # PROTOCOL 4: matched to FINDINGS 43.2's 5/arm
+N_SEEDS = 10                      # PROTOCOL 4 §43.1 amendment: raised 5→10 (user ruling 2026-08-14)
 ARMS = ("cmaes", "random")       # PROTOCOL 3: the two nulls
 SCORE_TRAJ_DIR = os.path.join(EV.DATA_DIR, "_score_traj")
-SCOREBOARD = os.path.join(EV.DATA_DIR, "scoreboard_v0.json")
+SCOREBOARD = os.path.join(EV.DATA_DIR, "scoreboard_v0.1.json")  # §43.1 amendment artifact
 CANON_TRAJ = EV.TRAJ_TABLE
 
 # FINDINGS 43.2, quoted verbatim -- the reproduction target (PROTOCOL 8).
@@ -232,9 +232,10 @@ def aggregate(cells, protocol_sha):
     sim_total = round(sum(c["sim_s"] for c in cells), 2)
     model_total = round(sum(c["model_s"] for c in cells), 2)
     return {
-        "kind": "engineer_scoreboard", "schema": "engineer-scoreboard-v0",
+        "kind": "engineer_scoreboard", "schema": "engineer-scoreboard-v0.1",
         "protocol": {"file": "engineer/PROTOCOL.md",
                      "preregistration_sha": protocol_sha,
+                     "amendment": "§43.1 user ruling 2026-08-14: N 5→10",
                      "n_seeds": N_SEEDS, "arms": list(ARMS),
                      "tasks": sorted({c["task"] for c in cells})},
         "per_task": per_task,
@@ -274,7 +275,7 @@ def _append_to_canon(cells):
 # ------------------------------------------------------------- printout
 def _print_board(board):
     print("\n" + "=" * 78)
-    print("SCOREBOARD v0  (protocol pre-registered @ "
+    print("SCOREBOARD v0.1  (§43.1 amendment N=10; pre-registered @ "
           f"{board['protocol']['preregistration_sha'][:12]})")
     print("=" * 78)
     hdr = (f"{'task':<20}{'arm':<8}{'feas':>6}{'obj median':>12}"

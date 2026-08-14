@@ -38,14 +38,28 @@ a store-writing driver. The engineer line's own append-only table is
 `TrajectoryLogger` here. Cross-line data combination is `lna/sync_lines.py`'s job
 and only its job.
 
-OP SUBSAMPLE: 1-in-1, IN MEMORY, NEVER FLUSHED
-----------------------------------------------
+OP SUBSAMPLE: 1-in-1, IN MEMORY, NEVER FLUSHED  (charter R-3, ADOPTED 2026-08-14)
+---------------------------------------------------------------------------------
 `size._op_subsample()` defaults to 1-in-8 because an op row is ~5x a point row
 and the lna store pays for every one it keeps. This environment's `observe()` is
 the S5 "semantics-in-state" surface -- an agent that must diagnose *this* step
 cannot be handed a 1-in-8 sample of it -- so the default here is 1-in-1 with a
 bounded ring buffer (`keep_op`, default 8 captures) and no flush path at all. The
 volume argument that justifies 1-in-8 is a *storage* argument; nothing is stored.
+The user adopted R-3 on 2026-08-14; E-1's tests found no bug in the ring buffer,
+so it stays the default unchanged.
+
+LOUD DEP-SHIM  (charter R-1, ADOPTED 2026-08-14)
+------------------------------------------------
+R-1 was ruled "keep the shim, make it loud": if the model card / required deps do
+not resolve to existing paths, `_bind_runtime_deps()` raises a clear exception
+(naming every searched location and the `LNA_DEPS_ROOT` override) at import --
+before any Env is built or any eval is run -- rather than letting ngspice run with
+no models and return None on every eval (the fictional-clean-campaign failure).
+The resolved paths ride into every result's `harness.deps` block (the stamp). The
+shared-core `extract.rewrite_includes` now also self-resolves the model card at
+deck-build time, so the two resolvers agree; env's raise is what still makes a
+genuinely missing card impossible to miss instead of silently penalising.
 
 DETERMINISM
 -----------
@@ -198,6 +212,28 @@ class BudgetExhausted(Exception):
     budget it was matched to is not the budget it spent."""
 
 
+class NotSizable(ValueError):
+    """A topology the sizer cannot turn into an evaluable deck (E-1 deliverable 3).
+
+    THE CONTRACT, chosen and stated here so a driver can hold it: `evaluate()` on
+    a foreign topology raises `NotSizable` (a `ValueError` subclass, so existing
+    `except ValueError` callers still catch it) the moment `size.prepared_body`
+    declines the topology -- i.e. `bias.insert_bias` reports a floating subcircuit
+    or the biased netlist is not two-port. This is a RAISE, not a structured
+    infeasible result, on purpose: an infeasible result is a *measurement* ("this
+    deck ran and missed a spec"), and a non-sizable topology was never a deck --
+    counting it as one eval and returning a penalty objective would tell a search
+    it explored a point it could not have. `.wl_digest` carries the token digest
+    of the offending topology so the caller can log which one it was. Raised at
+    `_arena_for` time (the first `evaluate` of that topology), before any ngspice
+    call and before the budget is charged -- a topology the sizer refuses costs no
+    evals."""
+
+    def __init__(self, message, wl_digest=None):
+        super().__init__(message)
+        self.wl_digest = wl_digest
+
+
 class Task(object):
     """One benchmark task: a spec, a stored topology, a tier, a budget, a seed.
 
@@ -249,20 +285,30 @@ def _pinned_row(task):
     """The stored L2 row `task.ref_ts` names, or a loud failure.
 
     Loud rather than fall-back-to-latest: a task whose pinned row is gone is not
-    the same task, and quietly re-pinning it would move a published budget."""
-    rows = [r for r in ds.load("topo_labels")
-            if r.get("spec") == task.spec and r.get("wl_hash") == task.wl_hash
-            and (r.get("graph") or {}).get("tokens") and r.get("n_evals")]
-    if not rows:
+    the same task, and quietly re-pinning it would move a published budget.
+
+    When `task.ref_ts` is given the lookup is by exact timestamp in ALL stored
+    rows for this (wl_hash, spec) that carry a token graph -- the n_evals filter
+    is NOT applied for explicit pins because era-relabeled rows carry n_evals=0
+    by construction (a re-label is one measurement of one stored point, not a
+    new campaign), and a pin to such a row is fully intentional."""
+    all_rows = [r for r in ds.load("topo_labels")
+                if r.get("spec") == task.spec and r.get("wl_hash") == task.wl_hash
+                and (r.get("graph") or {}).get("tokens")]
+    rows = [r for r in all_rows if r.get("n_evals")]   # campaign rows only
+    if not rows and not all_rows:
         raise RuntimeError(f"{task.id}: no stored L2 row with tokens for "
                            f"({task.wl_hash}, {task.spec})")
     if task.ref_ts is None:
+        if not rows:
+            raise RuntimeError(f"{task.id}: no stored L2 row with n_evals for "
+                               f"({task.wl_hash}, {task.spec})")
         return rows[-1]
-    hit = [r for r in rows if r.get("ts") == task.ref_ts]
+    hit = [r for r in all_rows if r.get("ts") == task.ref_ts]
     if not hit:
         raise RuntimeError(
             f"{task.id}: pinned reference row ts={task.ref_ts} is not in the "
-            f"store ({len(rows)} rows for this (wl_hash, spec)); the task's "
+            f"store ({len(all_rows)} rows for this (wl_hash, spec)); the task's "
             "budget and reference numbers cannot be reproduced")
     return hit[-1]
 
@@ -329,6 +375,11 @@ class _Arena(object):
     def __init__(self, topo, spec, body, sizable, fixed, op_sink=None):
         self.topo, self.spec, self.body = topo, spec, body
         self.points = []                        # (x, metrics) per eval, free hook
+        # `sizable` is {param_name: kind}; keep it so `encode` can invert the
+        # per-kind decode without a second, externally-supplied `_kinds` dict that
+        # a caller could forget to set (the latent bug E-1 found: `encode` on a
+        # freshly built arena would raise AttributeError before `_kinds` existed).
+        self._kinds = dict(sizable)
         self.objective_func, self.names, self.decode, self._evaluate = \
             S.make_objective(body, spec, sizable, fixed, points=self.points,
                              op_sink=op_sink)
@@ -378,7 +429,6 @@ class Env(object):
         self.op_sink = _MemoryOpSink(subsample=op_subsample, keep=keep_op)
         self.arena = _Arena(built["topo"], built["spec"], built["body"],
                             built["sizable"], built["fixed"], op_sink=self.op_sink)
-        self.arena._kinds = dict(built["sizable"])
         # Keyed by the stored wl_hash for the pinned topology, by a token digest
         # for anything an editor hands over later (`Topology` carries no hash).
         self._arenas = {self.task.wl_hash: self.arena,
@@ -549,10 +599,16 @@ class Env(object):
             return self._arenas[key]
         prep = S.prepared_body(topo, inductor_q=(self.inductor_q or None))
         if prep is None:
-            raise ValueError("bias insertion skipped this topology -- not sizable")
+            # E-1 deliverable 3: the sizer declined this topology (a floating
+            # subcircuit, or the biased netlist is not two-port). Raise the
+            # documented contract BEFORE the budget is charged -- see `NotSizable`.
+            raise NotSizable(
+                "size.prepared_body declined this topology (bias insertion "
+                "skipped it -- floating subcircuit, or not two-port): it cannot "
+                f"be turned into an evaluable deck [wl_digest={key}]",
+                wl_digest=key)
         body, sizable, fixed = prep
         a = _Arena(topo, self.spec, body, sizable, fixed, op_sink=self.op_sink)
-        a._kinds = dict(sizable)
         self._arenas[key] = a
         return a
 

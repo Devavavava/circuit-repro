@@ -269,6 +269,90 @@ all 7 tasks (K=1 reduces `pb-cmaes` to `run_cmaes` exactly). **Hermeticity:**
 `lna/playbook` clean before/after, all 70 cold cells saw an empty store. Full
 write-up + the E-4 hand-off in `engineer/E3-MEMORY.md §6`.
 
+## E-4 — unattended-loop pilot (2026-08-14)
+
+Proposal N5 / charter §6 E-4: **one bounded, pre-registered task run
+propose→simulate→diagnose→intervene unattended — no human per iteration.** The
+loop is a **scripted policy, not an LLM**: diagnosis is a named,
+controlled-vocabulary reading of the margin vector; intervention is a
+pre-registered mapping from diagnosis to action. It adopts the three §2 process
+invariants on day one, honored **structurally**.
+
+**Pre-registered.** `engineer/E4-LOOP.md` was written and committed **ALONE,
+before any measurement eval** (SHA `e7937f5`): the task and why, the loop
+structure, the diagnosis vocabulary and the (diagnosis → intervention) rule table,
+the numeric tripwires, the `wl_hash` novelty criterion, the baseline computation,
+N=10, and the acceptance question + falsifier.
+
+**Task — `dhruva-l2-t2-a`** (null 1/10 feasible): a hard-but-solvable task whose
+near-misses are diagnosable (`s11-knife-edge` on 6 of 9 infeasible null seeds), the
+regime where diagnose+intervene can show value over blind restarts and where it is
+*falsifiable*.
+
+**The loop (`loop_run.py`) — three invariants, code-separated:**
+- **`Proposer`** runs one CMA-ES *stage* (a bounded eval slice) from a start-mean
+  and box; mutates the design point, never scores it. `run_cmaes` is imported
+  verbatim from `lna/null_sizer.py`.
+- **`Verifier`** reads `env.observe()`'s full margin/op vector every stage
+  (invariant 1) and gates + diagnoses — with **no mutation authority** (invariant
+  2, enforced by construction: it holds a read-only observe dict and nothing it
+  could edit). Every signature it emits is a `datastore.DIAGNOSIS_VOCAB` token.
+- **`Intervener`** is the **only** mutator (invariant 2): maps a `Diagnosis` to the
+  next stage's action per the frozen table — re-seed the CMA-ES mean from the
+  near-feasible incumbent + tighten the box (D1), re-seed from the incumbent (D2),
+  fresh restart (D3), or — after **3** non-converged sizing stages (invariant 3) —
+  **escalate**: fire a `moves.py` topology move + `realize` + re-size a new
+  topology, then STOP if that too fails. Never silently polishes a fourth time.
+- **Memory as STRUCTURE, not budget** (E-3 §6.4): only the escalation branch
+  consults the playbook, and only to bias *which move class fires first* (a
+  diagnosis-steered move prior). It runs **paired warm/cold** via the E-3 sidecar
+  so every warm loop is born with its cold twin. Compute-matched to the null's 266
+  evals; the env's `BudgetExhausted` caps it to the digit.
+
+```
+python engineer/loop_run.py                 # N=10 seeds, both memory sides
+python engineer/loop_run.py --seed 1        # one seed, verbose stage trace
+python engineer/loop_run.py --aggregate-only
+```
+
+### Result — `data/loop_v0.json` (prereg SHA `e7937f5`, N=10) — MEASURED NEGATIVE
+
+20 unattended loops (10 seeds × warm+cold), each spending exactly 266 evals /
+5,320 ngspice calls per side — compute-matched to the `cmaes` null to the digit.
+
+| side | feasible | novel-feasible | ngspice calls | calls / feasible |
+|---|---:|---:|---:|---:|
+| **loop (warm)** | **0/10** | **0/10** | 5,320 | **∞ (0 feasible)** |
+| loop (cold) | 0/10 | 0/10 | 5,320 | ∞ (0 feasible) |
+| `cmaes` null (baseline floor) | 1/10 | 0/10 | 5,320 | 5,320.0 |
+
+**Falsifier verdict — FALSIFIED (charter §6 E-4, §8).** Part (a) human-per-iteration:
+**not triggered** — all 20 loops ran to a recorded verdict fully unattended, every
+queued ruling stayed queued. Part (b) SPICE cost: **triggered** — the loop produced
+**0 feasible designs** where the blind null produced 1, at the same 5,320 calls, so
+it costs *more* SPICE per feasible design (infinite vs finite). Reported whichever
+way it falls (charter §4/§8): *a measured negative, published, not buried.*
+
+**Mechanism — E-3's lesson recurred.** The diagnose→intervene machinery worked
+(diagnoses fired, escalation produced real novel topologies, memory steered the
+warm move choice differently from cold — hermetically). The negative is
+**structural**: compute-matching to 266 evals forced ≤ 4 stages of ≤ 66 evals, and
+each starved CMA-ES stage is far weaker than the null's single 266-eval run (loop
+best obj median 1.72 vs null ~1.16 near-feasible). The near-feasible
+`s11-knife-edge` region the task hinges on is only reachable by a search with
+enough evals to descend into it — no single stage has them, so rule D1 rarely
+fires. **On a task the null nearly solves in one full-budget run, a staged loop
+that fractures that budget cannot win** — the same budget-splitting cost E-3
+measured, biting the loop's own staging.
+
+**What worked:** unattended on all 10 seeds, deterministic (re-runs reproduce
+`best_obj` bit-for-bit), the three invariants held structurally, escalation
+produced novel topologies (`wl_hash` ≠ pinned) every seed, and the paired
+warm/cold memory read discriminated cleanly while `lna/playbook` stayed untouched
+(clean before/after, every cold cell saw an empty store). Canonical
+`trajectories.jsonl` left untouched (E-3 precedent); per-seed trajectory files are
+gitignored throwaway. Full write-up + the E-5 hand-off in `engineer/E4-LOOP.md §10`.
+
 ## Environment
 
 `python` 3.14 + numpy, `ngspice` on PATH, and the three gitignored upstream

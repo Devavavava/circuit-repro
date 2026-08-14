@@ -338,3 +338,149 @@ stated here so it is not a silent one.
 
 <!-- POST-HOC OUTCOME SECTION APPENDED BELOW AFTER THE RUN — NOT PART OF THE
      PRE-REGISTRATION. The text above this line is what was committed first. -->
+
+## 10. Outcome (post-hoc — appended after the run)
+
+**Run:** 10 seeds × (warm + cold) = 20 unattended loops on `dhruva-l2-t2-a`, each
+spending exactly the 266-eval matched budget (5,320 ngspice calls per side across
+10 seeds — compute-matched to the `cmaes` null to the digit). Artifact:
+`engineer/data/loop_v0.json`. Pre-registration SHA (first commit adding
+`E4-LOOP.md`, committed ALONE before any measurement): **`e7937f5`**. Loop code +
+result committed at **`1020c4d`**.
+
+### 10.1 The headline (whichever way it falls — charter §4/§8)
+
+| side | feasible | novel-feasible | ngspice calls | calls / feasible | verdict |
+|---|---:|---:|---:|---:|:---|
+| **loop (warm)** | **0/10** | **0/10** | 5,320 | **∞ (0 feasible)** | **falsified** |
+| **loop (cold)** | 0/10 | 0/10 | 5,320 | ∞ (0 feasible) | falsified |
+| `cmaes` null (baseline floor) | 1/10 | 0/10 | 5,320 | 5,320.0 | — |
+
+**SPICE-minutes per feasible novel design: undefined for the loop — it produced
+ZERO feasible designs (novel or not).** Against the baseline floor (the `cmaes`
+null's 5,320 ngspice calls per feasible, = 9.94 SPICE-min per feasible at the
+null's recorded s/call), the loop is **strictly worse**: infinite cost per
+feasible vs the null's finite one.
+
+### 10.2 The falsifier verdict — FALSIFIED
+
+The charter's E-4 falsifier is *"the loop needs a human per iteration anyway, or
+costs more SPICE-minutes than the assisted mode."*
+
+- **Part (a) — human-per-iteration: NOT triggered.** All 20 loops ran to a
+  recorded verdict fully unattended, no human decision inside any iteration; every
+  queued ruling (§8) stayed queued and none blocked an iteration. The loop is a
+  genuine unattended propose→simulate→diagnose→intervene policy.
+- **Part (b) — SPICE cost: TRIGGERED (falsified).** The loop cost **more** SPICE
+  per feasible design than the baseline floor: it produced 0 feasible in 5,320
+  calls where the blind null produced 1. E4-LOOP.md §7.5(b) is met.
+
+Per the pre-registered consequence (charter §8, quoted in §7.5): **this is a
+measured negative, reported.** *"If the unattended loop costs more SPICE-minutes
+per feasible design than the assisted mode it replaces … the honest move is to say
+so and stop."* Said.
+
+### 10.3 The mechanism — E-3's lesson recurred
+
+The loop's diagnose→intervene machinery worked exactly as designed (§10.4), so the
+negative is not a plumbing failure — it is a **structural cost of the loop's own
+staging**. Compute-matching to 266 evals forced the budget to split across ≤ 4
+stages (3 sizing + 1 escalation) of ≤ 66 evals each. **Each 66-eval CMA-ES stage
+is far weaker than the null's single 266-eval run**: the loop's best objective
+lands at median **1.72** (best 1.63), where the null reaches **~1.16** near the
+feasible boundary. The near-feasible `s11-knife-edge` region the whole task hinges
+on (§1) is only reachable by a search that gets enough evals to descend into it —
+and no single starved stage does. So rule **D1** (the interesting reseed-from-the-
+knife-edge intervention) almost never fires: the sizing stages diagnose
+`label-noise` (obj far from feasible, 27 of 40 stage-diagnoses) or `nf-wall`, never
+`s11-knife-edge` (which needs a near-feasible incumbent to read).
+
+This is **E-3 §6.4's finding recurring in a new guise.** E-3 measured that
+consuming memory as *budget-splitting* (K short starts) hurt; E-4 shows the same
+mechanism bites the *loop's own stage structure* even when memory is consumed
+correctly as structure. The honest reading: **on a task the null already nearly
+solves in one full-budget run, a staged loop that fractures that budget cannot
+win — the value of diagnosis+intervention has to exceed the compute it costs to
+stage, and here it does not.**
+
+### 10.4 What DID work (the machinery is sound; the staging is the cost)
+
+- **Unattended, all 10 seeds, deterministic.** Re-running any seed reproduces
+  `best_obj` bit-for-bit (seed 1: `1.7231992` on both re-runs) — the env draws no
+  RNG, `(seed, stage sequence)` fully determines the evals (PROTOCOL §7).
+- **The three invariants held structurally.** The `Verifier` read `env.observe()`'s
+  full margin/op vector every stage (invariant 1) and gated with **no mutation
+  authority** (invariant 2 — it is handed a read-only observe dict and holds no
+  reference through which it could edit); the `Intervener` was the sole mutator;
+  escalation fired after exactly 3 non-converged sizing stages (invariant 3),
+  switching to a `moves.py` topology move rather than polishing a fourth time.
+- **Escalation produced real novel topologies.** Every seed escalated; each fired
+  a `moves.py` move + `realize` + re-size on a topology whose `wl_hash` differs
+  from the pinned `439032fd40e7e504` (e.g. seed 1 warm → `86834909…`). None
+  reached feasibility within its one escalation stage's budget, so none counted as
+  a *feasible* novel design — but the escalation branch is proven end-to-end.
+- **Memory-as-structure discriminated warm from cold, hermetically.** On seed 1,
+  **warm** consulted the real 40-entry store and fired `input_class_swap` (the
+  move the store's `gate-driven-input-is-quiet-only-when-unmatched` entry literally
+  names for the nf/match wall) → topology `86834909…`; **cold** saw the hermetic
+  empty store (0 entries, no qualifying hit) → default move weights →
+  `feedback_add` → topology `87d42607…`. Memory changed the action distribution,
+  not the budget (E-3 §6.4). `lna/playbook` was never mutated (clean before/after);
+  every cold consult saw `store_fingerprint.n_entries == 0`. Warm and cold both
+  landed 0/10 feasible — memory helped no more than its cold twin *here*, but the
+  paired primitive discriminated them cleanly and the cold control is exact.
+
+### 10.5 Novelty accounting (E4-LOOP.md §6, scored honestly)
+
+- **Feasible designs:** 0 (loop), so **0 novel-feasible** by definition.
+- **Novel topologies explored:** ≥ 1 per seed (every escalation produced a
+  distinct `wl_hash` ≠ the pinned one), 20 escalations total across warm+cold —
+  but **none feasible**, so none counts under the strict criterion.
+- **Both-ways read:** the loop's *feasible* count and *feasible-novel* count are
+  both **0**; the null's are **1** and **0**. The loop loses on feasible, ties the
+  null at 0 on feasible-novel (neither produces a feasible novel design), and
+  costs the same 5,320 calls to do it. No definitional escape — the loop simply
+  did not produce a feasible design of either kind.
+
+### 10.6 Tripwire log
+
+No tripwire fired unexpectedly; the terminals are the pre-registered stops:
+- `no-improvement-stop` (K_NOIMP=2): **7 warm / 5 cold** seeds — sizing+escalation
+  stalled, the loop stopped rather than polishing (§5).
+- `escalation-non-converged`: **3 warm / 5 cold** — the one escalation stage ran
+  and did not converge, then STOPed (§4 STOP row).
+- No `NotSizable`, no `wall-clock-cap`, no `budget-cap` overrun, no sim-fail-rate
+  trip. Every loop spent exactly 266 evals / 5,320 ngspice calls (the env's
+  `BudgetExhausted` enforced the cap to the digit). **Nothing was ever widened.**
+
+### 10.7 Queued rulings (still queued, none guessed — §8)
+
+Q-1 (is the null floor an acceptable stand-in for the assisted baseline), Q-2 (may
+a feasible novel topology enter the store / re-open pins), Q-3 (escalation target
+when topology also fails) **remain queued for the user.** The loop resolved none
+of them inside an iteration; the negative result does not force any of them (a
+loop that *had* produced a feasible novel design would have made Q-2 live). See
+the report's ruling queue.
+
+### 10.8 What E-5 / packaging should know
+
+- **E-4's deliverable — an unattended loop that runs propose→simulate→diagnose→
+  intervene with no human per iteration, honoring the three invariants — EXISTS
+  and is proven** (`loop_run.py`, 20 unattended deterministic runs). Its *headline
+  metric came out negative on this task*: it did not beat the compute-matched null.
+- **The negative is informative and consistent** with E-3: a staged loop that
+  fractures a matched budget cannot beat a single full-budget search on a task the
+  null nearly solves. The lever that would flip it is NOT more staging — it is
+  either (i) a task where one full-budget search genuinely *cannot* reach
+  feasibility but a diagnosed topology move can (a `gain-wall`/`matching-wall`
+  task the frontier calls structural — but those are the 0/10 tasks E4-LOOP.md §1
+  excluded because the *sizing* story is empty), or (ii) an escalation stage
+  budgeted richly enough that the moved topology gets a real sizing run, which
+  means NOT compute-matching the loop to the null's total — a protocol change
+  reserved to the user (PROTOCOL §9 / R-5).
+- **The honest framing for packaging:** the environment, benchmark, cold/warm
+  harness (E-1/E-2/E-3) and now the unattended loop (E-4) all exist and are
+  measured; the loop's headline is a *measured negative on the pilot task*, which
+  is a result, not a gap. Charter §8's failure mode ("scaffolding faster than
+  measured results") is explicitly NOT what happened — every E-item shipped a
+  measurement, and E-4's is a clean falsification reported whichever way it fell.

@@ -2159,6 +2159,62 @@ data; (7) grammar-only and untuned-frontier-LLM null hypotheses beat bespoke
 learned systems on at least one task in this survey — consonant with this
 program's own stage-27 finding that `grammar_gen.py` beats P5-v7 on NDL@256.
 
+## 39. The proposal — the survey answered back, and the ten-point sketch turns out to be a mirror
+
+**Decision** (executor, same session as stage 38; nothing adopted — every
+adoption is queued for user ruling): answer the user's post-survey questions
+(AnalogGym? DynaOpt? domain-knowledge DRL? how to do S6? what from S2?),
+inspect their two new sources with one agent each, audit their ten-point
+"autonomous analog engineer" sketch against what this program already runs,
+and put a concrete next-phase proposal plus its radical alternatives on paper:
+`plans2/15-ENGINEER-PROPOSAL.md`, decision queue in its §7.
+
+**Result.** (1) The two sources are convergent evolution on this program's own
+architecture: `Arcadia-1/analog-agents` is a one-author Claude Code skill
+library running librarian/architect/designer/verifier subagents over
+Virtuoso/Spectre — process without a single published result — whose liftable
+value is schemas (a typed-edge wiki with unverified→verified confidence
+escalation, a post-sim hook that injects the margin table into agent context,
+checklist YAML, "three failed design-verify loops ⇒ the problem is topology,
+not tuning ⇒ escalate" — the D5 story, stated as a rule). arXiv:2603.23910
+("AnalogAgent", NTU/A*STAR) is a three-agent PySpice/ngspice loop with a
+Self-Evolving Memory that hits Pass@1 92–97 on 30 textbook circuits; its
+durable contributions are the memory entry schema (Trigger → Evidence →
+Rule/Patch → Applicability, admission-controlled, failure-first) and a
+*measured* context-attrition finding — iterative refinement decays "singular
+matrix: check nodes vin and vin" into "sim failed" — plus a caution: its
+memory largely learned harness trivia, and its self-improvement numbers mix
+warm and cold memory. (2) The ten-point audit found eight of ten points
+already exist here in v0 form (store, replay fences, tier ladder, surrogate
+pre-gate, diagnosis heads, loop cadence with numeric tripwires); the genuine
+gaps are machine-queryable memory, diagnosis steering search, formal
+acquisition, and an unattended mode. (3) Proposed ladder N1–N5: WP-LIN run as
+the pilot of the upgraded loop (IIP3-head surrogate on the fidelity ladder,
+swing-directed moves, sensitivity sweep inside acceptance); the post-cutover
+data-engine refresh (the 66,664-row store predates three harness cutovers);
+sizer nulls (CMA-ES/TuRBO + AnalogGym external calibration — the sizer has no
+`grammar_gen` equivalent); memory distillation v0 on the found schemas;
+unattended-loop v0 on one bounded task. Radical options logged with verdicts:
+re-aim the program so the engineer/benchmark is the product and dhruva the
+case study (R1 — genuine fork, user's call); spec-frontier self-play (defer,
+then adopt); topology foundation model and RL formalization (reject on the
+survey's and this program's own evidence); burst cloud CPU (adopt — the
+machine is 8 cores/16 GB and the headline metric is SPICE-minutes, so cores
+convert to the metric near-linearly; the GPU is already sufficient for every
+model class in use).
+
+**Understanding.** The ten-point sketch is not a new architecture to build
+beside this program — it is a description of what stages 1–38 already
+converged on, with the autonomy dial at "assisted". That two independent
+groups converged on the same shape in the same year says the direction is
+right and the differentiator is not the loop, it is what this program has and
+they don't: a golden-validated RF harness, frozen protocols with null
+hypotheses, and 38 stages of verified decision-trajectory. The next phase is
+therefore an increment — make the memory machine-usable, let diagnosis steer
+the editor, run one bounded loop unattended — measured by the same headline
+curve as everything else, with cold-start controls so the memory's value is a
+number, not a vibe.
+
 ## Current frontier
 
 As of this document's writing (`lna-data`, commit `5be4de3` and whatever

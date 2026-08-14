@@ -1,7 +1,7 @@
 * Auto-generated from an AnalogGenie topology by lna/to_spice.py
 * Device values are placeholders exposed as .param for a sizing loop.
 
-.include C:/Users/Devavrat/circuit-repro/.claude/worktrees/lna-data/AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt
+.include /home/dpatni/circuit-repro/AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt
 
 
 Vsup VDD 0 dc {pVDD}

@@ -1,7 +1,7 @@
 {
  "kind": "engineer_baseline",
  "schema": "engineer-result-v0",
- "run_id": "wifi24-smoke-s1-b150-2026-08-14T131217+0000",
+ "run_id": "wifi24-smoke-s1-b150-2026-08-14T143716+0000",
  "algo": "cmaes",
  "arm_desc": "CMA-ES (Hansen purecmaes defaults, box by clipping) -- imported verbatim from lna/null_sizer.py",
  "task": {
@@ -40,66 +40,67 @@
  "ngspice_calls": 300,
  "n_sim_fail": 0,
  "evals_to_best": 147,
- "best_obj": 1.2500737,
+ "best_obj": 1.2565716666666666,
  "feasible": false,
  "viol": {
-  "s11_db": 0.250074
+  "s11_db": 0.118755,
+  "s21_db": 0.137817
  },
  "metrics": {
-  "s11_db": -7.499263,
-  "s11_max_db": -6.952183,
-  "s21_db": 14.38136,
-  "s21_min_db": 14.37358,
-  "idd_ma": 4.2187600000000005,
-  "nf_db": 1.071509,
-  "s22_db": -1.190918,
-  "s12_db": -36.71043,
-  "k_f0": 1.513359,
-  "k_min": 1.512872,
-  "mu_f0": 1.057393,
-  "mu_min": 1.0567,
-  "mu_src_f0": 1.452729,
-  "mu_src_min": 1.429197,
-  "delta_f0": 0.4117115,
-  "delta_max": 0.435324,
+  "s11_db": -8.81245,
+  "s11_max_db": -8.35859,
+  "s21_db": 10.3462,
+  "s21_min_db": 10.3128,
+  "idd_ma": 4.742121,
+  "nf_db": 1.517052,
+  "s22_db": -1.40801,
+  "s12_db": -35.7561,
+  "k_f0": 2.39777,
+  "k_min": 2.38787,
+  "mu_f0": 1.10745,
+  "mu_min": 1.10629,
+  "mu_src_f0": 1.91156,
+  "mu_src_min": 1.8728,
+  "delta_f0": 0.334357,
+  "delta_max": 0.35121,
   "stab_band": [
    2400000000.0,
    2483500000.0
   ],
-  "s21_ripple_db": 0.007999999999999119,
+  "s21_ripple_db": 0.061100000000001486,
   "nf_method": "series_rs"
  },
  "margins": {
   "nf_db": {
-   "achieved": 1.071509,
+   "achieved": 1.517052,
    "required_min": null,
    "required_max": 2.5,
    "scale": 2.5,
-   "margin": 0.5713964,
+   "margin": 0.39317919999999995,
    "supported": true
   },
   "s11_db": {
-   "achieved": -7.499263,
+   "achieved": -8.81245,
    "required_min": null,
    "required_max": -10,
    "scale": 10,
-   "margin": -0.2500737,
+   "margin": -0.11875499999999999,
    "supported": true
   },
   "s21_db": {
-   "achieved": 14.38136,
+   "achieved": 10.3462,
    "required_min": 12,
    "required_max": null,
    "scale": 12,
-   "margin": 0.19844666666666674,
+   "margin": -0.1378166666666667,
    "supported": true
   },
   "idd_ma": {
-   "achieved": 4.2187600000000005,
+   "achieved": 4.742121,
    "required_min": null,
    "required_max": 5,
    "scale": 5,
-   "margin": 0.1562479999999999,
+   "margin": 0.05157579999999999,
    "supported": true
   },
   "iip3_dbm": {
@@ -112,16 +113,16 @@
   }
  },
  "best_x": [
+  0.8316199168628389,
+  0.21597404835220302,
+  0.3565372769135885,
+  0.20951683371407015,
+  0.6458306214170757,
+  0.12796292812416432,
+  0.7240517305549272,
   1.0,
-  0.2146133660378853,
-  0.23833546892513394,
-  0.22976567880305404,
-  0.7696294410719033,
-  0.0,
-  0.7822004216368982,
-  0.893515001608265,
-  0.4816059320496137,
-  0.7557812200151948
+  0.4604300163782421,
+  0.3797973764601471
  ],
  "best_params": {
   "pNM1L": "45n",
@@ -130,91 +131,91 @@
   "pVB": "0.5",
   "pINDQ": "12",
   "pINDW0": "1.25664e+10",
-  "pC1V": "1e-11",
-  "pC2V": "1.55884e-13",
-  "pC3V": "1.76761e-13",
-  "pC4V": "1.68915e-13",
-  "pL1V": "5.12996e-09",
-  "pL2V": "3e-10",
-  "pL3V": "5.37345e-09",
-  "pNM1W": "0.000113764",
-  "pNM2W": "1.28289e-05",
-  "pR1V": "4629.76"
+  "pC1V": "4.09782e-12",
+  "pC2V": "1.57012e-13",
+  "pC3V": "3.30653e-13",
+  "pC4V": "1.51731e-13",
+  "pL1V": "3.24923e-09",
+  "pL2V": "4.80978e-10",
+  "pL3V": "4.33606e-09",
+  "pNM1W": "0.0002",
+  "pNM2W": "1.14674e-05",
+  "pR1V": "486.66"
  },
  "trace": [
   {
    "n": 10,
-   "best_obj": 11.775299203333333,
+   "best_obj": 11.775299233333332,
    "feasible": false
   },
   {
    "n": 20,
-   "best_obj": 5.681220583333333,
+   "best_obj": 8.627608933333333,
    "feasible": false
   },
   {
    "n": 30,
-   "best_obj": 1.9001529833333333,
+   "best_obj": 5.369627866666667,
    "feasible": false
   },
   {
    "n": 40,
-   "best_obj": 1.9001529833333333,
+   "best_obj": 4.5823254,
    "feasible": false
   },
   {
    "n": 50,
-   "best_obj": 1.9001529833333333,
+   "best_obj": 3.7617990666666667,
    "feasible": false
   },
   {
    "n": 60,
-   "best_obj": 1.9001529833333333,
+   "best_obj": 2.626164966666667,
    "feasible": false
   },
   {
    "n": 70,
-   "best_obj": 1.9001529833333333,
+   "best_obj": 2.251506233333333,
    "feasible": false
   },
   {
    "n": 80,
-   "best_obj": 1.9001529833333333,
+   "best_obj": 2.0441995000000004,
    "feasible": false
   },
   {
    "n": 90,
-   "best_obj": 1.9001529833333333,
+   "best_obj": 1.9212756666666668,
    "feasible": false
   },
   {
    "n": 100,
-   "best_obj": 1.80665605,
+   "best_obj": 1.9212756666666668,
    "feasible": false
   },
   {
    "n": 110,
-   "best_obj": 1.5203009666666667,
+   "best_obj": 1.8174885,
    "feasible": false
   },
   {
    "n": 120,
-   "best_obj": 1.2524399166666667,
+   "best_obj": 1.7164553333333332,
    "feasible": false
   },
   {
    "n": 130,
-   "best_obj": 1.2524399166666667,
+   "best_obj": 1.7164553333333332,
    "feasible": false
   },
   {
    "n": 140,
-   "best_obj": 1.2524399166666667,
+   "best_obj": 1.7164553333333332,
    "feasible": false
   },
   {
    "n": 150,
-   "best_obj": 1.2500737,
+   "best_obj": 1.2565716666666666,
    "feasible": false
   }
  ],
@@ -227,7 +228,7 @@
   "box": "clip",
   "restarts": 0,
   "gens": 15,
-  "sigma_final": 0.14352509558616416
+  "sigma_final": 0.1586286103759312
  },
  "harness": {
   "inductor_q": 12,
@@ -238,9 +239,9 @@
   "w_finger": 2e-06,
   "era": "current",
   "deps": {
-   "models": "C:\\Users\\Devavrat\\circuit-repro\\.claude\\worktrees\\engineer\\AutoCkt\\repo\\eval_engines\\ngspice\\ngspice_inputs\\spice_models\\45nm_bulk.txt",
-   "zoaf": "C:\\Users\\Devavrat\\circuit-repro\\.claude\\worktrees\\engineer\\misc\\ZOAF",
-   "rebound": false
+   "models": "/home/dpatni/circuit-repro/AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt",
+   "zoaf": "/home/dpatni/circuit-repro/misc/ZOAF",
+   "rebound": true
   },
   "notes": []
  },
@@ -328,7 +329,7 @@
   }
  },
  "published": {
-  "source": "lna/FINDINGS.md \u00a743.2 (2026-08-14), 5 seeds/arm, budget 336",
+  "source": "lna/FINDINGS.md 43.2 (2026-08-14), 5 seeds/arm, budget 336",
   "arms": {
    "random": {
     "feasible": "0/5",
@@ -356,11 +357,11 @@
   "flushed_to_store": 0
  },
  "trajectory": {
-  "path": "data\\trajectories.jsonl",
+  "path": "data/trajectories.jsonl",
   "rows": 150
  },
- "wall_s": 15.1,
- "s_per_eval": 0.101,
- "git_sha": "134978e",
- "ts": "2026-08-14T13:12:33+00:00"
+ "wall_s": 3.8,
+ "s_per_eval": 0.0256,
+ "git_sha": "912bac1",
+ "ts": "2026-08-14T14:37:20+00:00"
 }

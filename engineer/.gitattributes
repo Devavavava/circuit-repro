@@ -1,0 +1,8 @@
+# The engineer line's own append-only table, under the same rule the root
+# .gitattributes states for `lna/data/*.jsonl`: git's line-based text merge can
+# reorder, interleave or duplicate independently-appended JSONL lines, so a
+# cross-line merge of this file must fail loudly (a real conflict) rather than
+# silently interleave. Trajectory rows are combined -- if they ever need to be --
+# by an explicit tool, never by a git content merge. See engineer/00-CHARTER.md
+# §3.2.
+data/*.jsonl -merge -diff

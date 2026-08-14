@@ -1,0 +1,455 @@
+{
+ "kind": "engineer_baseline",
+ "schema": "engineer-result-v0",
+ "run_id": "wifi24-t2-a-s10-b336-2026-08-14T153706+0000",
+ "algo": "random",
+ "arm": "random-search",
+ "arm_desc": "uniform random search in [0,1]^d (numpy.default_rng) -- the untuned null, driven through env.py's public API only",
+ "task": {
+  "id": "wifi24-t2-a",
+  "spec": "wifi24",
+  "wl_hash": "4b351a49fa6e4f23",
+  "tier": 2,
+  "budget": 336,
+  "seed": 10,
+  "era": "current",
+  "n_devices": 10,
+  "ref": {
+   "ts": "2026-08-11T07:31:52+00:00",
+   "n_evals": 336,
+   "feasible": true,
+   "best_obj": -0.7324616666666666
+  },
+  "notes": "The reference task: the only plain-ZOAF feasible wifi24 row in the modern label domain, and the one FINDINGS 43.2's 5-seed null table was run on."
+ },
+ "seed": 10,
+ "n_params": 10,
+ "param_names": [
+  "pC1V",
+  "pC2V",
+  "pC3V",
+  "pC4V",
+  "pL1V",
+  "pL2V",
+  "pL3V",
+  "pNM1W",
+  "pNM2W",
+  "pR1V"
+ ],
+ "budget_evals": 336,
+ "n_evals": 336,
+ "ngspice_calls": 672,
+ "n_sim_fail": 0,
+ "evals_to_best": 179,
+ "best_obj": 1.7016233666666665,
+ "feasible": false,
+ "viol": {
+  "nf_db": 0.082651,
+  "s11_db": 0.092613,
+  "s21_db": 0.526359
+ },
+ "metrics": {
+  "s11_db": -9.07387,
+  "s11_max_db": -8.18883,
+  "s21_db": 5.68369,
+  "s21_min_db": 5.51325,
+  "idd_ma": 3.556686,
+  "nf_db": 2.706628,
+  "s22_db": -0.355701,
+  "s12_db": -52.3614,
+  "k_f0": 7.6907,
+  "k_min": 7.53316,
+  "mu_f0": 1.03761,
+  "mu_min": 1.03509,
+  "mu_src_f0": 2.70267,
+  "mu_src_min": 2.43875,
+  "delta_f0": 0.341224,
+  "delta_max": 0.376148,
+  "stab_band": [
+   2400000000.0,
+   2483500000.0
+  ],
+  "s21_ripple_db": 0.32913999999999977,
+  "nf_method": "series_rs"
+ },
+ "margins": {
+  "nf_db": {
+   "achieved": 2.706628,
+   "required_min": null,
+   "required_max": 2.5,
+   "scale": 2.5,
+   "margin": -0.08265119999999992,
+   "supported": true
+  },
+  "s11_db": {
+   "achieved": -9.07387,
+   "required_min": null,
+   "required_max": -10,
+   "scale": 10,
+   "margin": -0.09261300000000006,
+   "supported": true
+  },
+  "s21_db": {
+   "achieved": 5.68369,
+   "required_min": 12,
+   "required_max": null,
+   "scale": 12,
+   "margin": -0.5263591666666666,
+   "supported": true
+  },
+  "idd_ma": {
+   "achieved": 3.556686,
+   "required_min": null,
+   "required_max": 5,
+   "scale": 5,
+   "margin": 0.2886628,
+   "supported": true
+  },
+  "iip3_dbm": {
+   "achieved": null,
+   "required_min": -5,
+   "required_max": null,
+   "scale": 5,
+   "margin": null,
+   "supported": false
+  }
+ },
+ "best_x": [
+  0.5915538043823918,
+  0.41518591290147633,
+  0.564683889926953,
+  0.7075257726056707,
+  0.9223391740303603,
+  0.3326008013407219,
+  0.7676366419538936,
+  0.6320864231469068,
+  0.7582362362960617,
+  0.980950580116883
+ ],
+ "best_params": {
+  "pNM1L": "45n",
+  "pNM2L": "45n",
+  "pVDD": "1.1",
+  "pVB": "0.5",
+  "pINDQ": "12",
+  "pINDW0": "1.25664e+10",
+  "pC1V": "1.14856e-12",
+  "pC2V": "4.51154e-13",
+  "pC3V": "9.9615e-13",
+  "pC4V": "2.12328e-12",
+  "pL1V": "9.01081e-09",
+  "pL2V": "1.02322e-09",
+  "pL3V": "5.09238e-09",
+  "pNM1W": "2.84741e-05",
+  "pNM2W": "5.55551e-05",
+  "pR1V": "17842.8"
+ },
+ "trace": [
+  {
+   "n": 10,
+   "best_obj": 2.0313581666666667,
+   "feasible": false
+  },
+  {
+   "n": 20,
+   "best_obj": 2.0313581666666667,
+   "feasible": false
+  },
+  {
+   "n": 30,
+   "best_obj": 2.0313581666666667,
+   "feasible": false
+  },
+  {
+   "n": 40,
+   "best_obj": 2.0313581666666667,
+   "feasible": false
+  },
+  {
+   "n": 50,
+   "best_obj": 2.0313581666666667,
+   "feasible": false
+  },
+  {
+   "n": 60,
+   "best_obj": 2.0313581666666667,
+   "feasible": false
+  },
+  {
+   "n": 70,
+   "best_obj": 2.0313581666666667,
+   "feasible": false
+  },
+  {
+   "n": 80,
+   "best_obj": 2.0313581666666667,
+   "feasible": false
+  },
+  {
+   "n": 90,
+   "best_obj": 2.0313581666666667,
+   "feasible": false
+  },
+  {
+   "n": 100,
+   "best_obj": 2.0313581666666667,
+   "feasible": false
+  },
+  {
+   "n": 110,
+   "best_obj": 2.0313581666666667,
+   "feasible": false
+  },
+  {
+   "n": 120,
+   "best_obj": 2.0313581666666667,
+   "feasible": false
+  },
+  {
+   "n": 130,
+   "best_obj": 2.0313581666666667,
+   "feasible": false
+  },
+  {
+   "n": 140,
+   "best_obj": 2.0313581666666667,
+   "feasible": false
+  },
+  {
+   "n": 150,
+   "best_obj": 2.0313581666666667,
+   "feasible": false
+  },
+  {
+   "n": 160,
+   "best_obj": 2.0313581666666667,
+   "feasible": false
+  },
+  {
+   "n": 170,
+   "best_obj": 2.0313581666666667,
+   "feasible": false
+  },
+  {
+   "n": 180,
+   "best_obj": 1.7016233666666665,
+   "feasible": false
+  },
+  {
+   "n": 190,
+   "best_obj": 1.7016233666666665,
+   "feasible": false
+  },
+  {
+   "n": 200,
+   "best_obj": 1.7016233666666665,
+   "feasible": false
+  },
+  {
+   "n": 210,
+   "best_obj": 1.7016233666666665,
+   "feasible": false
+  },
+  {
+   "n": 220,
+   "best_obj": 1.7016233666666665,
+   "feasible": false
+  },
+  {
+   "n": 230,
+   "best_obj": 1.7016233666666665,
+   "feasible": false
+  },
+  {
+   "n": 240,
+   "best_obj": 1.7016233666666665,
+   "feasible": false
+  },
+  {
+   "n": 250,
+   "best_obj": 1.7016233666666665,
+   "feasible": false
+  },
+  {
+   "n": 260,
+   "best_obj": 1.7016233666666665,
+   "feasible": false
+  },
+  {
+   "n": 270,
+   "best_obj": 1.7016233666666665,
+   "feasible": false
+  },
+  {
+   "n": 280,
+   "best_obj": 1.7016233666666665,
+   "feasible": false
+  },
+  {
+   "n": 290,
+   "best_obj": 1.7016233666666665,
+   "feasible": false
+  },
+  {
+   "n": 300,
+   "best_obj": 1.7016233666666665,
+   "feasible": false
+  },
+  {
+   "n": 310,
+   "best_obj": 1.7016233666666665,
+   "feasible": false
+  },
+  {
+   "n": 320,
+   "best_obj": 1.7016233666666665,
+   "feasible": false
+  },
+  {
+   "n": 330,
+   "best_obj": 1.7016233666666665,
+   "feasible": false
+  }
+ ],
+ "trace_every": 10,
+ "algo_diag": {
+  "sampler": "uniform[0,1]^d",
+  "rng": "numpy.default_rng",
+  "seed": 10,
+  "draws": 336
+ },
+ "harness": {
+  "inductor_q": 12,
+  "nf_gated": true,
+  "stab_guard": true,
+  "ngspice_calls_per_eval": 2,
+  "eval_entry": "size.make_objective(...)[0]",
+  "w_finger": 2e-06,
+  "era": "current",
+  "deps": {
+   "models": "/home/dpatni/circuit-repro/AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt",
+   "zoaf": "/home/dpatni/circuit-repro/misc/ZOAF",
+   "analoggenie": "/home/dpatni/circuit-repro/AnalogGenie/repo",
+   "rebound": true
+  },
+  "notes": []
+ },
+ "reference_row": {
+  "ts": "2026-08-11T07:31:52+00:00",
+  "n_evals": 336,
+  "recipe": "candidate-v1",
+  "seed": 0,
+  "w_finger": 2e-06,
+  "feasible": true,
+  "best_obj": -0.7324616666666666,
+  "metrics": {
+   "delta_f0": 0.1215646,
+   "delta_max": 0.1738713,
+   "idd_ma": 4.9275780000000005,
+   "k_f0": 1.404021,
+   "k_min": 1.400504,
+   "mu_f0": 1.03924,
+   "mu_min": 1.037513,
+   "mu_src_f0": 1.49879,
+   "mu_src_min": 1.424236,
+   "nf_db": 1.263186,
+   "nf_method": "series_rs",
+   "s11_db": -26.87765,
+   "s11_max_db": -19.98113,
+   "s12_db": -39.2816,
+   "s21_db": 17.73428,
+   "s21_min_db": 17.52363,
+   "s21_ripple_db": 0.39095999999999975,
+   "s22_db": -1.091645,
+   "stab_band": [
+    2400000000.0,
+    2483500000.0
+   ]
+  },
+  "margins": {
+   "idd_ma": {
+    "achieved": 4.9275780000000005,
+    "margin": 0.014484399999999908,
+    "required_max": 5,
+    "required_min": null,
+    "scale": 5,
+    "supported": true
+   },
+   "iip3_dbm": {
+    "achieved": null,
+    "margin": null,
+    "required_max": null,
+    "required_min": -5,
+    "scale": 5,
+    "supported": false
+   },
+   "nf_db": {
+    "achieved": 1.263186,
+    "margin": 0.49472560000000004,
+    "required_max": 2.5,
+    "required_min": null,
+    "scale": 2.5,
+    "supported": true
+   },
+   "s11_db": {
+    "achieved": -26.87765,
+    "margin": 1.687765,
+    "required_max": -10,
+    "required_min": null,
+    "scale": 10,
+    "supported": true
+   },
+   "s21_db": {
+    "achieved": 17.73428,
+    "margin": 0.47785666666666654,
+    "required_max": null,
+    "required_min": 12,
+    "scale": 12,
+    "supported": true
+   }
+  },
+  "provenance": {
+   "child_i": 1,
+   "move": "rewire",
+   "parent_dom": "L1",
+   "parent_wl": "c944366e8084a8b4",
+   "pilot_arm": "random",
+   "source_arm": "diagheads-pilot"
+  }
+ },
+ "published": {
+  "source": "lna/FINDINGS.md 43.2 (2026-08-14), 5 seeds/arm, budget 336",
+  "arms": {
+   "random": {
+    "feasible": "0/5",
+    "best_obj": 1.0,
+    "median_obj": 1.66
+   },
+   "cmaes": {
+    "feasible": "4/5",
+    "best_obj": -0.79,
+    "median_obj": -0.649
+   },
+   "zoaf": {
+    "feasible": "1/5",
+    "best_obj": -0.546,
+    "median_obj": 1.22,
+    "stored_row_obj": -0.7324616666666666
+   }
+  }
+ },
+ "op_state": {
+  "n_devices": 2,
+  "subsample": 1,
+  "kept_in_memory": 8,
+  "flushed_to_store": 0
+ },
+ "trajectory": {
+  "path": "data/_score_traj/random_wifi24-t2-a_s10.jsonl",
+  "rows": 336
+ },
+ "wall_s": 49.9,
+ "s_per_eval": 0.1484,
+ "git_sha": "fe922dd",
+ "ts": "2026-08-14T15:37:57+00:00"
+}

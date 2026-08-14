@@ -1,0 +1,404 @@
+{
+ "kind": "engineer_baseline",
+ "schema": "engineer-result-v0",
+ "run_id": "wideband-sdr-t2-a-s7-b136-2026-08-14T153631+0000",
+ "algo": "cmaes",
+ "arm_desc": "CMA-ES (Hansen purecmaes defaults, box by clipping) -- imported verbatim from lna/null_sizer.py",
+ "task": {
+  "id": "wideband-sdr-t2-a",
+  "spec": "wideband-sdr",
+  "wl_hash": "e56f5b775362195d",
+  "tier": 2,
+  "budget": 136,
+  "seed": 7,
+  "era": "current",
+  "n_devices": 6,
+  "ref": {
+   "ts": "2026-08-14T10:47:16+00:00",
+   "n_evals": 0,
+   "feasible": false,
+   "best_obj": null
+  },
+  "notes": "R-2 executed 2026-08-14: re-labeled under era 2026-08-14-relabel (w_finger=2e-6, series_rs NF, stab harness). ref_ts is the relabeled row (n_evals=0 by construction -- a re-label is one measurement of one stored point, not a campaign); budget=136 is inherited from the original 136-eval campaign (ingest-v1, ts=2026-08-09T11:45:22). Old ref NF 8.27 dB; new ref NF 6.28 dB (d=-1.99 dB, era-attributable, fence PASS). ref_obj dropped to None: the relabeled row carries no best_obj (it is not a search result)."
+ },
+ "seed": 7,
+ "n_params": 6,
+ "param_names": [
+  "pNM1W",
+  "pNM2W",
+  "pNM3W",
+  "pR1V",
+  "pR2V",
+  "pR3V"
+ ],
+ "budget_evals": 136,
+ "n_evals": 136,
+ "ngspice_calls": 272,
+ "n_sim_fail": 0,
+ "evals_to_best": 98,
+ "best_obj": 1.5741475714285715,
+ "feasible": false,
+ "viol": {
+  "s11_max_db": 0.134024,
+  "s21_db": 0.440124
+ },
+ "metrics": {
+  "s11_db": -9.91283,
+  "s11_max_db": -8.65976,
+  "s21_db": 7.83827,
+  "s21_min_db": 7.45306,
+  "idd_ma": 6.636062,
+  "nf_db": 2.67961,
+  "s22_db": -12.0926,
+  "s12_db": -30.3824,
+  "k_f0": 5.60537,
+  "k_min": 3.28617,
+  "mu_f0": 2.79519,
+  "mu_min": 2.21761,
+  "mu_src_f0": 2.39008,
+  "mu_src_min": 1.9338,
+  "delta_f0": 0.0147196,
+  "delta_max": 0.10882,
+  "stab_band": [
+   500000000.0,
+   3000000000.0
+  ],
+  "s21_ripple_db": 0.3967400000000003,
+  "nf_method": "series_rs"
+ },
+ "margins": {
+  "nf_db": {
+   "achieved": 2.67961,
+   "required_min": null,
+   "required_max": 3.5,
+   "scale": 3.5,
+   "margin": 0.23439714285714291,
+   "supported": true
+  },
+  "s11_max_db": {
+   "achieved": -8.65976,
+   "required_min": null,
+   "required_max": -10,
+   "scale": 10,
+   "margin": -0.13402399999999998,
+   "supported": true
+  },
+  "s21_db": {
+   "achieved": 7.83827,
+   "required_min": 14,
+   "required_max": null,
+   "scale": 14,
+   "margin": -0.44012357142857145,
+   "supported": true
+  },
+  "s21_ripple_db": {
+   "achieved": 0.3967400000000003,
+   "required_min": null,
+   "required_max": 2,
+   "scale": 2,
+   "margin": 0.8016299999999998,
+   "supported": true
+  },
+  "idd_ma": {
+   "achieved": 6.636062,
+   "required_min": null,
+   "required_max": 8,
+   "scale": 8,
+   "margin": 0.17049225,
+   "supported": true
+  },
+  "iip3_dbm": {
+   "achieved": null,
+   "required_min": 0,
+   "required_max": null,
+   "scale": 1.0,
+   "margin": null,
+   "supported": false
+  }
+ },
+ "best_x": [
+  0.5284059760083818,
+  0.852978530321084,
+  0.0,
+  0.0,
+  0.47673991079879574,
+  0.1333657474699422
+ ],
+ "best_params": {
+  "pNM1L": "45n",
+  "pNM2L": "45n",
+  "pNM3L": "45n",
+  "pVDD": "1.1",
+  "pVB": "0.5",
+  "pINDQ": "12",
+  "pINDW0": "1.25664e+10",
+  "pNM1W": "1.64391e-05",
+  "pNM2W": "9.1776e-05",
+  "pNM3W": "1e-06",
+  "pR1V": "50",
+  "pR2V": "869.913",
+  "pR3V": "111.172"
+ },
+ "trace": [
+  {
+   "n": 10,
+   "best_obj": 6.247631857142858,
+   "feasible": false
+  },
+  {
+   "n": 20,
+   "best_obj": 4.622546428571429,
+   "feasible": false
+  },
+  {
+   "n": 30,
+   "best_obj": 1.7691098571428572,
+   "feasible": false
+  },
+  {
+   "n": 40,
+   "best_obj": 1.7691098571428572,
+   "feasible": false
+  },
+  {
+   "n": 50,
+   "best_obj": 1.7691098571428572,
+   "feasible": false
+  },
+  {
+   "n": 60,
+   "best_obj": 1.7691098571428572,
+   "feasible": false
+  },
+  {
+   "n": 70,
+   "best_obj": 1.7691098571428572,
+   "feasible": false
+  },
+  {
+   "n": 80,
+   "best_obj": 1.7253084285714286,
+   "feasible": false
+  },
+  {
+   "n": 90,
+   "best_obj": 1.7253084285714286,
+   "feasible": false
+  },
+  {
+   "n": 100,
+   "best_obj": 1.5741475714285715,
+   "feasible": false
+  },
+  {
+   "n": 110,
+   "best_obj": 1.5741475714285715,
+   "feasible": false
+  },
+  {
+   "n": 120,
+   "best_obj": 1.5741475714285715,
+   "feasible": false
+  },
+  {
+   "n": 130,
+   "best_obj": 1.5741475714285715,
+   "feasible": false
+  }
+ ],
+ "trace_every": 10,
+ "algo_diag": {
+  "lam": 9,
+  "mu": 4,
+  "mueff": 2.6002,
+  "sigma0": 0.3,
+  "box": "clip",
+  "restarts": 0,
+  "gens": 15,
+  "sigma_final": 0.08538525600891632
+ },
+ "harness": {
+  "inductor_q": 12,
+  "nf_gated": true,
+  "stab_guard": true,
+  "ngspice_calls_per_eval": 2,
+  "eval_entry": "size.make_objective(...)[0]",
+  "w_finger": 2e-06,
+  "era": "current",
+  "deps": {
+   "models": "/home/dpatni/circuit-repro/AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt",
+   "zoaf": "/home/dpatni/circuit-repro/misc/ZOAF",
+   "analoggenie": "/home/dpatni/circuit-repro/AnalogGenie/repo",
+   "rebound": true
+  },
+  "notes": []
+ },
+ "reference_row": {
+  "ts": "2026-08-14T10:47:16+00:00",
+  "n_evals": 0,
+  "recipe": "ingest-v1+era-2026-08-14-relabel",
+  "seed": 0,
+  "w_finger": 2e-06,
+  "feasible": false,
+  "best_obj": null,
+  "metrics": {
+   "delta_f0": 0.3296793,
+   "delta_max": 0.3577108,
+   "idd_ma": 1.541237,
+   "k_f0": 16.10678,
+   "k_min": 10.62458,
+   "mu_f0": 2.107941,
+   "mu_min": 2.055797,
+   "mu_src_f0": 1.316037,
+   "mu_src_min": 1.281819,
+   "nf_db": 6.281251,
+   "nf_method": "series_rs",
+   "s11_db": -2.559179,
+   "s11_max_db": -2.428522,
+   "s12_db": -48.50537,
+   "s21_db": 9.362176,
+   "s21_min_db": 8.425972,
+   "s21_ripple_db": 1.3516440000000003,
+   "s22_db": -7.024021,
+   "stab_band": [
+    500000000.0,
+    3000000000.0
+   ]
+  },
+  "margins": {
+   "idd_ma": {
+    "achieved": 1.541237,
+    "margin": 0.807345375,
+    "required_max": 8,
+    "required_min": null,
+    "scale": 8,
+    "supported": true
+   },
+   "iip3_dbm": {
+    "achieved": null,
+    "margin": null,
+    "required_max": null,
+    "required_min": 0,
+    "scale": 1.0,
+    "supported": false
+   },
+   "nf_db": {
+    "achieved": 6.281251,
+    "margin": -0.7946431428571429,
+    "required_max": 3.5,
+    "required_min": null,
+    "scale": 3.5,
+    "supported": true
+   },
+   "s11_max_db": {
+    "achieved": -2.428522,
+    "margin": -0.7571478,
+    "required_max": -10,
+    "required_min": null,
+    "scale": 10,
+    "supported": true
+   },
+   "s21_db": {
+    "achieved": 9.362176,
+    "margin": -0.3312731428571429,
+    "required_max": null,
+    "required_min": 14,
+    "scale": 14,
+    "supported": true
+   },
+   "s21_ripple_db": {
+    "achieved": 1.3516440000000003,
+    "margin": 0.32417799999999986,
+    "required_max": 2,
+    "required_min": null,
+    "scale": 2,
+    "supported": true
+   }
+  },
+  "provenance": {
+   "era": "2026-08-14-relabel",
+   "era_fingerprint": {
+    "era": "2026-08-14-relabel",
+    "git_sha": "0aa6fdf",
+    "inductor_q": 12,
+    "mos_fingers": "ceil(W/w_finger)",
+    "nf_gate_default": true,
+    "nf_method": "series_rs",
+    "op_schema": 1,
+    "stab_guard": true,
+    "w_finger": 2e-06
+   },
+   "era_gaps": [
+    "mf2-v1",
+    "stabguard"
+   ],
+   "external_id": "paper-noisecancel",
+   "noise_budget": {
+    "f_hz": 1750000000.0,
+    "mos_mech_frac": {
+     "1overf": 0.03803,
+     "id": 0.94984,
+     "igd": 0.00388,
+     "igs": 0.00015,
+     "rbdb": 1e-05,
+     "rg": 0.00808
+    },
+    "nf_db_shares": 6.279081298768817,
+    "source_frac": 0.23555475208352644,
+    "sum_closure": 0.999999986833124,
+    "top": [
+     {
+      "elem": "mnm1",
+      "frac_excess": 0.64913,
+      "frac_out": 0.49622,
+      "kind": "mos"
+     },
+     {
+      "elem": "rr1",
+      "frac_excess": 0.146,
+      "frac_out": 0.11161,
+      "kind": "res"
+     },
+     {
+      "elem": "rr2",
+      "frac_excess": 0.08132,
+      "frac_out": 0.06216,
+      "kind": "res"
+     },
+     {
+      "elem": "rnl",
+      "frac_excess": 0.07397,
+      "frac_out": 0.05655,
+      "kind": "res"
+     },
+     {
+      "elem": "rr3",
+      "frac_excess": 0.02494,
+      "frac_out": 0.01907,
+      "kind": "res"
+     }
+    ]
+   },
+   "recipe": "ingest-v1",
+   "relabel": "era",
+   "relabel_of": "2026-08-09T11:45:22+00:00",
+   "relabel_of_git_sha": "6c13805",
+   "source_arm": "external-ingest"
+  }
+ },
+ "published": null,
+ "op_state": {
+  "n_devices": 3,
+  "subsample": 1,
+  "kept_in_memory": 8,
+  "flushed_to_store": 0
+ },
+ "trajectory": {
+  "path": "data/_score_traj/cmaes_wideband-sdr-t2-a_s7.jsonl",
+  "rows": 136
+ },
+ "wall_s": 31.0,
+ "s_per_eval": 0.2282,
+ "git_sha": "fe922dd",
+ "ts": "2026-08-14T15:37:03+00:00"
+}

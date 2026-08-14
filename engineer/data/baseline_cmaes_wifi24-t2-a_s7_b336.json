@@ -1,0 +1,454 @@
+{
+ "kind": "engineer_baseline",
+ "schema": "engineer-result-v0",
+ "run_id": "wifi24-t2-a-s7-b336-2026-08-14T153632+0000",
+ "algo": "cmaes",
+ "arm_desc": "CMA-ES (Hansen purecmaes defaults, box by clipping) -- imported verbatim from lna/null_sizer.py",
+ "task": {
+  "id": "wifi24-t2-a",
+  "spec": "wifi24",
+  "wl_hash": "4b351a49fa6e4f23",
+  "tier": 2,
+  "budget": 336,
+  "seed": 7,
+  "era": "current",
+  "n_devices": 10,
+  "ref": {
+   "ts": "2026-08-11T07:31:52+00:00",
+   "n_evals": 336,
+   "feasible": true,
+   "best_obj": -0.7324616666666666
+  },
+  "notes": "The reference task: the only plain-ZOAF feasible wifi24 row in the modern label domain, and the one FINDINGS 43.2's 5-seed null table was run on."
+ },
+ "seed": 7,
+ "n_params": 10,
+ "param_names": [
+  "pC1V",
+  "pC2V",
+  "pC3V",
+  "pC4V",
+  "pL1V",
+  "pL2V",
+  "pL3V",
+  "pNM1W",
+  "pNM2W",
+  "pR1V"
+ ],
+ "budget_evals": 336,
+ "n_evals": 336,
+ "ngspice_calls": 672,
+ "n_sim_fail": 0,
+ "evals_to_best": 329,
+ "best_obj": -0.8231036666666666,
+ "feasible": true,
+ "viol": {},
+ "metrics": {
+  "s11_db": -14.5364,
+  "s11_max_db": -12.0056,
+  "s21_db": 17.9213,
+  "s21_min_db": 17.8736,
+  "idd_ma": 4.085122,
+  "nf_db": 1.309129,
+  "s22_db": -0.909623,
+  "s12_db": -37.2899,
+  "k_f0": 1.05635,
+  "k_min": 1.05394,
+  "mu_f0": 1.00715,
+  "mu_min": 1.00695,
+  "mu_src_f0": 1.08965,
+  "mu_src_min": 1.08417,
+  "delta_f0": 0.270957,
+  "delta_max": 0.325472,
+  "stab_band": [
+   2400000000.0,
+   2483500000.0
+  ],
+  "s21_ripple_db": 0.06070000000000064,
+  "nf_method": "series_rs"
+ },
+ "margins": {
+  "nf_db": {
+   "achieved": 1.309129,
+   "required_min": null,
+   "required_max": 2.5,
+   "scale": 2.5,
+   "margin": 0.4763484,
+   "supported": true
+  },
+  "s11_db": {
+   "achieved": -14.5364,
+   "required_min": null,
+   "required_max": -10,
+   "scale": 10,
+   "margin": 0.45364000000000004,
+   "supported": true
+  },
+  "s21_db": {
+   "achieved": 17.9213,
+   "required_min": 12,
+   "required_max": null,
+   "scale": 12,
+   "margin": 0.49344166666666656,
+   "supported": true
+  },
+  "idd_ma": {
+   "achieved": 4.085122,
+   "required_min": null,
+   "required_max": 5,
+   "scale": 5,
+   "margin": 0.18297559999999996,
+   "supported": true
+  },
+  "iip3_dbm": {
+   "achieved": null,
+   "required_min": -5,
+   "required_max": null,
+   "scale": 5,
+   "margin": null,
+   "supported": false
+  }
+ },
+ "best_x": [
+  0.8628955616419809,
+  0.12333240852346146,
+  0.32805415929440734,
+  0.135881016549604,
+  1.0,
+  0.0,
+  0.9041350715542072,
+  0.7989217038832499,
+  0.5445489675490043,
+  0.7822127127536651
+ ],
+ "best_params": {
+  "pNM1L": "45n",
+  "pNM2L": "45n",
+  "pVDD": "1.1",
+  "pVB": "0.5",
+  "pINDQ": "12",
+  "pINDW0": "1.25664e+10",
+  "pC1V": "4.83636e-12",
+  "pC2V": "9.61085e-14",
+  "pC3V": "2.84336e-13",
+  "pC4V": "1.02716e-13",
+  "pL1V": "1.2e-08",
+  "pL2V": "3e-10",
+  "pL3V": "8.42558e-09",
+  "pNM1W": "6.89196e-05",
+  "pNM2W": "1.7907e-05",
+  "pR1V": "5424.18"
+ },
+ "trace": [
+  {
+   "n": 10,
+   "best_obj": 5.431697,
+   "feasible": false
+  },
+  {
+   "n": 20,
+   "best_obj": 5.326515266666667,
+   "feasible": false
+  },
+  {
+   "n": 30,
+   "best_obj": 2.2018041666666672,
+   "feasible": false
+  },
+  {
+   "n": 40,
+   "best_obj": 2.2018041666666672,
+   "feasible": false
+  },
+  {
+   "n": 50,
+   "best_obj": 2.0709411666666666,
+   "feasible": false
+  },
+  {
+   "n": 60,
+   "best_obj": 1.9837916666666666,
+   "feasible": false
+  },
+  {
+   "n": 70,
+   "best_obj": 1.9837916666666666,
+   "feasible": false
+  },
+  {
+   "n": 80,
+   "best_obj": 1.9837916666666666,
+   "feasible": false
+  },
+  {
+   "n": 90,
+   "best_obj": 1.2313978,
+   "feasible": false
+  },
+  {
+   "n": 100,
+   "best_obj": 1.1597866,
+   "feasible": false
+  },
+  {
+   "n": 110,
+   "best_obj": 1.1051216,
+   "feasible": false
+  },
+  {
+   "n": 120,
+   "best_obj": 1.1051216,
+   "feasible": false
+  },
+  {
+   "n": 130,
+   "best_obj": 1.1051216,
+   "feasible": false
+  },
+  {
+   "n": 140,
+   "best_obj": 1.0076666666666667,
+   "feasible": false
+  },
+  {
+   "n": 150,
+   "best_obj": 1.0076666666666667,
+   "feasible": false
+  },
+  {
+   "n": 160,
+   "best_obj": 1.0076666666666667,
+   "feasible": false
+  },
+  {
+   "n": 170,
+   "best_obj": 1.0076666666666667,
+   "feasible": false
+  },
+  {
+   "n": 180,
+   "best_obj": -0.4156371333333333,
+   "feasible": true
+  },
+  {
+   "n": 190,
+   "best_obj": -0.4156371333333333,
+   "feasible": true
+  },
+  {
+   "n": 200,
+   "best_obj": -0.4156371333333333,
+   "feasible": true
+  },
+  {
+   "n": 210,
+   "best_obj": -0.4156371333333333,
+   "feasible": true
+  },
+  {
+   "n": 220,
+   "best_obj": -0.4156371333333333,
+   "feasible": true
+  },
+  {
+   "n": 230,
+   "best_obj": -0.5300421666666667,
+   "feasible": true
+  },
+  {
+   "n": 240,
+   "best_obj": -0.5300421666666667,
+   "feasible": true
+  },
+  {
+   "n": 250,
+   "best_obj": -0.5300421666666667,
+   "feasible": true
+  },
+  {
+   "n": 260,
+   "best_obj": -0.575759,
+   "feasible": true
+  },
+  {
+   "n": 270,
+   "best_obj": -0.7081466999999999,
+   "feasible": true
+  },
+  {
+   "n": 280,
+   "best_obj": -0.7081466999999999,
+   "feasible": true
+  },
+  {
+   "n": 290,
+   "best_obj": -0.7240667333333333,
+   "feasible": true
+  },
+  {
+   "n": 300,
+   "best_obj": -0.7401536333333334,
+   "feasible": true
+  },
+  {
+   "n": 310,
+   "best_obj": -0.7689328000000002,
+   "feasible": true
+  },
+  {
+   "n": 320,
+   "best_obj": -0.7689328000000002,
+   "feasible": true
+  },
+  {
+   "n": 330,
+   "best_obj": -0.8231036666666666,
+   "feasible": true
+  }
+ ],
+ "trace_every": 10,
+ "algo_diag": {
+  "lam": 10,
+  "mu": 5,
+  "mueff": 3.1673,
+  "sigma0": 0.3,
+  "box": "clip",
+  "restarts": 0,
+  "gens": 33,
+  "sigma_final": 0.06263295525390883
+ },
+ "harness": {
+  "inductor_q": 12,
+  "nf_gated": true,
+  "stab_guard": true,
+  "ngspice_calls_per_eval": 2,
+  "eval_entry": "size.make_objective(...)[0]",
+  "w_finger": 2e-06,
+  "era": "current",
+  "deps": {
+   "models": "/home/dpatni/circuit-repro/AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt",
+   "zoaf": "/home/dpatni/circuit-repro/misc/ZOAF",
+   "analoggenie": "/home/dpatni/circuit-repro/AnalogGenie/repo",
+   "rebound": true
+  },
+  "notes": []
+ },
+ "reference_row": {
+  "ts": "2026-08-11T07:31:52+00:00",
+  "n_evals": 336,
+  "recipe": "candidate-v1",
+  "seed": 0,
+  "w_finger": 2e-06,
+  "feasible": true,
+  "best_obj": -0.7324616666666666,
+  "metrics": {
+   "delta_f0": 0.1215646,
+   "delta_max": 0.1738713,
+   "idd_ma": 4.9275780000000005,
+   "k_f0": 1.404021,
+   "k_min": 1.400504,
+   "mu_f0": 1.03924,
+   "mu_min": 1.037513,
+   "mu_src_f0": 1.49879,
+   "mu_src_min": 1.424236,
+   "nf_db": 1.263186,
+   "nf_method": "series_rs",
+   "s11_db": -26.87765,
+   "s11_max_db": -19.98113,
+   "s12_db": -39.2816,
+   "s21_db": 17.73428,
+   "s21_min_db": 17.52363,
+   "s21_ripple_db": 0.39095999999999975,
+   "s22_db": -1.091645,
+   "stab_band": [
+    2400000000.0,
+    2483500000.0
+   ]
+  },
+  "margins": {
+   "idd_ma": {
+    "achieved": 4.9275780000000005,
+    "margin": 0.014484399999999908,
+    "required_max": 5,
+    "required_min": null,
+    "scale": 5,
+    "supported": true
+   },
+   "iip3_dbm": {
+    "achieved": null,
+    "margin": null,
+    "required_max": null,
+    "required_min": -5,
+    "scale": 5,
+    "supported": false
+   },
+   "nf_db": {
+    "achieved": 1.263186,
+    "margin": 0.49472560000000004,
+    "required_max": 2.5,
+    "required_min": null,
+    "scale": 2.5,
+    "supported": true
+   },
+   "s11_db": {
+    "achieved": -26.87765,
+    "margin": 1.687765,
+    "required_max": -10,
+    "required_min": null,
+    "scale": 10,
+    "supported": true
+   },
+   "s21_db": {
+    "achieved": 17.73428,
+    "margin": 0.47785666666666654,
+    "required_max": null,
+    "required_min": 12,
+    "scale": 12,
+    "supported": true
+   }
+  },
+  "provenance": {
+   "child_i": 1,
+   "move": "rewire",
+   "parent_dom": "L1",
+   "parent_wl": "c944366e8084a8b4",
+   "pilot_arm": "random",
+   "source_arm": "diagheads-pilot"
+  }
+ },
+ "published": {
+  "source": "lna/FINDINGS.md 43.2 (2026-08-14), 5 seeds/arm, budget 336",
+  "arms": {
+   "random": {
+    "feasible": "0/5",
+    "best_obj": 1.0,
+    "median_obj": 1.66
+   },
+   "cmaes": {
+    "feasible": "4/5",
+    "best_obj": -0.79,
+    "median_obj": -0.649
+   },
+   "zoaf": {
+    "feasible": "1/5",
+    "best_obj": -0.546,
+    "median_obj": 1.22,
+    "stored_row_obj": -0.7324616666666666
+   }
+  }
+ },
+ "op_state": {
+  "n_devices": 2,
+  "subsample": 1,
+  "kept_in_memory": 8,
+  "flushed_to_store": 0
+ },
+ "trajectory": {
+  "path": "data/_score_traj/cmaes_wifi24-t2-a_s7.jsonl",
+  "rows": 336
+ },
+ "wall_s": 68.5,
+ "s_per_eval": 0.2039,
+ "git_sha": "fe922dd",
+ "ts": "2026-08-14T15:37:42+00:00"
+}

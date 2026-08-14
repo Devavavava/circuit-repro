@@ -1,0 +1,324 @@
+{
+ "kind": "engineer_baseline",
+ "schema": "engineer-result-v0",
+ "run_id": "gps-l1-t2-a-s6-b136-2026-08-14T153632+0000",
+ "algo": "cmaes",
+ "arm_desc": "CMA-ES (Hansen purecmaes defaults, box by clipping) -- imported verbatim from lna/null_sizer.py",
+ "task": {
+  "id": "gps-l1-t2-a",
+  "spec": "gps-l1",
+  "wl_hash": "82e8ca6a4cc02a43",
+  "tier": 2,
+  "budget": 136,
+  "seed": 6,
+  "era": "current",
+  "n_devices": 6,
+  "ref": {
+   "ts": "2026-08-11T04:27:58+00:00",
+   "n_evals": 136,
+   "feasible": false,
+   "best_obj": 7.921651344444444
+  },
+  "notes": "Small (d is the smallest in the registry) and the reference is INFEASIBLE at obj +7.92 -- a task where the incumbent did not solve it, which is the kind a benchmark needs and a leaderboard usually lacks."
+ },
+ "seed": 6,
+ "n_params": 6,
+ "param_names": [
+  "pC1V",
+  "pC2V",
+  "pNM1W",
+  "pPM1W",
+  "pR1V",
+  "pR2V"
+ ],
+ "budget_evals": 136,
+ "n_evals": 136,
+ "ngspice_calls": 272,
+ "n_sim_fail": 0,
+ "evals_to_best": 78,
+ "best_obj": 7.929582555555555,
+ "feasible": false,
+ "viol": {
+  "nf_db": 5.090922,
+  "s11_db": 0.428105,
+  "s21_db": 1.410555
+ },
+ "metrics": {
+  "s11_db": -5.71895,
+  "s11_max_db": -5.71539,
+  "s21_db": -6.15833,
+  "s21_min_db": -6.1596,
+  "idd_ma": 6.702583e-09,
+  "nf_db": 10.96366,
+  "s22_db": -5.6649,
+  "s12_db": -6.15833,
+  "k_f0": 1.00144,
+  "k_min": 1.00143,
+  "mu_f0": 1.00071,
+  "mu_min": 1.00071,
+  "mu_src_f0": 1.00072,
+  "mu_src_min": 1.00071,
+  "delta_f0": 0.156227,
+  "delta_max": 0.157157,
+  "stab_band": [
+   1565000000.0,
+   1586000000.0
+  ],
+  "s21_ripple_db": 0.0025100000000000122,
+  "nf_method": "series_rs"
+ },
+ "margins": {
+  "nf_db": {
+   "achieved": 10.96366,
+   "required_min": null,
+   "required_max": 1.8,
+   "scale": 1.8,
+   "margin": -5.090922222222222,
+   "supported": true
+  },
+  "s11_db": {
+   "achieved": -5.71895,
+   "required_min": null,
+   "required_max": -10,
+   "scale": 10,
+   "margin": -0.42810499999999996,
+   "supported": true
+  },
+  "s21_db": {
+   "achieved": -6.15833,
+   "required_min": 15,
+   "required_max": null,
+   "scale": 15,
+   "margin": -1.4105553333333334,
+   "supported": true
+  },
+  "idd_ma": {
+   "achieved": 6.702583e-09,
+   "required_min": null,
+   "required_max": 3,
+   "scale": 3,
+   "margin": 0.9999999977658057,
+   "supported": true
+  },
+  "iip3_dbm": {
+   "achieved": null,
+   "required_min": -10,
+   "required_max": null,
+   "scale": 10,
+   "margin": null,
+   "supported": false
+  }
+ },
+ "best_x": [
+  0.5329288561042032,
+  1.0,
+  0.24515172430042698,
+  0.43464604102245946,
+  0.0,
+  0.0
+ ],
+ "best_params": {
+  "pNM1L": "45n",
+  "pPM1L": "45n",
+  "pVDD": "1.1",
+  "pVB": "0.5",
+  "pINDQ": "12",
+  "pINDW0": "1.25664e+10",
+  "pC1V": "8.4189e-13",
+  "pC2V": "1e-11",
+  "pNM1W": "3.66523e-06",
+  "pPM1W": "1.00031e-05",
+  "pR1V": "50",
+  "pR2V": "50"
+ },
+ "trace": [
+  {
+   "n": 10,
+   "best_obj": 21.844657666666667,
+   "feasible": false
+  },
+  {
+   "n": 20,
+   "best_obj": 16.413847555555556,
+   "feasible": false
+  },
+  {
+   "n": 30,
+   "best_obj": 16.307059333333335,
+   "feasible": false
+  },
+  {
+   "n": 40,
+   "best_obj": 8.505767555555554,
+   "feasible": false
+  },
+  {
+   "n": 50,
+   "best_obj": 8.380173333333333,
+   "feasible": false
+  },
+  {
+   "n": 60,
+   "best_obj": 8.260123666666665,
+   "feasible": false
+  },
+  {
+   "n": 70,
+   "best_obj": 7.9398089999999995,
+   "feasible": false
+  },
+  {
+   "n": 80,
+   "best_obj": 7.929582555555555,
+   "feasible": false
+  },
+  {
+   "n": 90,
+   "best_obj": 7.929582555555555,
+   "feasible": false
+  },
+  {
+   "n": 100,
+   "best_obj": 7.929582555555555,
+   "feasible": false
+  },
+  {
+   "n": 110,
+   "best_obj": 7.929582555555555,
+   "feasible": false
+  },
+  {
+   "n": 120,
+   "best_obj": 7.929582555555555,
+   "feasible": false
+  },
+  {
+   "n": 130,
+   "best_obj": 7.929582555555555,
+   "feasible": false
+  }
+ ],
+ "trace_every": 10,
+ "algo_diag": {
+  "lam": 9,
+  "mu": 4,
+  "mueff": 2.6002,
+  "sigma0": 0.3,
+  "box": "clip",
+  "restarts": 0,
+  "gens": 15,
+  "sigma_final": 0.17791066502167865
+ },
+ "harness": {
+  "inductor_q": 12,
+  "nf_gated": true,
+  "stab_guard": true,
+  "ngspice_calls_per_eval": 2,
+  "eval_entry": "size.make_objective(...)[0]",
+  "w_finger": 2e-06,
+  "era": "current",
+  "deps": {
+   "models": "/home/dpatni/circuit-repro/AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt",
+   "zoaf": "/home/dpatni/circuit-repro/misc/ZOAF",
+   "analoggenie": "/home/dpatni/circuit-repro/AnalogGenie/repo",
+   "rebound": true
+  },
+  "notes": []
+ },
+ "reference_row": {
+  "ts": "2026-08-11T04:27:58+00:00",
+  "n_evals": 136,
+  "recipe": "candidate-v1",
+  "seed": 7,
+  "w_finger": 2e-06,
+  "feasible": false,
+  "best_obj": 7.921651344444444,
+  "metrics": {
+   "delta_f0": 0.1538693,
+   "delta_max": 0.1548153,
+   "idd_ma": 6.6538160000000005e-09,
+   "k_f0": 1.00183,
+   "k_min": 1.001828,
+   "mu_f0": 1.00091,
+   "mu_min": 1.000909,
+   "mu_src_f0": 1.000913,
+   "mu_src_min": 1.000912,
+   "nf_db": 10.95131,
+   "nf_method": "series_rs",
+   "s11_db": -5.721585,
+   "s11_max_db": -5.718022,
+   "s12_db": -6.146231,
+   "s21_db": -6.146231,
+   "s21_min_db": -6.147521,
+   "s21_ripple_db": 0.0025500000000002743,
+   "s22_db": -5.698859,
+   "stab_band": [
+    1565000000.0,
+    1586000000.0
+   ]
+  },
+  "margins": {
+   "idd_ma": {
+    "achieved": 6.6538160000000005e-09,
+    "margin": 0.9999999977820613,
+    "required_max": 3,
+    "required_min": null,
+    "scale": 3,
+    "supported": true
+   },
+   "iip3_dbm": {
+    "achieved": null,
+    "margin": null,
+    "required_max": null,
+    "required_min": -10,
+    "scale": 10,
+    "supported": false
+   },
+   "nf_db": {
+    "achieved": 10.95131,
+    "margin": -5.084061111111111,
+    "required_max": 1.8,
+    "required_min": null,
+    "scale": 1.8,
+    "supported": true
+   },
+   "s11_db": {
+    "achieved": -5.721585,
+    "margin": -0.4278415,
+    "required_max": -10,
+    "required_min": null,
+    "scale": 10,
+    "supported": true
+   },
+   "s21_db": {
+    "achieved": -6.146231,
+    "margin": -1.4097487333333334,
+    "required_max": null,
+    "required_min": 15,
+    "scale": 15,
+    "supported": true
+   }
+  },
+  "provenance": {
+   "index": 466,
+   "inductor_q": 12,
+   "note": "repeat",
+   "source_arm": "wpobserve-demo"
+  }
+ },
+ "published": null,
+ "op_state": {
+  "n_devices": 2,
+  "subsample": 1,
+  "kept_in_memory": 8,
+  "flushed_to_store": 0
+ },
+ "trajectory": {
+  "path": "data/_score_traj/cmaes_gps-l1-t2-a_s6.jsonl",
+  "rows": 136
+ },
+ "wall_s": 54.6,
+ "s_per_eval": 0.4013,
+ "git_sha": "fe922dd",
+ "ts": "2026-08-14T15:37:29+00:00"
+}

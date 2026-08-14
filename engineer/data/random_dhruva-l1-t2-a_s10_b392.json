@@ -1,0 +1,543 @@
+{
+ "kind": "engineer_baseline",
+ "schema": "engineer-result-v0",
+ "run_id": "dhruva-l1-t2-a-s10-b392-2026-08-14T153631+0000",
+ "algo": "random",
+ "arm": "random-search",
+ "arm_desc": "uniform random search in [0,1]^d (numpy.default_rng) -- the untuned null, driven through env.py's public API only",
+ "task": {
+  "id": "dhruva-l1-t2-a",
+  "spec": "dhruva-l1",
+  "wl_hash": "439032fd40e7e504",
+  "tier": 2,
+  "budget": 392,
+  "seed": 10,
+  "era": "current",
+  "n_devices": 18,
+  "ref": {
+   "ts": "2026-08-10T10:45:44+00:00",
+   "n_evals": 392,
+   "feasible": true,
+   "best_obj": null
+  },
+  "notes": "The flagship case study's L1 band. 18 devices, the largest deck here."
+ },
+ "seed": 10,
+ "n_params": 18,
+ "param_names": [
+  "pC1V",
+  "pC2V",
+  "pC3V",
+  "pC4V",
+  "pC5V",
+  "pC6V",
+  "pC7V",
+  "pC8V",
+  "pL1V",
+  "pL2V",
+  "pNM1W",
+  "pNM2W",
+  "pNM3W",
+  "pNM4W",
+  "pNM5W",
+  "pR1V",
+  "pR2V",
+  "pR3V"
+ ],
+ "budget_evals": 392,
+ "n_evals": 392,
+ "ngspice_calls": 784,
+ "n_sim_fail": 0,
+ "evals_to_best": 121,
+ "best_obj": 2.0829465554882565,
+ "feasible": false,
+ "viol": {
+  "s11_max_db": 0.179582,
+  "s21_db": 0.339894,
+  "idd_ma": 0.342783,
+  "nf_db": 0.220688
+ },
+ "metrics": {
+  "s11_db": -8.23292,
+  "s11_max_db": -8.20418,
+  "s21_db": 16.7667,
+  "s21_min_db": 6.22488,
+  "idd_ma": 17.456180000000003,
+  "nf_db": 3.295857,
+  "s22_db": -2.97537,
+  "s12_db": -73.3238,
+  "k_f0": 141.545,
+  "k_min": 98.6499,
+  "mu_f0": 1.40406,
+  "mu_min": 1.02443,
+  "mu_src_f0": 2.54961,
+  "mu_src_min": 2.54668,
+  "delta_f0": 0.274017,
+  "delta_max": 0.35017,
+  "stab_band": [
+   1100000000.0,
+   2500000000.0
+  ],
+  "s21_ripple_db": 11.377320000000001,
+  "nf_method": "series_rs"
+ },
+ "margins": {
+  "s11_max_db": {
+   "achieved": -8.20418,
+   "required_min": null,
+   "required_max": -10,
+   "scale": 10,
+   "margin": -0.17958200000000007,
+   "supported": true
+  },
+  "s21_db": {
+   "achieved": 16.7667,
+   "required_min": 25.4,
+   "required_max": null,
+   "scale": 25.4,
+   "margin": -0.33989370078740155,
+   "supported": true
+  },
+  "idd_ma": {
+   "achieved": 17.456180000000003,
+   "required_min": null,
+   "required_max": 13,
+   "scale": 13,
+   "margin": -0.3427830769230772,
+   "supported": true
+  },
+  "nf_db": {
+   "achieved": 3.295857,
+   "required_min": null,
+   "required_max": 2.7,
+   "scale": 2.7,
+   "margin": -0.22068777777777762,
+   "supported": true
+  },
+  "iip3_dbm": {
+   "achieved": null,
+   "required_min": -7.6,
+   "required_max": null,
+   "scale": 7.6,
+   "margin": null,
+   "supported": false
+  }
+ },
+ "best_x": [
+  0.9308177796064089,
+  0.47580961691477,
+  0.8225460548854344,
+  0.8572295302209562,
+  0.6764935414950661,
+  0.45498660462101737,
+  0.4128485875525849,
+  0.8504487044269501,
+  0.8384968519308824,
+  0.6553117810605648,
+  0.5123369187098239,
+  0.8614379961473706,
+  0.8052167915745027,
+  0.5774736846480625,
+  0.494773796005453,
+  0.4917019620912536,
+  0.0056412453565217735,
+  0.4094089215352835
+ ],
+ "best_params": {
+  "pNM1L": "45n",
+  "pNM2L": "45n",
+  "pNM3L": "45n",
+  "pNM4L": "45n",
+  "pNM5L": "45n",
+  "pVDD": "1.1",
+  "pVB": "0.5",
+  "pINDQ": "12",
+  "pINDW0": "1.25664e+10",
+  "pC1V": "6.93122e-12",
+  "pC2V": "6.22046e-13",
+  "pC3V": "3.90547e-12",
+  "pC4V": "4.69333e-12",
+  "pC5V": "1.80137e-12",
+  "pC6V": "5.57068e-13",
+  "pC7V": "4.45602e-13",
+  "pC8V": "4.5277e-12",
+  "pL1V": "7.97448e-09",
+  "pL2V": "3.89472e-09",
+  "pNM1W": "1.50974e-05",
+  "pNM2W": "9.59831e-05",
+  "pNM3W": "7.12571e-05",
+  "pNM4W": "2.13199e-05",
+  "pNM5W": "1.37559e-05",
+  "pR1V": "951.498",
+  "pR2V": "51.7189",
+  "pR3V": "581.134"
+ },
+ "trace": [
+  {
+   "n": 10,
+   "best_obj": 6.528585226895036,
+   "feasible": false
+  },
+  {
+   "n": 20,
+   "best_obj": 6.528585226895036,
+   "feasible": false
+  },
+  {
+   "n": 30,
+   "best_obj": 3.025146283868362,
+   "feasible": false
+  },
+  {
+   "n": 40,
+   "best_obj": 3.025146283868362,
+   "feasible": false
+  },
+  {
+   "n": 50,
+   "best_obj": 3.025146283868362,
+   "feasible": false
+  },
+  {
+   "n": 60,
+   "best_obj": 3.025146283868362,
+   "feasible": false
+  },
+  {
+   "n": 70,
+   "best_obj": 3.025146283868362,
+   "feasible": false
+  },
+  {
+   "n": 80,
+   "best_obj": 3.025146283868362,
+   "feasible": false
+  },
+  {
+   "n": 90,
+   "best_obj": 3.025146283868362,
+   "feasible": false
+  },
+  {
+   "n": 100,
+   "best_obj": 3.025146283868362,
+   "feasible": false
+  },
+  {
+   "n": 110,
+   "best_obj": 3.025146283868362,
+   "feasible": false
+  },
+  {
+   "n": 120,
+   "best_obj": 3.025146283868362,
+   "feasible": false
+  },
+  {
+   "n": 130,
+   "best_obj": 2.0829465554882565,
+   "feasible": false
+  },
+  {
+   "n": 140,
+   "best_obj": 2.0829465554882565,
+   "feasible": false
+  },
+  {
+   "n": 150,
+   "best_obj": 2.0829465554882565,
+   "feasible": false
+  },
+  {
+   "n": 160,
+   "best_obj": 2.0829465554882565,
+   "feasible": false
+  },
+  {
+   "n": 170,
+   "best_obj": 2.0829465554882565,
+   "feasible": false
+  },
+  {
+   "n": 180,
+   "best_obj": 2.0829465554882565,
+   "feasible": false
+  },
+  {
+   "n": 190,
+   "best_obj": 2.0829465554882565,
+   "feasible": false
+  },
+  {
+   "n": 200,
+   "best_obj": 2.0829465554882565,
+   "feasible": false
+  },
+  {
+   "n": 210,
+   "best_obj": 2.0829465554882565,
+   "feasible": false
+  },
+  {
+   "n": 220,
+   "best_obj": 2.0829465554882565,
+   "feasible": false
+  },
+  {
+   "n": 230,
+   "best_obj": 2.0829465554882565,
+   "feasible": false
+  },
+  {
+   "n": 240,
+   "best_obj": 2.0829465554882565,
+   "feasible": false
+  },
+  {
+   "n": 250,
+   "best_obj": 2.0829465554882565,
+   "feasible": false
+  },
+  {
+   "n": 260,
+   "best_obj": 2.0829465554882565,
+   "feasible": false
+  },
+  {
+   "n": 270,
+   "best_obj": 2.0829465554882565,
+   "feasible": false
+  },
+  {
+   "n": 280,
+   "best_obj": 2.0829465554882565,
+   "feasible": false
+  },
+  {
+   "n": 290,
+   "best_obj": 2.0829465554882565,
+   "feasible": false
+  },
+  {
+   "n": 300,
+   "best_obj": 2.0829465554882565,
+   "feasible": false
+  },
+  {
+   "n": 310,
+   "best_obj": 2.0829465554882565,
+   "feasible": false
+  },
+  {
+   "n": 320,
+   "best_obj": 2.0829465554882565,
+   "feasible": false
+  },
+  {
+   "n": 330,
+   "best_obj": 2.0829465554882565,
+   "feasible": false
+  },
+  {
+   "n": 340,
+   "best_obj": 2.0829465554882565,
+   "feasible": false
+  },
+  {
+   "n": 350,
+   "best_obj": 2.0829465554882565,
+   "feasible": false
+  },
+  {
+   "n": 360,
+   "best_obj": 2.0829465554882565,
+   "feasible": false
+  },
+  {
+   "n": 370,
+   "best_obj": 2.0829465554882565,
+   "feasible": false
+  },
+  {
+   "n": 380,
+   "best_obj": 2.0829465554882565,
+   "feasible": false
+  },
+  {
+   "n": 390,
+   "best_obj": 2.0829465554882565,
+   "feasible": false
+  }
+ ],
+ "trace_every": 10,
+ "algo_diag": {
+  "sampler": "uniform[0,1]^d",
+  "rng": "numpy.default_rng",
+  "seed": 10,
+  "draws": 392
+ },
+ "harness": {
+  "inductor_q": 12,
+  "nf_gated": true,
+  "stab_guard": true,
+  "ngspice_calls_per_eval": 2,
+  "eval_entry": "size.make_objective(...)[0]",
+  "w_finger": 2e-06,
+  "era": "current",
+  "deps": {
+   "models": "/home/dpatni/circuit-repro/AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt",
+   "zoaf": "/home/dpatni/circuit-repro/misc/ZOAF",
+   "analoggenie": "/home/dpatni/circuit-repro/AnalogGenie/repo",
+   "rebound": true
+  },
+  "notes": []
+ },
+ "reference_row": {
+  "ts": "2026-08-10T10:45:44+00:00",
+  "n_evals": 392,
+  "recipe": "mf2-v1",
+  "seed": 0,
+  "w_finger": 2e-06,
+  "feasible": true,
+  "best_obj": null,
+  "metrics": {
+   "delta_f0": 0.08003552,
+   "delta_max": 0.2046542,
+   "idd_ma": 12.9994,
+   "k_f0": 26.94396,
+   "k_min": 13.11317,
+   "mu_f0": 2.771842,
+   "mu_min": 1.616224,
+   "mu_src_f0": 3.678092,
+   "mu_src_min": 2.970153,
+   "nf_db": 1.587063,
+   "nf_method": "series_rs",
+   "s11_db": -11.98435,
+   "s11_max_db": -10.01911,
+   "s12_db": -62.61694,
+   "s21_db": 26.32481,
+   "s21_min_db": 23.85555,
+   "s21_ripple_db": 2.7113300000000002,
+   "s22_db": -9.308373,
+   "stab_band": [
+    1100000000.0,
+    2500000000.0
+   ]
+  },
+  "margins": {
+   "idd_ma": {
+    "achieved": 12.9994,
+    "margin": 4.615384615387523e-05,
+    "required_max": 13,
+    "required_min": null,
+    "scale": 13,
+    "supported": true
+   },
+   "iip3_dbm": {
+    "achieved": null,
+    "margin": null,
+    "required_max": null,
+    "required_min": -7.6,
+    "scale": 7.6,
+    "supported": false
+   },
+   "nf_db": {
+    "achieved": 1.587063,
+    "margin": 0.41219888888888895,
+    "required_max": 2.7,
+    "required_min": null,
+    "scale": 2.7,
+    "supported": true
+   },
+   "s11_max_db": {
+    "achieved": -10.01911,
+    "margin": 0.0019109999999999516,
+    "required_max": -10,
+    "required_min": null,
+    "scale": 10,
+    "supported": true
+   },
+   "s21_db": {
+    "achieved": 26.32481,
+    "margin": 0.03640984251968507,
+    "required_max": null,
+    "required_min": 25.4,
+    "scale": 25.4,
+    "supported": true
+   }
+  },
+  "provenance": {
+   "floor": 0.0,
+   "fresh": false,
+   "inductor_q": 12,
+   "keep": "tier1",
+   "mode": "nf",
+   "noise_budget": {
+    "f_hz": 1575420000.0,
+    "mos_mech_frac": {
+     "1overf": 0.14551,
+     "id": 0.83427,
+     "igd": 0.00262,
+     "igs": 0.00193,
+     "rbdb": 6e-05,
+     "rg": 0.01554
+    },
+    "nf_db_shares": 1.5850032538588055,
+    "source_frac": 0.6942240815813334,
+    "sum_closure": 1.0000001880531577,
+    "top": [
+     {
+      "elem": "rr1",
+      "frac_excess": 0.35505,
+      "frac_out": 0.10857,
+      "kind": "res"
+     },
+     {
+      "elem": "mnm5",
+      "frac_excess": 0.15082,
+      "frac_out": 0.04612,
+      "kind": "mos"
+     },
+     {
+      "elem": "mnm2",
+      "frac_excess": 0.11447,
+      "frac_out": 0.035,
+      "kind": "mos"
+     },
+     {
+      "elem": "rr2",
+      "frac_excess": 0.11112,
+      "frac_out": 0.03398,
+      "kind": "res"
+     },
+     {
+      "elem": "rql1",
+      "frac_excess": 0.09305,
+      "frac_out": 0.02845,
+      "kind": "res"
+     }
+    ]
+   },
+   "seed": 1,
+   "source_arm": "nf-campaign",
+   "store_recipe": "mf2-v1",
+   "store_spec": "dhruva-l2",
+   "store_wl_hash": "439032fd40e7e504"
+  }
+ },
+ "published": null,
+ "op_state": {
+  "n_devices": 5,
+  "subsample": 1,
+  "kept_in_memory": 8,
+  "flushed_to_store": 0
+ },
+ "trajectory": {
+  "path": "data/_score_traj/random_dhruva-l1-t2-a_s10.jsonl",
+  "rows": 392
+ },
+ "wall_s": 78.0,
+ "s_per_eval": 0.1991,
+ "git_sha": "fe922dd",
+ "ts": "2026-08-14T15:37:51+00:00"
+}

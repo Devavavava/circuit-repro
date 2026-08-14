@@ -113,19 +113,24 @@ committed **alone, before any scoring run** — its commit is the timestamp that
 forecloses E-2's falsifier ("a result table where the protocol was decided after
 the numbers were seen"). It fixes, with rationale and in advance: the 7 scoring
 tasks (smoke excluded), the matched per-task budget, the two null arms (CMA-ES,
-random), **N=5 seeds** (matched to FINDINGS §43.2), the metrics (feasible-rate,
-best objective, evals-to-first-feasible censored at budget, convergence curves),
-feasibility = `spec.feasible` exactly, the aggregation rule (per-task tables +
-scale-free median-rank; no cross-task objective mean), the modeling-vs-simulation
-time split, the determinism/replay tolerance, the §43.2 consistency check, and
-what changes numbers (era/harness/pin → re-run all) vs the protocol (task
-set/budget/N/metrics/aggregation → forbidden without a user ruling). It does
-**not** freeze the benchmark — that is ruling R-5, the user's call.
+random), the metrics (feasible-rate, best objective, evals-to-first-feasible
+censored at budget, convergence curves), feasibility = `spec.feasible` exactly,
+the aggregation rule (per-task tables + scale-free median-rank; no cross-task
+objective mean), the modeling-vs-simulation time split, the determinism/replay
+tolerance, the §43.2 consistency check, and what changes numbers
+(era/harness/pin → re-run all) vs the protocol (task set/budget/N/metrics/
+aggregation → forbidden without a user ruling). It does **not** freeze the
+benchmark — that is ruling R-5, the user's call.
 
-**Re-run it.**
+**User ruling 2026-08-14 (§43.1 amendment):** protocol v0 adopted as the WORKING
+protocol (not frozen), and N re-registered **5 → 10**. See `PROTOCOL.md §43.1`.
+Amendment commit: `f9ea7f2`. The N=5 artifact (`scoreboard_v0.json`) is retained
+permanently as the §43.2 reproduction record (see below).
+
+**Re-run it (N=10, the current registered count).**
 
 ```
-python engineer/score_run.py                 # full 7 tasks x 2 arms x 5 seeds, parallel
+python engineer/score_run.py                 # full 7 tasks x 2 arms x 10 seeds, parallel
 python engineer/score_run.py --seeds 1       # fast shakedown
 python engineer/score_run.py --cell wifi24-t2-a cmaes 1   # one cell
 python engineer/score_run.py --aggregate-only             # rebuild board from JSONs
@@ -135,22 +140,58 @@ python engineer/score_run.py --aggregate-only             # rebuild board from J
 (random) — the optimizers are not re-forked. Each `(task, arm, seed)` cell runs
 as its own subprocess writing its own trajectory file; after all cells finish the
 runner appends those into the canonical `data/trajectories.jsonl` in one serial
-pass, so the append-only law holds under parallelism. The full run is
-**33,460 evals / 66,920 ngspice calls**, ~90 s wall on a 70-way pool
-(~4,050 s of simulation, modeling = 2.7% of wall).
+pass, so the append-only law holds under parallelism.
 
-**Scoreboard: `data/scoreboard_v0.json`** (+ the human printout the runner emits).
-It carries the pre-registration SHA, the per-task × arm aggregates, the
-median-rank summary, the cost split, and the §43.2 consistency check. Per-cell
-result JSONs land as `data/{baseline_cmaes,random}_<task>_s<seed>_b<budget>.json`.
+### N=10 result — `data/scoreboard_v0.1.json` (amendment SHA `f9ea7f2`, N=10)
 
-**First result (v0):** CMA-ES median-rank 1, random 2 across all 7 tasks. CMA-ES
-is feasible on 4/7 tasks (5/5 seeds on dhruva-l5 and dhruva-s, 4/5 on wifi24,
-1/5 on dhruva-l1); random is 0/5 on every task. The **§43.2 reproduction is
-clean**: the scored `wifi24-t2-a` row is CMA-ES 4/5 (best −0.785, median −0.619)
-/ random 0/5 (best +1.00, median +1.66) vs published CMA-ES 4/5 (best −0.790,
-median −0.649) / random 0/5 (best +1.00, median +1.66) — **consistent within seed
-noise**, i.e. no harness or store drift.
+140 cells: 7 tasks × 2 arms × 10 seeds. **66,920 evals / 133,840 ngspice calls**,
+~131 s wall on a 128-way pool (~10,407 s simulation, modeling = 1.5% of wall).
+
+| task | arm | feasible | obj median | obj best | evals-to-first-feasible |
+|---|---|---:|---:|---:|---:|
+| dhruva-l1-t2-a | cmaes | 6/10 | −0.2522 | −0.7875 | 345 |
+| dhruva-l1-t2-a | random | 0/10 | +2.4091 | +1.6538 | — |
+| dhruva-l2-t2-a | cmaes | 1/10 | +1.1478 | −0.6003 | 220 |
+| dhruva-l2-t2-a | random | 0/10 | +3.0416 | +1.7081 | — |
+| dhruva-l5-t2-a | cmaes | 10/10 | −0.2723 | −0.2980 | 425 |
+| dhruva-l5-t2-a | random | 0/10 | +2.4402 | +1.6722 | — |
+| dhruva-s-t2-a | cmaes | 10/10 | −1.1498 | −1.1836 | 275 |
+| dhruva-s-t2-a | random | 0/10 | +1.7702 | +1.3601 | — |
+| gps-l1-t2-a | cmaes | 0/10 | +7.9205 | +7.9074 | — |
+| gps-l1-t2-a | random | 0/10 | +9.9008 | +8.8955 | — |
+| wideband-sdr-t2-a | cmaes | 1/10 | +1.6401 | −0.4500 | 130 |
+| wideband-sdr-t2-a | random | 0/10 | +2.0681 | +1.7334 | — |
+| wifi24-t2-a | cmaes | 9/10 | −0.7280 | −0.8231 | 180 |
+| wifi24-t2-a | random | 0/10 | +1.6408 | +1.0025 | — |
+
+**Median rank:** CMA-ES = 1, random = 2 (no change from N=5). CMA-ES is feasible
+on 5/7 tasks at N=10 (previously 4/7 at N=5 — `wideband-sdr` gained 1 feasible
+seed at s10 and `dhruva-l2` gained 1 at s8). Random is 0/10 on every task.
+
+**Rank changes vs N=5:** `wideband-sdr-t2-a` moves from 0/5 to 1/10 feasible for
+CMA-ES (seed 10 finds a feasible point at eval 130); `dhruva-l2-t2-a` moves from
+0/5 to 1/10 (seed 8 finds a feasible point at eval 220); `wifi24-t2-a` moves from
+4/5 to 9/10 CMA-ES (5 new seeds of which 5 are feasible). These are genuine new
+data, not harness drift. Median-rank ordering (CMA-ES beats random) is unchanged.
+
+### §43.2 reproduction artifact — `data/scoreboard_v0.json` (N=5, SHA `870ea4f`)
+
+The N=5 scoreboard is retained permanently as the §43.2 reproduction. **Seeds
+1–5 reproduced bit-identically** from E-2 (best_obj matches to floating-point
+equality across all spot-checked tasks; re-run tolerance ≤ 1e-6 per PROTOCOL §7):
+
+| task / arm | E-2 best_obj | N=10 re-run best_obj (seeds 1-5 only) | delta |
+|---|---|---|---|
+| wifi24 cmaes s1 | −0.61918777 | −0.61918777 | 0 |
+| wifi24 cmaes s3 | −0.56496790 | −0.56496790 | 0 |
+| wifi24 random s1 | +1.66287320 | +1.66287320 | 0 |
+| dhruva-l5 cmaes s1 | −0.18998092 | −0.18998092 | 0 |
+| dhruva-s cmaes s1 | −1.18179327 | −1.18179327 | 0 |
+
+**§43.2 consistency check (seeds 1–5 sub-aggregate):** CMA-ES 4/5 (best −0.785,
+median −0.619) / random 0/5 (best +1.00, median +1.66) — matches published
+CMA-ES 4/5 (best −0.790, median −0.649) / random 0/5 (best +1.00, median +1.66)
+— **consistent within seed noise**, no harness or store drift.
 
 ## Environment
 

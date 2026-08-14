@@ -8807,7 +8807,7 @@ R-d: 16-WP-LIN sign-off (incl. its D-1…D-9). R-e: correct
 rulings doc). R-f: wire the OpSink pattern into live WP scripts
 (corners.py first) so op rows resume flowing.
 
-## 44. Phase 3 — ★★★ WP-LIN **rung 0**: the designated point's IIP3 measured for the first time — OIP3 pinned at **−1.4 … −2.5 dBm**, 5 dB below the l5 point, and the current-swing-wall diagnosis (§2.2) confirmed three independent ways (Session 10, 2026-08-14)
+## 44. Phase 3 — ★★★ WP-LIN **rung 0**: the designated point's IIP3 measured for the first time — OIP3 pinned at **−1.4 … −2.5 dBm**, 5 dB below the l5 point, and the current-swing-wall diagnosis (§2.2) confirmed three independent ways (Session 10, 2026-08-14) — **now TWO-harness measured** (transient + VACASK HB, agreeing to 0.08 dB at the ruled nominal; §44.9)
 
 Rung 0 of `plans2/16-WP-LIN.md` — the blocking baseline, the only rung the
 user signed off (2026-08-14: rung 0 only; no candidate mechanisms, no screen,
@@ -8820,6 +8820,11 @@ VACASK build in `.env/vacask-0.3.4.rc1/` is present but not wired to the golden)
 transient-harness and awaiting-HB-cross-check, claimed by neither**. The three
 transient/HB goldens that could run were GREEN before any design number:
 `check_iip3` GREEN, `check_ref` GREEN, `check_diff` GREEN; `check_hb` BLOCKED.
+**⚠ Amended the same day (§44.9): VACASK HB was subsequently built on this box,
+`check_hb` is GREEN, and every §44.2 D5 number below has now been cross-checked
+in harmonic balance across all four configurations — the transient-only caveats
+in §44.2/§44.7 are superseded by §44.9. Read §44.9 for the two-harness verdict;
+the sections between remain as the transient half recorded them.**
 
 ### 44.1 The deck that never existed (§1.3 item 2, closed)
 
@@ -8960,16 +8965,20 @@ cleared.
 
 * **Branch.** The WP names branch `lna-data`; this RHEL port has only `main`
   and `engineer`, so rung 0 ran on `main` (PORTING.md's scope decision).
-* **HB blocked.** `check_hb.py` points at a Windows VACASK path and
-  `VACASK_HOME` is unset; the Linux build in `.env/vacask-0.3.4.rc1/` is on
-  disk (its `libklu.so.2` now resolved under `.env/envs/vacask-build/lib/`) but
-  the golden was not re-wired in rung-0 scope. Per D-8 default: transient-only,
-  no D5 claim rests on one harness; the HB cross-check is owed before any
-  acceptance. All §44.2 numbers are transient, awaiting HB.
+* **HB blocked — RESOLVED same day (§44.9).** At the time §44.2 was written
+  `check_hb.py` pointed at a Windows VACASK path and `VACASK_HOME` was unset, so
+  the transient half reported under D-8's default (transient-only, no D5 claim on
+  one harness). VACASK was then built for RHEL and `VACASK_HOME` exported;
+  `check_hb` is GREEN and all four configurations were re-measured in HB (§44.9).
+  The debt is paid: the D5 baseline is two-harness measured, D-8's asterisk
+  resolved.
 * **Shipped per-band decks unrunnable through iip3.py on this box** — stale
   Windows `.include`; the falsification test's own-sizing OIP3 was therefore
   measured on fresh, include-resolved bodies driven through iip3's two-tone
-  machinery in-process, not by reading the on-disk `.sp`.
+  machinery in-process, not by reading the on-disk `.sp`. **RESOLVED with the HB
+  half (§44.9):** `dhruva-{s,l1,l2,l5}.sp` are now rewritten include-portable via
+  `extract.rewrite_includes` (a no-op on the author's Windows box), verified to
+  convert through `port45`; both readers can now use the on-disk decks.
 * **`_lin_op_1p{1,2}.json` absent** in this checkout — re-derived from scratch
   (§44.4); the §2.1 table they sourced is reproduced, so no arithmetic changed.
 * **FINDINGS/JOURNEY slots.** The WP quoted §43 / stage 40 as its slots; those
@@ -8992,3 +9001,111 @@ collision-free across concurrent processes). Store discipline: artefacts stamped
 on; verbatim simulator evidence preserved in `lna/out/_lin_*.json` (gitignored,
 as §1.5.5's op artefacts are). No `source_arm` row was written — that stamp is
 rung 1's (`wplin-screen`), which was not run.
+
+### 44.9 ★★ Same-day HB completion — the D5 baseline is now TWO-harness measured, and D-8's asterisk is resolved
+
+**Added the same day (Session 10, 2026-08-14, later shell).** §44.2's numbers
+were transient-only because VACASK HB was blocked on this box (§44.7): the golden
+pointed at a Windows path and `VACASK_HOME` was unset. VACASK is now built for
+RHEL and `check_hb.py` prints **GREEN** (verified before any HB number below,
+alongside `check_iip3` / `check_ref` / `check_diff`, all GREEN before and after).
+The transient half's D5 numbers were owed an HB cross-check under §7 D-8; this
+section pays it. The four emitted decks of §44.1 are measured a second,
+independent way — VACASK 0.3.4.rc1 true two-tone harmonic balance (`lna/hb/
+hb_iip3.py`, the WP-HB harness, READ-ONLY) driven by sidecar `lna/_lin_hb.py`,
+4 bands × 8 drives per configuration (WP §4.0 item 4), replay-fenced.
+
+**The HB number, all four rung-0 configurations** (fixed `dhruva-simul` sizing,
+median over uncompressed drives, 3:1-slope-fenced; OIP3 = IIP3 + G):
+
+| config | band | **HB IIP3** | **HB OIP3** | gain | slope | target | verdict |
+|---|---|---|---|---|---|---|---|
+| **max / 1.2 V** (ruled nominal) | l5 | −34.45 | −1.27 | 33.18 | 2.96 | ≥ −7.4 | FAIL |
+| | l2 | −34.59 | −1.27 | 33.32 | 2.95 | ≥ −7.4 | FAIL |
+| | l1 | −35.25 | −1.38 | 33.88 | 2.95 | ≥ −7.6 | FAIL |
+| | s  | −35.19 | −1.74 | 33.45 | 2.95 | ≥ −8.7 | FAIL |
+| **max / 1.1 V** | l5/l2/l1/s | −33.28 / −33.39 / −34.12 / −34.30 | −1.78 / −1.75 / −1.84 / −2.30 | 31.5–32.3 | 2.94–2.96 | | FAIL |
+| **D6 S3 min / 1.2 V** | l5/l2/l1/s | −33.93 / −33.66 / −34.52 / −34.42 | −12.99 / −12.57 / −12.81 / −13.00 | 20.9–21.7 | 3.02–3.17 | | FAIL |
+| **D6 S3 min / 1.1 V** | l5/l2/l1/s | −32.87 / −32.57 / −33.27 / −33.41 | −13.66 / −13.20 / −13.20 / −13.49 | 19.2–20.1 | 2.97–3.18 | | FAIL |
+
+**Gate D5: HB FAILS 0/4 bands at every configuration, by 25–27 dB** — the same
+verdict the transient half returned, now from a second numerical method (a
+frequency-domain Newton solve on a different BSIM4 implementation, 4.8.3 vs
+ngspice's 4.5). **All four configurations were reached**, so §7 **D-8's default
+"report which harness reached what" is satisfied by both harnesses reaching all
+four**, and the D-8 asterisk on §11's D5 row is resolved: the rung-0 D5 baseline
+is **two-harness measured**, not one.
+
+**Cross-method agreement vs §44.2 transient, per band** (`|Δ|` in dB):
+
+| config | \|Δ IIP3\| range | \|Δ OIP3\| range | note |
+|---|---|---|---|
+| **max / 1.2 V** (ruled) | **0.07 – 0.09** | **0.08 – 0.09** | **on the 0.08 dB program precedent** (§37.6) |
+| max / 1.1 V | 0.16 – 0.20 | 0.17 – 0.20 | drive-window / kept-set + model term |
+| D6 S3 min / 1.2 V | 0.04 – 0.26 (l2 0.62) | 0.05 – 0.27 (l2 0.62) | l2 carries the 3 MHz-spacing offset |
+| D6 S3 min / 1.1 V | 0.26 – 0.42 (l2 0.71) | 0.26 – 0.42 (l2 0.71) | min-window kept-set spread + l2 spacing |
+
+**At the ruled condition (max gain, 1.2 V) the two harnesses agree to 0.07–0.09
+dB — exactly the program's 0.08 dB precedent (§37.6 / §40.3).** The larger deltas
+elsewhere were investigated before publishing (WP §4.0 fence rule) and are
+understood, not smoothed:
+
+1. **The residual is in the third-order term, not the model at large.** The
+   single-tone HB gain reproduces a **live ngspice `sp` S21 of the same deck to
+   0.0008 dB** on all four bands (the model-compat cross-check, `_lin_hb.py
+   --gain`). Linear agreement at 8×10⁻⁴ dB while IIP3 differs ~0.1–0.2 dB
+   localizes the discrepancy to the **g3 coefficient of the two BSIM4
+   implementations** — a genuine two-simulator property, the kind §37.6 saw at
+   0.02–0.08 dB on the l5 sizing and which is mildly larger here on the lower-Idd
+   (8.2 vs 13.0 mA) weak-inversion-heavy `dhruva-simul` operating point.
+2. **Drive-window / kept-set.** The transient harness keeps 4 uncompressed points
+   from a −80…−40 window; HB keeps 5 (max) or 8 (min) from −75…−40 (max) /
+   −68…−54 (min, matching §44.3's re-drive). The median IIP3 is taken over
+   slightly different drive geometries, adding a fraction of a dB at 1.1 V.
+3. **dhruva-l2 at the D6 min-gain state needed a 3 MHz tone spacing** (recorded,
+   not smoothed — the §40.5 precedent for the same class of workaround). At the
+   default 2 MHz, the l2 min deck triggers the VACASK 0.3.4.rc1 (f0, spacing,
+   nharm) spectrum-construction pathology §40.5 records — with the switch bank
+   present it does not converge at 2 MHz for any nharm in reasonable time. It
+   converges cleanly at 3 MHz (the smallest spacing that clears). The spacing
+   dependence is ~0.4 dB/decade and monotone (§40.5 `--fence`), so the l2-min HB
+   IIP3 carries a **known ~0.4 dB spacing offset** vs its 2 MHz transient row —
+   which is most of its ~0.6–0.7 dB delta. The other three min bands and every
+   max band ran at 2 MHz, matched to the transient side.
+
+**None of this moves a verdict.** Every delta is small against the 25–27 dB
+miss, the sign is consistent (HB reads marginally less negative), the replay
+fence is **0.0000 dB** on IIP3 in all 16 rows (in-process, HB precedent §40.3),
+IM3 slopes are 2.94–3.18 (bar 3 ± 0.3), and both harnesses agree the OIP3 is
+pinned at **−1.3 … −2.3 dBm at max gain** and falls with the gain to **−13**
+at the D6 S3 min-gain state while IIP3 stays at **−33 … −34** — the §2.3 / §42.6
+finding, confirmed cross-method: the output-side D6 mechanism buys **0 dB IIP3**.
+One honesty note: the min-gain S3 rows carry a wider per-config IIP3 spread on
+the s-band (up to 1.3 dB) than the max rows (≤0.5 dB), because the min window's
+8 kept points reach closer to the numerical floor; the replay fence is still
+0.0000 dB, so it is estimator spread over drive, not run-to-run noise, and the
+median it feeds is stable.
+
+**With both harnesses agreeing, the rung-0 baseline is two-harness measured, and
+Gate D5 still FAILS 0/4 bands by the same 25–27 dB margins at the ruled
+1.2 V / D6-min-gain condition.** The rung-0 deliverable (§1.3 items 1–3) is now
+closed on both methods; rungs 1–4 remain unrun (user sign-off was rung 0 only).
+
+**Cost (HB half).** 4 configs × 4 bands × 8 drives × 2 replays = 256 two-tone HB
+points + 92 convergence retries ≈ 348 VACASK invocations at ~6 s/run ≈ **35
+SPICE-minutes total, ~9 per configuration — well inside the 90-min/config cap**;
+~35 min wall-clock on the shared 128-core box. HB artefacts:
+`lna/out/_lin_hb_baseline.json` (gitignored, as the transient `_lin_*.json` are),
+stamped `recipe=wplin-v1`, `method=vacask-hb-0.3.4.rc1`. Sidecar overrides
+(D-9, recorded): `_lin_hb.py` re-points `port45.convert` by module attribute to
+carry the D6 min deck's switch-gate DC sources (`VSWGOB{1,2,3}`) into the HB
+netlist — the read-only harness handles the max deck as shipped but raises
+`unhandled card` on those extra sources; the wrap touches only cards port45 does
+not already emit, so the max-deck path is byte-identical to the golden's. No node
+inserted by literal name (§6.7); the switch bank was already baked into the min
+decks by the transient side's structural role resolution (§44.1). One artefact
+tidy landed with the HB half: the shipped per-band `dhruva-{s,l1,l2,l5}.sp`
+carried the author's Windows `.include` (§44.7 deviation 3), which blocked both
+`iip3.py`'s raw reader and `hb_iip3.py --own`; they are now rewritten
+include-portable via `extract.rewrite_includes` (a no-op on the author's Windows
+box, so repro intent is preserved), and verified to convert through `port45`.

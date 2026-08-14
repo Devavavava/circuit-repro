@@ -2366,6 +2366,28 @@ and failed the slope fence (2.2–2.5); a −68…−52 dBm re-drive recovered a
 window artefact, not a bad number, and the shortfall was published rather than
 smoothed.
 
+**Addendum — same-day HB completion (FINDINGS §44.9).** The transient half above
+reported under §7 D-8 because VACASK HB was blocked on this box (Windows path in
+the golden, `VACASK_HOME` unset). VACASK was then built for RHEL, `check_hb` went
+GREEN, and all four rung-0 configurations were re-measured a second, independent
+way — true two-tone harmonic balance in VACASK 0.3.4.rc1 (a frequency-domain
+Newton solve on BSIM4.8.3, against ngspice's time-stepping on 4.5). **HB agrees:
+Gate D5 FAILS 0/4 bands at every configuration, by 25–27 dB.** At the ruled
+condition (max gain, 1.2 V) the two harnesses agree to **0.07–0.09 dB — the
+program's 0.08 dB precedent**; the larger deltas at the other rails/states were
+investigated and traced to the third-order term of the two BSIM4 implementations
+(the linear gain reproduces ngspice's S21 to 0.0008 dB), to drive-window / kept-
+set differences, and — for dhruva-l2 at the min-gain state — to a 3 MHz tone
+spacing forced by the §40.5 VACASK spectrum pathology once the switch bank is
+present (a known ~0.4 dB spacing offset, recorded not smoothed). **The rung-0 D5
+baseline is now two-harness measured; D-8's asterisk is resolved.** Both
+harnesses also confirm the §2.3 / §42.6 finding cross-method: the output-side D6
+mechanism buys **0 dB IIP3** (IIP3 pinned at −33…−34 while OIP3 falls with the
+gain to −13 at S3). No candidate mechanism was run (rungs 1–4 remain; user
+sign-off was rung 0 only). One artefact tidy rode along: the shipped per-band
+`dhruva-*.sp` decks, which carried a stale Windows `.include`, are now
+include-portable.
+
 ## Current frontier
 
 As of this document's writing (`lna-data`, commit `5be4de3` and whatever

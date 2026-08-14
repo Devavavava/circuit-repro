@@ -12,6 +12,39 @@ the benchmark is ruling **R-5 / E-5**, reserved to the user (charter §4, §7).
 Nothing here freezes anything; it pre-registers the rule the first result table
 is produced under, and queues the freeze decision.
 
+---
+
+### §43.1 Amendment — 2026-08-14 (user ruling)
+
+**Ruling date:** 2026-08-14.
+
+**What changed:** N (seed count) re-registered from **5 → 10**; seeds 1..10,
+protocol otherwise unchanged.
+
+**What did not change:** task set, budgets, arms, metrics, feasibility definition,
+aggregation rule, §43.2 consistency-check acceptance criteria, determinism/replay
+tolerance, artifact naming conventions. Protocol v0 is **adopted as the working
+protocol** (not frozen — freezing remains R-5, the user's call as stated in §9).
+
+**N=5 artifact retention (§43.2 reproduction):** The N=5 scoreboard
+(`engineer/data/scoreboard_v0.json`, pre-reg SHA `870ea4f5587de246dbe14e11df944a47129ce315`,
+produced 2026-08-14) is **retained on file as the §43.2 reproduction artifact**
+— seeds 1–5 at N=5 are the claim that the harness matches FINDINGS §43.2's
+published null table. It is not replaced by the N=10 run; it is the §43.2
+consistency check's permanent record.
+
+**N=10 artifact:** `engineer/data/scoreboard_v0.1.json`, carrying this amendment
+commit's SHA as its `preregistration_sha`. Seeds 1–5 are identical runs to E-2
+and must reproduce those cells bit-identically (best_obj ≤ 1e-6 tolerance per
+PROTOCOL §7); seeds 6–10 are new. 7 tasks × 2 arms × 10 seeds = 140 cells.
+
+**Rationale for raising N:** AnalogGym (S11) uses 10 seeds. Raising to 10
+tightens feasible-rate and median-objective estimates without changing any protocol
+rule. The deliberate cost is that the N=5 and N=10 tables are not
+directly comparable on per-seed rank (the additional 5 seeds change medians), but
+the aggregate §43.2 consistency check (seeds 1–5 only) is unchanged and
+unambiguous. Pre-registered so numbers could not have chosen the N.
+
 This document is short by intent. It is `lna/plans2/16-WP-LIN.md`'s
 pre-registration discipline applied to a benchmark scoring run: state the task
 set, the budget, the arms, the seeds, the metrics, the aggregation, and the
@@ -102,24 +135,23 @@ stored row is each task's pinned reference.
 
 ---
 
-## 4. N seeds = 5
+## 4. N seeds = 10 (amended 2026-08-14; see §43.1)
 
-**N = 5 seeds per arm per task**, seeds `1..5`.
+**N = 10 seeds per arm per task**, seeds `1..10`.
 
-Rationale, argued before the run: FINDINGS §43.2 — the one published result this
-protocol's `wifi24-t2-a` row must be *consistent with* — used **5 seeds/arm**.
-The charter (§6 E-2) instructs: match §43.2's 5 unless argued otherwise in this
-doc. Matching it is the right call: the `wifi24-t2-a` row is a **reproduction
-check** of §43.2 (see §8), and a reproduction at a different N is not a clean
-reproduction — a drift could be N, not the harness. Cross-task and cross-arm
-comparability also wants one N, and 5 is the one §43.2 fixed.
+*Original rationale (N=5, pre-registration commit `870ea4f5587de246dbe14e11df944a47129ce315`):*
+FINDINGS §43.2 used 5 seeds/arm; matching it was the right call for the first
+scoring run because `wifi24-t2-a` is a reproduction check of §43.2 (§8), and a
+reproduction at a different N is not a clean reproduction. That rationale produced
+the E-2 N=5 artifact (`scoreboard_v0.json`), which is retained permanently as the
+§43.2 reproduction (see §43.1).
 
-**Noted, not adopted:** the survey's model, AnalogGym (S11), runs **10 seeds**.
-Ten would tighten the medians and the feasible-rate estimates. The deliberate
-deviation to 5 buys exact consistency with the program's own published null
-table; raising to 10 later is a *number* change (re-run everything, §9), not a
-*protocol* change, and is a reasonable thing for the freeze ruling (R-5) to
-revisit. Recorded as a genuinely contestable choice, queued for the user.
+*Amendment rationale (N=10, user ruling 2026-08-14):* AnalogGym (S11) uses
+**10 seeds** as its standard. Raising to 10 tightens feasible-rate and
+median-objective estimates. The §43.2 consistency check (§8) remains a seeds-1–5
+comparison, so the reproduction is unambiguous. Seeds 1–5 are carried over
+bit-identically from E-2; seeds 6–10 are new. Pre-registered before any new seed
+was run.
 
 ---
 

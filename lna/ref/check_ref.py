@@ -23,8 +23,11 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(HERE, ".."))
+from extract import rewrite_includes  # noqa: E402  (portable model-card include)
 NGSPICE = os.environ.get("NGSPICE", r"C:\msys64\ucrt64\bin\ngspice_con.exe")
 BASELINE = os.path.join(HERE, "ref_baseline.json")
 
@@ -55,8 +58,24 @@ DECKS = {
 
 def run_deck(deck):
     path = os.path.join(HERE, deck)
-    p = subprocess.run([NGSPICE, "-b", path], capture_output=True,
-                       text=True, timeout=120)
+    # The deck's baked `.include ...45nm_bulk.txt` is a dead Windows path off the
+    # author's box; run a temp copy with it resolved to this host's model card.
+    src = open(path, encoding="utf-8").read()
+    fixed = rewrite_includes(src)
+    if fixed == src:
+        run_path = path
+        cleanup = None
+    else:
+        fd, run_path = tempfile.mkstemp(suffix="_" + deck, prefix="ref_")
+        with os.fdopen(fd, "w") as fh:
+            fh.write(fixed)
+        cleanup = run_path
+    try:
+        p = subprocess.run([NGSPICE, "-b", run_path], capture_output=True,
+                           text=True, timeout=120)
+    finally:
+        if cleanup:
+            os.remove(cleanup)
     text = (p.stdout or "") + (p.stderr or "")
     metrics = {}
     for name, (rx, scale) in FIELDS.items():

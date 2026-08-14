@@ -28,6 +28,44 @@ NGSPICE = os.environ.get("NGSPICE", r"C:\msys64\ucrt64\bin\ngspice_con.exe")
 _NUM = r"([-\d.eE+]+)"
 K4TRS = 8.283894e-19          # 4kT*50 at 300 K
 
+# The static reference decks (lna/ref/ref24_*.cir) carry a hardcoded absolute
+# `.include ...45nm_bulk.txt` -- the model card the author's Windows checkout
+# used. That card is a gitignored upstream clone, so on any other host the path
+# is dead and ngspice exits with no models (every metric None). Resolve it the
+# way engineer/env.py's dep-shim does: an explicit override, then this checkout,
+# then the baked literal as a last resort so Windows keeps working untouched.
+_MODELS_REL = os.path.join("AutoCkt", "repo", "eval_engines", "ngspice",
+                           "ngspice_inputs", "spice_models", "45nm_bulk.txt")
+_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+# matches an .include line whose target ends in the 45 nm model card
+_INCLUDE_RE = re.compile(r"^(\s*\.include\s+)(\S*45nm_bulk\.txt)\s*$",
+                         re.IGNORECASE)
+
+
+def resolve_models(literal=None):
+    """Absolute path to the 45 nm model card: override -> this checkout ->
+    the deck's baked literal (kept as the Windows fallback)."""
+    for cand in (os.path.join(os.environ["LNA_DEPS_ROOT"], _MODELS_REL)
+                 if os.environ.get("LNA_DEPS_ROOT") else None,
+                 os.path.join(_REPO_ROOT, _MODELS_REL)):
+        if cand and os.path.exists(cand):
+            return os.path.abspath(cand)
+    return literal
+
+
+def rewrite_includes(text):
+    """Rewrite any `.include ...45nm_bulk.txt` line to a locally resolvable path.
+    A no-op where the baked path already exists (e.g. the author's Windows box)."""
+    out = []
+    for ln in text.splitlines():
+        m = _INCLUDE_RE.match(ln)
+        if m:
+            resolved = resolve_models(m.group(2))
+            if resolved and os.path.abspath(resolved) != os.path.abspath(m.group(2)):
+                ln = m.group(1) + resolved.replace(os.sep, "/")
+        out.append(ln)
+    return "\n".join(out)
+
 # Every ngspice caller in this tree used to `mkdtemp` per call and none of them
 # cleaned up (FINDINGS §15 hygiene note). One overnight campaign is ~1e5 calls;
 # the shared %TEMP% had accumulated 685k stale `size_*`/`nf_*`/`bias_*` dirs,
@@ -611,7 +649,7 @@ def body_of(deck):
         if skip or s.lower().startswith(".param"):
             continue
         body.append(ln.rstrip())
-    return "\n".join(body)
+    return rewrite_includes("\n".join(body))
 
 
 def nf_selftest():

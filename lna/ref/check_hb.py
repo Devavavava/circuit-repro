@@ -57,8 +57,14 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 VACASK_HOME = os.environ.get(
     "VACASK_HOME",
     r"C:\Users\Devavrat\tools\vacask_0.3.4.rc1\vacask_0.3.4.rc1_windows-x86_64")
-VACASK = os.path.join(VACASK_HOME, "bin", "vacask.exe")
-sys.path.insert(0, os.path.join(VACASK_HOME, "lib", "python"))
+# binary name is platform-specific; the python helpers live under lib/python on
+# the Windows build and lib/vacask/python on the Linux build.
+VACASK = os.path.join(VACASK_HOME, "bin",
+                      "vacask.exe" if os.name == "nt" else "vacask")
+for _pylib in (os.path.join(VACASK_HOME, "lib", "python"),
+               os.path.join(VACASK_HOME, "lib", "vacask", "python")):
+    if os.path.isdir(_pylib):
+        sys.path.insert(0, _pylib)
 
 A1, A3 = 10.0, -1.0
 F1, F2 = 1.0e6, 1.1e6
@@ -68,9 +74,11 @@ IIP3_ANALYTIC = 10.0 * math.log10((4.0 * abs(A1 / A3) / 3.0) / (2.0 * Z0) / 1e-3
 
 # No MSVC linker on this machine; MSYS2 provides the GNU one (WORKLOG-class
 # gotcha: plain `link` in PATH is GNU coreutils and breaks the MSVC target).
-VACASKRC = """[Binaries]
+# The windows-gnu target is a Windows-only workaround; on Linux let openvaf pick
+# its native target by emitting no override.
+VACASKRC = ("""[Binaries]
 openvaf_args = [ "--target", "x86_64-pc-windows-gnu" ]
-"""
+""" if os.name == "nt" else "")
 
 # ---------------------------------------------------------------- G1 netlist
 # cubic VCCS (current form) into RL, ideal two-tone EMF, no source resistance
@@ -293,7 +301,7 @@ def g2_cross_method(root, a1, a3, pins_dbm, tag):
 
 def main():
     if not os.path.exists(VACASK):
-        raise SystemExit(f"vacask.exe not found at {VACASK} (set VACASK_HOME)")
+        raise SystemExit(f"vacask not found at {VACASK} (set VACASK_HOME)")
     root = tempfile.mkdtemp(prefix="check_hb_")
     try:
         ok = g0_reltol_control(root)

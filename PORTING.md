@@ -45,8 +45,37 @@ Verified green: 0 sim failures, real S-parameters/NF, CMA-ES converges to a
 near-feasible design and finishes infeasible at the reduced 150-eval budget —
 exactly what `engineer/README.md` says the smoke should do.
 
+## Reference goldens are green on this host
+
+The three static reference decks (`lna/ref/ref24_{cg,csdeg,tapped}.cir`) baked an
+absolute `.include C:/Users/Devavrat/.../45nm_bulk.txt` — the author's Windows
+path. On any other host it is dead and ngspice exits with no models, so
+`check_ref.py` extracted nothing. Fix: `extract.resolve_models()` /
+`extract.rewrite_includes()` rewrite that include at runtime the way
+`engineer/env.py`'s dep-shim resolves the card — `$LNA_DEPS_ROOT` override →
+this checkout's `AutoCkt/repo/...` path → the baked Windows literal as a last
+resort (so Windows keeps working, decks untouched). `body_of()` applies it, which
+covers the harness-based checks; `check_ref.py` runs a temp copy of each deck.
+`check_hb.py` also became portable: it now respects `$VACASK_HOME`, picks
+`vacask` vs `vacask.exe` by platform, and emits the windows-gnu openvaf target
+only on Windows.
+
+Golden status verified 2026-08-14 (`source env.sh` + this checkout):
+
+| check | result | note |
+|---|---|---|
+| `check_ref`  | GREEN | all metrics match `ref_baseline.json` to the digit |
+| `check_op`   | GREEN | ref24_tapped OP parity |
+| `check_nf`   | GREEN | analytic + real-LNA series-Rs NF |
+| `check_iip3` | GREEN | G1–G4 |
+| `check_bjt`  | GREEN | Gummel-Poon cards + emission parity |
+| `check_diff` | GREEN | ngspice-backed 3-port balun (no VACASK needed) |
+| `check_stab` | PARTIAL | §3 reference decks all UNCONDITIONAL; §4 needs `AnalogGenie/repo` (an un-fetched upstream clone), unrelated to the include fix |
+| `check_hb`   | FAIL | VACASK build present under `.env/vacask-0.3.4.rc1` but its `vacask` binary is missing `libklu.so.2` (SuiteSparse) — a build-wiring issue in the parallel VACASK port, not a path issue |
+
 ## Not done (bigger lifts, not needed for the smoke)
 
 - torch + CUDA env for the lna **generation** side (`generate.py`, `critic_gnn.py`,
   AnalogGenie checkpoint). The RTX A1000 + PyPI CUDA wheels make this easy when wanted.
 - The broader 11-paper harness and its per-repo envs.
+- `AnalogGenie/repo` clone (needed by `check_stab.py` §4 and `templates.py`).

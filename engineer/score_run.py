@@ -189,16 +189,37 @@ def _rank_arms(per_task):
     return {arm: round(statistics.median(rs), 2) for arm, rs in ranks.items()}
 
 
-def _consistency_432(per_task):
-    """PROTOCOL 8: read the scored wifi24-t2-a row against FINDINGS 43.2."""
+def _consistency_432(per_task, cells=None):
+    """PROTOCOL 8: read the scored wifi24-t2-a row against FINDINGS 43.2.
+
+    For N>5 runs (§43.1 amendment), the §43.2 reproduction check uses only
+    seeds 1-5 -- the seeds that were also run in E-2 and must match FINDINGS
+    43.2 bit-identically.  When `cells` is supplied, the seeds-1-5 sub-aggregate
+    is computed from the raw cell records; otherwise the full per_task aggregate
+    (which will have a different N) is used and the comparison is flagged as
+    N-mismatch, not harness drift.
+    """
     got = per_task.get("wifi24-t2-a")
     if not got:
         return {"checked": False, "note": "wifi24-t2-a not in scored set"}
-    out = {"checked": True, "source": PUBLISHED_432["source"], "arms": {}}
+    # When we have raw cells, re-aggregate seeds 1-5 only for the §43.2 check.
+    seeds_15 = None
+    if cells is not None:
+        seeds_15 = {}
+        for arm in ("cmaes", "random"):
+            sub = [c for c in cells
+                   if c["task"] == "wifi24-t2-a" and c["arm"] == arm
+                   and c["seed"] in range(1, 6)]
+            if sub:
+                seeds_15[arm] = _agg_arm(sorted(sub, key=lambda c: c["seed"]))
+    out = {"checked": True, "source": PUBLISHED_432["source"],
+           "note": ("§43.2 reproduction uses seeds 1-5 only (N=5 sub-aggregate)"
+                    if seeds_15 else "full-N aggregate"),
+           "arms": {}}
     flags = []
     for arm in ("cmaes", "random"):
         pub = PUBLISHED_432[arm]
-        g = got.get(arm)
+        g = (seeds_15 or {}).get(arm) or got.get(arm)
         if not g:
             continue
         pub_n = int(pub["feasible"].split("/")[0])
@@ -220,7 +241,10 @@ def _consistency_432(per_task):
 
 
 def aggregate(cells, protocol_sha):
-    """Build the scoreboard dict from all cell results."""
+    """Build the scoreboard dict from all cell results.
+
+    For the §43.2 consistency check the raw cell list is passed through so the
+    check can slice seeds 1-5 only (the §43.2 reproduction sub-aggregate)."""
     from collections import defaultdict
     per_task = defaultdict(dict)
     grouped = defaultdict(list)
@@ -240,7 +264,7 @@ def aggregate(cells, protocol_sha):
                      "tasks": sorted({c["task"] for c in cells})},
         "per_task": per_task,
         "median_rank": _rank_arms(per_task),
-        "consistency_432": _consistency_432(per_task),
+        "consistency_432": _consistency_432(per_task, cells=cells),
         "cost": {"sim_s_total": sim_total, "model_s_total": model_total,
                  "wall_s_total": round(sim_total + model_total, 2),
                  "n_cells": len(cells),

@@ -110,14 +110,26 @@ descent."*) — it is the store's own instruction on how to start a sizing searc
 | `6 ≤ s < 11` | 4 |
 | `s ≥ 11` | 6 |
 
-The arm then runs **K-start CMA-ES**: draw K starting means from the run's own
-`default_rng(seed)`, evaluate each once (these K evals count against the shared
-budget), and begin standard `run_cmaes` from the **best-objective** start mean —
-"best-of-all-coordinates," exactly as the rule prescribes. Everything after the
-seeded start is Hansen's purecmaes verbatim (`lna/null_sizer.run_cmaes`,
-imported, never re-implemented — two implementations of a baseline are two
-baselines). The score→K table and the qualification predicate are the whole of
-the arm; both are frozen here before the run.
+The arm then runs **K-start CMA-ES**: K independent CMA-ES starts, each given an
+**equal slice** of the task budget (`floor(budget/K)` evals, the last start
+absorbing the remainder so the full budget is always spent), each seeded from a
+distinct sub-seed `seed, seed+1, ..., seed+K-1`; the env keeps the **global best**
+across all starts — "best-of-all-coordinates," exactly as the rule prescribes.
+Each start is Hansen's purecmaes verbatim (`lna/null_sizer.run_cmaes`, imported,
+never re-implemented — two implementations of a baseline are two baselines),
+stopped at its slice boundary by a per-start wrapper that raises the env's own
+`BudgetExhausted`, transparent to the optimizer. The score→K table and the
+qualification predicate are the whole of the arm; both are frozen here before the
+run.
+
+> *Note (still pre-run, no measurement number seen): this §2.2 was tightened from
+> an earlier "evaluate K means once, then one CMA-ES from the best mean" phrasing
+> to the budget-sliced multi-start above, because `run_cmaes` is imported verbatim
+> and takes no injectable start mean — the sliced multi-start is the faithful
+> "multi-start, best-of-all-coordinates" a verbatim import can express, and it
+> still reduces EXACTLY to the null at K=1. Corrected before any measurement
+> number existed; the pre-registration discipline (rule fixed before results) is
+> intact.*
 
 ### 2.3 Store-miss ⇒ the plain null (this IS the cold control)
 

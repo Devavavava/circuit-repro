@@ -206,3 +206,78 @@ imagined schema — explicitly rejected here.
 
 <!-- POST-HOC OUTCOME TABLE APPENDED BELOW AFTER THE RUN — NOT PART OF THE
      PRE-REGISTRATION. The text above this line is what was committed first. -->
+
+## 6. Outcome (post-hoc — appended after the run)
+
+**Run:** 70 pairs (7 tasks × 10 seeds), each pair = warm + cold = the full matched
+budget on both sides. **66,920 evals total** (33,460 warm + 33,460 cold; each side
+spends exactly its task budget, PROTOCOL §2). Artifact:
+`engineer/data/mem_pairs_v0.json`. Pre-registration SHA (first commit adding this
+file): **`353f734`**; §2.2 phrasing tightened pre-run in **`c0c0451`**.
+
+| task | side | K | feasible | obj median | obj best | ev→feasible | verdict |
+|---|---|---:|---:|---:|---:|---:|:---|
+| dhruva-l1-t2-a | warm | 6 | 0/10 | +1.7819 | +1.3730 | — | **warm<cold** |
+| dhruva-l1-t2-a | cold | 1 | 6/10 | −0.2522 | −0.7875 | 345 | (= cmaes null) |
+| dhruva-l2-t2-a | warm | 6 | 0/10 | +2.2902 | +2.1563 | — | **warm<cold** |
+| dhruva-l2-t2-a | cold | 1 | 1/10 | +1.1478 | −0.6003 | 220 | (= cmaes null) |
+| dhruva-l5-t2-a | warm | 6 | 0/10 | +1.0560 | +1.0266 | — | **warm<cold** |
+| dhruva-l5-t2-a | cold | 1 | 10/10 | −0.2723 | −0.2980 | 425 | (= cmaes null) |
+| dhruva-s-t2-a | warm | 6 | 3/10 | +1.1016 | −0.6886 | 860 | **warm<cold** |
+| dhruva-s-t2-a | cold | 1 | 10/10 | −1.1498 | −1.1836 | 275 | (= cmaes null) |
+| gps-l1-t2-a | warm | 6 | 0/10 | +8.0777 | +7.9151 | — | **warm<cold** |
+| gps-l1-t2-a | cold | 1 | 0/10 | +7.9205 | +7.9074 | — | (= cmaes null) |
+| wideband-sdr-t2-a | warm | 6 | 0/10 | +1.2833 | +1.2833 | — | **warm<cold** |
+| wideband-sdr-t2-a | cold | 1 | 1/10 | +1.6401 | −0.4500 | 130 | (= cmaes null) |
+| wifi24-t2-a | warm | 6 | 4/10 | +1.2080 | −0.5140 | 250 | **warm<cold** |
+| wifi24-t2-a | cold | 1 | 9/10 | −0.7280 | −0.8231 | 180 | (= cmaes null) |
+
+**Median rank across the 7 tasks (1 = best):** `cold = 1`, `cmaes-null = 2`,
+`warm = 3`.
+
+### 6.1 The acceptance answer — does warm beat its own cold control?
+
+**No, on all 7 tasks: warm < cold, 7/7.** OVERALL: **cold beats warm.** The
+playbook-informed multi-start *hurt* at matched budget, and the mechanism is
+plain: with K=6 the fixed per-task budget is split into six short CMA-ES starts
+(e.g. wifi24's 336 → six 56-eval starts), and six starved starts converge worse
+than one full-budget start. Memory was retrieved correctly and mapped to K=6 on
+every warm cell (`search-must-be-seeded-from-physics` for the dhruva/wideband
+families, `objective-only-protects-what-it-scores` for wifi24/gps), so this is not
+a retrieval miss — it is a *measured negative*: this particular way of consuming
+this store, at this budget, does not help. Charter §4/§6 E-3: this line reports
+whichever way it falls, and E-3's deliverable is the HARNESS, which discriminated
+warm from cold cleanly and shipped every warm number beside its cold twin.
+
+### 6.2 The cold control IS the registered null (bit-identity)
+
+Every cold column equals the registered `cmaes` null in `scoreboard_v0.1.json`
+**to the digit** — feasible-rate, median, and best all identical on all 7 tasks
+(the "(= cmaes null)" rows above are the scoreboard's own numbers). Spot-checked
+per-seed: cold `best_obj` = null `best_obj` bit-for-bit (gps-l1 s1
+`7.907367555555555`; wifi24 s1 `−0.6191877666666665`). K=1 on a store-miss reduces
+`pb-cmaes` to `run_cmaes(f, n, seed)` exactly — the cold control is the plain null,
+by construction, not by coincidence.
+
+### 6.3 Hermeticity (proven, charter hard constraint)
+
+- `lna/playbook` **clean before and after** the run (`git status --short lna/playbook`
+  empty both times; the harness refuses to report otherwise).
+- **All 70 cold cells saw an empty store** (`store_fingerprint.n_entries == 0`);
+  warm cells all read the real store (sha256 `007e9f23…`). Cold is the
+  `mem_playbook.py` sidecar pointing `playbook`'s module attributes at an empty
+  temp dir — `lna/playbook.py` was never edited, the real store's bytes never
+  moved or touched.
+
+### 6.4 What E-4's loop should consume from this harness
+
+E-3 delivers the *paired* measurement primitive. E-4 (the unattended loop) should
+call `memory_harness.run_pair` (or its `_run_side` with a cold flag) so that every
+loop-level "memory helped" number is born with its cold twin — the loop never gets
+a warm result without paying for the cold control. The negative here also tells
+E-4 something concrete: **naive budget-splitting is the wrong way to spend a
+retrieved sizing lesson.** A memory arm that helps will have to consume the
+store's content as *structure or constraint* (e.g. seeding a single start's mean
+from physics, or adding a move — what `search-must-be-seeded-from-physics`
+actually says) rather than as "run more, shorter starts." That is E-4's design
+problem; E-3 has given it a measurement it cannot fool.

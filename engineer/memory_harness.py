@@ -306,11 +306,15 @@ def _git_status_lna_playbook():
 
 
 def _prereg_sha():
+    """The commit that FIRST added E3-MEMORY.md -- the pre-registration timestamp
+    (the rule was fixed before any measurement number). A later commit tightened
+    §2.2's phrasing while still pre-run; that is `_prereg_amend_sha`."""
     try:
-        r = subprocess.run(["git", "log", "-1", "--format=%H", "--",
+        r = subprocess.run(["git", "log", "--reverse", "--format=%H", "--",
                             "engineer/E3-MEMORY.md"], cwd=EV.ROOT,
                            capture_output=True, text=True, timeout=10)
-        return (r.stdout or "").strip() or None
+        shas = [s for s in (r.stdout or "").split() if s]
+        return shas[0] if shas else None
     except Exception:                                          # noqa: BLE001
         return None
 
@@ -345,12 +349,9 @@ def main():
         with open(os.path.join(PAIR_DIR, f"pair_{a.cell[0]}_s{a.cell[1]}.json"),
                   "w", encoding="utf-8", newline="\n") as fh:
             json.dump(EV._plain(pair), fh, indent=1)
-        print(json.dumps({"task": pair["task"], "seed": pair["seed"],
-                          "warm_feas": pair["warm"]["feasible"],
-                          "cold_feas": pair["cold"]["feasible"],
-                          "warm_obj": pair["warm"]["best_obj"],
-                          "cold_obj": pair["cold"]["best_obj"],
-                          "K_warm": pair["warm"]["K"], "K_cold": pair["cold"]["K"]}))
+        # Emit the FULL pair as the last line so the parent gets warm+cold, not a
+        # summary (the aggregator needs both sides).
+        print(json.dumps(EV._plain(pair)))
         return 0
 
     tasks = a.tasks or sorted(SCORING)

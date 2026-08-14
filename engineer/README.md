@@ -20,6 +20,10 @@ the quality bar, the E-queue, and the open ruling queue.
 | `baseline_run.py` | the end-to-end smoke: CMA-ES (imported from `lna/null_sizer.py`) through `env.py` |
 | `random_run.py` | the E-1 falsifier: a random-search driver on `env.py`'s public API |
 | `test_env.py` | the E-1 API-hardening tests (round-trip, foreign topology, non-sizable contract, loud dep-shim) |
+| `E3-MEMORY.md` | the E-3 pre-registration: cold/warm harness contract, the `pb-cmaes` arm's rule, the acceptance question, and the post-hoc outcome table |
+| `memory_harness.py` | the E-3 cold/warm harness: `run_pair(task,seed)` runs the arm warm **and** cold in one call — no warm-only artifact shape |
+| `mem_playbook.py` | the read-only sidecar that consults the playbook hermetically (empty temp store for cold; never edits `lna/playbook.py` or its files) |
+| `mem_arm.py` | the `pb-cmaes` arm: playbook-informed K-start CMA-ES, reducing bit-identically to the `cmaes` null at K=1 |
 | `data/` | this line's own append-only store: `trajectories.jsonl` + result JSONs |
 
 Everything under `lna/` is **read-only** from here. Nothing in this directory
@@ -192,6 +196,78 @@ equality across all spot-checked tasks; re-run tolerance ≤ 1e-6 per PROTOCOL �
 median −0.619) / random 0/5 (best +1.00, median +1.66) — matches published
 CMA-ES 4/5 (best −0.790, median −0.649) / random 0/5 (best +1.00, median +1.66)
 — **consistent within seed noise**, no harness or store drift.
+
+## E-3 — cold/warm-memory measurement harness (2026-08-14)
+
+Proposal §2.2 item 4: AnalogAgent conflated warm-memory and cold-memory runs and
+muddied its own headline. E-3 is the harness that makes the cold-start control so
+cheap that skipping it is never tempting — and **structurally inseparable** from
+the warm number: `memory_harness.run_pair(task, seed)` runs the arm **twice**
+(warm real store, read-only; then cold hermetic empty store) and the paired
+artifact schema has a `warm` and a `cold` field and **no warm-only shape**. You
+cannot obtain a warm result from this harness without its cold twin — that is
+E-3's falsifier fence (*"any memory claim published without its cold control"*).
+
+**Pre-registered.** `engineer/E3-MEMORY.md` was written and committed **before any
+measurement run** (SHA `353f734`): the harness contract, the `pb-cmaes` arm's rule
+(what it reads, the score→K map, store-miss ⇒ K=1), N/budget/tasks (inherited from
+`PROTOCOL.md`), and the acceptance question. Its §2.2 phrasing was tightened
+pre-run (SHA `c0c0451`, no measurement number seen) to the budget-sliced
+multi-start a verbatim `run_cmaes` import can express.
+
+**The arm — `pb-cmaes` (`mem_arm.py`).** Designed to what the v0 store *actually*
+contains (40 qualitative engineering entries, not numeric priors). It consults the
+playbook (deterministic integer scoring, no embeddings) keyed by the task's family
+/ analysis=`sizing,search` / active failure signatures, and asks one question: does
+the store hold a sizing strategy prescribing a **seeded multi-start** search? A
+qualifying hit's score maps to K ∈ {2,4,6} starts; the arm runs K budget-sliced
+CMA-ES starts and keeps the global best. `run_cmaes` is **imported verbatim** from
+`lna/null_sizer.py`, never re-forked. **On a store-miss K=1 and the arm is
+bit-identical to the `cmaes` null** — so the cold twin (empty store) *is* the plain
+null, by construction.
+
+**Hermeticity.** `mem_playbook.py` is a read-only sidecar: cold mode points
+`playbook`'s module attributes at an empty temp dir for the cold consult and
+restores them. `lna/playbook.py` is never edited; `lna/playbook/`'s bytes are never
+moved or touched. The harness records a `store_fingerprint` per cell (warm = the
+real sha256, cold = n_entries 0), refuses to report unless `git status lna/playbook`
+is clean before and after, and asserts every cold cell saw an empty store.
+
+```
+python engineer/memory_harness.py                       # full 7 tasks x 10 seeds, paired
+python engineer/memory_harness.py --tasks wifi24-t2-a   # one task
+python engineer/memory_harness.py --cell dhruva-l1-t2-a 3   # one (task,seed) pair
+python engineer/memory_harness.py --aggregate-only      # rebuild board from pair JSONs
+```
+
+### Result — `data/mem_pairs_v0.json` (prereg SHA `353f734`, N=10)
+
+70 pairs, **66,920 evals** (warm + cold each spend the full matched budget). Every
+warm number sits beside its cold twin; the `cmaes` null is quoted from
+`scoreboard_v0.1.json` for the three-way read.
+
+| task | side | K | feasible | obj median | obj best | verdict |
+|---|---|---:|---:|---:|---:|:---|
+| dhruva-l1-t2-a | warm / cold | 6 / 1 | 0/10 / 6/10 | +1.7819 / −0.2522 | +1.3730 / −0.7875 | **warm<cold** |
+| dhruva-l2-t2-a | warm / cold | 6 / 1 | 0/10 / 1/10 | +2.2902 / +1.1478 | +2.1563 / −0.6003 | **warm<cold** |
+| dhruva-l5-t2-a | warm / cold | 6 / 1 | 0/10 / 10/10 | +1.0560 / −0.2723 | +1.0266 / −0.2980 | **warm<cold** |
+| dhruva-s-t2-a | warm / cold | 6 / 1 | 3/10 / 10/10 | +1.1016 / −1.1498 | −0.6886 / −1.1836 | **warm<cold** |
+| gps-l1-t2-a | warm / cold | 6 / 1 | 0/10 / 0/10 | +8.0777 / +7.9205 | +7.9151 / +7.9074 | **warm<cold** |
+| wideband-sdr-t2-a | warm / cold | 6 / 1 | 0/10 / 1/10 | +1.2833 / +1.6401 | +1.2833 / −0.4500 | **warm<cold** |
+| wifi24-t2-a | warm / cold | 6 / 1 | 4/10 / 9/10 | +1.2080 / −0.7280 | −0.5140 / −0.8231 | **warm<cold** |
+
+**Median rank (1=best):** `cold = 1`, `cmaes-null = 2`, `warm = 3`.
+
+**Acceptance answer — does warm beat its own cold control?** **No: warm < cold on
+all 7 tasks.** The playbook-informed multi-start *hurt* at matched budget —
+splitting a fixed budget into K=6 short starts starves each of convergence. Memory
+was retrieved correctly (K=6 on every warm cell), so this is a **measured
+negative**, not a retrieval miss. Charter §4/§6 E-3: this line reports whichever
+way it falls, and E-3's deliverable is the HARNESS, which discriminated warm from
+cold cleanly. The cold column equals the registered `cmaes` null to the digit on
+all 7 tasks (K=1 reduces `pb-cmaes` to `run_cmaes` exactly). **Hermeticity:**
+`lna/playbook` clean before/after, all 70 cold cells saw an empty store. Full
+write-up + the E-4 hand-off in `engineer/E3-MEMORY.md §6`.
 
 ## Environment
 

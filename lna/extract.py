@@ -42,13 +42,43 @@ _INCLUDE_RE = re.compile(r"^(\s*\.include\s+)(\S*45nm_bulk\.txt)\s*$",
                          re.IGNORECASE)
 
 
+def _dep_roots():
+    """Checkout roots to probe for the (gitignored) model card, nearest first --
+    the same order engineer/env.py's dep-shim walks: an explicit override, this
+    checkout, the git common dir's parent (the main checkout, when this is a
+    worktree that has none of the untracked upstream clones), then ancestors."""
+    seen, out = set(), []
+
+    def add(p):
+        if p and os.path.isdir(p) and p not in seen:
+            seen.add(p)
+            out.append(p)
+
+    add(os.environ.get("LNA_DEPS_ROOT"))
+    add(_REPO_ROOT)
+    try:
+        r = subprocess.run(["git", "rev-parse", "--path-format=absolute",
+                            "--git-common-dir"], cwd=_REPO_ROOT,
+                           capture_output=True, text=True, timeout=10)
+        common = (r.stdout or "").strip()
+        if common:
+            add(os.path.dirname(os.path.abspath(common)))
+    except Exception:                                              # noqa: BLE001
+        pass                       # git absent or not a repo: ancestors still try
+    p = _REPO_ROOT
+    while os.path.dirname(p) != p:
+        p = os.path.dirname(p)
+        add(p)
+    return out
+
+
 def resolve_models(literal=None):
-    """Absolute path to the 45 nm model card: override -> this checkout ->
-    the deck's baked literal (kept as the Windows fallback)."""
-    for cand in (os.path.join(os.environ["LNA_DEPS_ROOT"], _MODELS_REL)
-                 if os.environ.get("LNA_DEPS_ROOT") else None,
-                 os.path.join(_REPO_ROOT, _MODELS_REL)):
-        if cand and os.path.exists(cand):
+    """Absolute path to the 45 nm model card: override -> this checkout -> the
+    main checkout (from a worktree) -> ancestors -> the deck's baked literal
+    (kept as the Windows fallback)."""
+    for root in _dep_roots():
+        cand = os.path.join(root, _MODELS_REL)
+        if os.path.exists(cand):
             return os.path.abspath(cand)
     return literal
 

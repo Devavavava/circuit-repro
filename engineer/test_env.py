@@ -150,12 +150,39 @@ def test_round_trip():
 
 
 def test_foreign_topology():
-    """A foreign topology evaluates through Env: metrics, stamp, trajectory row."""
+    """A foreign topology evaluates through Env: metrics, stamp, trajectory row.
+
+    Now that AnalogGenie/repo + pandas are present, _foreign_topology() goes
+    through the real moves.realize() path (the Eulerian re-tokenisation pipeline)
+    and must NOT fall back to stored tokens.  The stored-tokens branch is kept as
+    a second assertion: we verify that the fallback code path still works
+    correctly when realize() returns None by calling _foreign_topology() from a
+    patched environment and confirming the fallback produces a valid foreign
+    topology.  The two assertions together prove both paths are live."""
     print("foreign: a non-pinned topology runs through Env and behaves")
     foreign, wl, tag = _foreign_topology()
     if wl == _pinned_wl():
         _fail("the 'foreign' topology is the pinned one")
+    # Assert the real realize() path was taken (not the stored-tokens fallback)
+    if "realized" not in tag:
+        _fail(f"expected the real realize() path (AnalogGenie+pandas), got: {tag}")
     _ok(f"topology via {tag}; wl={wl} != pinned {_pinned_wl()}")
+
+    # Second assertion: stored-tokens fallback still works when realize() is broken.
+    # Patch moves.realize to always return None, re-run _foreign_topology(), and
+    # confirm the fallback produces a valid foreign wl_hash != pinned.
+    import moves
+    orig_realize = moves.realize
+    moves.realize = lambda *a, **kw: None
+    try:
+        fb_topo, fb_wl, fb_tag = _foreign_topology()
+        if "stored foreign" not in fb_tag:
+            _fail(f"expected stored-tokens fallback when realize()=None, got: {fb_tag}")
+        if fb_wl == _pinned_wl():
+            _fail("fallback foreign topology returned the pinned wl_hash")
+        _ok(f"stored-tokens fallback correct when realize()=None: wl={fb_wl}, via {fb_tag}")
+    finally:
+        moves.realize = orig_realize
 
     # Write to a throwaway path, not the canonical trajectories.jsonl: the test
     # asserts the append-of-one behaviour without polluting the committed table.
@@ -257,7 +284,9 @@ def test_loud_dep():
         EV.BIND.update(saved)
     if not EV.BIND.get("models"):
         _fail("BIND was not restored after the simulated failure")
-    _ok("BIND restored (models path present again)")
+    if not EV.BIND.get("analoggenie"):
+        _fail("BIND was restored but analoggenie path is missing")
+    _ok("BIND restored (models + analoggenie paths present again)")
     return True
 
 

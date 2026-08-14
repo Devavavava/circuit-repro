@@ -92,6 +92,7 @@ _DEP_PROBES = {
     "zoaf": os.path.join("misc", "ZOAF", "zoaf", "zoaf_core.py"),
     "models": os.path.join("AutoCkt", "repo", "eval_engines", "ngspice",
                            "ngspice_inputs", "spice_models", "45nm_bulk.txt"),
+    "analoggenie": os.path.join("AnalogGenie", "repo", "SPICE2GRAPH_compress.py"),
 }
 BIND = {}          # filled by _bind_runtime_deps(); reported by observe()/results
 
@@ -174,6 +175,7 @@ def _bind_runtime_deps(verbose=False):
         if p not in sys.path:
             sys.path.insert(0, p)
     BIND.update(lna=lna_dir, zoaf=zoaf_dir, models=found["models"][0],
+                analoggenie=os.path.dirname(found["analoggenie"][0]),
                 local={k: v[1] for k, v in found.items()}, rebound=False)
     import to_spice                                                # noqa: E402
     if os.path.abspath(to_spice.DEFAULT_MODELS) != BIND["models"]:
@@ -192,7 +194,8 @@ def _bind_runtime_deps(verbose=False):
         BIND["rebound"] = True
     if verbose:
         print(f"env: lna={BIND['lna']}\n     zoaf={BIND['zoaf']}\n"
-              f"     models={BIND['models']}"
+              f"     models={BIND['models']}\n"
+              f"     analoggenie={BIND['analoggenie']}"
               + ("  [rebound]" if BIND["rebound"] else "  [worktree-local]"))
     return BIND
 
@@ -577,6 +580,7 @@ class Env(object):
                 "eval_entry": "size.make_objective(...)[0]",
                 "w_finger": _w_finger(), "era": self.task.era,
                 "deps": {"models": BIND.get("models"), "zoaf": BIND.get("zoaf"),
+                         "analoggenie": BIND.get("analoggenie"),
                          "rebound": BIND.get("rebound")},
                 "notes": list(self.harness_notes)}
 

@@ -2317,6 +2317,55 @@ small to pass — a benchmark that starts honest stays honest. Open next:
 the E-queue (E-1…E-5) on the engineer line, WP-LIN sign-off (16-WP-LIN
 D-1…D-9) and §43.9 R-a…R-f on this line.
 
+## 42. WP-LIN rung 0 — the designated point's IIP3 measured at last, and both pre-registered predictions land
+
+**Decision** (user, 2026-08-14): execute **rung 0 only** of 16-WP-LIN — the
+blocking baseline, no candidate mechanisms, no screen, no surrogate.
+
+**Result (FINDINGS §44).** The largest hole in the corpus (§1.3: the
+designated point's IIP3 had *never* been measured) is closed. The
+`dhruva-simul.sp` deck now exists on disk (emitted at 1.1 and 1.2 V, plus the
+D6 out-bank S3 min-gain variant), and the point's first-ever IIP3 is on file:
+**OIP3 −1.35 … −1.82 dBm at 1.2 V max gain, −1.95 … −2.47 at 1.1 V**, IIP3
+≈ −34 dBm everywhere. At the D6 min-gain state (out-bank S3, the state D5 is
+judged at) OIP3 falls to **−13.0 … −14.0** while IIP3 stays pinned at −34 —
+because that mechanism attenuates *after* the nonlinearity (§42.6), so it buys
+zero IIP3, exactly as pre-registered. **Gate D5 FAILS 0/4 bands at every
+configuration, 26.6–27.7 dB short at the ruled 1.2 V / min-gain condition.**
+All transient-harness; VACASK HB is blocked on this box (Windows path in the
+golden), so per §7 D-8 nothing is claimed on one harness — the numbers are
+reached-by-transient, awaiting-HB. Goldens GREEN first (`check_iip3`,
+`check_ref`, `check_diff`); `check_hb` blocked.
+
+**Both predictions confirmed.** **P1** (the hardened point is below the l5
+point): the designated point is **5.1–5.8 dB worse** than the l5 point's
++3.2…+3.4 — §40.4's designation-vs-linearity tension resolving against the
+hardened point, the bill WP-HARDEN's 37 % Idd cut deferred. **P2** (current-
+swing wall, not voltage-headroom wall): confirmed three independent ways — the
+arithmetic (current limit binds by 6.93× = 16.8 dB over headroom), the rail
+sweep (+100 mV of headroom moves OIP3 by +0.61 dB, under the 2 dB bar), and the
+four-point falsification test (OIP3 orders with Iq(MNM6)·|Z_ac| at Spearman
+ρ = 1.0000, exact rank match). The re-derived §2.1 operating point reproduces
+every quoted digit (Idd 8.205 / 9.463 mA; MNM6 15.1 % of the current, 100 % of
+the swing).
+
+**Understanding.** Rung 0 did what a pre-registration is for: it made the
+diagnosis falsifiable and then the measurement agreed with it on the record.
+The wall is not that the sizing is wrong (§37.7 already showed OIP3 is flat
+across four descended sizings) and not that the rail is too low (headroom is
+17 dB from binding) — it is that a class-A output stage carrying 15 % of the
+budget and the whole swing is current-clipping-limited, and the D6 gain control
+lives on the wrong side of that stage to help. What rung 0 does **not** answer
+is whether a *front-side* gain-control mechanism plus ~8–9 dB of genuine output
+OIP3 could close the min-gain gap (§2.3's decomposition) — that is rungs 1–4,
+not run. Candidate N's evidence bar is now 2-of-5 met; N is not recorded (a §7
+D-1 user decision). One methodological catch worth keeping: at the min-gain
+state the default drive window pushed IM3 into the harness's numerical floor
+and failed the slope fence (2.2–2.5); a −68…−52 dBm re-drive recovered a clean
+3.06–3.19 slope without moving the OIP3 estimate — the fence caught a drive-
+window artefact, not a bad number, and the shortfall was published rather than
+smoothed.
+
 ## Current frontier
 
 As of this document's writing (`lna-data`, commit `5be4de3` and whatever

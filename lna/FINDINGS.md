@@ -8806,3 +8806,189 @@ R-d: 16-WP-LIN sign-off (incl. its D-1…D-9). R-e: correct
 14-DHRUVA-SIMUL §1.2's IIP3 attribution row (one-line fix, user owns the
 rulings doc). R-f: wire the OpSink pattern into live WP scripts
 (corners.py first) so op rows resume flowing.
+
+## 44. Phase 3 — ★★★ WP-LIN **rung 0**: the designated point's IIP3 measured for the first time — OIP3 pinned at **−1.4 … −2.5 dBm**, 5 dB below the l5 point, and the current-swing-wall diagnosis (§2.2) confirmed three independent ways (Session 10, 2026-08-14)
+
+Rung 0 of `plans2/16-WP-LIN.md` — the blocking baseline, the only rung the
+user signed off (2026-08-14: rung 0 only; no candidate mechanisms, no screen,
+no surrogate). It closes §1.3 items 1–3: the `dhruva-simul` deck now exists on
+disk, its IIP3 is measured, and it is measured at the D6 min-gain state. Every
+number below is transient-harness only — **VACASK HB is blocked on this RHEL
+box** (a Windows path baked into `check_hb.py`, `VACASK_HOME` unset; the Linux
+VACASK build in `.env/vacask-0.3.4.rc1/` is present but not wired to the golden)
+— so per §7 D-8's default **every D5 number here is reported as reached-by-the-
+transient-harness and awaiting-HB-cross-check, claimed by neither**. The three
+transient/HB goldens that could run were GREEN before any design number:
+`check_iip3` GREEN, `check_ref` GREEN, `check_diff` GREEN; `check_hb` BLOCKED.
+
+### 44.1 The deck that never existed (§1.3 item 2, closed)
+
+`lna/repro/dhruva-best/dhruva-simul.sp` did not exist on disk (verified
+2026-08-14). It is now emitted from `dhruva-simul.params.json` + `tokens.json`
+via `size.prepared_body` → `extract.build_deck` (the recreate.py emission
+path), at pVDD **1.1 and 1.2 V**, plus the D6 out-bank S3 (min-gain) variants
+at both rails. Four decks: `dhruva-simul.sp` (max/1.1, the canonical name so
+`iip3.py --sizing simul` now runs), `dhruva-simul_v1p2.sp` (max/1.2),
+`dhruva-simul_min_v1p1.sp`, `dhruva-simul_min_v1p2.sp` (out-bank S3). The
+emitted decks carry a **locally-resolved `.include`** (the port's
+`resolve_models` walk), which matters: the shipped per-band `dhruva-{s,l1,l2,
+l5}.sp` on disk still carry the author's Windows model-card path, and
+`iip3.py`'s raw deck reader does **not** call `rewrite_includes`, so those
+decks cannot be measured through the two-tone harness on this box at all — a
+recorded port deviation (§44.7). The min-gain variant's switch bank is inserted
+by `_pgain_mech.build("out-bank", body)`, which resolves the output-drain role
+(`outd`) structurally and cross-checks it against RR4/CC6 before attaching —
+§42.2's node-name warning honoured, verified: the bank lands on `n7`, the same
+node RR4 loads and CC6 couples out, in every process.
+
+### 44.2 ★ The number — the designated point's first-ever measured IIP3/OIP3
+
+One fixed sizing (`dhruva-simul` of `ace8383c2fa68d03`, the designated D4-SIM
+point), measured at all four band f0s, replay-fenced (≥3 in-process **and** one
+separate-process, §6.7), the §37.4 gain cross-check **re-pointed** (never
+disabled, §4.0) at this point's own audited S21 per config:
+
+**Max gain, pVDD = 1.2 V (the ruled nominal):**
+
+| band | f0 (MHz) | **IIP3** | **OIP3** | gain | target | **margin** | slope | ΔS21 |
+|---|---|---|---|---|---|---|---|---|
+| l5 | 1176.45 | **−34.53** | **−1.35** | 33.18 | ≥ −7.4 | **−27.13** | 2.976 | −0.005 |
+| l2 | 1227.60 | **−34.68** | **−1.36** | 33.32 | ≥ −7.4 | **−27.28** | 2.970 | −0.003 |
+| l1 | 1575.42 | **−35.34** | **−1.46** | 33.88 | ≥ −7.6 | **−27.74** | 2.965 | −0.005 |
+| s  | 2492.03 | **−35.26** | **−1.82** | 33.44 | ≥ −8.7 | **−26.56** | 2.968 | −0.012 |
+
+**Max gain, pVDD = 1.1 V** (direct comparison to the l5-point's numbers): IIP3
+−33.46 / −33.59 / −34.31 / −34.46; **OIP3 −1.96 / −1.95 / −2.03 / −2.47**;
+gain 31.50 / 31.64 / 32.28 / 31.99.
+
+**D6 out-bank S3 (min-gain), pVDD = 1.2 V:** IIP3 −34.19 / −34.28 / −34.67 /
+−34.46; **OIP3 −13.25 / −13.19 / −12.97 / −13.05**; gain 20.93 / 21.08 / 21.71
+/ 21.41. **pVDD = 1.1 V:** IIP3 −33.21 / −33.28 / −33.69 / −33.67; **OIP3
+−13.99 / −13.91 / −13.62 / −13.75**; gain 19.21 / 19.37 / 20.07 / 19.92 (the
+S3 gains reproduce §42.5's simul-substrate table to ≤0.02 dB).
+
+**Gate D5: FAILED, 0/4 bands, at every configuration.** At the D6 min-gain
+state and the ruled 1.2 V nominal, the shortfall is **IIP3 ≈ −34 vs ≥ −7.4/
+−7.6/−8.7 → 26.6–27.7 dB**. §2.3's reframing does not help *this mechanism*:
+the ~12 dB of gain reduction the min-gain state delivers is **output-side**, so
+IIP3 is unchanged (−34 at S3 ≈ −34.5 at max, §44.4), and OIP3 falls with the
+gain rather than the shortfall closing.
+
+### 44.3 The fences that make these numbers safe to build on
+
+Every kept row: IM3 slope in **2.96–3.19** (bar 3 ± 0.3), fit residual ≤ 1.44
+dB, worst IM3-over-floor SNR ≥ 22.1 dB (bar 10), ≤ 0.5 dB compression on kept
+points, 4–5 points kept. **Replay fence: 0.0000 dB** on IIP3 across the 3
+in-process repeats *and* **0.000000 dB** separate-process vs in-process on the
+max configs (the emitted params file read fresh from disk, node roles resolved
+deterministically per process). Small-signal gain reproduces the audited `sp`
+S21 to **≤ 0.019 dB** in all 16 rows (the re-pointed §37.4 cross-check — it is
+what confirms the deck, the rail, and (for S3) the switch state are the ones
+claimed). One honesty note, published not smoothed (§34 precedent): the min-gain
+S3 rows **first failed the slope fence** (slope 2.2–2.5, residual 10–15 dB) at
+the default −80…−40 drive window, because 12 dB of *output-side* attenuation
+drops the IM3 products into the harness's low-drive numerical-asymmetry region
+while the per-point IIP3 stayed pinned at −34.4. Re-driven at −68…−52 dBm/tone
+(a window that keeps IM3 above the floor and below compression) the slope
+recovers to 3.06–3.19 with ≤1.44 dB residual — a fence *diagnosis*, not a
+metric change: the re-drive moved the OIP3(l5,1.2V) estimate by <0.1 dB.
+
+### 44.4 ★★ P2 confirmed three ways — the wall is a **current**-swing wall
+
+The §2.1 operating point re-derived under the replay fence (Id spread 0.000 A
+across 3 captures) reproduces §2.1 **to every quoted digit** at both rails:
+`-i(Vsup)` = **8.20543 mA** (1.1 V) / **9.46271 mA** (1.2 V); MNM6 carries
+**15.1 %** of Idd (1.432 mA of 9.463) while carrying the whole output swing;
+MNM4's tank stage carries **49.0 %**. The pre-existing `_lin_op_1p{1,2}.json`
+of §1.5.5 were **not present** in this checkout (gitignored, of unrecorded
+provenance, never synced here) — so the table is re-derived from scratch and
+matches §2.1, which retroactively validates §2.1's provenance. The rederivation
+is in `lna/out/_lin_op_rederived.json`.
+
+The §2.2 hypothesis — current limit, not voltage headroom — holds on three
+independent tests:
+
+1. **The arithmetic.** At MNM6's drain @1.2 V: voltage-headroom limit
+   `min(1.200−0.578, 0.578−0.073) = 505 mV`; class-A current limit
+   `Iq·|Z_ac| = 1.432 mA × 50.9 Ω = 73 mV`. **The current limit binds by
+   6.93× = 16.8 dB** (§2.2 predicted ~6.9× / ~17 dB — reproduced).
+2. **The rail sweep (candidate E, the §2.2 falsifier).** Adding 100 mV of
+   headroom by moving 1.1 → 1.2 V moves OIP3(l5, max) by **+0.61 dB** — under
+   the 2 dB P2 bar, exactly what re-centring a *non-binding* limit predicts.
+3. **The four-point falsification test (§2.2, 4 op runs).** OIP3 of the four
+   §37.7 own-band sizings orders with `Iq(MNM6)·|Z_ac|` **perfectly**:
+   ascending product `s < l5 < l1 < l2` == ascending OIP3 `s < l5 < l1 < l2`,
+   **Spearman ρ = 1.0000, exact rank match**. The transient OIP3 anchors
+   (+2.44 … +4.19 dBm) reproduce §37.7's own-sizing spread to the digit; the
+   §40 HB anchors (+3.66 … +4.83) are cross-listed but blocked on this box.
+
+| sizing | Iq(MNM6) | \|Z_ac\| | Iq·\|Z\| | OIP3 (tran) |
+|---|---|---|---|---|
+| dhruva-s | 4.103 mA | 30.67 Ω | 125.8 mV | +2.44 |
+| dhruva-l5 | 3.322 | 40.85 | 135.7 | +3.17 |
+| dhruva-l1 | 3.873 | 36.15 | 140.0 | +3.51 |
+| dhruva-l2 | 3.736 | 39.31 | 146.9 | +4.19 |
+
+### 44.5 P1 confirmed — the hardened point is 5 dB worse than the l5 point
+
+§40.4's tension resolves against the hardened point exactly as predicted. At
+1.1 V max gain (like-for-like with the D5 measurement), the l5 point runs OIP3
+**+3.17 … +3.35** (§37.5); the designated point runs **−1.95 … −2.47** — a
+**5.1–5.8 dB deficit**, matching §2.2's ≈1.9× / 5.4 dB `Iq·|Z_ac|` prediction.
+WP-HARDEN's 37 % Idd cut that bought +1.011 dB of S11 and 3.5 mA of Idd margin
+(§36) cost ~5 dB of OIP3 — the bill §40.4 said would arrive, arriving. P1's
+numeric prediction (baseline near −3 … −2 dBm) lands on the nose: the point's
+baseline OIP3 is **−1.4 … −2.5 dBm** across all rails and both max-gain rails.
+
+### 44.6 What rung 0 answers, and what it hands to the (unrun) later rungs
+
+Answered: **P1 (confirmed), P2 (confirmed three ways).** §2.3's central
+decomposition claim is now half-tested: its ~8–9 dB output-stage-OIP3 term is
+shown to be the residual after an output-side mechanism that buys 0 dB of IIP3
+(the S3 measurement), and its ~12 dB front-end term is **not** touched by rung 0
+(P3/P4 need candidate A re-screened — rung 1, not run). So D5 at the D6 min-gain
+state fails by **26.6–27.7 dB** with the *shipped* output-side D6 mechanism, and
+the honest question WP-LIN was written to answer — can a front-side mechanism
+plus ~8–9 dB of output OIP3 close it — is exactly what rungs 1–4 would test.
+Candidate N's five-clause evidence bar (§3): clause 1 (baseline measured, max
+**and** min-gain) is now **met**; clause 2 (OIP3-vs-Iq curve) is met in its
+4-point falsification form; clauses 3–5 remain open (they are rungs 1–4). N is
+**not** recorded — that would be a user decision (§7 D-1) and the bar is not
+cleared.
+
+### 44.7 Deviations, recorded not smoothed
+
+* **Branch.** The WP names branch `lna-data`; this RHEL port has only `main`
+  and `engineer`, so rung 0 ran on `main` (PORTING.md's scope decision).
+* **HB blocked.** `check_hb.py` points at a Windows VACASK path and
+  `VACASK_HOME` is unset; the Linux build in `.env/vacask-0.3.4.rc1/` is on
+  disk (its `libklu.so.2` now resolved under `.env/envs/vacask-build/lib/`) but
+  the golden was not re-wired in rung-0 scope. Per D-8 default: transient-only,
+  no D5 claim rests on one harness; the HB cross-check is owed before any
+  acceptance. All §44.2 numbers are transient, awaiting HB.
+* **Shipped per-band decks unrunnable through iip3.py on this box** — stale
+  Windows `.include`; the falsification test's own-sizing OIP3 was therefore
+  measured on fresh, include-resolved bodies driven through iip3's two-tone
+  machinery in-process, not by reading the on-disk `.sp`.
+* **`_lin_op_1p{1,2}.json` absent** in this checkout — re-derived from scratch
+  (§44.4); the §2.1 table they sourced is reproduced, so no arithmetic changed.
+* **FINDINGS/JOURNEY slots.** The WP quoted §43 / stage 40 as its slots; those
+  were claimed by the 2026-08-14 execution wave, so rung 0 took the next free
+  numbers, **FINDINGS §44 / JOURNEY stage 42** (the Documentation-slots rule).
+
+### 44.8 Cost
+
+Goldens: `check_iip3` ~90 s, `check_ref`/`check_diff` seconds. Rung-0 SPICE:
+4 configs × (4 bands × 6 drives × 3 replays) two-tone transients + the min-gain
+re-drive (5 drives × 4 × 3) + a separate-process fence pass (24 runs) per max
+config + the 24-run falsification sweep. At the measured **8.75 s/run**
+(calibrated on the falsification sweep, 24 runs / 3.55 min), every configuration
+sat **well inside its 90-SPICE-minute cap**: max configs ≈ 10.5 SPICE-min each,
+the min config with its re-drive ≈ 19.2, the sep-proc fences ≈ 3.5 each. Total
+rung-0 SPICE ≈ 65 SPICE-minutes, ~30 min wall-clock across 4-way + parallel
+launches on the 128-core box (iip3's pid-scoped `private_tmp` verified
+collision-free across concurrent processes). Store discipline: artefacts stamped
+`recipe=wplin-v1`, `diagnosis="output-swing-current-limit"`; the op hook stayed
+on; verbatim simulator evidence preserved in `lna/out/_lin_*.json` (gitignored,
+as §1.5.5's op artefacts are). No `source_arm` row was written — that stamp is
+rung 1's (`wplin-screen`), which was not run.

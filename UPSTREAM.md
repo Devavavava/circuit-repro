@@ -13,6 +13,7 @@ bash scripts/fetch_upstream.sh
 | Local path | Upstream | Pinned commit | Branch | Committed | Patch |
 |---|---|---|---|---|---|
 | `AnalogGenie/repo` | [xz-group/AnalogGenie](https://github.com/xz-group/AnalogGenie) | `efc25358939c6bedd247f28d3df61066964f3a90` | main | 2025-04-26 | — |
+| `AnalogGym/repo` | [CODA-Team/AnalogGym](https://github.com/CODA-Team/AnalogGym) | `0a9d1390ade361e2b4a2d33181e22367edbb8afc` | main | 2026-08-15 | — |
 | `AutoCkt/repo` | [ksettaluri6/AutoCkt](https://github.com/ksettaluri6/AutoCkt) | `a6c8a61d3dffb8b433f19251e135994a5b0f6ee4` | master | 2022-03-17 | `patches/autockt.patch` |
 | `CktGNN/repo` | [zehao-dong/CktGNN](https://github.com/zehao-dong/CktGNN) | `416cd035f79dd8cfcb60ac0a4792b43255adf0b7` | main | 2023-09-11 | `patches/cktgnn.patch` |
 | `Krylov-ICML2023/repo` | [indylab/Circuit-Synthesis](https://github.com/indylab/Circuit-Synthesis) | `98a520ed7e595a72f7e34982134be727ee4dfa40` | main | 2023-05-27 | — |
@@ -27,6 +28,15 @@ bash scripts/fetch_upstream.sh
 
 `GCN-RL/` is an empty placeholder — the DAC'20 work has no public code, as do L2DC and
 DNN-Opt. See the summary table in STATUS.md.
+
+`AnalogGym/repo` was added for the **externals calibration** work of the `engineer`
+line (`engineer/00-CHARTER.md` §6 E-2, `engineer/PROTOCOL.md` §10): the field's open
+op-amp/LDO sizing benchmark (SKY130, ngspice ≥42, BSD-3-Clause), pinned so the external
+calibration track scores against a fixed upstream. It is not fetched by
+`scripts/fetch_upstream.sh` (the engineer track curates its own ngspice-runnable subset;
+see `engineer/EXT-CALIBRATION.md`). The bundled SKY130 ngspice model tree is used as-is
+from `AnalogGym/repo/PDK/sky130_pdk/` (unzipped in place); nothing is installed
+system-wide.
 
 ## Patches
 

@@ -520,10 +520,8 @@ xop5 vss vdddc vout6 opin vout6 {s}
 Cload5 vout6 0 'PARAM_CLOAD'
 .meas dc Ivdd25 FIND I(VVDDDC) AT=25
 .meas dc power param='-1*Ivdd25*supply_voltage'
-.meas dc vout25 FIND V(vout6) AT=25
-.meas dc vos25 param = 'vout25-supply_voltage*VCM_ratio'
 .control
-dc temp -40 125 0.5
+dc temp 24 26 1
 ac dec 10 0.1 1G
 .endc
 .end

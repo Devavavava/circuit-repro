@@ -24,7 +24,7 @@
   "cmrrdc": -39.008,
   "dcpsrp": -39.2441,
   "dcpsrn": -71.3979,
-  "power": 0.000423504,
+  "power": 0.000423505,
   "area": 151.07944929738133,
   "t_rise": 0.966682,
   "t_fall": 6.03132e-07,
@@ -102,6 +102,7 @@
   "MOSFET_9_2_W_gm1_PMOS": 1.0
  },
  "tolerance": "best_obj spread must be 0.0 on this deterministic harness",
+ "deck_note": "AC/DC deck computes only the pinned FoM inputs (DC sweep narrowed to temp 24..26 for the power AT=25 meas; the AnalogGym temp -40..125 sweep fed only TC/Vos, which the pinned fom[i] line does not use -- golden FoM identical to the full-sweep deck to 1e-9).",
  "harness": {
   "simulator": "ngspice",
   "ngspice": "/home/dpatni/circuit-repro/.env/ngspice-47/bin/ngspice",
@@ -110,11 +111,11 @@
   "ngspice_calls_per_eval": 2,
   "era": "analoggym-0a9d1390ade3",
   "analoggym_sha": "0a9d1390ade361e2b4a2d33181e22367edbb8afc",
-  "adapter_sha256": "f95c16447a50ebde71716f7ffaa0dabdb0e362a68b68c26f52b3a7ab37205087",
+  "adapter_sha256": "9bd976af778d45be419d2987c6aab5180c3baec48979d65effb617ea6b492da9",
   "netlist_sha256": "1f8dabf2ee2c04f7edd6d45d6fb5fa9ce9d773dc0a82d56a133211586df0ee28",
   "vars_sha256": "a05db27bea2139a8891eb61e814a9843b14f6a8d0c5f474b435c379f9bdb6d84",
   "pdk": "PDK/sky130_pdk",
   "domain": "op-amp (SKY130); NOT RF -- separate tier from lna registry"
  },
- "ts": "2026-08-15T03:17:27+00:00"
+ "ts": "2026-08-15T03:26:12+00:00"
 }

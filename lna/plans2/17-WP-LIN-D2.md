@@ -182,7 +182,13 @@ resolution + second-element cross-check). Append-only store, `recipe=wplin-v1`,
 
 ---
 
-## 8. Outcome (appended after execution)
+## 8. Outcome (appended after execution — 2026-08-15, FINDINGS §46)
 
-*Empty by design — filled after the fact in FINDINGS §46, whichever way each
-prediction falls.*
+| pre-registered claim | verdict |
+|---|---|
+| **PD1** — the 1.2 V rail's headroom binds candidate D | **CONFIRMED, and sharpened.** The 20-point headroom map (§46.2): every saturated MNMD1 build lands *below* the baseline swing product (best 54.97 vs 72.91 mV); every swing-seeking build collapses to triode — and even in triode the product asymptotes at 72.56, **never exceeding baseline**, because the output branch current is resistor-set (RR4) and a stack adds gm, not current. Carried to the ruled condition anyway (best saturated tier-legal build): **D5 FAILS 0/4, −20.7…−22.1 dB**, fences intact, replay 0.0000. One surprise, reported as measured: the stack source-degenerates MNM6 and buys +5.5…+6.1 dB of S3 IIP3 — the WP's only IIP3-positive candidate, still 20+ dB short. |
+| **PD2** — the cascode lifts the span but not to 10.6 dB | **CONFIRMED in verdict, wrong in detail — the span did not lift at all.** Match-legal span = **0.00 dB** (all-off legal at S11 −10.62; every conducting-attenuator state breaks to −7.13…−7.20). Worse than the un-isolated combiner's 4.84 dB (§45.1): the shunt's loading reaches the input match *through* the cascode. The forbidden zone is the input match architecture itself; isolation hardware does not shield it. Screen also killed the build on NF (2.70/2.64 > 2.5). |
+| **PN** — neither reaches §6; N reported 5/5, not recorded | **CONFIRMED.** No band passed on any widened candidate; the mechanism check (l5, match-illegal state, evidence-only) measured front-side attenuation buying IIP3 as §2.3 assumed (−9.32 dB of G → **+10.07 dB of IIP3**, replay 0.0000) — confirming the premise the span kills. **Candidate N: 5 of 5, REPORTED — NOT recorded (D-1). The D-2 spec-adoption ruling is moot; `device_budget: [3, 21]` stands untouched.** |
+
+Caps: ~85 screen evals (of 600); 1 full two-tone candidate + 1 mechanism
+check (of 6); ≈1.7 h wall (of 3). Deviations in FINDINGS §46.7.

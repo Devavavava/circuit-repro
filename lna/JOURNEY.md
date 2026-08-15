@@ -2431,6 +2431,45 @@ change is enumerated and priced in §45.5: the input architecture (D-2), the
 output reference impedance (D-7), the Idd gate, or the spec row (D-1) — all
 user decisions, none the executor's.
 
+## 44. WP-LIN D-2 — the budget widens for one measurement, and the wall does not move
+
+**Decision** (user, 2026-08-15): widen the device budget just enough —
+justified per §23's precedent, test-scoped, the spec line untouched — to carry
+candidate D (current-reuse) and the isolating input architecture to real
+two-tone, so candidate N is judged on a full 5/5 or refuted. Pre-registered in
+`plans2/17-WP-LIN-D2.md` (committed before any run): **+3 devices**, each
+named — MNMD1 (the reuse stack), MNMI1 (the isolation cascode), MNMI2 (the
+front-side attenuation on the isolated tap) — with kill rules, fences, caps,
+and the executor's own priors stated in advance.
+
+**Result (FINDINGS §46).** Both priors landed. **Candidate D:** the 20-point
+headroom map measured that the reuse stack **never improves the output swing
+product** — best saturated build 54.97 mV vs baseline 72.91, and even deep in
+triode the product only asymptotes to 72.56 — because MNM6's 0.578 V drain
+leaves no room to stack, and the output branch current is **resistor-set**
+(RR4 is the current source, the same fact that killed candidate C), so a
+stack adds gm but zero current. Carried to the ruled condition anyway (the
+best saturated, tier-legal build): **FAILED 0/4, −20.7…−22.1 dB short**,
+fences intact, replay 0.0000 — though with one honest surprise, the stack
+source-degenerates MNM6 and buys **+5.5…+6.1 dB of IIP3 at S3**, the first
+candidate in the WP to improve that number, and still 20+ dB from the gate.
+**The isolating input:** the cascode holds saturation, the attenuator has
+~9.3 dB of authority — and the **match-legal span is 0.00 dB**, worse than
+the un-isolated combiner's 4.84 (§45.1), because the moment the shunt turns
+on, the match breaks by 2.9 dB *through* the cascode. The forbidden zone is
+the input match itself; isolation hardware does not shield it. The l5
+mechanism check confirmed the §2.3 premise it kills: front-side attenuation
+does buy IIP3 ~dB-for-dB — just never match-legally on this topology.
+
+**Understanding.** This closes the last open half-clause of candidate N's
+bar: **5 of 5, REPORTED — not recorded** (§7 D-1 stays the user's). The D-2
+spec-adoption question dissolved with the result (nothing passed; the spec
+stands at [3, 21]). What remains on the user's table: **D-1** (record N /
+re-negotiate the D5 row) and **D-7** (the output reference impedance, the one
+measured lever that moves OIP3 dB-for-dB). The linearity redesign question,
+opened by ruling 4 and pursued through rungs 0–4 and this widening, is now
+measured to its boundary on every axis the executor is allowed to touch.
+
 ## Current frontier
 
 As of this document's writing (`lna-data`, commit `5be4de3` and whatever

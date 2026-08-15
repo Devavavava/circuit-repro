@@ -9314,3 +9314,181 @@ user's call.
 
 Goldens re-verified GREEN after landing. The op hook stayed on throughout; no
 era pooling; no shared file edited; no spec/budget/protocol touched.
+
+## 46. Phase 3 — ★★ WP-LIN D-2 test-widening: +3 devices carry candidate D and the isolating input to measurement — D FAILS 0/4 at −20.7…−22.1 dB, the isolating input has **0.00 dB** of match-legal span, and candidate N's bar completes at **5/5, reported not recorded** (Session 10, 2026-08-15)
+
+Executed per the user's 2026-08-15 ruling: *widen the device budget just enough
+(justified, corpus-anchored per §23's precedent) to carry candidate D
+(current-reuse) and the isolating input architecture to real two-tone — one
+bounded incremental measurement — so candidate N is judged on a full 5/5 or
+refuted.* Pre-registered in `plans2/17-WP-LIN-D2.md` (committed alone, before
+any run). Goldens GREEN before any design number (`check_ref`, `check_iip3`,
+`check_hb`, `check_diff`) and re-verified after. Sidecar `lna/_lin_d2.py`
+(reuses `_lin_baseline`/`_lin_verify`/`_pgain_mech` machinery verbatim; every
+override by module attribute, §7 D-9). **The widening is TEST-SCOPED: the
+specs' `device_budget: [3, 21]` line is untouched (§7 D-3).** The three
+devices live only in the emitted sidecar decks, exactly as the D6 switch bank
+does. Artefacts: `lna/out/_lin_d2_{build,headroom,screen,span,twotone,
+mechcheck}.json` (gitignored, verbatim evidence, `recipe=wplin-v1`,
+`source_arm=wplin-d2`); decks committed under `repro/dhruva-best/_lin_d2_*.sp`.
+
+### 46.1 The allowance — +3, smallest sufficient, each device named
+
+MNMD1 (candidate D's reuse/stacking NMOS), MNMI1 (cascode isolating the
+combiner CS pair from the gain-control tap), MNMI2 (the front-side variable
+attenuation on the isolated tap). +1 carries only one structure; +2 cannot
+give the input both isolation *and* a tap (a bare cascode measures no span; a
+bare tap reproduces §45.1). Full argument in `17-WP-LIN-D2.md` §1. Inductors
+and `kind_ranges` untouched. Adoption of any widening into the spec was
+pre-stated as a separate user ruling requiring a justifying corpus circuit
+(§23 precedent) — and is **moot**, because nothing passed (§46.6).
+
+### 46.2 ★ Candidate D built and measured — and the current-reuse premise fails on this topology, for a measured reason
+
+MNMD1 stacked in MNM6's own drain-source path (MNM6 source re-pointed to
+`ndreuse`, MNMD1 beneath, gate AC-coupled to the tank node — one DC branch,
+two transconductances; roles resolved structurally, cross-checked, §42.2).
+The 20-point headroom map (`_lin_d2_headroom.json`, 5 widths × 4 gate biases)
+says everything:
+
+| build class | MNMD1 region | Iq(MNM6)·\|Z_ac\| | vs baseline 72.91 mV |
+|---|---|---|---|
+| narrow + low bias (10–30 µm, VBD1 0.3–0.4) | **sat** | 25.97–54.97 mV | **worse, −25…−65 %** |
+| anything wider/hotter | **triode** (Vds 4–89 mV < 1.5·Vdsat) | 64.6–72.56 mV | **still below baseline** |
+
+**The reuse stack never improves the swing product — not in saturation
+(best 54.97 mV), not even in deep triode (asymptote 72.56 mV).** Two measured
+mechanisms, both named: (i) **voltage headroom** — MNM6's drain sits at
+0.578 V on the 1.2 V rail, and any stack that fits beneath it either starves
+itself (triode) or starves MNM6 (which drops to sub-threshold, Id 1.432 →
+1.073 mA); (ii) **the output branch current is resistor-set** — RR4 (pR4V) is
+the stage's current source (the same measured fact that killed candidate C,
+§45.2), so stacking adds a gm but adds **zero current**; "freeing mA for the
+output stage" is not a thing this output network can do. §3 row D's premise —
+current reuse as candidate B's funding source — is **refuted on this topology
+by measurement**, not by budget. PD1 confirmed.
+
+The best saturated, tier-legal build (W=30 µm, VBD1=0.30: S11 −10.95, Idd
+9.10, S21_s 31.5, NF_l5 1.61, all devices conducting) was carried to the
+ruled condition anyway — the clause-4 D-leg the user asked for (§46.4).
+
+### 46.3 ★★ The isolating input — built, and the span answer is **0.00 dB**
+
+MNMI1 inserted as a cascode between the CS pair (MNM2/MNM5) drains and the
+recombine node; MNMI2 as a DC-blocked shunt attenuation device on the now
+"isolated" tap, driven by a `pVSWGI2` control voltage. The cascode's own
+headroom sweep (18 points): it holds saturation only narrow and mid-bias
+(30 µm, VBI1 0.65–0.75; VBI1 ≥ 0.85 collapses it to triode) — and the CS pair
+stays **sub-threshold in every configuration**. With the saturated cascode
+(Vds 0.258, region sat):
+
+| pVSWGI2 | S21 @ l5 f0 | S11 band-max | legal? |
+|---|---|---|---|
+| 0.0 (off) | 33.949 | **−10.623** | yes |
+| 0.3 | 24.878 | −7.198 | **NO** |
+| 0.5–1.1 | 24.607–24.624 | −7.13…−7.14 | **NO** |
+
+**Match-legal span = 0.00 dB** — *worse* than the un-isolated input combiner's
+4.84 dB (§45.1). The attenuation itself (~9.3 dB, plenty of authority) is not
+the problem; the moment the shunt device turns on, the load pulls the input
+match through the CS pair's forward admittance and S11 breaks by 2.9 dB. **A
+cascode does not create a front-side node whose loading is invisible to the
+match — the coupling §45.1 called "architecture, not margin" is the input
+match itself, and it reaches through the cascode.** PD2 confirmed (< 10.6
+dB); P4's escape hatch (§45.5 item i) is measured shut at +2 devices. The
+screen also killed the structure on its own gates (NF_l5 2.70 / NF_l2 2.64 >
+2.5 — the cascode's noise; kill rule as pre-registered).
+
+### 46.4 ★ Candidate D at the ruled condition — real two-tone, D6 min-gain S3, 1.2 V, four bands
+
+Full §37.3 fence set on every row (slope 2.718–3.170 in 3 ± 0.3, worst SNR ≥
+13.2 dB over the measured floor, dS21 ≤ 0.01 dB vs this build's own audited
+S21 — re-pointed, never disabled — per-point spread 0.31–2.88 dB reported,
+replay fence **0.0000 dB** ×3 in-process on every band; −68…−52 dBm min-gain
+window):
+
+| band | IIP3 | OIP3 | G | target | **margin** |
+|---|---|---|---|---|---|
+| l5 | −28.120 | −9.161 | 18.96 | ≥ −7.4 | **−20.72** |
+| l2 | −28.371 | −9.260 | 19.11 | ≥ −7.4 | **−20.97** |
+| l1 | −29.677 | −9.954 | 19.72 | ≥ −7.6 | **−22.08** |
+| s | −29.816 | −10.707 | 19.11 | ≥ −8.7 | **−21.12** |
+
+**FAILED 0/4.** No pass claimed, so no HB re-measure owed (§4.3; the §40.5
+3 MHz convention was armed and unused). One honest surprise, reported as
+measured: the widened D is the **first candidate in the whole WP to improve
+IIP3 at S3** — +5.5…+6.1 dB over the §45.4 baseline (−28.1 vs −34.2 at l5) —
+because the stack **source-degenerates** MNM6 (its source now sits on
+MNMD1's output impedance) and drops ~2 dB of S3 gain. That is candidate H's
+mechanism arriving by the back door, worth ~6 dB, bought with an extra device
+and a worse swing product — and still **20.7–22.1 dB short**. It does not
+approach any §6 acceptance clause.
+
+### 46.5 The mechanism cross-check — front-side attenuation does buy IIP3, exactly as §2.3 assumed; it just cannot do so match-legally
+
+The isolating input's attenuated state, measured at l5 f0 (flagged
+MATCH-ILLEGAL, S11 −7.2 — mechanism evidence only, void for any claim):
+
+| state | IIP3 | OIP3 | G | slope | dS21 | replay |
+|---|---|---|---|---|---|---|
+| all-off (match-legal) | −35.294 | −1.349 | 33.945 | 2.962 | −0.003 | 0.0000 |
+| attenuator ON (S11 −7.2, **illegal**) | **−25.220** | −0.598 | 24.622 | 2.903 | −0.002 | 0.0000 |
+
+**ΔG = −9.32 dB of front-side attenuation buys ΔIIP3 = +10.07 dB** — the
+§42.6-item-1-in-reverse mechanism §2.3's ~12 dB half assumed, measured
+slightly *better* than dB-for-dB (OIP3 even rises +0.75). So the physics of
+front-side gain control works exactly as the WP's decomposition assumed; what
+this topology forbids is doing it **match-legally** — the span of §46.3 is
+0.00 dB, and every dB of that +10.07 costs the S11 gate. The two halves of
+the §2.3 catch are now both measured: the mechanism is real, and the
+architecture has no legal place to put it.
+
+### 46.6 Candidate N — the five-clause bar, complete
+
+1. ✓ baseline IIP3/OIP3 measured, both harnesses, max + D6-min, 1.2 V (§44).
+2. ✓ current-limit diagnosis: ρ=1.0000 4-point curve + on-host axis (§44.4, §45.3).
+3. ✓ candidate A re-screened on this host, both rails, span **measured**:
+   4.77/2.26/0.00 dB (§45.1) — and now the widened isolating variant too:
+   **0.00 dB** at +2 devices (§46.3).
+4. ✓ **complete**: B carried (+0.72 dB OIP3, §45.3–45.4), C carried (−2.7 dB,
+   §45.4), **D carried under the D-2 allowance — FAIL 0/4, −20.7…−22.1 dB,
+   mechanism named** (headroom + resistor-set output current, §46.2/§46.4).
+5. ✓ the §37.7-form power-budget argument at the min-gain numbers (§45.5) —
+   unchanged by this section, and strengthened: the front-side escape is now
+   measured shut even with dedicated isolation hardware.
+
+**Candidate N: 5 of 5 — REPORTED as fully met. NOT recorded (§7 D-1 — the
+user's).** The queued rulings this leaves on the table: **D-1** (record N /
+re-negotiate the D5 row), **D-7** (the output reference impedance — still the
+one measured lever that moves OIP3 dB-for-dB), and the D-2 spec-adoption
+question is **moot** (nothing passed; the test allowance dissolves with this
+report, the spec stands at [3, 21]).
+
+### 46.7 Deviations, recorded not smoothed
+
+1. **The isolating input was not carried to the 4-band D5 two-tone.** Its
+   pre-registered kill rules fired first (span 0.00 < 10.6; NF break), and its
+   min-gain state is match-illegal, so a D5 number there is void by
+   construction. The mandate's "carry to real two-tone" was executed as the
+   l5 mechanism check of §46.5, flagged illegal — the informative measurement
+   that exists, not the void one that doesn't.
+2. **The first build-check emission used a triode MNMD1** (W=80 µm,
+   VBD1=0.6, the naive gm-heavy build). The headroom sweep re-pointed the
+   defaults to the best saturated build and the artefacts were refreshed; both
+   emissions are in the record.
+3. **Two-tone deck filenames were made candidate-labeled mid-execution**
+   (`_lin_d2_tt_D_min.sp` etc.); the JSON artefacts are authoritative
+   throughout.
+
+### 46.8 Cost, against the pre-registered caps
+
+| item | cap | actual |
+|---|---|---|
+| screen evals (build + headroom + screen + span) | 600 | ~85 evals ≈ 8 SPICE-min |
+| candidates to two-tone | 6 | 1 full (D, 4 bands ×3 replays) + 1 mech-check (l5, 2 states ×3) |
+| wall clock | 3 h | ≈ 1.7 h (loaded box, ≤32 workers) |
+| **total** | | **≈ 55 SPICE-min** |
+
+Goldens re-verified GREEN after landing. No shared file edited; no spec,
+budget line, or frozen-protocol content touched; store rows stamped
+`source_arm=wplin-d2`.

@@ -721,3 +721,22 @@ The user decisions this outcome puts on the table: D-1 (the D5 row /
 candidate N), D-2 (an isolating input architecture needs the budget), D-7
 (the output reference impedance directly sets the wall). Deviations in
 FINDINGS §45.6; cost 67 SPICE-min vs caps in §45.7.
+
+**D-2 test-widening outcome note (2026-08-15, Session 10 — FINDINGS §46,
+pre-registered in `plans2/17-WP-LIN-D2.md`).** The user ruled one bounded,
+test-scoped widening (+3 devices, the spec's `device_budget: [3, 21]` line
+untouched) to carry candidate D and an isolating input architecture to real
+two-tone, so candidate N is judged on a full 5/5 or refuted. **Both were
+built and measured; neither approaches any §6 clause.** Candidate D
+(MNMD1 stacked under MNM6): the reuse stack never improves the swing product
+(best saturated 54.97 mV vs baseline 72.91; triode asymptote 72.56) — the
+output current is resistor-set, so the stack adds gm and no current — and at
+the ruled condition it **FAILS D5 0/4 at −20.7…−22.1 dB** (fences intact,
+replay 0.0000; its one real effect is +5.5…+6.1 dB of S3 IIP3 via accidental
+source degeneration of MNM6). The isolating input (MNMI1 cascode + MNMI2
+attenuation): **0.00 dB of match-legal span** — the match breaks by 2.9 dB
+through the cascode the moment the attenuator conducts; §45.5(i)'s escape is
+measured shut at +2 devices. **Candidate N's bar: 5 of 5 — REPORTED as fully
+met, NOT recorded (§7 D-1).** The D-2 spec-adoption question is moot (nothing
+passed; the test allowance dissolves). Deviations in FINDINGS §46.7; cost
+≈55 SPICE-min vs caps in §46.8.

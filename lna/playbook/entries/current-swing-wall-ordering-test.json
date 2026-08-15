@@ -1,0 +1,64 @@
+{
+  "id": "current-swing-wall-ordering-test",
+  "type": "diagnosis",
+  "trigger": {
+    "family": [
+      "dhruva",
+      "gnss",
+      "lna",
+      "any"
+    ],
+    "analysis": [
+      "op",
+      "two-tone",
+      "harmonic-balance",
+      "iip3",
+      "sizing"
+    ],
+    "failure_signature": [
+      "output-swing-wall",
+      "weak-inversion-blindness"
+    ],
+    "keywords": [
+      "iip3",
+      "oip3",
+      "swing",
+      "current-limit",
+      "headroom",
+      "class-a",
+      "iq",
+      "z_ac",
+      "output-stage",
+      "spearman"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "At MNM6's drain @1.2 V: voltage-headroom limit `min(1.200−0.578, 0.578−0.073) = 505 mV`; class-A current limit `Iq·|Z_ac| = 1.432 mA × 50.9 Ω = 73 mV`. **The current limit binds by 6.93× = 16.8 dB** (§2.2 predicted ~6.9× / ~17 dB — reproduced).",
+      "source": "FINDINGS §44.4"
+    },
+    {
+      "quote": "OIP3 of the four §37.7 own-band sizings orders with `Iq(MNM6)·|Z_ac|` **perfectly**: ascending product `s < l5 < l1 < l2` == ascending OIP3 `s < l5 < l1 < l2`, **Spearman ρ = 1.0000, exact rank match**.",
+      "source": "FINDINGS §44.4"
+    },
+    {
+      "quote": "Adding 100 mV of headroom by moving 1.1 → 1.2 V moves OIP3(l5, max) by **+0.61 dB** — under the 2 dB P2 bar, exactly what re-centring a *non-binding* limit predicts.",
+      "source": "FINDINGS §44.4"
+    }
+  ],
+  "rule": "Before spending a rail or a re-size on a linearity wall, separate the class-A current limit Iq·|Z_ac| from the voltage-headroom limit min(VDD−Vq, Vq−Vdsat) with one op run, then confirm which binds by ordering the OIP3 of several descended sizings against their Iq·|Z_ac| product — if OIP3 tracks the current product (not the headroom), it is a current-swing wall and neither bias re-centring nor a small rail bump will move it.",
+  "applicability": {
+    "applies": "Any class-A output-swing linearity wall where an op dump gives Iq and the load network gives |Z_ac|; the ordering test is a 4-op falsifier that costs nothing and is a stronger diagnosis than the size of the miss. Both harnesses reproduce the +0.61 dB/100 mV rail sensitivity and the ρ=1.0000 ordering.",
+    "not": "The ordering test needs ≥ 3-4 independently-descended sizings to be meaningful; on a single point it degenerates. |Z_ac| here is the drain load in parallel with the port through the coupling caps — recompute it per topology, and beware the load resistor is often the stage's DC current source (raising it lowers Iq faster than it raises Z, see resistor-set-output-is-current-neutral)."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 42 (WP-LIN rung 0)",
+    "JOURNEY stage 43 (WP-LIN rungs 1-4)",
+    "FINDINGS §44.4",
+    "FINDINGS §45.3",
+    "lna/plans2/16-WP-LIN.md §2.2",
+    "lna/_lin_baseline.py --falsify"
+  ],
+  "created": "2026-08-16"
+}

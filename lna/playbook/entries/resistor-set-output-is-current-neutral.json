@@ -1,0 +1,62 @@
+{
+  "id": "resistor-set-output-is-current-neutral",
+  "type": "diagnosis",
+  "trigger": {
+    "family": [
+      "dhruva",
+      "gnss",
+      "lna",
+      "any"
+    ],
+    "analysis": [
+      "op",
+      "sizing",
+      "two-tone",
+      "iip3"
+    ],
+    "failure_signature": [
+      "output-swing-wall",
+      "iip3-wall",
+      "device-budget"
+    ],
+    "keywords": [
+      "current-reuse",
+      "stacking",
+      "gm-boost",
+      "resistor-set",
+      "load-resistor",
+      "current-source",
+      "iq",
+      "swing",
+      "output-branch"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "Raising pR4V *reduces* Iq(MNM6) faster than it raises |Z_ac| (the load resistor sets the DC bias current): Iq·|Z| falls 72.9 → 54.4…20.5 mV on every variant ... §2.2's \"the design is giving away its load resistor\" intuition is **corrected by measurement** — pR4V is not a free AC knob, it is the output stage's current source.",
+      "source": "FINDINGS §45.2"
+    },
+    {
+      "quote": "**the output branch current is resistor-set** — RR4 (pR4V) is the stage's current source (the same measured fact that killed candidate C, §45.2), so stacking adds a gm but adds **zero current**; \"freeing mA for the output stage\" is not a thing this output network can do. §3 row D's premise — current reuse as candidate B's funding source — is **refuted on this topology by measurement**",
+      "source": "FINDINGS §46.2"
+    },
+    {
+      "quote": "The reuse stack never improves the swing product — not in saturation (best 54.97 mV), not even in deep triode (asymptote 72.56 mV).",
+      "source": "FINDINGS §46.2"
+    }
+  ],
+  "rule": "Read where the output branch's DC current is actually set before proposing current-reuse, gm-boosting, or 'raise the load impedance' on a swing-limited output stage: if the load resistor sets the bias current, raising it lowers Iq faster than it raises Z (net swing-product loss), and stacking a reuse device adds gm but zero current — neither frees a milliamp for the stage that needs it.",
+  "applicability": {
+    "applies": "Any resistor-loaded (not current-mirror-loaded) output stage on a swing-current wall. Measured on two independent candidates: C (raise pR4V, swing product 72.9→54.4…20.5 mV) and D (reuse stack, best 54.97 mV, triode asymptote 72.56, never above baseline). The op dump names the current source; do that first.",
+    "not": "Does not apply to a current-mirror- or inductor-loaded output stage where the bias current is set independently of the AC load — there, raising Z_ac or reusing current genuinely can raise the swing product. This is a property of the resistor-set branch, not of output stages in general; the fix class is a rail/current/impedance change (see current-swing-wall-ordering-test), not a stack."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 43 (WP-LIN rungs 1-4)",
+    "JOURNEY stage 44 (WP-LIN D-2)",
+    "FINDINGS §45.2",
+    "FINDINGS §46.2",
+    "lna/plans2/16-WP-LIN.md §3 (candidates C, D)"
+  ],
+  "created": "2026-08-16"
+}

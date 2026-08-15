@@ -1,0 +1,58 @@
+{
+  "id": "match-forbidden-zone-is-architectural",
+  "type": "diagnosis",
+  "trigger": {
+    "family": [
+      "dhruva",
+      "gnss",
+      "lna"
+    ],
+    "analysis": [
+      "sp",
+      "s-parameter",
+      "gain-programmability",
+      "loading-probe"
+    ],
+    "failure_signature": [
+      "band-match-wall",
+      "topology-exhaustion"
+    ],
+    "keywords": [
+      "s11",
+      "match",
+      "margin",
+      "loading",
+      "cascode",
+      "isolation",
+      "c_gd",
+      "span",
+      "front-side",
+      "architecture"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "**P4 is REFUTED.** The 1.48 dB of margin bought the input combiner ~4.8 dB of legal span where the l5 host had zero ... — a real shift, and **less than half of 10.6 dB**. ... The forbidden zone is architecture (C_gd coupling), not margin.",
+      "source": "FINDINGS §45.1"
+    },
+    {
+      "quote": "**Match-legal span = 0.00 dB** — *worse* than the un-isolated input combiner's 4.84 dB (§45.1). The attenuation itself (~9.3 dB, plenty of authority) is not the problem; the moment the shunt device turns on, the load pulls the input match through the CS pair's forward admittance and S11 breaks by 2.9 dB. **A cascode does not create a front-side node whose loading is invisible to the match**",
+      "source": "FINDINGS §46.3"
+    }
+  ],
+  "rule": "Do not expect S11 margin or a cascode/isolation device to open a match-legal front-side loading node: the match-forbidden zone is set by the input-match architecture (the CS pair's forward admittance and C_gd coupling), so more margin only widens the legal span sublinearly and a series cascode reaches the match right through itself — measure the span, never assume the isolation shields it.",
+  "applicability": {
+    "applies": "Any C_gd-coupled input-match architecture where a front-side gain-control or linearization tap must be grafted; measured twice — margin bought 0.00→4.8 dB (still < 10.6) and a dedicated +2-device cascode bought 0.00 dB (worse than un-isolated). Re-run the loading probe per design; only the output-stage drain / VOUT1 tolerated loading here.",
+    "not": "Not a claim that isolation is useless in general — it is a measured result on THIS input-match architecture at +1.48 dB margin and at +2 devices of dedicated isolation. A genuinely different front-end (a matched buffer stage ahead of the tap, a transformer input) was not built; the escape is a topology change beyond the device budget, a user decision (§7 D-2)."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 43 (WP-LIN rungs 1-4)",
+    "JOURNEY stage 44 (WP-LIN D-2)",
+    "FINDINGS §45.1",
+    "FINDINGS §46.3",
+    "lna/plans2/17-WP-LIN-D2.md §5 (PD2)",
+    "lna/pgain.py --probe"
+  ],
+  "created": "2026-08-16"
+}

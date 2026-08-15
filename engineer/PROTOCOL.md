@@ -336,3 +336,163 @@ no?**
   parallel runner writes per-run trajectory files first, then appends them to the
   canonical table in a single serial pass (E-1's throwaway-path precedent), so no
   two processes ever write the canonical file concurrently.
+
+---
+
+## §EXT — External calibration track appendix (pre-registration)
+
+**Status:** PRE-REGISTRATION, committed **alone and before any external scoring
+run**, executing the charter's E-2 breadth item and §10's queued question
+(*"commission the AnalogGym-externals calibration work, yes or no?"* — commissioned
+by the user 2026-08-14, confirmed 2026-08-15). This appendix is the timestamp for
+the external track exactly as the body of this file was for the in-house track: its
+commit precedes every `scoreboard_ext_v0.json` cell. The E-2 falsifier — *"a result
+table where the protocol was decided after the numbers were seen"* — is foreclosed
+for the externals by this appendix being committed by itself, first.
+
+**This appendix ADDS a track; it changes nothing above.** §§1–11 (the 7 in-house
+tier-2 tasks, their pins, budgets, N=10, arms, aggregation, the §43.2 consistency
+check, PROTOCOL v0's registered content) are untouched. The external tasks enter as
+a **separate registry namespace and a separate tier** (`tier="ext"`): they are
+op-amp / OTA sizing tasks (SKY130, ngspice), **not** RF, and the survey's finding
+holds — AnalogGym is *"not a superset, a different domain"* (SURVEY §3 + S11: no
+S-parameters, no NF-with-source-impedance, no two-tone). Nothing here re-pins or
+re-scores an in-house task.
+
+### §EXT.1 What the calibration measures, and why it is worth running
+
+§10 named the pilot a pilot: the 7 in-house tasks measure our sizer against our own
+nulls on *our own store*. The external track is the statement about **more than our
+own store** — the field's open op-amp benchmark, run through a compatible harness,
+with the **same two null arms at the same discipline**. If our sizer (CMA-ES, the
+`null_sizer` arm) beats random on AnalogGym's amps too, "our sizer is good" stops
+being a claim about the dhruva store and becomes a claim about analog sizing.
+
+### §EXT.2 Adapter (the harness for this track)
+
+`engineer/ext_gym.py`, pinned by its own sha256 in every result's harness stamp.
+It builds an AnalogGym testbench into the same *contract* env.py exposes — an
+`ExtEnv` with `objective_fn` / `evaluate` / `best` / `observe` / `harness`,
+budget-counted, harness-stamped, deterministic (the env draws no random numbers) —
+without editing env.py, tasks.py, or any driver (the E-1 falsifier, verified: the
+`baseline_run`/`random_run`-shape drivers run against `ExtEnv` unchanged, and
+`lna/null_sizer.run_cmaes` is imported verbatim as the cmaes arm). Simulator:
+**`$NGSPICE` = ngspice-47** (AnalogGym pins ngspice ≥42; 47 satisfies it). PDK:
+**SKY130** (`AnalogGym/repo/PDK/sky130_pdk`, tt corner, unzipped in place from the
+bundled zip — contained, nothing system-wide). Upstream pin:
+**CODA-Team/AnalogGym @ `0a9d1390ade361e2b4a2d33181e22367edbb8afc`** (BSD-3-Clause).
+
+### §EXT.3 The "specs" — curated from AnalogGym, never invented
+
+The charter's *"no new specs"* rule (§2, §5): AnalogGym's own testbench and FoM
+**are** the specs. Pinned verbatim:
+
+- **objective** = AnalogGym's amplifier FoM, the active (uncommented) `fom[i]` line
+  of `perf_extraction_amp.py` at the pinned SHA, reproduced in `ExtSpec.objective`
+  (a scalarization of gain / GBW / phase-to-60° / slew / power / area / settling /
+  CMRR / PSRR, with AnalogGym's own `meas_real` rescalings). **Lower is better**, so
+  it composes with the same `feasible ⟺ best_obj < 0`-style reporting the body uses.
+- **failed-`.meas` semantics** = AnalogGym's own directional-worst-case defaults
+  (a failed AC/tran measurement is scored at their `-1000` / `0` / `1000` sentinels,
+  never NaN — SURVEY §3's *"`.meas` 'failed' tokens replaced by directional
+  worst-case defaults"*), so the objective always sees a finite bad value.
+- **feasibility** = a directional predicate over the SAME measured quantities the
+  FoM rewards (real gain > 40 dB, a real unity-gain crossing, phase margin in a
+  stable 0–120° band). Not a new spec: it encodes *"the deck elaborated and behaves
+  like an amplifier"* — a failed/degenerate point sits at the sentinel and fails it.
+- **box** = the design-variable KIND ranges (L/W multipliers, integer M, log CAP /
+  CURRENT / RESISTOR spans), derived per amp from its own `design_variables` file
+  and AnalogGym's own `__call__` decode; no per-amp hand-listing.
+
+### §EXT.4 Task set — the ngspice-runnable subset (honest, with exclusions)
+
+Established by simulating **every** amp at its shipped default sizing on ngspice 47
+(the honest table + exclusion reasons live in `engineer/EXT-CALIBRATION.md`). The
+scored external set is `ext_gym.RUNNABLE`: the **14 amplifiers** whose netlist
+elaborates and produces finite AC metrics —
+
+`Fan_SMC_Pin_3`, `HoiLee_AFFC_Pin_3`, `Leung_DFCFC1_Pin_3`, `Leung_DFCFC2_Pin_3`,
+`Leung_NMCF_Pin_3`, `Leung_NMCNR_Pin_3`, `Peng_ACBC_Pin_3`, `Peng_IAC_Pin_3`,
+`Peng_TCFC_Pin_3`, `Qu2017_AZC_Pin_3`, `Ramos_PFC_Pin_3`, `Sau_CFCC_Pin_3`,
+`Song_DACFC_Pin_3`, `Yan_AZ_Pin_3` (dims 22–38).
+
+**Excluded, with reasons** (never silently dropped): `Qu_LEC_Pin_3` (empty netlist
+file upstream); `Tan_CLIA_Pin_3` (chopper amp, does not elaborate on ngspice 47);
+`Cascode_Miller_Pin_2` / `Cascode_Null_Pin_1` / `Davide_ASMIHF_Pin_3` /
+`TwoSt_SMCNR_Pin_2` (design_variables shipped without a netlist). `Alfio_RAFFC_Pin_3`
+is runnable but degenerate at *default* sizing (dc gain < 0 → some `.meas` fail at
+the default point); held out of the scored set so the golden anchors on a clean
+default. **Whole categories out of scope** (need a simulator we do not have): LDOs
+(ngspice testbenches present — **deferred to a follow-up rung**, amps first),
+Charge Pump / PLL (Spectre + OCEAN), Sensing Front End (Spectre PTAT), Voltage
+Reference (description only). This is SURVEY §1.1/S11's honesty: the runnable subset
+is named, the rest is excluded *with the reason*, and no out-of-scope task is
+counted.
+
+### §EXT.5 Budget, N, arms, aggregation — same discipline as the body
+
+- **Budget** = **1000 evals per (amp, arm, seed)** — AnalogGym's own stated budget
+  (SURVEY §3: *"with a 1000-sim budget, constrained-BO reached FoM 4.2 …"*). One eval
+  = one call of `ExtEnv`'s objective = **two ngspice calls** (an AC/DC deck and a
+  Tran deck), both counted; the budget is stated in evals so it means the same
+  number of ngspice invocations for every arm. **Budget-matched or it is
+  decoration** (S11), applied per amp.
+- **N = 10 seeds**, seeds `1..10` — the AnalogGym standard (S11; the same N §43.1
+  amended the in-house track to).
+- **Arms** = the **same two untuned nulls**: `cmaes` (`lna/null_sizer.run_cmaes`,
+  imported verbatim — the same CMA-ES §43.2 is a claim about) and `random` (uniform
+  in `[0,1]^d`, `numpy.default_rng(seed)`). Nulls first, always (charter §4).
+- **Metrics per run**: feasible (bool, `ExtSpec.feasible`), best objective
+  (`ExtEnv.best_f`, min over budget), evals-to-first-feasible (censored at budget),
+  convergence curve (best-so-far every 10 evals, from the free points hook).
+- **Aggregation across seeds** (per amp × arm): feasible-rate `#feasible/N`;
+  best-objective **median AND best** across seeds; evals-to-first-feasible median
+  over the feasible seeds. **Aggregation across amps**: per-amp tables (primary; **no
+  cross-amp objective averaging** — the FoM scale differs by amp), plus a **median-
+  rank summary** (rank arms per amp by feasible-rate then median FoM; report each
+  arm's median rank across the 14 amps). Identical rule shape to §5.3/§5.4.
+- **Modeling vs simulation time** accounted separately (§6): `sim_s` from the
+  per-eval `cost.wall_s` the env stamps; `model_s` = total wall − sim_s.
+
+### §EXT.6 Golden (before any scoring)
+
+**Replay-fence golden** (no AnalogGym-shipped per-topology baseline table exists to
+reproduce — AnalogGym ships training artifacts, an OP-normalization JSON, and an
+HSPICE reference netlist, none of which is a stated ngspice operating point).
+Therefore: **fixed sizing → fixed metrics**. Anchor amp `HoiLee_AFFC_Pin_3` at its
+**shipped default sizing** reproduces, on this harness, dc gain **90.0754 dB**, GBW
+**838366 Hz**, phase **8.0522°**, FoM **−85463.332359** — verified **3× in-process
+and in a separate process, spread 0.000000**. Recorded as the adapter's golden in
+`engineer/data/ext_golden_v0.json` and re-checked before the scoring run. Any drift
+at fixed harness era is flagged loudly, not absorbed (charter §4).
+
+### §EXT.7 Determinism / replay / stamps
+
+`(amp, arm, seed)` fully determines the x-vector sequence (the env draws no random
+numbers). Every result carries `ExtEnv.harness()`: `$NGSPICE` path + version, the
+AnalogGym SHA, the adapter sha256, the pinned netlist/vars sha256, the PDK path, and
+`domain: "op-amp (SKY130); NOT RF"`. Re-run tolerance: `best_obj` to ≤ 1e-6 at fixed
+harness era (the golden's separate-process spread is 0.0). Wall-clock fields are cost,
+not result, and exempt.
+
+### §EXT.8 Artifacts
+
+- Per-cell result JSONs in `engineer/data/`:
+  `ext_cmaes_<amp>_s<seed>_b<budget>.json`, `ext_random_<amp>_s<seed>_b<budget>.json`.
+- Golden: `engineer/data/ext_golden_v0.json`.
+- Scoreboard: **`engineer/data/scoreboard_ext_v0.json`** — per-amp × arm aggregates,
+  the cross-amp median-rank summary, cost accounting, and this appendix's
+  pre-registration commit SHA as the artifact's protocol provenance.
+- Trajectory rows to `engineer/data/ext_trajectories.jsonl` (the external tier's own
+  append-only table, distinct from `trajectories.jsonl`).
+
+### §EXT.9 What would change these numbers vs the protocol (fenced as §9)
+
+Re-run everything (numbers change, protocol does not): a change to the adapter's
+measured quantities (a new `ext_gym.py` sha256 is an era cutover for this track), an
+ngspice change, or an AnalogGym re-pin. **Forbidden without a user ruling**: editing
+the external task set, the 1000-eval budget, N, the metrics, the FoM/feasibility
+definition, or the aggregation rule after any external number under this appendix has
+been seen. Whether the external track joins a **future frozen protocol** (a benchmark
+release including AnalogGym) is part of R-5 / E-5 — the user's call, queued, not an
+agent's.

@@ -1,0 +1,64 @@
+{
+  "id": "split-budget-starves-the-swing-stage",
+  "type": "anti-pattern",
+  "trigger": {
+    "family": [
+      "dhruva",
+      "gnss",
+      "lna",
+      "any"
+    ],
+    "analysis": [
+      "op",
+      "sizing",
+      "two-tone",
+      "iip3",
+      "search"
+    ],
+    "failure_signature": [
+      "output-swing-wall",
+      "iip3-wall",
+      "device-budget"
+    ],
+    "keywords": [
+      "budget",
+      "current-allocation",
+      "idd",
+      "output-stage",
+      "starved",
+      "swing",
+      "share",
+      "s11-cap",
+      "re-allocation"
+    ]
+  },
+  "evidence": [
+    {
+      "quote": "MNM6 carries **15.1 %** of Idd (1.432 mA of 9.463) while carrying the whole output swing; MNM4's tank stage carries **49.0 %**.",
+      "source": "FINDINGS §44.4"
+    },
+    {
+      "quote": "Best legal Iq·|Z| = 82.6 mV (**+1.13× = +1.1 dB**) at NM6×2.0; S11 falls −11.48 → −10.46…−10.70 (the wider MNM6 loads the output node and spends the margin); **NM6×3.0/×4.0 BREAK S11** (−9.51/−8.74). Idd never exceeds 9.65 mA — the Idd gate never binds; **S11 is B's wall**, not Idd.",
+      "source": "FINDINGS §45.2"
+    },
+    {
+      "quote": "a class-A stage delivering OIP3 ≈ +12 dBm into 51 Ω needs ~8 mA in the output device alone, 5.5× today's 1.43 mA — feasible in current only if MNM4's 4.6 mA is re-allocated, which is candidate B, which S11 forbids past ×2",
+      "source": "FINDINGS §45.5"
+    }
+  ],
+  "rule": "When one stage carries the whole output swing on a fraction of the current budget, do not assume the spare Idd headroom is spendable there: re-allocating current into that stage widens its device and spends the input-match margin (S11 caps it), and taking current off the other stages breaks the match too — the budget split is enforced by S11, not by the Idd gate, so name the true binding gate before betting the headroom.",
+  "applicability": {
+    "applies": "Any design where the swing-carrying output stage is a small share of Idd (here 15.1% carrying 100% of the swing) and the headroom looks free (3.5 mA of Idd margin). Measured twice: widening MNM6 (candidate B) walls at S11 by ×2, and re-funding it by reuse (candidate D) adds gm not current. The predicted Idd-gate failure never occurred; S11 did.",
+    "not": "Not a claim that current re-allocation never works — it is that on THIS topology the output node loads the input match, so the swing stage cannot grow without spending S11. On a design where the output node is match-isolated, spending the Idd headroom on the output stage is the direct fix. The binding gate is the finding, not the aspiration."
+  },
+  "confidence": "verified",
+  "sources": [
+    "JOURNEY stage 43 (WP-LIN rungs 1-4)",
+    "JOURNEY stage 44 (WP-LIN D-2)",
+    "FINDINGS §44.4",
+    "FINDINGS §45.2",
+    "FINDINGS §45.5",
+    "lna/plans2/16-WP-LIN.md §2.2 (candidate B)"
+  ],
+  "created": "2026-08-16"
+}

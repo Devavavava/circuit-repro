@@ -1,6 +1,12 @@
 # 16 — WP-LIN: the linearity-aware redesign, pre-registered before a single candidate is sized
 
-**Status:** **DRAFT — pre-registered for user sign-off; not adopted.**
+**Status:** **CLOSED — 2026-08-16.** Candidate N (the null: D5 not met at ≤1.2 V,
+the wall physical) is **RECORDED** per the user's D-1 ruling; the D5 wall is
+two-harness measured (§44/§44.9) and measured **stable under perturbation**
+(§47). The pre-registration below is preserved as written; the outcome is in §11
+and FINDINGS §44/§45/§46/§47.
+
+**Status (original, at drafting):** **DRAFT — pre-registered for user sign-off; not adopted.**
 Written 2026-08-14, **before any candidate topology/bias change has been
 proposed, before the IIP3 head exists, and before the designated point's own
 IIP3 has ever been measured** (§1.3 — that last fact is not a rhetorical
@@ -673,8 +679,10 @@ falls — with full detail in FINDINGS §43.*
 | **P4** the §42.3 match wall has lifted on this host | **REFUTED (rung 1, §45.1), both rails measured.** in-att 4.77/4.84 dB legal span (l5 was 0.00 — a real shift, under half of 10.6); in-degen 2.26/2.37 (the authority ceiling, unmoved); n0-bank 0.00 (no legal setting at all). The forbidden zone is architecture (C_gd coupling), not margin. |
 | **P5** F / G / H killed early | **CONFIRMED (rung 1, §45.2)** — F on headroom-is-non-binding (§44.4) + the device budget; G on clipping-not-g3 (§44.4) + the §6.5 zero-flip bar; H on the S-band S21 clause-4 floor. All killed on evidence, none sized. |
 | **P6** candidate B eaten by the Idd gate | **REFUTED in mechanism (rungs 1/3, §45.2).** B is stopped by **S11**, not Idd: the wider MNM6 spends the match margin (breaks −10 dB at NM6×3) while Idd peaks at 9.65 of 13 mA. The predicted failure mode was the wrong one; the D-6 union config was never reached (no candidate approached acceptance). |
-| **P7** a nominal-only pass under the sensitivity sweep | **NOT REACHED (rung 4 vacuous, §45.5)** — zero rung-3 survivors; no nominal pass exists to flip. §1.3 item 5 (IIP3 under perturbation) remains open, queued. |
+| **P7** a nominal-only pass under the sensitivity sweep | **NOT REACHED (rung 4 vacuous, §45.5)** — zero rung-3 survivors; no nominal pass existed to flip. §1.3 item 5 (IIP3 under perturbation) was then run in the closure wave on the **baseline** (since no candidate survived, §4.4 applies to it) — see the closure row below. |
 | **Gate D5 at the D6 min-gain state, 1.2 V** | **FAILED 0/4 bands (rung 0), 26.6–27.7 dB short — TWO-harness measured.** IIP3 ≈ −34 dBm vs ≥ −7.4/−7.6/−8.7; OIP3 −13.0…−13.3 at S3/1.2 V (FINDINGS §44.2). **HB agrees, 0/4 fail at every configuration (§44.9); all four configs reached, so §7 D-8's asterisk is RESOLVED** — the D5 baseline is two-harness measured, not one. **Rungs 1–3 (§45.4): FAILED 0/4 on every candidate as well, 25.8–28.6 dB short — no in-box candidate approaches any §6 clause.** |
+| **§4.4 IIP3 under perturbation (§1.3 item 5)** | **MEASURED and STABLE (closure wave, FINDINGS §47.1–47.2).** The never-perturbed distortion metric, on the baseline point, dhruva-l5, min-gain (ruled) + max gain, 1.2 V nominal, under VDD×0.9/×1.1, 85 °C, worst combo: **worst \|ΔIIP3\| = 2.26 dB, worst \|ΔOIP3\| = 1.55 dB** — far under the registered 5 dB falsifier (Q1). VDD ±10 % moves OIP3 ±0.7–0.9 dB (the §44.4 +0.61 dB/100 mV prior). Controls reproduce §44.2 to 3 decimals; fences intact, replay 0.0000. **The wall is a fixed physical fact, not a nominal artefact.** |
+| **Candidate N (the null) — §3 five-clause bar** | **5 of 5, and RECORDED (user D-1 ruling, 2026-08-16, FINDINGS §47.3).** Clause 1 ✓ (§44/§44.9) · 2 ✓ (§44.4) · 3 ✓ (§45.1/§46.3) · 4 ✓ (B/C/D carried, §45.4/§46.4) · 5 ✓ (§45.5). D5 NOT MET at ≤1.2 V on this topology family; wall physical (output-stage current swing); ≈21 dB post-D at the ruled condition; levers (D-7 port impedance, supply/Idd, spec relief) each a separate open user decision. **WP-LIN CLOSED.** |
 
 **Rung-0 outcome note (2026-08-14, Session 10, executed on `main` per the RHEL
 port — FINDINGS §44).** Rung 0 — and only rung 0, per user sign-off — ran. It
@@ -740,3 +748,28 @@ measured shut at +2 devices. **Candidate N's bar: 5 of 5 — REPORTED as fully
 met, NOT recorded (§7 D-1).** The D-2 spec-adoption question is moot (nothing
 passed; the test allowance dissolves). Deviations in FINDINGS §46.7; cost
 ≈55 SPICE-min vs caps in §46.8.
+
+**Closure outcome note (2026-08-16, Session 10 — FINDINGS §47, pre-registered
+in `plans2/18-WPLIN-CLOSURE.md`).** Executed per the user's 2026-08-16 ruling:
+**"(D-1) record candidate N and close WP-LIN,"** plus the two commissioned
+closure items. Goldens GREEN before and after. **(1) The never-measured §1.3
+item 5 / §4.4 perturbation set** was run on the **baseline** designated point
+(no candidate survived rungs 1–4, so §4.4 applies to the baseline): dhruva-l5,
+D6 min-gain (ruled) + max gain, 1.2 V nominal, under VDD×0.9, VDD×1.1, 85 °C,
+and the worst combo (VDD×0.9+85 °C), replay ×3, all §37.3 fences intact. **The
+D5 wall is STABLE: worst \|ΔIIP3\| = 2.26 dB, worst \|ΔOIP3\| = 1.55 dB** — far
+below the pre-registered 5 dB falsifier (Q1 confirmed); VDD ±10 % moves OIP3
+±0.7–0.9 dB, on the §44.4 rail prior. The nominal controls reproduce §44.2 to
+three decimals (injection inert). The 26.6–27.7 dB miss is a fixed physical
+fact, not a nominal-operating-point artefact. **(2) Candidate N RECORDED**
+(bar 5/5 since §46.6; D-1 was the user's call, now taken): D5 not met at ≤1.2 V
+on this topology family, the wall physical (`Iq×|Z_ac|`), ≈21 dB post-D at the
+ruled condition, five-clause chain §44/§44.9/§45/§46/§47 cited; the levers
+(D-7 port impedance, supply/Idd, spec relief) named as separate open user
+decisions. `14-DHRUVA-SIMUL.md` §2's D5 row amended to this verdict (the one
+user-signed edit outside the WP docs). **(3) Five playbook entries** distilled
+from JOURNEY 41–44, `--check` GREEN (§47.5). Deviation: the perturbation set ran
+l5-only (the box was saturated by concurrent agents; the all-bands run blew the
+wall cap and was re-scoped per §18 §2's cap rule — the wall's stability is a
+per-topology property, so l5, the worst band, is the informative one). Cost
+≈28 SPICE-min vs the ≤40 cap. **WP-LIN is CLOSED.**

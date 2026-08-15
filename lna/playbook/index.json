@@ -52,7 +52,9 @@
       "steering-toward-memorized-structure-returns-copies"
     ],
     "gain-programmability": [
+      "gain-control-side-decides-linearity",
       "judge-linearity-at-the-min-gain-state",
+      "match-forbidden-zone-is-architectural",
       "match-margin-forbids-mid-chain-loading"
     ],
     "generation": [
@@ -75,6 +77,8 @@
     ],
     "harmonic-balance": [
       "cross-simulator-port-must-be-measured",
+      "current-swing-wall-ordering-test",
+      "gain-control-side-decides-linearity",
       "golden-before-any-design-number",
       "iip3-output-swing-wall",
       "judge-linearity-at-the-min-gain-state",
@@ -82,15 +86,20 @@
       "two-engine-cross-validation"
     ],
     "iip3": [
+      "current-swing-wall-ordering-test",
+      "gain-control-side-decides-linearity",
       "iip3-output-swing-wall",
       "judge-linearity-at-the-min-gain-state",
       "numerical-distortion-lands-on-signal-bins",
+      "resistor-set-output-is-current-neutral",
+      "split-budget-starves-the-swing-stage",
       "two-engine-cross-validation"
     ],
     "labeling": [
       "era-cutover-is-a-new-label-domain"
     ],
     "loading-probe": [
+      "match-forbidden-zone-is-architectural",
       "match-margin-forbids-mid-chain-loading"
     ],
     "logging": [
@@ -116,9 +125,12 @@
     ],
     "op": [
       "cross-simulator-port-must-be-measured",
+      "current-swing-wall-ordering-test",
       "margin-is-the-currency",
       "passive-instrument-must-be-proved-passive",
+      "resistor-set-output-is-current-neutral",
       "s11-idd-knife-edge",
+      "split-budget-starves-the-swing-stage",
       "stop-sizing-build-an-instrument",
       "weak-inversion-saturation-blindness"
     ],
@@ -136,6 +148,7 @@
     ],
     "s-parameter": [
       "gate-driven-input-is-quiet-only-when-unmatched",
+      "match-forbidden-zone-is-architectural",
       "match-margin-forbids-mid-chain-loading",
       "wideband-sdr-band-wide-match-wall"
     ],
@@ -152,6 +165,7 @@
       "friis-grow-the-quietest-parent",
       "oracle-control-before-a-surrogate-claim",
       "search-must-be-seeded-from-physics",
+      "split-budget-starves-the-swing-stage",
       "three-failed-loops-means-topology",
       "uncertainty-gate-needs-an-off-distribution-control"
     ],
@@ -166,13 +180,16 @@
     ],
     "sizing": [
       "calibrate-fidelity-parameters-to-real-silicon",
+      "current-swing-wall-ordering-test",
       "harden-against-the-measured-sweep",
       "margin-is-the-currency",
       "objective-only-protects-what-it-scores",
       "oracle-control-before-a-surrogate-claim",
       "replay-fence-before-any-reuse",
       "replay-fence-is-not-correctness",
+      "resistor-set-output-is-current-neutral",
       "search-must-be-seeded-from-physics",
+      "split-budget-starves-the-swing-stage",
       "three-failed-loops-means-topology",
       "wideband-sdr-band-wide-match-wall"
     ],
@@ -181,9 +198,11 @@
       "cross-simulator-port-must-be-measured",
       "element-names-are-the-contract",
       "friis-grow-the-quietest-parent",
+      "gain-control-side-decides-linearity",
       "gate-driven-input-is-quiet-only-when-unmatched",
       "golden-before-any-design-number",
       "margin-is-the-currency",
+      "match-forbidden-zone-is-architectural",
       "match-margin-forbids-mid-chain-loading",
       "objective-only-protects-what-it-scores",
       "passive-instrument-must-be-proved-passive",
@@ -213,10 +232,14 @@
       "two-engine-cross-validation"
     ],
     "two-tone": [
+      "current-swing-wall-ordering-test",
+      "gain-control-side-decides-linearity",
       "iip3-output-swing-wall",
       "judge-linearity-at-the-min-gain-state",
       "numerical-distortion-lands-on-signal-bins",
       "replay-fence-is-not-correctness",
+      "resistor-set-output-is-current-neutral",
+      "split-budget-starves-the-swing-stage",
       "two-engine-cross-validation"
     ]
   },
@@ -239,13 +262,16 @@
       "attribution-control-same-session",
       "calibrate-fidelity-parameters-to-real-silicon",
       "critic-collapse-is-coverage-not-capacity",
+      "current-swing-wall-ordering-test",
       "era-cutover-is-a-new-label-domain",
       "frozen-protocol-change-needs-user-signoff",
+      "gain-control-side-decides-linearity",
       "gate-driven-input-is-quiet-only-when-unmatched",
       "golden-before-any-design-number",
       "iip3-output-swing-wall",
       "judge-linearity-at-the-min-gain-state",
       "margin-is-the-currency",
+      "match-forbidden-zone-is-architectural",
       "must-fail-control-in-every-golden",
       "ndl-is-blind-to-function",
       "objective-only-protects-what-it-scores",
@@ -254,8 +280,10 @@
       "reference-expansion-perturbs-only-what-could-copy-it",
       "replay-fence-before-any-reuse",
       "replay-fence-is-not-correctness",
+      "resistor-set-output-is-current-neutral",
       "s11-idd-knife-edge",
       "single-finger-gate-resistance-artefact",
+      "split-budget-starves-the-swing-stage",
       "steering-toward-memorized-structure-returns-copies",
       "stop-sizing-build-an-instrument",
       "three-failed-loops-means-topology",
@@ -275,8 +303,10 @@
       "replay-fence-is-not-correctness"
     ],
     "band-match-wall": [
+      "gain-control-side-decides-linearity",
       "gate-driven-input-is-quiet-only-when-unmatched",
       "margin-is-the-currency",
+      "match-forbidden-zone-is-architectural",
       "match-margin-forbids-mid-chain-loading",
       "stop-sizing-build-an-instrument",
       "three-failed-loops-means-topology",
@@ -295,7 +325,9 @@
       "uncertainty-gate-needs-an-off-distribution-control"
     ],
     "device-budget": [
-      "calibrate-fidelity-parameters-to-real-silicon"
+      "calibrate-fidelity-parameters-to-real-silicon",
+      "resistor-set-output-is-current-neutral",
+      "split-budget-starves-the-swing-stage"
     ],
     "era-mismatch": [
       "era-cutover-is-a-new-label-domain",
@@ -310,6 +342,8 @@
     "iip3-wall": [
       "iip3-output-swing-wall",
       "judge-linearity-at-the-min-gain-state",
+      "resistor-set-output-is-current-neutral",
+      "split-budget-starves-the-swing-stage",
       "three-failed-loops-means-topology"
     ],
     "instrument-perturbation": [
@@ -360,7 +394,11 @@
       "search-must-be-seeded-from-physics"
     ],
     "output-swing-wall": [
-      "iip3-output-swing-wall"
+      "current-swing-wall-ordering-test",
+      "gain-control-side-decides-linearity",
+      "iip3-output-swing-wall",
+      "resistor-set-output-is-current-neutral",
+      "split-budget-starves-the-swing-stage"
     ],
     "replay-false-confidence": [
       "element-names-are-the-contract",
@@ -397,12 +435,14 @@
       "capability-negative-names-its-selector",
       "friis-grow-the-quietest-parent",
       "margin-is-the-currency",
+      "match-forbidden-zone-is-architectural",
       "match-margin-forbids-mid-chain-loading",
       "stop-sizing-build-an-instrument",
       "three-failed-loops-means-topology",
       "wideband-sdr-band-wide-match-wall"
     ],
     "weak-inversion-blindness": [
+      "current-swing-wall-ordering-test",
       "weak-inversion-saturation-blindness"
     ]
   },
@@ -414,10 +454,12 @@
       "capability-negative-names-its-selector",
       "critic-collapse-is-coverage-not-capacity",
       "cross-simulator-port-must-be-measured",
+      "current-swing-wall-ordering-test",
       "diagnosis-and-ranking-compete-for-capacity",
       "element-names-are-the-contract",
       "era-cutover-is-a-new-label-domain",
       "frozen-protocol-change-needs-user-signoff",
+      "gain-control-side-decides-linearity",
       "golden-before-any-design-number",
       "harden-against-the-measured-sweep",
       "iip3-output-swing-wall",
@@ -431,8 +473,10 @@
       "reference-expansion-perturbs-only-what-could-copy-it",
       "replay-fence-before-any-reuse",
       "replay-fence-is-not-correctness",
+      "resistor-set-output-is-current-neutral",
       "search-must-be-seeded-from-physics",
       "single-finger-gate-resistance-artefact",
+      "split-budget-starves-the-swing-stage",
       "steering-toward-memorized-structure-returns-copies",
       "stop-sizing-build-an-instrument",
       "three-failed-loops-means-topology",
@@ -446,17 +490,22 @@
       "calibrate-fidelity-parameters-to-real-silicon",
       "capability-negative-names-its-selector",
       "critic-collapse-is-coverage-not-capacity",
+      "current-swing-wall-ordering-test",
       "friis-grow-the-quietest-parent",
+      "gain-control-side-decides-linearity",
       "gate-driven-input-is-quiet-only-when-unmatched",
       "harden-against-the-measured-sweep",
       "iip3-output-swing-wall",
       "judge-linearity-at-the-min-gain-state",
       "margin-is-the-currency",
+      "match-forbidden-zone-is-architectural",
       "match-margin-forbids-mid-chain-loading",
       "ndl-is-blind-to-function",
+      "resistor-set-output-is-current-neutral",
       "s11-idd-knife-edge",
       "search-must-be-seeded-from-physics",
       "single-finger-gate-resistance-artefact",
+      "split-budget-starves-the-swing-stage",
       "steering-toward-memorized-structure-returns-copies",
       "stop-sizing-build-an-instrument",
       "three-failed-loops-means-topology",
@@ -466,29 +515,39 @@
     "gnss": [
       "better-passives-can-fail",
       "calibrate-fidelity-parameters-to-real-silicon",
+      "current-swing-wall-ordering-test",
       "friis-grow-the-quietest-parent",
+      "gain-control-side-decides-linearity",
       "gate-driven-input-is-quiet-only-when-unmatched",
       "harden-against-the-measured-sweep",
       "iip3-output-swing-wall",
       "judge-linearity-at-the-min-gain-state",
       "margin-is-the-currency",
+      "match-forbidden-zone-is-architectural",
       "match-margin-forbids-mid-chain-loading",
+      "resistor-set-output-is-current-neutral",
       "s11-idd-knife-edge",
+      "split-budget-starves-the-swing-stage",
       "three-failed-loops-means-topology"
     ],
     "lna": [
       "better-passives-can-fail",
+      "current-swing-wall-ordering-test",
       "friis-grow-the-quietest-parent",
+      "gain-control-side-decides-linearity",
       "gate-driven-input-is-quiet-only-when-unmatched",
       "harden-against-the-measured-sweep",
       "iip3-output-swing-wall",
       "judge-linearity-at-the-min-gain-state",
       "margin-is-the-currency",
+      "match-forbidden-zone-is-architectural",
       "match-margin-forbids-mid-chain-loading",
       "objective-only-protects-what-it-scores",
+      "resistor-set-output-is-current-neutral",
       "s11-idd-knife-edge",
       "search-must-be-seeded-from-physics",
       "single-finger-gate-resistance-artefact",
+      "split-budget-starves-the-swing-stage",
       "two-engine-cross-validation",
       "unenforced-metric-comes-due",
       "weak-inversion-saturation-blindness",
@@ -529,8 +588,14 @@
       "three-failed-loops-means-topology",
       "wideband-sdr-band-wide-match-wall"
     ],
+    "architecture": [
+      "match-forbidden-zone-is-architectural"
+    ],
     "argmin": [
       "oracle-control-before-a-surrogate-claim"
+    ],
+    "attenuation": [
+      "gain-control-side-decides-linearity"
     ],
     "attribution": [
       "attribution-control-same-session",
@@ -574,7 +639,11 @@
     ],
     "budget": [
       "margin-is-the-currency",
-      "single-finger-gate-resistance-artefact"
+      "single-finger-gate-resistance-artefact",
+      "split-budget-starves-the-swing-stage"
+    ],
+    "c_gd": [
+      "match-forbidden-zone-is-architectural"
     ],
     "calibration": [
       "calibrate-fidelity-parameters-to-real-silicon",
@@ -592,6 +661,9 @@
     "cascade": [
       "friis-grow-the-quietest-parent"
     ],
+    "cascode": [
+      "match-forbidden-zone-is-architectural"
+    ],
     "check": [
       "golden-before-any-design-number"
     ],
@@ -600,6 +672,9 @@
     ],
     "clamp": [
       "objective-only-protects-what-it-scores"
+    ],
+    "class-a": [
+      "current-swing-wall-ordering-test"
     ],
     "closed-form": [
       "golden-before-any-design-number"
@@ -643,6 +718,18 @@
       "replay-fence-is-not-correctness",
       "two-engine-cross-validation"
     ],
+    "current-allocation": [
+      "split-budget-starves-the-swing-stage"
+    ],
+    "current-limit": [
+      "current-swing-wall-ordering-test"
+    ],
+    "current-reuse": [
+      "resistor-set-output-is-current-neutral"
+    ],
+    "current-source": [
+      "resistor-set-output-is-current-neutral"
+    ],
     "curriculum": [
       "steering-toward-memorized-structure-returns-copies"
     ],
@@ -650,10 +737,12 @@
       "era-cutover-is-a-new-label-domain"
     ],
     "d5": [
+      "gain-control-side-decides-linearity",
       "iip3-output-swing-wall",
       "judge-linearity-at-the-min-gain-state"
     ],
     "d6": [
+      "gain-control-side-decides-linearity",
       "judge-linearity-at-the-min-gain-state"
     ],
     "damping": [
@@ -732,6 +821,10 @@
     "friis": [
       "friis-grow-the-quietest-parent"
     ],
+    "front-side": [
+      "gain-control-side-decides-linearity",
+      "match-forbidden-zone-is-architectural"
+    ],
     "frozen": [
       "frozen-protocol-change-needs-user-signoff"
     ],
@@ -740,6 +833,9 @@
     ],
     "gain": [
       "friis-grow-the-quietest-parent"
+    ],
+    "gain-control": [
+      "gain-control-side-decides-linearity"
     ],
     "gate": [
       "gate-driven-input-is-quiet-only-when-unmatched",
@@ -751,6 +847,9 @@
     ],
     "gate-resistance": [
       "single-finger-gate-resistance-artefact"
+    ],
+    "gm-boost": [
+      "resistor-set-output-is-current-neutral"
     ],
     "gm-id": [
       "weak-inversion-saturation-blindness"
@@ -779,6 +878,7 @@
       "two-engine-cross-validation"
     ],
     "headroom": [
+      "current-swing-wall-ordering-test",
       "iip3-output-swing-wall",
       "margin-is-the-currency"
     ],
@@ -800,9 +900,12 @@
     "idd": [
       "margin-is-the-currency",
       "s11-idd-knife-edge",
-      "search-must-be-seeded-from-physics"
+      "search-must-be-seeded-from-physics",
+      "split-budget-starves-the-swing-stage"
     ],
     "iip3": [
+      "current-swing-wall-ordering-test",
+      "gain-control-side-decides-linearity",
       "iip3-output-swing-wall",
       "judge-linearity-at-the-min-gain-state"
     ],
@@ -842,8 +945,15 @@
     "invariance": [
       "passive-instrument-must-be-proved-passive"
     ],
+    "iq": [
+      "current-swing-wall-ordering-test",
+      "resistor-set-output-is-current-neutral"
+    ],
     "isolate": [
       "attribution-control-same-session"
+    ],
+    "isolation": [
+      "match-forbidden-zone-is-architectural"
     ],
     "k-factor": [
       "objective-only-protects-what-it-scores"
@@ -863,7 +973,11 @@
     "linearity": [
       "iip3-output-swing-wall"
     ],
+    "load-resistor": [
+      "resistor-set-output-is-current-neutral"
+    ],
     "loading": [
+      "match-forbidden-zone-is-architectural",
       "match-margin-forbids-mid-chain-loading"
     ],
     "log-uniform": [
@@ -881,18 +995,21 @@
     "margin": [
       "harden-against-the-measured-sweep",
       "margin-is-the-currency",
+      "match-forbidden-zone-is-architectural",
       "match-margin-forbids-mid-chain-loading",
       "s11-idd-knife-edge"
     ],
     "match": [
       "better-passives-can-fail",
       "gate-driven-input-is-quiet-only-when-unmatched",
+      "match-forbidden-zone-is-architectural",
       "match-margin-forbids-mid-chain-loading"
     ],
     "metric": [
       "unenforced-metric-comes-due"
     ],
     "min-gain": [
+      "gain-control-side-decides-linearity",
       "judge-linearity-at-the-min-gain-state"
     ],
     "model-card": [
@@ -966,6 +1083,7 @@
       "uncertainty-gate-needs-an-off-distribution-control"
     ],
     "oip3": [
+      "current-swing-wall-ordering-test",
       "iip3-output-swing-wall"
     ],
     "op-points": [
@@ -976,6 +1094,16 @@
     ],
     "osdi": [
       "cross-simulator-port-must-be-measured"
+    ],
+    "output-branch": [
+      "resistor-set-output-is-current-neutral"
+    ],
+    "output-side": [
+      "gain-control-side-decides-linearity"
+    ],
+    "output-stage": [
+      "current-swing-wall-ordering-test",
+      "split-budget-starves-the-swing-stage"
     ],
     "over-grant": [
       "calibrate-fidelity-parameters-to-real-silicon"
@@ -1035,6 +1163,7 @@
       "passive-instrument-must-be-proved-passive"
     ],
     "programmability": [
+      "gain-control-side-decides-linearity",
       "judge-linearity-at-the-min-gain-state",
       "match-margin-forbids-mid-chain-loading"
     ],
@@ -1049,6 +1178,9 @@
     ],
     "ranking": [
       "diagnosis-and-ranking-compete-for-capacity"
+    ],
+    "re-allocation": [
+      "split-budget-starves-the-swing-stage"
     ],
     "rebaseline": [
       "frozen-protocol-change-needs-user-signoff",
@@ -1096,6 +1228,9 @@
     "reproducible": [
       "replay-fence-is-not-correctness"
     ],
+    "resistor-set": [
+      "resistor-set-output-is-current-neutral"
+    ],
     "resize": [
       "harden-against-the-measured-sweep"
     ],
@@ -1132,8 +1267,12 @@
     ],
     "s11": [
       "gate-driven-input-is-quiet-only-when-unmatched",
+      "match-forbidden-zone-is-architectural",
       "match-margin-forbids-mid-chain-loading",
       "s11-idd-knife-edge"
+    ],
+    "s11-cap": [
+      "split-budget-starves-the-swing-stage"
     ],
     "s11_max": [
       "unenforced-metric-comes-due",
@@ -1159,6 +1298,9 @@
     ],
     "sensitivity": [
       "s11-idd-knife-edge"
+    ],
+    "share": [
+      "split-budget-starves-the-swing-stage"
     ],
     "shuffled": [
       "attribution-control-same-session"
@@ -1188,6 +1330,12 @@
     "source": [
       "gate-driven-input-is-quiet-only-when-unmatched"
     ],
+    "span": [
+      "match-forbidden-zone-is-architectural"
+    ],
+    "spearman": [
+      "current-swing-wall-ordering-test"
+    ],
     "spec": [
       "frozen-protocol-change-needs-user-signoff",
       "unenforced-metric-comes-due"
@@ -1198,11 +1346,17 @@
     "stability": [
       "objective-only-protects-what-it-scores"
     ],
+    "stacking": [
+      "resistor-set-output-is-current-neutral"
+    ],
     "stage-add": [
       "friis-grow-the-quietest-parent"
     ],
     "stamp": [
       "era-cutover-is-a-new-label-domain"
+    ],
+    "starved": [
+      "split-budget-starves-the-swing-stage"
     ],
     "steering": [
       "steering-toward-memorized-structure-returns-copies"
@@ -1217,7 +1371,10 @@
       "better-passives-can-fail"
     ],
     "swing": [
-      "iip3-output-swing-wall"
+      "current-swing-wall-ordering-test",
+      "iip3-output-swing-wall",
+      "resistor-set-output-is-current-neutral",
+      "split-budget-starves-the-swing-stage"
     ],
     "switch": [
       "element-names-are-the-contract",
@@ -1308,6 +1465,9 @@
     "winners": [
       "steering-toward-memorized-structure-returns-copies"
     ],
+    "z_ac": [
+      "current-swing-wall-ordering-test"
+    ],
     "zoaf": [
       "oracle-control-before-a-surrogate-claim"
     ]
@@ -1318,6 +1478,7 @@
       "objective-only-protects-what-it-scores",
       "replay-fence-is-not-correctness",
       "search-must-be-seeded-from-physics",
+      "split-budget-starves-the-swing-stage",
       "steering-toward-memorized-structure-returns-copies",
       "unenforced-metric-comes-due"
     ],
@@ -1328,11 +1489,15 @@
     ],
     "diagnosis": [
       "critic-collapse-is-coverage-not-capacity",
+      "current-swing-wall-ordering-test",
       "diagnosis-and-ranking-compete-for-capacity",
       "friis-grow-the-quietest-parent",
+      "gain-control-side-decides-linearity",
       "gate-driven-input-is-quiet-only-when-unmatched",
       "iip3-output-swing-wall",
+      "match-forbidden-zone-is-architectural",
       "match-margin-forbids-mid-chain-loading",
+      "resistor-set-output-is-current-neutral",
       "uncertainty-gate-needs-an-off-distribution-control",
       "wideband-sdr-band-wide-match-wall"
     ],
@@ -1494,6 +1659,41 @@
       "dst": "two-engine-cross-validation",
       "src": "cross-simulator-port-must-be-measured",
       "type": "derived_from"
+    },
+    {
+      "dst": "iip3-output-swing-wall",
+      "src": "current-swing-wall-ordering-test",
+      "type": "derived_from"
+    },
+    {
+      "dst": "current-swing-wall-ordering-test",
+      "src": "resistor-set-output-is-current-neutral",
+      "type": "derived_from"
+    },
+    {
+      "dst": "judge-linearity-at-the-min-gain-state",
+      "src": "gain-control-side-decides-linearity",
+      "type": "validated"
+    },
+    {
+      "dst": "match-margin-forbids-mid-chain-loading",
+      "src": "match-forbidden-zone-is-architectural",
+      "type": "derived_from"
+    },
+    {
+      "dst": "match-forbidden-zone-is-architectural",
+      "src": "gain-control-side-decides-linearity",
+      "type": "prevents"
+    },
+    {
+      "dst": "iip3-output-swing-wall",
+      "src": "split-budget-starves-the-swing-stage",
+      "type": "derived_from"
+    },
+    {
+      "dst": "s11-idd-knife-edge",
+      "src": "split-budget-starves-the-swing-stage",
+      "type": "validated"
     }
   ],
   "entries": {
@@ -1755,6 +1955,50 @@
       },
       "type": "harness-rule"
     },
+    "current-swing-wall-ordering-test": {
+      "confidence": "verified",
+      "rule": "Before spending a rail or a re-size on a linearity wall, separate the class-A current limit Iq·|Z_ac| from the voltage-headroom limit min(VDD−Vq, Vq−Vdsat) with one op run, then confirm which binds by ordering the OIP3 of several descended sizings against their Iq·|Z_ac| product — if OIP3 tracks the current product (not the headroom), it is a current-swing wall and neither bias re-centring nor a small rail bump will move it.",
+      "sources": [
+        "JOURNEY stage 42 (WP-LIN rung 0)",
+        "JOURNEY stage 43 (WP-LIN rungs 1-4)",
+        "FINDINGS §44.4",
+        "FINDINGS §45.3",
+        "lna/plans2/16-WP-LIN.md §2.2",
+        "lna/_lin_baseline.py --falsify"
+      ],
+      "trigger": {
+        "analysis": [
+          "op",
+          "two-tone",
+          "harmonic-balance",
+          "iip3",
+          "sizing"
+        ],
+        "failure_signature": [
+          "output-swing-wall",
+          "weak-inversion-blindness"
+        ],
+        "family": [
+          "dhruva",
+          "gnss",
+          "lna",
+          "any"
+        ],
+        "keywords": [
+          "iip3",
+          "oip3",
+          "swing",
+          "current-limit",
+          "headroom",
+          "class-a",
+          "iq",
+          "z_ac",
+          "output-stage",
+          "spearman"
+        ]
+      },
+      "type": "diagnosis"
+    },
     "diagnosis-and-ranking-compete-for-capacity": {
       "confidence": "unverified",
       "rule": "Ship diagnosis heads as a separate model from the ranker, and grow the move repertoire before expecting pointed search to find wins.",
@@ -1935,6 +2179,49 @@
         ]
       },
       "type": "strategy"
+    },
+    "gain-control-side-decides-linearity": {
+      "confidence": "verified",
+      "rule": "When a linearity spec is quoted at a min-gain state, put the gain-control attenuation AHEAD of the nonlinearity (front-side): output-side attenuation lowers OIP3 with the gain and buys exactly 0 dB of IIP3, while front-side attenuation buys IIP3 ~dB-for-dB with the span — but only at a node whose loading is match-legal, so measure the match-legal span before counting on it.",
+      "sources": [
+        "JOURNEY stage 42 (WP-LIN rung 0)",
+        "JOURNEY stage 44 (WP-LIN D-2)",
+        "FINDINGS §44.9",
+        "FINDINGS §45.4",
+        "FINDINGS §46.5",
+        "lna/plans2/16-WP-LIN.md §2.3"
+      ],
+      "trigger": {
+        "analysis": [
+          "two-tone",
+          "harmonic-balance",
+          "iip3",
+          "gain-programmability",
+          "sp"
+        ],
+        "failure_signature": [
+          "output-swing-wall",
+          "band-match-wall"
+        ],
+        "family": [
+          "dhruva",
+          "gnss",
+          "lna",
+          "any"
+        ],
+        "keywords": [
+          "iip3",
+          "min-gain",
+          "d5",
+          "d6",
+          "attenuation",
+          "front-side",
+          "output-side",
+          "gain-control",
+          "programmability"
+        ]
+      },
+      "type": "diagnosis"
     },
     "gate-driven-input-is-quiet-only-when-unmatched": {
       "confidence": "verified",
@@ -2175,6 +2462,48 @@
         ]
       },
       "type": "corner-lesson"
+    },
+    "match-forbidden-zone-is-architectural": {
+      "confidence": "verified",
+      "rule": "Do not expect S11 margin or a cascode/isolation device to open a match-legal front-side loading node: the match-forbidden zone is set by the input-match architecture (the CS pair's forward admittance and C_gd coupling), so more margin only widens the legal span sublinearly and a series cascode reaches the match right through itself — measure the span, never assume the isolation shields it.",
+      "sources": [
+        "JOURNEY stage 43 (WP-LIN rungs 1-4)",
+        "JOURNEY stage 44 (WP-LIN D-2)",
+        "FINDINGS §45.1",
+        "FINDINGS §46.3",
+        "lna/plans2/17-WP-LIN-D2.md §5 (PD2)",
+        "lna/pgain.py --probe"
+      ],
+      "trigger": {
+        "analysis": [
+          "sp",
+          "s-parameter",
+          "gain-programmability",
+          "loading-probe"
+        ],
+        "failure_signature": [
+          "band-match-wall",
+          "topology-exhaustion"
+        ],
+        "family": [
+          "dhruva",
+          "gnss",
+          "lna"
+        ],
+        "keywords": [
+          "s11",
+          "match",
+          "margin",
+          "loading",
+          "cascode",
+          "isolation",
+          "c_gd",
+          "span",
+          "front-side",
+          "architecture"
+        ]
+      },
+      "type": "diagnosis"
     },
     "match-margin-forbids-mid-chain-loading": {
       "confidence": "unverified",
@@ -2588,6 +2917,48 @@
       },
       "type": "anti-pattern"
     },
+    "resistor-set-output-is-current-neutral": {
+      "confidence": "verified",
+      "rule": "Read where the output branch's DC current is actually set before proposing current-reuse, gm-boosting, or 'raise the load impedance' on a swing-limited output stage: if the load resistor sets the bias current, raising it lowers Iq faster than it raises Z (net swing-product loss), and stacking a reuse device adds gm but zero current — neither frees a milliamp for the stage that needs it.",
+      "sources": [
+        "JOURNEY stage 43 (WP-LIN rungs 1-4)",
+        "JOURNEY stage 44 (WP-LIN D-2)",
+        "FINDINGS §45.2",
+        "FINDINGS §46.2",
+        "lna/plans2/16-WP-LIN.md §3 (candidates C, D)"
+      ],
+      "trigger": {
+        "analysis": [
+          "op",
+          "sizing",
+          "two-tone",
+          "iip3"
+        ],
+        "failure_signature": [
+          "output-swing-wall",
+          "iip3-wall",
+          "device-budget"
+        ],
+        "family": [
+          "dhruva",
+          "gnss",
+          "lna",
+          "any"
+        ],
+        "keywords": [
+          "current-reuse",
+          "stacking",
+          "gm-boost",
+          "resistor-set",
+          "load-resistor",
+          "current-source",
+          "iq",
+          "swing",
+          "output-branch"
+        ]
+      },
+      "type": "diagnosis"
+    },
     "s11-idd-knife-edge": {
       "confidence": "verified",
       "rule": "Sweep temperature, supply, all passives and inductor Q at the fixed shipped point before designating it, and carry the sweep-derived nominal floors rather than the gate values.",
@@ -2702,6 +3073,50 @@
         ]
       },
       "type": "harness-rule"
+    },
+    "split-budget-starves-the-swing-stage": {
+      "confidence": "verified",
+      "rule": "When one stage carries the whole output swing on a fraction of the current budget, do not assume the spare Idd headroom is spendable there: re-allocating current into that stage widens its device and spends the input-match margin (S11 caps it), and taking current off the other stages breaks the match too — the budget split is enforced by S11, not by the Idd gate, so name the true binding gate before betting the headroom.",
+      "sources": [
+        "JOURNEY stage 43 (WP-LIN rungs 1-4)",
+        "JOURNEY stage 44 (WP-LIN D-2)",
+        "FINDINGS §44.4",
+        "FINDINGS §45.2",
+        "FINDINGS §45.5",
+        "lna/plans2/16-WP-LIN.md §2.2 (candidate B)"
+      ],
+      "trigger": {
+        "analysis": [
+          "op",
+          "sizing",
+          "two-tone",
+          "iip3",
+          "search"
+        ],
+        "failure_signature": [
+          "output-swing-wall",
+          "iip3-wall",
+          "device-budget"
+        ],
+        "family": [
+          "dhruva",
+          "gnss",
+          "lna",
+          "any"
+        ],
+        "keywords": [
+          "budget",
+          "current-allocation",
+          "idd",
+          "output-stage",
+          "starved",
+          "swing",
+          "share",
+          "s11-cap",
+          "re-allocation"
+        ]
+      },
+      "type": "anti-pattern"
     },
     "steering-toward-memorized-structure-returns-copies": {
       "confidence": "verified",
@@ -3015,7 +3430,7 @@
       "type": "diagnosis"
     }
   },
-  "n_edges": 26,
-  "n_entries": 40,
+  "n_edges": 33,
+  "n_entries": 45,
   "schema": "playbook-v0"
 }

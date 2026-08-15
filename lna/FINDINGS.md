@@ -9492,3 +9492,212 @@ report, the spec stands at [3, 21]).
 Goldens re-verified GREEN after landing. No shared file edited; no spec,
 budget line, or frozen-protocol content touched; store rows stamped
 `source_arm=wplin-d2`.
+
+## 47. Phase 3 — ★★★ WP-LIN CLOSURE: the D5 wall is measured STABLE under perturbation (worst 2.26 dB vs a 5 dB falsifier), candidate N is RECORDED per the user's 2026-08-16 D-1 ruling, and WP-LIN closes at 5-of-5 (Session 10, 2026-08-16)
+
+The closure wave of `plans2/16-WP-LIN.md`, executed per the user's **2026-08-16
+ruling: "(D-1) record candidate N and close WP-LIN"**, plus its two commissioned
+closure items — the never-measured baseline-IIP3-under-perturbation set (§1.3
+item 5 / §4.4's reduced set, left open as §45.6 dev 3 / §45.5) and the playbook
+distillation of JOURNEY stages 41–44 (a separate deliverable, §47.5). All four
+goldens GREEN before any design number and re-verified after: `check_ref`,
+`check_iip3`, `check_hb`, `check_diff`. Pre-registered in
+`plans2/18-WPLIN-CLOSURE.md` (committed alone, before any run). Sidecar
+`lna/_lin_perturb.py` (reuses rung 0's `_lin_baseline` machinery + `corners.perturb`'s
+injection verbatim; every override by module attribute, §7 D-9). Artefact
+`lna/out/_lin_sens_iip3.json` (gitignored, verbatim evidence, `recipe=wplin-v1`,
+`source_arm=wplin-sens-iip3`, `diagnosis="output-swing-current-limit"`); the ten
+emitted perturbation decks committed under `repro/dhruva-best/_lin_sens_*.sp`.
+
+### 47.1 ★★ The never-measured set — the D5 wall is stable under perturbation
+
+§1.3 item 5 named it as the fifth thing WP-LIN owed and had never been done:
+**IIP3 under any sensitivity axis** (`corners.py` sweeps only the tier-1/2 gates;
+no distortion metric had ever been perturbed). §4.4 registered the reduced set as
+an acceptance rule for a *survivor*; rungs 1–4 produced **zero survivors** (§45.5),
+so §4.4 ran vacuous and item 5 stayed open. **No candidate survived, so §4.4
+applies to the BASELINE designated point** — and the question it answers is the
+prior underneath the whole N record: *is the measured D5 wall itself stable, or
+would it move ±5 dB with VDD and make the 26.6–27.7 dB miss a knife-edge rather
+than a physical fact?*
+
+The reduced set (§4.4 / 18-WPLIN-CLOSURE.md §1), on the baseline `dhruva-simul`
+point at **1.2 V nominal**, dhruva-l5 (worst-margin band), both the **D6 min-gain
+S3** (ruled) state and **max gain**, replay-fenced ×3, all §37.3 fences intact
+(slope 2.96–3.09 in 3 ± 0.3, replay spread **0.0000 dB** on every row, re-pointed
+§37.4 S21 cross-check dS21 ≤ 0.016 dB, never disabled):
+
+**D6 min-gain S3 (the ruled condition), l5:**
+
+| perturbation | pVDD | T | IIP3 | OIP3 | G | **ΔIIP3** | **ΔOIP3** | vs target −7.4 |
+|---|---|---|---|---|---|---|---|---|
+| **P0 nominal (control)** | 1.200 | 27 | −34.19 | −13.25 | 20.93 | — | — | FAIL −26.79 |
+| P1 VDD×0.9 | 1.080 | 27 | −33.00 | −14.17 | 18.83 | **+1.19** | −0.92 | FAIL −25.60 |
+| P2 VDD×1.1 | 1.320 | 27 | −35.03 | −12.42 | 22.61 | **−0.84** | +0.84 | FAIL −27.63 |
+| P3 85 °C | 1.200 | 85 | −32.72 | −11.70 | 21.02 | **+1.47** | +1.55 | FAIL −25.32 |
+| P4 combo VDD×0.9+85 °C | 1.080 | 85 | −31.93 | −12.58 | 19.34 | **+2.26** | +0.67 | FAIL −24.53 |
+
+**Max gain, l5** (the reference): P0 IIP3 −34.53 / OIP3 −1.35; P1 ΔIIP3 +1.33 /
+ΔOIP3 −0.73; P2 −0.93 / +0.70; P3 +0.94 / +0.59; P4 combo +1.85 / −0.13.
+
+**The P0 controls reproduce §44.2 to three decimals** (min IIP3 −34.188 /
+OIP3 −13.254 vs §44.2 −34.19 / −13.25; max −34.532 / −1.353 vs −34.53 / −1.35) —
+the proof the `.temp`/pVDD injection changes nothing, exactly the corners.py
+invariance-control discipline (§39).
+
+### 47.2 The stability verdict — Q1 CONFIRMED, the wall does not care which nominal it was measured at
+
+**Registered prediction Q1** (18-WPLIN-CLOSURE.md §0.1, from §2.2's current-swing
+diagnosis): IIP3 moves **≤ ~1 dB per single axis and ≤ ~2 dB on the combo**;
+**falsifier: any ≥ 5 dB move** (which would qualify the N record).
+
+* **Worst |ΔIIP3| = 2.26 dB** (min-gain, combo) — **far below the 5 dB
+  falsifier**, and against a **25–28 dB D5 miss** it is not even a rounding error
+  on the verdict. Worst |ΔOIP3| = **1.55 dB** (85 °C, the physical intercept
+  moving the most).
+* The single-axis moves land on §2.2's arithmetic: **VDD ±10 % moves OIP3 by
+  ~±0.7–0.9 dB** — on the §44.4 rail-sweep prior of **+0.61 dB per +100 mV**
+  scaled to ±120 mV (≈ ±0.73 dB). The direction is right (a lower rail lowers
+  OIP3), the magnitude is right. **85 °C moves OIP3 +0.6…+1.6 dB** (a hot,
+  weak-inversion-heavy stage trades gm/gain for a slightly better intercept), and
+  the combo is sub-additive (its two IIP3 effects add, its two OIP3 effects
+  partly cancel).
+* IIP3 and OIP3 move in *opposite* signs under VDD×0.9 (IIP3 +1.19, OIP3 −0.92)
+  because the gain falls 2.1 dB and `IIP3 = OIP3 − G`; the physical wall is the
+  OIP3, and it moves the least.
+
+**Q1 is CONFIRMED (the exact magnitude, 2.26 dB, is between the ~2 dB combo bar
+and the 5 dB falsifier — recorded as measured, not smoothed to either edge). The
+D5 wall is STABLE under the reduced perturbation set: it moves ≤ 2.26 dB of IIP3
+and ≤ 1.55 dB of OIP3 across VDD ±10 %, 85 °C, and their worst combo, at both the
+ruled min-gain state and max gain.** Candidate N's "physical at ≤ 1.2 V" verdict
+is therefore **not an artefact of the nominal operating point** — the wall is the
+same fixed physical fact at every corner measured, which is what a current-swing
+wall (§2.2 / §44.4) predicts and a knife-edge would not. **Nothing here qualifies
+the N record; it strengthens it.**
+
+### 47.3 ★★ Candidate N — RECORDED (user D-1 ruling, 2026-08-16)
+
+The user ruled on **2026-08-16: "(D-1) record candidate N and close WP-LIN."**
+Candidate N's five-clause evidence bar (§3) was **complete at 5 of 5 and REPORTED**
+as of §46.6; the D-1 recording was the user's call (§7 D-1) and had been left to
+them. It is now taken:
+
+> **Candidate N is RECORDED. Gate D5 is NOT MET at ≤ 1.2 V on this topology
+> family (`ace8383c2fa68d03` / `dhruva-simul`). The wall is physical — an
+> output-stage class-A current-swing limit (`Iq(MNM6) × |Z_ac|`, §2.2 / §44.4) —
+> not a sizing choice (OIP3 flat across four descended sizings, §37.7) and not a
+> voltage-headroom limit (headroom is 16.8 dB from binding, §44.4). Per-band
+> shortfall at the ruled D6 min-gain condition: ≈ **21 dB post-D** (the best
+> widened candidate, D, FAILS 0/4 at −20.7…−22.1 dB, §46.4), from a **26.6–27.7
+> dB** raw-baseline miss (§44.2). The wall is two-harness measured (transient +
+> VACASK HB agree to 0.08 dB, §44.9) and stable under perturbation (≤ 2.26 dB,
+> §47.1). The five-clause chain: §44 (baseline, max+min, both harnesses) / §44.9
+> (HB) / §45 (rungs 1–4, in-box levers exhausted) / §46 (D-2 widening, D and the
+> isolating input measured) / §47 (this perturbation result).**
+
+**The levers that would move it — each a SEPARATE, unruled user decision, not the
+executor's, and none of them ruled by the D-1 recording:**
+
+* **D-7 — the output reference impedance.** `|Z_ac| ≈ 51 Ω` is half-set by the
+  50 Ω port; OIP3 rises **dB-for-dB with Z_ac** at fixed current (§2.2 / §45.5
+  item ii). This is the single measured lever that moves the wall linearly, and
+  §41.8 item 4 already flagged the reference impedance as "doing a lot of work."
+* **The supply / Idd envelope.** A class-A stage delivering OIP3 ≈ +12 dBm into
+  51 Ω needs ~8 mA in the output device alone (5.5× today's 1.43 mA), feasible in
+  current only by re-allocating MNM4's 4.6 mA — which is candidate B, which S11
+  forbids past ×2 (§45.2 / §45.5 item iii). Widening the Idd gate or the rail is
+  a supply-envelope decision (ruled ≤ 1.2 V, §7).
+* **The D5 spec itself (D-1 relief).** Re-reading "IIP3 at the min-gain setting,"
+  accepting a partial pass, or re-negotiating the target is spec-text governance
+  (§7 D-1). Recording N does **not** decide this; it records that the gate, as
+  written, is not met on this topology at this envelope.
+
+Each is named here as its own open decision so the record does not read as though
+the recording foreclosed them.
+
+### 47.4 What the D-1 recording changes on the record
+
+* `14-DHRUVA-SIMUL.md` §2's **D5 ladder row** is amended (user-authorized, this
+  wave only) from its 2026-08-13 l5-point wording to the measured N verdict, the
+  five-clause chain cited. §1.2's tier-3 row was already corrected as R-e
+  (2026-08-15); this is the ladder-table companion edit.
+* `16-WP-LIN.md` §11's outcome table gets its **final rows** (N recorded;
+  P-table complete; the perturbation result). The WP is **closed**.
+* **No spec YAML, no `device_budget` line, no frozen-protocol content, no recipe
+  or era stamp** was touched (§7 D-3). The N recording is a documentation act on
+  the WP docs + the one user-signed D5 row, not a protocol change. The D-2
+  test-widening allowance stays dissolved (nothing passed, spec at [3, 21]).
+
+### 47.5 The playbook distillation (JOURNEY 41–44) — five entries, `--check` GREEN
+
+Commissioned alongside the N record: the store (`lna/playbook/`, 40 entries, four
+stages behind) gets **five new entries** distilling the durable, machine-actionable
+lessons of stages 41–44, each in the store's own `Trigger→Evidence→Rule→
+Applicability` format with verbatim evidence and stage/§ citations, admitted under
+the store's own bar (quality over count; failure-first; no trivia). Judged and
+kept:
+
+1. **`current-swing-wall-ordering-test`** (diagnosis) — separate `Iq·|Z_ac|` from
+   `min(VDD−Vq, Vq−Vdsat)` with one op run, then confirm by ordering OIP3 vs the
+   current product across descended sizings (ρ=1.0000, §44.4).
+2. **`gain-control-side-decides-linearity`** (diagnosis) — output-side gain
+   control buys 0 dB IIP3, front-side buys ~dB-for-dB (+10.07 dB from −9.32 dB,
+   §46.5) but only at a match-legal node.
+3. **`match-forbidden-zone-is-architectural`** (diagnosis) — the forbidden zone is
+   the C_gd-coupled input-match architecture, not the S11 margin; a +2-device
+   cascode bought 0.00 dB of span (§46.3). Sharpens `match-margin-forbids-mid-chain-loading`.
+4. **`resistor-set-output-is-current-neutral`** (diagnosis) — when the load
+   resistor sets the branch DC current, raising it lowers Iq faster than Z rises
+   (C) and a reuse stack adds gm not current (D) (§45.2 / §46.2).
+5. **`split-budget-starves-the-swing-stage`** (anti-pattern) — the swing stage's
+   spare Idd is not spendable there: growing it spends S11, not Idd (§44.4 / §45.2).
+
+Plus **seven typed edges** linking them into the existing graph (`derived_from`
+`iip3-output-swing-wall` / `match-margin-forbids-mid-chain-loading`; `validated`
+`judge-linearity-at-the-min-gain-state` / `s11-idd-knife-edge`; `prevents`).
+`python lna/playbook.py --check` **GREEN** (45 entries / 34 verified, 33 edges,
+retrieval self-test passes; the two output-swing entries carry `output-swing-wall`
+as their exact signature rather than `iip3-wall` so the golden anchor
+`iip3-output-swing-wall` still ranks first on the self-test query). The
+pre-registration + replay-fence discipline lesson was **not** re-entered — it is
+already covered by the verified `pre-registration-before-code` /
+`replay-fence-before-any-reuse` / `replay-fence-is-not-correctness` entries, and
+the store's append-only rule prefers escalation to a redundant sixth entry.
+
+### 47.6 Deviations, recorded not smoothed
+
+1. **The perturbation set ran l5-only, not all four bands.** §4.4/§18 wrote the
+   grid for "all four bands if time is cheap" over l5-required. The all-four-bands
+   min-gain run was launched first, but the shared box (57 concurrent ngspice from
+   other agents during the externals calibration) throttled a single-worker serial
+   process so hard that after ~25 min it had completed only P0 + P1 of 5
+   perturbations — projecting well past the 1.5 h wall cap. Per the §18 §2 cap
+   rule ("drop to l5-only first") and the §34 publish-the-shortfall precedent, it
+   was re-scoped to **l5 (the worst-margin band), both states, all 5
+   perturbations**, which completed. The wall's stability is a per-topology
+   property (a current-swing wall, §2.2), not a per-band one, so l5 — the tightest
+   band — is the informative one; the other three bands' perturbation response is
+   **not measured** and is a cheap future add if wanted.
+2. **Q1's magnitude landed at 2.26 dB**, between the registered ~2 dB combo
+   expectation and the 5 dB falsifier. Reported as measured (neither rounded down
+   to "confirmed ≤ 2" nor up); the verdict (stable, N not qualified) is
+   unaffected because 2.26 ≪ 5 against a 25–28 dB miss.
+3. **HB cross-check not run** on the perturbation set — no candidate, no claimed
+   pass, so §4.3's HB-on-a-pass rule is not triggered (the wall-stability number
+   is a transient measurement standing on its replay fence, as §4.3 allows).
+
+### 47.7 Cost, against the cap
+
+| item | cap | actual |
+|---|---|---|
+| perturbation SPICE | ≤ 40 SPICE-min | ~10 configs × ~5.5 drives × 3 replays + S21 refs ≈ **28 SPICE-min** (l5-only) |
+| wall clock | ≤ 1.5 h at ≤ 32 workers | ~33 min on the l5-only run (single-worker serial; the abandoned all-bands attempt added ~25 min, well inside 1.5 h total) |
+
+Goldens GREEN before and after. The op hook stayed on; no era pooling; no shared
+harness file edited (§7 D-9); no spec, budget line, or frozen-protocol content
+touched (§7 D-3). The only user-signed-off document edit outside the WP docs is
+the `14-DHRUVA-SIMUL.md` §2 D5 row (§47.4), made under the 2026-08-16 D-1 ruling
+and no other. **WP-LIN is closed: candidate N recorded, the wall two-harness
+measured and perturbation-stable, every lever that would move it named as a
+separate open user decision.**

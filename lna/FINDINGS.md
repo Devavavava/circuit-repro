@@ -9109,3 +9109,208 @@ carried the author's Windows `.include` (§44.7 deviation 3), which blocked both
 `iip3.py`'s raw reader and `hb_iip3.py --own`; they are now rewritten
 include-portable via `extract.rewrite_includes` (a no-op on the author's Windows
 box, so repro intent is preserved), and verified to convert through `port45`.
+
+## 45. Phase 3 — ★★★ WP-LIN rungs 1–4: the linearity redesign runs out of circuit — P4 REFUTED (the match wall has NOT lifted), the in-box output levers buy **+0.7 dB of the needed ~27**, and D5 at the ruled condition fails 0/4 on every candidate (Session 10, 2026-08-15)
+
+Rungs 1–4 of `plans2/16-WP-LIN.md`, executed per user sign-off (2026-08-15;
+rung 0 landed 2026-08-14, §44). Goldens GREEN before any design number and
+re-verified after: `check_iip3`, `check_hb`, `check_ref`, `check_diff`.
+Sidecars `lna/_lin_screen.py` (rung 1) and `lna/_lin_verify.py` (rungs 2–3);
+every read-only harness (`pgain.py`, `_pgain_mech.py`, `size.py`, `iip3.py`,
+`hb/hb_iip3.py`) re-pointed by module attribute, never edited (§7 D-9). Node
+insertions reuse rung 0's structural role resolution (§42.2/§6.7) verbatim.
+Artefacts: `lna/out/_lin_probe_A.json`, `_lin_screen.json`, `_lin_sweep.json`,
+`_lin_twotone.json`, `_lin_hb_cand.json` (gitignored, verbatim simulator
+evidence, stamped `recipe=wplin-v1`, `source_arm=wplin-screen`/`wplin-verify`,
+`diagnosis="output-swing-current-limit"`).
+
+### 45.1 ★★ Rung 1, the P4 answer — the §42.3 match wall has NOT lifted on the designated host
+
+The WP's highest-value, least-certain prediction (P4): that the front-side
+match wall, measured on the l5 host at 0.001 dB of S11 margin, would lift on
+the `dhruva-simul` host with its **+1.484 dB** margin and smaller CS pair
+(66.2/45.7 µm vs 94.5/93.2). `pgain.py --probe` and `--wall` re-run on the
+simul substrate (base_design re-pointed to inject the rail), **both rails**:
+
+| mechanism | best match-legal span @ 1.1 V | @ 1.2 V | §42.4 (l5 host) | 10.6 dB? |
+|---|---|---|---|---|
+| `in-att` (input combiner bank) | **4.84 dB** | **4.77 dB** | 0.00 | **NO** |
+| `in-degen` (source-degen ladder) | 2.37 | 2.26 | 2.59 | NO — authority ceiling, unmoved |
+| `n0-bank` (recombine node) | **0.00** | **0.00** | 0.00 | NO — no legal setting at all |
+
+**P4 is REFUTED.** The 1.48 dB of margin bought the input combiner ~4.8 dB of
+legal span where the l5 host had zero (its all-off state alone broke the gate)
+— a real shift, and **less than half of 10.6 dB**. Reaching 10.6 dB at the
+combiner costs S11 −3.3 dB (breaks the gate by 6.7 dB). The degeneration
+ladder reproduces its **authority** wall (~2.3 dB ceiling) unchanged — as
+predicted, that wall does not care about S11 margin. The recombine node has no
+legal setting on this host either. The probe map reproduces §42.3's shape on
+the harder-margin host: every node from the input combiner through MNM6's gate
+is match-forbidden; **only the output-stage drain and VOUT1 tolerate loading**
+(S11 *improves* to −11.5 there). Consequence for §2.3: **the ~12 dB front-end
+half of the decomposition is structurally unavailable on this topology** — the
+C_gd/capacitive coupling that forbids front-side loading is architecture, not
+margin.
+
+### 45.2 Rung 1, the screen — the kill table
+
+`size.eval_metrics(nf_gated=True)` + op + swing proxies at the 1.2 V nominal,
+kill rules exactly as pre-registered (tier-1/2 break at nominal → drop;
+`Iq×|Z_ac|` non-improvement → drop unless A/A'). Baseline: Iq(MNM6) =
+1.432 mA, |Z_ac| = 50.9 Ω, **Iq·|Z| = 72.9 mV**, Vq−Vdsat = 505 mV.
+
+| cand | mechanism | screened | verdict |
+|---|---|---|---|
+| **B** | output-stage current re-allocation (pNM6W↑, pNM4W↓) | 6 in-box variants | **4 survive.** Best legal Iq·|Z| = 82.6 mV (**+1.13× = +1.1 dB**) at NM6×2.0; S11 falls −11.48 → −10.46…−10.70 (the wider MNM6 loads the output node and spends the margin); **NM6×3.0/×4.0 BREAK S11** (−9.51/−8.74). Idd never exceeds 9.65 mA — the Idd gate never binds; **S11 is B's wall**, not Idd. |
+| **C** | raise output AC load (pR4V↑, pC6V↓) | 6 in-box variants | **ALL KILLED.** Raising pR4V *reduces* Iq(MNM6) faster than it raises |Z_ac| (the load resistor sets the DC bias current): Iq·|Z| falls 72.9 → 54.4…20.5 mV on every variant, and pR4V ≥ ×3 breaks the S-band S21 floor. §2.2's "the design is giving away its load resistor" intuition is **corrected by measurement** — pR4V is not a free AC knob, it is the output stage's current source. |
+| B+C | combined | 3 variants | all killed (product falls; 2 of 3 break S11) |
+| **E** | bias re-centering via pVB | 6 levels, full box | **inert to 5 digits** — pVB does not reach MNM6's operating point on this topology (the bias scaffold feeds the input stages); Iq·|Z| identical at every level. Rung 0's rail sweep (+0.61 dB/100 mV, §44.4) stands as the only headroom lever, and P2's <2 dB re-centering bound holds trivially. |
+| **D** | current reuse / stacking | not sizable | KILLED on budget: needs the spare device + stacks on a rail where three input devices already sit sub-threshold. A §7 D-2 question, recorded not decided. |
+| **F** | output cascode | not sizable | KILLED on §44.4's evidence: spends Vds headroom, the resource measured 16.8 dB non-binding; costs the spare device. (P5) |
+| **G** | derivative superposition | not sizable | KILLED: the wall is current-clipping (§44.4), which g3 cancellation cannot fix; bias-sharp notches vs the §6.5 zero-flip bar (§39.1 precedent). (P5) |
+| **H** | output degeneration | not sizable | KILLED: reduces output drive under a clipping limit; S-band S21 margin (+3.45 dB) cannot fund it. Composable only atop a B survivor — and B walls first. (P5) |
+
+**P5 CONFIRMED** (F/G/H die at rung 1, on evidence). Cost: ~800 evaluations
+≈ 17 SPICE-min, inside the 2,000-eval / 35-min cap.
+
+### 45.3 Rung 2 — the designed sweep, and the surrogate said-so
+
+**Surrogate status, per §5.1's absolute rule: NOT TRAINED — the label supply
+is a memoriser's** (16 distinct IIP3 numbers over 4 parameter sets of one
+topology, all 1.1 V, all max-gain, none on any candidate). The pre-registered
+fallback was taken: rank rung-1 survivors by the measured swing proxy plus the
+designed sweep's real labels. No surrogate number exists anywhere in this WP
+(§5.4 held vacuously).
+
+The designed sweep (§5.2) then collapsed with the factor space: of its four
+factors, rung 1 measured pVB **inert**, pR4V/pC6V **counter-productive**, and
+pVDD already measured (+0.61 dB, §44.4) — the only live axis is pNM6W, and it
+walls at S11 by ×2. The legality filter (pre-registered as the sweep's screen)
+left the B family + C's best; 6 sizing points were measured instead of the
+designed 24 (deviation, §45.6). Real two-tone at l5 f0, max gain, 1.2 V,
+4 drives × 3 replays each:
+
+| point | Iq·\|Z\| (mV) | IIP3 | **OIP3** | G | ΔOIP3 vs base |
+|---|---|---|---|---|---|
+| baseline | 72.9 | −34.51 | **−1.33** | 33.18 | — |
+| B_NM6×1.5_NM4×0.85 | 78.7 | −34.56 | −0.76 | 33.80 | +0.57 |
+| B_NM6×1.5 | 78.7 | −35.10 | −0.76 | 34.34 | +0.57 |
+| B_NM6×2.0_NM4×0.8 | 82.6 | −34.86 | −0.65 | 34.21 | +0.68 |
+| B_NM6×2.0 | 82.6 | −35.58 | **−0.62** | 34.96 | **+0.72** |
+
+OIP3 orders with Iq·|Z| again (the §44.4 ordering, now on the designated
+point's own axis), and the magnitudes agree with §2.2's arithmetic: +1.13× of
+swing product predicts +1.05 dB, measured +0.72 — right order, slightly under
+(the wider device adds its own nonlinearity). **The entire in-box output-stage
+lever is worth +0.7 dB of the ~8–9 dB the §2.3 decomposition needs.** IIP3
+*worsens* on every B variant (gain rises faster than OIP3).
+
+**Cross-method check of the delta (HB, l5 max/1.2):** B_NM6×2.0 reads IIP3
+−35.586 / OIP3 −0.616 in VACASK HB vs −35.579 / −0.615 transient — **0.007 dB
+apart**; the ΔOIP3 vs baseline is +0.654 (HB) vs +0.715 (transient). The
++0.7 dB is a property of the design, not of a harness.
+
+### 45.4 ★ Rung 3 — real two-tone at the ruled condition: FAILED 0/4 on every candidate
+
+D6 out-bank S3 min-gain state, 1.2 V, four bands, §37.3 fence set intact on
+all 48 rows (slope 3.05–3.19 in 3 ± 0.3, worst SNR ≥ 24.3 dB, per-point
+spread ≤ 1.30 dB, dS21 ≤ 0.023 dB vs each candidate's own audited S21 —
+re-pointed never disabled — replay fence **0.0000 dB** ×3 in-process on every
+row). The −68…−52 dBm min-gain drive window of §44.3.
+
+| candidate | band | IIP3 | OIP3 | G | target | **margin** |
+|---|---|---|---|---|---|---|
+| baseline (§44.2 reproduced) | l5/l2/l1/s | −34.19/−34.28/−34.67/−34.46 | −13.25/−13.19/−12.97/−13.05 | 20.9–21.7 | −7.4/−7.4/−7.6/−8.7 | **−25.8…−27.1** |
+| B_NM6×2.0 | l5/l2/l1/s | −35.38/−35.51/−36.17/−35.86 | −12.35/−12.32/−12.34/−12.60 | 23.0–23.8 | | **−27.2…−28.6** |
+| B_NM6×2.0_NM4×0.8 | l5/l2/l1/s | −34.52/−34.68/−35.65/−36.34 | −12.25/−12.23/−12.32/−12.77 | 22.3–23.6 | | **−27.1…−28.1** |
+| C_R4×1.5 (N clause 4) | l5/l2/l1/s | −35.01/−35.10/−35.54/−35.41 | **−16.04/−15.98/−15.79/−15.95** | 19.0–19.8 | | **−26.7…−27.9** |
+
+C's row is the rung-1 proxy **validated by real two-tone**: its Iq·|Z_ac| of
+54.4 mV (vs baseline 72.9) predicted ≈ −2.5 dB of OIP3, and the measurement
+reads **−2.7 dB below baseline** (−16.0 vs −13.25 at l5). The screen's kill
+rule killed the right candidate for the right reason.
+
+**Gate D5 at the D6 min-gain state, 1.2 V: FAILED 0/4 bands on every
+candidate.** The B variants raise OIP3 ~+0.8 dB at S3 and *worsen* the IIP3
+margin ~1 dB, because the wider MNM6 raises the S3 gain ~2 dB while the
+output-side attenuation still buys 0 dB of IIP3 (§42.6 item 1, third
+confirmation). No candidate claims a pass, so §4.3's HB re-measure rule was
+not triggered (the one-band HB check above is extra, not owed). No candidate
+approaches any §6 acceptance clause: the residual shortfall is **25.8–28.6
+dB** everywhere.
+
+### 45.5 Rung 4 — zero survivors, and the honest arithmetic of the wall
+
+Rung 4 is survivors-of-rung-3 only, ≤2. **There are none**; the corners sweep
+and the never-yet-done IIP3-under-perturbation set were therefore not run —
+§1.3 item 5 (IIP3 under a sensitivity axis) **remains open**, and P6/P7 are
+**NOT REACHED**: B was never eaten by the Idd gate (P6's mechanism — Idd
+peaked at 9.65 of 13 mA; S11 is what stops B), and no nominal pass exists for
+P7 to flip.
+
+**The §37.7-form power-budget argument at the min-gain numbers (candidate N
+clause 5), written with this WP's measurements:** §2.3's "requirement ≈ 1×
+P_dc" was conditional on front-side gain control. Rung 1 measured that
+condition **structurally false** — every front-side node is match-forbidden
+(4.8 dB max legal span vs 10.6 needed), a property of the C_gd-coupled
+input-match architecture, not of margin. With the only match-legal (output-
+side) D6 mechanism, IIP3 at S3 equals IIP3 at max gain, so passing −7.4 dBm at
+S3 requires **OIP3(max) ≈ +25.8…+28 dBm ≈ 380–630 mW ≈ 33–55× the 11.4 mW DC
+budget** — the §37.7 verdict again, now measured *at the ruled condition on
+the designated point*. The in-box levers move OIP3 by +0.72 dB (B, S11-capped
+at ×2 width), +0.61 dB (the full 100 mV rail), 0.0 dB (pVB), negative (pR4V).
+For the gap to close, one of these must change: (i) the input-match
+architecture (an isolating front-end — a topology change beyond the 1-spare-
+device budget, §7 D-2); (ii) the output reference impedance (§7 D-7: |Z_ac| ≈
+51 Ω is half-set by the 50 Ω port; OIP3 rises dB-for-dB with Z_ac at fixed
+current); (iii) the Idd gate (a class-A stage delivering OIP3 ≈ +12 dBm into
+51 Ω needs ~8 mA in the output device alone, 5.5× today's 1.43 mA — feasible
+in current only if MNM4's 4.6 mA is re-allocated, which is candidate B, which
+S11 forbids past ×2); or (iv) the D5 spec row (§7 D-1). None of these is the
+executor's decision.
+
+**Candidate N's five-clause bar (§3), counted and queued — NOT recorded (§7
+D-1):** clause 1 ✓ (rung 0, two-harness, max+min); clause 2 ✓ (§44.4's
+4-point ρ=1.0000 curve + this WP's 3-point on-host curve, replay-fenced);
+clause 3 ✓ (rung 1: 4.77/2.26/0.00 dB measured on this host, both rails);
+clause 4 **B ✓, C ✓** (both carried to real two-tone with per-band shortfalls
+reported), **D in-box-impossible** (spare-device budget; recorded as blocked,
+not skipped); clause 5 ✓ (the paragraph above). **4½ of 5 — the missing half
+is a budget question (D-2), not an unrun measurement.** Recording N is the
+user's call.
+
+### 45.6 Deviations, recorded not smoothed
+
+1. **The §5.2 designed sweep ran 6 points, not 24.** The pre-registered
+   legality filter killed the factor grid before the sweep spent SPICE on it:
+   pVB inert, pR4V/pC6V counter-productive, pVDD known. The 24-point grid
+   presumed 4 live factors; measurement left 1 (pNM6W, S11-capped at ×2). The
+   shortfall is published per the §34 precedent.
+2. **Rung 3 carried 4 candidates, not 12.** The screen produced only 4
+   distinct B survivors (two near-duplicate pairs) plus C's best; spending the
+   cap on duplicates would have bought no information.
+3. **Rung 4 vacuous** (zero survivors) — the IIP3-under-perturbation set was
+   not run anywhere; §1.3 item 5 stays open and is queued.
+4. **D6 span not re-verified per candidate (§6.2).** The S3 switch DOFs were
+   reused from the audited simul out-bank sizing; the wider-MNM6 candidates
+   raise the S3 gain ~2 dB (span shrinks from the top). Since no candidate
+   came within 25 dB of D5, the D6 re-tune was moot spend; recorded.
+5. **Switch-gate ON voltage stays 1.1 V at the 1.2 V rail** — inherited
+   rung-0/§42.5 convention (the stored, audited state controls), noted in
+   §1.3 item 3; not newly decided here.
+6. **C_R4×1.5's rung-3 rows landed after this table was first drafted** and
+   are in `lna/out/_lin_twotone.json` verbatim (the run was still in flight at
+   authoring time; the section was finalized from the artefact).
+
+### 45.7 Cost, against caps
+
+| rung | cap | actual |
+|---|---|---|
+| 1 (probe-A + screen) | 2,000 evals ≈ 35 SPICE-min | ~800 evals ≈ 17 SPICE-min |
+| 2 (designed sweep) | 96 runs / 4 h | 65 runs ≈ 10 SPICE-min |
+| 3 (two-tone verify) | 48 band-sweeps / 8 h wall | 16 band-sweeps (4 cands × 4 bands, ×3 replays + refs ≈ 260 runs) ≈ 38 SPICE-min + 16 HB runs ≈ 2 |
+| 4 (sensitivity) | 16 band-sweeps × ≤2 survivors | 0 (zero survivors) |
+| **total rungs 1–4** | | **≈ 67 SPICE-min, ~2.5 h wall** |
+
+Goldens re-verified GREEN after landing. The op hook stayed on throughout; no
+era pooling; no shared file edited; no spec/budget/protocol touched.

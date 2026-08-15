@@ -2388,6 +2388,49 @@ sign-off was rung 0 only). One artefact tidy rode along: the shipped per-band
 `dhruva-*.sp` decks, which carried a stale Windows `.include`, are now
 include-portable.
 
+## 43. WP-LIN rungs 1–4 — the redesign runs out of circuit, and the wall gets its full name
+
+**Decision** (user, 2026-08-15): execute rungs 1–4 of 16-WP-LIN as
+pre-registered, plus the step-0 R-e correction of the 14-DHRUVA-SIMUL §1.2
+tier-3 mis-attribution (the l5 point's IIP3 had been credited to the
+designated point; now amended with the measured §44 numbers, the original
+preserved in a dated note).
+
+**Result (FINDINGS §45).** The question WP-LIN was written to answer — can a
+front-side gain-control mechanism plus ~8–9 dB of output OIP3 close the
+min-gain gap — is answered **no, measured, on both halves**. **P4 refuted:**
+the §42.3 match wall has *not* lifted on the designated host despite its
++1.484 dB of S11 margin — best front-side match-legal span 4.8 dB (input
+combiner; needs 10.6), 2.3 dB (degeneration, the authority ceiling, unmoved),
+0.0 dB (recombine node). The forbidden zone is architecture (C_gd coupling),
+not margin. **The output half walls at ×2:** the only screen survivor class
+(candidate B, pNM6W up) is S11-capped at twice the width, worth **+0.72 dB of
+OIP3** — measured in real two-tone and confirmed in HB to 0.007 dB — against
+the ~8–9 dB needed. C (raise pR4V) measured *counter-productive* (the load
+resistor is the stage's current source: Iq falls faster than Z rises), E (pVB)
+measured inert to 5 digits, D/F/G/H killed at rung 1 on the pre-stated cheap
+evidence (P5 confirmed). The surrogate was **not trained** — the label supply
+is a memoriser's (16 numbers, one topology), said so per §5.1, survivors
+ranked by measured proxies instead. Rung 3: **D5 at the D6 min-gain state,
+1.2 V, FAILS 0/4 on every candidate, 25.8–28.6 dB short**, fences intact,
+replay 0.0000. Rung 4: zero survivors, vacuous; P6 not reached (B is stopped
+by S11, never by Idd — the predicted failure mode was the wrong one), P7 not
+reached (no nominal pass to flip).
+
+**Understanding.** Rung 0 named the wall (current-swing, output stage); rungs
+1–4 measured that *no in-box lever reaches it*. The §2.3 reframing — "at
+min-gain the requirement is only ~1× P_dc" — was conditional on moving gain
+control ahead of the nonlinearity, and that move is structurally forbidden by
+this topology's input-match architecture. With output-side control (the only
+match-legal kind), passing D5 at S3 needs OIP3 ≈ +26…+28 dBm ≈ 33–55× the DC
+budget — §37.7's number, now measured at the ruled condition on the designated
+point. Candidate N's evidence bar stands at **4½ of 5** (the missing half:
+candidate D has no in-box build — a §7 D-2 budget question, not an unrun
+measurement); N is queued, **not recorded** (§7 D-1). What would have to
+change is enumerated and priced in §45.5: the input architecture (D-2), the
+output reference impedance (D-7), the Idd gate, or the spec row (D-1) — all
+user decisions, none the executor's.
+
 ## Current frontier
 
 As of this document's writing (`lna-data`, commit `5be4de3` and whatever

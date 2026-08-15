@@ -52,9 +52,21 @@ worst case is NF at +0.012 dB margin under VDD×0.9+85 °C, still a pass).
 
 | requirement | target | achieved | status |
 |---|---|---|---|
-| IIP3 (at min-gain setting) | ≥ −7.4 dBm (L5/L2) / −7.6 (L1) / −8.7 (S) | −30.3…−32.8 dBm (fixed max gain; OIP3 +3.2…+3.4) | **MEASURED, FAILED 0/4** (§37 transient + §40 HB agree to 0.08 dB; output-swing wall — see §2 ladder) |
+| IIP3 (at min-gain setting) | ≥ −7.4 dBm (L5/L2) / −7.6 (L1) / −8.7 (S) | **`dhruva-simul` @ 1.2 V, this point** (FINDINGS §44, two-harness): IIP3 −34.5…−35.3 (transient) / −34.5…−35.3 (HB) at max gain, **OIP3 −1.3…−1.8**; at the D6 min-gain setting OIP3 falls to **−13.0…−13.3** while IIP3 stays ≈ −34 (output-side D6 buys 0 dB IIP3) [†] | **MEASURED, FAILED 0/4** (§44 transient + HB agree to 0.08 dB at the ruled nominal; §37/§40 fixed-l5 wall — see §2 ladder) |
 | Gain programmability | ≥ 10.6 dB range, ≥ 3 steps | 11.2–11.5 dB span, 4 monotonic states, S11/Idd held in every state | **MET under proposed mapping** (§42; sign-off pending) |
 | Differential output | imbalance ≤ 0.22 dB / ≤ 0.9° | 0.119 dB / 0.34° band-wide worst (hardened host, active balun; all four-band gates pass there) | **imbalance MET** (§41; gain-convention ruling pending) |
+
+**[†] Correction, 2026-08-15 (WP-LIN step 0, user-authorized R-e).** As
+originally written this row's *achieved* cell read "−30.3…−32.8 dBm (fixed max
+gain; OIP3 +3.2…+3.4)". Those numbers are the **`dhruva-l5`** point's D5
+measurement (§37/§40), **not this designated `dhruva-simul` point's** — which
+had never been measured when the row was authored (16-WP-LIN.md §1.3 item 1,
+§1.5.1). WP-LIN rung 0 (FINDINGS §44, 2026-08-14) measured the designated point
+for the first time, two-harness: its OIP3 is **−1.3…−1.8 dBm at max gain, ~5 dB
+below the l5 point's +3.2…+3.4** — WP-HARDEN's 37 % Idd cut cost that ~5 dB,
+exactly as §40.4 predicted. The verdict is unchanged (FAILED 0/4 on both points,
+by >21 dB), so this correction changes no gate decision; the original number is
+recorded here rather than erased so the mis-attribution stays on the record.
 
 ### 1.3 Standing fidelity caveats (carry over from `repro/dhruva-best/REPORT.md` §5)
 

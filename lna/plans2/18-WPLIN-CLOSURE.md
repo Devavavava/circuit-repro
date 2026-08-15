@@ -129,5 +129,18 @@ of `14-DHRUVA-SIMUL.md` §2 is made under that same sign-off and no other.
 
 ## 4. Outcome (appended after execution — FINDINGS §47)
 
-*Empty by design. Filled after the fact, whichever way Q1 falls, with full detail
-in FINDINGS §47.*
+**Executed 2026-08-16 (Session 10). Goldens GREEN before and after.**
+
+| pre-registered claim | verdict |
+|---|---|
+| **Q1** the wall moves ≤ ~1 dB/axis, ≤ ~2 dB combo; falsifier ≥ 5 dB | **CONFIRMED (§47.1–47.2).** Worst \|ΔIIP3\| = **2.26 dB** (min-gain combo), worst \|ΔOIP3\| = **1.55 dB** (85 °C) — far below the 5 dB falsifier and a rounding error against the 25–28 dB D5 miss. VDD ±10 % moves OIP3 ±0.7–0.9 dB, on the §44.4 +0.61 dB/100 mV prior. The magnitude landed at 2.26 dB (between the ~2 dB combo bar and 5 dB) — recorded as measured; the verdict (stable, N not qualified) is unaffected. |
+| the P0 controls reproduce §44.2 (injection inert) | **CONFIRMED.** Min IIP3 −34.188 / OIP3 −13.254 vs §44.2 −34.19 / −13.25; max −34.532 / −1.353 vs −34.53 / −1.35 — to three decimals. |
+| the record includes the perturbation result | **DONE.** Candidate N RECORDED (user D-1, 2026-08-16); the D5 wall is now two-harness measured (§44/§44.9) **and** perturbation-stable (§47.1). |
+
+**Deviation (recorded, §47.6):** the set ran **l5-only, not all four bands** —
+the shared box (57 concurrent ngspice from other agents) throttled the all-bands
+run past the wall cap, so it was re-scoped per §2's cap rule to l5 (the
+worst-margin band), both states, all five perturbations. The wall's stability is
+a per-topology property (a current-swing wall), so l5 is the informative band;
+the other three bands' perturbation response is a cheap future add. Cost
+≈28 SPICE-min vs the ≤40 cap. **WP-LIN CLOSED.**

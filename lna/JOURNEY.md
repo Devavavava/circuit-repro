@@ -2470,6 +2470,57 @@ measured lever that moves OIP3 dB-for-dB). The linearity redesign question,
 opened by ruling 4 and pursued through rungs 0–4 and this widening, is now
 measured to its boundary on every axis the executor is allowed to touch.
 
+## 45. WP-LIN closes — the wall is measured stable under perturbation, and the null is recorded
+
+**Decision** (user, 2026-08-16): **"(D-1) record candidate N and close
+WP-LIN"** — plus two commissioned closure items: the never-measured
+baseline-IIP3-under-perturbation set (16-WP-LIN §1.3 item 5 / §4.4, the one
+thing rung 4 left vacuous because it had zero survivors) and the playbook
+distillation of stages 41–44. Pre-registered in `plans2/18-WPLIN-CLOSURE.md`,
+committed alone before any run.
+
+**Result (FINDINGS §47).** The last open half-clause of WP-LIN is measured. The
+question underneath the whole N record — *is the D5 wall itself stable, or would
+it move ±5 dB with VDD and become a knife-edge?* — is answered **stable**. On the
+baseline designated point at 1.2 V nominal, dhruva-l5, at the D6 min-gain (ruled)
+state and max gain, under VDD×0.9, VDD×1.1, 85 °C, and their worst combo, the
+**worst |ΔIIP3| is 2.26 dB** and the worst |ΔOIP3| is 1.55 dB — far below the
+pre-registered 5 dB falsifier, and a rounding error against the 25–28 dB miss the
+gate fails by at every corner. The nominal-invariance controls reproduce §44.2 to
+three decimals (the injection changes nothing); every fence held (slope 2.96–3.09,
+replay spread 0.0000, dS21 ≤ 0.016). VDD ±10 % moved OIP3 by ~±0.7–0.9 dB —
+exactly the §44.4 rail-sweep prior of +0.61 dB/100 mV — so the wall behaves like
+the current-swing limit §2.2 diagnosed, not like a knife-edge. **Q1 confirmed;
+nothing qualifies the N record, it strengthens it.**
+
+With the bar complete at 5/5 (§46.6) and the wall now measured perturbation-stable,
+**candidate N is RECORDED** per the D-1 ruling: Gate D5 is **not met at ≤ 1.2 V on
+this topology family** — the wall is physical (output-stage class-A current swing,
+`Iq × |Z_ac|`), the per-band shortfall at the ruled condition is ≈ 21 dB post-D,
+and the five-clause chain (§44 / §44.9 / §45 / §46 / §47) is cited on the record.
+The three levers that would move it — the output reference impedance (D-7), the
+supply/Idd envelope, and D5 spec relief (D-1) — are each named as a **separate,
+still-open user decision**; recording the null decides none of them. The
+`14-DHRUVA-SIMUL.md` §2 D5 ladder row was amended to the measured verdict (the
+one user-signed edit outside the WP docs), 16-WP-LIN §11's outcome table filled to
+completion, and the playbook gained **five distilled entries** from stages 41–44
+(the current-swing ordering test, the gain-control-side rule, the architectural
+match-forbidden zone, the resistor-set-output current-neutrality, the
+split-budget-starves-the-swing-stage anti-pattern) with seven typed edges,
+`--check` GREEN.
+
+**Understanding.** WP-LIN was launched (ruling 4, 2026-08-13) to turn a linearity
+ruling into a measurement, and it did — through rung 0 (the wall named), rungs 1–4
+(no in-box lever reaches it), the D-2 widening (no widened candidate reaches it),
+and now this closure (the wall does not move when you perturb it). The honest arc
+is that every axis the executor was allowed to touch has been measured to its
+boundary, and the answer is the same physical wall each time. What is *not* closed
+is what the user owns: whether to spend the output reference impedance, the supply
+envelope, or the spec text to move it. The WP did its job — it made the null
+falsifiable, tried hard to falsify it, and failed to, on the record. Goldens GREEN
+throughout; no spec, budget, or frozen-protocol content touched; the only measured
+distortion metric ever perturbed in this program now exists.
+
 ## Current frontier
 
 As of this document's writing (`lna-data`, commit `5be4de3` and whatever

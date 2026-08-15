@@ -59,12 +59,19 @@ def candidate_params(name, vdd="1.2"):
     p = _base_params(vdd)
     W6 = float(p["pNM6W"])
     W4 = float(p["pNM4W"])
+    R4 = float(p["pR4V"])
     fams = {
         "baseline":      {},
         "B_NM6x2.0":     {"pNM6W": str(W6 * 2.0)},
         "B_NM6x2.0_NM4x0.8": {"pNM6W": str(W6 * 2.0), "pNM4W": str(W4 * 0.8)},
         "B_NM6x1.5":     {"pNM6W": str(W6 * 1.5)},
         "B_NM6x1.5_NM4x0.85": {"pNM6W": str(W6 * 1.5), "pNM4W": str(W4 * 0.85)},
+        # candidate C's best tier-legal variant (screen-killed on the Iq*|Z|
+        # proxy rule only, not on a gate) -- carried to two-tone for candidate
+        # N clause 4 ("the best candidate from each of B, C, D"). D has no
+        # in-box build (needs the spare device, a S7 D-2 question); recorded,
+        # not sized.
+        "C_R4x1.5":      {"pR4V": str(R4 * 1.5)},
     }
     if name not in fams:
         raise SystemExit(f"unknown candidate {name}; have {list(fams)}")

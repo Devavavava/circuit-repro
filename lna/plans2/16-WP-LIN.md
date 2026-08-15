@@ -669,12 +669,12 @@ falls — with full detail in FINDINGS §43.*
 |---|---|
 | **P1** designated point's baseline OIP3 below the l5 point's | **CONFIRMED (rung 0), two-harness.** OIP3 −1.4…−2.5 dBm; **5.1–5.8 dB below** the l5 point's +3.2…+3.4 at 1.1 V like-for-like (FINDINGS §44.5). Cross-checked in VACASK HB (§44.9): OIP3 −1.3…−2.3 at max gain, agreeing with transient to 0.07–0.20 dB (0.08 dB at the ruled 1.2 V). |
 | **P2** current-limited, not voltage-limited | **CONFIRMED (rung 0), three ways.** Current limit binds by 6.93×=16.8 dB over headroom; +100 mV rail moves OIP3 +0.61 dB (<2 dB bar); OIP3 orders with Iq·\|Z_ac\| at Spearman ρ=1.0000 (FINDINGS §44.4). |
-| **P3** the ~12 dB + ~8–9 dB decomposition | *(partial — rung 0, two-harness)* The ~12 dB half is measured to buy **0 dB IIP3** (output-side S3, IIP3 −34 at min ≈ −34.5 at max) — confirmed cross-method in HB (§44.9: IIP3 pinned −33…−34 while OIP3 falls to −13 at S3); the ~8–9 dB output-OIP3 half and the front-side half need rungs 1–4 (not run). |
-| **P4** the §42.3 match wall has lifted on this host | *(pending — rung 1)* not run; needs `pgain.py --probe/--wall --sizing simul`. |
-| **P5** F / G / H killed early | *(pending — rungs 1/3)* not run. |
-| **P6** candidate B eaten by the Idd gate | *(pending — rung 3, D-6 union config)* not run. |
-| **P7** a nominal-only pass under the sensitivity sweep | *(pending — rung 4)* not run. |
-| **Gate D5 at the D6 min-gain state, 1.2 V** | **FAILED 0/4 bands (rung 0), 26.6–27.7 dB short — TWO-harness measured.** IIP3 ≈ −34 dBm vs ≥ −7.4/−7.6/−8.7; OIP3 −13.0…−13.3 at S3/1.2 V (FINDINGS §44.2). **HB agrees, 0/4 fail at every configuration (§44.9); all four configs reached, so §7 D-8's asterisk is RESOLVED** — the D5 baseline is two-harness measured, not one. |
+| **P3** the ~12 dB + ~8–9 dB decomposition | **REFUTED on both halves (rungs 1–3, FINDINGS §45).** The ~12 dB front-end half is structurally unavailable (P4 refuted — best front-side match-legal span 4.8 dB vs 10.6 needed); the ~8–9 dB output half is in-box unavailable (best measured gain **+0.72 dB** of OIP3, S11-capped at NM6×2, HB-confirmed to 0.007 dB). Neither half lands; with output-side D6 the honest requirement reverts to OIP3 ≈ 33–55× P_dc (§45.5). |
+| **P4** the §42.3 match wall has lifted on this host | **REFUTED (rung 1, §45.1), both rails measured.** in-att 4.77/4.84 dB legal span (l5 was 0.00 — a real shift, under half of 10.6); in-degen 2.26/2.37 (the authority ceiling, unmoved); n0-bank 0.00 (no legal setting at all). The forbidden zone is architecture (C_gd coupling), not margin. |
+| **P5** F / G / H killed early | **CONFIRMED (rung 1, §45.2)** — F on headroom-is-non-binding (§44.4) + the device budget; G on clipping-not-g3 (§44.4) + the §6.5 zero-flip bar; H on the S-band S21 clause-4 floor. All killed on evidence, none sized. |
+| **P6** candidate B eaten by the Idd gate | **REFUTED in mechanism (rungs 1/3, §45.2).** B is stopped by **S11**, not Idd: the wider MNM6 spends the match margin (breaks −10 dB at NM6×3) while Idd peaks at 9.65 of 13 mA. The predicted failure mode was the wrong one; the D-6 union config was never reached (no candidate approached acceptance). |
+| **P7** a nominal-only pass under the sensitivity sweep | **NOT REACHED (rung 4 vacuous, §45.5)** — zero rung-3 survivors; no nominal pass exists to flip. §1.3 item 5 (IIP3 under perturbation) remains open, queued. |
+| **Gate D5 at the D6 min-gain state, 1.2 V** | **FAILED 0/4 bands (rung 0), 26.6–27.7 dB short — TWO-harness measured.** IIP3 ≈ −34 dBm vs ≥ −7.4/−7.6/−8.7; OIP3 −13.0…−13.3 at S3/1.2 V (FINDINGS §44.2). **HB agrees, 0/4 fail at every configuration (§44.9); all four configs reached, so §7 D-8's asterisk is RESOLVED** — the D5 baseline is two-harness measured, not one. **Rungs 1–3 (§45.4): FAILED 0/4 on every candidate as well, 25.8–28.6 dB short — no in-box candidate approaches any §6 clause.** |
 
 **Rung-0 outcome note (2026-08-14, Session 10, executed on `main` per the RHEL
 port — FINDINGS §44).** Rung 0 — and only rung 0, per user sign-off — ran. It
@@ -694,3 +694,30 @@ screen, or surrogate was run (rungs 1–4 remain). Candidate N is **not** record
 recording it is a §7 D-1 user decision). No spec was re-negotiated, no budget
 widened, no frozen-protocol content or D5 row touched. Deviations recorded in
 FINDINGS §44.7.
+
+**Rungs 1–4 outcome note (2026-08-15, Session 10 — FINDINGS §45).** Executed
+per user sign-off (2026-08-15), preceded by the user-authorized step-0 R-e
+correction of `14-DHRUVA-SIMUL.md` §1.2's tier-3 mis-attribution (separate
+commit, original preserved in a dated note). Goldens GREEN before and after.
+**Rung 1:** the candidate-A probe re-measured the match wall on this host at
+both rails — **P4 refuted** (best front-side legal span 4.8 dB; the §42.4
+authority ceiling reproduced at 2.3 dB; recombine still 0.0) — and the OP/AC
+screen killed C (pR4V is the output stage's current source: raising it
+*lowers* Iq·|Z_ac|), E (pVB inert to 5 digits), D (in-box impossible, §7 D-2),
+F/G/H (pre-stated cheap evidence; **P5 confirmed**), leaving 4 candidate-B
+survivors, S11-capped at NM6×2 (+1.1 dB of swing product; Idd never binds —
+**P6 refuted in mechanism**). **Rung 2:** the surrogate was NOT trained — the
+§5.1 memoriser rule was invoked as pre-registered; the designed sweep's live
+axis measured **+0.72 dB of OIP3** for the best survivor (HB cross-check:
++0.65; absolute agreement 0.007 dB). **Rung 3:** 4 candidates × 4 bands real
+two-tone at the ruled condition, all fences intact, replay 0.0000 — **FAILED
+0/4 everywhere, 25.8–28.6 dB short**; no pass claimed, so no HB re-measure
+owed. **Rung 4:** zero survivors, vacuous; **P7 not reached**; §1.3 item 5
+stays open. **P3 refuted on both halves** — and with it, §2.3's ~1× P_dc
+reframing collapses back to §37.7's 33–55× P_dc at the ruled condition
+(§45.5). Candidate N's bar: **4½ of 5** (clause 4's D-leg is in-box
+impossible — a D-2 budget question); N is queued, **NOT recorded** (§7 D-1).
+The user decisions this outcome puts on the table: D-1 (the D5 row /
+candidate N), D-2 (an isolating input architecture needs the budget), D-7
+(the output reference impedance directly sets the wall). Deviations in
+FINDINGS §45.6; cost 67 SPICE-min vs caps in §45.7.

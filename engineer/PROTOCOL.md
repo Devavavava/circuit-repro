@@ -496,3 +496,176 @@ definition, or the aggregation rule after any external number under this appendi
 been seen. Whether the external track joins a **future frozen protocol** (a benchmark
 release including AnalogGym) is part of R-5 / E-5 — the user's call, queued, not an
 agent's.
+
+---
+
+## §EXT-LDO — External LDO calibration track appendix (pre-registration)
+
+**Status:** PRE-REGISTRATION, committed **alone and before any LDO scoring run**,
+executing the follow-up rung the amp appendix (§EXT.4) and `EXT-CALIBRATION.md` §2.3
+named and deferred: *"LDOs (ngspice testbenches present — deferred to a follow-up
+rung, amps first)."* The amp rung is done (§EXT scoreboard); this is the LDO rung.
+Commissioned by the user (2026-08-16, the LDO-rung commission). This appendix is the
+timestamp for the LDO track exactly as §EXT was for the amp track: its commit
+precedes every `scoreboard_ext_ldo_v0.json` cell. The E-2 falsifier — *"a result
+table where the protocol was decided after the numbers were seen"* — is foreclosed
+for the LDOs by this appendix being committed by itself, first.
+
+**This appendix ADDS a track; it changes nothing above.** §§1–11 and §EXT are
+untouched. The LDO tasks enter as a **third registry namespace and a separate tier**
+(`tier="ext-ldo"`): they are SKY130 LDO sizing tasks (ngspice), **not** RF and
+**not** the amp track. The amp adapter `ext_gym.py` and its golden are byte-for-byte
+untouched (a re-stamp of `ext_gym.py` would be an §EXT.9 era cutover for the amps),
+so the LDO rung lands as a **sibling module** `ext_ldo.py` with its own sha256.
+
+### §EXT-LDO.1 What this measures
+
+The same statement §EXT.1 makes, on a *second circuit class*: if our null arms
+(CMA-ES vs random) order the same way on AnalogGym's LDO regulators as on its op-amps
+and on our own dhruva store, "CMA-ES > random" stops being a claim about one topology
+family and becomes a claim about analog sizing across classes. LDOs gate on different
+numbers than op-amps — load/line regulation, PSRR, dropout, quiescent power, transient
+under/overshoot — so this is a genuinely independent read, not a re-run of §EXT with
+different netlists.
+
+### §EXT-LDO.2 Adapter (the harness for this track)
+
+`engineer/ext_ldo.py`, pinned by its own sha256 in every LDO result's harness stamp;
+it imports `ext_gym`'s **pure utilities only** (dep-root walk-up, SPICE-number parse,
+harness-stamp/JSON/trajectory helpers, `BudgetExhausted`) so the two adapters cannot
+drift on the genuinely-shared plumbing, and shares **nothing that measures a number**.
+It builds an AnalogGym LDO testbench into the same *contract* env.py / `ext_gym.ExtEnv`
+expose — an `ExtLdoEnv` with `objective_fn` / `evaluate` / `best` / `observe` /
+`harness`, budget-counted, harness-stamped, deterministic (the env draws no random
+numbers) — without editing env.py, tasks.py, `ext_gym.py`, or any driver (the E-1
+falsifier: the unedited `score_ext`-shape driver `score_ext_ldo.py` runs against
+`ExtLdoEnv`, and `lna/null_sizer.run_cmaes` is imported verbatim as the cmaes arm).
+Simulator/PDK/upstream pin identical to §EXT.2 (ngspice-47, SKY130 tt corner,
+AnalogGym @ `0a9d1390ade361e2b4a2d33181e22367edbb8afc`).
+
+**Deck handling — verbatim replay, not rebuild.** Unlike the amp adapter (which
+rebuilds the 5-DUT deck), each LDO family ships a **complete self-contained**
+`<fam>_acdc.cir` + `<fam>_tran.cir` with its own supply / Vref / Iload, node names,
+and `wrdata` prefixes. The adapter **replays the shipped deck verbatim**, rewriting
+only the three `.include ../simulations/*` lines to absolute (space-free staged)
+paths, dropping the trailing `_dev_params.spice` OP-extraction include (it reads `.op`
+vectors the reward does not use), and inserting the design-variable override right
+after the vars include. AnalogGym's own testbench is the measurement, faithfully.
+
+### §EXT-LDO.3 The "specs" — curated from AnalogGym, never invented
+
+The charter's *"no new specs"* rule. Pinned verbatim from AnalogGym:
+
+- **netlist (subckt)** = `Low Dropout Regulator/design_variables/<fam>.txt` — for the
+  LDO category THIS file holds the `.subckt <fam> … .ends` (the inverse of the amp
+  category's naming, verified by grep). Matched pairs are pinned by aliasing
+  (`W_M1=W_M0`); the adapter sizes only the FREE base parameters and re-asserts the
+  aliases, so an optimizer cannot break a mirror (the §EXT `m='4*…'` guarantee).
+- **design vars** = `spice_netlist/<fam>_vars.spice` — the `.param` defaults, the only
+  thing an optimizer touches; the golden's fixed point.
+- **objective (reward)** = AnalogGym's OWN LDO reward. `perf_extraction_LDO.py` ships
+  only the raw-metric *extractor* (no scalar); the scalar is the reward-engineering in
+  `RGNN_RL/LDO_TB.py` — `self.reward`, a sum of **15 directional normalized-margin
+  scores** `min((target−val)/(target+val), 0)` over LDR, LNR(max/min), Power(max/min),
+  |vos|(max/min), PSRR(max/min), GBW(max/min), phase-margin(max/min), v_undershoot,
+  v_overshoot, with the targets from `RGNN_RL/ckt_graphs.py GraphLDOtestbench`
+  (`LDR 0.1, LNR 0.01, Power 9e-5/9e-6, vos 2e-3, PSRR −40 dB, GBW 2e6, PM 60°,
+  under/overshoot 0.1`) and AnalogGym's own failure sentinels (a failed AC / negative
+  LDR / positive PSRR scores −1). Reproduced verbatim in `LdoSpec.objective`,
+  **negated** so lower-is-better composes with the amp track. **Deviation, recorded:**
+  `LDO_TB.py` adds `CL_area_score + 10` when `reward ≥ 0`, where `CL_area_score ∈
+  [−1,1]` is read from an OP decap our verbatim replay does not compute; we apply the
+  `+10` plateau bonus at the same `reward ≥ 0` threshold and **omit only the ≤|1|
+  decap nudge**, which cannot change a sign or the arm ordering at the feasibility
+  boundary. Any future decision to compute the decap term is an §EXT-LDO.9 era cutover.
+- **feasibility** = a directional predicate over AnalogGym's OWN scored quantities:
+  feasible ⟺ every one of the 15 directional scores is 0 (all targets met — the
+  reward's `≥0` plateau). Not a new spec: it encodes *"the LDO regulates and meets
+  AnalogGym's own LDO targets."*
+- **box** = the design-variable KIND ranges (L/W multipliers, integer multiplicities
+  M / M_CL / M_Cfb / M_Rfb, log CURRENT), the shared `_KIND_BOX` shape, derived per
+  family from its own `_vars.spice`; gate-bias voltages `Vb`/`Vb1`/`Vb2` are
+  testbench-owned and never sized. No per-family hand-listing.
+
+### §EXT-LDO.4 Task set — the ngspice-runnable subset (honest, with exclusions)
+
+Established by simulating **every** shipped LDO family at its default sizing on
+ngspice 47 (see `EXT-CALIBRATION.md` LDO section for the table + reasons). The scored
+LDO set is `ext_ldo.FAMILIES`: the **4 families** whose acdc+tran testbenches
+elaborate and produce parseable `wrdata` —
+
+`ldo_1` (Basic-LDO lineage, d≈20), `ldo_2` (Basic-LDO lineage, largest, d≈57),
+`ldo_simple` (d≈15, only family with positive dc gain at default), `ldo_folded_cascode`
+(d≈21).
+
+All four are **infeasible at default sizing** (uncompensated starting points, exactly
+as the amps ship — the benchmark hands a search a bad start). **No family is
+excluded**: unlike the amp category (empty netlists, chopper non-elaboration,
+netlist-less design_variables), all four LDO families ship a subckt, both testbenches,
+and a vars file, and all four elaborate. **Whole categories still out of scope** (need
+Spectre/OCEAN we do not have): Charge Pump, PLL, Sensing Front End, Voltage Reference —
+unchanged from §EXT.4.
+
+### §EXT-LDO.5 Budget, N, arms, aggregation — identical to §EXT.5
+
+- **Budget** = **1000 evals per (family, arm, seed)** — the same AnalogGym budget the
+  amp track uses (§EXT.5). One eval = one `ExtLdoEnv` objective = **two ngspice calls**
+  (the acdc deck + the tran deck), both counted. Budget-matched per family.
+- **N = 10 seeds**, `1..10` — the amp track's N.
+- **Arms** = the same two untuned nulls: `cmaes` (`lna/null_sizer.run_cmaes`, verbatim)
+  and `random` (uniform `[0,1]^d`, `numpy.default_rng(seed)`). Nulls first (charter §4).
+- **Metrics per run**: feasible (bool, `LdoSpec.feasible`), best objective
+  (`ExtLdoEnv.best_f`, min over budget), evals-to-first-feasible (censored at budget),
+  convergence curve (best-so-far every 10 evals).
+- **Aggregation** — identical rule shape to §EXT.5 / §5.3-§5.4: per family × arm,
+  feasible-rate `#feasible/N`, best-objective **median AND best** across seeds,
+  evals-to-first-feasible median over feasible seeds; across families, per-family tables
+  (primary; **no cross-family objective averaging** — the reward scale/plateau differs
+  by family) plus a **median-rank summary**.
+- **Modeling vs simulation time** accounted separately (§EXT.5).
+
+**Cost note (not a protocol change):** LDO evals are markedly slower than amp evals
+(the DC load/line sweeps + the 100 µs transient), measured ≈ 5–10 s/eval on the loaded
+host at the LDO rung. The full 4×2×10×1000 = 80k-eval run is CPU-heavy; it runs at
+≤ 56 workers **after the amp run drains**, and the wall-clock is reported in the
+scoreboard cost block. The budget stays at AnalogGym's 1000 — shrinking it to save
+wall-clock would be an unregistered scoring-rule change (§EXT-LDO.9-forbidden).
+
+### §EXT-LDO.6 Golden (before any scoring)
+
+**Replay-fence golden, per runnable family** (no AnalogGym-shipped per-topology ngspice
+baseline exists — same reason as §EXT.6). Fixed default sizing → fixed metrics, each
+family verified **3× in-process + a separate process**, spread within the established
+**1e-6** replay tolerance. Recorded in `engineer/data/ext_ldo_golden_v0.json`,
+re-checked before the scoring run. Any drift at fixed harness era is flagged loudly
+(charter §4).
+
+### §EXT-LDO.7 Determinism / replay / stamps
+
+`(family, arm, seed)` fully determines the x-vector sequence (the env draws no random
+numbers). Every result carries `ExtLdoEnv.harness()`: `$NGSPICE` path + version, the
+AnalogGym SHA, **both** the `ext_ldo.py` and the imported-`ext_gym.py` sha256, the
+pinned netlist/vars/acdc-tb/tran-tb sha256, the PDK path, and
+`domain: "LDO (SKY130); NOT RF — ext-ldo tier"`. Re-run tolerance: `best_obj` ≤ 1e-6
+at fixed harness era. Wall-clock fields are cost, not result, and exempt.
+
+### §EXT-LDO.8 Artifacts
+
+- Per-cell JSONs `engineer/data/ext_ldo_{cmaes,random}_<fam>_s<seed>_b<budget>.json`.
+- Golden `engineer/data/ext_ldo_golden_v0.json`.
+- Scoreboard **`engineer/data/scoreboard_ext_ldo_v0.json`** — per-family × arm
+  aggregates, the cross-family median-rank summary, cost accounting, and this
+  appendix's pre-registration commit SHA as the artifact's protocol provenance.
+- Trajectory rows to `engineer/data/ext_ldo_trajectories.jsonl` (the LDO tier's own
+  append-only table, distinct from `trajectories.jsonl` and `ext_trajectories.jsonl`).
+
+### §EXT-LDO.9 What would change these numbers vs the protocol (fenced as §9)
+
+Re-run everything (numbers change, protocol does not): a change to the LDO adapter's
+measured quantities (a new `ext_ldo.py` **or** `ext_gym.py` sha256 is an era cutover
+for this track — the LDO stamps both), an ngspice change, or an AnalogGym re-pin.
+**Forbidden without a user ruling**: editing the LDO family set, the 1000-eval budget,
+N, the metrics, the reward/feasibility definition (including whether to compute the
+omitted decap bonus term), or the aggregation rule after any LDO number under this
+appendix has been seen. Whether the LDO track joins a **future frozen protocol** is
+part of R-5 / E-5 — the user's call, queued, not an agent's.

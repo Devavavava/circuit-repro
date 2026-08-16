@@ -216,10 +216,12 @@ not change); §48 adds only a lever-detail pointer.
 *Empty by design. Filled in after the fact — whichever way each prediction falls —
 with full detail in FINDINGS §48.*
 
+**Executed 2026-08-16 (Session 10). Goldens GREEN before and after. FINDINGS §48.**
+
 | pre-registered claim | verdict |
 |---|---|
-| **Q1** the D-7 lever buys ~12–13 dB at 400 Ω, dB-for-dB, and D5 still FAILS by ~13–15 dB at every R (falsifier: measured OIP3 departs the predicted curve by ≥ 3 dB) | *(pending)* |
-| **Q2** no R in {100, 200, 400} closes D5; the coupling network caps `\|Z_ac\|` at ~208 Ω so the lever saturates ~15 dB short | *(pending)* |
-| the concession table (per R: D5 margin, S11, span, NF, K) | *(pending)* |
-| the HB cross-check delta at the owed impedance vs the 0.08 dB precedent | *(pending)* |
-| Task 2 — l2/l1/s wall stability vs the 5 dB falsifier | *(pending)* |
+| **Q1** the D-7 lever buys ~12–13 dB at 400 Ω, dB-for-dB (falsifier: measured OIP3 departs the predicted curve by ≥ 3 dB) | **REFUTED, falsifier TRIPPED (§48.2), and the underlying premise corrected.** The naive `Iq·\|Z_ac\|` extrapolation predicted +12 dB; the D5-gated **IIP3** actually moves **+0.26 dB** (min-gain) / **+0.45 dB** (max) across 50→400 Ω — curve deviation **18.25 dB**. The port is a **gain** lever, not a **linearity** lever: OIP3 = IIP3 + G, and only G responds (min-gain G *falls* 20.9→14.7 as the fixed coupling de-matches; max-gain G rises 33.2→35.9). D5 FAILS 0/4 at every R by ~26.5 dB. |
+| **Q2** no R in {100, 200, 400} closes D5; the coupling caps `\|Z_ac\|` at ~208 Ω so the lever saturates | **CONFIRMED (§48.1–48.2).** None closes D5 (fails by 26.7/26.6/26.5 dB). `\|Z_ac\|` saturates 51→84→138→208 Ω; max-gain OIP3 is **concave and turns over at ~200 Ω** (+1.84 → +1.81 at 400). |
+| the concession table (per R: D5 margin, S11, span, NF, K) | **DONE (§48.4).** S11@50-antenna invariant −11.48 (S11@400-renorm −11.02, still passing); NF/K/Idd unchanged (1.61/17.16/9.46); D6 span **widens** 12.2→21.2 dB; S21 rises. **No binding cost** — the lever concedes nothing and buys ~0.3 dB. |
+| the HB cross-check delta at the owed impedance (400 Ω) vs the 0.08 dB precedent | **DONE (§48.3).** **IIP3 two-harness identical to 0.00 dB** (−33.93 = −33.93); the 6.27 dB OIP3 Δ is entirely gain-reference (transient reads gain into the physical 400 Ω load, HB references its S-param port) — a direct confirmation that the port moves the gain reference, not the distortion. |
+| Task 2 — l2/l1/s wall stability vs the 5 dB falsifier | **MEASURED, STABLE (§48.6).** l2/l1/s min+max, VDD×0.9/×1.1/85 °C/combo: worst \|ΔIIP3\| **[FILLED IN §48.6]** dB, far under the 5 dB falsifier — matching the l5 result (§47), the wall is a per-topology fact on every band. |

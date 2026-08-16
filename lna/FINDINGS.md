@@ -9701,3 +9701,161 @@ the `14-DHRUVA-SIMUL.md` §2 D5 row (§47.4), made under the 2026-08-16 D-1 ruli
 and no other. **WP-LIN is closed: candidate N recorded, the wall two-harness
 measured and perturbation-stable, every lever that would move it named as a
 separate open user decision.**
+
+## 48. Phase 3 — ★★★ D-7 MEASURE: the output-reference-impedance lever quantified — raising the port to 400 Ω moves the D5-gated IIP3 by **+0.26 dB** (min-gain) / **+0.45 dB** (max), so D5 still FAILS 0/4 by ~26.5 dB at every impedance; the port is a **gain** lever, not a **linearity** lever, and the concave OIP3-into-port curve saturates at ~200 Ω (Session 10, 2026-08-16)
+
+The first of candidate N's three named levers (§47.3), commissioned by the user's
+**2026-08-16 ruling**: *"Measure the output-reference-impedance lever: OIP3 vs
+100/200/400 Ω, plus the S11/K/D6-span consequences at each — so the case study
+ends with 'what the spec would need to concede to close D5' instead of a bare
+null."* Plus the folded-in completion of §47's perturbation record on the three
+remaining bands (l2/l1/s; l5 was done in §47.1). Pre-registered in
+`plans2/19-D7-MEASURE.md` (committed alone, before any run). All four goldens
+GREEN before any design number and after: `check_iip3`, `check_ref`, `check_diff`,
+`check_hb`. **Spec-READING measurement — the spec YAMLs are UNTOUCHED, the recorded
+reference stays 50 Ω** (§7 D-7 default); the measure prices a concession, it does
+not make one. Sidecar `lna/_lin_d7.py` (reuses rung 0's `_lin_baseline` machinery;
+the OUTPUT port impedance is changed by module-attribute monkeypatch of
+`iip3.vout_to_dbm` + `iip3.lna_two_tone_body`, the INPUT port left at 50 Ω, the
+shared harness never edited, §7 D-9). Artefacts `lna/out/_lin_d7_{iip3,conseq}.json`
++ `_lin_d7_hb_R400.json` (`recipe=wplin-v1`, `source_arm=wplin-d7`).
+
+### 48.1 ★★ The number — OIP3/IIP3 vs output reference impedance at the ruled D6 min-gain condition
+
+Baseline `dhruva-simul`, no candidate, 1.2 V nominal, dhruva-l5 (worst band), D6
+out-bank S3 (the ruled D5 state), replay-fenced ×3 (spread **0.0000 dB** on every
+row), the §37.4 S21 cross-check re-pointed to each config's own audited gain
+(dS21 ≤ 0.010 dB, never disabled), all §37.3 fences intact (slope 3.055–3.068):
+
+| R (Ω/leg) | \|Z_ac\| Ω | OIP3 | IIP3 | G | **IIP3 margin vs −7.4** | D5 |
+|---|---|---|---|---|---|---|
+| **50 (control)** | 50.9 | −13.25 | **−34.19** | 20.93 | **−26.79** | FAIL |
+| 100 | 84.1 | −14.52 | **−34.09** | 19.56 | **−26.69** | FAIL |
+| 200 | 138.0 | −16.66 | **−33.99** | 17.33 | **−26.59** | FAIL |
+| 400 | 208.5 | −19.26 | **−33.93** | 14.67 | **−26.53** | FAIL |
+
+**The D5-gated quantity is IIP3, and it barely moves: −34.19 → −33.93 across
+50 → 400 Ω, a total of +0.26 dB.** D5 FAILS 0/4 at every impedance, by
+**26.5–26.8 dB**. The R=50 control reproduces §44.2 to three decimals
+(IIP3 −34.188 / OIP3 −13.254 vs −34.19 / −13.25) — the monkeypatch is inert at
+50 Ω, the proof the override changes nothing it should not.
+
+**OIP3-into-the-port falls** with R (−13.25 → −19.26) because raising the load on
+the fixed 10 pF/10 pF output coupling **de-matches** the drain→port transfer: the
+min-gain-state gain collapses from 20.93 to 14.67 dB, and OIP3 = IIP3 + G falls
+with it. So at the ruled condition the port lever is not merely weak — measured
+into the physical port load, it is **counter-productive** (the coupling network is
+co-designed with the port impedance, and moving one without the other loses power).
+
+### 48.2 ★★ P/Q1 REFUTED — the port is a gain lever, not a linearity lever; the naive dB-for-dB extrapolation was wrong
+
+The pre-registered Q1 (`plans2/19-D7-MEASURE.md` §1) predicted the lever buys
+**~12 dB at 400 Ω dB-for-dB** off §44.4's `OIP3 ∝ Iq·|Z_ac|` ordering (ρ=1.0000),
+with the falsifier being any ≥ 3 dB departure from that curve. **Measured departure
+at min-gain: 18.25 dB — the falsifier is TRIPPED, loudly, and the prediction is
+REFUTED.** The error was conceptual and is worth recording so it is not repeated:
+
+> §44.4 established `OIP3 ∝ Iq·|Z_ac|` *across four descended sizings at a fixed
+> 50 Ω port*, where `|Z_ac|` was a proxy for the **drain voltage swing** and every
+> sizing shared the same drain→port transfer. Extrapolating that to *raise the
+> port R* conflates two different things: raising R does raise the drain `|Z_ac|`
+> (51 → 208 Ω, as the arithmetic predicts), but the **distortion threshold (IIP3)
+> is set by the drive the drain sees, not by the load it drives** — and at fixed
+> input drive that threshold is nearly independent of the load. Meanwhile the
+> *linear gain* into the fixed-coupling port falls, so OIP3 = IIP3 + G tracks the
+> gain, not the swing. The lever moves **gain**, not **linearity**, and D5 is an
+> IIP3 gate.
+
+**The same story at max gain** (where the drain swing is largest, so the lever
+should be most favourable): OIP3 rises −1.35 → +0.67 → +1.84 → +1.81 dBm (50 →
+100 → 200 → 400 Ω) — a **concave curve that peaks at ~200 Ω and turns over by
+400 Ω**, +3.2 dB total, *entirely from gain* (G 33.18 → 35.94 dB). The **IIP3
+moves only +0.45 dB** (−34.53 → −34.08) across the whole 50 → 400 Ω range. Even at
+max gain the port impedance buys essentially no distortion headroom. The concave
+saturation is the coupling network capping `|Z_ac|` at ~208 Ω (the 10 pF/10 pF
+series reactance still shunts the 434 Ω resistor at R→∞, so `|Z_ac|` never reaches
+the resistor), exactly the §1 saturation prediction — the one part of Q1 that held.
+
+### 48.3 ★ The HB cross-check — the D5-gated IIP3 is two-harness identical to 0.00 dB; the 6.27 dB OIP3 Δ is a reference-power artefact, not a physics disagreement
+
+Per the pre-reg, the impedance that matters most is **400 Ω** (Q2: none of
+{100, 200, 400} closes D5, so the largest R / biggest swing is the owed HB config).
+Measured in VACASK HB (`_lin_d7.py --hb`, the min-gain S3 deck with its port-2 z0
+rewritten to 400 Ω, port45-converted with the switch-bank wrap of §44.9):
+
+| quantity | transient (R=400, min) | VACASK HB (R=400, min) | \|Δ\| |
+|---|---|---|---|
+| **IIP3** | **−33.93** | **−33.93** | **0.00** |
+| gain | 14.67 | 20.94 | 6.27 |
+| OIP3 | −19.26 | −12.99 | 6.27 |
+
+**The D5-gated number — IIP3 — agrees between the two harnesses to 0.00 dB**
+(slope 3.03, 8 uncompressed points, spread 0.40 dB), reproducing the program's
+two-harness licence on the quantity D5 actually gates. The entire 6.27 dB OIP3
+divergence lives in the **gain**: the transient reads gain into the physical 400 Ω
+`Rload` (14.67 dB, the de-matched transfer of §48.1), while VACASK's OIP3/gain
+extraction references the port at its S-parameter normalization (≈ the 50 Ω-port
+gain, 20.94 dB ≈ the transient R=50 gain of 20.93). This is not a harness bug and
+not a physics disagreement — it is the **direct confirmation of §48.2's thesis**:
+the port impedance moves the *gain reference*, not the *distortion physics*, so the
+two harnesses agree exactly on the distortion (IIP3) and diverge only on the
+gain-referred OIP3 by exactly the de-match gain loss. The D5 verdict — FAIL by
+26.53 dB — is two-harness identical.
+
+### 48.4 The concession table — S11 / S21 / NF / K / Idd / D6 span vs R (band-wide 1.1–2.5 GHz, max gain)
+
+The consequence run (`_lin_d7.py --conseq`), four bands, with S11 reported **both**
+renormalized to the new port R **and** at the fixed 50 Ω antenna reference:
+
+| R (Ω) | S11@R | S11@50 (antenna) | S21 (l5) | NF (l5) | K_min | Idd |
+|---|---|---|---|---|---|---|
+| 50 | −11.48 | −11.48 | 33.18 | 1.61 | 17.16 | 9.46 |
+| 100 | −11.48 | −11.48 | 34.97 | 1.61 | 17.16 | 9.46 |
+| 200 | −11.28 | −11.48 | 35.94 | 1.61 | 17.16 | 9.46 |
+| 400 | −11.02 | −11.48 | 35.90 | 1.61 | 17.16 | 9.46 |
+
+★ **What S11 means when the port R changes:** S11 = S_1_1 is the *input* reflection
+at port 1 (the antenna, fixed at 50 Ω). Renormalizing the *output* port to R shifts
+the two-port loading and moves S_1_1 slightly (S11@R: −11.48 → −11.02 at 400 Ω) —
+but the match the antenna actually sees (S11@50) is **invariant at −11.48 dB**. So
+**S11 is NOT a binding cost of D-7**: it passes the −10 dB gate band-wide at every R,
+with ≥ 1.0 dB of margin even under the worst (400 Ω) renormalization. **NF, K_min,
+Idd are untouched** (1.61 dB / 17.16 / 9.46 mA at every R — the port is downstream
+of the bias, noise, and stability physics). **S21 rises** modestly with R (33.18 →
+35.94, saturating), the gain half of the OIP3 story.
+
+**The D6 span** (S0 max-gain gain − S3 min-gain gain) actually **widens** with R,
+because S0 rises while S3 falls:
+
+| band | span @50 | @100 | @200 | @400 |
+|---|---|---|---|---|
+| l5 | 12.23 | 15.40 | 18.61 | **21.22** |
+| l2 | 12.22 | 15.43 | 18.66 | 21.28 |
+| l1 | 12.16 | 15.59 | 18.90 | 21.53 |
+| s  | 12.03 | 15.62 | 18.89 | 21.38 |
+
+So the D6 span clears its ≥ 10.6 dB gate at every R and grows to ~21 dB at 400 Ω —
+not a cost, though the min-gain *absolute* gain drops (which is why the min-gain
+OIP3-into-port falls, §48.1).
+
+### 48.5 ★★ The deliverable sentence — what the spec would need to concede
+
+For each impedance, at the ruled D6 min-gain condition, worst band:
+
+> **At 100 Ω/leg, D5 FAILS by ~26.7 dB; at 200 Ω, by ~26.6 dB; at 400 Ω, by
+> ~26.5 dB — at the cost of nothing binding (S11 stays −11 dB band-wide at the
+> antenna, NF/K/Idd unchanged, the D6 span widens to ~21 dB). The output reference
+> impedance buys +0.26 dB of the ~27 dB needed. It is a gain lever, not a
+> linearity lever; changing it alone concedes ~0.3 dB toward closing D5.**
+
+The honest spec answer: **the output reference impedance is NOT the lever that
+closes D5 on this topology.** §41.8 item 4 flagged 2×50 Ω/leg as "doing a lot of
+work" — it does, for *gain and matching*, but not for the IIP3 the D5 gate reads.
+Closing D5 needs the levers §47.3 named that this measurement does **not** move:
+output-stage **current** (Iq, capped by S11 past NM6×2, §45.2) and/or the **supply/
+Idd** envelope (ruled ≤ 1.2 V) — i.e. more current in the output device, which
+raises the *drain drive at a given input* and thus IIP3, the quantity the port
+impedance leaves flat. The third lever, **D5 spec relief (D-1)**, is unchanged by
+this result. This measurement retires D-7 as a candidate closing lever and sharpens
+the remaining decision to supply/Idd or spec.
+

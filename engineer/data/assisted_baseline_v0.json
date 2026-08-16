@@ -1,0 +1,124 @@
+{
+  "kind": "assisted_baseline",
+  "schema": "assisted-baseline-v0",
+  "rule_source": "engineer/E4-LOOP.md Appendix A (post-hoc, 2026-08-16)",
+  "sec_per_sim_convention": 1.0,
+  "spec": "dhruva-l2",
+  "per_era": {
+    "current_era_only": {
+      "label": "current_era_only",
+      "spec": "dhruva-l2",
+      "n_rows_with_cost": 6,
+      "n_evals_total": 3719,
+      "ngspice_calls_total": null,
+      "sec_per_sim_convention": 1.0,
+      "spice_min": 61.98,
+      "n_feasible_distinct": 3,
+      "feasible_wl_hashes": [
+        "439032fd40e7e504",
+        "86d5ce252054a160",
+        "ace8383c2fa68d03"
+      ],
+      "spice_min_per_feasible": 20.66
+    },
+    "pooled_both_eras": {
+      "label": "pooled_both_eras",
+      "spec": "dhruva-l2",
+      "n_rows_with_cost": 13,
+      "n_evals_total": 10095,
+      "ngspice_calls_total": null,
+      "sec_per_sim_convention": 1.0,
+      "spice_min": 168.25,
+      "n_feasible_distinct": 4,
+      "feasible_wl_hashes": [
+        "3ebaf08f99d319d8",
+        "439032fd40e7e504",
+        "86d5ce252054a160",
+        "ace8383c2fa68d03"
+      ],
+      "spice_min_per_feasible": 42.06
+    },
+    "pre_cutover_only": {
+      "label": "pre_cutover_only",
+      "spec": "dhruva-l2",
+      "n_rows_with_cost": 7,
+      "n_evals_total": 6376,
+      "ngspice_calls_total": null,
+      "sec_per_sim_convention": 1.0,
+      "spice_min": 106.27,
+      "n_feasible_distinct": 1,
+      "feasible_wl_hashes": [
+        "3ebaf08f99d319d8"
+      ],
+      "spice_min_per_feasible": 106.27
+    }
+  },
+  "per_arm": [
+    {
+      "arm": "d3-lownoise",
+      "era": "pre-cutover",
+      "n_rows": 6,
+      "n_evals_total": 5876,
+      "spice_min": 97.93,
+      "n_feasible_distinct": 0
+    },
+    {
+      "arm": "dhruva-4band",
+      "era": "pre-cutover",
+      "n_rows": 1,
+      "n_evals_total": 500,
+      "spice_min": 8.33,
+      "n_feasible_distinct": 1
+    },
+    {
+      "arm": "nf-campaign",
+      "era": "current",
+      "n_rows": 6,
+      "n_evals_total": 3719,
+      "spice_min": 61.98,
+      "n_feasible_distinct": 3
+    }
+  ],
+  "comparison": {
+    "assisted_current_era": {
+      "spice_min_per_feasible": 20.66,
+      "n_feasible": 3,
+      "source": "lna/data/topo_labels.jsonl nf-campaign rows (w_finger=2e-6, ts=2026-08-10)"
+    },
+    "assisted_pooled": {
+      "spice_min_per_feasible": 42.06,
+      "n_feasible": 4,
+      "source": "lna/data/topo_labels.jsonl all dhruva-l2 rows with n_evals>0"
+    },
+    "cmaes_null_floor": {
+      "spice_min_per_feasible": 9.94,
+      "n_feasible": 1,
+      "n_seeds": 10,
+      "evals_per_seed": 266,
+      "source": "engineer/E4-LOOP.md \u00a710.1 / \u00a77.2, scoreboard_v0.1.json"
+    },
+    "e4_loop_warm": {
+      "spice_min_per_feasible": null,
+      "n_feasible": 0,
+      "ngspice_calls": 5320,
+      "source": "engineer/E4-LOOP.md \u00a710.1"
+    }
+  },
+  "e4_verdict_updated": "FALSIFIED (unchanged). The loop produced 0 feasible designs, so its cost-per-feasible is infinite regardless of which baseline is used. Against the actual assisted-mode cost (current-era: 20.7 SPICE-min/feasible, pooled: 42.1 SPICE-min/feasible), the loop is still strictly worse. The sharpened reading: the assisted baseline is HIGHER than the cmaes-null floor (9.94 SPICE-min/feasible), not lower, which means the null floor was a conservative (easy-to-beat) bar and the real bar is harder. The E-4 falsification was already the stiffest possible (infinite vs finite), so the verdict direction is unchanged; the updated comparison only changes what the loop would need to beat to claim an improvement over the assisted program.",
+  "caveats": [
+    "sec_per_sim=1.0 is calibrated on wifi24 (~1 s/eval); dhruva-l2 runs at ~0.028 s/eval (2 ngspice calls * 0.014 s/call, FINDINGS \u00a727 timing). Wall-clock SPICE cost for these campaigns is therefore ~35x lower than the loop.py convention implies. The convention is used because it is the store's standard and keeps assisted and loop numbers commensurable; the discrepancy is stated, not hidden.",
+    "Human wall-clock time (design decisions, session rulings, campaign setup, diagnosis between waves) is NOT captured in n_evals and is NOT included. The metric is SPICE-compute cost only.",
+    "The pre-cutover rfbcs3_tank_cc21_bf0 design (wl 3ebaf08f, 500 evals, dhruva-4band arm) is CONDITIONALLY UNSTABLE on dhruva-l2 under the honest multi-finger harness (FINDINGS \u00a727.5: K_min -17). It reads 'feasible' in the pre-cutover domain but does not qualify as a stable feasible design under the current harness. The current-era-only figure excludes it; the pooled figure includes it but labels it pre-cutover.",
+    "The d3-lownoise pre-cutover rows (6 designs, all infeasible on dhruva-l2) carried the NF artefact (\u00a743.1 median +2.08 dB); their infeasibility verdict is confirmed by the current-era nf-campaign results but the exact margins are pre-cutover measurements.",
+    "nf-campaign rows for dhruva-l2 include two rows per design (two seeds or two sizing runs), both captured in the store. n_evals for each is the full sizing run's eval count, not a per-call count. Deduplication is by wl_hash.",
+    "The assisted program produced no 'novel' dhruva-l2 designs in the E4-LOOP.md sense (wl_hash different from 439032fd40e7e504). The nf-campaign feasibles (439032fd, ace8383c, 86d5ce25) and the dhruva-4band feasible (3ebaf08f) are all known/hand archetypes, not generator-discovered novel topologies. SPICE-min per feasible-novel is undefined (0 novel feasible) for the assisted program on this spec."
+  ],
+  "sources": {
+    "store": "lna/data/topo_labels.jsonl",
+    "sec_per_sim": "lna/loop.py line 30",
+    "null_floor": "engineer/E4-LOOP.md \u00a710.1, scoreboard_v0.1.json",
+    "era_discipline": "lna/FINDINGS.md \u00a743.1",
+    "dhruva_l2_feasibles": "lna/FINDINGS.md \u00a727.4 (Gate D3 nf-campaign)",
+    "stability_advisory": "lna/FINDINGS.md \u00a727.5 (rfbcs3 conditional-stability)"
+  }
+}

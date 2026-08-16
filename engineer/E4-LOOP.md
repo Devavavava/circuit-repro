@@ -484,3 +484,154 @@ the report's ruling queue.
   is a result, not a gap. Charter §8's failure mode ("scaffolding faster than
   measured results") is explicitly NOT what happened — every E-item shipped a
   measurement, and E-4's is a clean falsification reported whichever way it fell.
+
+---
+
+<!-- APPENDIX A — added 2026-08-16, post-hoc, after the outcome section.
+     The pre-registration (§1–§8) and outcome (§10) are unchanged above.
+     This appendix addresses Q-1 (E4-LOOP.md §8): "Is the cmaes-null-cost-per-feasible
+     an acceptable stand-in for the assisted baseline?" by computing the real number. -->
+
+## Appendix A. Real assisted-mode baseline (post-hoc, 2026-08-16)
+
+**Purpose.** Q-1 (§8) queued the question of whether the cmaes-null floor (§7.2)
+is an adequate stand-in for the true human-in-loop baseline.  This appendix
+computes the real number from the store's recorded history and compares it
+against the null floor and the loop's result.  The pre-registered baseline and
+the outcome verdict (§10) are unchanged — this is an ADDITIONAL comparison,
+clearly labeled post-hoc, per the task instruction.
+
+Artifact: `engineer/data/assisted_baseline_v0.json`.  Script:
+`engineer/assisted_baseline.py`.
+
+### A.1 Accounting rule (stated before computing)
+
+**What counts as "assisted mode."**  Every L2 row in `lna/data/topo_labels.jsonl`
+with `spec == "dhruva-l2"` and `n_evals > 0` is a record of the human-in-loop
+program running a sizing campaign on that spec.  The program ran in sessions (waves),
+with the human ruling between them — approving gate results, choosing the next
+campaign, deciding topology moves.  That is the "human-in-loop" structure the
+charter names; the store is the authoritative record of what was simulated.  Rows
+with `n_evals = 0` are harness-era re-labels (one measurement of a stored point,
+zero new search evals) and contribute zero cost.
+
+**What counts as a feasible design.**  `row["feasible"] is True`, deduplicated by
+`wl_hash`.  Both "feasible" and "feasible-novel" are reported; the human-in-loop
+program never ran a novelty-generating loop on dhruva-l2 so the feasible-novel count
+is 0 (all produced designs are hand archetypes or known topologies, not novel
+generator outputs — this is noted, not hidden).
+
+**What counts as cost.**  `SPICE-min = sum(n_evals) × SEC_PER_SIM / 60` where
+`SEC_PER_SIM = 1.0` s/eval (lna/loop.py line 30: "~1 s/ngspice eval").  This is
+the same constant the program's headline curve uses, so the assisted and loop numbers
+are commensurable.
+
+**Caveat on the SEC_PER_SIM convention.**  dhruva-l2 is NF-gated (2 ngspice calls
+per eval) and FINDINGS §27.4 records `constrained_descent` running at ~0.028 s/eval
+on this box.  At that rate, 1 SPICE-min of convention-denominated time corresponds
+to ~2,143 evals, not ~60 — so the *wall-clock* SPICE cost of these campaigns is
+roughly 35× cheaper than the convention implies.  The convention is used regardless
+because (a) it is the store's standard, (b) E4-LOOP.md's null floor uses it, and
+(c) the mismatch is documented here, not hidden.  Human wall-clock time (design
+decisions, diagnosis between sessions) is NOT in n_evals and NOT included.
+
+**Era discipline (FINDINGS §43.1).**  The dhruva-l2 store has two harness eras:
+pre-cutover (`w_finger = None`, `ts ~2026-08-08`): arms `d3-lownoise` and
+`dhruva-4band`; and current-era (`w_finger = 2e-6`, `ts ~2026-08-10`): arm
+`nf-campaign`.  The pre-cutover harness overstated NF by a median of 2.08 dB
+(FINDINGS §27.3).  Moreover, the one pre-cutover feasible design
+(`rfbcs3_tank_cc21_bf0`, wl `3ebaf08f99d3`, 500 evals, `dhruva-4band` arm) is
+**conditionally unstable on dhruva-l2 under the honest multi-finger harness**
+(FINDINGS §27.5: K_min = −17) — it reads feasible only in the pre-cutover domain.
+Per FINDINGS §43.1's lesson, results are reported separately by era.
+
+**Which eras are poolable.**  The pre-cutover rows' infeasible results are
+directionally consistent with current-era (all six `d3-lownoise` designs remain
+infeasible in the current-era relabel), so pooling for a conservative lower bound
+on cost is defensible.  The pre-cutover feasible (rfbcs3, 3ebaf08f) is kept in the
+pooled figure but labeled with the stability advisory.  The current-era-only figure
+is the clean number.
+
+### A.2 Results (from store — sources quoted, no estimation from memory)
+
+Sources: `lna/data/topo_labels.jsonl` (the authoritative store),
+`lna/loop.py` line 30 (SEC_PER_SIM), `lna/FINDINGS.md` §27.4 (nf-campaign
+Gate D3 result on dhruva-l2), §27.5 (rfbcs3 stability advisory), §43.1 (era
+discipline).
+
+**Per-arm breakdown (all rows with n_evals > 0):**
+
+| arm | era | n_evals | SPICE-min | feasible designs |
+|---|---|---|---|---|
+| `d3-lownoise` | pre-cutover | 5,876 | 97.9 | 0 |
+| `dhruva-4band` | pre-cutover | 500 | 8.3 | 1 (stability advisory — K_min=−17 on honest harness) |
+| `nf-campaign` | current | 3,719 | 62.0 | 3 (wl hashes: `439032fd`, `ace8383c`, `86d5ce25`) |
+
+**Headline figures:**
+
+| reading | n_evals | SPICE-min | feasible designs | **SPICE-min/feasible** |
+|---|---|---|---|---|
+| **current-era only** | 3,719 | 62.0 | **3** | **20.7** |
+| pooled (both eras) | 10,095 | 168.2 | 4 | 42.1 |
+| pre-cutover only | 6,376 | 106.3 | 1 (advisory) | 106.3 |
+
+**Feasible-novel count: 0** for the assisted program — all dhruva-l2 feasibles
+are hand archetypes (`rfbcs3_tank_cc21_bf0`) or known topologies sized per band;
+none are generator-discovered novel topologies.  SPICE-min per feasible-novel is
+therefore undefined (denominator 0) for the assisted program, the same as the
+cmaes null (§7.2 novelty caveat).
+
+### A.3 Three-way comparison
+
+| arm | SPICE-min/feasible | SPICE-min/feasible-novel | verdict |
+|---|---|---|---|
+| **E-4 loop (warm + cold)** | **∞ (0 feasible)** | **∞ (0 feasible)** | **falsified** |
+| cmaes null floor (§7.2) | **9.94** | undefined | registered baseline |
+| assisted (current-era) | **20.7** | undefined | **the real bar** |
+| assisted (pooled) | **42.1** | undefined | conservative lower bound |
+
+### A.4 Updated E-4 verdict sentence (honest, whichever way it falls)
+
+**FALSIFIED — unchanged, and the sharpened comparison makes the falsification
+stronger, not weaker.**
+
+The loop produced 0 feasible designs in 5,320 ngspice calls; its cost-per-feasible
+is infinite regardless of which baseline is used.
+
+The sharpened reading: the real assisted-mode cost (current-era: **20.7 SPICE-min/
+feasible**; pooled: **42.1 SPICE-min/feasible**) is HIGHER than the cmaes-null floor
+(**9.94 SPICE-min/feasible**), not lower.  This means the null floor that E-4
+pre-registered as the bar was in fact a *conservative* (easy-to-beat) bar — the real
+bar the assisted program set was 2–4× harder.  The loop still lost to the easier bar,
+so it cannot beat the harder one either.
+
+Per §7.5 and charter §8, the honest move is to say so: the unattended loop costs
+more SPICE per feasible design than both the null floor it was judged against and the
+real assisted-mode baseline it was meant to replace.
+
+### A.5 What the store could NOT tell us (caveats)
+
+1. **Human wall-clock cost is not SPICE time.** n_evals counts sizing evaluations
+   only.  The actual engineering effort — session setup, campaign design, gate
+   rulings, diagnosis between waves — is not in the store and not in this number.
+   The assisted program's "cost" in human hours is substantially larger than any
+   SPICE-minute figure here.
+
+2. **SEC_PER_SIM = 1.0 overestimates wall-clock per eval for dhruva-l2 by ~35×.**
+   The convention is stated and used consistently; the absolute wall-clock numbers
+   are ~35× cheaper than the convention implies (see §A.1).
+
+3. **The pre-cutover feasible (rfbcs3, 3ebaf08f) is conditionally unstable** under
+   the honest harness (K_min = −17, FINDINGS §27.5).  Including it in the pooled
+   figure is conservative (it makes the bar appear easier), not optimistic.
+
+4. **No feasible-novel count exists for the assisted program** — it ran sizing
+   campaigns on known topologies, not a novelty-generating loop.  The E-4 "feasible-
+   novel" metric (§6) simply does not apply as a comparison target for the assisted
+   program's dhruva-l2 work.
+
+5. **Era-split reporting is necessary** because the pre-cutover harness was
+   measuring a simulator that no longer exists (FINDINGS §43.1, §43.2).  The
+   current-era-only figure (20.7 SPICE-min/feasible) is the clean number; the
+   pooled figure (42.1) is an upper bound on cost that makes the bar look harder.
+   Both are reported; neither is the one "right" number.

@@ -209,7 +209,9 @@ def cmd_sens(states, bands, replay=3):
     # stability verdict on the ruled (min-gain) condition vs Q1
     if "min" in states and "min" in nominal:
         _verdict(out, "min")
-    path = os.path.join(OUT, "_lin_sens_iip3.json")
+    tag = "".join(sorted(bands)) if set(bands) != set(BANDS) else "all"
+    fn = "_lin_sens_iip3.json" if bands == ["l5"] else f"_lin_sens_iip3_{tag}.json"
+    path = os.path.join(OUT, fn)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(out, f, indent=1, default=float)
     print(f"wrote {path}")
@@ -257,13 +259,19 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--sens-iip3", action="store_true")
     ap.add_argument("--state", default="min,max")
-    ap.add_argument("--bands", default="all", choices=["l5", "all"])
+    ap.add_argument("--bands", default="all",
+                    help="'l5' | 'all' | a comma list e.g. l2,l1,s")
     ap.add_argument("--replay", type=int, default=3)
     a = ap.parse_args()
     if not a.sens_iip3:
         ap.error("--sens-iip3")
     states = [x.strip() for x in a.state.split(",") if x.strip()]
-    bands = ["l5"] if a.bands == "l5" else list(BANDS)
+    if a.bands == "l5":
+        bands = ["l5"]
+    elif a.bands == "all":
+        bands = list(BANDS)
+    else:
+        bands = [x.strip() for x in a.bands.split(",") if x.strip()]
     cmd_sens(states, bands, a.replay)
 
 

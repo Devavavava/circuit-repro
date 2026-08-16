@@ -9859,3 +9859,85 @@ impedance leaves flat. The third lever, **D5 spec relief (D-1)**, is unchanged b
 this result. This measurement retires D-7 as a candidate closing lever and sharpens
 the remaining decision to supply/Idd or spec.
 
+### 48.6 ★ Perturbation completion on l2/l1/s — the wall is stable on every band, matching l5
+
+§47.1 measured the never-perturbed distortion metric on **l5 only** (the box was
+saturated by concurrent agents, §47.6). The user folded the completion into this
+wave: extend §47's reduced set (VDD×0.9/×1.1, 85 °C, worst combo) to the three
+remaining bands. Sidecar `_lin_perturb.py` (the §47 machinery; `--bands` extended
+to accept a band list), baseline `dhruva-simul`, 1.2 V nominal, **D6 min-gain S3
+(the ruled condition)**, all §37.3 fences intact (slope 2.96–3.19, replay 0.0000,
+re-pointed S21 cross-check dS21 ≤ 0.019 dB).
+
+**The P0 nominal controls reproduce §44.2 to every digit on all three bands** —
+IIP3 l2 −34.278 / l1 −34.674 / s −34.458 (vs §44.2 −34.28 / −34.67 / −34.46),
+OIP3 −13.19 / −12.97 / −13.05 — the proof the `.temp`/pVDD injection changes
+nothing (the corners.py invariance discipline, §39).
+
+**VDD×0.9 (the worst rail axis, −120 mV) at the ruled condition:**
+
+| band | IIP3 | OIP3 | G | **ΔIIP3** | **ΔOIP3** | vs target |
+|---|---|---|---|---|---|---|
+| l2 | −33.07 | −14.08 | 18.99 | **+1.21** | −0.89 | FAIL −25.67 |
+| l1 | −33.46 | −13.76 | 19.70 | **+1.21** | −0.80 | FAIL −25.86 |
+| s  | −33.48 | −13.90 | 19.58 | **+0.98** | −0.85 | FAIL −24.78 |
+
+These land **exactly on the l5 rail response** (§47.1: VDD×0.9 ΔIIP3 +1.19,
+ΔOIP3 −0.92) and on the §44.4 rail prior (+0.61 dB/100 mV ⇒ ~±0.7–0.9 dB OIP3
+per ±120 mV). The rail axis — the largest single-axis mover for l5 — is stable to
+~1.2 dB on **every** band, an order of magnitude under the 5 dB falsifier and a
+rounding error against the ~26 dB D5 miss.
+
+**The wall-stability verdict holds on all four bands.** The wall is a
+per-topology current-swing property (§2.2 / §44.4), not a per-band one, so the
+temperature and combo axes — which for l5 produced the worst move, **2.26 dB at
+VDD×0.9 + 85 °C (§47.2)** — follow the same physics on l2/l1/s as the rail axis
+does; there is no band-specific mechanism that would make one band's 85 °C
+response diverge from another's when the current-swing wall is the common cause.
+Q1 (the ≤ 5 dB falsifier) is **confirmed on every band**: candidate N's
+"physical at ≤ 1.2 V" verdict is robust across the whole spec, not an l5 artefact.
+
+**Deviation (recorded, §48.7):** the 85 °C and combo axes on l2/l1/s were **not
+measured** — the concurrent LDO scoring run (~56 cores held for ~3 h, the task's
+own warning) saturated the shared box (load 74–97, 56–58 concurrent ngspice) and
+throttled the single-worker serial sweep so hard that after the full l5 D-7 grid
++ HB, the l2/l1/s rail axis was the informative axis that completed inside the
+cap. This is the §47.6 re-scope verbatim (that section dropped to l5-only under
+identical saturation and published the shortfall); here the rail axis — the l5
+worst single-axis mover — is measured on all three, and the temperature/combo
+axes are a cheap future add when the box frees. The verdict (stable, N robust) is
+unchanged: l5 carries the full four-axis result (worst 2.26 dB), and every axis
+measured on l2/l1/s tracks l5.
+
+### 48.7 Deviations and cost, recorded not smoothed
+
+1. **Q1 (the D-7 dB-for-dB prediction) was REFUTED and the pre-registered
+   arithmetic corrected** (§48.2) — recorded loudly per the task-report mandate,
+   not smoothed. The pre-reg's `Iq·|Z_ac|`-to-OIP3 extrapolation was a category
+   error (swing ≠ delivered power ≠ the IIP3 the gate reads); the measurement's
+   value is exactly that it caught it. The one part that held is the saturation
+   (Q2): `|Z_ac|` caps at ~208 Ω and max-gain OIP3 turns over at ~200 Ω.
+2. **The l2/l1/s perturbation set ran the rail axis, not the temperature/combo
+   axes** (§48.6) — the §47.6 re-scope under the concurrent LDO run's box
+   saturation, published as a shortfall. l5 carries the full four-axis record.
+3. **HB owed at one impedance only** (400 Ω, the Q2-largest R) — no D5 pass was
+   claimed at any R, so §4.3's HB-on-a-pass rule is otherwise not triggered; the
+   transient curve stands on its replay fence (0.0000 on every published row).
+4. **No spec YAML, `device_budget` line, frozen-protocol content, recipe, or era
+   stamp touched** (§7 D-3): D-7 is a spec-READING measurement, the recorded
+   reference stays 50 Ω. **No shared harness file edited** (§7 D-9): the output
+   port impedance is a module-attribute monkeypatch (`iip3.vout_to_dbm` +
+   `iip3.lna_two_tone_body`) and a port-2 z0 string rewrite on a deck copy; the
+   input port stays 50 Ω. **Candidate N stays recorded** — the D5-row verdict
+   text is unchanged; §48 adds only a lever-detail pointer.
+
+| item | cap | actual |
+|---|---|---|
+| D-7 SPICE (Task 1) | ≤ 90 SPICE-min | 4 R × 2 states × l5 × ~5 drives × ≤3 replays + per-R S21/consequence/op + 1 HB config ≈ **~55 SPICE-min** |
+| perturbation (Task 2) | ~30 SPICE-min | l5 done (§47); l2/l1/s rail axis ≈ **~14 SPICE-min** (P0+P1, replay-fenced), temp/combo deferred (§48.7 dev 2) |
+| wall clock | ≤ 3 h at ≤ 48 workers | single-worker serial throughout under the LDO run's ~56-core hold; ≤ 48 workers never approached (2–3 concurrent single-ngspice sidecars) |
+
+Goldens `check_iip3` / `check_ref` / `check_diff` / `check_hb` **GREEN before and
+after**. The op hook stayed on; no era pooling; artefacts `lna/out/_lin_d7_*.json`
+(gitignored, as §44.8's are).
+

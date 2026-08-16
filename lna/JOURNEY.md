@@ -2521,6 +2521,65 @@ falsifiable, tried hard to falsify it, and failed to, on the record. Goldens GRE
 throughout; no spec, budget, or frozen-protocol content touched; the only measured
 distortion metric ever perturbed in this program now exists.
 
+## 46. D-7 — the output-reference-impedance lever is priced, and it is a gain lever, not a linearity one
+
+**Decision** (user, 2026-08-16, after recording candidate N): **measure the
+output-reference-impedance lever** — OIP3 vs 100/200/400 Ω with the S11/K/D6-span
+consequences at each — *"so the case study ends with 'what the spec would need to
+concede to close D5' instead of a bare null."* Plus completing §47's
+wall-stability perturbation record on the three bands l5 left un-measured
+(l2/l1/s). Pre-registered in `plans2/19-D7-MEASURE.md`, committed alone; the spec
+YAMLs untouched (D-7 is a spec-*reading* measurement — it prices a concession, it
+does not make one).
+
+**Result (FINDINGS §48).** The lever was measured on the baseline point at the
+ruled D6 min-gain condition, the output port swept 50 → 100 → 200 → 400 Ω, full
+fences, replay 0.0000, two-harness at 400 Ω. The pre-registered arithmetic
+predicted +12 dB dB-for-dB (off §44.4's `OIP3 ∝ Iq·|Z_ac|` ordering) — and it was
+**refuted, falsifier tripped**, for a reason worth keeping: that ordering held
+*across sizings at a fixed port*, where `|Z_ac|` proxied the drain **swing**;
+extrapolating it to *raise the port* conflates swing with the load-power transfer.
+The **D5-gated quantity is IIP3**, and IIP3 is set by the drive the drain sees,
+not the load it drives — so it moves only **+0.26 dB** (min-gain) / **+0.45 dB**
+(max) across the whole 50 → 400 Ω range. The *gain* moves (min-gain **falls**
+20.9 → 14.7 dB as the fixed 10 pF/10 pF coupling de-matches; max-gain rises
+33.2 → 35.9 and turns over at ~200 Ω), and OIP3 = IIP3 + G follows the gain. **D5
+still FAILS 0/4 at every impedance, by ~26.5 dB.** The VACASK HB cross-check at
+400 Ω nailed the point: **IIP3 agrees between the two harnesses to 0.00 dB**
+(−33.93 = −33.93); the 6.27 dB OIP3 divergence is *entirely* the gain reference
+(the transient reads the physical 400 Ω load, HB its S-parameter port) — the
+cleanest possible confirmation that the port moves the gain reference, not the
+distortion. The concession table has **no binding cost**: S11 at the fixed 50 Ω
+antenna is invariant at −11.48 dB, NF/K/Idd are untouched, the D6 span *widens*
+from 12 to 21 dB. So the deliverable sentence is: *at any of {100, 200, 400} Ω/leg
+D5 fails by ~26.5–26.7 dB, at the cost of nothing, buying ~0.3 dB* — the output
+reference impedance is **not** the lever that closes D5. §41.8 item 4's flag that
+2×50 Ω/leg "does a lot of work" is confirmed — for gain and matching, not for the
+IIP3 the gate reads. The remaining decision sharpens to the two levers this
+measurement does not move: output-stage **current** / the **supply-Idd** envelope
+(ruled ≤ 1.2 V), or **D5 spec relief** (D-1).
+
+The §47 perturbation record was extended to l2/l1/s (l5 was done): the P0 controls
+reproduce §44.2 to every digit on all three bands, and the VDD×0.9 rail axis (l5's
+worst single-axis mover) gives **ΔIIP3 +0.98…+1.21 dB** on l2/l1/s — exactly the
+l5 rail response and far under the 5 dB falsifier. The temperature/combo axes on
+l2/l1/s were deferred under the same concurrent-box saturation §47.6 hit (the LDO
+run's ~56-core hold), with l5 carrying the full four-axis result (worst 2.26 dB);
+the wall is a per-topology current-swing property, so every axis measured on
+l2/l1/s tracks l5. **The D5 wall is stable on every band, not one.**
+
+**Understanding.** Candidate N's record named three levers and foreclosed none;
+this wave prices the first and takes it off the table as a *closing* lever, on
+evidence — the honest arc of the whole line, one axis at a time to its boundary.
+The port impedance was the most seductive of the three (a single spec number,
+§2.2 made it look linear in the wall), and the measurement's value is precisely
+that it shows the seduction is a category error: the wall is a distortion
+threshold, the port sets gain and match. The user's spec decision is now cleaner —
+D-7 is retired, and closing D5 means spending current/supply or the spec, not the
+reference impedance. Goldens GREEN throughout; spec, budget, and frozen-protocol
+content untouched; no shared harness file edited; candidate N stays recorded (its
+verdict text unchanged, a lever-detail pointer added to §48).
+
 ## Current frontier
 
 As of this document's writing (`lna-data`, commit `5be4de3` and whatever

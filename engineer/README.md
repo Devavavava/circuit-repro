@@ -197,6 +197,106 @@ median −0.619) / random 0/5 (best +1.00, median +1.66) — matches published
 CMA-ES 4/5 (best −0.790, median −0.649) / random 0/5 (best +1.00, median +1.66)
 — **consistent within seed noise**, no harness or store drift.
 
+## E-2 externals — AnalogGym calibration track (2026-08-15)
+
+§10 named the 7 in-house tasks a **pilot**: they measure our sizer against our own
+nulls on *our own store*. The calibration set that makes "our sizer is good" a
+statement about **more than our own store** is the field's open op-amp benchmark —
+**AnalogGym** (CODA-Team, ICCAD '24), run through a compatible harness. Commissioned
+by the user (2026-08-14, confirmed 2026-08-15).
+
+**A separate tier and namespace — not a change to PROTOCOL v0.** The externals are
+op-amp / OTA sizing tasks (SKY130, ngspice), **not** RF (SURVEY §3 + S11: AnalogGym
+is *"not a superset, a different domain"* — no S-parameters, no NF-with-source-
+impedance, no two-tone). They enter as `tier="ext"`; the 7 in-house pins, budgets,
+N, arms, aggregation, and the §43.2 check above are untouched.
+
+**Pre-registered appendix, committed alone before any external cell ran** —
+`PROTOCOL.md §EXT`, commit `c21c53c`. The E-2 falsifier ("a result table whose
+protocol was decided after the numbers were seen") is foreclosed for the externals
+by that ordering, exactly as `PROTOCOL.md`'s body foreclosed it for the pilot.
+
+**The adapter (`ext_gym.py`) is the E-1 falsifier for the external track.** It turns
+an AnalogGym testbench into env.py's *contract* — `ExtEnv` with `objective_fn` /
+`evaluate` / `best` / `observe` / `harness`, budget-counted, deterministic,
+harness-stamped — **without editing env.py, tasks.py, or any driver**, and
+`lna/null_sizer.run_cmaes` is imported verbatim as the cmaes arm (verified: it drives
+`ExtEnv` unchanged). A parallel env, not a `Task` subclass, because `env.Env` is bound
+end-to-end to the LNA RF harness (`null_sizer.build_task`); AnalogGym gets its own
+deck-build and its own (AnalogGym) objective, sharing the LNA line only for what does
+not measure an RF number. The "specs" are AnalogGym's own, curated verbatim — the
+`perf_extraction_amp.py` FoM as the objective, its failed-`.meas` directional
+defaults, a feasibility predicate over the same measured quantities. No new specs
+(charter §2/§5). Simulator: `$NGSPICE` = ngspice-47 (AnalogGym pins ≥42). PDK: SKY130,
+tt corner, unzipped in place. Upstream pinned in main's `UPSTREAM.md` @ `0a9d1390ade3`
+(BSD-3-Clause).
+
+**Runnable subset (honest, with exclusions) — `EXT-CALIBRATION.md`.** Every AnalogGym
+amp was simulated at its shipped default sizing on ngspice 47. **14 amps are IN**
+(netlist elaborates, finite AC metrics; dims 22–38): Fan_SMC, HoiLee_AFFC,
+Leung_DFCFC1/DFCFC2/NMCF/NMCNR, Peng_ACBC/IAC/TCFC, Qu2017_AZC, Ramos_PFC, Sau_CFCC,
+Song_DACFC, Yan_AZ. **Excluded with reasons:** Qu_LEC (empty netlist upstream),
+Tan_CLIA (does not elaborate on ngspice 47), Cascode_Miller/Cascode_Null/
+Davide_ASMIHF/TwoSt_SMCNR (no netlist shipped), Alfio_RAFFC (degenerate at *default*
+sizing — held out so the golden anchors clean). **Out of scope** (need a simulator we
+do not have): LDO (deferred — a follow-up rung), Charge Pump / PLL / Sensing Front End
+(Spectre + OCEAN), Voltage Reference (description only).
+
+**Golden — replay-fence, spread 0.0 (`data/ext_golden_v0.json`).** AnalogGym ships no
+per-topology ngspice baseline to reproduce, so the golden is fixed-sizing → fixed
+metrics: `HoiLee_AFFC` at its shipped defaults reproduces dc gain **90.0754 dB**, GBW
+**838366 Hz**, phase **8.0522°**, FoM **−85463.332359** — **3× in-process + a separate
+process, spread 1.6e-10** (below the 1e-6 replay tolerance).
+
+```
+python engineer/ext_gym.py --list                 # the runnable subset
+python engineer/ext_gym.py --golden HoiLee_AFFC_Pin_3   # 3x replay-fence
+python engineer/score_ext.py                      # full 14x2x10 @ budget 1000, parallel
+python engineer/score_ext.py --aggregate-only     # rebuild scoreboard from JSONs
+```
+
+### External result — `data/scoreboard_ext_v0.json` (appendix SHA `c21c53c`, N=10)
+
+Per-amp × arm: feasible-rate `#/10`, median and best FoM across the 10 seeds (FoM is
+AnalogGym's own scalarization, **lower is better**). 14 amps × 2 arms × 10 seeds =
+**280 cells**; budget 1000 evals/cell; one eval = 2 ngspice calls.
+
+| amp | cmaes feas | cmaes FoM med | cmaes FoM best | random feas | random FoM med | random FoM best |
+|---|:---:|---:|---:|:---:|---:|---:|
+| Fan_SMC_Pin_3 | 0/10 | −1.123e7 | −1.253e7 | 0/10 | −2.155e6 | −3.441e6 |
+| HoiLee_AFFC_Pin_3 | 0/10 | −7.732e6 | −1.009e7 | 0/10 | −2.115e6 | −2.324e6 |
+| Leung_DFCFC1_Pin_3 | 1/10 | −7.920e6 | −9.934e6 | 0/10 | −1.320e6 | −1.765e6 |
+| Leung_DFCFC2_Pin_3 | 0/10 | −6.848e6 | −8.998e6 | 0/10 | −1.764e6 | −2.318e6 |
+| Leung_NMCF_Pin_3 | 1/10 | −1.136e7 | −1.250e7 | 1/10 | −1.960e6 | −2.441e6 |
+| Leung_NMCNR_Pin_3 | 0/10 | −1.865e7 | −2.411e7 | 0/10 | −3.772e6 | −6.290e6 |
+| Peng_ACBC_Pin_3 | 0/10 | −8.146e6 | −8.901e6 | 0/10 | −1.579e6 | −2.129e6 |
+| Peng_IAC_Pin_3 | **4/10** | −1.926e7 | −2.192e7 | 3/10 | −3.316e6 | −4.052e6 |
+| Peng_TCFC_Pin_3 | 0/10 | −1.355e7 | −1.614e7 | 0/10 | −2.045e6 | −3.742e6 |
+| Qu2017_AZC_Pin_3 | **8/10** | −5.432e7 | −7.332e7 | **9/10** | −4.491e6 | −7.485e6 |
+| Ramos_PFC_Pin_3 | 0/10 | −1.012e7 | −1.492e7 | 1/10 | −1.958e6 | −2.443e6 |
+| Sau_CFCC_Pin_3 | 2/10 | −1.261e7 | −1.877e7 | 0/10 | −2.115e6 | −3.077e6 |
+| Song_DACFC_Pin_3 | 0/10 | −6.913e6 | −1.053e7 | 0/10 | −1.657e6 | −2.648e6 |
+| Yan_AZ_Pin_3 | **6/10** | −2.707e7 | −3.576e7 | 2/10 | −2.770e6 | −3.863e6 |
+
+**Cross-amp median-rank (ranked per amp by feasible-rate, then median FoM):
+`cmaes = 1.0`, `random = 2.0`.** CMA-ES ranks first on 13 of 14 amps; on the sole
+exception (`Qu2017_AZC`, the largest-dim amp at d=38) random edges it 9/10 vs 8/10 on
+feasible-rate, but CMA-ES's median FoM there is an order of magnitude deeper. On every
+amp CMA-ES's median and best FoM are 3–10× lower (better) than random's.
+
+**Calibration verdict:** on AnalogGym's open op-amp benchmark, at equal 1000-eval
+budget and the same two untuned nulls, **CMA-ES beats random search** — median-rank
+1.0 vs 2.0, a deeper FoM on all 14 amps and a higher-or-equal feasible-rate on 13 of
+14. The "our sizer (CMA-ES) beats the untuned null" result the in-house pilot showed
+on the dhruva store **replicates on the field's external amp benchmark** — it is a
+statement about analog sizing, not just our own store.
+
+**Cost:** 280 cells, 280 000 evals, 560 000 ngspice calls; simulation 4 900 612 s of
+summed per-eval wall (parallel across the pool), modeling 1 077 s (**0.02 %** of wall —
+the nulls are cheap, the simulator is the cost). Canonical trajectory table
+`data/ext_trajectories.jsonl`: 280 000 rows appended in one serial pass (append-only,
+charter §3.2).
+
 ## E-3 — cold/warm-memory measurement harness (2026-08-14)
 
 Proposal §2.2 item 4: AnalogAgent conflated warm-memory and cold-memory runs and

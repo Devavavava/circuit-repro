@@ -112,19 +112,20 @@ a dep-availability gap the shim does not cover (`_bind_runtime_deps` resolves
 The registry (`tasks.py`) is a table; a benchmark is a table **plus a protocol**.
 E-2 added the protocol and produced the first result table under it.
 
-**The protocol is pre-registered.** `engineer/PROTOCOL.md` was written and
-committed **alone, before any scoring run** — its commit is the timestamp that
-forecloses E-2's falsifier ("a result table where the protocol was decided after
-the numbers were seen"). It fixes, with rationale and in advance: the 7 scoring
-tasks (smoke excluded), the matched per-task budget, the two null arms (CMA-ES,
-random), the metrics (feasible-rate, best objective, evals-to-first-feasible
+**The protocol is pre-registered and now FROZEN at v1.0.** `engineer/PROTOCOL.md`
+was written and committed **alone, before any scoring run** — its commit is the
+timestamp that forecloses E-2's falsifier ("a result table where the protocol was
+decided after the numbers were seen"). It fixes, with rationale and in advance: the
+7 scoring tasks (smoke excluded), the matched per-task budget, the two null arms
+(CMA-ES, random), the metrics (feasible-rate, best objective, evals-to-first-feasible
 censored at budget, convergence curves), feasibility = `spec.feasible` exactly,
 the aggregation rule (per-task tables + scale-free median-rank; no cross-task
 objective mean), the modeling-vs-simulation time split, the determinism/replay
 tolerance, the §43.2 consistency check, and what changes numbers
 (era/harness/pin → re-run all) vs the protocol (task set/budget/N/metrics/
-aggregation → forbidden without a user ruling). It does **not** freeze the
-benchmark — that is ruling R-5, the user's call.
+aggregation → forbidden without a user ruling). **Protocol v1.0 FROZEN** by user
+ruling 2026-08-16 ("freeze after LDO lands") — see `PROTOCOL.md §FREEZE`. Any
+future change is a version bump (v1.1+), never an in-place edit.
 
 **User ruling 2026-08-14 (§43.1 amendment):** protocol v0 adopted as the WORKING
 protocol (not frozen), and N re-registered **5 → 10**. See `PROTOCOL.md §43.1`.

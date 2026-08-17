@@ -669,3 +669,59 @@ N, the metrics, the reward/feasibility definition (including whether to compute 
 omitted decap bonus term), or the aggregation rule after any LDO number under this
 appendix has been seen. Whether the LDO track joins a **future frozen protocol** is
 part of R-5 / E-5 — the user's call, queued, not an agent's.
+
+---
+
+## §FREEZE — Protocol v1.0 FROZEN (user ruling 2026-08-16)
+
+**User ruling, verbatim (2026-08-16, after LDO landing):** *"freeze after LDO lands"*.
+
+**Status: PROTOCOL v1.0 FROZEN.** Executed on 2026-08-16, after both external
+calibration rungs landed their results. This section is the R-5 / E-5 ruling the body
+of this document queued from its first line (*"Freezing protocol v0 as the scoring rule
+of the benchmark is ruling R-5 / E-5, reserved to the user"*). The user has called it.
+
+### What is frozen
+
+**Protocol v1.0** = the union of:
+
+1. **In-house track** (§§1–11): 7 in-house tier-2 tasks (N=10 per §43.1), two null
+   arms (`cmaes` = `lna/null_sizer.run_cmaes` verbatim; `random` = uniform `[0,1]^d`),
+   budgets per-task as pinned, feasibility = `spec.feasible` exactly, aggregation =
+   per-task tables + scale-free median-rank (no cross-task objective mean), modeling vs
+   simulation time accounted separately.
+
+2. **External amp track** (§EXT): 14 AnalogGym op-amp families (ngspice-runnable
+   subset, honest exclusions in `EXT-CALIBRATION.md`), same two null arms, budget 1000
+   evals/cell (AnalogGym's own), N=10.
+
+3. **External LDO track** (§EXT-LDO): 4 AnalogGym LDO families (all runnable families,
+   no exclusions), same two null arms, budget 1000 evals/cell, N=10.
+
+**Current aggregation rules** (as written in §5.3/§5.4 / §EXT.5 / §EXT-LDO.5) are
+frozen: per-task/per-family tables (primary), plus cross-task/cross-family median-rank;
+no cross-task/cross-family objective averaging.
+
+### Frozen baseline results
+
+The following scoreboard artifacts are the **frozen baselines** under protocol v1.0:
+
+| track | scoreboard | preregistration SHA | cells |
+|---|---|---|---:|
+| in-house (N=10) | `data/scoreboard_v0.1.json` | `f9ea7f2` (§43.1 amendment) | 140 |
+| external amps | `data/scoreboard_ext_v0.json` | `c21c53c` (§EXT appendix) | 280 |
+| external LDOs | `data/scoreboard_ext_ldo_v0.json` | `8039ca6` (§EXT-LDO appendix) | 80 |
+
+### What is frozen means
+
+- **Any future change to the task set, budgets, N, metrics, feasibility definition, or
+  aggregation rule is a version bump (v1.1+), never an in-place edit of this file.**
+- The pre-registration ordering discipline (protocol committed alone before any cell
+  runs) applies to every future version.
+- Era/harness changes (a new `ext_gym.py` sha256, a new ngspice, a pin move) still
+  trigger a re-run-everything as §9 specifies; the frozen protocol governs what is
+  re-measured and how it is aggregated, not what simulator is used.
+- The in-house N=5 artifact (`data/scoreboard_v0.json`, §43.2 reproduction) is retained
+  permanently as the §43.2 reproduction record and is not superseded by this freeze.
+
+**Date of freeze: 2026-08-16. User ruling: "freeze after LDO lands."**

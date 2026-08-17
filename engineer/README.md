@@ -297,6 +297,84 @@ the nulls are cheap, the simulator is the cost). Canonical trajectory table
 `data/ext_trajectories.jsonl`: 280 000 rows appended in one serial pass (append-only,
 charter §3.2).
 
+## E-2 externals — AnalogGym LDO calibration track (2026-08-16)
+
+The amp rung (§EXT) showed CMA-ES beats random on op-amps. The LDO rung asks whether
+that ordering holds on a **second, qualitatively different circuit class**: AnalogGym's
+LDO regulators gate on load/line regulation, PSRR, dropout, quiescent power, and
+transient under/overshoot — not on gain/GBW/phase-margin — so this is a genuinely
+independent read. Commissioned by the user (2026-08-16, the LDO-rung commission).
+
+**A third tier and namespace — not a change to PROTOCOL v0 or §EXT.** The LDO tasks
+enter as `tier="ext-ldo"`. The amp adapter `ext_gym.py` and its golden are byte-for-byte
+untouched (re-stamping it would be an §EXT.9 era cutover for the amps); the LDO rung
+lands as a sibling module `ext_ldo.py` with its own sha256.
+
+**Pre-registered appendix, committed alone before any LDO cell ran** —
+`PROTOCOL.md §EXT-LDO`, commit `8039ca6`. The E-2 falsifier is foreclosed for the LDOs
+by that ordering.
+
+**The adapter (`ext_ldo.py`).** Replays each family's shipped `<fam>_acdc.cir` +
+`<fam>_tran.cir` verbatim (rewriting `.include` lines to absolute staged paths, dropping
+the OP-extraction include, inserting the design-variable override). The objective is
+AnalogGym's own LDO reward from `RGNN_RL/LDO_TB.py`: 15 directional normalized-margin
+scores over LDR, LNR, Power, |vos|, PSRR, GBW, PM, transient under/overshoot — negated
+so lower-is-better composes with the amp track. Feasibility = all 15 scores ≥ 0
+(AnalogGym's own LDO targets met). Budget: 1000 evals/cell, one eval = two ngspice calls
+(acdc + tran decks). Stamps: `$NGSPICE` version, AnalogGym SHA, both `ext_ldo.py` and
+`ext_gym.py` sha256, per-family netlist/vars sha256, PDK path.
+
+**Runnable subset — all 4 LDO families** (`ext_ldo.FAMILIES`): `ldo_1` (Basic-LDO
+lineage, d≈20), `ldo_2` (Basic-LDO lineage, largest, d≈57), `ldo_simple` (d≈15),
+`ldo_folded_cascode` (d≈21). Unlike the amp category, no family is held out: all four
+ship a subckt, both testbenches, and a vars file, and all four elaborate. All four are
+infeasible at default sizing — the benchmark hands a search a bad start, as expected.
+
+**Golden — replay-fence, per family (`data/ext_ldo_golden_v0.json`).** Fixed default
+sizing → fixed metrics, each family verified 3× in-process + a separate process, spread
+within the 1e-6 replay tolerance.
+
+```
+python engineer/ext_ldo.py --list               # the runnable families
+python engineer/score_ext_ldo.py                # full 4x2x10 @ budget 1000, parallel
+python engineer/score_ext_ldo.py --aggregate-only   # rebuild scoreboard from JSONs
+```
+
+### LDO result — `data/scoreboard_ext_ldo_v0.json` (appendix SHA `8039ca6`, N=10)
+
+Per-family × arm: feasible-rate `#/10`, median and best reward across the 10 seeds
+(reward is AnalogGym's own LDO scalarization, negated so **lower is better**).
+4 families × 2 arms × 10 seeds = **80 cells**; budget 1000 evals/cell; one eval = 2
+ngspice calls (acdc + tran).
+
+| family | cmaes feas | cmaes reward med | cmaes reward best | random feas | random reward med | random reward best |
+|---|:---:|---:|---:|:---:|---:|---:|
+| ldo_1 | 0/10 | +9.888 | +9.697 | 0/10 | +10.261 | +9.934 |
+| ldo_2 | 0/10 | +11.431 | +11.308 | 0/10 | +11.869 | +11.525 |
+| ldo_folded_cascode | 0/10 | +13.167 | +12.155 | 0/10 | +12.957 | +12.728 |
+| ldo_simple | 0/10 | +12.337 | +10.080 | 0/10 | +12.751 | +12.591 |
+
+**Cross-family median-rank (ranked per family by feasible-rate, then median reward):
+`cmaes = 1.0`, `random = 2.0`.**
+
+**Calibration verdict — 0/10 feasible everywhere for BOTH arms at budget 1000: the LDO
+tasks are unsolved by either null.** This is a calibration result, not a failure of the
+protocol: the LDO reward requires simultaneous satisfaction of 15 targets (LDR, LNR,
+Power, vos, PSRR, GBW, PM, transient overshoot/undershoot) from uncompensated starting
+points; none of the four families yielded a feasible design under either arm at the
+AnalogGym budget. **CMA-ES ranks first on all four families on objective medians only**
+— its median and best reward are consistently lower (better) than random's on every
+family, so the directional ordering (CMA-ES > random) holds, but neither arm crossed
+the feasibility boundary. The median-rank result (cmaes=1.0 / random=2.0) reflects the
+objective-median tiebreak under tied feasible-rates (both 0/10).
+
+**Cost:** 80 cells, 80 000 evals, 160 000 ngspice calls; simulation 635 037 s of summed
+per-eval wall (LDO evals are markedly slower than amp evals — the DC load/line sweeps +
+100 µs transient — parallel across ≤56 workers after the amp run drained), modeling
+214 s (**0.03 %** of wall). Canonical trajectory table `data/ext_ldo_trajectories.jsonl`:
+80 000 rows, fresh file (bytes_before=0), appended in one serial pass (append-only,
+charter §3.2).
+
 ## E-3 — cold/warm-memory measurement harness (2026-08-14)
 
 Proposal §2.2 item 4: AnalogAgent conflated warm-memory and cold-memory runs and

@@ -725,3 +725,74 @@ The following scoreboard artifacts are the **frozen baselines** under protocol v
   permanently as the §43.2 reproduction record and is not superseded by this freeze.
 
 **Date of freeze: 2026-08-16. User ruling: "freeze after LDO lands."**
+
+---
+
+## §V1.1 — Protocol v1.1 amendment (user sign-off 2026-08-19)
+
+**Version:** PROTOCOL v1.1.
+
+**User sign-off date:** 2026-08-19.
+
+**Amendment type:** Append-only per §FREEZE procedure ("a version bump (v1.1+),
+never an in-place edit of this file"). No v1.0 content is modified. This section
+is appended at the end of the frozen v1.0 text.
+
+### What this amendment adds
+
+1. **Transfer/fresh-task reporting axes.** Every fresh-task run (G4 and later)
+   must emit the contamination ledger and the time-to-competence metrics defined
+   in `engineer/G0-FAIRNESS.md`. That document is normative for v1.1; this
+   amendment section is the protocol pointer to it.
+
+2. **Contamination ledger.** A YAML block (schema in G0-FAIRNESS.md §3) committed
+   alongside every fresh-task pre-registration doc, before any scoring run.
+   Categories: `harness_code` (allowed: always), `playbook` (allowed: declared;
+   default: out per ruling R-C), `seeds` (allowed: never), `selectors` (allowed:
+   never), `calibrations` (allowed: never). A run with any `allowed: never` field
+   set `present: true` is invalid and not admitted to the transfer scoreboard.
+
+3. **Time-to-competence metrics.** Four fields added to every fresh-task per-run
+   result JSON: `spice_min_to_first_feasible`, `spice_min_to_tier2_feasible`,
+   `wall_min_to_first_feasible`, `user_rulings_requested` (definitions and
+   recording conventions in G0-FAIRNESS.md §4). These are reported alongside the
+   existing PROTOCOL v1.0 endpoint scores; they do not replace them.
+
+4. **Fresh-task definition.** A task is fresh iff no component of the main line
+   was tuned against it (no task-specific seeds, motif selectors, archetype
+   additions, budget calibrations, or recipe defaults derived from it). The 7
+   in-house tasks and dhruva are NOT fresh (regression floors); AnalogGym tracks
+   are fresh-for-sizing only. Full definition in G0-FAIRNESS.md §1.
+
+### What this amendment does NOT change
+
+- All v1.0 task definitions, budgets (per-task as pinned), N (10 seeds), metrics,
+  feasibility definition (`spec.feasible` exactly), and aggregation rules
+  (per-task tables + scale-free median-rank, no cross-task objective averaging)
+  are **unchanged**.
+- The 7 in-house tasks, 14 AnalogGym amp families, and 4 LDO families remain in
+  the benchmark exactly as frozen under v1.0. The amendment adds the transfer
+  scoreboard axes; it does not remove, reweight, or redefine any existing axis.
+- The pre-registration ordering discipline, goldens-green rule, adopt-only-if-
+  better, and user-ruling requirement for any further protocol change are unchanged.
+- The frozen baseline scoreboards (`data/scoreboard_v0.1.json`,
+  `data/scoreboard_ext_v0.json`, `data/scoreboard_ext_ldo_v0.json`) are unaffected.
+  They were produced under v1.0 and remain the v1.0 baselines.
+
+### Compliance with §FREEZE amendment procedure
+
+The §FREEZE section states: "Any future change to the task set, budgets, N,
+metrics, feasibility definition, or aggregation rule is a version bump (v1.1+),
+never an in-place edit of this file." This amendment:
+
+- Is appended as a new section; no existing section is edited.
+- Is committed as part of the G0 landing commit, alongside G0-FAIRNESS.md and the
+  ROADMAP.md status update, in a single commit whose message names the version bump.
+- Carries the user sign-off date (2026-08-19) and cites G0-FAIRNESS.md as normative,
+  so the amendment cannot be read without its source document.
+- Does not change any task set, budget, N, or existing metric — so the §FREEZE
+  "forbidden without a user ruling" fence is not triggered for any v1.0 number.
+  The new axes are additive; they do not alter existing cell values.
+
+**G0 landing commit:** the commit SHA is recorded in `ROADMAP.md` §5's ruling
+outcome for R-A and R-B (status: ADOPTED 2026-08-19).

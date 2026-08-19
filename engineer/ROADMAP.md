@@ -1,8 +1,9 @@
-# ROADMAP — the engineer line's operating model (DRAFT v0.1)
+# ROADMAP — the engineer line's operating model (ADOPTED v1.0)
 
-**Status: DRAFT — pending user rulings (§5). Nothing here amends PROTOCOL v1.0
-until ruled. Written 2026-08-19 in response to the user's direction: "let's set
-up a clearer model for how we want to work with the engineer branch."**
+**Status: ADOPTED v1.0 — user ruling 2026-08-19. All §5 rulings resolved.
+PROTOCOL amended to v1.1 as of the G0 landing commit. Written 2026-08-19 in
+response to the user's direction: "let's set up a clearer model for how we want
+to work with the engineer branch."**
 
 ---
 
@@ -85,9 +86,9 @@ roadmap adds rungs; it relaxes nothing.
 
 ## 5. Rulings requested
 
-| # | Question | Default if unruled |
+| # | Question | Outcome (user ruling 2026-08-19) |
 |---|---|---|
-| R-A | Adopt the two scoring axes + contamination ledger (§2)? | not adopted |
-| R-B | Adopt rung order G0→G6 (reorder/veto any)? | not adopted |
-| R-C | Playbook default in fresh-task runs: declared-in, or out entirely? | out |
-| R-D | Does authoring the G4 transfer specs itself require a PROTOCOL bump first, or land with G0's v1.1? | with G0 |
+| R-A | Adopt the two scoring axes + contamination ledger (§2)? | **ADOPTED** — transfer axis + time-to-competence + contamination ledger formalised in G0-FAIRNESS.md; PROTOCOL bumped to v1.1. |
+| R-B | Adopt rung order G0→G6 (reorder/veto any)? | **ADOPTED** — G0→G6 order adopted as written. First experiment authorised: G1 (E-6), smoke tier (150 evals/arm per R-4 convention) then full scale after check-in. |
+| R-C | Playbook default in fresh-task runs: declared-in, or out entirely? | **OUT** — playbook is out of fresh-task runs by default; enters only as the explicit variable (e.g. G3). Fenced in the contamination ledger's `playbook.allowed: declared` / `present: false` default. |
+| R-D | Does authoring the G4 transfer specs itself require a PROTOCOL bump first, or land with G0's v1.1? | **DEFERRED-MOOT** — G4 has not started; the question is moot. Default (transfer specs land with a protocol bump when G4 starts) stands. |

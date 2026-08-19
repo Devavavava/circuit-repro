@@ -345,3 +345,76 @@ existing store table are left byte-untouched.
 
 <!-- POST-HOC OUTCOME SECTION APPENDED BELOW AFTER THE SMOKE RUN — NOT PART OF THE
      PRE-REGISTRATION. The text above this line is what was committed first, alone. -->
+
+## 11. Smoke outcome (post-hoc — appended after the SMOKE run)
+
+**Run:** 42 cells = 7 in-house tasks × 2 arms × 3 seeds (1–3) at **150 evals/cell**
+(6,300 evals, 12,600 ngspice calls). Artifact: `engineer/data/e6_smoke_v0.json`;
+per-cell result JSONs `engineer/data/e6_{incumbent,racing}_<task>_s<seed>_b150.json`;
+trajectory rows appended to `engineer/data/e6_trajectories.jsonl` (E-6's own
+table; the canonical `trajectories.jsonl` and every existing store table left
+byte-untouched). Pre-registration SHA (commit that added this file, alone):
+**`b46deff`**.
+
+**This is the mechanics check of §7. It CANNOT confirm or falsify the hypothesis**
+(150 evals is not the matched budget, 3 seeds is not N, the externals are absent —
+§6). The numbers below are recorded for the record and to prove the harness; they
+carry no verdict on racing.
+
+### 11.1 The harness passed its checks (the only thing the smoke tests)
+
+- **Matched budget, to the digit.** All **21** (task, seed) pairs spent *exactly*
+  equal env evals across both arms (`budget_match_check.all_matched = true`). Every
+  arm spent exactly 150 evals; the env's `BudgetExhausted` enforced it. The racing
+  arm's triage (4×15=60) + survivor-resume (90 new) = 150, with the survivor's 15
+  triage evals cache-replayed (not re-simulated) — matched to the incumbent's
+  single 150-eval run.
+- **Deterministic.** A racing re-run of `gps-l1-t2-a` s1 reproduced `best_obj`
+  bit-for-bit (`7.938886` both runs); the env draws no RNG, `(task, arm, seed)`
+  fully determines the sequence (PROTOCOL §7).
+- **Warm-resume prefix is bit-identical.** The `_resume_objective` replay
+  assertion (`e6_racing.py`) — which raises loudly if the survivor's re-run x
+  diverges from its cached triage x by >1e-12 — **never fired** across all 21
+  racing cells. This *proves* the survivor's warm-resume retraces its own triage
+  trajectory exactly and then continues past it: a faithful warm resume expressed
+  by a verbatim `run_cmaes` import (§2.1).
+- **No side-channel evals.** Every eval went through the env counter (ngspice_calls
+  = n_evals × gate factor for every cell). No writes under `lna/` (`git status
+  lna/` clean); goldens GREEN before and after (§ report).
+
+### 11.2 Smoke numbers (recorded, NOT a verdict — §7)
+
+| task | incumbent med / best | racing med / best | smoke label |
+|---|---|---|:---|
+| dhruva-l1-t2-a | 1.5536 / 1.4880 | 1.6937 / 1.5536 | racing<incumbent |
+| dhruva-l2-t2-a | 1.8227 / 1.4035 | 1.9699 / 1.9699 | racing<incumbent |
+| dhruva-l5-t2-a | 1.4376 / 1.2223 | 1.3063 / 1.3063 | racing>incumbent |
+| dhruva-s-t2-a | 1.4024 / 1.2894 | 1.7877 / 1.6842 | racing<incumbent |
+| gps-l1-t2-a | 7.9148 / 7.9074 | 7.9247 / 7.9247 | racing<incumbent |
+| wideband-sdr-t2-a | 1.9279 / 1.3755 | 1.2920 / 1.2920 | racing>incumbent |
+| wifi24-t2-a | 1.2566 / 1.1454 | 1.3358 / 1.3358 | racing>incumbent(best) |
+
+- **Feasible: 0/3 on both arms, every task.** At 150 evals nothing reaches
+  feasibility on either arm — expected: the incumbent's own `evals-to-first-feasible`
+  is 110–250 evals (§5), so a 150-eval cap on 3 seeds lands pre-feasible almost
+  everywhere. This is a smoke-budget artifact, not a signal about racing.
+- **Smoke median-rank:** incumbent=1, racing=2 (racing lost the median-obj tiebreak
+  on 4 of 7 tasks, won 2, mixed 1). **This is meaningless as a hypothesis read**:
+  racing's whole premise is that the survivor gets a *near-full* budget to descend
+  the triaged basin, but at a 150-eval cap the survivor gets only 90 new evals after
+  a 60-eval triage — the fragmentation the arm exists to *avoid* is re-imposed by the
+  tiny smoke budget itself. At the full matched budgets (336–1050) the survivor gets
+  276–894 evals, where the mechanism is actually exercised. The smoke deliberately
+  runs racing in the regime it is *designed to lose*; that it does so, while spending
+  exactly matched evals, only confirms the plumbing.
+
+### 11.3 What the smoke establishes and what it defers
+
+- **Established:** the triage → cull-top-1 → warm-resume harness runs
+  deterministically at matched evals, replays the survivor prefix bit-identically,
+  counts every eval through the env, and writes append-only E-6 rows without
+  touching `lna/` or any existing table. **The harness is not refuted.**
+- **Deferred to the full tier (human-gated):** whether racing matches/beats the
+  incumbent at the *matched* budget and N=10, on the in-house tasks AND both
+  external tracks — the only configuration in which §6's acceptance and the ROADMAP
+  G1 falsifier can be reached. The full tier is NOT run here.

@@ -1,0 +1,356 @@
+{
+ "kind": "engineer_e6",
+ "schema": "engineer-e6-result-v0",
+ "run_id": "gps-l1-t2-a-s1-b150-2026-08-19T111548+0000-racing",
+ "arm": "racing",
+ "arm_desc": "racing: k triage starts, cull top-1, warm-resume survivor -- e6_racing.run_racing, run_cmaes imported verbatim",
+ "task": {
+  "id": "gps-l1-t2-a",
+  "spec": "gps-l1",
+  "wl_hash": "82e8ca6a4cc02a43",
+  "tier": 2,
+  "budget": 150,
+  "seed": 1,
+  "era": "current",
+  "n_devices": 6,
+  "ref": {
+   "ts": "2026-08-11T04:27:58+00:00",
+   "n_evals": 136,
+   "feasible": false,
+   "best_obj": 7.921651344444444
+  },
+  "notes": "Small (d is the smallest in the registry) and the reference is INFEASIBLE at obj +7.92 -- a task where the incumbent did not solve it, which is the kind a benchmark needs and a leaderboard usually lacks."
+ },
+ "seed": 1,
+ "n_params": 6,
+ "param_names": [
+  "pC1V",
+  "pC2V",
+  "pNM1W",
+  "pPM1W",
+  "pR1V",
+  "pR2V"
+ ],
+ "budget_evals": 150,
+ "n_evals": 150,
+ "ngspice_calls": 300,
+ "n_sim_fail": 0,
+ "evals_to_best": 97,
+ "best_obj": 7.938886444444444,
+ "feasible": false,
+ "viol": {
+  "nf_db": 5.098478,
+  "s11_db": 0.428872,
+  "s21_db": 1.411537
+ },
+ "metrics": {
+  "s11_db": -5.71128,
+  "s11_max_db": -5.70771,
+  "s21_db": -6.17305,
+  "s21_min_db": -6.1743,
+  "idd_ma": 6.73811e-09,
+  "nf_db": 10.97726,
+  "s22_db": -5.64398,
+  "s12_db": -6.17305,
+  "k_f0": 1.00252,
+  "k_min": 1.00251,
+  "mu_f0": 1.00124,
+  "mu_min": 1.00124,
+  "mu_src_f0": 1.00125,
+  "mu_src_min": 1.00125,
+  "delta_f0": 0.158346,
+  "delta_max": 0.159261,
+  "stab_band": [
+   1565000000.0,
+   1586000000.0
+  ],
+  "s21_ripple_db": 0.0024799999999993716,
+  "nf_method": "series_rs"
+ },
+ "margins": {
+  "nf_db": {
+   "achieved": 10.97726,
+   "required_min": null,
+   "required_max": 1.8,
+   "scale": 1.8,
+   "margin": -5.098477777777777,
+   "supported": true
+  },
+  "s11_db": {
+   "achieved": -5.71128,
+   "required_min": null,
+   "required_max": -10,
+   "scale": 10,
+   "margin": -0.428872,
+   "supported": true
+  },
+  "s21_db": {
+   "achieved": -6.17305,
+   "required_min": 15,
+   "required_max": null,
+   "scale": 15,
+   "margin": -1.4115366666666667,
+   "supported": true
+  },
+  "idd_ma": {
+   "achieved": 6.73811e-09,
+   "required_min": null,
+   "required_max": 3,
+   "scale": 3,
+   "margin": 0.9999999977539633,
+   "supported": true
+  },
+  "iip3_dbm": {
+   "achieved": null,
+   "required_min": -10,
+   "required_max": null,
+   "scale": 10,
+   "margin": null,
+   "supported": false
+  }
+ },
+ "best_x": [
+  0.06028325803267548,
+  1.0,
+  0.3650020024681623,
+  0.4929706733738781,
+  0.0,
+  0.0
+ ],
+ "best_params": {
+  "pNM1L": "45n",
+  "pPM1L": "45n",
+  "pVDD": "1.1",
+  "pVB": "0.5",
+  "pINDQ": "12",
+  "pINDW0": "1.25664e+10",
+  "pC1V": "6.88151e-14",
+  "pC2V": "1e-11",
+  "pNM1W": "6.91641e-06",
+  "pPM1W": "1.36251e-05",
+  "pR1V": "50",
+  "pR2V": "50"
+ },
+ "trace": [
+  {
+   "n": 10,
+   "best_obj": 12.804639333333334,
+   "feasible": false
+  },
+  {
+   "n": 20,
+   "best_obj": 12.804639333333334,
+   "feasible": false
+  },
+  {
+   "n": 30,
+   "best_obj": 9.363099333333333,
+   "feasible": false
+  },
+  {
+   "n": 40,
+   "best_obj": 9.363099333333333,
+   "feasible": false
+  },
+  {
+   "n": 50,
+   "best_obj": 9.363099333333333,
+   "feasible": false
+  },
+  {
+   "n": 60,
+   "best_obj": 9.363099333333333,
+   "feasible": false
+  },
+  {
+   "n": 70,
+   "best_obj": 9.363099333333333,
+   "feasible": false
+  },
+  {
+   "n": 80,
+   "best_obj": 9.015328555555556,
+   "feasible": false
+  },
+  {
+   "n": 90,
+   "best_obj": 8.368518333333334,
+   "feasible": false
+  },
+  {
+   "n": 100,
+   "best_obj": 7.938886444444444,
+   "feasible": false
+  },
+  {
+   "n": 110,
+   "best_obj": 7.938886444444444,
+   "feasible": false
+  },
+  {
+   "n": 120,
+   "best_obj": 7.938886444444444,
+   "feasible": false
+  },
+  {
+   "n": 130,
+   "best_obj": 7.938886444444444,
+   "feasible": false
+  },
+  {
+   "n": 140,
+   "best_obj": 7.938886444444444,
+   "feasible": false
+  },
+  {
+   "n": 150,
+   "best_obj": 7.938886444444444,
+   "feasible": false
+  }
+ ],
+ "trace_every": 10,
+ "algo_diag": {
+  "arm": "racing",
+  "K": 4,
+  "r": 15,
+  "cull_to": 1,
+  "budget": 150,
+  "triage_budget": 60,
+  "starts": [
+   {
+    "sub_seed": 1,
+    "triage_evals": 15,
+    "triage_best": 12.804639333333334,
+    "triage_best_eval": 5,
+    "gens": 1
+   },
+   {
+    "sub_seed": 2,
+    "triage_evals": 15,
+    "triage_best": 9.363099333333333,
+    "triage_best_eval": 11,
+    "gens": 1
+   },
+   {
+    "sub_seed": 3,
+    "triage_evals": 15,
+    "triage_best": 11.845440444444446,
+    "triage_best_eval": 9,
+    "gens": 1
+   },
+   {
+    "sub_seed": 4,
+    "triage_evals": 15,
+    "triage_best": 15.0647728,
+    "triage_best_eval": 13,
+    "gens": 1
+   }
+  ],
+  "winner": 1,
+  "winner_sub_seed": 2,
+  "winner_triage_best": 9.363099333333333,
+  "resume_evals": 90,
+  "n_evals_total": 150
+ },
+ "harness": {
+  "inductor_q": 12,
+  "nf_gated": true,
+  "stab_guard": true,
+  "ngspice_calls_per_eval": 2,
+  "eval_entry": "size.make_objective(...)[0]",
+  "w_finger": 2e-06,
+  "era": "current",
+  "deps": {
+   "models": "/home/dpatni/circuit-repro/AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt",
+   "zoaf": "/home/dpatni/circuit-repro/misc/ZOAF",
+   "analoggenie": "/home/dpatni/circuit-repro/AnalogGenie/repo",
+   "rebound": true
+  },
+  "notes": []
+ },
+ "reference_row": {
+  "ts": "2026-08-11T04:27:58+00:00",
+  "n_evals": 136,
+  "recipe": "candidate-v1",
+  "seed": 7,
+  "w_finger": 2e-06,
+  "feasible": false,
+  "best_obj": 7.921651344444444,
+  "metrics": {
+   "delta_f0": 0.1538693,
+   "delta_max": 0.1548153,
+   "idd_ma": 6.6538160000000005e-09,
+   "k_f0": 1.00183,
+   "k_min": 1.001828,
+   "mu_f0": 1.00091,
+   "mu_min": 1.000909,
+   "mu_src_f0": 1.000913,
+   "mu_src_min": 1.000912,
+   "nf_db": 10.95131,
+   "nf_method": "series_rs",
+   "s11_db": -5.721585,
+   "s11_max_db": -5.718022,
+   "s12_db": -6.146231,
+   "s21_db": -6.146231,
+   "s21_min_db": -6.147521,
+   "s21_ripple_db": 0.0025500000000002743,
+   "s22_db": -5.698859,
+   "stab_band": [
+    1565000000.0,
+    1586000000.0
+   ]
+  },
+  "margins": {
+   "idd_ma": {
+    "achieved": 6.6538160000000005e-09,
+    "margin": 0.9999999977820613,
+    "required_max": 3,
+    "required_min": null,
+    "scale": 3,
+    "supported": true
+   },
+   "iip3_dbm": {
+    "achieved": null,
+    "margin": null,
+    "required_max": null,
+    "required_min": -10,
+    "scale": 10,
+    "supported": false
+   },
+   "nf_db": {
+    "achieved": 10.95131,
+    "margin": -5.084061111111111,
+    "required_max": 1.8,
+    "required_min": null,
+    "scale": 1.8,
+    "supported": true
+   },
+   "s11_db": {
+    "achieved": -5.721585,
+    "margin": -0.4278415,
+    "required_max": -10,
+    "required_min": null,
+    "scale": 10,
+    "supported": true
+   },
+   "s21_db": {
+    "achieved": -6.146231,
+    "margin": -1.4097487333333334,
+    "required_max": null,
+    "required_min": 15,
+    "scale": 15,
+    "supported": true
+   }
+  },
+  "provenance": {
+   "index": 466,
+   "inductor_q": 12,
+   "note": "repeat",
+   "source_arm": "wpobserve-demo"
+  }
+ },
+ "wall_s": 10.4,
+ "s_per_eval": 0.0693,
+ "git_sha": "b46deff",
+ "ts": "2026-08-19T11:15:59+00:00"
+}

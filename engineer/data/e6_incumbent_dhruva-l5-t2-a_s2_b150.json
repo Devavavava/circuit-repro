@@ -1,0 +1,392 @@
+{
+ "kind": "engineer_baseline",
+ "schema": "engineer-result-v0",
+ "run_id": "dhruva-l5-t2-a-s2-b150-2026-08-19T111548+0000",
+ "algo": "cmaes",
+ "arm_desc": "CMA-ES (Hansen purecmaes defaults, box by clipping) -- imported verbatim from lna/null_sizer.py",
+ "task": {
+  "id": "dhruva-l5-t2-a",
+  "spec": "dhruva-l5",
+  "wl_hash": "46d1edb3be115fc5",
+  "tier": 2,
+  "budget": 150,
+  "seed": 2,
+  "era": "current",
+  "n_devices": 9,
+  "ref": {
+   "ts": "2026-08-10T13:02:24+00:00",
+   "n_evals": 1050,
+   "feasible": true,
+   "best_obj": null
+  },
+  "notes": "The most expensive reference in the registry (1,050 evals). Stage 22 ruled the l5 input stage a topology problem, not a sizing one -- so a sizer that matches the reference here is doing well, and one that beats it is evidence about the ruling."
+ },
+ "seed": 2,
+ "n_params": 9,
+ "param_names": [
+  "pC1V",
+  "pC2V",
+  "pC3V",
+  "pC4V",
+  "pL1V",
+  "pL2V",
+  "pNM1W",
+  "pNM2W",
+  "pR1V"
+ ],
+ "budget_evals": 150,
+ "n_evals": 150,
+ "ngspice_calls": 300,
+ "n_sim_fail": 0,
+ "evals_to_best": 105,
+ "best_obj": 1.22226027561228,
+ "feasible": false,
+ "viol": {
+  "s11_max_db": 0.028965,
+  "s21_db": 0.03213,
+  "idd_ma": 0.020019,
+  "nf_db": 0.141146
+ },
+ "metrics": {
+  "s11_db": -9.80022,
+  "s11_max_db": -9.71035,
+  "s21_db": 21.5835,
+  "s21_min_db": 14.9837,
+  "idd_ma": 13.26025,
+  "nf_db": 2.852865,
+  "s22_db": -3.41383,
+  "s12_db": -36.3888,
+  "k_f0": 1.22387,
+  "k_min": -0.299458,
+  "mu_f0": 1.0627,
+  "mu_min": 0.588223,
+  "mu_src_f0": 1.13977,
+  "mu_src_min": -0.230752,
+  "delta_f0": 0.0698359,
+  "delta_max": 0.139538,
+  "stab_band": [
+   1100000000.0,
+   2500000000.0
+  ],
+  "s21_ripple_db": 9.509099999999998,
+  "nf_method": "series_rs"
+ },
+ "margins": {
+  "s11_max_db": {
+   "achieved": -9.71035,
+   "required_min": null,
+   "required_max": -10,
+   "scale": 10,
+   "margin": -0.028964999999999998,
+   "supported": true
+  },
+  "s21_db": {
+   "achieved": 21.5835,
+   "required_min": 22.3,
+   "required_max": null,
+   "scale": 22.3,
+   "margin": -0.03213004484304932,
+   "supported": true
+  },
+  "idd_ma": {
+   "achieved": 13.26025,
+   "required_min": null,
+   "required_max": 13,
+   "scale": 13,
+   "margin": -0.02001923076923071,
+   "supported": true
+  },
+  "nf_db": {
+   "achieved": 2.852865,
+   "required_min": null,
+   "required_max": 2.5,
+   "scale": 2.5,
+   "margin": -0.141146,
+   "supported": true
+  },
+  "iip3_dbm": {
+   "achieved": null,
+   "required_min": -7.4,
+   "required_max": null,
+   "scale": 7.4,
+   "margin": null,
+   "supported": false
+  }
+ },
+ "best_x": [
+  0.18703480301205938,
+  0.8382384266547487,
+  1.0,
+  0.3735776307049999,
+  1.0,
+  1.0,
+  0.5955237712399103,
+  1.0,
+  0.05249232128883122
+ ],
+ "best_params": {
+  "pNM1L": "45n",
+  "pNM2L": "45n",
+  "pVDD": "1.1",
+  "pVB": "0.5",
+  "pINDQ": "12",
+  "pINDW0": "1.25664e+10",
+  "pC1V": "1.34692e-13",
+  "pC2V": "4.24406e-12",
+  "pC3V": "1e-11",
+  "pC4V": "3.61896e-13",
+  "pL1V": "1.5e-08",
+  "pL2V": "1.5e-08",
+  "pNM1W": "2.34595e-05",
+  "pNM2W": "0.0002",
+  "pR1V": "68.4791"
+ },
+ "trace": [
+  {
+   "n": 10,
+   "best_obj": 16.19703158295964,
+   "feasible": false
+  },
+  {
+   "n": 20,
+   "best_obj": 9.669103565022422,
+   "feasible": false
+  },
+  {
+   "n": 30,
+   "best_obj": 5.749616447188686,
+   "feasible": false
+  },
+  {
+   "n": 40,
+   "best_obj": 5.749616447188686,
+   "feasible": false
+  },
+  {
+   "n": 50,
+   "best_obj": 2.396208539910314,
+   "feasible": false
+  },
+  {
+   "n": 60,
+   "best_obj": 2.396208539910314,
+   "feasible": false
+  },
+  {
+   "n": 70,
+   "best_obj": 2.396208539910314,
+   "feasible": false
+  },
+  {
+   "n": 80,
+   "best_obj": 2.396208539910314,
+   "feasible": false
+  },
+  {
+   "n": 90,
+   "best_obj": 2.347027516040014,
+   "feasible": false
+  },
+  {
+   "n": 100,
+   "best_obj": 2.0808589699896514,
+   "feasible": false
+  },
+  {
+   "n": 110,
+   "best_obj": 1.22226027561228,
+   "feasible": false
+  },
+  {
+   "n": 120,
+   "best_obj": 1.22226027561228,
+   "feasible": false
+  },
+  {
+   "n": 130,
+   "best_obj": 1.22226027561228,
+   "feasible": false
+  },
+  {
+   "n": 140,
+   "best_obj": 1.22226027561228,
+   "feasible": false
+  },
+  {
+   "n": 150,
+   "best_obj": 1.22226027561228,
+   "feasible": false
+  }
+ ],
+ "trace_every": 10,
+ "algo_diag": {
+  "lam": 10,
+  "mu": 5,
+  "mueff": 3.1673,
+  "sigma0": 0.3,
+  "box": "clip",
+  "restarts": 0,
+  "gens": 15,
+  "sigma_final": 0.1751100348742013
+ },
+ "harness": {
+  "inductor_q": 12,
+  "nf_gated": true,
+  "stab_guard": true,
+  "ngspice_calls_per_eval": 2,
+  "eval_entry": "size.make_objective(...)[0]",
+  "w_finger": 2e-06,
+  "era": "current",
+  "deps": {
+   "models": "/home/dpatni/circuit-repro/AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt",
+   "zoaf": "/home/dpatni/circuit-repro/misc/ZOAF",
+   "analoggenie": "/home/dpatni/circuit-repro/AnalogGenie/repo",
+   "rebound": true
+  },
+  "notes": []
+ },
+ "reference_row": {
+  "ts": "2026-08-10T13:02:24+00:00",
+  "n_evals": 1050,
+  "recipe": "match-v1",
+  "seed": 0,
+  "w_finger": 2e-06,
+  "feasible": true,
+  "best_obj": null,
+  "metrics": {
+   "delta_f0": 0.1775394,
+   "delta_max": 0.1784102,
+   "idd_ma": 12.923179999999999,
+   "k_f0": 0.9729184,
+   "k_min": 0.8697557,
+   "mu_f0": 0.9934321,
+   "mu_min": 0.9680468,
+   "mu_src_f0": 0.9689066,
+   "mu_src_min": 0.8490583,
+   "nf_db": 2.242608,
+   "nf_method": "series_rs",
+   "s11_db": -21.32948,
+   "s11_max_db": -10.09454,
+   "s12_db": -39.218,
+   "s21_db": 24.9901,
+   "s21_min_db": 10.23003,
+   "s21_ripple_db": 15.17988,
+   "s22_db": -1.89892,
+   "stab_band": [
+    1100000000.0,
+    2500000000.0
+   ]
+  },
+  "margins": {
+   "idd_ma": {
+    "achieved": 12.923179999999999,
+    "margin": 0.00590923076923088,
+    "required_max": 13,
+    "required_min": null,
+    "scale": 13,
+    "supported": true
+   },
+   "iip3_dbm": {
+    "achieved": null,
+    "margin": null,
+    "required_max": null,
+    "required_min": -7.4,
+    "scale": 7.4,
+    "supported": false
+   },
+   "nf_db": {
+    "achieved": 2.242608,
+    "margin": 0.10295679999999993,
+    "required_max": 2.5,
+    "required_min": null,
+    "scale": 2.5,
+    "supported": true
+   },
+   "s11_max_db": {
+    "achieved": -10.09454,
+    "margin": 0.009454000000000028,
+    "required_max": -10,
+    "required_min": null,
+    "scale": 10,
+    "supported": true
+   },
+   "s21_db": {
+    "achieved": 24.9901,
+    "margin": 0.12063228699551574,
+    "required_max": null,
+    "required_min": 22.3,
+    "scale": 22.3,
+    "supported": true
+   }
+  },
+  "provenance": {
+   "device_budget": 21,
+   "inductor_q": 12,
+   "keep": "tier1",
+   "move": "device_remove",
+   "noise_budget": {
+    "f_hz": 1176450000.0,
+    "mos_mech_frac": {
+     "1overf": 0.64871,
+     "id": 0.32835,
+     "igd": 0.00313,
+     "igs": 0.00226,
+     "rbpb": 2e-05,
+     "rg": 0.0175
+    },
+    "nf_db_shares": 2.2547811013814547,
+    "source_frac": 0.595006746288632,
+    "sum_closure": 0.9999994851181601,
+    "top": [
+     {
+      "elem": "mnm1",
+      "frac_excess": 0.65582,
+      "frac_out": 0.2656,
+      "kind": "mos"
+     },
+     {
+      "elem": "rql1",
+      "frac_excess": 0.23111,
+      "frac_out": 0.0936,
+      "kind": "res"
+     },
+     {
+      "elem": "rql2",
+      "frac_excess": 0.09875,
+      "frac_out": 0.03999,
+      "kind": "res"
+     },
+     {
+      "elem": "rnl",
+      "frac_excess": 0.00826,
+      "frac_out": 0.00335,
+      "kind": "res"
+     },
+     {
+      "elem": "mnm2",
+      "frac_excess": 0.00445,
+      "frac_out": 0.0018,
+      "kind": "mos"
+     }
+    ]
+   },
+   "parent_wl_hash": "2669669e45c5c5a7",
+   "source_arm": "nf-moves"
+  }
+ },
+ "published": null,
+ "op_state": {
+  "n_devices": 2,
+  "subsample": 1,
+  "kept_in_memory": 8,
+  "flushed_to_store": 0
+ },
+ "trajectory": {
+  "path": "data/_e6_traj/incumbent_dhruva-l5-t2-a_s2_b150.jsonl",
+  "rows": 150
+ },
+ "wall_s": 8.9,
+ "s_per_eval": 0.0595,
+ "git_sha": "b46deff",
+ "ts": "2026-08-19T11:15:58+00:00"
+}

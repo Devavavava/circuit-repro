@@ -1,0 +1,371 @@
+{
+ "kind": "engineer_e6_smoke",
+ "schema": "engineer-e6-smoke-v0",
+ "tier": "SMOKE -- mechanics check only (E6-BUDGET.md \u00a77); smoke can refute the harness, NOT confirm the hypothesis",
+ "prereg": {
+  "file": "engineer/E6-BUDGET.md",
+  "sha": "b46deff85906b94733386344c0f9b0ac6f600aaa"
+ },
+ "config": {
+  "smoke_budget": 150,
+  "seeds": 3,
+  "arms": [
+   "incumbent",
+   "racing"
+  ],
+  "k": 4,
+  "cull_to": 1,
+  "r_smoke": 15,
+  "tasks": [
+   "dhruva-l1-t2-a",
+   "dhruva-l2-t2-a",
+   "dhruva-l5-t2-a",
+   "dhruva-s-t2-a",
+   "gps-l1-t2-a",
+   "wideband-sdr-t2-a",
+   "wifi24-t2-a"
+  ]
+ },
+ "per_task": {
+  "dhruva-l1-t2-a": {
+   "incumbent": {
+    "n_seeds": 3,
+    "feasible": "0/3",
+    "n_feasible": 0,
+    "best_obj_median": 1.553589,
+    "best_obj_best": 1.488005,
+    "best_obj_worst": 1.605567,
+    "evals_to_first_feasible_median": null,
+    "spice_min_to_first_feasible_median": null,
+    "n_seeds_first_feasible": 0,
+    "sim_s_total": 27.34,
+    "model_s_total": 0.66,
+    "evals_span": [
+     150
+    ],
+    "seeds": [
+     1,
+     2,
+     3
+    ]
+   },
+   "racing": {
+    "n_seeds": 3,
+    "feasible": "0/3",
+    "n_feasible": 0,
+    "best_obj_median": 1.693728,
+    "best_obj_best": 1.553589,
+    "best_obj_worst": 1.780339,
+    "evals_to_first_feasible_median": null,
+    "spice_min_to_first_feasible_median": null,
+    "n_seeds_first_feasible": 0,
+    "sim_s_total": 27.36,
+    "model_s_total": 0.67,
+    "evals_span": [
+     150
+    ],
+    "seeds": [
+     1,
+     2,
+     3
+    ]
+   },
+   "verdict": "racing<incumbent"
+  },
+  "dhruva-l2-t2-a": {
+   "incumbent": {
+    "n_seeds": 3,
+    "feasible": "0/3",
+    "n_feasible": 0,
+    "best_obj_median": 1.822691,
+    "best_obj_best": 1.403467,
+    "best_obj_worst": 2.373662,
+    "evals_to_first_feasible_median": null,
+    "spice_min_to_first_feasible_median": null,
+    "n_seeds_first_feasible": 0,
+    "sim_s_total": 27.17,
+    "model_s_total": 0.63,
+    "evals_span": [
+     150
+    ],
+    "seeds": [
+     1,
+     2,
+     3
+    ]
+   },
+   "racing": {
+    "n_seeds": 3,
+    "feasible": "0/3",
+    "n_feasible": 0,
+    "best_obj_median": 1.969937,
+    "best_obj_best": 1.969937,
+    "best_obj_worst": 2.256189,
+    "evals_to_first_feasible_median": null,
+    "spice_min_to_first_feasible_median": null,
+    "n_seeds_first_feasible": 0,
+    "sim_s_total": 27.21,
+    "model_s_total": 0.68,
+    "evals_span": [
+     150
+    ],
+    "seeds": [
+     1,
+     2,
+     3
+    ]
+   },
+   "verdict": "racing<incumbent"
+  },
+  "dhruva-l5-t2-a": {
+   "incumbent": {
+    "n_seeds": 3,
+    "feasible": "0/3",
+    "n_feasible": 0,
+    "best_obj_median": 1.437623,
+    "best_obj_best": 1.22226,
+    "best_obj_worst": 1.502926,
+    "evals_to_first_feasible_median": null,
+    "spice_min_to_first_feasible_median": null,
+    "n_seeds_first_feasible": 0,
+    "sim_s_total": 26.31,
+    "model_s_total": 0.69,
+    "evals_span": [
+     150
+    ],
+    "seeds": [
+     1,
+     2,
+     3
+    ]
+   },
+   "racing": {
+    "n_seeds": 3,
+    "feasible": "0/3",
+    "n_feasible": 0,
+    "best_obj_median": 1.306283,
+    "best_obj_best": 1.306283,
+    "best_obj_worst": 1.502926,
+    "evals_to_first_feasible_median": null,
+    "spice_min_to_first_feasible_median": null,
+    "n_seeds_first_feasible": 0,
+    "sim_s_total": 26.38,
+    "model_s_total": 0.66,
+    "evals_span": [
+     150
+    ],
+    "seeds": [
+     1,
+     2,
+     3
+    ]
+   },
+   "verdict": "racing>incumbent"
+  },
+  "dhruva-s-t2-a": {
+   "racing": {
+    "n_seeds": 3,
+    "feasible": "0/3",
+    "n_feasible": 0,
+    "best_obj_median": 1.787744,
+    "best_obj_best": 1.68419,
+    "best_obj_worst": 1.805537,
+    "evals_to_first_feasible_median": null,
+    "spice_min_to_first_feasible_median": null,
+    "n_seeds_first_feasible": 0,
+    "sim_s_total": 27.3,
+    "model_s_total": 0.65,
+    "evals_span": [
+     150
+    ],
+    "seeds": [
+     1,
+     2,
+     3
+    ]
+   },
+   "incumbent": {
+    "n_seeds": 3,
+    "feasible": "0/3",
+    "n_feasible": 0,
+    "best_obj_median": 1.402354,
+    "best_obj_best": 1.289401,
+    "best_obj_worst": 1.656469,
+    "evals_to_first_feasible_median": null,
+    "spice_min_to_first_feasible_median": null,
+    "n_seeds_first_feasible": 0,
+    "sim_s_total": 27.22,
+    "model_s_total": 0.68,
+    "evals_span": [
+     150
+    ],
+    "seeds": [
+     1,
+     2,
+     3
+    ]
+   },
+   "verdict": "racing<incumbent"
+  },
+  "gps-l1-t2-a": {
+   "incumbent": {
+    "n_seeds": 3,
+    "feasible": "0/3",
+    "n_feasible": 0,
+    "best_obj_median": 7.914789,
+    "best_obj_best": 7.907368,
+    "best_obj_worst": 8.006801,
+    "evals_to_first_feasible_median": null,
+    "spice_min_to_first_feasible_median": null,
+    "n_seeds_first_feasible": 0,
+    "sim_s_total": 31.01,
+    "model_s_total": 0.59,
+    "evals_span": [
+     150
+    ],
+    "seeds": [
+     1,
+     2,
+     3
+    ]
+   },
+   "racing": {
+    "n_seeds": 3,
+    "feasible": "0/3",
+    "n_feasible": 0,
+    "best_obj_median": 7.924689,
+    "best_obj_best": 7.924689,
+    "best_obj_worst": 7.938886,
+    "evals_to_first_feasible_median": null,
+    "spice_min_to_first_feasible_median": null,
+    "n_seeds_first_feasible": 0,
+    "sim_s_total": 31.07,
+    "model_s_total": 0.62,
+    "evals_span": [
+     150
+    ],
+    "seeds": [
+     1,
+     2,
+     3
+    ]
+   },
+   "verdict": "racing<incumbent"
+  },
+  "wideband-sdr-t2-a": {
+   "incumbent": {
+    "n_seeds": 3,
+    "feasible": "0/3",
+    "n_feasible": 0,
+    "best_obj_median": 1.92788,
+    "best_obj_best": 1.375501,
+    "best_obj_worst": 2.019805,
+    "evals_to_first_feasible_median": null,
+    "spice_min_to_first_feasible_median": null,
+    "n_seeds_first_feasible": 0,
+    "sim_s_total": 26.54,
+    "model_s_total": 0.66,
+    "evals_span": [
+     150
+    ],
+    "seeds": [
+     1,
+     2,
+     3
+    ]
+   },
+   "racing": {
+    "n_seeds": 3,
+    "feasible": "0/3",
+    "n_feasible": 0,
+    "best_obj_median": 1.292038,
+    "best_obj_best": 1.292038,
+    "best_obj_worst": 1.292038,
+    "evals_to_first_feasible_median": null,
+    "spice_min_to_first_feasible_median": null,
+    "n_seeds_first_feasible": 0,
+    "sim_s_total": 26.79,
+    "model_s_total": 0.66,
+    "evals_span": [
+     150
+    ],
+    "seeds": [
+     1,
+     2,
+     3
+    ]
+   },
+   "verdict": "racing>incumbent"
+  },
+  "wifi24-t2-a": {
+   "incumbent": {
+    "n_seeds": 3,
+    "feasible": "0/3",
+    "n_feasible": 0,
+    "best_obj_median": 1.256572,
+    "best_obj_best": 1.145391,
+    "best_obj_worst": 1.815044,
+    "evals_to_first_feasible_median": null,
+    "spice_min_to_first_feasible_median": null,
+    "n_seeds_first_feasible": 0,
+    "sim_s_total": 26.11,
+    "model_s_total": 0.7,
+    "evals_span": [
+     150
+    ],
+    "seeds": [
+     1,
+     2,
+     3
+    ]
+   },
+   "racing": {
+    "n_seeds": 3,
+    "feasible": "0/3",
+    "n_feasible": 0,
+    "best_obj_median": 1.335832,
+    "best_obj_best": 1.335832,
+    "best_obj_worst": 1.335832,
+    "evals_to_first_feasible_median": null,
+    "spice_min_to_first_feasible_median": null,
+    "n_seeds_first_feasible": 0,
+    "sim_s_total": 26.22,
+    "model_s_total": 0.65,
+    "evals_span": [
+     150
+    ],
+    "seeds": [
+     1,
+     2,
+     3
+    ]
+   },
+   "verdict": "racing<incumbent"
+  }
+ },
+ "median_rank": {
+  "incumbent": 1,
+  "racing": 2
+ },
+ "budget_match_check": {
+  "all_matched": true,
+  "n_pairs_checked": 21,
+  "mismatches": []
+ },
+ "cost": {
+  "sim_s_total": 384.03,
+  "model_s_total": 9.2,
+  "wall_s_total": 393.23,
+  "n_cells": 42,
+  "total_evals": 6300,
+  "total_ngspice_calls": 12600
+ },
+ "harness_git_sha": "b46deff",
+ "ts": "2026-08-19T11:15:59+00:00",
+ "e6_trajectory_append": {
+  "table": "data/e6_trajectories.jsonl",
+  "bytes_before": 0,
+  "bytes_after": 8375686,
+  "rows_appended": 6300
+ }
+}

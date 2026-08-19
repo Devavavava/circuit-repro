@@ -1,8 +1,12 @@
 # Upstream repositories — pinned commits
 
-Every checkout under `*/repo/`, `extensions/`, and `misc/` is an unmodified clone of a
-public repository. None of them are vendored into this repo. This file pins the exact
-commit each result in [STATUS.md](STATUS.md) was produced against.
+Every checkout under `*/repo/` and `misc/` is an unmodified clone of a public repository.
+None of them are vendored into this repo. This file pins the exact commit each result in
+[STATUS.md](STATUS.md) was produced against.
+
+**Note (2026-08-19):** `LaMAGIC2/`, `extensions/`, `smoke/`, `_wsl/`, and `_logs/` were
+phase-1 survey artifacts and have been removed from the working tree. They are preserved
+at git tag `phase1-survey`. The rows below retain their pinned SHAs for reference.
 
 Re-create all of them with:
 
@@ -53,8 +57,9 @@ home directory in its `.include` line. The patch substitutes the token
 
 ### Changes deliberately not captured
 
-* **LaMAGIC2/repo, extensions/ZeroSim** — reported as dirty by git, but the only
-  differences are recompiled `__pycache__/*.pyc` bytecode. No source change.
+* **LaMAGIC2/repo, extensions/ZeroSim** — reported as dirty by git during the phase-1
+  survey, but the only differences were recompiled `__pycache__/*.pyc` bytecode. No source
+  change. Both directories are now removed from the working tree (see tag `phase1-survey`).
 * **AutoCkt/repo `bsim4v5.out`** — a file ngspice overwrites on every run, not an edit.
 * **AnalogGenie/repo** — the `torch.load` / `map_location` bug noted in STATUS.md was
   worked around inside `Inference_smoke.py` (tracked here) rather than by editing the

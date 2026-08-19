@@ -1,5 +1,11 @@
 # Handover to Fable — LNA topology generation
 
+> **Historical document (2026-08-05 kickoff brief).** Both asks posed here have since been
+> answered: the spec format exists in `lna/specs/` (ask §4), and generation improvements
+> are the P5 lineage (ask §3). Windows/WSL paths and environment names below refer to the
+> original Phase-1 machine. This document is kept as the clearest statement of Phase 2's
+> origins; for current state see `lna/FINDINGS.md` and `clean-docs/`.
+
 **From:** Opus 5 session, 2026-08-05 · **Repo:** `C:\Users\Devavrat\circuit-repro`
 · **Owner:** Devavrat Patni
 

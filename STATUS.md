@@ -1,5 +1,12 @@
 # Analog Circuit ML — Clone / Setup / Smoke-Test Status
 
+> **Historical document — Phase 1 (Windows/WSL, Aug 2026).** This status snapshot was
+> produced on a Windows 11 + Ubuntu 22.04 WSL machine. The project now runs on a RHEL 8
+> workstation via `source env.sh`; paths and environment names herein refer to that old
+> machine and no longer exist in the working tree. Survey artifacts (`LaMAGIC2/`,
+> `extensions/`, `smoke/`, `_wsl/`, `_logs/`) were removed from the working tree and are
+> preserved at git tag `phase1-survey`. Current documentation lives in `clean-docs/`.
+
 **Updated:** 2026-08-03 (WSL pass + extension repos). Original Windows pass: 2026-08-02.
 **Host:** Windows 11, 16 cores, 16 GB RAM, NVIDIA RTX 3050 Laptop (4 GB), driver 592
 **Layout:** `C:\Users\Devavrat\circuit-repro\` — one subfolder per work, `extensions/` for the

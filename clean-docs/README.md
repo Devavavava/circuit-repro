@@ -16,6 +16,18 @@ the reasoning behind a decision, each file points back to the authoritative sour
 | [02-repo-survey.md](02-repo-survey.md) | Phase 1: cloning and smoke-testing 15 analog-circuit ML papers | `README.md`, `STATUS.md`, `PORTING.md`, `UPSTREAM.md` |
 | [03-lna-project.md](03-lna-project.md) | Phase 2: using those tools to actually generate low-noise-amplifier (LNA) circuits | `lna/FINDINGS.md`, `lna/JOURNEY.md`, `lna/HANDOVER-*.md`, `lna/WORKLOG.md`, `lna/STRUCTURE_LOGIC.md`, `lna/SURVEY-AI-CIRCUIT-DESIGN.md` |
 
+## Per-document clean versions
+
+The files above are consolidated overviews. These four are clean, plain-language
+equivalents of the individual dense docs — one per source, faithful to its contents:
+
+| File | Clean version of | What it is |
+|---|---|---|
+| [findings.md](findings.md) | `lna/FINDINGS.md` | the measurement log — every LNA result, grouped by theme |
+| [journey.md](journey.md) | `lna/JOURNEY.md` | the project history as a story, stage by stage |
+| [structure.md](structure.md) | `lna/STRUCTURE_LOGIC.md` | how the pipeline works today, block by block |
+| [survey.md](survey.md) | `lna/SURVEY-AI-CIRCUIT-DESIGN.md` | nine competing AI-for-analog systems and their lessons |
+
 ## A note on branches
 
 This repo has two long-lived branches:

@@ -110,15 +110,18 @@ Each of the long docs has a distinct job — this is worth knowing before you di
   graphs and under-produces inductors. Getting LNA-*like* circuits that aren't
   LNA-*copies* is unsolved. The next planned lever is a template/archetype generator
   (P5 fine-tune).
-- **Gain ceiling.** The single-stage reference tops out at ~7 dB gain, below the 12–15
-  dB specs need. This calls for a higher-gain topology (output matching), not more
-  optimizer work.
+- **Gain ceiling.** The single-stage reference topped out at ~7 dB gain, below the 12–15
+  dB specs need. This has since been addressed: the flagship dhruva-simul point reaches
+  ~36 dB fixed gain, with D6 programmability met under an approved mapping.
 - **A binding process constraint.** The available 45nm transistor model is *too fast*
   (fT 300–600 GHz), which drives the classic inductively-degenerated match to inductor
   values far too small to build on-chip. This may rule out the canonical LNA topology
   on this process — an important thing to know early.
-- **Linearity (IIP3) is unsupported** — needs a two-tone / harmonic-balance harness
-  that doesn't exist yet.
+- **Linearity (IIP3) harness now exists** — two engines (ngspice two-tone transient and
+  VACASK harmonic balance) agree to 0.08 dB (FINDINGS §44). D5 was measured and failed as
+  a stable physical wall (~21–27 dB short; see FINDINGS §44–§48). `iip3_dbm` remains
+  `status: unsupported` in spec objectives until the harness is wired into the benchmark
+  as a standard tier-3 rung.
 - **Stability is measured but advisory only** — nothing in the objective prevents a
   sizing step from walking a design into instability.
 

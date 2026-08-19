@@ -30,10 +30,17 @@ screen through the new derivation to pin the refactor (§4.2).
 ## Unsupported metrics
 
 Linearity (`iip3_dbm`) is declared with `status: unsupported`: `spec.py` loads
-it and reports it as UNMEASURED in every output, and the objective ignores it,
-until a two-tone transient / `.disto` harness exists (stretch WP, 06-SCHEDULE).
-This keeps specs honest against real standards without blocking on harness work
-(D5). `wideband-sdr`'s `s21_ripple_db` is L2-only (needs the swept response).
+it and reports it as UNMEASURED in every output, and the objective ignores it.
+This keeps specs honest against real standards without blocking on harness work (D5).
+
+**Correction (2026-08-19):** Two IIP3 harnesses now exist — an ngspice two-tone transient
+and a VACASK harmonic-balance analysis — and they agree to within 0.08 dB (FINDINGS §44).
+`iip3_dbm` nonetheless **remains `status: unsupported`** in spec objectives: the harness
+exists and is validated, but it has not yet been wired into the benchmark as a standard
+tier-3 rung, so no scored result depends on it. Update this file and promote `iip3_dbm`
+when that wiring lands.
+
+`wideband-sdr`'s `s21_ripple_db` is L2-only (needs the swept response).
 
 ## Deliberately excluded: 28 GHz mmWave
 

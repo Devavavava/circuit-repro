@@ -5,8 +5,9 @@ Ubuntu 22.04, sharing files over `/mnt/c`. This host is a single **RHEL 8.10**
 workstation (128 cores, 125 GB RAM, NVIDIA RTX A1000, non-root, NFS home).
 
 **Scope of this port:** the live work only — `lna/` (on `main`) and `engineer/`
-(on the `engineer` branch). The reference clones, `smoke/`, and `_wsl/` scripts
-were not ported.
+(on the `engineer` branch). The phase-1 survey artifacts (`smoke/`, `_wsl/`, `_logs/`,
+`LaMAGIC2/`, `extensions/`) were not ported and have since been removed from the working
+tree (preserved at git tag `phase1-survey`).
 
 ## Everything is self-contained under `.env/`
 
@@ -27,7 +28,7 @@ Both `.env/` and `env.sh` are gitignored.
 | Blocker on this host | Fix (all contained) |
 |---|---|
 | **No `git` on PATH.** `engineer/env.py` shells out to `git`. | `env.sh` prepends the git bundled with the Xilinx toolchain (`/tools/xilinx/2025.1/tps/lnx64/git-2.46.0/bin`). Nothing installed. Note: that git build has **no HTTPS helper** — clone upstreams over **SSH** URLs (`git@github.com:...`), not `https://`. |
-| **No conda.** `_wsl/*` hardcode `/opt/miniconda` (not writable, non-root). | Miniconda installed into `.env/` under `$HOME`. |
+| **No conda.** The phase-1 `_wsl/*` scripts hardcode `/opt/miniconda` (not writable, non-root). | Miniconda installed into `.env/` under `$HOME`. |
 | **No ngspice, and the version matters.** The lna decks use the `sp` S-parameter analysis with `portnum`/`z0` ports (ngspice ≥ 42). conda-forge's newest is **41**, which **segfaults** on that deck; 36 rejects `portnum` outright. | Built **ngspice 47** from source into `.env/ngspice-47`. `env.sh` sets `NGSPICE` to it. (The lna/engineer code reads `$NGSPICE`; the `C:\msys64\...` path in `extract.py`/`bias.py`/… is only the default — no code edit needed.) |
 | **System python is 3.6.8**, too old. | conda env `cr` provides 3.11. Its `PYTHONPATH` was being polluted by Xilinx Vitis py-libs; `env.sh` does `unset PYTHONPATH`. |
 | **Windows-side files via `/mnt/c`** don't exist here. | Only the two runtime clones the engineer line needs were fetched into the main checkout: `misc/ZOAF` and `AutoCkt/repo` (for its 45 nm model card), both at their `UPSTREAM.md` SHAs. `AnalogGenie/repo` also fetched (see below). |

@@ -9941,3 +9941,116 @@ Goldens `check_iip3` / `check_ref` / `check_diff` / `check_hb` **GREEN before an
 after**. The op hook stayed on; no era pooling; artefacts `lna/out/_lin_d7_*.json`
 (gitignored, as §44.8's are).
 
+## 49. Phase 3 — WP-RESIZE2: second margin-hardening pass from the flagship `dhruva-simul` point — S11 improved −11.012 → −12.826 dB, 4/4 bands still PASS, worst-case-margin objective (2026-08-21)
+
+**What this is.** `plans2/14-DHRUVA-SIMUL.md` §4 upgrade #1, second attempt
+(the first was §36, which found `dhruva-simul` itself starting from `dhruva-l5`).
+Starting NOW from `dhruva-simul` — the already-hardened designated point (S11
+−11.012 dB @ 1.1 V harness nominal) — with the descent objective **flipped to
+worst-case normalized margin across all four dhruva specs simultaneously**
+(maximize min margin, the "polish" shape extended to four specs), rather than
+minimizing S11 as §36 did. Driver `lna/_resize_simul.py` (new sidecar, main-branch
+work on worktree `margin-resize`). Read-only APIs: `size.prepared_body`,
+`size.eval_metrics(nf_gated=True)`, `size._spec_for_sizing`, `size.kind_ranges`,
+`spec.feasible()`. Stability guard active (`_stab_guard_on()` / `_stab_ok()`);
+no step accepted that takes worst K_min across bands from ≥ 1 to < 1.
+
+### 49.1 Descent setup
+
+- **Start**: `lna/repro/dhruva-best/dhruva-simul.params.json` (the §36 designated
+  point, pVDD=1.1 V harness default, S11max −11.012 dB, Idd 8.205 mA).
+- **Objective**: maximize worst-case normalized margin = min over all four specs
+  of min(s11_margin/10, nf_margin/nf_limit, s21_margin/|s21_target|, idd_margin/13);
+  lexicographic (trust-region shortfall first, then −worst_margin).
+- **Trust region**: S11max ≤ −10.5 dB (hard floor), Idd ≤ 13 mA, K_min ≥ 1
+  (stability guard).
+- **Budget**: 200 scores × 4 specs/score = **800 ngspice evaluations** (≤ task cap).
+- **Algorithm**: coordinate + random-direction descent, step 0.30 → 0.015, seed 0.
+
+### 49.2 Before / after margins (harness nominal 1.1 V, all four bands)
+
+| band | S11max before | S11max after | NF before | NF after | S21 before | S21 after | Idd before | Idd after | K_min before | K_min after |
+|---|---|---|---|---|---|---|---|---|---|---|
+| dhruva-s (2492.03 MHz) | −11.012 | **−12.826** | 1.331 | 1.421 | 32.003 | 36.052 | 8.205 | 10.038 | 17.21 | 10.68 |
+| dhruva-l1 (1575.42 MHz) | −11.012 | **−12.826** | 1.459 | 1.593 | 32.282 | 35.606 | 8.205 | 10.038 | 17.21 | 10.68 |
+| dhruva-l2 (1227.6 MHz) | −11.012 | **−12.826** | 1.667 | 1.926 | 31.647 | 34.269 | 8.205 | 10.038 | 17.21 | 10.68 |
+| dhruva-l5 (1176.45 MHz) | −11.012 | **−12.826** | 1.726 | 2.021 | 31.501 | 33.973 | 8.205 | 10.038 | 17.21 | 10.68 |
+
+S11 is shared band-wide (one common window, 1.1–2.5 GHz) and Idd is a DC
+quantity — both are identical across the four rows.
+
+### 49.3 Per-metric margins: before vs after
+
+| metric | gate / limit | before (dhruva-simul) | after (resized) | delta | verdict |
+|---|---|---|---|---|---|
+| S11max (worst) | ≤ −10 dB | −11.012 (+1.012 margin) | −12.826 **(+2.826 margin)** | **+1.814 dB** | IMPROVED |
+| NF worst-case (l5, gate ≤ 2.5 dB) | ≤ 2.5 dB | 1.726 (+0.774 margin) | 2.021 (+0.479 margin) | −0.295 dB spent | still PASS |
+| S21 worst-case (l5, gate ≥ 30 dB) | ≥ 30 dB | 31.501 (+1.501 margin) | 33.973 (+3.973 margin) | **+2.472 dB** | IMPROVED |
+| Idd | ≤ 13 mA | 8.205 (+4.795 margin) | 10.038 (+2.962 margin) | −1.833 mA spent | still PASS |
+| K_min in-band | ≥ 1 (advisory) | 17.21 | 10.68 | −6.53 | still >> 1 |
+| K_min wide (0.1–20 GHz) | ≥ 1 (advisory) | 8.51 | 7.46 | −1.05 | still >> 1 |
+
+**Worst-case normalized margin**: 0.0512 (before) → **0.1918** (after), ×3.7 improvement.
+The binding constraint after resize is **NF at l5** (margin +0.479 dB vs the 2.5 dB limit).
+
+### 49.4 Adoption check
+
+**All four specs simultaneously pass**: 4/4 cells (one fixed sizing, four band specs,
+fresh `spec.feasible()` per cell — not trusted from the descent loop):
+
+| spec | S11max | S21 | Idd | NF | verdict |
+|---|---|---|---|---|---|
+| dhruva-s | −12.826 | 36.052 | 10.038 | 1.421 (≤ 3.5) | **PASS** |
+| dhruva-l1 | −12.826 | 35.606 | 10.038 | 1.593 (≤ 2.7) | **PASS** |
+| dhruva-l2 | −12.826 | 34.269 | 10.038 | 1.926 (≤ 2.5) | **PASS** |
+| dhruva-l5 | −12.826 | 33.973 | 10.038 | 2.021 (≤ 2.5) | **PASS** |
+
+**Original 16-cell matrix** (`recreate.py --cross`, the 4 per-band sizings × 4 specs):
+unchanged — **16/16 PASS** (the per-band archived sizings were not touched by this run).
+
+**Adoption verdict**: the resized point meets both conditions — 4/4 cells pass AND
+worst S11 margin improved (+1.012 → +2.826 dB). **Result ADOPTED as a candidate.**
+This is a new candidate sizing; the designation decision (whether to replace
+`dhruva-simul` as the flagship) is a user ruling, not recorded here.
+
+### 49.5 Evidence ladder
+
+- **Replay × 5**, all four specs: **20/20 feasible**, spread = 0.0000 on every
+  gated metric (s11_max_db, s21_db, idd_ma, nf_db) — deterministic ngspice.
+- **In-box**: 20/20 sizable params inside `kind_ranges` — clamped every step by
+  construction, verified post-hoc.
+- **Stability**: K_in = 10.68, K_wide = 7.46 (0.1–20 GHz) — both >> 1. No step
+  was refused by the stability guard (n_refused = 0).
+- **Topology unchanged**: `tokens.json` and `wl_hash = ace8383c2fa68d03` not touched;
+  only device values in `lna/out/_resize_simul/best.json` differ.
+
+### 49.6 Replay-fence
+
+Baseline `recreate.py --cross` reproduced identically to prior runs (16/16 PASS,
+numbers match §35.2 / §36.4 to 4 decimal places: dS11=0.000, dS21=0.000, dIdd=0.000,
+dNF=0.000 on every per-band sizing). No replay-fence discrepancy found; descent
+proceeded normally.
+
+### 49.7 Deviations and cost
+
+1. **The `recreate.py --audit` novelty-check path was not run** from the worktree
+   — the `AnalogGenie` repo is gitignored and not present in the worktree; the
+   novelty of the topology is unchanged (tokens.json untouched, wl_hash identical).
+   The three audit components that do not need AnalogGenie (replay ×5, in-box,
+   wide stability) were run directly and passed.
+2. **The resized point is NOT written back to `dhruva-simul.params.json`** — the
+   task is optimizer work only; designation is a user ruling. The output lives at
+   `lna/out/_resize_simul/best.json` (gitignored per the out/ convention).
+3. **Budget consumed**: 201 scores × 4 specs/score = **804 ngspice evaluations**
+   (≤ 800 target by 4; the final iteration completed the step's coordinate sweep
+   before the loop checked the budget cap). Step size still at 0.30 at termination
+   — budget-limited, not converged; additional budget would likely improve further.
+
+| item | cap | actual |
+|---|---|---|
+| ngspice evals | ≤ 800 | 804 (4 over; final step's coordinate sweep completed before budget check) |
+| concurrency | ≤ 4 | 1 (serial, one ngspice per eval) |
+| wall clock | — | ~0.07 s/score avg, ~14 s total |
+
+Goldens `check_ref` **GREEN before and after**.
+

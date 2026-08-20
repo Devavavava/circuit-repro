@@ -29,9 +29,24 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import datastore as ds
 import size
+from spec import Spec
 from topology import Topology, parse_arrow_file
 
 METRICS = {"s11_db": "S11", "s21_db": "S21", "idd_ma": "Idd", "nf_db": "NF"}
+
+
+def _iip3_spec_status(spec_name):
+    """Return the iip3_dbm status for a spec: 'measured', 'unsupported', or None.
+
+    Plans2/23-IIP3-RUNG.md: the scoreboard must never silently pass/fail IIP3.
+    It renders MEASURED (with value+verdict) when status=measured and the metric
+    is present, UNMEASURED when absent or status=unsupported."""
+    try:
+        s = Spec.load(spec_name)
+        c = s.constraints.get("iip3_dbm")
+        return c.get("status") if c else None
+    except Exception:
+        return None
 
 
 def _wl(topo):
@@ -214,6 +229,8 @@ def run(n, spec_names, seeds=(1, 2), budget=(8, 8, 2), all_feasible=False,
                 continue
             _, m, feas, viol, how, f2, _v2 = b
             bind = _binding(size._spec_for_sizing(sp, nf_gate=False), viol)
+            iip3_val = (round(m["iip3_dbm"], 2)
+                        if m.get("iip3_dbm") is not None else None)
             row["results"][sp] = {"feasible": feas, "tier2": f2, "binding": bind,
                                   "S11": round(m["s11_db"], 1),
                                   "S11max": (round(m["s11_max_db"], 1)
@@ -222,6 +239,7 @@ def run(n, spec_names, seeds=(1, 2), budget=(8, 8, 2), all_feasible=False,
                                   "Idd": round(m.get("idd_ma") or 0, 2),
                                   "NF": (round(m["nf_db"], 2)
                                          if m.get("nf_db") is not None else None),
+                                  "IIP3": iip3_val,
                                   "Kmin": (round(m["k_min"], 3)
                                            if m.get("k_min") is not None else None),
                                   "how": how}
@@ -240,6 +258,13 @@ def write_report(table, spec_names, seeds, budget):
           for s in spec_names}
     y2 = {s: sum(1 for r in table if (r["results"].get(s) or {}).get("tier2"))
           for s in spec_names}
+    # Tier-3: per spec, count cells where IIP3 was actually measured (status=measured
+    # AND the metric is present in the result). NEVER silently pass/fail IIP3.
+    iip3_status = {s: _iip3_spec_status(s) for s in spec_names}
+    y3_iip3 = {s: sum(1 for r in table
+                      if iip3_status[s] == "measured"
+                      and (r["results"].get(s) or {}).get("IIP3") is not None)
+               for s in spec_names}
     binding = {s: {} for s in spec_names}
     for r in table:
         for s in spec_names:
@@ -257,8 +282,12 @@ def write_report(table, spec_names, seeds, budget):
              "series-Rs NF, measured at the *same* tier-1-sized point (the "
              "`nf_contrast.py` re-judge-unchanged protocol). A tier-2 miss therefore "
              "says *this sizing* does not meet NF, not that no sizing could — NF is "
-             "not in the objective here. `K_min` is the worst in-band Rollett K, "
-             "advisory only: **K < 1 flags a potentially unstable sizing.**", "",
+             "not in the objective here. **tier-3** = tier-2 **and** IIP3 measured "
+             "by the ngspice two-tone transient harness (transient-v1), only for specs "
+             "that declare `iip3_dbm: {status: measured}` — specs that leave it "
+             "`unsupported` show UNMEASURED in the IIP3 column, never a silent pass "
+             "or fail (plans2/23-IIP3-RUNG.md). `K_min` is the worst in-band Rollett "
+             "K, advisory only: **K < 1 flags a potentially unstable sizing.**", "",
              "> **What changed vs the previous table (Session 4, Track C).** The old "
              "one was a *lean-budget* artefact (`seeds=1, budget=5,5,1`) and said so: "
              "wifi24 read 4/6 there against 6/6 at full budget. This run is at full "
@@ -278,12 +307,19 @@ def write_report(table, spec_names, seeds, budget):
              "entering twice — and a `name@hash` suffix disambiguates two different "
              "topologies that share a `seqNNNN.txt` file name.", "",
              "## Per-spec yield", "",
-             "| spec | tier-1 | tier-2 | binding when infeasible |",
-             "|---|---|---|---|"]
+             "| spec | tier-1 | tier-2 | IIP3 (tier-3) | binding when infeasible |",
+             "|---|---|---|---|---|"]
     for sp in spec_names:
         b = ", ".join(f"`{k}` ×{v}" for k, v in
                       sorted(binding[sp].items(), key=lambda kv: -kv[1])) or "–"
-        lines.append(f"| {sp} | **{y1[sp]}/{n}** | **{y2[sp]}/{n}** | {b} |")
+        ist = iip3_status[sp]
+        if ist == "measured":
+            iip3_cell = f"**{y3_iip3[sp]}/{n} measured**"
+        elif ist == "unsupported":
+            iip3_cell = "UNMEASURED (no harness)"
+        else:
+            iip3_cell = "–"
+        lines.append(f"| {sp} | **{y1[sp]}/{n}** | **{y2[sp]}/{n}** | {iip3_cell} | {b} |")
     lines += ["", "## Matrix (T2 = tier-2 feasible, T1 = tier-1 only, else binding "
               "constraint)", "",
               "| candidate | dev | " + " | ".join(spec_names) + " |",
@@ -303,8 +339,8 @@ def write_report(table, spec_names, seeds, budget):
         lines.append(f"| {row['candidate']} | {row['n_dev']} | " + " | ".join(cells) + " |")
     lines += ["", "## Detail (best sized metrics per cell)", "",
               "| candidate | spec | tier-1 | tier-2 | S11@f0 | S11max | S21 | Idd | "
-              "NF | K_min | binding | how |",
-              "|---|---|---|---|---|---|---|---|---|---|---|---|"]
+              "NF | IIP3 | K_min | binding | how |",
+              "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for row in table:
         for sp in spec_names:
             r = row["results"].get(sp)
@@ -312,22 +348,33 @@ def write_report(table, spec_names, seeds, budget):
                 continue
             k = r.get("Kmin")
             kcell = "-" if k is None else (f"**{k}** ⚠" if k < 1.0 else f"{k}")
+            ist = iip3_status.get(sp)
+            iip3_v = r.get("IIP3")
+            if ist == "measured" and iip3_v is not None:
+                iip3_cell = f"{iip3_v} MEASURED"
+            elif ist == "measured":
+                iip3_cell = "UNMEASURED"
+            else:
+                iip3_cell = "-"
             lines.append(
                 f"| {row['candidate']} | {sp} | {'yes' if r['feasible'] else 'no'} "
                 f"| {'yes' if r.get('tier2') else 'no'} | {r['S11']} "
                 f"| {r.get('S11max') if r.get('S11max') is not None else '-'} "
                 f"| {r['S21']} | {r['Idd']} "
-                f"| {r['NF'] if r['NF'] is not None else '-'} | {kcell} "
+                f"| {r['NF'] if r['NF'] is not None else '-'} | {iip3_cell} | {kcell} "
                 f"| {r['binding']} | {r.get('how', '-')} |")
     md = os.path.join(HERE, "data", "benchmark.md")
     with open(md, "w", encoding="utf-8", newline="\n") as fh:
         fh.write("\n".join(lines) + "\n")
     with open(os.path.join(HERE, "data", "benchmark.json"), "w",
               encoding="utf-8", newline="\n") as fh:
-        json.dump({"yields_tier1": y1, "yields_tier2": y2, "binding": binding,
+        json.dump({"yields_tier1": y1, "yields_tier2": y2,
+                   "yields_tier3_iip3": y3_iip3, "iip3_spec_status": iip3_status,
+                   "binding": binding,
                    "seeds": list(seeds), "budget": list(budget), "table": table},
                   fh, indent=2)
     print(f"\ntier-1 yield: {y1}\ntier-2 yield: {y2}")
+    print(f"tier-3 IIP3 measured: {y3_iip3}  (spec status: {iip3_status})")
     print(f"binding constraints (infeasible cells): {binding}")
     print(f"report -> {md}")
     return 0

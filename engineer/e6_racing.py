@@ -43,6 +43,25 @@ import env as EV                                              # noqa: E402
 from env import BudgetExhausted                               # noqa: E402
 from null_sizer import run_cmaes                              # noqa: E402
 
+# The racing MECHANISM is env-agnostic (E6-BUDGET.md §2.1): it drives whatever
+# budgeted env exposes objective_fn()/remaining/n_evals/best_f. The in-house Env
+# raises env.BudgetExhausted; the external ExtEnv / ExtLdoEnv raise their OWN
+# BudgetExhausted (a distinct class, not an env.BudgetExhausted subclass). To run
+# the SAME pre-registered arm on the external tracks (which the ROADMAP G1
+# falsifier binds on, E6-BUDGET.md §6) the budget-exhaustion catch must recognise
+# all three. This changes NO k/r/cull/matched-budget semantics -- the in-house
+# path never raises the external types, so its behaviour is bit-identical.
+_BUDGET_TYPES = [BudgetExhausted]
+for _mod in ("ext_gym", "ext_ldo"):
+    try:
+        _m = __import__(_mod)
+        _be = getattr(_m, "BudgetExhausted", None)
+        if _be is not None and _be not in _BUDGET_TYPES:
+            _BUDGET_TYPES.append(_be)
+    except Exception:                                          # noqa: BLE001
+        pass
+_BUDGET_EXC = tuple(_BUDGET_TYPES)
+
 
 # --------------------------------------------------- the frozen k/r/cull rule
 K_STARTS = 4                       # E6-BUDGET.md §2.3
@@ -130,7 +149,7 @@ def run_racing(envr, seed, diag=None, k=K_STARTS):
         d = {}
         try:
             run_cmaes(_triage_objective(envr, r, cache), n, sub, diag=d)
-        except BudgetExhausted:                    # triage slice OR real budget
+        except _BUDGET_EXC:                         # triage slice OR real budget
             pass
         best_f = min((f for _x, f in cache), default=float("inf"))
         best_i = (min(range(len(cache)), key=lambda j: cache[j][1])
@@ -159,7 +178,7 @@ def run_racing(envr, seed, diag=None, k=K_STARTS):
     resume_before = envr.n_evals
     try:
         run_cmaes(_resume_objective(envr, replay), n, seed + winner)
-    except BudgetExhausted:
+    except _BUDGET_EXC:
         pass
     diag["resume_evals"] = envr.n_evals - resume_before
     diag["n_evals_total"] = envr.n_evals

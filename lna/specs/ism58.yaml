@@ -1,0 +1,81 @@
+# 5.8 GHz ISM-band narrowband LNA (5.725-5.875 GHz, the upper unlicensed ISM/U-NII edge).
+#
+# ═══════════════════════════════════════════════════════════════════════════
+# EXPERIMENTAL-TRANSFER spec. Created at user request 2026-08-21 for the COLD
+# fresh-spec generation test (lna/plans2/21-COLDSPEC.md). NOT FROZEN. Per
+# governance (memory: circuit-repro-governance), spec adoption/freezing remains
+# a USER RULING — this file is a candidate target for one experiment, nothing
+# is adopted by its existence.
+#
+# This is a G4 fresh-transfer spec (engineer/G0-FAIRNESS.md §1): a band no prior
+# target touches (2.4/1.575/0.5-3 GHz are the existing targets; 5.8 GHz is new),
+# far from mmWave, still inside the BPTM 45nm predictive model's credible range
+# (the 28 GHz target was excluded for parasitic fiction — plans/01-SPEC.md §3;
+# 5.8 GHz sits ~5x below that and is a standard published CMOS LNA band).
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# Rationale / defensible numbers, from published 5-6 GHz CMOS LNA practice
+# (typical measured-silicon 802.11a / 5 GHz U-NII / 5.8 GHz ISM front ends in
+# 45-130 nm CMOS; these are round, standards-typical figures, NOT tuned to any
+# corpus circuit and NOT read off this pipeline's behaviour — G0-FAIRNESS §3
+# calibrations.allowed:never):
+#   f0    = 5.8 GHz    (centre of the 5.725-5.875 GHz ISM/U-NII-3 segment)
+#   BW    = 150 MHz    (covers the 5.725-5.875 band edge-to-edge)
+#   NF    <= 3.5 dB    (5-6 GHz CMOS LNAs cluster ~2-4 dB NF; 3.5 is a relaxed,
+#                       clearly-clearable floor at this frequency where induced-
+#                       gate noise starts to matter)
+#   S21   >= 12 dB     (typical single-stage tuned gain 12-18 dB)
+#   S11   <= -10 dB    (the universal input-match gate)
+#   Idd   <= 10 mA     (~12 mW at 1.2 V paper rail; mid-range for the band)
+#
+# Rail note (same convention as dhruva-*/gps specs): published designs at this
+# band are typically 1.2 V; the ngspice harness FIXES VDD at the process.vdd
+# below (size.classify_params), so vdd:1.1 documents the *evaluated* condition,
+# and the 10 mA budget is stated against the 1.2 V paper rail as is house
+# practice. The current draw is measured at the evaluated 1.1 V.
+name: ism58
+description: 5.8 GHz ISM-band (5.725-5.875 GHz) narrowband receiver LNA
+
+process:
+  models: AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt
+  vdd: 1.1
+  temp: 27
+
+band:
+  type: narrowband
+  f0: 5.8e9
+  f_lo: 5.725e9
+  f_hi: 5.875e9
+
+ports:
+  z0: 50
+  input: VIN1
+  output: VOUT1
+
+constraints:
+  nf_db:    {max: 3.5}
+  s11_db:   {max: -10}
+  s21_db:   {min: 12}
+  idd_ma:   {max: 10}
+  iip3_dbm: {min: -10, status: unsupported}   # harness exists+validated but not wired as a scored tier-3 rung (specs/README.md correction 2026-08-19)
+
+objectives:
+  - {metric: s21_db, direction: max, weight: 1.0}
+  - {metric: nf_db,  direction: min, weight: 0.5}
+  - {metric: idd_ma, direction: min, weight: 0.5}
+
+topology:
+  differential: false
+  reject_floating: true   # H-Q3: reject genuinely disconnected islands
+  device_budget: [3, 16]  # same corpus-calibrated budget as wifi24/gps-l1
+  max_inductors: 3        # matching + degeneration + load tank at this band
+  l_min: 0.3e-9
+  l_max: 8e-9             # higher f0 => smaller resonant spirals than gps-l1's 15 nH
+  allow_inductorless: false
+
+sizing:
+  w_um: [1, 200]
+  l_fixed: 45e-9
+  r_ohm: [50, 20e3]
+  c_f: [50e-15, 10e-12]
+  vb_v: [0.2, 0.9]

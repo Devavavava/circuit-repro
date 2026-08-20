@@ -194,3 +194,5 @@ a secondary for practitioners who care about end-to-end calendar time.
   question of whether authoring transfer specs requires its own protocol bump is
   moot until then. The default (transfer specs land with the protocol bump when G4
   starts) stands per the user ruling.
+
+**Addendum (user ruling, 2026-08-20):** Among the time-to-competence metrics defined in this document, **SPICE-minutes-to-first-feasible** is designated PRIMARY by user ruling 2026-08-20 (see also ROADMAP §6). The metric is SPICE-minutes to first spec-feasible design at tier-2 feasibility where the task defines it, per the G0-FAIRNESS metric set. The remaining time-to-competence metrics (e.g. rank, success rate) remain reported and are not deprecated; they are secondary to SPICE-minutes-to-feasible for engineer-line scoreboard purposes.

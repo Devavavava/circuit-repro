@@ -92,3 +92,9 @@ roadmap adds rungs; it relaxes nothing.
 | R-B | Adopt rung order G0→G6 (reorder/veto any)? | **ADOPTED** — G0→G6 order adopted as written. First experiment authorised: G1 (E-6), smoke tier (150 evals/arm per R-4 convention) then full scale after check-in. |
 | R-C | Playbook default in fresh-task runs: declared-in, or out entirely? | **OUT** — playbook is out of fresh-task runs by default; enters only as the explicit variable (e.g. G3). Fenced in the contamination ledger's `playbook.allowed: declared` / `present: false` default. |
 | R-D | Does authoring the G4 transfer specs itself require a PROTOCOL bump first, or land with G0's v1.1? | **DEFERRED-MOOT** — G4 has not started; the question is moot. Default (transfer specs land with a protocol bump when G4 starts) stands. |
+
+## 6. Goal clarification (user ruling, 2026-08-20)
+
+The goal of engineer isn't novelty, it's capacity to hit specs in a reasonable time.
+
+Operationalization (also ruled): the engineer line's PRIMARY scoreboard metric is **SPICE-minutes to first spec-feasible design** (tier-2 feasible where the task defines it), per the G0-FAIRNESS metric set; novelty/NDL remains a main-line generator concern and is explicitly NOT an engineer-line objective or tiebreaker. This sharpens (does not contradict) the adopted §2 axes: among the time-to-competence metrics, SPICE-minutes-to-feasible is primary.

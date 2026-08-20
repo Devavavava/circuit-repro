@@ -320,6 +320,14 @@ human check-in — is what tests the hypothesis.
 The harness resolves none of these inside a run; it records the trace and they
 stay queued.
 
+### 9.1 Rulings (user, 2026-08-20 — recorded before the full-tier externals board landed)
+
+- **OQ-3 RULED: §6 reading CONFIRMED.** The "budget-splitting dies as a family" falsifier fires only on a loss on all three tracks (in-house + amp + LDO); a mixed result is reported as where-it-helps. Note explicitly: ruled while the externals campaign was still running, before any externals result was visible — the in-house outcome (racing 3/7, median-rank 2 vs 1) was known.
+
+- **OQ-1 RULED: B′ (top-2) only if the verdict warrants.** If E-6 lands mixed-or-better, a small pre-registered E-6b measures top-2 vs top-1; if racing loses on all three tracks, no follow-up is spent.
+
+- **OQ-2 RULED: fraction schedule stands.** Revisit only if the E-6 trace data shows the small-task triage overhead cost wins, and then only as its own pre-registered change per PROTOCOL §9.
+
 ---
 
 ## 10. Artifacts + commit order

@@ -1,6 +1,6 @@
 # E7-MOVES — a primitive-only move repertoire for output-class reachability (pre-registration)
 
-**Status: DRAFT — PENDING USER RULING. NOTHING EXECUTES UNTIL RULED.**
+**Status: ADOPTED (user ruling 2026-08-20) — execution begins only after the E-6 campaign completes and frees the box (per OQ-1 ruling below).**
 
 This document is the **pre-registration** for **rung G2 (E-7)** of
 `engineer/ROADMAP.md` §3 (the move-repertoire rung). It is a DRAFT: it is
@@ -395,3 +395,30 @@ A **G2 verdict therefore reopens or re-rules D5**:
 <!-- POST-HOC OUTCOME SECTION APPENDED BELOW ONLY AFTER A USER GO AND THE RUN —
      NOT PART OF THE PRE-REGISTRATION. Everything above this line is the DRAFT
      committed for the user's ruling; nothing above was informed by any G2 eval. -->
+
+---
+
+## Rulings (user, 2026-08-20)
+
+**OQ-4 RULED: P6 `duplicate_branch_with_complement` REJECTED** — too close to the
+forbidden add-push-pull macro; strictest nudge-compliance chosen.
+
+**OQ-5 RULED: the atomic `add_and_connect_device(type,{pin:node})` primitive is
+ACCEPTED** as part of this same ruling (no separate ruling needed — this also
+resolves OQ-3). Intermediates must stay L0-legal; no transient-illegal multi-edit
+steps. The accepted move set is therefore P1–P5, P7, plus `add_and_connect_device`;
+reachability to a non-class-A output stands at 3–4 composed primitive edits.
+
+**OQ-1 RULED: wait for E-6** — no G2 smoke until the E-6 campaign completes,
+keeping E-6's wall-clock/time-to-competence numbers clean.
+
+**OQ-2 RULED: auto-proceed to L2** on an L0/L1 reachability success, within the
+declared budget cap in this pre-reg. The pre-reg had no explicit L2 cap number;
+this ruling sets one: **L2 sizing cap = 500 evals per reached candidate** (one
+full-budget CMA-ES sizing run at the dhruva-l2 reference budget scale, rounded to
+give headroom; set at ruling time, 2026-08-20). No separate pre-reg required for
+L2 sizing on a reachability win — it is authorized within this cap.
+
+**OQ-6 RULED: guided≈random goes straight to D5 re-ruling** among options
+3a/3b/3d of `lna/plans2/20-D5-DECISION.md`; no stronger-guidance follow-up rung
+without a new user ruling.

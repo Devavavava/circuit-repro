@@ -1,0 +1,478 @@
+{
+ "kind": "engineer_e6_full",
+ "schema": "engineer-e6-full-v0",
+ "tier": "FULL -- PROTOCOL v1.0 scoring config: 7 in-house tier-2 tasks at pinned matched budgets, N=10 (E6-BUDGET.md \u00a74.2)",
+ "prereg": {
+  "file": "engineer/E6-BUDGET.md",
+  "sha": "b46deff85906b94733386344c0f9b0ac6f600aaa"
+ },
+ "config": {
+  "smoke_budget": 150,
+  "seeds": 10,
+  "arms": [
+   "incumbent",
+   "racing"
+  ],
+  "k": 4,
+  "cull_to": 1,
+  "r_smoke": 15,
+  "tasks": [
+   "dhruva-l1-t2-a",
+   "dhruva-l2-t2-a",
+   "dhruva-l5-t2-a",
+   "dhruva-s-t2-a",
+   "gps-l1-t2-a",
+   "wideband-sdr-t2-a",
+   "wifi24-t2-a"
+  ],
+  "budgets": {
+   "dhruva-l1-t2-a": 392,
+   "dhruva-l2-t2-a": 266,
+   "dhruva-l5-t2-a": 1050,
+   "dhruva-s-t2-a": 1030,
+   "gps-l1-t2-a": 136,
+   "wideband-sdr-t2-a": 136,
+   "wifi24-t2-a": 336
+  }
+ },
+ "per_task": {
+  "dhruva-l1-t2-a": {
+   "racing": {
+    "n_seeds": 10,
+    "feasible": "7/10",
+    "n_feasible": 7,
+    "best_obj_median": -0.262037,
+    "best_obj_best": -0.330394,
+    "best_obj_worst": 1.354763,
+    "evals_to_first_feasible_median": 390,
+    "spice_min_to_first_feasible_median": 0.2504,
+    "n_seeds_first_feasible": 7,
+    "sim_s_total": 154.15,
+    "model_s_total": 7.67,
+    "evals_span": [
+     392
+    ],
+    "seeds": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   "incumbent": {
+    "n_seeds": 10,
+    "feasible": "6/10",
+    "n_feasible": 6,
+    "best_obj_median": -0.252221,
+    "best_obj_best": -0.787518,
+    "best_obj_worst": 1.287733,
+    "evals_to_first_feasible_median": 345.0,
+    "spice_min_to_first_feasible_median": 0.2209,
+    "n_seeds_first_feasible": 6,
+    "sim_s_total": 153.25,
+    "model_s_total": 7.55,
+    "evals_span": [
+     392
+    ],
+    "seeds": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   "verdict": "racing>incumbent"
+  },
+  "dhruva-l2-t2-a": {
+   "incumbent": {
+    "n_seeds": 10,
+    "feasible": "1/10",
+    "n_feasible": 1,
+    "best_obj_median": 1.147769,
+    "best_obj_best": -0.600275,
+    "best_obj_worst": 1.396912,
+    "evals_to_first_feasible_median": 220,
+    "spice_min_to_first_feasible_median": 0.1429,
+    "n_seeds_first_feasible": 1,
+    "sim_s_total": 120.94,
+    "model_s_total": 6.96,
+    "evals_span": [
+     266
+    ],
+    "seeds": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   "racing": {
+    "n_seeds": 10,
+    "feasible": "0/10",
+    "n_feasible": 0,
+    "best_obj_median": 1.392396,
+    "best_obj_best": 1.046336,
+    "best_obj_worst": 2.05395,
+    "evals_to_first_feasible_median": null,
+    "spice_min_to_first_feasible_median": null,
+    "n_seeds_first_feasible": 0,
+    "sim_s_total": 200.36,
+    "model_s_total": 13.21,
+    "evals_span": [
+     266
+    ],
+    "seeds": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   "verdict": "racing<incumbent"
+  },
+  "dhruva-l5-t2-a": {
+   "incumbent": {
+    "n_seeds": 10,
+    "feasible": "10/10",
+    "n_feasible": 10,
+    "best_obj_median": -0.272339,
+    "best_obj_best": -0.298001,
+    "best_obj_worst": -0.044389,
+    "evals_to_first_feasible_median": 425.0,
+    "spice_min_to_first_feasible_median": 0.6381,
+    "n_seeds_first_feasible": 10,
+    "sim_s_total": 981.52,
+    "model_s_total": 65.48,
+    "evals_span": [
+     1050
+    ],
+    "seeds": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   "racing": {
+    "n_seeds": 10,
+    "feasible": "10/10",
+    "n_feasible": 10,
+    "best_obj_median": -0.284487,
+    "best_obj_best": -0.292724,
+    "best_obj_worst": -0.082078,
+    "evals_to_first_feasible_median": 425.0,
+    "spice_min_to_first_feasible_median": 0.8216,
+    "n_seeds_first_feasible": 10,
+    "sim_s_total": 956.65,
+    "model_s_total": 51.27,
+    "evals_span": [
+     1050
+    ],
+    "seeds": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   "verdict": "racing>incumbent"
+  },
+  "dhruva-s-t2-a": {
+   "incumbent": {
+    "n_seeds": 10,
+    "feasible": "10/10",
+    "n_feasible": 10,
+    "best_obj_median": -1.149762,
+    "best_obj_best": -1.183562,
+    "best_obj_worst": -0.963746,
+    "evals_to_first_feasible_median": 275.0,
+    "spice_min_to_first_feasible_median": 0.2993,
+    "n_seeds_first_feasible": 10,
+    "sim_s_total": 684.43,
+    "model_s_total": 38.37,
+    "evals_span": [
+     1030
+    ],
+    "seeds": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   "racing": {
+    "n_seeds": 10,
+    "feasible": "10/10",
+    "n_feasible": 10,
+    "best_obj_median": -1.123039,
+    "best_obj_best": -1.181182,
+    "best_obj_worst": -1.018383,
+    "evals_to_first_feasible_median": 340.0,
+    "spice_min_to_first_feasible_median": 0.2815,
+    "n_seeds_first_feasible": 10,
+    "sim_s_total": 471.46,
+    "model_s_total": 22.82,
+    "evals_span": [
+     1030
+    ],
+    "seeds": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   "verdict": "racing<incumbent"
+  },
+  "gps-l1-t2-a": {
+   "incumbent": {
+    "n_seeds": 10,
+    "feasible": "0/10",
+    "n_feasible": 0,
+    "best_obj_median": 7.920457,
+    "best_obj_best": 7.907366,
+    "best_obj_worst": 8.006801,
+    "evals_to_first_feasible_median": null,
+    "spice_min_to_first_feasible_median": null,
+    "n_seeds_first_feasible": 0,
+    "sim_s_total": 89.97,
+    "model_s_total": 2.73,
+    "evals_span": [
+     136
+    ],
+    "seeds": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   "racing": {
+    "n_seeds": 10,
+    "feasible": "0/10",
+    "n_feasible": 0,
+    "best_obj_median": 7.945619,
+    "best_obj_best": 7.907737,
+    "best_obj_worst": 7.982318,
+    "evals_to_first_feasible_median": null,
+    "spice_min_to_first_feasible_median": null,
+    "n_seeds_first_feasible": 0,
+    "sim_s_total": 82.68,
+    "model_s_total": 2.33,
+    "evals_span": [
+     136
+    ],
+    "seeds": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   "verdict": "racing<incumbent"
+  },
+  "wideband-sdr-t2-a": {
+   "incumbent": {
+    "n_seeds": 10,
+    "feasible": "1/10",
+    "n_feasible": 1,
+    "best_obj_median": 1.64005,
+    "best_obj_best": -0.449999,
+    "best_obj_worst": 2.032872,
+    "evals_to_first_feasible_median": 130,
+    "spice_min_to_first_feasible_median": 0.115,
+    "n_seeds_first_feasible": 1,
+    "sim_s_total": 60.57,
+    "model_s_total": 2.73,
+    "evals_span": [
+     136
+    ],
+    "seeds": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   "racing": {
+    "n_seeds": 10,
+    "feasible": "0/10",
+    "n_feasible": 0,
+    "best_obj_median": 1.292038,
+    "best_obj_best": 1.202727,
+    "best_obj_worst": 2.009461,
+    "evals_to_first_feasible_median": null,
+    "spice_min_to_first_feasible_median": null,
+    "n_seeds_first_feasible": 0,
+    "sim_s_total": 62.16,
+    "model_s_total": 2.98,
+    "evals_span": [
+     136
+    ],
+    "seeds": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   "verdict": "racing<incumbent"
+  },
+  "wifi24-t2-a": {
+   "incumbent": {
+    "n_seeds": 10,
+    "feasible": "9/10",
+    "n_feasible": 9,
+    "best_obj_median": -0.727954,
+    "best_obj_best": -0.823104,
+    "best_obj_worst": 1.189157,
+    "evals_to_first_feasible_median": 180,
+    "spice_min_to_first_feasible_median": 0.1209,
+    "n_seeds_first_feasible": 9,
+    "sim_s_total": 127.07,
+    "model_s_total": 6.53,
+    "evals_span": [
+     336
+    ],
+    "seeds": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   "racing": {
+    "n_seeds": 10,
+    "feasible": "10/10",
+    "n_feasible": 10,
+    "best_obj_median": -0.774351,
+    "best_obj_best": -0.775102,
+    "best_obj_worst": -0.479523,
+    "evals_to_first_feasible_median": 170.0,
+    "spice_min_to_first_feasible_median": 0.1031,
+    "n_seeds_first_feasible": 10,
+    "sim_s_total": 102.09,
+    "model_s_total": 7.05,
+    "evals_span": [
+     336
+    ],
+    "seeds": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   "verdict": "racing>incumbent"
+  }
+ },
+ "median_rank": {
+  "racing": 2,
+  "incumbent": 1
+ },
+ "budget_match_check": {
+  "all_matched": true,
+  "n_pairs_checked": 70,
+  "mismatches": []
+ },
+ "cost": {
+  "sim_s_total": 4247.3,
+  "model_s_total": 237.69,
+  "wall_s_total": 4484.99,
+  "n_cells": 140,
+  "total_evals": 66920,
+  "total_ngspice_calls": 133840
+ },
+ "harness_git_sha": "d30e634",
+ "ts": "2026-08-19T11:40:39+00:00",
+ "e6_trajectory_append": {
+  "table": "data/e6_trajectories.jsonl",
+  "bytes_before": 8733515,
+  "bytes_after": 96418094,
+  "rows_appended": 66920
+ }
+}

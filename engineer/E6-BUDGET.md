@@ -15,6 +15,15 @@ budget, the tasks/seeds, the metrics, the acceptance criterion, and the binding
 falsifier — with rationale, before the run — then run, then append the outcome
 (clearly marked post-hoc).
 
+**Status (append 2026-08-21):** SUSPENDED-RESUMABLE. In-house full tier COMPLETE
+(140 cells, `e6_full_v0.json`); externals HALTED at 116/360 cells by user ruling
+to prioritize faster iterations (a run-schedule ruling, not a design change — see
+§12). The pre-registered verdict is **DEFERRED, not reached** (the §6 / ROADMAP-G1
+falsifier requires all three tracks per the ruled OQ-3). Post-hoc readouts of the
+COMPLETE material only are appended in §13 (in-house) and §14 (5-amp externals
+interim). Resume = re-launch with `--resume` against the preserved per-cell JSONs
+(see §12 for path).
+
 ---
 
 ## 0. The mechanism this rung attacks (why E-6 exists)
@@ -418,3 +427,150 @@ carry no verdict on racing.
   incumbent at the *matched* budget and N=10, on the in-house tasks AND both
   external tracks — the only configuration in which §6's acceptance and the ROADMAP
   G1 falsifier can be reached. The full tier is NOT run here.
+
+---
+
+## 12. SUSPENSION (user ruling, 2026-08-21)
+
+The E-6 externals track was **halted mid-run at 116/360 cells** by user ruling
+(2026-08-21, ~02:30) to prioritize faster iterations elsewhere. This is a
+**run-schedule ruling, NOT a change to the pre-registered design.** Everything
+frozen above is unchanged: the two arms (incumbent full-budget CMA-ES null vs
+racing / successive-halving), the matched budget, N=10, the acceptance criterion
+(§6), and the binding falsifier (§6 / ROADMAP G1) all stand exactly as
+pre-registered.
+
+**Verdict status: DEFERRED, not reached.** Per the ruled OQ-3, the §6 falsifier
+can only be read when all three tracks (in-house + both external tracks) are
+complete. The externals are incomplete, so **no verdict is read** — not a null,
+not a win. The in-house track is complete and its post-hoc readout is in §13; a
+5-amp externals *interim* (explicitly not the verdict) is in §14.
+
+**Completion state at halt:**
+- In-house full tier: **COMPLETE** — 140 cells, board `engineer/data/e6_full_v0.json`.
+- Externals: **116/360 cells written.** Five amps complete at 20/20 (both arms ×
+  N=10): `Fan_SMC_Pin_3`, `HoiLee_AFFC_Pin_3`, `Leung_DFCFC1_Pin_3`,
+  `Leung_DFCFC2_Pin_3`, `Leung_NMCF_Pin_3`. `Leung_NMCNR_Pin_3` is **partial at
+  16/20** (incumbent 10/10, racing 6/10) — **EXCLUDED from all analysis** as
+  incomplete. No LDO cells were run.
+
+**Resume procedure.** Re-launch the externals campaign with `--resume`. The
+completed per-cell JSONs ARE the resume state — the resume logic skips any cell
+whose JSON already exists and is complete, and continues from the first missing
+cell (racing NMCNR seeds 4/8/9/10 onward, then the remaining amps and the LDO
+boards). **Do not delete or move any `e6ext_*` JSON.**
+
+**Resume-state path (name it explicitly).** The per-cell JSONs live in the
+`eng-e6` worktree at:
+
+```
+/home/dpatni/.claude/jobs/a8f610e5/tmp/wt-e6/engineer/data/e6ext_amp_{incumbent,racing}_<amp>_Pin_3_s<seed>_b1000.json
+```
+
+Per the E-5 ruling, the bulk per-cell trajectory tables are **gitignored** (they
+exceed GitHub's file-size limit and ship via the DOI deposit). They are therefore
+**NOT in the commit** — the filesystem copy in the worktree above IS the resume
+state. If this worktree is removed, the resume state is lost; preserve the
+worktree (or archive `engineer/data/e6ext_*.json`) until the externals are
+resumed and completed. The small boards/docs are committed normally.
+
+---
+
+## 13. In-house readout (analysis of the COMPLETE track only; no pre-reg deviation)
+
+Post-hoc analysis of the **in-house full tier only** (140 cells,
+`e6_full_v0.json`), recomputed from the raw cells and cross-checked against the
+board (read-only analysis pass, 2026-08-20). This is a readout of complete
+material, NOT the §6 verdict (which is deferred, §12).
+
+**Board verdict rule (two readings, stated explicitly):**
+- **Board-rule reading:** racing won **3/7** tasks (`dhruva-l1`, `dhruva-l5`,
+  `wifi24`); median rank incumbent 1 / racing 2.
+- **PRIMARY-metric reading** (metric ruled 2026-08-20: feasible count, then
+  evals-to-first-feasible): **2 clear wins** for racing — `dhruva-l1`
+  (7/10-vs-6/10 feasible) and `wifi24` (10/10-vs-9/10 feasible, and 170-vs-180
+  evals-to-first-feasible); `dhruva-l5` is a **TIE on the primary metric** (racing
+  wins only the obj-median tiebreak); **4 losses**.
+  Both readings are recorded so neither is smuggled in.
+
+**Where-it-helps discriminator:** the winning axis is **feasibility-reachability,
+NOT basin variance.** Won tasks span the whole variance range, and the two
+highest-variance tasks *lost* — so variance does not predict wins. Racing wins
+where the incumbent already reaches feasibility on **6-10/10 seeds**; it loses
+everywhere feasibility is either **rare** (`l2` 1/10, `wideband` 1/10, `gps`
+0/10) or **saturated** (`dhruva-s`, where both arms already succeed and there is
+nothing to win).
+
+**Triage accuracy (OQ-1, measured):** the Spearman rank correlation between
+obj@r and obj@full across the incumbent's 10 trajectories is **-0.15 .. 0.47**
+per task and does **not** track wins. The top-1 cull is **near-coin-flip
+everywhere** and is merely *harmless* on easy-feasibility tasks. **The mechanism
+of racing's wins is concentration of budget, not selection quality.**
+
+**r-overhead (OQ-2):** losses concentrate on the **≥23% triage-fraction** tasks,
+but r sits at its **floor (15)** on the small tasks, and those same tasks are
+intrinsically hard-feasibility — so the r-overhead and the hard-feasibility
+confound. From these 4 tasks the honest answer to OQ-2 is **"can't tell."**
+
+**Harness integrity:** all 70 in-house pairs were **budget-matched**, with **zero
+replay divergence** and **zero sim failures**.
+
+---
+
+## 14. Externals interim read (5 complete amps, INTERIM — not the verdict)
+
+Computed from the **100 complete e6ext cells** (5 amps × 2 arms × N=10;
+`Leung_NMCNR` excluded, incomplete). This is an **INTERIM read of complete
+material, explicitly NOT the §6 verdict** (deferred, §12).
+
+**Feasibility semantics (important).** Two distinct notions diverge sharply on
+these amps: the strict per-cell `feasible` flag (is the *returned best-objective
+point* feasible?) is **rare (0-3/10)**, whereas "ever touched feasibility"
+(evals-to-first-feasible is set) is **10/10 on every cell** — every seed reaches
+a feasible point transiently early (ETTF ≈ 10-30) then the optimizer moves to a
+better-objective but constraint-violating point. The `feasible count /10` below
+is the **strict flag** (matching the in-house PRIMARY metric); ETTF medians and
+best/median objective are also given.
+
+Per-amp, per-arm (inc = incumbent, rac = racing; obj = best_obj, higher is better;
+ETTF = median evals-to-first-feasible):
+
+| amp | arm | feasible /10 | ever-feas /10 | median obj | best obj (FoM) | median ETTF |
+|---|---|---|---|---|---|---|
+| Fan_SMC_Pin_3 | incumbent | 0 | 10 | -11,232,659 | -8,657,461 | 20 |
+| Fan_SMC_Pin_3 | racing | 0 | 10 | -11,182,464 | -10,037,736 | 20 |
+| HoiLee_AFFC_Pin_3 | incumbent | 0 | 10 | -7,732,399 | -6,439,334 | 30 |
+| HoiLee_AFFC_Pin_3 | racing | 0 | 10 | -7,486,812 | -6,073,336 | 30 |
+| Leung_DFCFC1_Pin_3 | incumbent | 1 | 10 | -7,919,912 | -3,374,943 | 30 |
+| Leung_DFCFC1_Pin_3 | racing | **3** | 10 | -6,733,848 | -3,329,928 | 30 |
+| Leung_DFCFC2_Pin_3 | incumbent | 0 | 10 | -6,847,522 | -6,062,942 | 10 |
+| Leung_DFCFC2_Pin_3 | racing | 0 | 10 | -6,711,922 | -5,990,493 | 10 |
+| Leung_NMCF_Pin_3 | incumbent | **1** | 10 | -11,363,507 | -9,355,358 | 15 |
+| Leung_NMCF_Pin_3 | racing | 0 | 10 | -11,456,789 | -11,281,176 | 15 |
+
+**Who leads per amp (PRIMARY metric: feasible count, then ETTF, then obj-median
+tiebreak):**
+- `Fan_SMC` — TIE on primary (0-vs-0 feasible, equal ETTF); racing wins only the
+  obj-median tiebreak.
+- `HoiLee_AFFC` — TIE on primary; racing wins only obj-median.
+- `Leung_DFCFC1` — **racing leads** (3-vs-1 feasible; a clear primary win).
+- `Leung_DFCFC2` — TIE on primary; racing wins only obj-median.
+- `Leung_NMCF` — **incumbent leads** (1-vs-0 feasible; a clear primary win).
+- **Overall on these 5:** feasible totals racing 3 / incumbent 2. On the primary
+  metric: **racing 1 clear win, incumbent 1 clear win, 3 ties** (racing takes the
+  obj-median tiebreak in all 3 ties). No systematic winner on 5 amps.
+
+**Test of the recorded prediction (made 2026-08-20, before these numbers were
+read): "racing loses the hard-feasibility externals."**
+- *Are these amps hard-feasibility?* By the strict `feasible` flag, **YES** — all
+  five sit at 0-3/10. (Caveat: by reachability they are not hard — every seed
+  touches feasibility; the hardness is in *holding* feasibility at the best-obj
+  point, not reaching it.)
+- *Does racing lose them?* **NO — not systematically.** On the primary metric
+  racing went 1 win / 1 loss / 3 ties across the 5, and led the feasible-count
+  total (3 vs 2). Racing did not lose the hard-feasibility externals; if anything
+  it edged ahead.
+- **Verdict: PREDICTION FAILS** (leaning: the prediction expected losses and they
+  did not materialize on these 5 amps). This is an **interim** disconfirmation on
+  5 of 14 amps — the remaining 9 amps and the LDO boards are unrun, so this does
+  not settle the externals track. Recorded honestly, not read as the verdict.

@@ -422,3 +422,129 @@ L2 sizing on a reachability win — it is authorized within this cap.
 **OQ-6 RULED: guided≈random goes straight to D5 re-ruling** among options
 3a/3b/3d of `lna/plans2/20-D5-DECISION.md`; no stronger-guidance follow-up rung
 without a new user ruling.
+
+---
+
+<!-- POST-HOC OUTCOME (appended after the user GO + the run; NOT part of the
+     pre-registration). Everything above the first POST-HOC marker is the DRAFT
+     the user ruled on; nothing above was informed by any G2 eval. -->
+
+## Smoke results (rung G2 executed, 2026-08-21)
+
+Executed on the `engineer` branch (worktree of 8a0ed95) exactly as ruled: the
+RULED move set **P1, P2, P3, P4, P5, P7, plus atomic `add_and_connect_device`**
+(P6 REJECTED, not implemented), intermediates kept L0-legal, smoke = 150 evals/arm
+(R-4), L2 auto-proceeds within the 500-evals-per-candidate cap. All evals counted
+through `engineer/env.py`. Goldens `python lna/ref/check_ref.py` **GREEN** before
+the first commit and after the last. No write under `lna/` (branch law).
+
+Artifacts (engineer-side, importing lna read-only):
+`engineer/g2_moves.py` (the primitives + output-class detector),
+`engineer/g2_reach.py` (the L0 reachability check),
+`engineer/g2_smoke.py` (the three-arm smoke + auto-L2). Build commit `d4b983e`.
+
+### L0 reachability verdict (step 2 — the pre-reg §3 claim made concrete)
+
+On the REAL pinned flagship (`ace8383c2fa68d03`, dhruva-s, 20 devices, class-A
+output stage NM6: drain on the output coupler node, source VSS), an actual
+composed primitive path reaches a **non-class-A** output, with **L0 verified at
+EVERY intermediate by BOTH** `moves.sane()` **and** the full
+`realize()`/`spec.structural_screen` token round-trip:
+
+| edit | primitive (RULED set) | ndev | L0-legal | class-A? |
+|---|---|---|---|---|
+| 0 | START (flagship) | 20 | ✔ (wl `ace8383c2f`) | **A** |
+| 1 | `add_and_connect_device(pmos4)` D=out_node, G=carrier, S=**VDD**, B=VSS | 21 | ✔ (wl `3ee87d32bd`) | **not-A** |
+| 2 | `P3 split_net(carrier)` → fresh node `m1` (independent pmos-gate bias) | 21 | ✔ (wl `f6db9e0a42`) | not-A |
+| 3 | `P7 reconnect_terminal(pmos, G→m1)` [ensure push-pull drive] | 21 | ✔ (no-op: edit 2 already isolated the gate) | not-A |
+
+**VERDICT: a non-class-A output IS REACHABLE.** The output-class change (a
+complementary `pmos4` with source on VDD sharing the output node — a device
+positioned to source the half-cycle the nmos sinks) is reached at **edit 1**, the
+atomic `add_and_connect_device`; independent push-pull-capable drive is reached in
+**2 composed primitive edits**. Every intermediate is L0-legal. The current 17-move
+set reaches it in ∞ (§2.1) — the extension is necessary and sufficient in practice.
+
+**FINDING (recorded faithfully):** the flagship's output-FET **gate node has
+degree 2** (just the gate pin + its coupling cap), so a `P3 split_net` *there* — to
+give the complementary device an independent bias — is NOT L0-legal (P3 needs
+degree ≥ 4 to leave both halves degree ≥ 2). The all-legal path therefore routes
+the new pmos gate through a **splittable (deg ≥ 4) carrier node** and isolates it
+there. This is the concrete form the pre-reg §3 "3–4 composed edits / illegal
+intermediates" concern takes on the real graph: with the +1 device headroom
+(budget [3,21], flagship at 20) only one device may be added, so the class change
+composes from ONE atomic add + zero-device-cost topological edits (P3/P7), exactly
+the shape the OQ-5 ruling anticipated.
+
+### Smoke table (three arms, 150 evals/arm, seeds 1–3, deterministic)
+
+Matched budget: each arm capped at **150 counted env evals** AND a matched
+**1500-L0-proposal** budget, stopping on whichever binds first. `PYTHONHASHSEED=0`
+pinned inside the runner so the arms are byte-reproducible across processes (a real
+determinism finding: `topo_to_netlist`'s internal node labels iterate Python sets,
+whose order is hash-seed-dependent, and that order feeds the random arm's node
+sampling — the guided arm, which aims at the structurally-derived output node, is
+immune).
+
+| arm | env evals | L0 proposals | L0 survivors | non-class-A | L0/L1 survivors | **reached (distinct)** |
+|---|---|---|---|---|---|---|
+| **(G) guided** | 150 | 215 | 215 | 150 | 150 | **3** |
+| **(R) random** | 0 | 1500 | 1500 | 0 | 0 | **0** |
+| **(N) no-move** | 150 | 0 | — | 0 | 0 | **0** |
+
+- **Guided** reliably composes the output-class change: every proposal it L1-probed
+  was non-class-A and DC-convergent; **3 distinct** non-class-A topologies
+  (wl `a6892ba68d`, `3ee87d32bd`, `83c8d29119f8`; all 21 devices; all via the aimed
+  `add_and_connect_device(pmos4@out)`, differing in the pmos gate node).
+- **Random** L0-survived all 1500 proposals but reached **0** non-class-A in this
+  deterministic run — the exact aimed complementary add (pmos, S=VDD, D=output
+  node) is vanishingly rare under uniform node sampling, so its counted-eval spend
+  is 0 (it never reaches a candidate to L1-probe). (In a non-hash-pinned scouting
+  run it landed 1–2/1500; the pinned figure is the reproducible one.)
+- **No-move** never reaches a non-class-A class (structural baseline confirmed): the
+  wall is not reachable by sizing alone, so a G/R success is unambiguously structural.
+
+### L2 outcome (auto-proceed within the 500-eval cap)
+
+Auto-proceeded on the first guided-reached candidate. Driven **through
+`engineer/env.py`** so the OQ-2 cap is a HARD, env-counted 500 evals (size.py's own
+`budget` args do NOT map to env evals — measured `size_match_first(budget=40)` ≈
+1400 evals — so they cannot enforce the ruled cap; the env's `BudgetExhausted` can):
+
+| candidate | move | env evals | ngspice | NF (dB) | S21 (dB) | S11max (dB) | Idd (mA) | feasible |
+|---|---|---|---|---|---|---|---|---|
+| `a6892ba68d` | `add_and_connect_device(pmos4@out)` | 500 (cap) | 1000 | 3.37 | 30.15 | −12.83 | 34.85 | **no** (viol 1.68) |
+
+The reached topology sizes to a DC-convergent operating point (survives L1) but is
+L2-**infeasible** at 500 evals — Idd is far over budget, unsurprising for an
+un-tuned complementary output whose bias is not yet arranged for class-AB. **This is
+NOT evidence about D5**: per the pre-reg, **smoke is mechanics-only — it can refute
+the harness, never confirm the hypothesis; the falsifier is read at the FULL tier.**
+
+### Interpretation logged (pre-reg ambiguity, recorded not guessed)
+
+- **OQ-SMOKE-1:** the pre-reg states "150 evals/arm … Seeds 1–3". Read here as **3
+  seeds sharing the 150-eval arm budget (50 evals/seed)** so every arm spends
+  exactly 150 and the seed spread is covered. The alternative (150 evals × 3 seeds
+  = 450/arm) is a full-tier decision; flagged for the user.
+- **OQ-SMOKE-2:** "matched budget" was implemented as a matched **L0-proposal** cap
+  (1500/arm) *in addition to* the 150-eval cap, because the reachability arms spend
+  env evals only on non-class-A candidates — so an eval-only cap would let random
+  run unbounded proposals for free. The proposal cap is the fair matched axis;
+  recorded so the user can rule the full-tier matched-budget definition.
+- The smoke used the pinned flagship stored L2 row `ts=2026-08-10T06:00:59+00:00`
+  (n_evals 1264, feasible) as the env pin for `ace8383c2fa68d03`/dhruva-s.
+
+### What this smoke establishes (and does not)
+
+Establishes (mechanics): the RULED primitives realize through the token round-trip;
+L0 is enforced at every intermediate; the guided aim, the trust-region/head-aiming
+plumbing and the env counter all run deterministically; auto-L2 respects the ruled
+500-eval cap; no write touches `lna/`. It does **not** establish the §4.4
+acceptance/falsifier — that is a full-tier reading (N=10, matched-budget from the
+pinned reference rows). Recommendation: the harness is sound and the guided aim
+demonstrably reaches the output-class change while random and no-move do not at
+smoke scale — **proceed to the full tier** for the binding G-vs-R comparison, after
+the user rules OQ-SMOKE-1/2 (the exact matched-budget definition) and OQ-2's L2
+sizing recipe (whether the class-AB bias arrangement is in scope for the feasibility
+attempt or left to a downstream sizing rung per §5's "not a sizing rung" fence).

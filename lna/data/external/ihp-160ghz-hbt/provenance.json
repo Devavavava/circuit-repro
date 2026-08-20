@@ -1,0 +1,32 @@
+{
+  "name": "ihp_160ghz_hbt",
+  "description": "IHP 160 GHz mm-wave SiGe-HBT LNA (TO_Apr2025, 160GHz_LNA/). Four cascaded common-emitter npn13G2 HBT gain stages (npn13G5..npn13G8) with explicit lumped bias capacitors/resistors, but every signal-path passive -- input/inter-stage/output matching lines, the emitter-degeneration networks, and the bias chokes -- is realised as an electromagnetically-modelled two-port referenced by an S-parameter (.s2p) file (Choke.s2p, Dgen*.s2p, 1st_TL..4th_TL.s2p). STRETCH / needs-work candidate.",
+  "source": {
+    "project": "IHP-GmbH open-source SG13G2 tapeout, April 2025 campaign, 160GHz_LNA",
+    "repo": "https://github.com/IHP-GmbH/TO_Apr2025",
+    "path": "160GHz_LNA/design_data/qucs-s/160GHz_LNA(MAIN).sch",
+    "retrieved_url": "https://raw.githubusercontent.com/IHP-GmbH/TO_Apr2025/main/160GHz_LNA/design_data/qucs-s/160GHz_LNA(MAIN).sch",
+    "retrieval_date": "2026-08-20",
+    "license": "Apache-2.0 (IHP-GmbH TO_* campaign family, same as ihp-gps-lna-nmos/npn and ihp-lna-2p45g)",
+    "process": "IHP SG13G2 130nm SiGe BiCMOS, mm-wave",
+    "format_as_retrieved": "QUCS-S schematic (.sch) plus an S-parameter table (160GHz_LNA_pi_model.dat.ngspice) and a pi-model schematic. README: 146-173 GHz band, NF 5.77 dB @160 GHz, peak gain 12.5 dB, IP1dB -11.4 dBm."
+  },
+  "conversion": {
+    "attempted": "QUCS-S -> AnalogGenie device-level topology (topology + device list).",
+    "active_devices_read": [
+      "npn13G5, npn13G6, npn13G7, npn13G8 -- four npn13G2 HBTs, one per common-emitter stage"
+    ],
+    "lumped_passives_read": [
+      "cap_rfcmim / cap_cmim bias and RF-coupling capacitors (explicit numeric values in the schematic)",
+      "rsil / rhigh bias resistors (explicit numeric widths)"
+    ],
+    "em_only_passives_that_block_conversion": [
+      "Choke.s2p (x4)   -- per-stage bias chokes, EM two-ports, no lumped value",
+      "Dgen*.s2p / Dgen_final_stage.s2p -- emitter-degeneration networks, EM two-ports",
+      "1st_TL.s2p, 2nd_TL.s2p, 3rd_TL.s2p, 4th_TL.s2p -- inter-stage matching transmission lines, EM two-ports"
+    ]
+  },
+  "quarantine": true,
+  "quarantine_reason": "BLOCKED (stretch candidate, needs-work). The topology's defining passives -- ALL matching, all inter-stage transmission lines, the bias chokes, and the emitter-degeneration networks -- exist only as electromagnetically-modelled S-parameter two-ports (.s2p) whose lumped-equivalent values are NOT present in the schematic (they live in the .s2p tables as frequency-sampled S-data). AnalogGenie's device vocabulary has no S-parameter/two-port token; converting would require replacing every .s2p block with a lumped R/L/C nominal value that the source does not provide. Per the ingestion rules that value may not be invented, so a faithful topology-plus-devices conversion is not achievable here. The four HBT stages and the explicit lumped bias caps/resistors ARE transcribable, but a netlist with the entire signal path (input match, 4x inter-stage TLs, output match, degeneration, chokes) omitted or guessed would not represent this circuit. Recorded as BLOCKED rather than forced. Revisit path: extract lumped-equivalent L/C from each .s2p at the 160 GHz band centre via a fitting step -- deferred, requires tooling not in this task and would itself introduce fitted (not source) values that must be flagged.",
+  "notes": "No generated/ token sequence is staged for this id: with the signal-path passives unresolved there is no honest topology to augment. The provenance is staged so the block reason and the full device inventory are on record for a future EM-de-embedding pass. Independent of, and unrelated to, the Kanchetla et al. TMTT 2022 paper this pipeline is blind-reproducing: this is a 146-173 GHz mm-wave HBT amplifier, a different band, process option, and application from the excluded GNSS narrowband CMOS design; the source contains no mention of Kanchetla, NavIC, or BeiDou."
+}

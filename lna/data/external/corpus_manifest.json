@@ -1,7 +1,7 @@
 {
  "recipe": "ingest-v1",
- "generated": "2026-08-09T17:15:56",
- "git_sha": "6c13805",
+ "generated": "2026-08-20T17:46:15",
+ "git_sha": "854138b",
  "augmentation": {
   "ladder": [
    [
@@ -27,8 +27,8 @@
   "cgd_iters": 1,
   "inductor_q": 12
  },
- "n_attempted": 9,
- "n_ingested": 9,
+ "n_attempted": 11,
+ "n_ingested": 11,
  "n_quarantined": 0,
  "circuits": [
   {
@@ -735,6 +735,111 @@
    "seconds": 32.5
   },
   {
+   "id": "paper-nc-cc-inductorless",
+   "recipe": "ingest-v1",
+   "gates": {
+    "provenance": {
+     "ok": true,
+     "note": "yes -- Creative Commons Attribution (CC BY), confirmed retri"
+    },
+    "augmentation": {
+     "ok": true,
+     "n_sequences": 64,
+     "budget": {
+      "max_solutions": 64,
+      "run_num": 3,
+      "seconds": 78.0,
+      "timeout_s": 300,
+      "pad": 1025
+     }
+    },
+    "structure": {
+     "ok": true,
+     "valid": true,
+     "floating": []
+    },
+    "vocabulary": {
+     "ok": true,
+     "bad": []
+    },
+    "identity": {
+     "ok": true,
+     "converter_wl": "0693103a16384998"
+    },
+    "ngspice": {
+     "ok": true,
+     "note": "op+sp+noise clean",
+     "s11_min_db": -2.5204,
+     "s21_max_db": -43.2431
+    }
+   },
+   "ingested": true,
+   "source": {
+    "project": "Miniature Wide-Band Noise-Canceling CMOS LNA",
+    "license": null,
+    "family": "Inductorless wideband noise-canceling current-conveyor CMOS LNA (common-gate input device with two summed inverting noise-cancel paths)"
+   },
+   "graph": {
+    "n_devices": 18,
+    "counts": {
+     "NM": 16,
+     "R": 1,
+     "C": 1
+    },
+    "n_inductors": 0,
+    "inductor_ratio": 0.0,
+    "lna_score": 2,
+    "lna_score_missed": [
+     "has_inductor",
+     "inductor_ratio",
+     "lna_sized"
+    ]
+   },
+   "wl_hash": "0693103a16384998",
+   "novelty": {
+    "ref": "ref-v2[148h/837353b7]",
+    "novel": true,
+    "nn_sim": 0.4399,
+    "nearest": "arch:rfbcs_tank_cc1_bf1"
+   },
+   "spec": {
+    "name": "wideband-sdr",
+    "why": "inductorless wideband noise-cancelling, same family as paper-noisecancel",
+    "l0_pass": false,
+    "l0_missed": [
+     "device_budget"
+    ]
+   },
+   "l1": {
+    "n_mos": 16,
+    "n_conducting": 10,
+    "all_conduct": false,
+    "n_bias_nets": 4
+   },
+   "l2": {
+    "spec": "wideband-sdr",
+    "status": "appended",
+    "feasible": false,
+    "viol": {
+     "nf_db": 2.3037057142857145,
+     "s11_max_db": 0.742026,
+     "s21_db": 1.5271485714285713,
+     "s21_ripple_db": 0.3999200000000003,
+     "idd_ma": 1.3604250000000002
+    },
+    "n_evals": 232,
+    "nf_gated": true,
+    "metrics": {
+     "s11_db": -5.68553,
+     "s11_max_db": -2.57974,
+     "s21_db": -7.38008,
+     "idd_ma": 18.8834,
+     "nf_db": 11.56297
+    }
+   },
+   "seconds": 6.1
+  },
+  {
    "id": "paper-noisecancel",
    "recipe": "ingest-v1",
    "gates": {
@@ -832,6 +937,109 @@
     }
    },
    "seconds": 34.5
+  },
+  {
+   "id": "paper-sige-hbt-resfb",
+   "recipe": "ingest-v1",
+   "gates": {
+    "provenance": {
+     "ok": true,
+     "note": "yes -- Creative Commons Attribution (CC BY), confirmed retri"
+    },
+    "augmentation": {
+     "ok": true,
+     "n_sequences": 64,
+     "budget": {
+      "max_solutions": 64,
+      "run_num": 3,
+      "seconds": 5.8,
+      "timeout_s": 300,
+      "pad": 1025
+     }
+    },
+    "structure": {
+     "ok": true,
+     "valid": true,
+     "floating": []
+    },
+    "vocabulary": {
+     "ok": true,
+     "bad": []
+    },
+    "identity": {
+     "ok": true,
+     "converter_wl": "87423d98c8742cd5"
+    },
+    "ngspice": {
+     "ok": true,
+     "note": "op+sp+noise clean",
+     "s11_min_db": -3.86079,
+     "s21_max_db": -3.62163
+    }
+   },
+   "ingested": true,
+   "source": {
+    "project": "Wideband SiGe-HBT LNA with Resistive Feedback and Shunt Peaking",
+    "license": null,
+    "family": "Wideband SiGe-HBT common-emitter/common-base cascode LNA with resistive-capacitive shunt feedback and inductive shunt peaking"
+   },
+   "graph": {
+    "n_devices": 10,
+    "counts": {
+     "NPN": 2,
+     "L": 3,
+     "R": 2,
+     "C": 3
+    },
+    "n_inductors": 3,
+    "inductor_ratio": 0.3,
+    "lna_score": 4,
+    "lna_score_missed": [
+     "has_transistor"
+    ]
+   },
+   "wl_hash": "87423d98c8742cd5",
+   "novelty": {
+    "ref": "ref-v2[148h/837353b7]",
+    "novel": true,
+    "nn_sim": 0.5976,
+    "nearest": "arch:cs_gi1_dg1_cx0_cc0_tapped_bf1"
+   },
+   "spec": {
+    "name": "wideband-sdr",
+    "why": "wideband resistive-feedback SiGe-HBT LNA; wideband-sdr is the nearest broadband target",
+    "l0_pass": false,
+    "l0_missed": [
+     "has_transistor",
+     "max_inductors"
+    ]
+   },
+   "l1": {
+    "n_mos": 0,
+    "n_conducting": 0,
+    "all_conduct": false,
+    "n_bias_nets": 0
+   },
+   "l2": {
+    "spec": "wideband-sdr",
+    "status": "appended",
+    "feasible": false,
+    "viol": {
+     "s11_max_db": 0.9026143,
+     "s21_db": 0.2749857142857143,
+     "s21_ripple_db": 0.5741999999999998
+    },
+    "n_evals": 152,
+    "nf_gated": true,
+    "metrics": {
+     "s11_db": -3.42359,
+     "s11_max_db": -0.973857,
+     "s21_db": 10.1502,
+     "idd_ma": 4.0411589999999995,
+     "nf_db": 2.949156
+    }
+   },
+   "seconds": 2.8
   },
   {
    "id": "paper-transformerfb",

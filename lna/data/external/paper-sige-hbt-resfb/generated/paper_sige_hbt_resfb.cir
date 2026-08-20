@@ -1,0 +1,61 @@
+* Auto-generated from an AnalogGenie topology by lna/to_spice.py
+* Device values are placeholders exposed as .param for a sizing loop.
+
+.include /home/dpatni/.claude/jobs/a8f610e5/tmp/wt-ext2b/AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt
+* generic Gummel-Poon cards (to_spice.BJT_MODELS); the 45nm BSIM4
+* include has no bipolar models. Illustrative device class, not a PDK.
+.model qnpn npn (is=2e-17 bf=200 vaf=60 ikf=20m ise=5e-17 ne=2
++                br=3 rb=30 rbm=8 re=1.5 rc=12
++                cje=18f vje=0.9 mje=0.35 cjc=9f vjc=0.7 mjc=0.33
++                cjs=12f vjs=0.6 mjs=0.3
++                tf=1.2p xtf=3 vtf=1.5 itf=30m tr=1n)
+
+.param pVDD=1.1 pVB=0.5
+.param pINDQ=12 pINDW0=1.25664e+10
+.param pC1V=1p
+.param pC2V=1p
+.param pC3V=1p
+.param pL1V=1n
+.param pL2V=1n
+.param pL3V=1n
+.param pR1V=1k
+.param pR2V=1k
+
+Vsup VDD 0 dc {pVDD}
+
+* port 1: RF input, DC-blocked so bias is not shorted to 50 ohm
+Vp1 p1 0 dc 0 ac 1 portnum 1 z0 50
+Cp1 p1 VIN1 10p
+* port 2: RF output
+Cp2 VOUT1 p2 10p
+Vp2 p2 0 dc 0 ac 0 portnum 2 z0 50
+
+CC1 VIN1 n0 {pC1V}
+CC2 n2 n1 {pC2V}
+CC3 n2 VOUT1 {pC3V}
+LL1 n0 nqL1 {pL1V}
+RQL1 nqL1 n1 {pINDW0*pL1V/pINDQ}
+LL2 n3 nqL2 {pL2V}
+RQL2 nqL2 0 {pINDW0*pL2V/pINDQ}
+LL3 n2 nqL3 {pL3V}
+RQL3 nqL3 VDD {pINDW0*pL3V/pINDQ}
+QNPN1 n4 n1 n3 qnpn 1
+QNPN2 n2 VDD n4 qnpn 1
+RR1 n2 VDD {pR1V}
+RR2 n2 n1 {pR2V}
+
+* Dataset topologies are textbook schematics: they show the signal path
+* but omit biasing, so nodes reachable only through capacitors have no
+* DC path and the OP solve goes singular. rshunt ties every node to
+* ground through 1e12 ohm -- enough for a DC solution, negligible at RF.
+* Without it, 9 of 26 dataset LNAs fail to simulate at all.
+.option rshunt=1e12
+.control
+op
+sp lin 201 1e+09 4e+09 1
+let s11db = db(mag(S_1_1) + 1e-30)
+let s21db = db(mag(S_2_1) + 1e-30)
+print vecmin(s11db) vecmax(s21db)
+noise v(p2) Vp1 dec 20 1e+09 4e+09 1
+.endc
+.end

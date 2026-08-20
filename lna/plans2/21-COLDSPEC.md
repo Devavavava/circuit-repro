@@ -101,6 +101,126 @@ out of this doc.
 
 ## 6. Results
 
-*(Pre-registration commit: this section is intentionally empty here — results
-are added in the immediately following commit, per the pre-reg-before-results
-house law. The protocol above, §1-5, is frozen at this commit.)*
+### 6.0 Goldens (gate)
+
+`python lna/ref/check_ref.py` → **GREEN** (exit 0), both before the run and at
+close. Three reference decks (ref24_cg / ref24_csdeg / stage-A anchor) all pass
+stability + acceptance gates. This is the one simulator invocation that
+succeeded tonight (see §6.1).
+
+### 6.1 OUTCOME: run BLOCKED — generator not runnable on this host
+
+**The cold-generation run did not execute.** The mandatory first step of the
+protocol (§3.2, sample N=256 from the adopted P5 generator) is **impossible on
+this RHEL box as provisioned**, for two independent reasons, either of which is
+sufficient:
+
+1. **PyTorch is not installed** in the contained conda env (`.env/envs/cr`):
+   `import torch` → `ModuleNotFoundError: No module named 'torch'`. The
+   generation/torch side is explicitly **unported** on this host (memory:
+   circuit-repro-rhel-setup — "baked Windows python paths remain in
+   lna/search.py, evolve.py, critic_gnn.py (generation/torch side, unported)").
+
+2. **No generator checkpoint exists on the box.** Neither the AnalogGenie base
+   `Pretrain.pth` nor ANY fine-tuned checkpoint (`ft_p5*.pth`, incl. the adopted
+   `ft_p5v7_v2.pth`) is present anywhere reachable. They are gitignored
+   (`.gitignore:41  lna/out/*.pth`) and were never materialized in this
+   checkout. The `lna/out/ft_p5*` directories hold only prior `meta.json` files
+   — no `seq*.txt`, no weights. Exhaustive search (`find / -iname 'ft_p5*.pth'
+   -o -iname 'Pretrain.pth'`, excluding `.env`) returned nothing.
+
+Confirmation command (the exact ALLOWED nudge sample invocation):
+```
+$ python lna/finetune.py --arm p5 --do sample --class nb --device cpu --n 4 ...
+  File ".../lna/finetune.py", line 44, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'
+```
+
+**Why no workaround was taken.** Resolving either blocker would require
+installing PyTorch into the env and/or downloading a ~198 MB checkpoint from
+outside — both of which violate the standing containment rules (no system
+installs; stay inside the two checkouts + `.env/`; memory:
+circuit-repro-rhel-setup) AND the STRICT-CONTAINMENT directive for this job
+(only `/home/dpatni/circuit-repro` and this job's `tmp`; the Xilinx git has no
+HTTPS support). Per house practice, this is **logged, not guessed around**: no
+topology was hand-authored, no corpus circuit was substituted for the
+generator, and no synthetic "sample" was fabricated to fill the pipeline. Doing
+any of those would itself be a nudge-rule violation (§2 FORBIDDEN) and would
+make the result invalid under G0-FAIRNESS.
+
+### 6.2 What IS established
+
+- The **fresh spec** `ism58.yaml` is authored, schema-valid, and loads cleanly
+  through `spec.py` (narrowband, f0=5.8 GHz, 5 constraints incl. `iip3_dbm`
+  status:unsupported, 3 objectives, max_inductors=3, allow_inductorless=false).
+  It is a genuine G4 fresh target: no main-line tuning has touched 5.8 GHz.
+- The **spec-derived L0 screen** and downstream **CPU** stages (screen.py,
+  bias.py, size.py, ngspice extract) are all present and runnable — the
+  simulator side works (goldens GREEN). The ONLY missing link is the neural
+  generator that produces the candidate topologies to feed them.
+- **Rung-by-rung yield: N/A** (no candidates were generated). LNA-shaped %,
+  screen-pass %, L1-conducting %, sized outcomes, evals-to-first-feasible, and
+  per-metric miss distances are all **undefined for this run** because the run
+  did not start.
+
+### 6.3 What a re-run needs (for the user / a GPU-capable host)
+
+To execute the pre-registered protocol unchanged, one of:
+- run on the host where `Pretrain.pth` + the adopted `ft_p5v7_v2.pth` and a
+  torch install live (the generation side was developed off-box), OR
+- provision torch into `.env` and fetch the two checkpoints — a decision that is
+  a user ruling, not an autonomous action under the containment rules.
+
+Everything downstream of "sample" is ready and the pre-registration above is
+frozen, so a re-run is a drop-in once the generator is reachable.
+
+---
+
+## 7. Contamination ledger
+
+Per `engineer/G0-FAIRNESS.md §3`. This ledger describes what WOULD transfer in
+under the pre-registered protocol; it is emitted here for completeness. The
+`present` fields reflect that **no run occurred** (nothing was actually sampled,
+selected, or sized), so no forbidden channel was exercised.
+
+```yaml
+contamination_ledger:
+  run_id: "ism58_coldnb_s1337"
+  task: "ism58"
+  date: "2026-08-21"
+  status: "NOT_EXECUTED — generator unavailable on host (no torch, no checkpoint)"
+  intended_generator: "ft_p5v7_v2.pth (P5-v7 ADOPTED lineage, class token <LNA_NB>, bins=None)"
+  transferred_in:
+    harness_code:
+      allowed: always
+      description: "spec.py, screen.py, bias.py, size.py, extract.py, corners.py — the evaluation/measurement contract"
+    playbook:
+      allowed: declared
+      present: false      # playbook OUT — no playbook store consulted
+      declared: false
+    seeds:
+      allowed: never
+      present: false      # generic seed 1337 only; NO task-specific seed selection
+      note: "sampling/selection/CMA-ES seeds are the generic 1337; no seed chosen to land on 5.8 GHz"
+    selectors:
+      allowed: never
+      present: false      # NO motif/archetype selector; candidate selection = top-k L0 score + random control ONLY
+      note: "match-motif selector and any hand structural filter are FORBIDDEN by the nudge rules; not used"
+    calibrations:
+      allowed: never
+      present: false      # spec numbers derived from published 5-6 GHz practice, NOT from pipeline behaviour
+      note: "budget/thresholds from real-standard practice; no calibration read off this task's convergence"
+  prefix_seeding:
+    allowed: never        # FORBIDDEN by nudge rules (§2)
+    present: false        # generator would be sampled from the <LNA_NB> class token, VSS only — no corpus prefix
+  hand_edits:
+    allowed: never
+    present: false        # no topology hand-authored or edited
+  new_templates:
+    allowed: never
+    present: false        # no new template/archetype added
+```
+
+Every `allowed: never` field has `present: false`. Under G0-FAIRNESS §3 rule 6,
+the run would be VALID had it executed. It did not execute (§6.1).

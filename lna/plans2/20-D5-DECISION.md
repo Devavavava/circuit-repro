@@ -198,10 +198,10 @@ which 3a/3b/3c are priced.
 
 | # | option | what it costs / requires | measured gap it closes | RULING |
 |---|---|---|---|---|
-| 3a | Supply / Idd envelope relief | ~8 mA in MNM6 (5.5× today), departs the paper's 1.1 V / 13 mA class-A budget (§45.5/§47.3) | the only lever that scales OIP3 into the ~27 dB gap; ~33–55× DC budget needed (§45.5) | *(queued)* |
-| 3b | D5 spec relief (D-1) | spec-text governance; re-read "min-gain", partial pass, or re-target (§48.5) | measured levers concede fractions: +0.26 dB port, +0.72 dB sizing, +0.61 dB rail (§45.3/§48.1) | *(queued)* |
-| 3c | Topology-class change | new output-stage class; > 1-spare-device budget; **sequenced behind engineer G2** (`engineer/ROADMAP.md` §G2) | the only in-envelope path; unquantified until G2's move repertoire exists | *(queued)* |
-| 3d | Record and close | nothing — N already RECORDED (§47.3) | n/a — accepts the null as terminal | *(queued)* |
+| 3a | Supply / Idd envelope relief | ~8 mA in MNM6 (5.5× today), departs the paper's 1.1 V / 13 mA class-A budget (§45.5/§47.3) | the only lever that scales OIP3 into the ~27 dB gap; ~33–55× DC budget needed (§45.5) | not selected (2026-08-20) |
+| 3b | D5 spec relief (D-1) | spec-text governance; re-read "min-gain", partial pass, or re-target (§48.5) | measured levers concede fractions: +0.26 dB port, +0.72 dB sizing, +0.61 dB rail (§45.3/§48.1) | not selected (2026-08-20) |
+| 3c | Topology-class change | new output-stage class; > 1-spare-device budget; **sequenced behind engineer G2** (`engineer/ROADMAP.md` §G2) | the only in-envelope path; unquantified until G2's move repertoire exists | **RULED — ADOPTED** (user, 2026-08-20) |
+| 3d | Record and close | nothing — N already RECORDED (§47.3) | n/a — accepts the null as terminal | not selected (2026-08-20) |
 
 ---
 
@@ -215,3 +215,23 @@ which 3a/3b/3c are priced.
 - Output reference impedance (dead lever): FINDINGS §48; pre-reg `19-D7-MEASURE.md`.
 - Ladder row + rulings: `14-DHRUVA-SIMUL.md` §1.2 [†], §2, §2.1.
 - Cross-line G2 dependency: `engineer/ROADMAP.md` §G2 (cited, not modified).
+
+---
+
+## 6. Ruling outcome (user, 2026-08-20)
+
+The user ruled for **option 3c — topology-class change**, keeping the paper's
+1.1 V / 13 mA envelope.
+
+Consequences, stated explicitly:
+
+(a) **Main-line D5 work pauses** pending engineer rung G2 (move repertoire; its
+registered test case is this wall) — the cross-line dependency is now a ruled
+sequencing, not a hypothetical.
+
+(b) **Candidate N** (recorded 2026-08-16, FINDINGS §47.3) remains the standing
+D5 record for the current topology family until a G2-derived output class
+produces a new measurable candidate.
+
+(c) **Envelope relief (3a) and spec relief (3b) are not pursued**; the D5 spec
+is unchanged.

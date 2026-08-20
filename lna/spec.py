@@ -23,6 +23,12 @@ Design commitments carried from the plan:
   * D5 -- a constraint may carry `status: unsupported`; it is loaded, reported as
     UNMEASURED everywhere, and ignored by the objective (linearity has no harness
     yet).
+  * D5b -- a constraint may carry `status: measured`; it is loaded, reported as
+    MEASURED when the metric is present (or UNMEASURED when absent), and IS
+    evaluated by spec.feasible() exactly like any other supported constraint.
+    Currently used for `iip3_dbm` once the tier-3 two-tone rung is wired in;
+    spec changes to flip a real spec from `unsupported` to `measured` are user
+    rulings (plans2/23-IIP3-RUNG.md).
 
 Only PyYAML + a hand validator -- no pandas/pydantic -- so the WSL and Windows
 environments stay identical.
@@ -128,9 +134,9 @@ class Spec(object):
             unknown(f"constraint {m!r}", c.keys(), _ALLOWED["_constraint"])
             if "min" not in c and "max" not in c:
                 raise SpecError(f"{where}: constraint {m!r} sets neither min nor max")
-            if c.get("status") not in (None, "unsupported"):
+            if c.get("status") not in (None, "unsupported", "measured"):
                 raise SpecError(f"{where}: constraint {m!r} status must be "
-                                "omitted or 'unsupported'")
+                                "omitted, 'unsupported', or 'measured'")
 
         for o in (d.get("objectives") or []):
             if not isinstance(o, dict):
@@ -309,8 +315,10 @@ class Spec(object):
     def feasible(self, metrics):
         """(feasible?, {metric: normalized violation}) over hard constraints.
 
-        `status: unsupported` constraints are skipped. A supported constraint whose
-        metric is absent from `metrics` counts as violated (cannot be confirmed).
+        `status: unsupported` constraints are skipped.
+        `status: measured` constraints ARE evaluated; a missing metric counts as
+        violated (same as any other supported constraint).
+        A supported/measured constraint whose metric is absent counts as violated.
         """
         viol = OrderedDict()
         for name, c in self.constraints.items():
@@ -376,16 +384,21 @@ class Spec(object):
         lines.append("  constraints:")
         for name, c in self.constraints.items():
             lim = ", ".join(f"{k}={c[k]}" for k in ("min", "max") if k in c)
-            if c.get("status") == "unsupported":
+            st = c.get("status")
+            if st == "unsupported":
                 lines.append(f"    {name:<14} [{lim}]  UNMEASURED (no harness)")
                 continue
             val = metrics.get(name)
             if val is None:
-                lines.append(f"    {name:<14} [{lim}]  MISSING")
+                # status=measured: metric could have been measured but wasn't
+                tag = "UNMEASURED" if st == "measured" else "MISSING"
+                lines.append(f"    {name:<14} [{lim}]  {tag}")
             else:
                 ok = name not in viol
-                lines.append(f"    {name:<14} [{lim}]  {val:<10g} "
-                             f"{'PASS' if ok else 'FAIL'}")
+                tag = "MEASURED-PASS" if (st == "measured" and ok) else (
+                      "MEASURED-FAIL" if st == "measured" else
+                      "PASS" if ok else "FAIL")
+                lines.append(f"    {name:<14} [{lim}]  {val:<10g} {tag}")
         lines.append(f"  feasible: {feas}   objective: {self.objective(metrics):.4g}")
         return "\n".join(lines)
 
@@ -443,7 +456,9 @@ def main():
     print("  hard constraints:")
     for name, c in s.constraints.items():
         lim = ", ".join(f"{k}={c[k]}" for k in ("min", "max") if k in c)
-        tag = "  (UNMEASURED)" if c.get("status") == "unsupported" else ""
+        st = c.get("status")
+        tag = ("  (UNMEASURED)" if st == "unsupported"
+               else "  (MEASURED tier-3)" if st == "measured" else "")
         print(f"      {name:<14} {lim}{tag}")
     print("  objectives  : " + ", ".join(
         f"{o['direction']} {o['metric']}(w={o.get('weight', 1.0)})"

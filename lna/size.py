@@ -383,6 +383,161 @@ def _enrich_nf(body, params, spec, m, op_capture=None):
     return m
 
 
+def iip3_is_measured(spec):
+    """Does this spec declare iip3_dbm as status: measured (tier-3)?
+
+    When True, a caller that opts into tier-3 evaluation should run the
+    two-tone transient harness after sizing and record iip3_dbm + oip3_dbm
+    in the metrics dict. The harness is NOT run inside the ZOAF loop (it
+    costs ~6-10 ngspice calls per band and the objective does not use it);
+    it is an opt-in post-sizing enrichment, analogous to _enrich_nf for NF.
+
+    Spec changes from status: unsupported -> status: measured are user rulings
+    (plans2/23-IIP3-RUNG.md). This function never modifies any spec file."""
+    c = spec.constraints.get("iip3_dbm")
+    return bool(c) and c.get("status") == "measured"
+
+
+def measure_iip3_tier3(body, params, spec, band=None, verbose=False):
+    """Tier-3 IIP3 measurement: ngspice two-tone transient at WP-LIN-validated settings.
+
+    Runs the coherent-sampling slope-intercept harness (lna/iip3.py, harness
+    era: transient-v1) at the named band f0 (defaults to spec.band.f0).
+    Returns a dict with keys:
+        iip3_dbm, oip3_dbm, gain_ss_db, slope, kept, ok
+        iip3_method: 'transient-v1'
+        iip3_df_hz: 2e6  (the WP-LIN-validated tone spacing)
+        iip3_tmax_s: 5e-12  (the WP-LIN-validated timestep bound)
+        iip3_pins_dbm: [list of input power levels used]
+    or None on harness failure. Silently returns None if the deck body has
+    no port 1/2 lines (cannot build the Thevenin drive).
+
+    CONCURRENCY NOTE: the harness uses private_tmp (pid-scoped scratch under
+    lna/out/_iip3/tmpPID) so two concurrent calls do not collide.
+
+    Design settings inherited from WP-LIN (all pre-registered in iip3.py):
+      * Coherent grid: 1 MHz, DF = 2 MHz, T_WIN = 1 us, N_FFT = 32768
+      * TMAX = 5 ps (validated: numerical IM3 floor -133.1 dBc; G1 GREEN)
+      * T_SETTLE = 150 ns, linear detrend before DFT
+      * MIN_SNR_DB = 10, COMP_DB = 0.5 dB
+      * Default Pin sweep: [-80,-72,-64,-56,-48,-40] dBm (6 points, 40 dB lever)
+    The HB cross-check stays a manual/validation tool (lna/hb/); it is not on
+    the routine path (plans2/23-IIP3-RUNG.md)."""
+    import iip3 as I3
+    import tempfile
+    import re as _re
+
+    if body is None:
+        return None
+    # Resolve band f0: use spec.band.f0 by default
+    spec_f0 = float((spec.band or {}).get("f0", 0.0))
+    if spec_f0 <= 0.0 and band is None:
+        return None  # cannot determine tone center
+    f0 = spec_f0 if band is None else float(band)
+
+    # Build a standalone two-tone body from the pipeline body+params.
+    # The pipeline body uses portnum 1/2 sources that iip3.lna_two_tone_body
+    # replaces; params are appended as .param.
+    import os
+    import tempfile as _tmp
+    param_line = (".param " + " ".join(f"{k}={v}" for k, v in (params or {}).items())
+                  if params else "")
+    # We need a temporary .sp file that looks like the shipped decks
+    # (body + .param + placeholder .control). iip3.lna_two_tone_body strips
+    # .control and .end and replaces the port sources.
+    import io as _io
+
+    # Write to a temp deck so lna_two_tone_body can read it.
+    # Use the existing private_tmp convention.
+    I3.private_tmp()
+    scratch_dir = tempfile.gettempdir()
+    deck_path = os.path.join(scratch_dir, f"t3_iip3_{os.getpid()}.sp")
+    deck_text = (body.rstrip() + "\n")
+    if param_line:
+        deck_text += param_line + "\n"
+    deck_text += ".control\n.endc\n.end\n"
+    try:
+        with open(deck_path, "w", encoding="utf-8") as fh:
+            fh.write(deck_text)
+    except Exception:
+        return None
+
+    try:
+        vemf_ss = I3.pav_dbm_to_vemf(I3.DEFAULT_PINS[0])
+        f0s, f1, f2, fl, fh = I3.tone_plan(f0)
+        try:
+            _, _ = I3.lna_two_tone_body(deck_path, vemf_ss, f1, f2)
+        except SystemExit:
+            return None   # port sources not found -- body is not a 2-port
+
+        def body_fn(vemf, f1, f2):
+            return I3.lna_two_tone_body(deck_path, vemf, f1, f2)
+
+        pins = list(I3.DEFAULT_PINS)
+        res = I3.iip3_sweep(body_fn, f0, pins, df=I3.DF, verbose=verbose)
+    finally:
+        try:
+            os.unlink(deck_path)
+        except Exception:
+            pass
+
+    if not res.get("ok"):
+        return {"ok": False, "why": res.get("why"),
+                "iip3_method": "transient-v1",
+                "iip3_df_hz": I3.DF, "iip3_tmax_s": I3.TMAX,
+                "iip3_pins_dbm": pins}
+    iip3_dbm = res["iip3_dbm"]
+    gain_ss = res.get("gain_ss")
+    oip3_dbm = iip3_dbm + gain_ss if gain_ss is not None else None
+    return {
+        "ok": True,
+        "iip3_dbm": iip3_dbm,
+        "oip3_dbm": oip3_dbm,
+        "gain_ss_db": gain_ss,
+        "slope": res.get("slope"),
+        "kept": res.get("kept"),
+        "iip3_method": "transient-v1",
+        "iip3_df_hz": I3.DF,
+        "iip3_tmax_s": I3.TMAX,
+        "iip3_pins_dbm": pins,
+        "iip3_pt_median": res.get("iip3_pt_median"),
+        "iip3_pt_spread": res.get("iip3_pt_spread"),
+        "worst_snr_db": res.get("worst_snr_db"),
+        "im3_fit_resid_db": res.get("im3_fit_resid_db"),
+        "slope_ok": res.get("slope_ok"),
+    }
+
+
+def _enrich_iip3(body, params, spec, m, verbose=False):
+    """Enrich a metrics dict with tier-3 IIP3 if the spec declares status: measured.
+
+    Analogous to _enrich_nf: additive, defensive (keeps old value on failure),
+    only called when iip3_is_measured(spec) is True. Records iip3_dbm and
+    oip3_dbm into the metrics dict alongside provenance keys (iip3_method, etc.)
+    so stored rows carry full harness attribution.
+
+    The harness cost is ~6 ngspice transient runs (one per Pin level, each
+    ~30-90 s at tmax=5 ps / T_SETTLE+T_WIN = 151 us at 5 ps step). This is NOT
+    run inside the ZOAF loop -- it is post-sizing only, once per label."""
+    if m is None:
+        return m
+    try:
+        r = measure_iip3_tier3(body, params, spec, verbose=verbose)
+        if r is None or not r.get("ok"):
+            return m
+        return dict(m,
+                    iip3_dbm=r["iip3_dbm"],
+                    oip3_dbm=r.get("oip3_dbm"),
+                    iip3_method=r.get("iip3_method"),
+                    iip3_df_hz=r.get("iip3_df_hz"),
+                    iip3_tmax_s=r.get("iip3_tmax_s"),
+                    iip3_slope=r.get("slope"),
+                    iip3_kept=r.get("kept"))
+    except Exception:
+        pass
+    return m
+
+
 def _noise_budget_row(body, params, spec, top=6):
     """Compact per-element noise budget for an L2 row (WP-L5 phase 1).
 
@@ -1005,7 +1160,7 @@ def size_match_first(topo, spec, seed=1, inductor_q=12, budget=8,
 def size_topology(topo, spec, seed=1, n_candidates=6, sgd_iters=6, cgd_iters=1,
                   provenance=None, log=True, repeat_probe=False, inductor_q=None,
                   curate=False, prior_params=None, enrich_nf=None,
-                  collect_op=False):
+                  collect_op=False, enrich_iip3=False):
     """Bias-insert, then ZOAF-size a generated topology against `spec`.
 
     With `log=True` (default for CLI paths) the completed sizing run is appended
@@ -1020,7 +1175,14 @@ def size_topology(topo, spec, seed=1, n_candidates=6, sgd_iters=6, cgd_iters=1,
     `log=True` the rows are flushed alongside the L2 row; with `collect_op=True`
     they are returned in the result as `op_rows` instead, so a caller that does
     its own logging (`size_best_of_k`) can keep the winning seed's rows and drop
-    the rest."""
+    the rest.
+
+    TIER-3 IIP3 (plans2/23-IIP3-RUNG.md): pass `enrich_iip3=True` to run the
+    two-tone transient harness (transient-v1) after sizing, when the spec
+    declares `iip3_dbm: {status: measured}`. The measurement is NOT in the ZOAF
+    loop -- it runs once at the best-found point. Cost: ~6 ngspice transient
+    runs (~3-9 min). Concurrency-safe (private pid-scoped scratch). Default
+    False to leave existing callers unaffected."""
     import bias
     from novelty import wl_features
     kw = {"inductor_q": inductor_q} if inductor_q else {}
@@ -1053,6 +1215,9 @@ def size_topology(topo, spec, seed=1, n_candidates=6, sgd_iters=6, cgd_iters=1,
     # physical NF on a throwaway run too (benchmark cells, best-of-k seeds).
     if log if enrich_nf is None else enrich_nf:
         m = _enrich_nf(body, decode(best_x), spec, m)   # physical NF for the row
+    # Tier-3 IIP3: opt-in, only when spec declares iip3_dbm status: measured.
+    if enrich_iip3 and iip3_is_measured(spec):
+        m = _enrich_iip3(body, decode(best_x), spec, m)
     feas, viol = (spec.feasible(m) if m is not None else (False, None))
     if sink is not None:                   # the endpoint is never subsampled away
         sink.add(fin, x=[float(v) for v in best_x], params=decode(best_x),

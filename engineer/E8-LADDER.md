@@ -125,17 +125,17 @@ involves IIP3**; two-tone sims are slow and G11 is flagged accordingly.
 
 | # | base task | delta (the extension) | measured evidence it needs structure (vs reached) | expected structural answer class (analyst-only) | sim cost/eval | null-smoke verdict |
 |---|---|---|---|---|---|:--|
-| **G1** | dhruva-l1-t2-a | **S21 ≥ 25.4 → ≥ 30 dB** (+4.6) | reached 26.32; the l1 family already sits below its own l1-min headroom; +4.6 pushes past what a single tuned stage delivers at this Idd (7-dB single-stage cap, gps-l1 25-dB wall) | add a second gain stage / cascade | 2 | _§8_ |
-| **G2** | dhruva-s-t2-a | **add S22 output-match: s22_max_db ≤ −10 band** (new constraint) | no dhruva spec gates output match; a class-A single-ended output is not output-matched by construction — sizing a matched *input* stage cannot create an output match | add an output matching network / buffer | 2 | _§8_ |
-| **G3** | dhruva-l1-t2-a | **S11 tighten −10 → −13 dB band-wide** (−3) | reached S11_max = −10.02 (knife-edge, +0.02 margin); FINDINGS §39 "S11 is knife-edge"; −3 dB band-wide is past the single-match structure's reach | add / re-order a second matching section | 2 | _§8_ |
-| **G4** | dhruva-l2-t2-a | **S11 tighten −10 → −12.5 dB band-wide** (−2.5) | reached S11_max = −10.03 (+0.03 margin); same knife-edge as G3 at a different band | add / re-order a second matching section | 2 | _§8_ |
-| **G5** | dhruva-s-t2-a | **widen band +20%**: f_lo/f_hi to ±20% of f0 (S11 held over the wider grid) | reached match holds only to −11.26 over the current grid; a narrowband tuned match degrades away from f0 — widening needs a broadband (feedback / staggered) match | broadband-match structure (feedback / staggered-tuned) | 2 | _§8_ |
-| **G6** | dhruva-s-t2-a | **tighten NF 3.5 → 3.0 dB at fixed Idd ≤ 13** (−0.5) | reached NF = 1.40 so NF alone is easy — BUT the coupling is to Idd: pushing NF down at *fixed binding Idd* is the structural squeeze (Friis chain shares gm with the current budget) | current-reuse / noise-cancelling front stage | 2 | _§8_ |
-| **G7** | dhruva-s-t2-a | **cut Idd 13 → 10 mA at fixed S21 ≥ 30** (−3) | reached Idd = 13.00 (binding, +0.00 margin); FINDINGS §35.3 worst-case Idd margin ≈ 0; a class-A stage's swing is Iq×\|Z_ac\|, so cutting Iq at fixed gain caps swing → needs a different output class | different output class (current-reuse / class-AB) | 2 | _§8_ |
-| **G8** | dhruva-l5-t2-a | **cut Idd 13 → 10.5 mA at fixed S21 ≥ 22.3** (−2.5) | reached Idd = 12.92 (near-binding); 9-device deck (cheapest sim); same class-A current-swing argument at a smaller deck | different output class / current-reuse | 2 | _§8_ |
-| **G9** | dhruva-l5-t2-a | **add gain-flatness bound: s21_ripple_db ≤ 3 over band** | reached ripple = **15.18 dB** — a factor of 5 over the bound; a single peaked tuned load cannot be flattened by sizing to ±1.5 dB over 1.1–2.5 GHz | staggered-tuned / multi-pole load | 2 | _§8_ |
-| **G10** | dhruva-s-t2-a | **add gain-flatness bound: s21_ripple_db ≤ 3 over band** | reached ripple = **12.99 dB**; same single-pole-tuned-load flatness wall at a different band/deck | staggered-tuned / multi-pole load | 2 | _§8_ |
-| **G11** | dhruva-l5-t2-a | **add IIP3 ≥ −7.4 dBm** (flip `iip3_dbm` supported) — *the one linearity goal* | the D5 wall (FINDINGS §44.4 / 16-WP-LIN): class-A output current-swing caps IIP3 by 16.8 dB ahead of headroom; this is the registered structural wall E-7 exists for | different output-stage class (the E-7 target) | **SLOW: two-tone / HB, ~4–8× a base eval — flagged** | _§8_ (see §8.3) |
+| **G1** | dhruva-l1-t2-a | **S21 ≥ 25.4 → ≥ 30 dB** (+4.6) | reached 26.32; the l1 family already sits below its own l1-min headroom; +4.6 pushes past what a single tuned stage delivers at this Idd (7-dB single-stage cap, gps-l1 25-dB wall) | add a second gain stage / cascade | 2 | **RESISTED** core |
+| **G2** | dhruva-s-t2-a | **add S22 output-match: s22_max_db ≤ −10 band** (new constraint) | no dhruva spec gates output match; a class-A single-ended output is not output-matched by construction — sizing a matched *input* stage cannot create an output match | add an output matching network / buffer | 2 | **FELL** (spot artifact; needs band-wide S22, OQ-6) |
+| **G3** | dhruva-l1-t2-a | **S11 tighten −10 → −13 dB band-wide** (−3) | reached S11_max = −10.02 (knife-edge, +0.02 margin); FINDINGS §39 "S11 is knife-edge"; −3 dB band-wide is past the single-match structure's reach | add / re-order a second matching section | 2 | **FELL** sizing-reachable |
+| **G4** | dhruva-l2-t2-a | **S11 tighten −10 → −12.5 dB band-wide** (−2.5) | reached S11_max = −10.03 (+0.03 margin); same knife-edge as G3 at a different band | add / re-order a second matching section | 2 | **FELL** sizing-reachable |
+| **G5** | dhruva-s-t2-a | **widen band +20%**: f_lo/f_hi to ±20% of f0 (S11 held over the wider grid) | reached match holds only to −11.26 over the current grid; a narrowband tuned match degrades away from f0 — widening needs a broadband (feedback / staggered) match | broadband-match structure (feedback / staggered-tuned) | 2 | **N/A** grid-bound |
+| **G6** | dhruva-s-t2-a | **tighten NF 3.5 → 3.0 dB at fixed Idd ≤ 13** (−0.5) | reached NF = 1.40 so NF alone is easy — BUT the coupling is to Idd: pushing NF down at *fixed binding Idd* is the structural squeeze (Friis chain shares gm with the current budget) | current-reuse / noise-cancelling front stage | 2 | **FELL MIS-AUTHORED** (reached NF 1.40); DROP |
+| **G7** | dhruva-s-t2-a | **cut Idd 13 → 10 mA at fixed S21 ≥ 30** (−3) | reached Idd = 13.00 (binding, +0.00 margin); FINDINGS §35.3 worst-case Idd margin ≈ 0; a class-A stage's swing is Iq×\|Z_ac\|, so cutting Iq at fixed gain caps swing → needs a different output class | different output class (current-reuse / class-AB) | 2 | **FELL** sizing-reachable |
+| **G8** | dhruva-l5-t2-a | **cut Idd 13 → 10.5 mA at fixed S21 ≥ 22.3** (−2.5) | reached Idd = 12.92 (near-binding); 9-device deck (cheapest sim); same class-A current-swing argument at a smaller deck | different output class / current-reuse | 2 | **RESISTED** core |
+| **G9** | dhruva-l5-t2-a | **add gain-flatness bound: s21_ripple_db ≤ 3 over band** | reached ripple = **15.18 dB** — a factor of 5 over the bound; a single peaked tuned load cannot be flattened by sizing to ±1.5 dB over 1.1–2.5 GHz | staggered-tuned / multi-pole load | 2 | **RESISTED** core |
+| **G10** | dhruva-s-t2-a | **add gain-flatness bound: s21_ripple_db ≤ 3 over band** | reached ripple = **12.99 dB**; same single-pole-tuned-load flatness wall at a different band/deck | staggered-tuned / multi-pole load | 2 | **RESISTED** core |
+| **G11** | dhruva-l5-t2-a | **add IIP3 ≥ −7.4 dBm** (flip `iip3_dbm` supported) — *the one linearity goal* | the D5 wall (FINDINGS §44.4 / 16-WP-LIN): class-A output current-swing caps IIP3 by 16.8 dB ahead of headroom; this is the registered structural wall E-7 exists for | different output-stage class (the E-7 target) | **SLOW: two-tone / HB, ~4–8× a base eval — flagged** | **N/A-unmeasured** (§8.3) |
 
 **Why 11, and the coverage.** The set spans the eight candidate delta families the
 task named: +gain beyond ceiling (G1), +S22 output match (G2), tighten S11
@@ -303,9 +303,84 @@ harness landing on the engineer branch (a slow-sim dependency, §3).
 <!-- ruling; nothing above was informed by any E-8 eval.                 -->
 <!-- ================================================================= -->
 
-## 8.4 Null-smoke results (post-hoc — appended after the smoke run)
+## 8.4 Null-smoke results (post-hoc — appended after the smoke run, 2026-08-21)
 
-_(filled by the second commit)_
+**Run:** one warm-started sizing-only run per evaluable goal, 150 evals each,
+driven through `engineer/env.py`, ≤ 8 concurrent ngspice. Runner:
+`.claude/jobs/a8f610e5/tmp/null_smoke.py` (containment: no `lna/` write, no new
+spec file; the extended spec is an in-memory mutated copy of the base Spec's raw
+dict; feasibility is the base `Spec.feasible` arithmetic on env-produced metrics).
+
+**Method note (recorded honestly — the smoke design was strengthened mid-run).**
+A first pass used a *cold* random-start CMA-ES; it returned **0/150 base-feasible
+on every dhruva goal**, i.e. a cold 150-eval search does not even re-reach the
+*base* spec's feasible basin on these tasks (consistent with E-6 §5: dhruva
+feasibility arrives at 210–250 evals). A cold null therefore **cannot
+discriminate** "resists structurally" from "sizing simply did not converge in 150
+evals." The smoke was corrected to a **warm-started local null**: it (a) evaluates
+the *reached* design point (stored `best_params`) first — confirming
+`base_feasible_at_anchor = true` on all — then (b) runs a jitter-cloud + CMA-ES
+local search whose objective is the **extended** spec, seeded near the anchor. This
+asks the right question: *from the reached spec, can sizing alone reach the delta?*
+
+### Verdict table (warm-started null, seed 1, 150 evals)
+
+| # | base task | delta | base-feas @ anchor | reached pt clears delta? | clears/150 | first clear @ | **verdict** |
+|---|---|---|:--:|:--:|---:|---:|:--|
+| G1 | dhruva-l1 | S21 +4.6 (→30) | ✔ | no | 0 | — | **RESISTED** |
+| G2 | dhruva-s | +S22 ≤ −10 | ✔ | no | 1 | 25 | **FELL** (spot-value artifact, see note) |
+| G3 | dhruva-l1 | S11 −10→−13 | ✔ | no | 1 | 8 | **FELL** |
+| G4 | dhruva-l2 | S11 −10→−12.5 | ✔ | no | 2 | 10 | **FELL** |
+| G5 | dhruva-s | widen band +20% | — | — | — | — | **N/A** (grid-bound; needs spec-grid change) |
+| G6 | dhruva-s | NF 3.5→3.0 | ✔ | **YES** | 11 | 1 | **FELL — MIS-AUTHORED** (reached NF=1.40 ≪ 3.0) |
+| G7 | dhruva-s | Idd 13→10 | ✔ | no | 3 | 3 | **FELL** |
+| G8 | dhruva-l5 | Idd 13→10.5 | ✔ | no | 0 | — | **RESISTED** |
+| G9 | dhruva-l5 | +ripple ≤ 3 | ✔ | no | 0 | — | **RESISTED** |
+| G10 | dhruva-s | +ripple ≤ 3 | ✔ | no | 0 | — | **RESISTED** |
+| G11 | dhruva-l5 | +IIP3 ≥ −7.4 | — | — | — | — | **N/A-unmeasured** (iip3 unsupported, §8.3) |
+
+**Headline: of 9 evaluable goals, 4 RESIST sizing-only (G1, G8, G9, G10); 5 FELL;
+2 (G5, G11) are N/A in the fast harness.** The 4 resisters are the clean structural
+ladder core: one gain step past the family ceiling (G1), one Idd cut on the small
+deck (G8), and two gain-flatness bounds (G9, G10).
+
+### What the smoke caught (its exact purpose — catch mis-authored deltas cheaply)
+
+- **G6 is MIS-AUTHORED and is dropped.** The reached dhruva-s point already has NF
+  = 1.40 dB, far below the 3.0 target — the delta was not a real extension. The
+  smoke flags it via `reached_point_clears_delta = true` (clears at eval 1).
+- **G3, G4 (S11 tighten) FELL to sizing.** The reached l1/l2 rows sit at the −10
+  *stored* knife-edge, but local sizing deepens the over-band match to −13 / −12.5
+  within 8–10 evals — the match had more sizing headroom than the stored row's
+  0.02 dB margin suggested. Documented-sizing-reachable; dropped from the ladder
+  score.
+- **G7 (Idd 13→10 on dhruva-s) FELL** at eval 3. dhruva-s carries +3.8 dB S21
+  headroom (33.8 vs 30 min), and that headroom buys the Idd cut by sizing alone.
+  **Contrast G8 (Idd 13→10.5 on dhruva-l5) RESISTED** — l5 has less S21 headroom
+  (24.99 vs 22.3 = +2.7) and a smaller 9-device deck, so the same class of cut is
+  structural there. This is a *clean measured discriminator*: the Idd-cut goal is
+  structural only where the gain headroom to trade against is thin.
+- **G2 (S22 ≤ −10) FELL once (eval 25).** Caveat: the fast harness reports
+  `s22_db` (spot @ f0), not a band-wide `s22_max_db`; the single clear is a spot
+  artifact and the goal, if kept, must gate a band-wide S22 (which the harness does
+  not currently compute). Flagged for the user (OQ-6): G2 needs a band-wide S22
+  metric to be a well-posed structural goal.
+
+### The ladder core after the null-filter (kept for the scored tier)
+
+**Structural goals that survive the null-filter: G1, G8, G9, G10** (4 goals).
+G2 kept *conditionally* (needs band-wide S22, OQ-6). G3, G4, G6, G7 are
+**documented-sizing-reachable** and excluded from the ladder score (kept in the doc
+for the record, per the task's instruction). G5, G11 are N/A in the fast harness
+(grid / linearity dependencies). **The user's OQ-6 ruling sets the final scored
+set;** the recommendation from the smoke is: keep G1/G8/G9/G10 as the core, re-author
+G3/G4/G6/G7 with larger deltas (or drop), resolve G2's band-wide-S22 metric, and
+decide G5/G11 against the grid/two-tone-harness dependencies.
+
+**Scope limit (binding).** This smoke shows only that 4 goals resist a *150-eval
+warm local sizing* null at seed 1. It does not prove they need structure at
+unbounded sizing budget, and it confirms nothing about the §1 throughput hypothesis
+or the §6 falsifier — those are the scored tier (E-6 §7 / E-7 §4.3 discipline).
 
 ---
 

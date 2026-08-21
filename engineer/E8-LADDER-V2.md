@@ -409,3 +409,96 @@ This null shows only that G2' and G4' resist a 600-eval warm local sizing null
 at N = 3 seeds. It does not prove they need structure at unbounded budget, and it
 confirms nothing about the throughput hypothesis or the falsifier — those are the
 scored tier.
+
+<!-- ================================================================= -->
+<!-- SCORED CAMPAIGN PRE-REG BELOW — appended BEFORE any scored eval.    -->
+<!-- Everything below this line is the pre-registration committed for    -->
+<!-- the user's GO (2026-08-21); nothing below was informed by a scored  -->
+<!-- eval. Null-filter of the NEW candidates (§9) runs AFTER this commit; -->
+<!-- scored results (§10) are appended post-hoc and clearly marked.       -->
+<!-- ================================================================= -->
+
+## Scored campaign (user GO, 2026-08-21 — maximum-variety directive)
+
+The user ruled **GO** on the E-8 ladder-v2 SCORED campaign (2026-08-21) with the
+directive: *"as much variety in tests as possible so we get the best understanding
+of where blame-guided works and where it fails."* This section pre-registers the
+goal set, the arms, the budgets, and — new to v2 — the **coverage-correlation
+science question**, BEFORE any scored eval. Every governance rule from E8-LADDER
+carries forward (nudge policy E-7 §0, goldens-green, two-line branch law,
+append-only). Runner: `.claude/jobs/a8f610e5/tmp/e8_ladder_v2.py` (reuses the
+v1 `e8_ladder.py` machinery; extends it for task-level band and IIP3 constraints).
+Live anchor metrics re-measured 2026-08-21 through `engineer/env.py`:
+
+| task | S21 | S11_max | Idd | NF | ripple | s22_max | IIP3 (tier-3) |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| dhruva-s  | 33.81 | −11.26 | 13.00 | 1.40 | 12.99 | −0.30 | — |
+| dhruva-l1 | 26.32 | −10.02 | 13.00 | 1.59 | 2.71 | −4.45 | — |
+| dhruva-l2 | 26.81 | −10.03 | 13.00 | 1.71 | 2.98 | −4.38 | — |
+| dhruva-l5 | 24.99 | −10.10 | 12.92 | 2.24 | 15.18 | −1.72 | **−17.18** |
+
+### Confirmed core (already null-filtered at 600 evals — E8-LADDER §Scored + §7 above)
+
+| goal | base | delta | v1/v2 null verdict |
+|---|---|---|---|
+| **G2'** | dhruva-s  | band-wide `s22_max_db ≤ −10` | RESISTED @ 600 (v2 §7); anchor s22_max = −0.30 (deeply infeasible → structural) |
+| **G4'** | dhruva-l2 | `s11_max_db ≤ −14.5` band-wide | RESISTED @ 600 (v2 §7) |
+| **G9**  | dhruva-l5 | `s21_ripple_db ≤ 3` | RESISTED @ 1200 (v2 §7) — scored at **1200 evals** since it resisted there |
+
+### New variety candidates (each must pass a 600-eval sizing-only null BEFORE scoring)
+
+Every new target is set **past the measured 600-eval sizing floor with ≥2× the
+margin that failed before**. Grounding numbers are the live anchors above and the
+v1/v2 fallen-cell data (`engineer/data/e8_results/`, tmp `nullv2_results/`).
+
+| goal | base | delta | target-setting rationale (margin vs measured floor) |
+|---|---|---|---|
+| **G3''** | dhruva-s  | `s11_max_db ≤ −17` band-wide | v2 G3' (l1, −15) FELL @507 (2 dB past a −13 floor). G3'' moves to **dhruva-s** (anchor S11 = −11.26) at −17 = **5.7 dB** past anchor — ≈3× the 2 dB margin that fell. |
+| **G1''** | dhruva-l1 | `s21_db ≥ 33` | v1 G1 sizing hit **30.08 dB @ eval 511** (`cell_G1_a_s5`). 33 is **+2.9 dB** past the measured 600-eval reach (2.9 ≫ the 0.08 dB it barely cleared 30 by). |
+| **G7''** | dhruva-l5 | `idd_ma ≤ 9.0 @ s21 ≥ 22.3` | v2 G7' (l5, ≤10.0) FELL @389. 9.0 is **1.0 mA deeper** — the cut past the 600-eval floor of 10.0. |
+| **G5''** | dhruva-s  | `s11_max_db ≤ −15` over **0.9–2.7 GHz** (task-level band mutation) | corrected wide-band goal. v2 G5' (≤−10 over wide band) was MIS-AUTHORED (anchor already −10.86 over the wide band). G5'' tightens to −15 = **4.1 dB** past the measured wide-band anchor (−10.86). |
+| **G11''** | dhruva-l5 | `iip3_dbm ≥ −7.4 dBm` — **TASK-LEVEL** constraint via the wired tier-3 two-tone path (`size.measure_iip3_tier3`); **NO spec yaml edited** (the frozen-spec flip remains a separate user ruling) | anchor IIP3 = **−17.18 dBm** (measured live) → a **9.8 dB gap** to −7.4; the D5 class-A output-swing wall. **Cost-flagged: ~15.7 s/measurement ≈ 150× a base sp+op eval**; scored at **N=2 seeds only**. |
+
+### The variety axis being studied (the v2 science question)
+
+Per goal, the campaign records the **blame-instrument coverage state** (full /
+partial / unavailable) and the **binding-probe verdict** at the warm anchor. The
+science question is: **how does guided-arm performance correlate with diagnosis
+coverage and goal type** (match / band-shape / current / gain / linearity)? The
+goal types span deliberately:
+
+| goal | type | blame handler | expected coverage |
+|---|---|---|---|
+| G1'' | gain    | `_blame_gain` (gm/gds OP)            | partial |
+| G2'  | match (output S22) | `_blame_match` (gm proxy) | partial |
+| G3'' | match (input S11)  | `_blame_match` (gm proxy) | partial |
+| G4'  | match (input S11)  | `_blame_match` (gm proxy) | partial |
+| G5'' | match, wide band   | `_blame_match` (gm proxy) | partial |
+| G7'' | current | `_blame_current` (per-device Id share; E-8 bugfix) | full (if Id closes to Idd) |
+| G9   | band-shape (ripple) | `_blame_ripple` (capped FD, ≤10 extra sims) | partial |
+| G11''| linearity (IIP3)    | no blame handler for `iip3_dbm` | unavailable |
+
+### Blame extra-sim budgeting (ripple attribution, stated per task directive)
+
+`blame._blame_ripple` runs a capped finite-difference sweep of up to
+`RIPPLE_FD_MAXSIMS = 10` extra ngspice `run_and_extract` calls **per diagnosis**.
+These go through `extract.run_and_extract` **directly, bypassing `env.evaluate`**,
+so they are **NOT counted in the cell's env eval budget**. Ruling for this campaign:
+**they are counted and reported SEPARATELY** as `blame_extra_sims` per guided cell,
+not deducted from the 600-eval budget (the diagnosis is a one-shot warm-anchor
+call, not part of the search loop; matched-budget parity across arms is preserved
+because the 600 counted evals are identical for all three arms). Reported in §10.
+
+### Arms, budgets, seeds (matched, per the OQ-4 ruling carried forward)
+
+- **(a) sizing-null continued** — CMA-ES sizing the reached topology vs the goal's
+  extended (in-memory) spec; the null-filter extended to the scored budget.
+- **(b) random-edit** — E-7 ruled primitives at random targets, then CMA-ES sizing.
+- **(c) blame-guided** — same repertoire, edit target/prior set by the auto-diagnosis
+  (`blame.py` + `binding_probe.py`, no human string).
+- **600 env evals per (goal, arm, seed)**, **G9 @ 1200**, **G11'' per its cost note**.
+- **N = 5 seeds** (seeds 1–5), **G11'' N = 2**. **PYTHONHASHSEED = 0**, matched budgets.
+
+Falsifier (E8-LADDER §6) applies verbatim to this v2 set: if blame-guided (c) solves
+no more goals than random-edit (b) at matched budget AND is no faster on shared
+goals, the Q3 diagnosis→intervention integration is REFUTED for this ladder.

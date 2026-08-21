@@ -5,7 +5,7 @@ Given a netlist *body* (elements + ports + .include + .option, no .param / no
 op/sp/noise control block, runs ngspice_con once, and returns the metrics dict
 that spec.feasible()/objective()/report() consume:
 
-    {s11_db, s11_max_db, s21_db, s21_min_db, s21_ripple_db, idd_ma, nf_db}
+    {s11_db, s11_max_db, s21_db, s21_min_db, s21_ripple_db, idd_ma, nf_db, s22_db, s22_max_db}
 
 s11_db / s21_db are at f0; *_max/_min/_ripple are across [f_lo, f_hi] (wideband).
 Idd is the DC supply current. ~1 s/eval.
@@ -174,6 +174,7 @@ def _stability_meas(f0, f_lo, f_hi):
         f"meas sp m_delta_f0 find dltm at={f0:g}",
         f"meas sp m_delta_max max dltm from={f_lo:g} to={f_hi:g}",
         f"meas sp m_s22_f0 find s22db at={f0:g}",
+        f"meas sp m_s22_max max s22db from={f_lo:g} to={f_hi:g}",
         f"meas sp m_s12_f0 find s12db at={f0:g}",
     ]
 
@@ -388,6 +389,7 @@ def run_and_extract(body, params, spec, op_capture=None):
         "nf_db": None,              # only measure_nf (series-Rs) may fill this
         # --- advisory two-port stability (WP-D4b); never gated, free from `sp`
         "s22_db": g("m_s22_f0"),
+        "s22_max_db": g("m_s22_max"),   # band-wide worst S22 (ladder-v2 G2')
         "s12_db": g("m_s12_f0"),
         "k_f0": g("m_k_f0"),
         "k_min": g("m_k_min"),          # worst point over [f_lo, f_hi]

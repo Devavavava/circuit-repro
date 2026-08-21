@@ -304,3 +304,108 @@ New ideas: **N1 (deferred), N2 (conditional)**.
 
 **The user's OQ-6 ruling on the final scored set is the gate.** Until then this
 document is a DRAFT; nothing is scored under it.
+
+---
+
+<!-- ================================================================= -->
+<!-- POST-HOC OUTCOME BELOW — appended AFTER the v2 null-filter run.   -->
+<!-- Everything above this line is the DRAFT committed for the user's   -->
+<!-- ruling; nothing above was informed by any v2 eval.                 -->
+<!-- ================================================================= -->
+
+## 7. V2 null-filter @ scored budget (post-hoc — appended 2026-08-21)
+
+**Run:** sizing-only warm-anchored null, **600 evals per goal** (N = 3 seeds,
+seeds 1–3, PYTHONHASHSEED=0), plus **G9 @ 1200 evals** (double budget, structural
+read). Runner: `/home/dpatni/.claude/jobs/a8f610e5/tmp/nullv2_run.py`; results:
+`/home/dpatni/.claude/jobs/a8f610e5/tmp/nullv2_results/nullv2_<goal>_s<seed>.json`.
+
+**Methodology:** identical warm-anchored null protocol to E8-LADDER §8.4 (Scored
+results), but run at the **scored budget of 600 evals** per the budget-scaling
+lesson: the 150-eval null from §8.4 did not survive scaling (G1/G8/G10 fell to
+sizing-only at 600 evals). All v2 goals must be null-filtered at the scored budget.
+
+**G11' skipped:** pending user spec-flip ruling (iip3_dbm status: unsupported →
+measured in dhruva-l5.yaml required before the null can run).
+
+### Verdict table (warm-started null, seeds 1–3, 600 evals; G9 @ 1200 evals)
+
+| # | base task | delta | base-feas @ anchor | anchor clears delta? | seeds that solve | first solve @ eval | **verdict** |
+|---|---|---|:--:|:--:|---:|---:|:--|
+| **G2'** | dhruva-s | s22_max_db ≤ −10 band-wide | ✔ | no | 0/3 | — | **RESISTED** |
+| **G3'** | dhruva-l1 | S11 ≤ −15 band-wide | ✔ | no | 1/3 | s2 @ 507 | **FELL** (sizing-reachable at 600 evals) |
+| **G4'** | dhruva-l2 | S11 ≤ −14.5 band-wide | ✔ | no | 0/3 | — | **RESISTED** |
+| **G5'** | dhruva-s | S11 ≤ −10 over [0.9, 2.7] GHz | ✔ | **YES** (3/3) | 3/3 | all @ eval 1 | **FELL — MIS-AUTHORED** (anchor clears; dhruva-s already holds S11 = −10.86 over [0.9, 2.7] GHz) |
+| **G6'** | dhruva-l5 | Idd ≤ 10.5 @ S21 ≥ 22.3 | ✔ | no | 1/3 | s3 @ 226 | **FELL** (G8's 150-eval resistance did not survive budget scaling to 600 evals) |
+| **G7'** | dhruva-l5 | Idd ≤ 10.0 @ S21 ≥ 22.3 | ✔ | no | 1/3 | s3 @ 389 | **FELL** |
+| **G9** | dhruva-l5 | s21_ripple_db ≤ 3 | ✔ | no | 0/3 | — | **RESISTED** @ 1200 evals (stays structural at double budget) |
+
+**Headline: 2/6 v2 goals resist at the scored 600-eval budget (G2', G4').
+G9 stays structural at 1200 evals.** G11' not yet run (pending ruling).
+
+### Per-cell detail (evals-to-solve where FELL)
+
+| goal | seed 1 | seed 2 | seed 3 |
+|---|---|---|---|
+| G2' | not solved | not solved | not solved |
+| G3' | not solved | SOLVED @ 507 evals (0.100 spice-min) | not solved |
+| G4' | not solved | not solved | not solved |
+| G5' | SOLVED @ 1 eval (anchor clears; MIS-AUTHORED) | SOLVED @ 1 eval | SOLVED @ 1 eval |
+| G6' | not solved | not solved | SOLVED @ 226 evals (0.039 spice-min) |
+| G7' | not solved | not solved | SOLVED @ 389 evals (0.085 spice-min) |
+| G9 @1200 | not solved | not solved | not solved |
+
+### What the v2 null caught
+
+**G5' MIS-AUTHORED — DROP.** The in-memory band mutation to [0.9, 2.7] GHz
+reveals that the dhruva-s anchor already achieves s11_max_db = −10.86 dB over
+the wider band (measured live at the anchor point). The narrowband LC resonant
+match is coincidentally broad enough to hold S11 ≤ −10 over this wider span at
+the current sizing. The goal's premise (that a 3:1 BW ratio requires a qualitatively
+different match) was correct in principle but wrong in measurement: the current
+topology already satisfies it. Goal needs a tighter S11 target (e.g. ≤ −15) over
+the wider band, or a further-widened grid, to be a genuine structural ask.
+
+**G3' FELL to sizing at 600 evals** (s2 solved @ eval 507). The v1 §8.4 null
+had measured the sizing floor at −13 dB in 8 evals at 150-eval budget; the
+v2 target was −15 dB (2 dB beyond). At 600 evals the CMA-ES finds a sizing path
+to −15 dB on seed 2. The 2 dB safety margin was insufficient for the scored budget.
+A larger delta (e.g. −17 dB) may resist — this is now a measured datum not a
+prediction.
+
+**G6' FELL (1/3)** — the G8 carry-forward. G8 RESISTED at 150 evals in the v1
+null; at 600 evals the optimizer finds a sizing solution on seed 3 (@ eval 226).
+The gain-headroom discriminator still holds qualitatively (dhruva-s Idd cuts fell
+faster), but the 10.5 mA level is sizing-reachable at the scored budget on dhruva-l5.
+
+**G7' FELL (1/3)** — the deeper Idd cut (−3 mA) is also sizing-reachable at 600
+evals (seed 3 @ eval 389). Both G6' and G7' fell, indicating that the Idd-cut goal
+family on dhruva-l5 at these delta magnitudes does not hold at the scored budget.
+
+**G9 RESISTED at 1200 evals (0/3 seeds).** The ripple-≤-3 goal stays structural
+at double the scored budget. This is the cleanest structural signal in the v2 round:
+a 15.18 → 3 dB ripple cut on dhruva-l5 cannot be sized, even at 1200 evals.
+
+### Goals that survive the v2 null-filter at the scored budget
+
+**Structural goals from v2: G2' (s22_max_db ≤ −10, dhruva-s), G4' (S11 ≤ −14.5,
+dhruva-l2).** These join the surviving v1 structural goal G9 (ripple ≤ 3, confirmed
+structural at 1200 evals) as the v2 candidate ladder core.
+
+**Fell / mis-authored (documented, dropped from ladder score):**
+- G3' (S11 ≤ −15, dhruva-l1): sizing-reachable at 600 evals — needs larger delta
+- G5' (band-widening to [0.9, 2.7] GHz): mis-authored — anchor already clears
+- G6' (Idd ≤ 10.5, dhruva-l5): sizing-reachable at 600 evals — G8 did not survive budget scaling
+- G7' (Idd ≤ 10.0, dhruva-l5): sizing-reachable at 600 evals
+
+**G11' deferred:** pending user spec-flip ruling (iip3_dbm status flip).
+
+**The final v2 goal set is the user's ruling.** This section provides the
+null-filter evidence; no scored run is authorized under it.
+
+### Scope limit (binding, inherited from E8-LADDER §8.4 / E-6 §7 / E-7 §4.3)
+
+This null shows only that G2' and G4' resist a 600-eval warm local sizing null
+at N = 3 seeds. It does not prove they need structure at unbounded budget, and it
+confirms nothing about the throughput hypothesis or the falsifier — those are the
+scored tier.

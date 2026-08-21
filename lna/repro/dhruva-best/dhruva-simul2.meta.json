@@ -1,0 +1,47 @@
+{
+ "designation": "flagship",
+ "designation_date": "2026-08-22",
+ "designation_ruling": "user ruling 2026-08-22: FINDINGS §49 margin-hardened sizing adopted as flagship",
+ "point_name": "dhruva-simul2",
+ "prior_point": "dhruva-simul (dhruva-simul.params.json, §36, 2026-08-13)",
+ "topology": {
+  "wl_hash": "ace8383c2fa68d03",
+  "n_devices": 20,
+  "n_inductors": 2,
+  "tokens_file": "tokens.json"
+ },
+ "provenance": {
+  "driver": "lna/_resize_simul.py",
+  "mode": "--run",
+  "start_file": "lna/repro/dhruva-best/dhruva-simul.params.json",
+  "objective": "maximize worst-case normalized margin across all four dhruva specs simultaneously",
+  "algorithm": "coordinate + random-direction descent",
+  "seed": 0,
+  "budget": 201,
+  "s11_floor": -10.5,
+  "idd_limit": 13.0,
+  "k_floor": 1.0,
+  "step_range": "0.30 -> 0.015 (budget-limited at 0.30)",
+  "n_scores_actual": 202,
+  "n_refused": 0,
+  "findings_section": "FINDINGS §49"
+ },
+ "reconstruction_note": "Original best.json was lost with the margin-resize worktree cleanup. Re-derived deterministically (seed=0, budget=201, s11_floor=-10.5, all defaults) on 2026-08-22; all §49 recorded aggregates reproduced exactly: S11_bandmax=-12.826, NF@l5=2.021, Idd=10.038, K_in=10.68. Recorded, not smoothed.",
+ "metrics": {
+  "pVDD_harness": 1.1,
+  "S11_bandmax_dB": -12.826,
+  "Idd_mA": 10.038,
+  "K_min_inband": 10.68,
+  "worst_normalized_margin": 0.1918,
+  "per_band": {
+   "dhruva-s": {"S11max": -12.826, "S21": 36.052, "Idd": 10.038, "NF": 1.421, "NF_limit": 3.5, "K": 10.68, "verdict": "PASS"},
+   "dhruva-l1": {"S11max": -12.826, "S21": 35.606, "Idd": 10.038, "NF": 1.593, "NF_limit": 2.7, "K": 10.68, "verdict": "PASS"},
+   "dhruva-l2": {"S11max": -12.826, "S21": 34.269, "Idd": 10.038, "NF": 1.926, "NF_limit": 2.5, "K": 10.68, "verdict": "PASS"},
+   "dhruva-l5": {"S11max": -12.826, "S21": 33.973, "Idd": 10.038, "NF": 2.021, "NF_limit": 2.5, "K": 10.68, "verdict": "PASS"}
+  }
+ },
+ "replay_fence": {
+  "cross_matrix": "16/16 PASS",
+  "protocol": "lna/_resize_simul.py --cross (identical to recreate.py --cross for per-band sizings)"
+ }
+}

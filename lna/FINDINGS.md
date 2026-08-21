@@ -10054,3 +10054,40 @@ proceeded normally.
 
 Goldens `check_ref` **GREEN before and after**.
 
+### 49.8 Designation addendum (user ruling 2026-08-22)
+
+**User ruling, 2026-08-22:** The §49 margin-hardened sizing is adopted as the
+flagship designated point, replacing `dhruva-simul` (§36). Prior point archived
+intact; §35–§48 numbers remain attributed to it.
+
+**Reconstruction (2026-08-22):** The original `best.json` output was lost with
+the `margin-resize` worktree cleanup (gitignored `lna/out/` tree). Per house
+replay discipline the resize was re-run deterministically (seed=0, budget=201,
+s11_floor=−10.5, all defaults; `python lna/_resize_simul.py --run --budget
+201`). All §49 recorded aggregates reproduced exactly:
+
+| metric | §49 recorded | reconstruction | match |
+|---|---|---|---|
+| S11_bandmax | −12.826 dB | −12.826 dB | **EXACT** |
+| NF @ l5 | 2.021 dB | 2.021 dB | **EXACT** |
+| Idd | 10.038 mA | 10.038 mA | **EXACT** |
+| K_in (in-band) | 10.68 | 10.68 | **EXACT** |
+| n_scores | 202 | 202 | **EXACT** |
+| n_refused | 0 | 0 | **EXACT** |
+
+Reconstruction verdict: **EXACT MATCH — all §49 numbers reproduced
+deterministically. No divergence. Designation proceeds.**
+
+**Durable storage:** Parameters committed at
+`lna/repro/dhruva-best/dhruva-simul2.params.json` (tracked, not gitignored).
+The prior loss arose because `lna/out/_resize_simul/best.json` is gitignored
+per the `lna/out/_*` rule. The designated point's params are now in the
+`repro/dhruva-best/` package, which is committed and tracked.
+
+**Replay verification (4-cell, fresh):** All four specs pass with zero delta
+from the §49 table: dS11=0.000, dS21=0.000, dIdd=0.000, dNF=0.000 on every
+band. **The original 16-cell `recreate.py --cross` matrix (4 per-band sizings
+× 4 specs): 16/16 PASS, unchanged** (per-band sizings not modified).
+
+Plans2 pointer: `plans2/14-DHRUVA-SIMUL.md` §6 (Designation history).
+

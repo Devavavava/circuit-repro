@@ -5,6 +5,19 @@
 benchmark as met; the standing benchmark is now *one LNA, one fixed sizing,
 every specification at once*.
 
+**Flagship designation — UPDATED 2026-08-22 (user ruling):** The §49
+margin-hardened sizing (`dhruva-simul2`, FINDINGS §49 + §49 addendum) is now
+the flagship designated point, replacing `dhruva-simul` (§36). The prior point
+and all its files are archived intact in `lna/repro/dhruva-best/`; §35–§48
+numbers remain attributed to it. The new point's params are committed durably
+at `lna/repro/dhruva-best/dhruva-simul2.params.json` (not gitignored; the prior
+loss happened precisely because best.json lived in the gitignored `lna/out/`
+tree). S11 margin: +1.012 → +2.826 dB; NF at l5: 1.726 → 2.021 dB (still
+PASS); Idd: 8.205 → 10.038 mA; K_in: 17.21 → 10.68 (still >> 1). Worst-case
+normalized margin ×3.7. Replay: 4/4 specs PASS, dS11=0.000 dS21=0.000
+dIdd=0.000 dNF=0.000 (exact reproduction). The original 16-cell `recreate.py
+--cross` matrix: 16/16 PASS (per-band sizings unchanged).
+
 This document supersedes the day-to-day role of `08-DHRUVA-GOAL.md` (which
 lived in the since-removed `lna-plans` worktree and is no longer on disk) and
 restates the target ladder so it is self-contained. The blind protocol is
@@ -147,10 +160,11 @@ failing**. The bottleneck is therefore what the harness *cannot* measure:
    specs (or simply S11 ≤ −10.5…−11 as the trust region), spending some of
    the +1.25 dB NF / +3.7 dB gain slack on match robustness. Tooling exists
    (`recreate.py --resize` is the template).
-   **ATTEMPTED 2026-08-21 (FINDINGS §49): PASS — worst S11 margin +1.012 → +2.826 dB,
-   4/4 bands PASS, worst-case-margin ×3.7; NF margin narrowed (0.774 → 0.479 dB, still
-   passes); output at `lna/out/_resize_simul/best.json`. Designation decision pending
-   user ruling.**
+   **DONE — DESIGNATED 2026-08-22 (FINDINGS §49 + addendum): PASS — worst S11
+   margin +1.012 → +2.826 dB, 4/4 bands PASS, worst-case-margin ×3.7; NF margin
+   narrowed (0.774 → 0.479 dB, still passes); params committed durably at
+   `lna/repro/dhruva-best/dhruva-simul2.params.json`. User ruling 2026-08-22:
+   §49 sizing is now the flagship designated point.**
 2. **Prototype IIP3 in ngspice** — two-tone transient + FFT at f0 per band.
    Coarse (transient noise floor, tone-spacing/timestep care), but it turns
    the D5 wall into a number in a day and decides whether the answer is
@@ -186,4 +200,21 @@ python lna/repro/dhruva-best/recreate.py --cross
 
 # the per-band (own-band) audit ladder, unchanged:
 python lna/repro/dhruva-best/recreate.py --audit
+
+# verify the flagship simul2 point on all four specs (1x4 matrix):
+python lna/_resize_simul.py --cross
 ```
+
+---
+
+## 6. Designation history
+
+| designation | date | point | S11max | NF@l5 | Idd | params file | ruling |
+|---|---|---|---|---|---|---|---|
+| v1 (original) | 2026-08-13 | `dhruva-simul` | −11.012 dB | 1.726 dB | 8.205 mA | `dhruva-simul.params.json` (§36) | user ruling 2026-08-13 |
+| **v2 (current flagship)** | **2026-08-22** | **`dhruva-simul2`** | **−12.826 dB** | **2.021 dB** | **10.038 mA** | **`dhruva-simul2.params.json` (§49)** | **user ruling 2026-08-22** |
+
+The v1 point (`dhruva-simul.params.json`) and all artifacts attributed to it
+(§35–§48, FINDINGS and JOURNEY) are archived intact. The §1.1 requirements
+table above is stated on the v1 point (original designation context) — §49
+numbers for the v2 point are in FINDINGS §49.

@@ -472,3 +472,82 @@ fix the scored campaign **before** any scored eval. Recorded verbatim.
 **Scored campaign as ruled:** 4 goals (G1, G8, G9, G10) × 3 arms (a sizing-null,
 b random-edit, c blame-guided) × 5 seeds × 600 evals = **36,000 evals**, matched
 budget, warm anchor per §8.4, deterministic seeds 1..5 with PYTHONHASHSEED=0.
+
+## Scored results (campaign complete 2026-08-21; finalized by the parent session after the executing agent hit its session limit post-campaign — aggregation recomputed from the 60 raw cells by engineer/e8_aggregate.py)
+
+<!-- aggregated from 60 cells -->
+
+### Headline: goals solved per arm at matched budget (600 evals/cell, N=5)
+
+| arm | goals solved (>=1 seed) / 4 | goal-seeds solved / 20 |
+|---|:--:|:--:|
+| (a) sizing-null | **3/4** | 7/20 |
+| (b) random-edit | **0/4** | 0/20 |
+| (c) blame-guided | **1/4** | 1/20 |
+
+### Time-to-solve distribution per arm (SPICE-minutes, over solved cells)
+
+| arm | n solved cells | median spice-min | min | max | median evals |
+|---|:--:|--:|--:|--:|--:|
+| (a) sizing-null | 7 | 0.0565 | 0.0342 | 0.0957 | 337 |
+| (b) random-edit | 0 | -- | -- | -- | -- |
+| (c) blame-guided | 1 | 0.1008 | 0.1008 | 0.1008 | 590 |
+
+### Per-goal detail (solved y/n per seed, evals & spice-min to solve, winning edits)
+
+
+**G1** — dhruva-l1  S21>=30 dB (gain wall, reached 26.32)
+
+| arm | solved seeds | evals-to-solve (per solved seed) | spice-min-to-solve | winning edit sequences |
+|---|:--:|---|---|---|
+| (a) sizing-null | 1/5 | s5:511 | s5:0.0864 | 0 edits (sizing-only) |
+| (b) random-edit | 0/5 | -- | -- | (none) |
+| (c) blame-guided | 0/5 | -- | -- | (none) |
+
+  arm (c) auto-diagnosis @ warm anchor: binding_metric=`s21_db` (probe verdict `single`), blame devices `['NM3', 'NM2', 'NM5', 'NM1', 'NM4']` (coverage `partial`).
+
+**G8** — dhruva-l5  Idd<=10.5 mA @ S21>=22.3 (reached Idd 12.92)
+
+| arm | solved seeds | evals-to-solve (per solved seed) | spice-min-to-solve | winning edit sequences |
+|---|:--:|---|---|---|
+| (a) sizing-null | 2/5 | s3:225, s4:568 | s3:0.0396, s4:0.0957 | 0 edits (sizing-only) |
+| (b) random-edit | 0/5 | -- | -- | (none) |
+| (c) blame-guided | 0/5 | -- | -- | (none) |
+
+  arm (c) auto-diagnosis @ warm anchor: binding_metric=`idd_ma` (probe verdict `single`), blame devices `[]` (coverage `full`).
+
+**G9** — dhruva-l5  s21_ripple_db<=3 (reached 15.18)
+
+| arm | solved seeds | evals-to-solve (per solved seed) | spice-min-to-solve | winning edit sequences |
+|---|:--:|---|---|---|
+| (a) sizing-null | 0/5 | -- | -- | 0 edits (sizing-only) |
+| (b) random-edit | 0/5 | -- | -- | (none) |
+| (c) blame-guided | 0/5 | -- | -- | (none) |
+
+  arm (c) auto-diagnosis @ warm anchor: binding_metric=`s21_ripple_db` (probe verdict `single`), blame devices `[]` (coverage `unavailable`).
+
+**G10** — dhruva-s   s21_ripple_db<=3 (reached 12.99)
+
+| arm | solved seeds | evals-to-solve (per solved seed) | spice-min-to-solve | winning edit sequences |
+|---|:--:|---|---|---|
+| (a) sizing-null | 4/5 | s1:337, s3:436, s4:204, s5:304 | s1:0.0565, s3:0.0728, s4:0.0342, s5:0.0508 | 0 edits (sizing-only) |
+| (b) random-edit | 0/5 | -- | -- | (none) |
+| (c) blame-guided | 1/5 | s4:590 | s4:0.1008 | p4_insert_series_element(tank) |
+
+  arm (c) auto-diagnosis @ warm anchor: binding_metric=`s21_ripple_db` (probe verdict `single`), blame devices `[]` (coverage `unavailable`).
+
+### Falsifier (pre-stated §6, applied verbatim)
+
+> If blame-guided (c) solves no more goals than random-edit (b) at the matched budget — and is no faster in SPICE-minutes on the goals both solve — then the Q3 diagnosis->intervention integration (blame.py+binding_probe.py -> move prior) is REFUTED for this ladder.
+
+Measured at matched budget: blame-guided (c) solved **1/4**, random-edit (b) solved **0/4**.
+
+**VERDICT: NOT refuted** — blame-guided solves MORE goals than random-edit (1 > 0).
+
+**Sizing-null (arm a) at 600 evals:** solved 3/4 — goals ['G1', 'G8', 'G10'] cleared by sizing alone at the scored budget (flagged sizing-reachable; the §8 smoke had marked them RESISTED at 150 evals, so this is a budget-scaled re-read, recorded not smoothed).
+
+### Deviations, recorded not smoothed
+
+- The executing agent completed all 60 cells and then hit its usage limit before aggregation; the parent session recomputed the aggregate from the per-cell JSONs (tmp e8_results/, preserved to the engineer checkout engineer/data/e8_results/) and wrote this section. No cell was re-run or altered.
+- The 150-eval null filter (§8.4) did NOT survive budget scaling: G1/G8/G10 fell to sizing-only at the scored 600 evals. Only G9 is structural at this budget. Ladder-v2 null filters must run at the scored budget.
+- blame.py returned empty device rankings for ripple (metric not covered) and for G8 idd; the guided arm there ran on the binding-probe metric alone. Instrument coverage extension queued.

@@ -98,6 +98,12 @@ SPEC_OF = {
                             "narrowband differential CG with inductive loads; note "
                             "the spec is single-ended, so single_input is expected "
                             "to fail on L0"),
+    "paper-sige-hbt-resfb": ("wideband-sdr",
+                             "wideband resistive-feedback SiGe-HBT LNA; wideband-sdr "
+                             "is the nearest broadband target"),
+    "paper-nc-cc-inductorless": ("wideband-sdr",
+                                 "inductorless wideband noise-cancelling, same family "
+                                 "as paper-noisecancel"),
 }
 
 # Cheap ZOAF budget for an ingest label -- deliberately below `candidate-v1`

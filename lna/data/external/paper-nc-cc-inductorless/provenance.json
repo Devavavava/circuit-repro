@@ -1,0 +1,53 @@
+{
+  "name": "paper_nc_cc_inductorless",
+  "description": "Miniature wide-band noise-canceling inductorless CMOS LNA in a current-conveyor (CC) arrangement. M1 is the common-gate input device: because the input signal enters its source, the input transistor's thermal noise appears in anti-phase at its drain (DN) and source (SN) nodes. M2 is a source-follower that completes the current conveyor. Two inverting common-source noise-cancel paths (MX sensing the SN node, MY sensing the DN node) sum at the output node so that the input device's noise cancels while the signal adds; MF is a feedback device and RY the output load. The M3..M13 bank is the mirror/current-source biasing that sets the branch currents. Inductorless by design. Cited paper transcription -- topology + full Table-1 W/L set transcribed, no value invented.",
+  "source_family": "Inductorless wideband noise-canceling current-conveyor CMOS LNA (common-gate input device with two summed inverting noise-cancel paths)",
+  "cited_paper": {
+    "title": "Miniature Wide-Band Noise-Canceling CMOS LNA",
+    "journal": "MDPI (PubMed Central open-access mirror)",
+    "pmc_id": "PMC9318920",
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9318920/",
+    "open_access": "yes -- Creative Commons Attribution (CC BY), confirmed retrievable at the URL above",
+    "retrieval_date": "2026-08-20",
+    "what_was_actually_read": "The article HTML was fetched (WebFetch). The current-conveyor + noise-cancel mechanism description and the full Table-1 W/L set were read from the text. The paper's own schematic figure was not machine-readable via the available tools; the exact node-level wiring of the M3..M13 mirror bank is therefore reconstructed by convention (see ambiguous_or_uncertain)."
+  },
+  "published_values_table1": {
+    "M1": "20 x 5 um (W x L)",
+    "M2": "5 x 5 um",
+    "M3_to_M13": "2 x 0.5 um (each of the eleven devices M3..M13)",
+    "MX": "30 x 4 um",
+    "MY": "2 x 0.5 um",
+    "MF": "2 x 0.5 um",
+    "I01_bias_current": "1 mA",
+    "I02_bias_current": "200 uA",
+    "VBF": "0.35 V",
+    "VBX": "0.35 V",
+    "RY_output_load": "220 ohm",
+    "supply_voltage": "+/- 1.2 V",
+    "technology": "UMC 65-nm CMOS (Lmin = 65 nm)",
+    "note": "W/L values transcribed verbatim from Table 1. AnalogGenie is topology-only: the token sequence carries no magnitudes, so these values live only here in provenance and are NOT injected into the netlist. Every value above is paper-sourced; none is invented."
+  },
+  "transcription": {
+    "route": "Authored directly in AnalogGenie native device-level format ('Dev (pins) type' + Port line) in lna/data/external/_tools/transcriptions.py, exactly like the round-1 paper transcriptions. Validated through the same pipeline: upstream build_connection_matrix/dfs_all_paths (execed read-only from AnalogGenie/repo) -> Graph csv -> Eulerian token sequence -> lna/topology.py structural screen. No external SPICE was parsed.",
+    "device_map": [
+      "Cin (VIN1 SN) capacitor  -- input DC block into the common-gate source node",
+      "M1 (DN VB1 SN VSS) nmos4 -- common-gate input device; D=DN, G=VB1(bias), S=SN(input), B=VSS",
+      "M2 (VDD DN SN VSS) nmos4 -- source-follower completing the current conveyor; senses DN, drives SN",
+      "MX (VOUT1 SN VSS VSS) nmos4 -- inverting CS noise-cancel path sensing the source node SN",
+      "MY (VOUT1 DN VSS VSS) nmos4 -- inverting CS noise-cancel path sensing the drain node DN, summed at VOUT1",
+      "MF (DN VOUT1 SN VSS) nmos4  -- feedback device around the input node",
+      "RY (VOUT1 VDD) resistor     -- output load, 220 ohm",
+      "M3..M13 (mirror bank) nmos4 -- current-source / mirror biasing of the branches; the eleven 2x0.5um devices"
+    ],
+    "approximations_and_ambiguities": []
+  },
+  "transcription_confidence": "HIGH for the family and its defining mechanism (common-gate input device whose drain/source noise is summed and canceled through two inverting paths MX/MY at a shared output load RY -- read directly from the paper text) and for all Table-1 W/L magnitudes (transcribed verbatim). MEDIUM for the exact node-level wiring of the M3..M13 mirror/current-source bank, which the fetched text does not specify device-by-device; the canonical current-mirror biasing (diode-referenced NMOS sources to the branch nodes, referenced to VBX/VBF/VB1) is used, following the standard implementation of this technique, rather than being read off the figure.",
+  "ambiguous_or_uncertain": [
+    "Exact node-by-node connectivity of M3..M13 (the eleven 2x0.5um mirror devices): the fetched text gives their sizes but not a per-device netlist. Canonical current-mirror biasing was used; flagged rather than invented as a specific published wiring.",
+    "Whether MF's gate senses the output (VOUT1) or an internal node: 'feedback device' was described but the exact sensed node was not; the output-referenced convention was used.",
+    "No W/L is injected into the topology (AnalogGenie is value-free); the Table-1 W/L set is recorded above for provenance only."
+  ],
+  "quarantine": false,
+  "quarantine_reason": null,
+  "excluded_paper_check": "Independent of, and unrelated to, the Kanchetla et al. TMTT 2022 paper this pipeline is blind-reproducing. This is an inductorless wideband noise-canceling current-conveyor CMOS LNA (broadband, inductorless family); it does not derive from and nor references the excluded GNSS narrowband inductively-matched CMOS design. The fetched article contains no mention of Kanchetla, NavIC, or BeiDou."
+}

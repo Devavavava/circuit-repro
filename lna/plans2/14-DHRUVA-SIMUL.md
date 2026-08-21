@@ -147,6 +147,10 @@ failing**. The bottleneck is therefore what the harness *cannot* measure:
    specs (or simply S11 ≤ −10.5…−11 as the trust region), spending some of
    the +1.25 dB NF / +3.7 dB gain slack on match robustness. Tooling exists
    (`recreate.py --resize` is the template).
+   **ATTEMPTED 2026-08-21 (FINDINGS §49): PASS — worst S11 margin +1.012 → +2.826 dB,
+   4/4 bands PASS, worst-case-margin ×3.7; NF margin narrowed (0.774 → 0.479 dB, still
+   passes); output at `lna/out/_resize_simul/best.json`. Designation decision pending
+   user ruling.**
 2. **Prototype IIP3 in ngspice** — two-tone transient + FFT at f0 per band.
    Coarse (transient noise floor, tone-spacing/timestep care), but it turns
    the D5 wall into a number in a day and decides whether the answer is

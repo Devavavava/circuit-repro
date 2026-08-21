@@ -71,4 +71,61 @@ L2 (VOUT2 VDD) inductor
 """,
         "ports": "VDD VSS VIN1 VIN2 VOUT1 VOUT2 VB1",
     },
+    # -- round 2 (user-approved 2026-08-20) ------------------------------------
+    # paper-sige-hbt-resfb: Wideband SiGe-HBT cascode LNA with resistive+cap
+    # feedback and shunt peaking (PMC10422273, CC BY). Q1 common-emitter input,
+    # Q2 common-base cascode; series feedback R (RF) || C (CF) from the collector
+    # tank back to Q1's base; inductive emitter degeneration (LE); series base
+    # inductor (LB); load/peaking inductor LC with a series shunt-peaking damping
+    # resistor RSP; Cin input DC-block and Cout output DC-block. Every device the
+    # paper's Table 1 lists is present; the (topology-only) token sequence carries
+    # no values -- the Table-1 magnitudes live in provenance.json.
+    "paper_sige_hbt_resfb": {
+        "cir": """Cin (VIN1 B1) capacitor
+LB (B1 G1) inductor
+Q1 (CASC G1 E1) npn
+LE (E1 VSS) inductor
+Q2 (CTANK VDD CASC) npn
+LC (CTANK VDD) inductor
+RSP (CTANK VDD) resistor
+RF (CTANK G1) resistor
+CF (CTANK G1) capacitor
+Cout (CTANK VOUT1) capacitor
+""",
+        "ports": "VDD VSS VIN1 VOUT1",
+    },
+    # paper-nc-cc-inductorless: Miniature wide-band noise-canceling CMOS LNA in a
+    # current-conveyor arrangement (PMC9318920, CC BY), inductorless. M1 common-
+    # gate input (drain and source carry the input device's noise in anti-phase),
+    # M2 source-follower completing the current conveyor, two inverting common-
+    # source noise-cancel paths (MX sensing the M1 source node, MY sensing the M1
+    # drain node) summed at the output through load RY, MF feedback device, and
+    # the tail/mirror current sources that bias the branches. The exact node-level
+    # wiring of the M3..M13 mirror bank is NOT machine-readable from the source
+    # (see provenance.json ambiguous_or_uncertain); this transcription uses the
+    # canonical current-conveyor + Bruccoleri-style noise-cancel connectivity and
+    # represents the bias bank as diode-referenced NMOS current sources. Every
+    # Table-1 device is represented; W/L magnitudes are recorded in provenance.
+    "paper_nc_cc_inductorless": {
+        "cir": """Cin (VIN1 SN) capacitor
+M1 (DN VB1 SN VSS) nmos4
+M2 (VDD DN SN VSS) nmos4
+MX (VOUT1 SN VSS VSS) nmos4
+MY (VOUT1 DN VSS VSS) nmos4
+MF (DN VOUT1 SN VSS) nmos4
+RY (VOUT1 VDD) resistor
+M3 (SN VBX VSS VSS) nmos4
+M4 (DN VBX VSS VSS) nmos4
+M5 (VOUT1 VBX VSS VSS) nmos4
+M6 (VBX VBX VSS VSS) nmos4
+M7 (VBF VBF VDD VDD) nmos4
+M8 (VB1 VBF VDD VDD) nmos4
+M9 (VB1 VB1 VSS VSS) nmos4
+M10 (VBX VBF VDD VDD) nmos4
+M11 (VBF VBX VSS VSS) nmos4
+M12 (SN VB1 VDD VDD) nmos4
+M13 (DN VB1 VDD VDD) nmos4
+""",
+        "ports": "VDD VSS VIN1 VOUT1 VB1",
+    },
 }

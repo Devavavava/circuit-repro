@@ -1,0 +1,52 @@
+{
+  "name": "paper_sige_hbt_resfb",
+  "description": "Wideband SiGe-HBT cascode LNA with resistive-plus-capacitive feedback and shunt peaking. Q1 common-emitter input stage, Q2 common-base cascode stage; a series feedback resistor RF in parallel with a feedback capacitor CF runs from the collector tank back to Q1's base; inductive emitter degeneration (LE) sets the real part of the input match; a series base inductor (LB) and input DC-block cap (Cin) form the input network; the load/peaking inductor LC together with a shunt-peaking damping resistor RSP flattens the gain to the band edge; an output DC-block cap (Cout) drives the 50-ohm load. Cited paper transcription -- topology + published Table-1 values transcribed, no value invented.",
+  "source_family": "Wideband SiGe-HBT common-emitter/common-base cascode LNA with resistive-capacitive shunt feedback and inductive shunt peaking",
+  "cited_paper": {
+    "title": "Wideband SiGe-HBT LNA with Resistive Feedback and Shunt Peaking",
+    "journal": "MDPI (PubMed Central open-access mirror)",
+    "pmc_id": "PMC10422273",
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10422273/",
+    "open_access": "yes -- Creative Commons Attribution (CC BY), confirmed retrievable at the URL above",
+    "retrieval_date": "2026-08-20",
+    "what_was_actually_read": "The article HTML was fetched (WebFetch). The topology description (Q1 common-emitter, Q2 common-base cascode; resistor+capacitor negative feedback loop from Q2 collector to Q1 base; inductive emitter degeneration LE) and the full component table (Table 1) were read directly from the text."
+  },
+  "published_values_table1": {
+    "LC_load_inductor": "900 pH",
+    "LB_base_inductor": "150 pH",
+    "LE_emitter_degeneration": "20 pH",
+    "RF_feedback_resistor": "240 ohm",
+    "CF_feedback_capacitor": "360 fF",
+    "RSP_shunt_peaking_resistor": "69 ohm",
+    "Cout_output_dc_block": "2.2 pF",
+    "Cin_input_dc_block": "2 x 3.1 pF",
+    "Q1_Q2_transistor_sizing": "3 x (0.12 x 8) um^2",
+    "supply_voltage": "3.3 V",
+    "current_consumption": "7 mA",
+    "note": "Values transcribed verbatim from Table 1. AnalogGenie is a topology-only representation: the token sequence carries no magnitudes, so these values live only here in provenance and are NOT injected into the netlist. Every value above is paper-sourced; none is invented."
+  },
+  "transcription": {
+    "route": "Authored directly in AnalogGenie native device-level format ('Dev (pins) type' + Port line) in lna/data/external/_tools/transcriptions.py, exactly like the round-1 paper transcriptions. Validated through the same pipeline: upstream build_connection_matrix/dfs_all_paths (execed read-only from AnalogGenie/repo) -> Graph csv -> Eulerian token sequence -> lna/topology.py structural screen. No external SPICE was parsed; this is an original topology transcription, not a file conversion.",
+    "device_map": [
+      "Cin (VIN1 B1) capacitor  -- input DC block, 2 x 3.1 pF",
+      "LB (B1 G1) inductor      -- series base inductor, 150 pH",
+      "Q1 (CASC G1 E1) npn      -- common-emitter input; C=cascode node CASC, B=G1, E=E1",
+      "LE (E1 VSS) inductor     -- inductive emitter degeneration, 20 pH",
+      "Q2 (CTANK VDD CASC) npn  -- common-base cascode; C=tank CTANK, B=VDD(AC gnd), E=CASC",
+      "LC (CTANK VDD) inductor  -- load / shunt-peaking inductor, 900 pH",
+      "RSP (CTANK VDD) resistor -- shunt-peaking damping resistor, 69 ohm",
+      "RF (CTANK G1) resistor   -- feedback resistor, 240 ohm",
+      "CF (CTANK G1) capacitor  -- feedback capacitor, 360 fF",
+      "Cout (CTANK VOUT1) capacitor -- output DC block, 2.2 pF"
+    ],
+    "approximations_and_ambiguities": [
+      "APPROXIMATION: RSP is modelled as a resistor in parallel with LC between CTANK and VDD (a parallel shunt-peaking damping network). The paper labels RSP a 'shunt peaking resistor'; whether it sits in series with LC or in parallel with it is not stated unambiguously in the fetched text. Parallel damping is the more common shunt-peaking realisation and is used here; flagged rather than guessed silently.",
+      "APPROXIMATION: Cin's '2 x 3.1 pF' (two capacitors, likely a differential/balanced input pair) is transcribed as a single lumped input DC-block cap Cin, because AnalogGenie is topology-only and the single-ended core is the family instance being represented.",
+      "The Q1/Q2 base bias network (the DC path that sets the operating point of the common-emitter and common-base bases) is not drawn as separate bias devices; Q2's base is tied to VDD as the AC ground of a cascode, which is the canonical single-ended cascode representation. No bias resistor values were invented."
+    ]
+  },
+  "transcription_confidence": "HIGH for the family and the core cascode + resistive-capacitive-feedback + shunt-peaking topology (read directly from the paper text and Table 1) and for all Table-1 magnitudes (transcribed verbatim). MEDIUM only for the series-vs-parallel placement of RSP relative to LC (see approximations).",
+  "quarantine": false,
+  "quarantine_reason": null,
+  "excluded_paper_check": "Independent of, and unrelated to, the Kanchetla et al. TMTT 2022 paper this pipeline is blind-reproducing. This is a wideband SiGe-HBT feedback LNA (broadband, resistive-feedback family); it does not derive from and nor references the excluded GNSS narrowband CMOS design. The fetched article contains no mention of Kanchetla, NavIC, or BeiDou."
+}

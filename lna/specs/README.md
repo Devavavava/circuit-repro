@@ -29,16 +29,24 @@ screen through the new derivation to pin the refactor (§4.2).
 
 ## Unsupported metrics
 
-Linearity (`iip3_dbm`) is declared with `status: unsupported`: `spec.py` loads
-it and reports it as UNMEASURED in every output, and the objective ignores it.
-This keeps specs honest against real standards without blocking on harness work (D5).
+Linearity (`iip3_dbm`) was declared with `status: unsupported` (harness not wired).
 
-**Correction (2026-08-19):** Two IIP3 harnesses now exist — an ngspice two-tone transient
-and a VACASK harmonic-balance analysis — and they agree to within 0.08 dB (FINDINGS §44).
-`iip3_dbm` nonetheless **remains `status: unsupported`** in spec objectives: the harness
-exists and is validated, but it has not yet been wired into the benchmark as a standard
-tier-3 rung, so no scored result depends on it. Update this file and promote `iip3_dbm`
-when that wiring lands.
+**Updated (2026-08-21, plans2/23-IIP3-RUNG.md):** The two-tone transient harness
+(`lna/iip3.py`, harness era: transient-v1) is now wired into the evaluation pipeline
+as a standard **tier-3** measurement rung. A spec may now declare `iip3_dbm` with
+`status: measured` to opt into the two-tone harness at sizing time (pass
+`enrich_iip3=True` to `size.size_topology` or to the verification entry points).
+The benchmark scoreboard renders IIP3 as MEASURED or UNMEASURED per spec, never
+as a silent pass or fail.
+
+The VACASK harmonic-balance cross-check (`lna/hb/hb_iip3.py`) remains a manual
+validation tool — it agrees to within 0.08 dB with the transient harness (FINDINGS §44.9)
+but is not on the routine path.
+
+**Spec file changes** (flipping any real spec from `status: unsupported` to
+`status: measured`) are **user rulings** and are queued, not pre-empted here.
+All existing spec files remain unchanged; `status: unsupported` continues to mean
+UNMEASURED everywhere.
 
 `wideband-sdr`'s `s21_ripple_db` is L2-only (needs the swept response).
 

@@ -435,3 +435,119 @@ Its blame-guided arm (c) is the first scored test of the plans2/22 §5 routing
 integration (auto-diagnosis → move prior). A ladder result therefore reports on
 that integration — subject to the OQ-5 ruling on how strongly a per-ladder null
 binds the Q3 integration globally. No main-line gate is re-opened by this rung.
+
+---
+
+## Rulings (user, 2026-08-21)
+
+The §7 open questions are resolved by the user. These rulings are append-only and
+fix the scored campaign **before** any scored eval. Recorded verbatim.
+
+- **OQ-6 — the scored campaign is the 4-goal core.** The scored ladder is exactly
+  the four goals that survived the §8 null-filter: **G1** (gain wall on dhruva-l1),
+  **G8** (Idd-cut on dhruva-l5), **G9** (ripple on dhruva-l5), **G10** (ripple on
+  dhruva-s). The fallen/mis-authored/N-A goals (G2, G3, G4, G5, G6, G7, G11) go to
+  a **ladder-v2 re-authoring round** — a parallel, separate doc and agent — and are
+  **not** scored here. **G11 and G5 are explicitly deferred to v2.**
+- **OQ-1 — oracle arm (d) is OUT.** The scored arms are exactly three:
+  **(a) sizing-only null** (continued past the smoke), **(b) random-edit**, and
+  **(c) blame-guided** only. No human-authored per-goal diagnosis string enters the
+  campaign. **G2's D5 result stands as the sole oracle-diagnosis reference** for the
+  program; no oracle arm is run on this ladder.
+- **OQ-4 — budget & seeds.** **600 env evals per (goal, arm)**, **N = 5 seeds**,
+  **matched budgets** across all three arms. Edits + sizing are all counted through
+  `engineer/env.py`.
+- **OQ-2 — resolved operationally.** `lna/blame.py` and `lna/binding_probe.py`
+  arrived on `engineer` via the routine `main → engineer` merge (48138f0); arm (c)
+  imports them read-only from the engineer checkout. No separate sync step is
+  needed and no containment breach is created.
+- **OQ-3 — adopted as a declaration.** The goals are **ceiling-derived**: authored
+  from §2's measured reached numbers. **No goal's expected structural answer class
+  is fed to any arm.** The "expected-answer-class" column stays quarantined to the
+  analyst (§1 / §3). This is adopted as a standing declaration, not a new check.
+- **OQ-5 — a ladder null is per-ladder.** A null on this ladder **refutes the blame
+  integration for this ladder** and returns `blame.py` / `binding_probe.py` to
+  validation; it makes **no broader claim** about the Q3 integration globally.
+
+**Scored campaign as ruled:** 4 goals (G1, G8, G9, G10) × 3 arms (a sizing-null,
+b random-edit, c blame-guided) × 5 seeds × 600 evals = **36,000 evals**, matched
+budget, warm anchor per §8.4, deterministic seeds 1..5 with PYTHONHASHSEED=0.
+
+## Scored results (campaign complete 2026-08-21; finalized by the parent session after the executing agent hit its session limit post-campaign — aggregation recomputed from the 60 raw cells by engineer/e8_aggregate.py)
+
+<!-- aggregated from 60 cells -->
+
+### Headline: goals solved per arm at matched budget (600 evals/cell, N=5)
+
+| arm | goals solved (>=1 seed) / 4 | goal-seeds solved / 20 |
+|---|:--:|:--:|
+| (a) sizing-null | **3/4** | 7/20 |
+| (b) random-edit | **0/4** | 0/20 |
+| (c) blame-guided | **1/4** | 1/20 |
+
+### Time-to-solve distribution per arm (SPICE-minutes, over solved cells)
+
+| arm | n solved cells | median spice-min | min | max | median evals |
+|---|:--:|--:|--:|--:|--:|
+| (a) sizing-null | 7 | 0.0565 | 0.0342 | 0.0957 | 337 |
+| (b) random-edit | 0 | -- | -- | -- | -- |
+| (c) blame-guided | 1 | 0.1008 | 0.1008 | 0.1008 | 590 |
+
+### Per-goal detail (solved y/n per seed, evals & spice-min to solve, winning edits)
+
+
+**G1** — dhruva-l1  S21>=30 dB (gain wall, reached 26.32)
+
+| arm | solved seeds | evals-to-solve (per solved seed) | spice-min-to-solve | winning edit sequences |
+|---|:--:|---|---|---|
+| (a) sizing-null | 1/5 | s5:511 | s5:0.0864 | 0 edits (sizing-only) |
+| (b) random-edit | 0/5 | -- | -- | (none) |
+| (c) blame-guided | 0/5 | -- | -- | (none) |
+
+  arm (c) auto-diagnosis @ warm anchor: binding_metric=`s21_db` (probe verdict `single`), blame devices `['NM3', 'NM2', 'NM5', 'NM1', 'NM4']` (coverage `partial`).
+
+**G8** — dhruva-l5  Idd<=10.5 mA @ S21>=22.3 (reached Idd 12.92)
+
+| arm | solved seeds | evals-to-solve (per solved seed) | spice-min-to-solve | winning edit sequences |
+|---|:--:|---|---|---|
+| (a) sizing-null | 2/5 | s3:225, s4:568 | s3:0.0396, s4:0.0957 | 0 edits (sizing-only) |
+| (b) random-edit | 0/5 | -- | -- | (none) |
+| (c) blame-guided | 0/5 | -- | -- | (none) |
+
+  arm (c) auto-diagnosis @ warm anchor: binding_metric=`idd_ma` (probe verdict `single`), blame devices `[]` (coverage `full`).
+
+**G9** — dhruva-l5  s21_ripple_db<=3 (reached 15.18)
+
+| arm | solved seeds | evals-to-solve (per solved seed) | spice-min-to-solve | winning edit sequences |
+|---|:--:|---|---|---|
+| (a) sizing-null | 0/5 | -- | -- | 0 edits (sizing-only) |
+| (b) random-edit | 0/5 | -- | -- | (none) |
+| (c) blame-guided | 0/5 | -- | -- | (none) |
+
+  arm (c) auto-diagnosis @ warm anchor: binding_metric=`s21_ripple_db` (probe verdict `single`), blame devices `[]` (coverage `unavailable`).
+
+**G10** — dhruva-s   s21_ripple_db<=3 (reached 12.99)
+
+| arm | solved seeds | evals-to-solve (per solved seed) | spice-min-to-solve | winning edit sequences |
+|---|:--:|---|---|---|
+| (a) sizing-null | 4/5 | s1:337, s3:436, s4:204, s5:304 | s1:0.0565, s3:0.0728, s4:0.0342, s5:0.0508 | 0 edits (sizing-only) |
+| (b) random-edit | 0/5 | -- | -- | (none) |
+| (c) blame-guided | 1/5 | s4:590 | s4:0.1008 | p4_insert_series_element(tank) |
+
+  arm (c) auto-diagnosis @ warm anchor: binding_metric=`s21_ripple_db` (probe verdict `single`), blame devices `[]` (coverage `unavailable`).
+
+### Falsifier (pre-stated §6, applied verbatim)
+
+> If blame-guided (c) solves no more goals than random-edit (b) at the matched budget — and is no faster in SPICE-minutes on the goals both solve — then the Q3 diagnosis->intervention integration (blame.py+binding_probe.py -> move prior) is REFUTED for this ladder.
+
+Measured at matched budget: blame-guided (c) solved **1/4**, random-edit (b) solved **0/4**.
+
+**VERDICT: NOT refuted** — blame-guided solves MORE goals than random-edit (1 > 0).
+
+**Sizing-null (arm a) at 600 evals:** solved 3/4 — goals ['G1', 'G8', 'G10'] cleared by sizing alone at the scored budget (flagged sizing-reachable; the §8 smoke had marked them RESISTED at 150 evals, so this is a budget-scaled re-read, recorded not smoothed).
+
+### Deviations, recorded not smoothed
+
+- The executing agent completed all 60 cells and then hit its usage limit before aggregation; the parent session recomputed the aggregate from the per-cell JSONs (tmp e8_results/, preserved to the engineer checkout engineer/data/e8_results/) and wrote this section. No cell was re-run or altered.
+- The 150-eval null filter (§8.4) did NOT survive budget scaling: G1/G8/G10 fell to sizing-only at the scored 600 evals. Only G9 is structural at this budget. Ladder-v2 null filters must run at the scored budget.
+- blame.py returned empty device rankings for ripple (metric not covered) and for G8 idd; the guided arm there ran on the binding-probe metric alone. Instrument coverage extension queued.

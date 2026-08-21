@@ -435,3 +435,40 @@ Its blame-guided arm (c) is the first scored test of the plans2/22 §5 routing
 integration (auto-diagnosis → move prior). A ladder result therefore reports on
 that integration — subject to the OQ-5 ruling on how strongly a per-ladder null
 binds the Q3 integration globally. No main-line gate is re-opened by this rung.
+
+---
+
+## Rulings (user, 2026-08-21)
+
+The §7 open questions are resolved by the user. These rulings are append-only and
+fix the scored campaign **before** any scored eval. Recorded verbatim.
+
+- **OQ-6 — the scored campaign is the 4-goal core.** The scored ladder is exactly
+  the four goals that survived the §8 null-filter: **G1** (gain wall on dhruva-l1),
+  **G8** (Idd-cut on dhruva-l5), **G9** (ripple on dhruva-l5), **G10** (ripple on
+  dhruva-s). The fallen/mis-authored/N-A goals (G2, G3, G4, G5, G6, G7, G11) go to
+  a **ladder-v2 re-authoring round** — a parallel, separate doc and agent — and are
+  **not** scored here. **G11 and G5 are explicitly deferred to v2.**
+- **OQ-1 — oracle arm (d) is OUT.** The scored arms are exactly three:
+  **(a) sizing-only null** (continued past the smoke), **(b) random-edit**, and
+  **(c) blame-guided** only. No human-authored per-goal diagnosis string enters the
+  campaign. **G2's D5 result stands as the sole oracle-diagnosis reference** for the
+  program; no oracle arm is run on this ladder.
+- **OQ-4 — budget & seeds.** **600 env evals per (goal, arm)**, **N = 5 seeds**,
+  **matched budgets** across all three arms. Edits + sizing are all counted through
+  `engineer/env.py`.
+- **OQ-2 — resolved operationally.** `lna/blame.py` and `lna/binding_probe.py`
+  arrived on `engineer` via the routine `main → engineer` merge (48138f0); arm (c)
+  imports them read-only from the engineer checkout. No separate sync step is
+  needed and no containment breach is created.
+- **OQ-3 — adopted as a declaration.** The goals are **ceiling-derived**: authored
+  from §2's measured reached numbers. **No goal's expected structural answer class
+  is fed to any arm.** The "expected-answer-class" column stays quarantined to the
+  analyst (§1 / §3). This is adopted as a standing declaration, not a new check.
+- **OQ-5 — a ladder null is per-ladder.** A null on this ladder **refutes the blame
+  integration for this ladder** and returns `blame.py` / `binding_probe.py` to
+  validation; it makes **no broader claim** about the Q3 integration globally.
+
+**Scored campaign as ruled:** 4 goals (G1, G8, G9, G10) × 3 arms (a sizing-null,
+b random-edit, c blame-guided) × 5 seeds × 600 evals = **36,000 evals**, matched
+budget, warm anchor per §8.4, deterministic seeds 1..5 with PYTHONHASHSEED=0.

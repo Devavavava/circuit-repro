@@ -502,3 +502,116 @@ because the 600 counted evals are identical for all three arms). Reported in §1
 Falsifier (E8-LADDER §6) applies verbatim to this v2 set: if blame-guided (c) solves
 no more goals than random-edit (b) at matched budget AND is no faster on shared
 goals, the Q3 diagnosis→intervention integration is REFUTED for this ladder.
+
+## Scored campaign RESULTS (executed 2026-08-22)
+
+Runner `.claude/jobs/a8f610e5/tmp/e8_scored_v2.py`; per-cell crash-safe JSONs +
+aggregator `e8_scored_agg.py` (81/81 cells on disk). PYTHONHASHSEED = 0, ≤ 8
+concurrent ngspice, matched budgets. Engineer-branch, no lna/ write, no spec yaml
+edited (G11'' IIP3 via in-memory tier-3 spec). Goldens GREEN before and after.
+
+### Null-filter of the NEW candidates (600-eval sizing-only, N = 3)
+
+Recorded in `tmp/nullv3_results/`. A candidate is a valid *structural* goal only
+if sizing-only RESISTS it; a candidate the sizer *reaches* FELL the filter (the
+delta was not structural) and is EXCLUDED from scoring — the §8 "mis-authored, too
+small" secondary-negative catch, applied before spending the scored budget.
+
+| candidate | base | delta | sizing-only null verdict | scored? |
+|---|---|---|---|---|
+| **G1''** | dhruva-l1 | `s21_db ≥ 33` | RESISTED 0/3 seeds solved @600 | **YES** |
+| **G7''** | dhruva-l5 | `idd_ma ≤ 9.0 @ s21 ≥ 22.3` | RESISTED 0/3 solved @600 | **YES** |
+| **G11''** | dhruva-l5 | `iip3_dbm ≥ −7.4` (tier-3) | RESISTED 0/2 solved @120 | **YES** |
+| **G3''** | dhruva-s | `s11_max_db ≤ −17` | **FELL** 2/3 solved (sizing reached −17 @ evals 337, 375) | no — EXCLUDED |
+| **G5''** | dhruva-s | `s11_max_db ≤ −15` over 0.9–2.7 GHz | **FELL** 3/3 solved (@ evals 328, 385, 422) | no — EXCLUDED |
+
+So the scored set is: confirmed core **G2' / G4' / G9@1200** + survivors
+**G1'' / G7'' / G11''** — six goals, five distinct goal types.
+
+### Headline
+
+**Guided 0/6 vs random 0/6.** No arm solved any goal at matched budget:
+sizing-null 0/6, random-edit 0/6, blame-guided 0/6 (goal counted solved if ≥ 1
+seed clears base-feasible + the delta). Across a maximally-varied set spanning
+every blame-coverage state (full / partial / unavailable) and five goal types
+(match / band-shape / gain / current / linearity), diagnosis and structure-blind
+editing were indistinguishable — both at zero.
+
+### Per-goal tables (81 cells, all budgets exactly matched)
+
+Every (goal, arm) ran its full seed set to the full budget; none produced an
+extended-feasible design, so "solved seeds / evals+spice-min to solve / winning
+edit sequence" are empty for all rows. Total counted effort per (goal, arm) —
+identical across the three arms, confirming matched-budget parity:
+
+| goal | type | budget/cell × seeds | Σevals per arm (a=b=c) | solved (a / b / c) |
+|---|---|---|---|---|
+| G2'  | match (S22)    | 600 × 5  | 3000 | 0/5 · 0/5 · 0/5 |
+| G4'  | match (S11)    | 600 × 5  | 3000 | 0/5 · 0/5 · 0/5 |
+| G9   | band-shape     | 1200 × 5 | 6000 | 0/5 · 0/5 · 0/5 |
+| G1'' | gain           | 600 × 5  | 3000 | 0/5 · 0/5 · 0/5 |
+| G7'' | current        | 600 × 5  | 3000 | 0/5 · 0/5 · 0/5 |
+| G11''| linearity      | 600 × 2  | 1200 | 0/2 · 0/2 · 0/2 |
+
+Winning edit sequences: **none** (no arm solved). G11'' additionally consumed
+**60.4 min / 146 tier-3 two-tone IIP3 probes** across its 6 cells (coarse stride
+25, ~14.9 s/probe) — reported separately, not deducted from any env-eval budget.
+
+### Coverage-correlation table (goal type × blame coverage × guided-vs-random)
+
+The v2 science question. `blame_extra_sims` = extra ngspice `run_and_extract`
+calls the blame diagnosis consumed (ripple FD path), counted SEPARATELY per the
+committed budgeting ruling — NOT deducted from the counted-eval budget (matched
+across arms). Diagnoses were identical across all seeds of a goal (deterministic).
+
+| goal | type | binding metric | blame coverage | blame_extra_sims | guided solved | random solved | guided faster? |
+|---|---|---|---|---|---|---|---|
+| G2'  | match (S22)  | `s22_max_db`   | **unavailable** (no S22 handler) | 0 | 0/5 | 0/5 | — (neither solves) |
+| G4'  | match (S11)  | `s11_max_db`   | **partial** (gm proxy) | 0 | 0/5 | 0/5 | — |
+| G9   | band-shape   | `s21_ripple_db`| **partial** (capped FD) | **9** | 0/5 | 0/5 | — |
+| G1'' | gain         | `s21_db`       | **partial** (gm/gds OP) | 0 | 0/5 | 0/5 | — |
+| G7'' | current      | `idd_ma`       | **full** (per-device Id share) | 0 | 0/5 | 0/5 | — |
+| G11''| linearity    | `iip3_dbm`     | **unavailable** (no handler) | 0 | 0/2 | 0/2 | — |
+
+**Honest reading.** The pre-registered coverage expectations were all confirmed
+by the instruments — S22 and IIP3 give `unavailable` (no handler), the current
+goal gives `full` (Id closed to Idd), and the match/gain/ripple goals give
+`partial`. But the correlation the campaign set out to measure **cannot be read
+from this run**: with the guided-vs-random outcome column flat at 0/6-vs-0/6, the
+coverage state has no outcome variance to correlate against. High-coverage G7''
+(`full`) did no better under guidance than zero-coverage G11'' (`unavailable`) —
+because *every* arm scored zero. The coverage instrument works and reports the
+right state; the intervention that would turn coverage into an advantage never
+cleared a single goal for any arm. Whether coverage *would* help is **untestable
+on a goal set none of the arms can reach** — the ceiling here is upstream of
+diagnosis.
+
+### Falsifier verdict (E8-LADDER §6, applied verbatim)
+
+> *If blame-guided editing (arm c) solves no more goals than random-edit (arm b)
+> at the matched budget — and is no faster in SPICE-minutes on the goals both
+> solve — then … the Q3 diagnosis→intervention integration … is REFUTED for this
+> ladder.*
+
+Guided (0) solved no more than random (0); there are **no shared solved goals**,
+so the speed clause is vacuously satisfied. **The primary falsifier is met: Q3 is
+REFUTED for this v2 ladder.** But the §6 **secondary negative** fires and governs
+the reading: *"If BOTH (b) and (c) solve ~zero structural goals … the ruled
+primitive repertoire is itself insufficient for this graded set — the finding
+points at the repertoire (E-7 §3 minimal-additional-primitive), not at the
+diagnosis."* That is exactly this outcome. Diagnosis is not shown to be worthless;
+it is shown to be **untested** — the E-7 P1–P5/P7/`add_and_connect_device`
+repertoire, warm-started at each goal's reached anchor and re-sized by the ruled
+CMA-ES, could not reach any of these six structural targets under any arm. The
+next lever is the repertoire (a minimal additional primitive) or the search, not
+the auto-diagnosis. An oracle arm (d) would separate "diagnosis-quality ceiling"
+from "repertoire/search ceiling"; on this null it is the latter that is implicated.
+
+### v1 falsifier applied verbatim — cross-check
+
+The E8-LADDER v1 scored run reached the same primary verdict (guided ≈ random ≈
+sizing at ~zero structural solves on its core-4 set). v2 replicates it across a
+deliberately wider, coverage-stratified goal set: the null is **robust to goal
+variety**, not an artifact of the v1 goal choice. The one thing v2 adds is the
+coverage instrumentation — which confirms the diagnosis *reports* correctly at
+every coverage tier while the *intervention* remains repertoire-limited.

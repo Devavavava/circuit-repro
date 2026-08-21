@@ -39,8 +39,14 @@ it emits a ranked list of devices by their share of the blame:
 |----------|--------------------|--------|
 | `nf_db`  | Output-noise-power share from `extract.measure_noise_budget` (one ngspice run) | full-coverage when sum/total closure <= 5% |
 | `s21_db` | Intrinsic gain = gm/(gds+ε) from OP dict | partial: no resonator Q, no feedback paths |
-| `idd_ma` | Abs current share: branch currents (preferred) or device Id (fallback) | full when branches available |
+| `idd_ma` | Per-**device** drain-current share; supply branch used only for a closure cross-check (§7.1) | full when sum(\|Id\|) closes to Idd within 10% |
 | `s11_db` | gm-match proxy: 1/(gm+gmbs) approximates Re(Zin) for CG; for CS gm governs match condition | partial: no resonator, no signal-path identification |
+| `s21_ripple_db` | Capped finite-difference ripple-sensitivity over reactive/gm knobs (§7.2) | partial: local sensitivity, not a closed-form budget |
+
+> **Coverage extension 2026-08-21 (E-8 gap closure): `idd_ma` bug fixed +
+> `s21_ripple_db` added.** See §7 below for the root-cause, method, validation
+> table, and blind-spot declaration. The `idd_ma` and `s21_ripple_db` rows above
+> reflect the post-fix behaviour.
 
 ### 2.2 Output contract
 
@@ -225,3 +231,138 @@ Neither file modifies `datastore.TABLES` (containment rule). The `_append_blame`
 and `_append_probe` functions replicate the `ds.append` mechanics (JSONL, LF
 line endings, `sort_keys=True`, `_jsonify` coercion) so the files are consistent
 with the rest of the store. Era stamps (`ts`, `git_sha`) are included on every row.
+
+---
+
+## 7. Coverage extension — 2026-08-21 (E-8 gap closure)
+
+The E-8 throughput ladder (`engineer/E8-LADDER.md`, scored campaign 2026-08-21)
+ran arm (c) — the blame-guided edit arm — on four structural goals and **measured
+`blame.py`'s coverage gaps in the wild**. Two gaps were recorded in its "Scored
+results" / "Deviations" sections:
+
+> *"blame.py returned empty device rankings for ripple (metric not covered) and
+> for G8 idd; the guided arm there ran on the binding-probe metric alone.
+> Instrument coverage extension queued."*
+
+Concretely, from the per-goal arm-(c) auto-diagnosis lines:
+
+- **G8** (dhruva-l5, cut Idd 13→10.5 mA): `binding_metric=idd_ma`, **blame devices
+  `[]` with coverage `full`** — empty despite the metric being "covered".
+- **G9 / G10** (dhruva-l5 / dhruva-s, `s21_ripple_db ≤ 3`):
+  `binding_metric=s21_ripple_db`, **blame devices `[]` with coverage
+  `unavailable`** — no handler existed for the metric at all.
+
+This section documents the fix for both.
+
+### 7.1 The `idd_ma` empty-with-`full` bug — root cause and fix
+
+**Root cause.** `parse_op` (extract.py) routes every `*#branch` current into the
+OP `branches` dict. Two entries are *always* present and *always* ~0.0 A: the
+S-parameter port sources `Vp1`/`Vp2` (to_spice emits them `dc 0 ac 1`/`ac 0` —
+they carry AC only, no DC supply current). The old `_blame_current` did:
+
+```python
+if branches:                       # ← True: Vp1/Vp2 are always there
+    total = sum(abs(v) for v in branches.values()) or 1e-30
+    ...
+    if frac < 0.005: continue      # every entry filters out ...
+    cov = "full"                   # ... but coverage was already "full"
+```
+
+When the *real* current-carrying branches (the supply source, inductor DC paths)
+happened not to be captured under a `#branch` name for a given warm-anchor
+topology — leaving only the zero-valued port branches — `total` collapsed to
+`1e-30`, every `frac` rounded to 0 and filtered out, and the result was an **empty
+ranking labelled `coverage="full"`**. That is the exact G8 symptom. It was also
+*semantically wrong* even when non-empty: it ranked `Vsup` (the **total** Idd —
+the metric itself, not a culprit) and the inductor branches (which merely
+re-report a device's DC path) as if they were blamable devices.
+
+**Fix** (`_blame_current`, blame.py). The attribution now answers the real
+question — *which device draws the supply current* — from **per-device drain
+current** (`|Id|` share across the MOSFETs):
+
+- the RF port branches (`Vp1`/`Vp2`) and the supply branch itself are **excluded**
+  from the ranking;
+- the supply-branch magnitude is used only as a **closure cross-check**:
+  coverage is `full` when `sum(|Id|) / Idd_supply` is within 10% (the passive DC
+  paths are then negligible), `partial` otherwise (some Idd flows through a
+  non-MOS DC path — a resistive load or bias divider);
+- an empty-but-`full` row **can no longer occur**: with no supply branch the row
+  is `partial`, and an all-devices-off row is `unavailable`.
+
+### 7.2 `s21_ripple_db` attribution — method
+
+Ripple is a **band-shape** property: `s21_ripple_db = max(S21) − min(S21)` over
+`[f_lo, f_hi]`. There is **no operating-point number that "is" the ripple** — it
+is set by the frequency-dependent load/peaking network (the resonant tank L/C
+elements and the transconductance that drives them). So attribution is done by a
+**capped finite-difference ripple-sensitivity sweep** (`_blame_ripple`):
+
+1. Identify the tunable reactive/gm knobs: capacitor-value params, inductor-value
+   params (recognised by name *or* by the L/C element they drive) and device
+   widths (which set gm, hence the peaking gain). Each maps back to its element(s).
+2. Nudge each knob by **+5% (`RIPPLE_FD_STEP`)** and re-measure the band ripple
+   with **one** ngspice run. Score = `|Δripple|`.
+3. Rank knobs (reported as element names — `LL1`, `CC1`, `MNM2` — which is what an
+   edit move acts on) by `|Δripple|`. The reactive element the ripple is most
+   sensitive to is the dominant culprit — the "which element must change to
+   flatten the band" answer the ladder's arm (c) needs.
+
+**Sim cost is capped** at `RIPPLE_FD_MAXSIMS = 10` extra ngspice runs. If there
+are more reactive knobs than the cap, the largest-reactance ones (dominant at
+band) are probed first and the rest are reported as not-probed. When params are
+unavailable (a ref deck whose baked `.param` values were stripped by
+`extract.body_of`), it degrades to a **structural presence ranking** of reactive
+elements (tank inductors/caps ranked above dc-block/bypass caps), explicitly
+labelled as such.
+
+### 7.3 Validation (2026-08-21)
+
+Five checkable cases (harness `tmp/validate_blame.py`, not committed — containment):
+
+| # | Case | Expected (checkable) | Result |
+|---|------|----------------------|--------|
+| F | idd_ma empty-with-`full` trigger (only zero port branches + 2 live devices) | non-empty ranking, NOT `full`-with-empty | **PASS** — cov=`partial`, 2 devices ranked (was cov=`full`, 0 devices) |
+| 3-idd | idd_ma on dhruva-l5 reached (G8 deck, 9-device, Idd 12.92 mA) | non-empty; coverage `full` (closes to Idd); a real device on top | **PASS** — cov=`full`, top `mnm2` = 7.12 mA (55% of Idd), sum/Idd=1.00 |
+| 1 | s21_ripple on `ref24_tapped` (known tapped-C tank Ld/Ct1/Ct2) | a tank element in the top ranking | **PASS** — top `Ct1` (tapped-C tank series cap); `Ld` also ranked |
+| 2 | s21_ripple on `ref24_csdeg` (tuned load Ld/Ctnk) | a tank element in the top ranking | **PASS** — `Ld`, `Ctnk` (tuned-load L/C) both surfaced |
+| 3-rip | s21_ripple on dhruva-l5 reached (ripple **15.18 dB** — the FINDINGS peaked-LC-tank load `rfbcs3_tank`, "single peaked tuned load cannot be flattened", E-8 §3 G9) | top ranks the VDD resonant tank L/C | **PASS** — top `CC1`+`LL1` (the VDD-node tank cap+inductor), Δripple 0.18/0.09 dB |
+| 4 | no-ripple control: same l5 topo on the **narrow** wifi24 band (2.40–2.4835 GHz) | small ripple + low/flat attribution, not noise | **PASS** — ripple 0.43 dB, top sensitivity 0.008 (flat, not spurious) |
+
+Case 3-rip cites the dhruva-l5 ripple mechanism from FINDINGS: the reached
+`rfbcs3_tank_cc21_bf0` uses a **peaked LC tank load** (the `_tank_` family), whose
+high-Q resonance produces a sharp S21 peak; over the wide 1.1–2.5 GHz band this
+gives the 15.18 dB min-to-max swing. The instrument correctly attributes it to the
+VDD-node tank inductor + capacitor (`LL1`/`CC1`).
+
+### 7.4 Remaining blind spots (honest declaration)
+
+**`idd_ma` (post-fix).**
+- Only MOSFET drain currents are ranked. Idd drawn through a **resistive load or
+  bias divider** (a static DC path with no MOS drain) shows up only as a closure
+  gap that flips coverage to `partial` — those Ohmic paths are **not itemised** as
+  culprits.
+- No BJT collector-current path (the current dhruva/wifi families are all-MOS).
+
+**`s21_ripple_db`.**
+1. It is a **local** sensitivity (`+5%` finite difference), **not a global ripple
+   budget** — the scores do not sum to the ripple and are not a decomposition.
+2. **Knob–knob couplings are not captured**: each knob is nudged in isolation, so
+   a ripple set jointly by two staggered tank poles is under-attributed to each.
+3. With **more reactive knobs than the sim cap** (`RIPPLE_FD_MAXSIMS`), the
+   lowest-reactance knobs are not probed; coverage stays `partial` and the
+   not-probed set is named.
+4. With **no params** (ref decks, or an env that cannot re-simulate), it degrades
+   to a structural presence ranking that **cannot tell which reactive element
+   actually shapes the band** — only that it is a tank/peaking element rather than
+   a dc-block. Labelled explicitly.
+5. It ranks **existing** elements' sensitivity; it does **not** propose the
+   structural fix (add a staggered-tuned second pole) — that remains a move-prior
+   / generator job, per the §5 routing policy (measurements, not topology hints).
+
+Coverage is therefore **`partial` for `s21_ripple_db` in all cases** — an honestly
+labelled sensitivity ranking, which the E-8 ladder can consume as a move-prior
+signal ("the band ripple is most sensitive to the VDD tank") without it pretending
+to be a closed-form attribution.

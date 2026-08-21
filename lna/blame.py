@@ -7,13 +7,22 @@ emit a per-device blame vector for each FAILING metric:
                harness); device ranking by output-noise-power share.
     gain   -- from the operating-point dict: gm and gds contributions along the
                signal path, flagged by region.
-    current -- per-branch Idd share from the OP `branches` dict; where branches
-               is empty (common for topologies that don't expose all branch
-               currents), per-device Id from the devices dict is used instead.
+    current -- per-DEVICE drain-current share (which device draws the supply
+               current). The OP `branches` dict is NOT ranked directly: it is
+               dominated by the RF port sources Vp1/Vp2 (dc 0, always 0.0 A) and
+               by the supply source itself (the TOTAL Idd, i.e. the metric, not a
+               culprit). The supply branch is used only as a closure cross-check.
     match  -- S11 input-match deviation: the parasitic Cgs+Cgd of the FIRST
                device on the signal path is the dominant tunable knob; a partial
                attribution (which device has the largest gate capacitance) is
                returned honestly labelled `partial`.
+    ripple -- s21_ripple_db (band-shape, no OP number "is" the ripple):
+               CAPPED finite-difference ripple-sensitivity over reactive/gm
+               knobs (tank L/C value params + device widths). Ranks which
+               element the band ripple is most sensitive to. When params are
+               unavailable (ref decks stripped by body_of), a structural ranking
+               of reactive elements is used. Always `partial` -- a sensitivity
+               ranking, not a closed-form ripple budget.
 
 OUTPUT CONTRACT (per failing metric, per design):
     {
@@ -41,13 +50,26 @@ COVERAGE NOTES (honest limits, not hidden assumptions):
     call fails the row is written with coverage="unavailable".
   - gain blame is purely from OP data: gm/gds/region. It cannot capture
     resonator Q effects, feedback paths, or cascode stacking gains.
-  - current blame uses branch currents when available; falls back to device Id.
-    Branches reported by ngspice depend on which sources have DC voltage; MOSFET
-    drain currents (via `id`) are the reliable path.
+  - current blame ranks per-device drain current (|Id| share), cross-checked
+    against the supply-branch current for closure. The RF port branches (Vp1/Vp2)
+    and the supply branch itself are EXCLUDED from the ranking. Coverage is
+    "full" only when sum(|Id|) closes to the measured Idd within 10% (else some
+    supply current flows through a non-MOS DC path -- resistive load / bias
+    divider -- and the row is "partial"). It can never return an empty ranking
+    labelled "full" (the E-8 bug: presence of the zero-valued port branches used
+    to set coverage="full" while every entry filtered out below 0.5%).
   - match blame: `cgs + cgd` total for each device from the OP dict. This is a
     proxy for the device's impact on Zin, NOT a full small-signal Zin computation.
     The primary accuracy limit: resonator elements (inductors) are not captured
     here, so the attribution is partial by construction. Labelled `partial`.
+  - ripple blame: capped finite-difference (RIPPLE_FD_MAXSIMS extra ngspice runs)
+    of s21_ripple_db vs each reactive/gm knob. Blind spots: (1) it is a local
+    sensitivity, not a global ripple budget; (2) knob-knob couplings are not
+    captured (each is nudged in isolation); (3) with more knobs than the sim cap,
+    the lowest-reactance ones are not probed (coverage stays "partial"); (4) with
+    no params (ref decks) it degrades to a structural presence ranking that
+    cannot tell which reactive element actually shapes the band. Always
+    `partial` -- see plans2/22 §7 for the full declaration.
 
 USAGE:
     python lna/blame.py --wl-hash ace838 --spec dhruva-s
@@ -58,6 +80,7 @@ import argparse
 import json
 import math
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -186,50 +209,105 @@ def _blame_gain(body, params, spec, op):
 # ---------------------------------------------------------------------------
 # Current blame -- from OP branches/devices
 
+# RF port sources (to_spice `Vp1`/`Vp2`, dc 0 ac 1) always appear in the OP
+# `branches` dict at 0.0 A: they carry AC only, never DC supply current. Ranking
+# them as Idd culprits is meaningless. The supply source itself (Vsup / the VDD
+# source) carries the WHOLE Idd -- it is the metric being explained, not a
+# per-device culprit. Both classes are excluded from the device ranking.
+_PORT_BRANCHES = ("vp1", "vp2")
+
+
+def _supply_branch_name(body):
+    """Lowercased supply-source name (matches parse_op branch keys), or None."""
+    if not body:
+        return None
+    try:
+        return E._supply_name(body).lower()
+    except Exception:      # noqa: BLE001
+        return None
+
+
 def _blame_current(body, params, spec, op):
     """Return (blame_list, coverage, note).
 
-    Uses branch currents from `op['branches']` when available, else device Id.
-    Score = abs(current) normalized by total Idd."""
-    branches = (op or {}).get("branches", {})
-    devices = (op or {}).get("devices", {})
+    idd_ma attribution = *which device draws the supply current*. The physically
+    meaningful culprit for a current-budget failure is per-device drain current,
+    NOT raw branch currents: the OP `branches` dict is dominated by (a) the RF
+    port sources Vp1/Vp2 (dc 0, AC-only -- always 0.0 A) and (b) the supply
+    source itself (the TOTAL Idd, i.e. the metric, not a culprit), plus inductor
+    branches that merely re-report a device's DC path. So the ranking is built
+    from device drain currents; the supply branch is used only as a closure
+    cross-check.
 
-    # Prefer branch currents (includes supply and passive branches)
-    if branches:
-        total = sum(abs(v) for v in branches.values()) or 1e-30
-        ranked = sorted(branches.items(), key=lambda kv: -abs(kv[1]))
-        blame = []
-        for name, val in ranked:
-            frac = abs(val) / total
-            if frac < 0.005:
-                continue
-            blame.append({
-                "device": name,
-                "score": round(frac, 6),
-                "detail": {"current_A": val, "frac": round(frac, 6)}
-            })
-        cov = "full"
-        note = f"branch-current shares; {len(branches)} branches captured"
+    BUGFIX (E-8 gap): the previous version keyed `coverage="full"` off the mere
+    presence of ANY branch, then filtered every entry below 0.005. When the only
+    surviving branches were the zero-valued RF ports (Vp1/Vp2), the total was
+    ~1e-30, every frac rounded to 0, and the ranking came back EMPTY while still
+    labelled "full" -- exactly the G8/dhruva-l5 symptom in E8-LADDER. The port
+    and supply branches are now excluded up front and the ranking is built from
+    device Id, so an empty-but-"full" row can no longer occur.
+    """
+    branches = (op or {}).get("branches", {}) or {}
+    devices = (op or {}).get("devices", {}) or {}
+
+    mos_devs = {k: v for k, v in devices.items() if k.startswith("m")}
+    if not mos_devs:
+        return [], "unavailable", "no MOSFET devices in OP"
+
+    # Supply-branch magnitude for a closure check (excluded from the ranking).
+    # The RF port branches (Vp1/Vp2) are never treated as the supply.
+    supply = _supply_branch_name(body)
+    idd_supply = None
+    if supply is not None and supply in branches and supply not in _PORT_BRANCHES:
+        idd_supply = abs(branches[supply])
+    elif "vsup" in branches:
+        idd_supply = abs(branches["vsup"])
+
+    # Rank by per-device drain current share (never the port/supply branches).
+    id_total = sum(abs(d.get("id") or 0.0) for d in mos_devs.values())
+    denom = id_total or 1e-30
+    ranked = sorted(mos_devs.items(),
+                    key=lambda kv: -abs(kv[1].get("id") or 0.0))
+    blame = []
+    for name, d in ranked:
+        id_val = d.get("id") or 0.0
+        frac = abs(id_val) / denom
+        if frac < 0.005:
+            continue
+        blame.append({
+            "device": name,
+            "score": round(frac, 6),
+            "detail": {"id_A": id_val,
+                       "frac_of_device_Idd": round(frac, 6),
+                       "region": d.get("region")},
+        })
+
+    # Coverage: "full" when the summed device drain current reconciles with the
+    # measured supply current within 10% (the passive DC paths -- resistor
+    # dividers, gate leakage -- are then negligible, so device Id captures Idd).
+    # Otherwise "partial": some supply current flows through paths not on a MOS
+    # drain (e.g. a resistive load carrying static bias current).
+    if idd_supply is not None and idd_supply > 1e-9:
+        closure = id_total / idd_supply
+        if abs(closure - 1.0) <= 0.10:
+            cov = "full"
+            note = (f"device drain-current shares; sum(|Id|)/Idd_supply="
+                    f"{closure:.3f} (closes within 10%); "
+                    "RF port + supply branches excluded")
+        else:
+            cov = "partial"
+            note = (f"device drain-current shares; sum(|Id|)/Idd_supply="
+                    f"{closure:.3f} (>10% gap: some Idd flows through non-MOS "
+                    "DC paths -- resistive load / bias divider)")
     else:
-        # Fall back to device Id
-        mos_devs = {k: v for k, v in devices.items() if k.startswith("m")}
-        if not mos_devs:
-            return [], "unavailable", "no branch data and no MOSFET devices"
-        total = sum(abs(d.get("id") or 0.0) for d in mos_devs.values()) or 1e-30
-        ranked = sorted(mos_devs.items(), key=lambda kv: -abs(kv[1].get("id") or 0.0))
-        blame = []
-        for name, d in ranked:
-            id_val = d.get("id") or 0.0
-            frac = abs(id_val) / total
-            if frac < 0.005:
-                continue
-            blame.append({
-                "device": name,
-                "score": round(frac, 6),
-                "detail": {"id_A": id_val, "frac": round(frac, 6), "region": d.get("region")}
-            })
         cov = "partial"
-        note = "device Id shares (branch currents unavailable; passive/supply branches excluded)"
+        note = ("device drain-current shares; supply-branch current unavailable "
+                "for closure check (RF port branches excluded)")
+
+    if not blame:
+        # Only reachable if every device is essentially off (id below 0.5% of a
+        # near-zero total). Report honestly rather than an empty "full" row.
+        return [], "unavailable", note + " -- all devices below 0.5% threshold"
     return blame, cov, note
 
 
@@ -343,6 +421,217 @@ def _blame_match(body, params, spec, op):
 
 
 # ---------------------------------------------------------------------------
+# Ripple blame -- reactive-element sensitivity of the band S21 shape
+#
+# METHOD (declared honestly; see plans2/22 §7 for the full blind-spot list):
+#   s21_ripple_db = max(S21) - min(S21) over [f_lo, f_hi] is a BAND-SHAPE
+#   property, not a per-device quantity like Id or output-noise power. There is
+#   no operating-point number that "is" the ripple. Ripple is set by the
+#   frequency-dependent load/peaking network -- the resonant tank (L,C) elements
+#   and the transconductance that drives them. So attribution is done by a
+#   CAPPED FINITE-DIFFERENCE ripple-sensitivity sweep:
+#
+#     1. Identify the tunable reactive/gm knobs: capacitor value params (pC*V),
+#        inductor value params (pL*V) and device widths (pNM*W, which set gm and
+#        thus the peaking gain). Each is mapped back to the element(s) it drives.
+#     2. Nudge each knob by +RIPPLE_FD_STEP (multiplicative) and re-measure the
+#        band ripple with ONE ngspice run. Score = |Δripple| for that knob.
+#     3. Rank knobs (elements) by |Δripple|. The tank L/C the ripple is most
+#        sensitive to is the dominant ripple culprit -- this is the "which
+#        element must change to flatten the band" answer the E-8 ladder needs.
+#
+#   The sim count is CAPPED at RIPPLE_FD_MAXSIMS (default 10). If there are more
+#   reactive knobs than the cap, the ones with the largest current values (the
+#   dominant reactances at band) are probed first and the rest are reported as
+#   "not-probed (sim cap)". Coverage is "full" when every reactive knob was
+#   probed, "partial" when the cap truncated the set.
+#
+#   NO-SIM FALLBACK: when params are empty (a ref deck run with baked-in values,
+#   or an analysis env that cannot re-simulate) the finite difference is not
+#   possible. A structural fallback then ranks the reactive ELEMENTS that touch
+#   the output/signal path by presence (tank L/C first), labelled "partial" with
+#   an explicit "no finite-difference; structural ranking only" note.
+
+RIPPLE_FD_STEP = 0.05          # +5% multiplicative nudge per knob
+RIPPLE_FD_MAXSIMS = 10         # hard cap on extra ngspice runs (declared)
+_REACT_PARAM_RE = re.compile(r"^p(C|L)\w*V$")    # pC1V, pL2V, ...
+_GM_PARAM_RE = re.compile(r"^pNM\w*W$")           # pNM1W, ... (device width -> gm)
+
+
+def _element_param_map(body):
+    """{param_name: [element_names]} -- which deck element(s) each param drives.
+
+    Reactive/gm attribution reports ELEMENT names (LL1, CC3, MNM2), which are
+    what an edit move acts on, not the raw param handle."""
+    m = {}
+    for ln in (body or "").splitlines():
+        s = ln.strip()
+        if not s or s.startswith("*") or s.startswith("."):
+            continue
+        el = s.split()[0]
+        for p in re.findall(r"p[A-Za-z0-9]+", s):
+            m.setdefault(p, [])
+            if el not in m[p]:
+                m[p].append(el)
+    return m
+
+
+def _measure_ripple(body, params, spec):
+    """Band s21 ripple (dB) for one param set, or None on sim failure."""
+    metrics = E.run_and_extract(body, params, spec)
+    if not metrics:
+        return None
+    return metrics.get("s21_ripple_db")
+
+
+def _blame_ripple(body, params, spec, op):
+    """Return (blame_list, coverage, note) for s21_ripple_db.
+
+    Capped finite-difference ripple-sensitivity over reactive/gm knobs (see the
+    module comment above). PARTIAL coverage by construction -- it ranks the
+    knobs the ripple is most sensitive to, which is a defensible cheap proxy for
+    "which reactive element shapes the band", not a closed-form ripple budget.
+    """
+    # ---- no-sim structural fallback --------------------------------------
+    if not params:
+        # Rank reactive ELEMENTS that plausibly shape the band: tank/peaking
+        # L and C. DC-block caps (huge, ~1u/10p labelled) still show up but are
+        # ranked by *value smallness* is not derivable without values, so we
+        # report presence-only, honestly labelled.
+        # tier: inductors (tank resonance is inductor-dominated) > tank/signal
+        # caps > obvious DC-block / bypass / port coupling caps. The last group
+        # (Cbyp*, Cin, Cout, Cp*, Cc*coupling) sets no band shape -- it is
+        # AC-shorting/DC-blocking -- so it is demoted, not dropped.
+        _DCBLOCK = ("cbyp", "cin", "cout", "cp", "cblk", "cdc")
+        elems = []
+        for ln in (body or "").splitlines():
+            s = ln.strip()
+            if not s or s.startswith("*") or s.startswith("."):
+                continue
+            el = s.split()[0]
+            low = el.lower()
+            if low[:1] == "l":
+                elems.append((el, "inductor", 0))
+            elif low[:1] == "c":
+                if low in ("cp1", "cp2") or low.startswith(_DCBLOCK):
+                    elems.append((el, "capacitor(dc-block/bypass)", 2))
+                else:
+                    elems.append((el, "capacitor(tank/signal)", 1))
+        if not elems:
+            return [], "unavailable", "no reactive elements and no params to perturb"
+        elems.sort(key=lambda t: t[2])
+        # Score by tier: tank inductors/caps get the weight, dc-block caps a
+        # small floor so they are ranked last but still visible.
+        tier_w = {0: 1.0, 1: 0.7, 2: 0.1}
+        raw = [(el, kind, tier_w[t]) for el, kind, t in elems]
+        tot = sum(w for _, _, w in raw) or 1e-30
+        blame = [{"device": el, "score": round(w / tot, 6),
+                  "detail": {"kind": kind, "method": "structural_presence"}}
+                 for el, kind, w in raw]
+        return (blame, "partial",
+                "no finite-difference (params empty; e.g. a ref deck whose "
+                "baked .param values were stripped by body_of); structural "
+                "ranking of reactive elements (tank inductors/caps ranked above "
+                "dc-block/bypass caps) -- cannot tell which one actually shapes "
+                "the band without a sweep")
+
+    # ---- capped finite-difference sensitivity ----------------------------
+    base = op.get("s21_ripple_db") if op else None
+    if base is None:
+        base = _measure_ripple(body, params, spec)
+    if base is None:
+        return [], "unavailable", "base ripple measurement failed"
+
+    pmap = _element_param_map(body)
+
+    def _fval(v):
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return None
+
+    # Candidate knobs: reactive value params + device-width (gm) params, that
+    # actually drive a deck element and have a numeric current value. A param is
+    # a knob if EITHER its name matches the generated convention (pC*V/pL*V for
+    # reactance, pNM*W for gm) OR it drives an L/C element (reactance) or a MOS
+    # width field (gm) -- so ref-style hand-deck names (pLd, pCtnk, pW) work too.
+    knobs = []
+    for p, v in params.items():
+        fv = _fval(v)
+        if fv is None or fv == 0.0:
+            continue
+        els = pmap.get(p, [])
+        drives_react = any(e[:1].lower() in ("l", "c") for e in els)
+        drives_gm = any(e[:1].lower() in ("m", "q") for e in els)
+        if _REACT_PARAM_RE.match(p) or drives_react:
+            kind = "reactance"
+        elif _GM_PARAM_RE.match(p) or (drives_gm and p.lower().endswith("w")):
+            kind = "gm(width)"
+        else:
+            continue
+        knobs.append((p, fv, kind, els or [p]))
+
+    if not knobs:
+        return [], "unavailable", "no reactive/gm knobs found in params"
+
+    # Sim cap: probe the largest-reactance knobs first (dominant at band).
+    knobs.sort(key=lambda t: -abs(t[1]))
+    probe = knobs[:RIPPLE_FD_MAXSIMS]
+    skipped = knobs[RIPPLE_FD_MAXSIMS:]
+
+    blame = []
+    n_sims = 0
+    for p, fv, kind, els in probe:
+        pert = dict(params)
+        pert[p] = fv * (1.0 + RIPPLE_FD_STEP)
+        r2 = _measure_ripple(body, pert, spec)
+        n_sims += 1
+        if r2 is None:
+            sens = 0.0
+            note_bit = "sim failed"
+        else:
+            sens = abs(r2 - base)
+            note_bit = f"ripple {base:.2f}->{r2:.2f} dB on +{int(RIPPLE_FD_STEP*100)}%"
+        # Report per element that the knob drives (usually one).
+        name = els[0] if els else p
+        blame.append({
+            "device": name,
+            "score": round(sens, 6),
+            "detail": {
+                "param": p,
+                "kind": kind,
+                "d_ripple_db": round(sens, 6),
+                "base_ripple_db": round(base, 4),
+                "elements": els,
+                "note": note_bit,
+            },
+        })
+
+    blame.sort(key=lambda r: -r["score"])
+    # Drop knobs with zero sensitivity from the ranking tail (they are not
+    # ripple culprits), but keep at least the top so the row is never empty when
+    # a base ripple exists.
+    nonzero = [b for b in blame if b["score"] > 1e-6]
+    ranked = nonzero if nonzero else blame[:1]
+
+    if skipped:
+        cov = "partial"
+        note = (f"capped finite-difference ripple-sensitivity "
+                f"(+{int(RIPPLE_FD_STEP*100)}% per knob, {n_sims} sims); "
+                f"{len(skipped)} lower-reactance knob(s) NOT probed (sim cap "
+                f"{RIPPLE_FD_MAXSIMS}); ranks which reactive/gm element the band "
+                f"ripple is most sensitive to")
+    else:
+        cov = "partial"
+        note = (f"capped finite-difference ripple-sensitivity "
+                f"(+{int(RIPPLE_FD_STEP*100)}% per knob, {n_sims} sims, all "
+                f"reactive/gm knobs probed); ranks which element the band ripple "
+                f"is most sensitive to. PARTIAL: a sensitivity ranking, not a "
+                f"closed-form ripple budget; couplings between knobs not captured")
+    return ranked, cov, note
+
+
+# ---------------------------------------------------------------------------
 # Dispatch
 
 _METRIC_BLAME = {
@@ -352,6 +641,7 @@ _METRIC_BLAME = {
     "s11_db": _blame_match,
     "s11_max_db": _blame_match,
     "s21_min_db": _blame_gain,
+    "s21_ripple_db": _blame_ripple,
 }
 
 

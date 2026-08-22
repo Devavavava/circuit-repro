@@ -98,3 +98,32 @@ roadmap adds rungs; it relaxes nothing.
 The goal of engineer isn't novelty, it's capacity to hit specs in a reasonable time.
 
 Operationalization (also ruled): the engineer line's PRIMARY scoreboard metric is **SPICE-minutes to first spec-feasible design** (tier-2 feasible where the task defines it), per the G0-FAIRNESS metric set; novelty/NDL remains a main-line generator concern and is explicitly NOT an engineer-line objective or tiebreaker. This sharpens (does not contradict) the adopted §2 axes: among the time-to-competence metrics, SPICE-minutes-to-feasible is primary.
+
+## 7. Standing target (user, 2026-08-22): a smarter editor
+
+Recorded verbatim as a standing program target, per the user's directive of
+2026-08-22. **Beyond E-9's two-stage budget split, the program should eventually
+make the edit-proposal step itself smarter** — the E-8 v2 finding (guided ≈
+random ≈ zero across a coverage-stratified goal set) located the ceiling *upstream*
+of diagnosis, in the move repertoire / editor intelligence (E8-LADDER-V2.md §Falsifier
+secondary negative; E7-MOVES.md §4.4 secondary negative). E-9 tests whether *splitting
+the budget by job* lifts that ceiling; if it does not (E-9 falsifier), the next lever
+is the intelligence of the editor itself.
+
+Candidate directions to evaluate later — **each its own pre-registration; nothing
+below executes without a user ruling; this section is a recorded target, not an
+authorization:**
+
+1. **Learned move-proposal priors trained on edit trajectories.** Train a proposal
+   model on the recorded (state → edit → outcome) trajectories the E-7/E-8/E-9 runs
+   already log, so the edit distribution is data-shaped rather than uniform or
+   hand-weighted.
+2. **Playbook-informed move routing.** Let the playbook (currently OUT of fresh runs
+   by default, R-C) inform *which primitive to try where*, as a declared contamination
+   variable — the memory experiment (G3) applied to the editor rather than to sizing.
+3. **Critic-in-the-loop edit scoring.** Put the GNN critic (critic_gnn heads) in the
+   edit-acceptance loop to score/filter proposed mutants before they are sized, rather
+   than only aiming (E-7 arm G) or filtering post-hoc.
+
+Sequencing and priority are a future user ruling. Recorded here so the target is
+explicit and the E-9 falsifier has a named destination (§7) when it fires.

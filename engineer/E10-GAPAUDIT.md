@@ -1,5 +1,12 @@
 # E-10 GAP AUDIT — six unsolved goals, classified NEAR-MISS vs HOPELESS
 
+> **⚠ WARNING (2026-08-22): the tables in §2–§4 below are DEFECTIVE.** The
+> "best single point" rows they cite were selected without enforcing the
+> missing-metric / stored-flag / cross-spec rules, and several are wrong. See
+> the **AMENDMENT (strict re-verification)** section at the end of this file for
+> the corrected per-goal tables, verdicts, and keep/replace recommendation. The
+> original tables are retained unchanged only for the record.
+
 **Zero-simulation analysis.** Pure arithmetic over already-recorded data
 (`topo_labels` datastore + preserved E-8/E-8v2/E-9 result cells). No candidate
 or goal was re-evaluated. See the attestation at the end.
@@ -224,3 +231,210 @@ topologies, is the natural pre-step, but is itself out of scope here (zero sims)
   harness `lna/ref/check_ref.py` (which prints `check_ref: GREEN`). No ngspice
   was invoked for any candidate or goal evaluation. Goldens confirmed GREEN
   before the first commit and after the last commit of this branch.
+
+---
+
+# AMENDMENT (strict re-verification) — 2026-08-22
+
+**Author line: engineer (eng-e10a), strict re-audit.** Zero new experiment
+simulations; arithmetic over `lna/data/topo_labels.jsonl` (4,076 L2 rows) only.
+Goldens GREEN before and after this amendment.
+
+## A.0 The defect
+
+The original audit's central claim — that goals **G1''** and **G9** already have
+a full-spec-passing "best single point" in the store (G1'' wl `3ebaf08`, "passes
+all measured objs, worst margin +0.006"; G9 wl `ced0d8`, "passes full spec,
+ripple 0.0") — was produced by three compounding errors:
+
+1. **Missing-metric-treated-as-pass.** The phrase "passes all *measured*
+   objectives" let a row be classified as passing while a required constraint
+   metric was silently absent. Under the correct rule (a row with ANY required
+   metric missing can NEVER pass — it is *incomplete*), whole pools collapse:
+   G2'' (s22_max_db) and G11'' (iip3_dbm) have **0 rows** in the entire store
+   carrying the binding metric (`s22_max_db`: 0/4076; `iip3_dbm`: 0/4076), so
+   every candidate for those goals is incomplete, not scoreable.
+
+2. **Stale stored `feasible` flag trusted across eras.** The wl `3ebaf08` rows
+   the original cited carry `feasible=True`, but that flag was computed in a
+   **pre-NF-gate era** where `nf_db` was `unsupported`/skipped. Recomputed under
+   the goal's true extended spec, the `feasible=True` `3ebaf08` rows have
+   **NF = 9.95 dB (dhruva-l1)** and **11.12 dB (dhruva-l2)** — grossly failing
+   the NF ceiling (2.7 / 2.5 dB). Their later same-topology relabels (feas=False)
+   still show NF 4.26 / 5.51 dB. `3ebaf08` fails NF under *every* era.
+
+3. **Cross-spec pooling (forbidden by provenance law).** wl `3ebaf08` has 12
+   rows, 3 each under `dhruva-s / dhruva-l1 / dhruva-l2 / dhruva-l5`. The
+   original cited the *same* wl as the winner for both G4'' (dhruva-l2) and G1''
+   (dhruva-l1); a topology's metrics under one spec's band/conditions do not
+   transfer to another. The strict re-audit restricts each goal's candidate pool
+   to rows whose `spec` equals the goal's base spec.
+
+## A.1 Strict rules applied (verbatim from the re-audit task)
+
+1. **Extended spec = full base-task constraint block** (task→spec via
+   `engineer/tasks.py`; dhruva-l1-t2-a→dhruva-l1, l2→dhruva-l2, l5→dhruva-l5,
+   s→dhruva-s) **+ the goal's delta** (E9-TWOSTAGE §2). `status: unsupported`
+   constraints are excluded UNLESS the delta targets them (G11'' targets iip3).
+2. **A row passes an objective only if the metric is PRESENT and satisfies the
+   limit.** Any required metric missing ⇒ the row is **incomplete** (never
+   passing); the missing metric(s) are reported.
+3. **Stored `feasible`/`solved` flags are never trusted** — pass/fail is
+   recomputed from raw `metrics` against THIS goal's extended spec. Provenance
+   (recipe/era) is recorded; cross-spec candidates are rejected.
+4. **Best single point** = the complete-metric row minimizing total normalized
+   violation `Σ_j max(0, (achieved−limit)/|scale|)` (max-constraint) or
+   `(limit−achieved)/|scale|` (min-constraint) over the failing objectives,
+   `|scale| = max(|limit|,1)`. Incomplete rows that would otherwise win are
+   flagged **UNVERIFIABLE-WITHOUT-SIM**.
+5. **Pre-declared near-miss rule is UNCHANGED** (fails ≤2 objs; per-metric raw
+   thresholds S11/S22 ≤2.0 dB, gain ≤2.0 dB, ripple ≤1.5 dB, NF ≤0.5 dB, Idd
+   ≤1.5 mA, IIP3 ≤3.0 dBm).
+
+## A.2 Corrected per-goal tables
+
+Notation: **margin** = normalized (positive = pass); **raw gap** = natural-unit
+shortfall on a failing metric (the quantity the near-miss threshold is stated in).
+
+### G2'' — dhruva-s + `s22_max_db ≤ −10` — **HOPELESS-BLIND** (unchanged)
+
+`s22_max_db` present in **0 / 1059** dhruva-s rows (0 / 4076 store-wide). Every
+candidate is **incomplete**. Cannot score; binding metric never measured.
+Best incomplete row: UNVERIFIABLE-WITHOUT-SIM (only single-freq `s22_db` proxy
+exists, which is not the band-max). *Original verdict stands; the reason is
+sharpened to "all rows incomplete," not "anchor 9.7 dB short."*
+
+### G4'' — dhruva-l2 + `s11_max_db ≤ −14.5` — **HOPELESS** (was NEAR-MISS) ⚠CHANGED
+
+Same-spec pool 27 rows, all complete, **0 pass**. Best single point = wl
+`439032fd` (recipe mf2-v1, modern era), the only design that passes the *rest* of
+the extended spec:
+
+| Objective | Target | Achieved | Margin | Pass? |
+|---|---|---|---|---|
+| s11_max_db | ≤ −14.5 | **−10.03** | −0.308 | **FAIL** (raw gap **4.47 dB**) |
+| s21_db | ≥ 22.3 | 26.81 | +0.202 | ok |
+| idd_ma | ≤ 13 | 13.00 | +0.000 | ok (binding) |
+| nf_db | ≤ 2.5 | 1.71 | +0.317 | ok |
+
+Fails **1** obj, but the raw s11_max gap is **4.47 dB > 2.0 dB** threshold →
+**HOPELESS**. The original's "−12.66 dB, gap 1.84 dB, NEAR-MISS" came from
+cross-spec wl `3ebaf08` (dhruva-l2 row), which ALSO fails **NF = 11.12 dB**
+(vs 2.5) — it never passed the rest of its own extended spec. Corrected.
+
+### G9 — dhruva-l5 + `s21_ripple_db ≤ 3` — **NEAR-MISS / SOLVED-IN-STORE** (verdict stands; row + ripple corrected) ⚠CORRECTED-EVIDENCE
+
+Same-spec pool 309 rows, all complete, **8 pass the full extended spec**. Best
+single point = wl `439032fd` (mf2-v1, modern), total violation 0.0:
+
+| Objective | Target | Achieved | Margin | Pass? |
+|---|---|---|---|---|
+| s11_max_db | ≤ −10 | −10.02 | +0.002 | ok (binding) |
+| s21_db | ≥ 22.3 | 26.80 | +0.202 | ok |
+| idd_ma | ≤ 13 | 13.00 | +0.000 | ok |
+| nf_db | ≤ 2.5 | 1.74 | +0.303 | ok |
+| **s21_ripple_db** | ≤ 3 | **2.989** | +0.004 | ok |
+
+**Ripple was actually measured (2.989 dB), not 0.0.** The original cited wl
+`ced0d8` "ripple 0.0" — that value appears nowhere for `ced0d8`: its real
+dhruva-l5 ripples span **1.48–3.32 dB** (`ced0d8` also has dhruva-s rows with
+ripple ~19–21 dB — cross-spec). The "0.0" was a missing/default fabrication. The
+verdict (a full-spec-passing recorded design exists → KEEP) is *correct*, but the
+honest anchor is wl `439032fd` @ ripple 2.989, not `ced0d8` @ 0.0.
+
+### G1'' — dhruva-l1 + `s21_db ≥ 33` — **NEAR-MISS / SOLVED-IN-STORE** (verdict stands; row corrected) ⚠CORRECTED-EVIDENCE
+
+Same-spec pool 729 rows, all complete, **2 pass the full extended spec**. Best
+single point = wl **`ace8383c`** (mf2-v1, modern), total violation 0.0:
+
+| Objective | Target | Achieved | Margin | Pass? |
+|---|---|---|---|---|
+| s11_max_db | ≤ −10 | −10.00 | +0.000 | ok (binding) |
+| **s21_db** | ≥ 33 | **37.53** | +0.137 | ok |
+| idd_ma | ≤ 13 | 12.99 | +0.001 | ok |
+| nf_db | ≤ 2.7 | 1.29 | +0.522 | ok |
+
+The original claimed wl **`3ebaf08`** passes. It does NOT: the `3ebaf08`
+dhruva-l1 rows fail NF (9.95 dB feas-stale, or 4.26 dB relabel) — **0 of the 12
+`3ebaf08` rows (any spec) pass their extended spec.** The passing design is a
+*different* topology (`ace8383c`). Goal-level verdict (reachable in store →
+KEEP) survives, but only after switching the anchor off the defective row.
+
+### G7'' — dhruva-l5 + `idd_ma ≤ 9.0 @ s21 ≥ 22.3` — **NEAR-MISS** (was HOPELESS) ⚠CHANGED
+
+Extended spec = base (s11≤−10, s21≥22.3, idd≤13→**9.0**, nf≤2.5). Same-spec pool
+309, all complete, **0 pass**. Best single point (min total violation) = wl
+`998ff3a1` (nf-v1+mf2-v1, modern):
+
+| Objective | Target | Achieved | Margin | Pass? |
+|---|---|---|---|---|
+| s11_max_db | ≤ −10 | **−9.26** | −0.074 | **FAIL** (raw gap **0.74 dB**) |
+| s21_db | ≥ 22.3 | 23.19 | +0.040 | ok |
+| idd_ma | ≤ 9.0 | 7.07 | +0.214 | ok (delta comfortably met) |
+| nf_db | ≤ 2.5 | 2.379 | +0.048 | ok |
+
+Fails **1** obj (s11_max) by **0.74 dB < 2.0 dB** threshold → **NEAR-MISS**. The
+original called this HOPELESS "fails ≥3 (base nf+s11+idd)" — that came from
+*cherry-picking two different rows* (the best-idd row 7b0b48 failing NF, plus a
+worst-margin row 51cca7), not from one honest best-single-point. The honest best
+single point fails only s11 and is inside the pre-declared threshold. The delta
+(idd≤9 @ s21≥22.3) is met AND NF now passes — the sole gap is a 0.74 dB match
+tune. Corrected.
+
+### G11'' — dhruva-l5 + `iip3_dbm ≥ −7.4` — **HOPELESS-BLIND** (unchanged)
+
+`iip3_dbm` present in **0 / 309** dhruva-l5 rows (0 / 4076 store-wide; it exists
+only inside `margins`, never in `metrics`). Every candidate **incomplete**.
+Best incomplete row: UNVERIFIABLE-WITHOUT-SIM. Binding metric never measured →
+HOPELESS-BLIND. *Verdict stands.*
+
+## A.3 Corrected verdict table
+
+| Goal | Base spec | Best single point (same-spec, complete) | #fail | Raw gap on fail | Thr | **Corrected verdict** | vs original |
+|---|---|---|---|---|---|---|---|
+| G2'' | dhruva-s | all incomplete (s22_max_db 0/1059) | — | — | 2.0 dB | **HOPELESS-BLIND** | same |
+| G4'' | dhruva-l2 | wl 439032fd (s11 −10.03) | 1 | **4.47 dB** | 2.0 dB | **HOPELESS** | ⚠ NEAR-MISS→HOPELESS |
+| G9 | dhruva-l5 | wl 439032fd (passes full, ripple 2.989) | 0 | — | — | **NEAR-MISS** (solved-in-store) | same (row+ripple fixed) |
+| G1'' | dhruva-l1 | wl ace8383c (passes full, s21 37.53) | 0 | — | — | **NEAR-MISS** (solved-in-store) | same (row fixed) |
+| G7'' | dhruva-l5 | wl 998ff3a1 (s11 −9.26) | 1 | **0.74 dB** | 2.0 dB | **NEAR-MISS** | ⚠ HOPELESS→NEAR-MISS |
+| G11'' | dhruva-l5 | all incomplete (iip3_dbm 0/309) | — | — | 3.0 dBm | **HOPELESS-BLIND** | same |
+
+**Corrected tally: 3 NEAR-MISS (G9, G1'', G7'') / 3 HOPELESS (G4'' hard;
+G2'' & G11'' blind).** The *count* 3/3 is unchanged from the original, but the
+*membership shifted*: **G4'' moved out of NEAR-MISS and G7'' moved in.** Two of
+the three near-miss verdicts that survived (G9, G1'') did so only after their
+cited anchor rows were replaced (the original anchors fail NF and do not pass).
+
+## A.4 Corrected KEEP / REPLACE recommendation
+
+| Goal | Action | One-line reason (corrected) |
+|---|---|---|
+| **G1''** | **KEEP** | Full-spec-passing design in store — wl **`ace8383c`** (NOT 3ebaf08); pure search-efficiency gap, warm-start from it. |
+| **G9** | **KEEP** | Full-spec-passing design in store — wl `439032fd`, real ripple 2.989 dB (NOT ced0d8 @ 0.0); seed the solver from it. |
+| **G7''** | **KEEP** (newly promoted) | Best single point (wl `998ff3a1`) meets the idd delta AND base NF; sole gap is s11_max 0.74 dB (< 2.0 dB thr) — one matching element. Was wrongly rejected as HOPELESS. |
+| **G4''** | **REPLACE** (newly demoted) | Best design passing the rest of spec reaches only s11_max −10.03; gap to −14.5 is **4.47 dB > 2.0 dB** — a match-topology-class change, not a re-tune. Original's 1.84 dB came from a cross-spec NF-failing row. |
+| **G2''** | **REPLACE (or instrument first)** | `s22_max_db` never recorded on any of 4076 rows — every candidate incomplete; blind. |
+| **G11''** | **REPLACE (or instrument first)** | `iip3_dbm` never recorded in `metrics` on any row — every candidate incomplete; blind + linearity-class gap. |
+
+If the goal is spec-capacity, the efficient KEEP set is now **G1'', G9, G7''**
+(G7'' replaces G4''). G4'' now needs a match-class change; G2''/G11'' first need
+cheap instrumentation (record s22_max_db / iip3 on existing best topologies)
+before they can be audited at all.
+
+## A.5 What the original audit did wrong — summary
+
+- **Missing-metric-as-pass:** "passes all *measured* objs" allowed rows missing
+  s22_max_db / iip3_dbm to be scored; strictly all such rows are incomplete
+  (G2''/G11'' pools are 100% incomplete).
+- **Stale `feasible` flag + cross-spec pooling combined:** the marquee anchor wl
+  `3ebaf08` (cited for both G1'' and G4'') carries a pre-NF-gate `feasible=True`
+  and is a *different* spec's row; recomputed, it fails NF (9.95 / 11.12 dB) and
+  passes nothing. G9's `ced0d8` "ripple 0.0" was a missing/default value (real
+  ripples 1.48–3.32 dB) and partly cross-spec.
+- **Cherry-picking across rows for the "worst case":** G7'' was called HOPELESS
+  by combining fail metrics from two different rows; the honest single best point
+  fails only 1 obj by 0.74 dB and is a NEAR-MISS.
+
+Net: the headline 3-near-miss / 3-hopeless split holds by count, but **G4''↔G7''
+swap sides**, and the two surviving "solved-in-store" KEEPs (G1'', G9) rest on
+*different* rows than the original named. Goldens GREEN.

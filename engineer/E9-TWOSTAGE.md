@@ -251,3 +251,154 @@ Two sub-readings, both pre-stated:
 <!-- RESULTS BELOW — appended AFTER the scored run; nothing above this   -->
 <!-- line was informed by any scored E-9 eval.                          -->
 <!-- ================================================================= -->
+
+## Results (executed 2026-08-22)
+
+Runner `.claude/jobs/a8f610e5/tmp/e9_twostage.py`; per-cell crash-safe JSONs +
+aggregator `e9_agg.py` (**51/51 cells on disk**). PYTHONHASHSEED=0, ≤ 8 concurrent
+ngspice, matched TOTAL budgets. Engineer-branch worktree `wt-e9` (from `engineer`
+@ 9efc1b9); no `lna/` write; no spec yaml edited (G2'/G4' band and G11'' IIP3 via
+in-memory tier-3 spec). Goldens `python lna/ref/check_ref.py` GREEN before the
+first commit and after the last.
+
+### Headline
+
+**Guided two-stage 0/6 vs random two-stage 0/6 vs sizing-only 0/6.** Splitting the
+budget by JOB — cheap structural screen (stage 1) then full per-survivor sizing
+(stage 2) — solved **no** goal that single-budget editing (E-8 v2) did not, on any
+arm. Across the same six coverage-stratified goals, the two-stage split reproduces
+the E-8 v2 flat-zero outcome. (A goal is counted solved if ≥ 1 seed clears
+base-feasible + the delta.)
+
+### Per-goal tables (51 cells, TOTAL budget exactly matched across arms)
+
+Every (goal, arm) spent its full matched TOTAL budget B; none produced an
+extended-feasible design, so solved-seeds / evals+spice-min-to-solve / winning-edit
+are empty for all rows.
+
+| goal | type | B | seeds | solved (a / b / c) |
+|---|---|---:|---:|---|
+| G2'  | match (S22)  | 600  | 3 | 0/3 · 0/3 · 0/3 |
+| G4'  | match (S11)  | 600  | 3 | 0/3 · 0/3 · 0/3 |
+| G9   | band-shape   | 1200 | 3 | 0/3 · 0/3 · 0/3 |
+| G1'' | gain         | 600  | 3 | 0/3 · 0/3 · 0/3 |
+| G7'' | current      | 600  | 3 | 0/3 · 0/3 · 0/3 |
+| G11''| linearity    | 600  | 2 | 0/2 · 0/2 · 0/2 |
+
+Winning edit sequences: **none** (no arm solved). G11'' additionally consumed
+**146 tier-3 two-tone IIP3 probes / 49.8 min** across its 6 cells (coarse stride
+25) — reported separately, NOT deducted from any env-eval budget.
+
+### Spend breakdown (mean counted evals per cell — stage-1 / stage-2 / total)
+
+TOTAL is exactly matched across arms per goal (the parity axis). Stage-1 spend
+varies: for narrow aimed-edit goals the stage-1 screen exhausts the distinct
+candidate pool before reaching k and the unspent budget rolls into stage-2 (see
+deviation D1), so total stays = B.
+
+| goal | arm | stage-1 evals | stage-2 evals | TOTAL | spice-min | blame_extra_sims |
+|---|---|---:|---:|---:|---:|---:|
+| G2'  | a (sizing-only)  | 0   | 600  | 600  | 0.139 | 0 |
+| G2'  | b (random 2-stg) | 120 | 480  | 600  | 0.138 | 0 |
+| G2'  | c (guided 2-stg) | 52  | 548  | 600  | 0.138 | 0 |
+| G4'  | a | 0   | 600  | 600  | 0.132 | 0 |
+| G4'  | b | 120 | 480  | 600  | 0.144 | 0 |
+| G4'  | c | 58  | 542  | 600  | 0.134 | 0 |
+| G9   | a | 0   | 1200 | 1200 | 0.251 | 0 |
+| G9   | b | 200 | 1000 | 1200 | 0.303 | 0 |
+| G9   | c | 40  | 1160 | 1200 | 0.231 | 9/seed (27 total) |
+| G1'' | a | 0   | 600  | 600  | 0.127 | 0 |
+| G1'' | b | 120 | 480  | 600  | 0.155 | 0 |
+| G1'' | c | 120 | 480  | 600  | 0.145 | 0 |
+| G7'' | a | 0   | 600  | 600  | 0.133 | 0 |
+| G7'' | b | 120 | 480  | 600  | 0.124 | 0 |
+| G7'' | c | 120 | 480  | 600  | 0.161 | 0 |
+| G11''| a | 0   | 600  | 600  | 0.249 | 0 |
+| G11''| b | 60  | 540  | 600  | 0.345 | 0 |
+| G11''| c | 60  | 540  | 600  | 0.314 | 0 |
+
+Each stage-2 survivor received a full, uninterrupted sizing slice — G2'/G4' ≈ 120–137
+evals per survivor (m=4), G9 ≈ 232 (m=5), G1''/G7'' 120 (m=4), G11'' 180 (m=3) —
+so the fragmentation the E-9 hypothesis targeted (v2's interleaved `max(40, B//6)=100`
+broken slices) was in fact removed: survivors got ≥ 120 *unbroken* evals. It did
+not change the outcome.
+
+### Coverage-correlation (goal type × blame coverage × guided-vs-random)
+
+The v2 science question, re-measured under the split. `blame_extra_sims` counted
+SEPARATELY (ripple-FD path), NOT deducted — parity preserved (the counted evals are
+identical across arms per goal). Diagnoses deterministic across seeds.
+
+| goal | type | binding metric | blame coverage | blame_extra_sims | guided solved | random solved |
+|---|---|---|---|---:|---|---|
+| G2'  | match (S22)   | `s22_max_db`   | **unavailable** | 0 | 0/3 | 0/3 |
+| G4'  | match (S11)   | `s11_max_db`   | **partial** (gm proxy, NM1–NM5) | 0 | 0/3 | 0/3 |
+| G9   | band-shape    | `s21_ripple_db`| **partial** (capped FD) | 9/seed | 0/3 | 0/3 |
+| G1'' | gain          | `s21_db`       | **partial** (gm/gds OP, NM1–NM5) | 0 | 0/3 | 0/3 |
+| G7'' | current       | `idd_ma`       | **full** (per-device Id share, NM1/NM2) | 0 | 0/3 | 0/3 |
+| G11''| linearity     | `iip3_dbm`     | **unavailable** | 0 | 0/2 | 0/2 |
+
+**Honest reading (identical structure to E-8 v2).** The coverage instrument again
+reported the correct state at every tier — S22 and IIP3 `unavailable` (no handler),
+current `full` (Id closed to Idd), match/gain/ripple `partial`. And again the
+correlation is **untestable**: with the guided-vs-random outcome column flat at
+0/6-vs-0/6, there is no outcome variance to correlate against. High-coverage G7''
+(`full`) did no better under guidance than zero-coverage G11'' (`unavailable`) —
+every arm scored zero. The two-stage split did not turn coverage into an advantage
+because it did not turn *anything* into a solve.
+
+### Falsifier verdict (E9-TWOSTAGE §5, applied verbatim)
+
+> *If guided two-stage editing (arm C) solves NO goal that BOTH sizing-only (arm A)
+> AND random two-stage editing (arm B) leave unsolved, then the two-stage repair
+> FAILS for this goal set, and the ceiling moves to the move repertoire / editor
+> intelligence (→ ROADMAP §7).*
+
+Arm C solved **0** goals; arms A and B solved **0**; there is no goal C solves that
+A and B do not. **The falsifier is MET: the two-stage repair fails for this goal
+set.** The §5 third sub-reading governs — **BOTH B and C solve ~zero, the E-8 v2
+secondary-negative replicated under the split**: the ceiling is NOT the budget
+structure (splitting the job removed the fragmentation and changed nothing) and
+NOT the diagnosis (which reports correctly at every coverage tier but is untested
+on a zero outcome). **The ceiling is the move repertoire / editor intelligence.**
+The next lever is ROADMAP §7 (a smarter editor: learned move-proposal priors,
+playbook-informed routing, critic-in-the-loop edit scoring) — each its own future
+pre-reg — not the budget allocation.
+
+This is a strong, clean negative: E-6 tested budget *allocation* (racing vs full),
+E-9 tests budget *job-splitting* (search vs sizing); both leave the structural
+zero-solve intact. The repertoire/editor is now the twice-implicated bottleneck
+(E-7 §4.3, E-8 v2 secondary negative, E-9 falsifier).
+
+### Deviations from the pre-registration (recorded)
+
+1. **D1 — stage-1 candidate pool smaller than k for narrow aimed-edit goals; unspent
+   stage-1 budget ROLLS into stage-2.** The guided/random aimed-edit families are
+   narrow: for G2' the `p4_insert_series_element`/aimed edits realize only ~51
+   *distinct* topologies (measured), for G4' ~57, for G9 the ripple edits ~40. A
+   stage-1 that insisted on k=120 UNIQUE candidates would spin on duplicates
+   indefinitely. The runner therefore bounds proposal attempts and stops stage-1 on
+   a stall (no new unique candidate for `stall_lim` attempts); any unspent stage-1
+   budget rolls into stage-2. **The matched TOTAL budget B is preserved exactly**
+   (e.g. G2' c: 52 + 548 = 600; G9 c: 40 + 1160 = 1200) — parity across arms is on
+   the TOTAL, which is the pre-registered axis (§3). G1''/G7'' had rich enough pools
+   to fill k=120. This is a faithful realization of the §3.1 clause "if fewer than m
+   distinct candidates survive … the surviving candidates split the entire (B−k)
+   budget"; it generalizes it from "fewer than m survivors" to "fewer than k
+   screenable candidates". No parity broken; recorded for transparency.
+2. **D2 — AnalogGenie symlinked into the worktree** (`wt-e9/AnalogGenie` →
+   `$LNA_DEPS_ROOT/AnalogGenie`, read-only). Without it `templates.emit_sequence`
+   raises `FileNotFoundError` on `AnalogGenie/repo/SPICE2GRAPH_compress.py` and
+   `realize()` silently yields zero candidates (the same trap E-8 v2 hit, deviation
+   #2 there). The link is to the read-only main checkout; nothing is written under it.
+3. **D3 — G11'' IIP3 probed at coarse stride 25 on best-so-far in stage-2** (bounded
+   tier-3 cost), exactly as the E-8 v2 / nullv3 runners did; 146 probes / 49.8 min
+   across 6 cells, ~20.5 s/probe, reported separately (never deducted from an
+   env-eval budget). No spec yaml flipped — G11'' uses the in-memory tier-3 path.
+
+### Scope limit (binding, inherited)
+
+This shows only that the two-stage split, on the six E-8 v2 survivor goals at the
+matched TOTAL budgets and seed counts here, solves none. It does not prove these
+goals need a larger repertoire at unbounded budget, nor does it test the
+smarter-editor directions of ROADMAP §7 — those are future pre-registrations.

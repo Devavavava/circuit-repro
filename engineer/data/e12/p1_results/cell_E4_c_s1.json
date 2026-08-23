@@ -1,0 +1,136 @@
+{
+ "campaign": "e12",
+ "goal": "E4",
+ "arm": "c",
+ "seed": 1,
+ "task": "dhruva-l2-t2-a",
+ "delta": "s21_db >= 26 (dhruva-l2) [EASY]",
+ "ext": {
+  "s21_db": {
+   "min": 26.0,
+   "status": "measured"
+  }
+ },
+ "gtype": "gain",
+ "B": 600,
+ "k": 120,
+ "m": 4,
+ "budget_evals": 600,
+ "evals_spent": 600,
+ "ngspice_calls": 1200,
+ "spice_min_total": 0.2447,
+ "stage1_evals": 67,
+ "stage1_spice_min": 0.0289,
+ "stage2_evals": 533,
+ "stage2_spice_min": 0.2157,
+ "survivors": [
+  {
+   "wl": "c96b8cf5c8042751",
+   "move": "regrow(c=2,len=83)",
+   "s1_obj": 2.66622,
+   "dim": 9,
+   "stage2": {
+    "evals": 133,
+    "best_objective": 2.37766,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "716765ad26258a3d",
+   "move": "regrow(c=2,len=59)",
+   "s1_obj": 4.23403,
+   "dim": 6,
+   "stage2": {
+    "evals": 133,
+    "best_objective": 2.03967,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "29a3d73599a9e8b7",
+   "move": "regrow(c=2,len=65)",
+   "s1_obj": 4.49562,
+   "dim": 7,
+   "stage2": {
+    "evals": 133,
+    "best_objective": 2.09384,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "93a5a30e8f628314",
+   "move": "regrow(c=8,len=75)",
+   "s1_obj": 6.57214,
+   "dim": 9,
+   "stage2": {
+    "evals": 134,
+    "best_objective": 2.43761,
+    "feasible": false
+   }
+  }
+ ],
+ "n_proposed": 1200,
+ "n_realized": 221,
+ "distinct_realized": 67,
+ "distinct_l0": 81,
+ "cut_depth_histogram": {
+  "0": 10,
+  "2": 17,
+  "5": 18,
+  "8": 7,
+  "11": 2,
+  "14": 1,
+  "17": 2,
+  "20": 1,
+  "24": 1,
+  "46": 3,
+  "53": 2,
+  "59": 2,
+  "66": 2,
+  "70": 1,
+  "80": 2,
+  "82": 1,
+  "122": 1,
+  "138": 1,
+  "142": 1,
+  "154": 1,
+  "164": 7,
+  "173": 2,
+  "176": 3,
+  "180": 5,
+  "184": 2,
+  "187": 6,
+  "190": 18,
+  "193": 26,
+  "196": 29,
+  "199": 27,
+  "202": 22
+ },
+ "regrown_len_stats": {
+  "n": 223,
+  "min": 3,
+  "max": 140,
+  "mean": 35.81
+ },
+ "arm_c_class_token": "<LNA_NB>",
+ "arm_c_torch_seed": 1925653542,
+ "contamination": {
+  "generator_checkpoint": "ft_p5v7_v2.pth (cross-line import, main-adopted)",
+  "arm": "p5",
+  "temperature": 0.7,
+  "max_new_tokens": 256,
+  "cut_rule": "uniform over {0} U device-token positions (c=tokens kept)"
+ },
+ "wall_min": 73.785,
+ "solved": false,
+ "solved_stage": null,
+ "evals_to_solve": null,
+ "spice_min_to_solve": null,
+ "wall_min_to_solve": null,
+ "solve_metrics": null,
+ "edit_seq": null,
+ "n_edits": null,
+ "pythonhashseed": "0",
+ "git_sha": "c73501d7",
+ "ts": "2026-08-23T20:40:50+00:00"
+}

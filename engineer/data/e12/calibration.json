@@ -1,0 +1,181 @@
+{
+  "campaign": "e12",
+  "phase": "P0.1 easy-tier calibration",
+  "rule": "\u00a74: target = a value demonstrably achieved by a banked base-feasible run/measurement of that base task; provisional targets adjusted only if banked evidence demands.",
+  "ngspice_calls": 0,
+  "targets": {
+    "E1": {
+      "base_task": "dhruva-s-t2-a",
+      "base_spec": "dhruva-s",
+      "delta_metric": "s21_db",
+      "delta_cmp": "min",
+      "final_target": 30.5,
+      "provisional_target": 30.5,
+      "adjusted": false,
+      "best_base_feasible_achieved": 47.4259,
+      "target_supported_by_banked_base_feasible_evidence": true,
+      "margin_of_target_below_best": 16.9259,
+      "evidence": [
+        {
+          "source": "topo_labels (base-feasible, recomputed)",
+          "n_base_feasible_rows_with_metric": 32,
+          "metric_range": [
+            30.1582,
+            47.4259
+          ],
+          "best_base_feasible_value": 47.4259,
+          "best_row_wl": "95dfc7c5a06280aa",
+          "best_row_ts": "2026-08-10T08:19:13+00:00",
+          "n_base_feasible_rows_passing_target": 30
+        }
+      ]
+    },
+    "E2": {
+      "base_task": "dhruva-s-t2-a",
+      "base_spec": "dhruva-s",
+      "delta_metric": "s22_max_db",
+      "delta_cmp": "max",
+      "final_target": -3.5,
+      "provisional_target": -3.5,
+      "adjusted": false,
+      "best_base_feasible_achieved": -9.0617,
+      "target_supported_by_banked_base_feasible_evidence": true,
+      "margin_of_target_below_best": 5.5617,
+      "evidence": [
+        {
+          "source": "e10_s22_instrument (base-feasible, recomputed)",
+          "n_base_feasible_measured": 6,
+          "base_feasible_s22_values": [
+            -9.0617,
+            -3.6698,
+            -0.43,
+            -0.3934,
+            -0.3758,
+            -0.1765
+          ],
+          "best_base_feasible_value": -9.0617,
+          "best_wl": "5c5047bbcf0ce355",
+          "n_base_feasible_passing_target": 2
+        },
+        {
+          "source": "e10_s22_instrument (all measured, FYI)",
+          "all_s22_values": [
+            -9.7948,
+            -9.0617,
+            -3.6698,
+            -0.43,
+            -0.3934,
+            -0.3758,
+            -0.2847,
+            -0.1765
+          ]
+        }
+      ]
+    },
+    "E3": {
+      "base_task": "dhruva-l2-t2-a",
+      "base_spec": "dhruva-l2",
+      "delta_metric": "nf_db",
+      "delta_cmp": "max",
+      "final_target": 1.9,
+      "provisional_target": 1.9,
+      "adjusted": false,
+      "best_base_feasible_achieved": 1.3797,
+      "target_supported_by_banked_base_feasible_evidence": true,
+      "margin_of_target_below_best": 0.5203,
+      "evidence": [
+        {
+          "source": "topo_labels (base-feasible, recomputed)",
+          "n_base_feasible_rows_with_metric": 6,
+          "metric_range": [
+            1.3797,
+            1.7124
+          ],
+          "best_base_feasible_value": 1.3797,
+          "best_row_wl": "86d5ce252054a160",
+          "best_row_ts": "2026-08-10T08:00:26+00:00",
+          "n_base_feasible_rows_passing_target": 6
+        }
+      ]
+    },
+    "E4": {
+      "base_task": "dhruva-l2-t2-a",
+      "base_spec": "dhruva-l2",
+      "delta_metric": "s21_db",
+      "delta_cmp": "min",
+      "final_target": 26.0,
+      "provisional_target": 26.0,
+      "adjusted": false,
+      "best_base_feasible_achieved": 35.7728,
+      "target_supported_by_banked_base_feasible_evidence": true,
+      "margin_of_target_below_best": 9.7728,
+      "evidence": [
+        {
+          "source": "topo_labels (base-feasible, recomputed)",
+          "n_base_feasible_rows_with_metric": 6,
+          "metric_range": [
+            25.3755,
+            35.7728
+          ],
+          "best_base_feasible_value": 35.7728,
+          "best_row_wl": "ace8383c2fa68d03",
+          "best_row_ts": "2026-08-10T07:58:24+00:00",
+          "n_base_feasible_rows_passing_target": 5
+        }
+      ]
+    },
+    "E5": {
+      "base_task": "dhruva-l5-t2-a",
+      "base_spec": "dhruva-l5",
+      "delta_metric": "s11_max_db",
+      "delta_cmp": "max",
+      "final_target": -11.0,
+      "provisional_target": -11.0,
+      "adjusted": false,
+      "best_base_feasible_achieved": -21.1466,
+      "target_supported_by_banked_base_feasible_evidence": true,
+      "margin_of_target_below_best": 10.1466,
+      "evidence": [
+        {
+          "source": "topo_labels (base-feasible, recomputed)",
+          "n_base_feasible_rows_with_metric": 31,
+          "metric_range": [
+            -21.1466,
+            -10.0005
+          ],
+          "best_base_feasible_value": -21.1466,
+          "best_row_wl": "ace8383c2fa68d03",
+          "best_row_ts": "2026-08-10T12:03:03+00:00",
+          "n_base_feasible_rows_passing_target": 4
+        }
+      ]
+    },
+    "E6": {
+      "base_task": "dhruva-l5-t2-a",
+      "base_spec": "dhruva-l5",
+      "delta_metric": "idd_ma",
+      "delta_cmp": "max",
+      "final_target": 12.0,
+      "provisional_target": 12.0,
+      "adjusted": false,
+      "best_base_feasible_achieved": 10.7467,
+      "target_supported_by_banked_base_feasible_evidence": true,
+      "margin_of_target_below_best": 1.2533,
+      "evidence": [
+        {
+          "source": "topo_labels (base-feasible, recomputed)",
+          "n_base_feasible_rows_with_metric": 31,
+          "metric_range": [
+            10.7467,
+            12.9989
+          ],
+          "best_base_feasible_value": 10.7467,
+          "best_row_wl": "790f122980d32d35",
+          "best_row_ts": "2026-08-10T10:58:25+00:00",
+          "n_base_feasible_rows_passing_target": 3
+        }
+      ]
+    }
+  },
+  "note": "All base-feasibility recomputed from RAW metrics via Spec.feasible; no stored feasible flag trusted. Store rows carry no s22_max_db, so E2 evidence is the e10_s22_instrument measurements only."
+}

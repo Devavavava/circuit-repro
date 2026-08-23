@@ -175,6 +175,36 @@ pre-authorized, torch CPU-only). Goldens GREEN before/after every landing.
    lists for the training manifests.
 4. **Fresh-task authoring** — user-approved at GO (band/Rs/power-class choice).
 
+### P0 + P1 RESULTS (executed 2026-08-23/24, agent eng-e12a; goldens GREEN before/after; landed after independent verification)
+
+- **Calibration (§11.2): all six provisional E1–E6 targets HELD** under the §4
+  rule; per-target evidence in `engineer/data/e12/calibration.json`.
+- **H2 null (§11.1): RESISTED (0/3)** — best nf 1.587 vs target 1.25; H2
+  enters HELD-OUT. 1,800 counted evals.
+- **Fresh task (§11.4): n78 built and harness-verified** — 3.4–3.6 GHz, 50 Ω,
+  dhruva-s limits band-swapped in-memory (no yaml); goal GN78 `nf_db ≤ 1.6`
+  authored a priori; 3 sanity evals produced real band metrics
+  (`engineer/data/e12/fresh_task.json`).
+- **Exclusion lists (§11.3): built** (`excluded_rows.json`): l1 ban = 210
+  store topologies + 8,794 log rows; certificates excluded per goal as
+  designed (G1''/H2 exclude `ace8383c`, G9 excludes `439032fd`).
+- **P1 banking: 0 solves / 24 cells — ALL SIX easy goals flagged zero-solve
+  (§4 deviation rule; nothing retuned).** Arm B 0/12 (distinct_realized = k);
+  arm C 0/12 (distinct_realized 58–72 — the E-11 D1 bottleneck reproduces on
+  easy targets). 20,993 trajectories banked (L0 14,236 / realize 4,161 /
+  L1 2,500 / survivor 96) but **zero positive exemplars**. Deviations: one
+  arm-C fan-out relaunched after task teardown (edit-log rows persisted,
+  append-only by design; no counted sims lost); torch-thread cap as E-11.
+- **Reading (recorded before any P2 decision):** the easy targets are provably
+  reachable by base-feasible store designs, and E3/E5's targets were reached
+  by *600-eval uninterrupted sizing* in the E-11 nulls — but two-stage
+  survivors get only ~120 sizing evals, and the anchor→certificate topology
+  gap is not bridged by 1-hop edits from the standard anchors. The zero yield
+  is a survivor-budget + anchor-choice artifact of the banking design, not new
+  evidence about the editors (they were already 0-for-E-11). **P2's C1
+  contrastive design is materially affected (no positives) — user decision
+  queued before P2 launches.**
+
 ## 12. Open items at GO
 
 1. Approve E1–E6 calibrated targets (§4 rule output).

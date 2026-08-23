@@ -1,0 +1,130 @@
+{
+  "campaign": "e12",
+  "phase": "P0 complete",
+  "calibration": {
+    "E1": {
+      "target": 30.5,
+      "supported": true,
+      "best_bf": 47.4259
+    },
+    "E2": {
+      "target": -3.5,
+      "supported": true,
+      "best_bf": -9.0617
+    },
+    "E3": {
+      "target": 1.9,
+      "supported": true,
+      "best_bf": 1.3797
+    },
+    "E4": {
+      "target": 26.0,
+      "supported": true,
+      "best_bf": 35.7728
+    },
+    "E5": {
+      "target": -11.0,
+      "supported": true,
+      "best_bf": -21.1466
+    },
+    "E6": {
+      "target": 12.0,
+      "supported": true,
+      "best_bf": 10.7467
+    }
+  },
+  "h2_null": {
+    "verdict": "RESISTED",
+    "solved": "0/3",
+    "per_seed": [
+      {
+        "seed": 1,
+        "solved": false,
+        "best_nf": 1.587063,
+        "ngspice": 1200
+      },
+      {
+        "seed": 2,
+        "solved": false,
+        "best_nf": 2.47641,
+        "ngspice": 1200
+      },
+      {
+        "seed": 3,
+        "solved": false,
+        "best_nf": 1.587063,
+        "ngspice": 1200
+      }
+    ]
+  },
+  "fresh_task": {
+    "band_ghz": [
+      3.4,
+      3.6
+    ],
+    "z0": 50,
+    "goal": "nf_db <= 1.6 (n78, 3.4-3.6 GHz)",
+    "sanity": {
+      "evals": 3,
+      "ngspice": 6,
+      "anchor_metrics": {
+        "s11_max_db": -9.63889,
+        "s21_db": 32.1195,
+        "idd_ma": 12.999139999999999,
+        "nf_db": 1.353573,
+        "s21_ripple_db": 0.5154000000000032,
+        "s22_max_db": -5.85166
+      }
+    }
+  },
+  "exclusion": {
+    "l1_ban_store_wls": 210,
+    "l1_ban_log_rows": 8794,
+    "per_goal": {
+      "G2pp": {
+        "store_wl": 0,
+        "log_rows": 0,
+        "seqs": 0
+      },
+      "G13": {
+        "store_wl": 1,
+        "log_rows": 0,
+        "seqs": 0
+      },
+      "G9": {
+        "store_wl": 5,
+        "log_rows": 779,
+        "seqs": 1
+      },
+      "G7pp": {
+        "store_wl": 0,
+        "log_rows": 0,
+        "seqs": 0
+      },
+      "G12": {
+        "store_wl": 2,
+        "log_rows": 0,
+        "seqs": 0
+      },
+      "G1pp": {
+        "store_wl": 1,
+        "log_rows": 0,
+        "seqs": 0
+      },
+      "H2": {
+        "store_wl": 1,
+        "log_rows": 0,
+        "seqs": 0
+      },
+      "GN78": {
+        "store_wl": 0,
+        "log_rows": 0,
+        "seqs": 0
+      }
+    }
+  },
+  "ngspice_accounting": {
+    "p0_sanity_n78": 6,
+    "h2_null": 3600
+  }
+}

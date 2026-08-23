@@ -1,0 +1,128 @@
+{
+ "campaign": "e12",
+ "goal": "E6",
+ "arm": "c",
+ "seed": 2,
+ "task": "dhruva-l5-t2-a",
+ "delta": "idd_ma <= 12 (dhruva-l5) [EASY]",
+ "ext": {
+  "idd_ma": {
+   "max": 12.0,
+   "status": "measured"
+  }
+ },
+ "gtype": "current",
+ "B": 600,
+ "k": 120,
+ "m": 4,
+ "budget_evals": 600,
+ "evals_spent": 600,
+ "ngspice_calls": 1200,
+ "spice_min_total": 0.2369,
+ "stage1_evals": 66,
+ "stage1_spice_min": 0.028,
+ "stage2_evals": 534,
+ "stage2_spice_min": 0.209,
+ "survivors": [
+  {
+   "wl": "1d88c80b594e483c",
+   "move": "regrow(c=0,len=87)",
+   "s1_obj": 4.19361,
+   "dim": 8,
+   "stage2": {
+    "evals": 133,
+    "best_objective": 1.91878,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "2b35f32702252bad",
+   "move": "regrow(c=0,len=87)",
+   "s1_obj": 7.68982,
+   "dim": 9,
+   "stage2": {
+    "evals": 133,
+    "best_objective": 1.88258,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "31d904d54e3bcc61",
+   "move": "regrow(c=0,len=73)",
+   "s1_obj": 7.8577,
+   "dim": 8,
+   "stage2": {
+    "evals": 133,
+    "best_objective": 2.19865,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "0eb67ae2283d2113",
+   "move": "regrow(c=5,len=88)",
+   "s1_obj": 8.14613,
+   "dim": 9,
+   "stage2": {
+    "evals": 135,
+    "best_objective": 2.51424,
+    "feasible": false
+   }
+  }
+ ],
+ "n_proposed": 1200,
+ "n_realized": 461,
+ "distinct_realized": 66,
+ "distinct_l0": 94,
+ "cut_depth_histogram": {
+  "0": 24,
+  "2": 20,
+  "5": 15,
+  "8": 6,
+  "12": 4,
+  "19": 1,
+  "26": 1,
+  "31": 2,
+  "35": 4,
+  "39": 1,
+  "43": 5,
+  "45": 1,
+  "47": 33,
+  "51": 36,
+  "55": 24,
+  "57": 26,
+  "59": 24,
+  "63": 25,
+  "66": 35,
+  "76": 51,
+  "80": 46,
+  "83": 42,
+  "86": 42
+ },
+ "regrown_len_stats": {
+  "n": 468,
+  "min": 3,
+  "max": 119,
+  "mean": 27.89
+ },
+ "arm_c_class_token": "<LNA_NB>",
+ "arm_c_torch_seed": 1597655864,
+ "contamination": {
+  "generator_checkpoint": "ft_p5v7_v2.pth (cross-line import, main-adopted)",
+  "arm": "p5",
+  "temperature": 0.7,
+  "max_new_tokens": 256,
+  "cut_rule": "uniform over {0} U device-token positions (c=tokens kept)"
+ },
+ "wall_min": 40.569,
+ "solved": false,
+ "solved_stage": null,
+ "evals_to_solve": null,
+ "spice_min_to_solve": null,
+ "wall_min_to_solve": null,
+ "solve_metrics": null,
+ "edit_seq": null,
+ "n_edits": null,
+ "pythonhashseed": "0",
+ "git_sha": "c73501d7",
+ "ts": "2026-08-23T20:19:38+00:00"
+}

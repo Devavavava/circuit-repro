@@ -1,7 +1,9 @@
 # E11-GENEDIT — generator-as-editor (pre-registration DRAFT)
 
-**Status: DRAFT — awaiting user GO. Nothing below executes until the GO is
-recorded here; at GO this header is re-stamped and the document is frozen before
+**Status: PRE-SCORED PHASES GO (user, 2026-08-23) — §10 executes (regrowth
+smoke, 0 counted evals; G12/G13 full-budget null filters). The SCORED campaign
+(§5 arms) remains gated on a second user GO, to be given with the smoke numbers
+in hand; at that GO this header is re-stamped and the document frozen before
 any scored eval.** Every governance rule carries forward from E9-TWOSTAGE /
 E8-LADDER-V2 / E7-MOVES: goldens-green before/after every landing, the two-line
 branch law (engineer never writes under `lna/`), append-only stores, matched

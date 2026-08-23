@@ -1,0 +1,148 @@
+{
+  "goal": "G2'' = dhruva-s + s22_max_db <= -10 dB",
+  "rule": "NEAR-MISS iff best single measured point fails <=2 objectives AND each failing objective raw gap within per-metric threshold (S22=2.0 dB); else HOPELESS. Best single point = complete measured row minimizing total normalized ext-spec violation.",
+  "best_single_point": {
+    "rank": 6,
+    "wl_hash": "5c5047bbcf0ce355",
+    "row_ts": "2026-08-10T08:19:04+00:00",
+    "provenance": {
+      "recipe": "nf-v3+d21+mf2-v1",
+      "seed": 0,
+      "inductor_q": 12,
+      "source_arm": "nf-moves",
+      "archetype": null,
+      "n_evals": 0,
+      "git_sha": "eae6374",
+      "era": "current"
+    }
+  },
+  "total_normalized_violation": 0.09382800000000006,
+  "n_failing_objectives": 1,
+  "failing_within_threshold": true,
+  "per_objective_table": [
+    {
+      "metric": "s11_max_db",
+      "target": {
+        "max": -10
+      },
+      "achieved": -10.2446,
+      "margin": 0.024460000000000016,
+      "pass": true,
+      "raw_gap": 0.0,
+      "missing": false
+    },
+    {
+      "metric": "s21_db",
+      "target": {
+        "min": 30
+      },
+      "achieved": 30.66,
+      "margin": 0.022000000000000006,
+      "pass": true,
+      "raw_gap": 0.0,
+      "missing": false
+    },
+    {
+      "metric": "idd_ma",
+      "target": {
+        "max": 13
+      },
+      "achieved": 11.33976,
+      "margin": 0.12771076923076924,
+      "pass": true,
+      "raw_gap": 0.0,
+      "missing": false
+    },
+    {
+      "metric": "nf_db",
+      "target": {
+        "max": 3.5
+      },
+      "achieved": 2.240085,
+      "margin": 0.35997571428571423,
+      "pass": true,
+      "raw_gap": 0.0,
+      "missing": false
+    },
+    {
+      "metric": "s22_max_db",
+      "target": {
+        "max": -10.0
+      },
+      "achieved": -9.06172,
+      "margin": -0.09382800000000006,
+      "pass": false,
+      "raw_gap": 0.9382800000000007,
+      "missing": false
+    }
+  ],
+  "thresholds": {
+    "s11_max_db": 2.0,
+    "s22_max_db": 2.0,
+    "s21_db": 2.0,
+    "s21_ripple_db": 1.5,
+    "nf_db": 0.5,
+    "idd_ma": 1.5
+  },
+  "verdict": "NEAR-MISS",
+  "prior_verdict_E10_amendment": "HOPELESS-BLIND (s22_max_db 0/1059 recorded; every candidate incomplete)",
+  "change": "The blind bar is lifted: s22_max_db is now measured on the store's best base-spec-passing topologies. Re-audited under the unchanged pre-declared rule.",
+  "all_topologies_measured": [
+    {
+      "rank": 1,
+      "wl_hash": "1e27a3def35ae8c3",
+      "s22_max_db": -0.375826,
+      "n_failing_objectives": 1,
+      "total_violation": 0.9624174
+    },
+    {
+      "rank": 2,
+      "wl_hash": "230aafaab22ec7d7",
+      "s22_max_db": -0.393398,
+      "n_failing_objectives": 1,
+      "total_violation": 0.9606602000000001
+    },
+    {
+      "rank": 3,
+      "wl_hash": "ace8383c2fa68d03",
+      "s22_max_db": -9.79478,
+      "n_failing_objectives": 2,
+      "total_violation": 0.09675799999999998
+    },
+    {
+      "rank": 4,
+      "wl_hash": "4b20cd3b8e041c96",
+      "s22_max_db": -3.66982,
+      "n_failing_objectives": 1,
+      "total_violation": 0.6330180000000001
+    },
+    {
+      "rank": 5,
+      "wl_hash": "19f723034c0a946c",
+      "s22_max_db": -0.430021,
+      "n_failing_objectives": 1,
+      "total_violation": 0.9569979
+    },
+    {
+      "rank": 6,
+      "wl_hash": "5c5047bbcf0ce355",
+      "s22_max_db": -9.06172,
+      "n_failing_objectives": 1,
+      "total_violation": 0.09382800000000006
+    },
+    {
+      "rank": 7,
+      "wl_hash": "95dfc7c5a06280aa",
+      "s22_max_db": -0.176478,
+      "n_failing_objectives": 1,
+      "total_violation": 0.9823522
+    },
+    {
+      "rank": 8,
+      "wl_hash": "ced0d8bd36ed48cc",
+      "s22_max_db": -0.284696,
+      "n_failing_objectives": 2,
+      "total_violation": 1.0477234
+    }
+  ]
+}

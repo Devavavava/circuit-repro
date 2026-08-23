@@ -1,0 +1,487 @@
+{
+  "spec": "dhruva-s",
+  "base_constraints": {
+    "s11_max_db": {
+      "max": -10
+    },
+    "s21_db": {
+      "min": 30
+    },
+    "idd_ma": {
+      "max": 13
+    },
+    "nf_db": {
+      "max": 3.5
+    }
+  },
+  "picks": [
+    {
+      "rank": 1,
+      "wl_hash": "1e27a3def35ae8c3",
+      "ts": "2026-08-10T08:17:52+00:00",
+      "worst_base_margin": 0.11965399999999989,
+      "per_metric_margin": {
+        "s11_max_db": 0.152337,
+        "s21_db": 0.11965399999999989,
+        "idd_ma": 0.1919261538461538,
+        "nf_db": 0.2910025714285714
+      },
+      "recipe": "nf-v2+d18+mf2-v1",
+      "provenance": {
+        "device_budget": 18,
+        "inductor_q": 12,
+        "keep": "s11idd",
+        "move": "stage_add",
+        "noise_budget": {
+          "f_hz": 2492030000.0,
+          "mos_mech_frac": {
+            "1overf": 0.08483,
+            "id": 0.89647,
+            "igd": 0.00151,
+            "igs": 0.00076,
+            "rbdb": 6e-05,
+            "rg": 0.01632
+          },
+          "nf_db_shares": 2.479005363283464,
+          "source_frac": 0.5650663735108783,
+          "sum_closure": 0.9999999870055905,
+          "top": [
+            {
+              "elem": "rr1",
+              "frac_excess": 0.40076,
+              "frac_out": 0.1743,
+              "kind": "res"
+            },
+            {
+              "elem": "mnm1",
+              "frac_excess": 0.20633,
+              "frac_out": 0.08974,
+              "kind": "mos"
+            },
+            {
+              "elem": "mnm2",
+              "frac_excess": 0.14226,
+              "frac_out": 0.06187,
+              "kind": "mos"
+            },
+            {
+              "elem": "rr2",
+              "frac_excess": 0.09064,
+              "frac_out": 0.03942,
+              "kind": "res"
+            },
+            {
+              "elem": "mnm3",
+              "frac_excess": 0.08654,
+              "frac_out": 0.03764,
+              "kind": "mos"
+            }
+          ]
+        },
+        "parent_wl_hash": "7b0b485b629cecd2",
+        "relabel": "mf2",
+        "relabel_of": "2026-08-09T15:50:52+00:00",
+        "source_arm": "nf-moves"
+      },
+      "n_evals": 0
+    },
+    {
+      "rank": 2,
+      "wl_hash": "230aafaab22ec7d7",
+      "ts": "2026-08-10T08:18:11+00:00",
+      "worst_base_margin": 0.05574833333333338,
+      "per_metric_margin": {
+        "s11_max_db": 0.0868220000000001,
+        "s21_db": 0.05574833333333338,
+        "idd_ma": 0.2822712307692307,
+        "nf_db": 0.09228685714285716
+      },
+      "recipe": "nf-v2+d18+mf2-v1",
+      "provenance": {
+        "device_budget": 18,
+        "inductor_q": 12,
+        "keep": "s11idd",
+        "move": "degen_add",
+        "noise_budget": {
+          "f_hz": 2492030000.0,
+          "mos_mech_frac": {
+            "1overf": 0.0521,
+            "id": 0.93386,
+            "igd": 0.00119,
+            "igs": 0.00059,
+            "rbdb": 5e-05,
+            "rg": 0.01216
+          },
+          "nf_db_shares": 3.1737580047877367,
+          "source_frac": 0.48153094251376005,
+          "sum_closure": 1.000000036271814,
+          "top": [
+            {
+              "elem": "rr1",
+              "frac_excess": 0.3288,
+              "frac_out": 0.17047,
+              "kind": "res"
+            },
+            {
+              "elem": "mnm1",
+              "frac_excess": 0.25225,
+              "frac_out": 0.13078,
+              "kind": "mos"
+            },
+            {
+              "elem": "rr4",
+              "frac_excess": 0.10888,
+              "frac_out": 0.05645,
+              "kind": "res"
+            },
+            {
+              "elem": "mnm3",
+              "frac_excess": 0.10628,
+              "frac_out": 0.0551,
+              "kind": "mos"
+            },
+            {
+              "elem": "rr2",
+              "frac_excess": 0.08109,
+              "frac_out": 0.04204,
+              "kind": "res"
+            }
+          ]
+        },
+        "parent_wl_hash": "1e27a3def35ae8c3",
+        "relabel": "mf2",
+        "relabel_of": "2026-08-09T16:09:57+00:00",
+        "source_arm": "nf-moves"
+      },
+      "n_evals": 0
+    },
+    {
+      "rank": 3,
+      "wl_hash": "ace8383c2fa68d03",
+      "ts": "2026-08-10T06:00:59+00:00",
+      "worst_base_margin": 0.03698800000000002,
+      "per_metric_margin": {
+        "s11_max_db": 0.03698800000000002,
+        "s21_db": 0.14581466666666668,
+        "idd_ma": 0.11066153846153853,
+        "nf_db": 0.0742342857142857
+      },
+      "recipe": "nf-v3+d21",
+      "provenance": {
+        "device_budget": 21,
+        "inductor_q": 12,
+        "keep": "s11idd",
+        "move": "stage_add",
+        "parent_wl_hash": "6f0d080f91dfc642",
+        "source_arm": "nf-moves"
+      },
+      "n_evals": 1264
+    },
+    {
+      "rank": 4,
+      "wl_hash": "4b20cd3b8e041c96",
+      "ts": "2026-08-10T08:19:20+00:00",
+      "worst_base_margin": 0.03427692307692299,
+      "per_metric_margin": {
+        "s11_max_db": 0.043075999999999934,
+        "s21_db": 0.18054233333333325,
+        "idd_ma": 0.03427692307692299,
+        "nf_db": 0.3143591428571429
+      },
+      "recipe": "nf-v3+d21+mf2-v1",
+      "provenance": {
+        "device_budget": 21,
+        "inductor_q": 12,
+        "keep": "s11idd",
+        "move": "load_swap",
+        "noise_budget": {
+          "f_hz": 2492030000.0,
+          "mos_mech_frac": {
+            "1overf": 0.09607,
+            "id": 0.88608,
+            "igd": 0.00181,
+            "igs": 0.00101,
+            "rbdb": 5e-05,
+            "rg": 0.0149
+          },
+          "nf_db_shares": 2.3968886297853205,
+          "source_frac": 0.5758523414201661,
+          "sum_closure": 0.9999999512332148,
+          "top": [
+            {
+              "elem": "rr1",
+              "frac_excess": 0.38999,
+              "frac_out": 0.16541,
+              "kind": "res"
+            },
+            {
+              "elem": "mnm1",
+              "frac_excess": 0.22656,
+              "frac_out": 0.0961,
+              "kind": "mos"
+            },
+            {
+              "elem": "mnm2",
+              "frac_excess": 0.14975,
+              "frac_out": 0.06352,
+              "kind": "mos"
+            },
+            {
+              "elem": "rr2",
+              "frac_excess": 0.08732,
+              "frac_out": 0.03704,
+              "kind": "res"
+            },
+            {
+              "elem": "mnm3",
+              "frac_excess": 0.08094,
+              "frac_out": 0.03433,
+              "kind": "mos"
+            }
+          ]
+        },
+        "parent_wl_hash": "3e4a6adb7961e73c",
+        "relabel": "mf2",
+        "relabel_of": "2026-08-10T06:24:30+00:00",
+        "source_arm": "nf-moves"
+      },
+      "n_evals": 0
+    },
+    {
+      "rank": 5,
+      "wl_hash": "19f723034c0a946c",
+      "ts": "2026-08-10T08:14:42+00:00",
+      "worst_base_margin": 0.02907666666666664,
+      "per_metric_margin": {
+        "s11_max_db": 0.04765200000000007,
+        "s21_db": 0.02907666666666664,
+        "idd_ma": 0.07051384615384612,
+        "nf_db": 0.13887600000000003
+      },
+      "recipe": "nf-v1+mf2-v1",
+      "provenance": {
+        "floor": 0.0,
+        "fresh": false,
+        "inductor_q": 12,
+        "keep": "tier1",
+        "mode": "nf",
+        "noise_budget": {
+          "f_hz": 2492030000.0,
+          "mos_mech_frac": {
+            "1overf": 0.07544,
+            "id": 0.90955,
+            "igd": 0.00103,
+            "igs": 0.00079,
+            "rbdb": 5e-05,
+            "rg": 0.01309
+          },
+          "nf_db_shares": 3.0108100053076763,
+          "source_frac": 0.49994128192511594,
+          "sum_closure": 0.9999998510041185,
+          "top": [
+            {
+              "elem": "mnm1",
+              "frac_excess": 0.47423,
+              "frac_out": 0.23714,
+              "kind": "mos"
+            },
+            {
+              "elem": "rr1",
+              "frac_excess": 0.38405,
+              "frac_out": 0.19205,
+              "kind": "res"
+            },
+            {
+              "elem": "mnm3",
+              "frac_excess": 0.04986,
+              "frac_out": 0.02493,
+              "kind": "mos"
+            },
+            {
+              "elem": "rql1",
+              "frac_excess": 0.03032,
+              "frac_out": 0.01516,
+              "kind": "res"
+            },
+            {
+              "elem": "rr2",
+              "frac_excess": 0.02299,
+              "frac_out": 0.0115,
+              "kind": "res"
+            }
+          ]
+        },
+        "relabel": "mf2",
+        "relabel_of": "2026-08-09T11:17:21+00:00",
+        "seed": 1,
+        "source_arm": "nf-campaign",
+        "store_recipe": "nf-v1",
+        "store_spec": "dhruva-s",
+        "store_wl_hash": "19f723034c0a946c"
+      },
+      "n_evals": 0
+    },
+    {
+      "rank": 6,
+      "wl_hash": "5c5047bbcf0ce355",
+      "ts": "2026-08-10T08:19:04+00:00",
+      "worst_base_margin": 0.021998666666666722,
+      "per_metric_margin": {
+        "s11_max_db": 0.02446300000000008,
+        "s21_db": 0.021998666666666722,
+        "idd_ma": 0.12771076923076924,
+        "nf_db": 0.35997571428571423
+      },
+      "recipe": "nf-v3+d21+mf2-v1",
+      "provenance": {
+        "device_budget": 21,
+        "inductor_q": 12,
+        "keep": "s11idd",
+        "move": "load_swap",
+        "noise_budget": {
+          "f_hz": 2492030000.0,
+          "mos_mech_frac": {
+            "1overf": 0.33426,
+            "id": 0.64618,
+            "igd": 0.00206,
+            "igs": 0.00101,
+            "rbdb": 2e-05,
+            "rg": 0.01644
+          },
+          "nf_db_shares": 2.2103268034778116,
+          "source_frac": 0.6011285012934116,
+          "sum_closure": 0.9999999511967137,
+          "top": [
+            {
+              "elem": "mnm1",
+              "frac_excess": 0.33857,
+              "frac_out": 0.13505,
+              "kind": "mos"
+            },
+            {
+              "elem": "rql2",
+              "frac_excess": 0.29492,
+              "frac_out": 0.11764,
+              "kind": "res"
+            },
+            {
+              "elem": "mnm2",
+              "frac_excess": 0.13471,
+              "frac_out": 0.05373,
+              "kind": "mos"
+            },
+            {
+              "elem": "rr1",
+              "frac_excess": 0.08272,
+              "frac_out": 0.033,
+              "kind": "res"
+            },
+            {
+              "elem": "mnm3",
+              "frac_excess": 0.08254,
+              "frac_out": 0.03292,
+              "kind": "mos"
+            }
+          ]
+        },
+        "parent_wl_hash": "3e4a6adb7961e73c",
+        "relabel": "mf2",
+        "relabel_of": "2026-08-10T06:10:50+00:00",
+        "source_arm": "nf-moves"
+      },
+      "n_evals": 0
+    },
+    {
+      "rank": 7,
+      "wl_hash": "95dfc7c5a06280aa",
+      "ts": "2026-08-10T08:19:13+00:00",
+      "worst_base_margin": 0.016019000000000005,
+      "per_metric_margin": {
+        "s11_max_db": 0.016019000000000005,
+        "s21_db": 0.5808636666666668,
+        "idd_ma": 0.027721538461538405,
+        "nf_db": 0.40096942857142853
+      },
+      "recipe": "nf-v3+d21+mf2-v1",
+      "provenance": {
+        "device_budget": 21,
+        "inductor_q": 12,
+        "keep": "s11idd",
+        "move": "stage_add",
+        "noise_budget": {
+          "f_hz": 2492030000.0,
+          "mos_mech_frac": {
+            "1overf": 0.08862,
+            "id": 0.89168,
+            "igd": 0.00182,
+            "igs": 0.00098,
+            "rbdb": 7e-05,
+            "rg": 0.01674
+          },
+          "nf_db_shares": 2.0949093932694027,
+          "source_frac": 0.6173181708452599,
+          "sum_closure": 0.9999998946248749,
+          "top": [
+            {
+              "elem": "rr3",
+              "frac_excess": 0.38523,
+              "frac_out": 0.14742,
+              "kind": "res"
+            },
+            {
+              "elem": "mnm1",
+              "frac_excess": 0.23775,
+              "frac_out": 0.09098,
+              "kind": "mos"
+            },
+            {
+              "elem": "mnm2",
+              "frac_excess": 0.11539,
+              "frac_out": 0.04416,
+              "kind": "mos"
+            },
+            {
+              "elem": "rr1",
+              "frac_excess": 0.07935,
+              "frac_out": 0.03037,
+              "kind": "res"
+            },
+            {
+              "elem": "mnm3",
+              "frac_excess": 0.06369,
+              "frac_out": 0.02437,
+              "kind": "mos"
+            }
+          ]
+        },
+        "parent_wl_hash": "f578743ae13296d0",
+        "relabel": "mf2",
+        "relabel_of": "2026-08-10T06:20:03+00:00",
+        "source_arm": "nf-moves"
+      },
+      "n_evals": 0
+    },
+    {
+      "rank": 8,
+      "wl_hash": "ced0d8bd36ed48cc",
+      "ts": "2026-08-10T06:16:21+00:00",
+      "worst_base_margin": 0.013489999999999934,
+      "per_metric_margin": {
+        "s11_max_db": 0.05364799999999992,
+        "s21_db": 0.30502299999999993,
+        "idd_ma": 0.013489999999999934,
+        "nf_db": 0.07068028571428567
+      },
+      "recipe": "nf-v3+d21",
+      "provenance": {
+        "device_budget": 21,
+        "inductor_q": 12,
+        "keep": "s11idd",
+        "move": "stage_add",
+        "parent_wl_hash": "6f0d080f91dfc642",
+        "source_arm": "nf-moves"
+      },
+      "n_evals": 1264
+    }
+  ]
+}

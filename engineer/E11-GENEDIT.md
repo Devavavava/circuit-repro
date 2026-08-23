@@ -112,7 +112,7 @@ proposal distributions are comparable post-hoc.
 | **G1''** | dhruva-l1-t2-a | `s21_db ≥ 33` | gain | KEEP (E-10A); solved-in-store certificate wl `ace8383c` (37.53 dB, full-spec-pass) | 600 | 1–3 |
 | **G9** | dhruva-l5-t2-a | `s21_ripple_db ≤ 3` | band-shape | KEEP (E-10A); certificate wl `439032fd` (ripple 2.989, full-spec-pass) | 1200 | 1–3 |
 | **G7''** | dhruva-l5-t2-a | `idd_ma ≤ 9.0 @ s21 ≥ 22.3` | current | KEEP (E-10A); best point wl `998ff3a1` fails only s11 by 0.74 dB | 600 | 1–3 |
-| **G2''** | dhruva-s-t2-a | `s22_max_db ≤ −10` band-wide | match (S22) | **CONDITIONAL** — enters iff the ruled s22 instrumentation re-audit returns NEAR-MISS; else dropped (not replaced) | 600 | 1–3 |
+| **G2''** | dhruva-s-t2-a | `s22_max_db ≤ −10` band-wide | match (S22) | **IN — instrumentation verdict NEAR-MISS (2026-08-23, E10-GAPAUDIT §G2'' INSTRUMENTATION):** best measured point wl `5c5047bb` fails only s22 by 0.94 dB | 600 | 1–3 |
 | **G12** | dhruva-l5-t2-a | `s11_max_db ≤ −15` band-wide | match (S11) | NEW (replaces G4''); certificate: 3 base-passing store designs at −21.1/−19.4/−15.1 dB | 600 | 1–3 |
 | **G13** | dhruva-l2-t2-a | `nf_db ≤ 1.45` | noise (new type) | NEW (replaces G11''); certificate: 1 base-passing store design at 1.38 dB | 600 | 1–3 |
 
@@ -190,8 +190,8 @@ from the contained env. Goldens GREEN before first and after last landing.
 
 ## 10. Pre-scored phases (cheap, before any scored eval)
 
-1. **G2'' s22 instrumentation** — already ruled and executing separately
-   (E10-GAPAUDIT §RULINGS item 2); its verdict fixes the §4 goal set.
+1. **G2'' s22 instrumentation** — DONE (2026-08-23): verdict NEAR-MISS, G2''
+   is IN the §4 goal set (E10-GAPAUDIT §G2'' INSTRUMENTATION RESULT).
 2. **G12/G13 full-budget null filter** (§4) — arm-A machinery only.
 3. **Regrowth smoke** — from one anchor, sample proposals until 50 distinct
    L0-passing candidates or 500 attempts; report realization rate and distinct
@@ -200,7 +200,8 @@ from the contained env. Goldens GREEN before first and after last landing.
 
 ## 11. Open items at GO
 
-1. Confirm the §4 goal set once the G2'' verdict lands (in iff NEAR-MISS).
+1. ~~Confirm the §4 goal set once the G2'' verdict lands~~ — RESOLVED: verdict
+   NEAR-MISS, G2'' in; goal set = G1'', G9, G7'', G2'', G12, G13.
 2. Confirm G12/G13 targets (−15 dB / 1.45 dB, store-arithmetic-derived above).
 3. Confirm arm C sampling constants (temperature, max regrown length) after the
    §10.3 smoke — recorded in the runner, frozen at GO.

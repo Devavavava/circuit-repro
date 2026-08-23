@@ -464,3 +464,39 @@ questions and gate the next campaign's pre-registration (E-11):
    checkpoint**, used for segment regrowth, declared in the contamination
    ledger as a cross-line import. No new training for E-11's first
    pre-registration.
+
+---
+
+# G2'' INSTRUMENTATION RESULT (executed 2026-08-23, per ruling 2 above)
+
+**Verdict: NEAR-MISS — the HOPELESS-BLIND classification is LIFTED.**
+
+Executed by an isolated agent (eng-e10b); full artifacts under
+`engineer/data/e10_s22_instrument/` (selection, 8 per-topology measurement
+files, summary, verdict; scripts `e10_s22_{select,measure,reaudit}.py`).
+
+- **Method.** `s22_max_db` needs NO extra simulation: `lna/extract.py` already
+  computes `meas sp m_s22_max max s22db` band-wide inside the standard `sp`
+  analysis (line 177 → metric map line 392); it was simply never stored in any
+  datastore row. Each of the store's top-8 base-passing dhruva-s topologies
+  (strict same-spec, complete, flags-never-trusted selection; 32 rows qualify)
+  was reconstructed from its recorded `best_params` and re-evaluated — no
+  re-optimization. Rank-1 recomputed base metrics match the recorded row to all
+  significant digits.
+- **Measured `s22_max_db` (dB):** −0.376, −0.393, −9.795, −3.670, −0.430,
+  **−9.062**, −0.177, −0.285 for ranks 1–8.
+- **Best single measured point** (min total normalized extended-spec violation):
+  wl `5c5047bbcf0ce355` (nf-v3+d21+mf2-v1, modern era) — passes s11 (−10.24),
+  s21 (30.66), idd (11.34), nf (2.24); fails ONLY `s22_max_db` at **−9.062 dB**,
+  raw gap **0.938 dB < 2.0 dB threshold** → NEAR-MISS by the unchanged
+  pre-declared rule. (Rank-3 `ace8383c` measures s22 −9.795 but era-drifts on
+  s11 re-measurement, failing 2 objectives; the honest min-violation point is
+  rank-6.)
+- **Cost & fences:** 26 measurement ngspice invocations total; replay fence
+  3 repeats / **0.0000 spread** on both the rank-1 and the verdict-relevant
+  rank-6 point. Goldens `check_ref: GREEN` before first and after last sim; no
+  writes under `lna/`.
+
+Consequence for E-11 (E11-GENEDIT §4): **G2'' ENTERS the scored goal set** with
+near-miss anchor evidence wl `5c5047bbcf0ce355` (0.94 dB s22 gap — one matching
+element / modest re-tune, not a topology-class change).

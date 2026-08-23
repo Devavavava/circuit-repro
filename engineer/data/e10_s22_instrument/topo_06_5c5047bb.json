@@ -1,0 +1,130 @@
+{
+  "goal": "G2'' = dhruva-s + s22_max_db <= -10 dB",
+  "rank": 6,
+  "wl_hash": "5c5047bbcf0ce355",
+  "row_ts": "2026-08-10T08:19:04+00:00",
+  "verdict_relevant_best_single_point": true,
+  "provenance": {
+    "recipe": "nf-v3+d21+mf2-v1",
+    "seed": 0,
+    "inductor_q": 12,
+    "source_arm": "nf-moves",
+    "archetype": null,
+    "n_evals": 0,
+    "git_sha": "eae6374",
+    "era": "current"
+  },
+  "reconstruction": "recorded best_params (exact stored sizing); no re-optimization",
+  "measured_metrics": {
+    "s11_db": -10.9747,
+    "s11_max_db": -10.2446,
+    "s21_db": 30.66,
+    "s21_min_db": 18.0334,
+    "idd_ma": 11.33976,
+    "nf_db": 2.240085,
+    "s22_db": -10.8683,
+    "s22_max_db": -9.06172,
+    "s12_db": -92.1168,
+    "k_f0": 499.749,
+    "k_min": 422.184,
+    "mu_f0": 3.48345,
+    "mu_min": 2.83835,
+    "mu_src_f0": 3.52626,
+    "mu_src_min": 3.25243,
+    "delta_f0": 0.0808604,
+    "delta_max": 0.108306,
+    "stab_band": [
+      1100000000.0,
+      2500000000.0
+    ],
+    "s21_ripple_db": 13.9393,
+    "nf_method": "series_rs"
+  },
+  "s22_max_db": -9.06172,
+  "base_worst_margin_recorded": 0.021998666666666722,
+  "extended_spec_table": [
+    {
+      "metric": "s11_max_db",
+      "target": {
+        "max": -10
+      },
+      "achieved": -10.2446,
+      "margin": 0.024460000000000016,
+      "pass": true,
+      "raw_gap": 0.0,
+      "missing": false
+    },
+    {
+      "metric": "s21_db",
+      "target": {
+        "min": 30
+      },
+      "achieved": 30.66,
+      "margin": 0.022000000000000006,
+      "pass": true,
+      "raw_gap": 0.0,
+      "missing": false
+    },
+    {
+      "metric": "idd_ma",
+      "target": {
+        "max": 13
+      },
+      "achieved": 11.33976,
+      "margin": 0.12771076923076924,
+      "pass": true,
+      "raw_gap": 0.0,
+      "missing": false
+    },
+    {
+      "metric": "nf_db",
+      "target": {
+        "max": 3.5
+      },
+      "achieved": 2.240085,
+      "margin": 0.35997571428571423,
+      "pass": true,
+      "raw_gap": 0.0,
+      "missing": false
+    },
+    {
+      "metric": "s22_max_db",
+      "target": {
+        "max": -10.0
+      },
+      "achieved": -9.06172,
+      "margin": -0.09382800000000006,
+      "pass": false,
+      "raw_gap": 0.9382800000000007,
+      "missing": false
+    }
+  ],
+  "n_failing_objectives": 1,
+  "harness_stamp": {
+    "inductor_q": 12,
+    "nf_gated": true,
+    "stab_guard": true,
+    "ngspice_calls_per_eval": 2,
+    "eval_entry": "size.make_objective(...)[0]",
+    "w_finger": 2e-06,
+    "era": "current",
+    "deps": {
+      "models": "/home/dpatni/circuit-repro/AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt",
+      "zoaf": "/home/dpatni/circuit-repro/misc/ZOAF",
+      "analoggenie": "/home/dpatni/circuit-repro/AnalogGenie/repo",
+      "rebound": true
+    },
+    "notes": []
+  },
+  "replay_fence": {
+    "repeats": 3,
+    "s22_max_db_values": [
+      -9.06172,
+      -9.06172,
+      -9.06172
+    ],
+    "spread": 0.0
+  },
+  "ngspice_calls_this_topology": 2,
+  "note": "Verdict-relevant best single point under the extended spec (min total normalized violation). Reconstructs bit-faithfully to its recorded dhruva-s row; replay fence 0.0000 over 3 repeats (6 extra ngspice calls)."
+}

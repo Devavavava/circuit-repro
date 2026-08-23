@@ -1,0 +1,127 @@
+{
+  "goal": "G2'' = dhruva-s + s22_max_db <= -10 dB",
+  "rank": 5,
+  "wl_hash": "19f723034c0a946c",
+  "row_ts": "2026-08-10T08:14:42+00:00",
+  "verdict_relevant_best_single_point": false,
+  "provenance": {
+    "recipe": "nf-v1+mf2-v1",
+    "seed": 0,
+    "inductor_q": 12,
+    "source_arm": "nf-campaign",
+    "archetype": null,
+    "n_evals": 0,
+    "git_sha": "eae6374",
+    "era": "current"
+  },
+  "reconstruction": "recorded best_params (exact stored sizing); no re-optimization",
+  "measured_metrics": {
+    "s11_db": -12.231,
+    "s11_max_db": -10.4765,
+    "s21_db": 30.8723,
+    "s21_min_db": 20.8311,
+    "idd_ma": 12.08332,
+    "nf_db": 3.013934,
+    "s22_db": -19.8389,
+    "s22_max_db": -0.430021,
+    "s12_db": -64.8365,
+    "k_f0": 23.2208,
+    "k_min": 23.1475,
+    "mu_f0": 7.99839,
+    "mu_min": 1.0502,
+    "mu_src_f0": 3.76581,
+    "mu_src_min": 3.26856,
+    "delta_f0": 0.0261768,
+    "delta_max": 0.284638,
+    "stab_band": [
+      1100000000.0,
+      2500000000.0
+    ],
+    "s21_ripple_db": 10.218500000000002,
+    "nf_method": "series_rs"
+  },
+  "s22_max_db": -0.430021,
+  "base_worst_margin_recorded": 0.02907666666666664,
+  "extended_spec_table": [
+    {
+      "metric": "s11_max_db",
+      "target": {
+        "max": -10
+      },
+      "achieved": -10.4765,
+      "margin": 0.04764999999999997,
+      "pass": true,
+      "raw_gap": 0.0,
+      "missing": false
+    },
+    {
+      "metric": "s21_db",
+      "target": {
+        "min": 30
+      },
+      "achieved": 30.8723,
+      "margin": 0.02907666666666664,
+      "pass": true,
+      "raw_gap": 0.0,
+      "missing": false
+    },
+    {
+      "metric": "idd_ma",
+      "target": {
+        "max": 13
+      },
+      "achieved": 12.08332,
+      "margin": 0.07051384615384612,
+      "pass": true,
+      "raw_gap": 0.0,
+      "missing": false
+    },
+    {
+      "metric": "nf_db",
+      "target": {
+        "max": 3.5
+      },
+      "achieved": 3.013934,
+      "margin": 0.13887600000000003,
+      "pass": true,
+      "raw_gap": 0.0,
+      "missing": false
+    },
+    {
+      "metric": "s22_max_db",
+      "target": {
+        "max": -10.0
+      },
+      "achieved": -0.430021,
+      "margin": -0.9569979,
+      "pass": false,
+      "raw_gap": 9.569979,
+      "missing": false
+    }
+  ],
+  "n_failing_objectives": 1,
+  "harness_stamp": {
+    "inductor_q": 12,
+    "nf_gated": true,
+    "stab_guard": true,
+    "ngspice_calls_per_eval": 2,
+    "eval_entry": "size.make_objective(...)[0]",
+    "w_finger": 2e-06,
+    "era": "current",
+    "deps": {
+      "models": "/home/dpatni/circuit-repro/AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt",
+      "zoaf": "/home/dpatni/circuit-repro/misc/ZOAF",
+      "analoggenie": "/home/dpatni/circuit-repro/AnalogGenie/repo",
+      "rebound": true
+    },
+    "notes": []
+  },
+  "replay_fence": {
+    "repeats": 1,
+    "s22_max_db_values": [
+      -0.430021
+    ],
+    "spread": 0.0
+  },
+  "ngspice_calls_this_topology": 2
+}

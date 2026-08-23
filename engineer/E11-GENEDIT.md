@@ -1,10 +1,14 @@
 # E11-GENEDIT — generator-as-editor (pre-registration DRAFT)
 
-**Status: PRE-SCORED PHASES GO (user, 2026-08-23) — §10 executes (regrowth
-smoke, 0 counted evals; G12/G13 full-budget null filters). The SCORED campaign
-(§5 arms) remains gated on a second user GO, to be given with the smoke numbers
-in hand; at that GO this header is re-stamped and the document frozen before
-any scored eval.** Every governance rule carries forward from E9-TWOSTAGE /
+**Status: PRE-REGISTRATION FROZEN — SCORED CAMPAIGN GO (user, 2026-08-23,
+second GO given with the §10 results in hand; pre-scored phases GO was
+2026-08-23 earlier the same day). This document is committed BEFORE any scored
+eval; §Results is appended post-hoc and clearly marked. Goal set = G1'', G9,
+G7'', G2'', G12, G13 (all six validated: three E-10A KEEPs, G2''
+instrumentation NEAR-MISS, G12/G13 null-RESISTED). Arm-C sampling constants
+frozen per §10.3: temperature 0.7, max_new_tokens 256, class token `<LNA_NB>`,
+cut uniform over {0} ∪ device-token positions. 54 cells (6 goals × 3 arms ×
+seeds 1–3), matched TOTAL B = 600 (G9: 1200).** Every governance rule carries forward from E9-TWOSTAGE /
 E8-LADDER-V2 / E7-MOVES: goldens-green before/after every landing, the two-line
 branch law (engineer never writes under `lna/`), append-only stores, matched
 TOTAL budgets, and user rulings for any spec/protocol/budget change.

@@ -127,3 +127,14 @@ authorization:**
 
 Sequencing and priority are a future user ruling. Recorded here so the target is
 explicit and the E-9 falsifier has a named destination (§7) when it fires.
+
+**Update (user rulings 2026-08-22/23):** the E-9 falsifier FIRED (0/6/0/6/0/6).
+The user ruled the next lever is **generator-as-editor** — a trained model
+regrows circuit segments; no hand-authored moves — with **every proposed edit
+logged durably** as future training data for learned move priors (direction 1
+above stays the eventual target). The E-10 gap audit ran and was amended; its
+AMENDED verdicts are adopted (KEEP G1''/G9/G7''; G2'' instrument-first s22-only;
+G4''/G11'' replaced). Editor model = the adopted main-line **v7 generator**
+checkpoint, declared as a cross-line import in the contamination ledger. All
+recorded in E10-GAPAUDIT.md §RULINGS; executes only via the E-11
+pre-registration (E11-GENEDIT.md) after user GO.

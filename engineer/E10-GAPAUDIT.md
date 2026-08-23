@@ -438,3 +438,29 @@ before they can be audited at all.
 Net: the headline 3-near-miss / 3-hopeless split holds by count, but **G4''↔G7''
 swap sides**, and the two surviving "solved-in-store" KEEPs (G1'', G9) rest on
 *different* rows than the original named. Goldens GREEN.
+
+---
+
+# RULINGS (user, 2026-08-23)
+
+Recorded verbatim from the user's session ruling; these close this audit's open
+questions and gate the next campaign's pre-registration (E-11):
+
+1. **AMENDED verdicts ADOPTED.** The strict re-audit's KEEP set — **G1'', G9,
+   G7''** with corrected anchors `ace8383c` / `439032fd` / `998ff3a1` — is the
+   audit-filtered goal basis for the next campaign. The original tables remain
+   for the record only.
+2. **G2'': INSTRUMENT FIRST (s22 only).** Measure `s22_max_db` on the store's
+   best recorded dhruva-s topologies (the harness metric already landed on main),
+   then re-audit G2'' under the unchanged pre-declared rule (near-miss iff raw
+   gap ≤ 2.0 dB, ≤ 2 failing objectives). A handful of measurement sims on
+   *already-designed* topologies; not a search campaign.
+3. **G11'': REPLACE outright.** No iip3 storage plumbing; the anchor is
+   9.78 dBm short (>3× threshold) and physically a linearity-class gap. A
+   replacement goal is authored in the E-11 pre-reg and null-filtered at full
+   budget per the 2026-08-22 ruling. G4'' likewise replaced (4.47 dB
+   match-class gap).
+4. **Editor model for generator-as-editor: the adopted main-line v7 generator
+   checkpoint**, used for segment regrowth, declared in the contamination
+   ledger as a cross-line import. No new training for E-11's first
+   pre-registration.

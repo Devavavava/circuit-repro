@@ -1,0 +1,134 @@
+{
+ "campaign": "E-11",
+ "goal": "G7pp",
+ "arm": "c",
+ "seed": 2,
+ "task": "dhruva-l5-t2-a",
+ "delta": "idd_ma <= 9.0 @ s21 >= 22.3 (dhruva-l5)",
+ "ext": {
+  "idd_ma": {
+   "max": 9.0,
+   "status": "measured"
+  },
+  "s21_db": {
+   "min": 22.3,
+   "status": "measured"
+  }
+ },
+ "gtype": "current",
+ "B": 600,
+ "k": 120,
+ "m": 4,
+ "budget_evals": 600,
+ "evals_spent": 600,
+ "ngspice_calls": 1200,
+ "spice_min_total": 0.3002,
+ "stage1_evals": 76,
+ "stage1_spice_min": 0.0412,
+ "stage2_evals": 524,
+ "stage2_spice_min": 0.2591,
+ "survivors": [
+  {
+   "wl": "b58457f674e448ec",
+   "move": "regrow(c=2,len=65)",
+   "s1_obj": 4.38805,
+   "dim": 7,
+   "stage2": {
+    "evals": 131,
+    "best_objective": 1.82629,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "18ea7c9c72eaae1a",
+   "move": "regrow(c=0,len=51)",
+   "s1_obj": 4.43154,
+   "dim": 5,
+   "stage2": {
+    "evals": 131,
+    "best_objective": 2.07209,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "96fe6eab0d09de5a",
+   "move": "regrow(c=0,len=83)",
+   "s1_obj": 6.28839,
+   "dim": 10,
+   "stage2": {
+    "evals": 131,
+    "best_objective": 1.83848,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "f2cc93736216789c",
+   "move": "regrow(c=5,len=80)",
+   "s1_obj": 7.8464,
+   "dim": 9,
+   "stage2": {
+    "evals": 131,
+    "best_objective": 2.08388,
+    "feasible": false
+   }
+  }
+ ],
+ "n_proposed": 1200,
+ "n_realized": 458,
+ "distinct_realized": 76,
+ "distinct_l0": 98,
+ "cut_depth_histogram": {
+  "0": 22,
+  "2": 25,
+  "5": 13,
+  "8": 5,
+  "12": 5,
+  "16": 1,
+  "19": 1,
+  "22": 2,
+  "26": 1,
+  "31": 2,
+  "35": 2,
+  "39": 2,
+  "43": 4,
+  "45": 5,
+  "47": 29,
+  "51": 33,
+  "55": 23,
+  "57": 19,
+  "59": 32,
+  "63": 28,
+  "66": 26,
+  "76": 51,
+  "80": 46,
+  "83": 41,
+  "86": 42
+ },
+ "regrown_len_stats": {
+  "n": 460,
+  "min": 3,
+  "max": 117,
+  "mean": 28.58
+ },
+ "arm_c_class_token": "<LNA_NB>",
+ "arm_c_torch_seed": 3957224436,
+ "contamination": {
+  "generator_checkpoint": "ft_p5v7_v2.pth (cross-line import, main-adopted)",
+  "arm": "p5",
+  "temperature": 0.7,
+  "max_new_tokens": 256,
+  "cut_rule": "uniform over {0} U device-token positions (c=tokens kept)"
+ },
+ "wall_min": 52.103,
+ "solved": false,
+ "solved_stage": null,
+ "evals_to_solve": null,
+ "spice_min_to_solve": null,
+ "wall_min_to_solve": null,
+ "solve_metrics": null,
+ "edit_seq": null,
+ "n_edits": null,
+ "pythonhashseed": "0",
+ "git_sha": "da1e6c4",
+ "ts": "2026-08-23T06:42:22+00:00"
+}

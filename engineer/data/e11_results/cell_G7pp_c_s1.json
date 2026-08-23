@@ -1,0 +1,132 @@
+{
+ "campaign": "E-11",
+ "goal": "G7pp",
+ "arm": "c",
+ "seed": 1,
+ "task": "dhruva-l5-t2-a",
+ "delta": "idd_ma <= 9.0 @ s21 >= 22.3 (dhruva-l5)",
+ "ext": {
+  "idd_ma": {
+   "max": 9.0,
+   "status": "measured"
+  },
+  "s21_db": {
+   "min": 22.3,
+   "status": "measured"
+  }
+ },
+ "gtype": "current",
+ "B": 600,
+ "k": 120,
+ "m": 4,
+ "budget_evals": 600,
+ "evals_spent": 600,
+ "ngspice_calls": 1200,
+ "spice_min_total": 0.3565,
+ "stage1_evals": 66,
+ "stage1_spice_min": 0.0358,
+ "stage2_evals": 534,
+ "stage2_spice_min": 0.3207,
+ "survivors": [
+  {
+   "wl": "00fed48b42a5ca6a",
+   "move": "regrow(c=0,len=51)",
+   "s1_obj": 4.30683,
+   "dim": 5,
+   "stage2": {
+    "evals": 133,
+    "best_objective": 1.73595,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "34f8d91f9354ae20",
+   "move": "regrow(c=0,len=67)",
+   "s1_obj": 4.33457,
+   "dim": 7,
+   "stage2": {
+    "evals": 133,
+    "best_objective": 1.70248,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "872cd8fa4d148993",
+   "move": "regrow(c=0,len=75)",
+   "s1_obj": 4.39288,
+   "dim": 8,
+   "stage2": {
+    "evals": 133,
+    "best_objective": 1.92518,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "dfbae4fba6774409",
+   "move": "regrow(c=0,len=67)",
+   "s1_obj": 5.70813,
+   "dim": 7,
+   "stage2": {
+    "evals": 135,
+    "best_objective": 2.21761,
+    "feasible": false
+   }
+  }
+ ],
+ "n_proposed": 1200,
+ "n_realized": 459,
+ "distinct_realized": 66,
+ "distinct_l0": 95,
+ "cut_depth_histogram": {
+  "0": 28,
+  "2": 20,
+  "5": 11,
+  "8": 4,
+  "22": 1,
+  "24": 4,
+  "26": 3,
+  "31": 4,
+  "35": 3,
+  "39": 4,
+  "43": 6,
+  "45": 1,
+  "47": 22,
+  "51": 30,
+  "55": 40,
+  "57": 24,
+  "59": 26,
+  "63": 21,
+  "66": 28,
+  "76": 44,
+  "80": 49,
+  "83": 43,
+  "86": 50
+ },
+ "regrown_len_stats": {
+  "n": 466,
+  "min": 3,
+  "max": 138,
+  "mean": 27.95
+ },
+ "arm_c_class_token": "<LNA_NB>",
+ "arm_c_torch_seed": 3147725610,
+ "contamination": {
+  "generator_checkpoint": "ft_p5v7_v2.pth (cross-line import, main-adopted)",
+  "arm": "p5",
+  "temperature": 0.7,
+  "max_new_tokens": 256,
+  "cut_rule": "uniform over {0} U device-token positions (c=tokens kept)"
+ },
+ "wall_min": 54.343,
+ "solved": false,
+ "solved_stage": null,
+ "evals_to_solve": null,
+ "spice_min_to_solve": null,
+ "wall_min_to_solve": null,
+ "solve_metrics": null,
+ "edit_seq": null,
+ "n_edits": null,
+ "pythonhashseed": "0",
+ "git_sha": "da1e6c4",
+ "ts": "2026-08-23T06:44:35+00:00"
+}

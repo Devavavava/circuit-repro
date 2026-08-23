@@ -1,0 +1,139 @@
+{
+ "campaign": "E-11",
+ "goal": "G9",
+ "arm": "c",
+ "seed": 3,
+ "task": "dhruva-l5-t2-a",
+ "delta": "s21_ripple_db <= 3 (dhruva-l5)",
+ "ext": {
+  "s21_ripple_db": {
+   "max": 3.0,
+   "status": "measured"
+  }
+ },
+ "gtype": "band-shape",
+ "B": 1200,
+ "k": 200,
+ "m": 5,
+ "budget_evals": 1200,
+ "evals_spent": 1200,
+ "ngspice_calls": 2400,
+ "spice_min_total": 0.4512,
+ "stage1_evals": 97,
+ "stage1_spice_min": 0.0388,
+ "stage2_evals": 1103,
+ "stage2_spice_min": 0.4124,
+ "survivors": [
+  {
+   "wl": "97194aa4a4e10efe",
+   "move": "regrow(c=0,len=67)",
+   "s1_obj": 4.38805,
+   "dim": 7,
+   "stage2": {
+    "evals": 220,
+    "best_objective": 1.70527,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "5106b59e0bdf2122",
+   "move": "regrow(c=0,len=59)",
+   "s1_obj": 4.44251,
+   "dim": 6,
+   "stage2": {
+    "evals": 220,
+    "best_objective": 2.0489,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "8d92c890fe1ec2b4",
+   "move": "regrow(c=0,len=83)",
+   "s1_obj": 4.55137,
+   "dim": 9,
+   "stage2": {
+    "evals": 220,
+    "best_objective": 2.04043,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "9bc3377540499003",
+   "move": "regrow(c=0,len=69)",
+   "s1_obj": 4.5892,
+   "dim": 7,
+   "stage2": {
+    "evals": 220,
+    "best_objective": 1.85805,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "6e583754d936cc69",
+   "move": "regrow(c=2,len=83)",
+   "s1_obj": 6.39757,
+   "dim": 9,
+   "stage2": {
+    "evals": 223,
+    "best_objective": 1.85196,
+    "feasible": false
+   }
+  }
+ ],
+ "n_proposed": 2000,
+ "n_realized": 708,
+ "distinct_realized": 97,
+ "distinct_l0": 133,
+ "cut_depth_histogram": {
+  "0": 36,
+  "2": 39,
+  "5": 17,
+  "8": 15,
+  "12": 3,
+  "24": 2,
+  "26": 1,
+  "31": 6,
+  "35": 6,
+  "39": 1,
+  "43": 4,
+  "45": 9,
+  "47": 45,
+  "51": 48,
+  "55": 45,
+  "57": 42,
+  "59": 40,
+  "63": 43,
+  "66": 38,
+  "76": 69,
+  "80": 69,
+  "83": 66,
+  "86": 73
+ },
+ "regrown_len_stats": {
+  "n": 717,
+  "min": 3,
+  "max": 124,
+  "mean": 28.28
+ },
+ "arm_c_class_token": "<LNA_NB>",
+ "arm_c_torch_seed": 544995006,
+ "contamination": {
+  "generator_checkpoint": "ft_p5v7_v2.pth (cross-line import, main-adopted)",
+  "arm": "p5",
+  "temperature": 0.7,
+  "max_new_tokens": 256,
+  "cut_rule": "uniform over {0} U device-token positions (c=tokens kept)"
+ },
+ "wall_min": 37.042,
+ "solved": false,
+ "solved_stage": null,
+ "evals_to_solve": null,
+ "spice_min_to_solve": null,
+ "wall_min_to_solve": null,
+ "solve_metrics": null,
+ "edit_seq": null,
+ "n_edits": null,
+ "pythonhashseed": "0",
+ "git_sha": "da1e6c4",
+ "ts": "2026-08-23T09:25:57+00:00"
+}

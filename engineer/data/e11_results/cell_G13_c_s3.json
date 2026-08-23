@@ -1,0 +1,136 @@
+{
+ "campaign": "E-11",
+ "goal": "G13",
+ "arm": "c",
+ "seed": 3,
+ "task": "dhruva-l2-t2-a",
+ "delta": "nf_db <= 1.45 (dhruva-l2)",
+ "ext": {
+  "nf_db": {
+   "max": 1.45,
+   "status": "measured"
+  }
+ },
+ "gtype": "noise",
+ "B": 600,
+ "k": 120,
+ "m": 4,
+ "budget_evals": 600,
+ "evals_spent": 600,
+ "ngspice_calls": 1200,
+ "spice_min_total": 0.2952,
+ "stage1_evals": 75,
+ "stage1_spice_min": 0.036,
+ "stage2_evals": 525,
+ "stage2_spice_min": 0.2592,
+ "survivors": [
+  {
+   "wl": "d65fa94cf04fb0ef",
+   "move": "regrow(c=0,len=81)",
+   "s1_obj": 4.25961,
+   "dim": 7,
+   "stage2": {
+    "evals": 131,
+    "best_objective": 2.03777,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "97194aa4a4e10efe",
+   "move": "regrow(c=0,len=67)",
+   "s1_obj": 4.36413,
+   "dim": 7,
+   "stage2": {
+    "evals": 131,
+    "best_objective": 1.77096,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "01389e803d2e9ff3",
+   "move": "regrow(c=2,len=39)",
+   "s1_obj": 4.40686,
+   "dim": 4,
+   "stage2": {
+    "evals": 131,
+    "best_objective": 2.34284,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "29a3d73599a9e8b7",
+   "move": "regrow(c=2,len=65)",
+   "s1_obj": 4.49562,
+   "dim": 7,
+   "stage2": {
+    "evals": 132,
+    "best_objective": 2.05329,
+    "feasible": false
+   }
+  }
+ ],
+ "n_proposed": 1200,
+ "n_realized": 233,
+ "distinct_realized": 75,
+ "distinct_l0": 91,
+ "cut_depth_histogram": {
+  "0": 10,
+  "2": 16,
+  "5": 28,
+  "8": 9,
+  "11": 4,
+  "14": 3,
+  "20": 1,
+  "42": 1,
+  "46": 1,
+  "59": 4,
+  "66": 2,
+  "70": 3,
+  "80": 3,
+  "82": 2,
+  "84": 1,
+  "94": 1,
+  "126": 1,
+  "138": 1,
+  "150": 1,
+  "161": 1,
+  "164": 8,
+  "173": 1,
+  "176": 5,
+  "180": 3,
+  "184": 4,
+  "187": 4,
+  "190": 29,
+  "193": 25,
+  "196": 23,
+  "199": 20,
+  "202": 22
+ },
+ "regrown_len_stats": {
+  "n": 237,
+  "min": 3,
+  "max": 140,
+  "mean": 39.3
+ },
+ "arm_c_class_token": "<LNA_NB>",
+ "arm_c_torch_seed": 3382425977,
+ "contamination": {
+  "generator_checkpoint": "ft_p5v7_v2.pth (cross-line import, main-adopted)",
+  "arm": "p5",
+  "temperature": 0.7,
+  "max_new_tokens": 256,
+  "cut_rule": "uniform over {0} U device-token positions (c=tokens kept)"
+ },
+ "wall_min": 131.246,
+ "solved": false,
+ "solved_stage": null,
+ "evals_to_solve": null,
+ "spice_min_to_solve": null,
+ "wall_min_to_solve": null,
+ "solve_metrics": null,
+ "edit_seq": null,
+ "n_edits": null,
+ "pythonhashseed": "0",
+ "git_sha": "da1e6c4",
+ "ts": "2026-08-23T08:01:24+00:00"
+}

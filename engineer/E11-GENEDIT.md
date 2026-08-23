@@ -252,3 +252,81 @@ k=120 draws from a FRESH anchor per goal, so the screen is not starved.
 <!-- RESULTS BELOW — appended AFTER the scored run; nothing above this  -->
 <!-- line may be informed by any scored E-11 eval.                      -->
 <!-- ================================================================= -->
+
+## Results (executed 2026-08-23)
+
+Runner `e11_run.py` + aggregator `e11_agg.py` + launcher `e11_orch.sh`;
+54/54 atomic per-cell JSONs at `engineer/data/e11_results/`. PYTHONHASHSEED=0,
+≤ 8 concurrent ngspice throughout (monitor never fired), torch CPU-only with
+per-(goal,arm,seed) sampling seed `sha1(goal|arm|seed)`. Goldens
+`check_ref: GREEN` before first and after last sim. No `lna/` writes; no spec
+yaml edited. Independently re-verified at landing: 54 cells, 0 solved,
+TOTAL = B parity in every cell, 37,800 counted evals (45 × 600 + 9 × 1200),
+75,600 ngspice calls.
+
+### Headline
+
+**Arm A (sizing-only) 0/6 · arm B (primitive two-stage) 0/6 · arm C
+(generator-as-editor) 0/6.** Flat zero across all 54 cells (solved recomputed
+from raw metrics; no stored flag trusted). No solved-seeds, evals-to-first-
+feasible, or winning-edit-sequence entries exist to report. Best arm-C stage-1
+objectives per goal (all short of feasibility): G1'' 3.78, G9 4.32, G7'' 4.31,
+G2'' 3.56, G12 4.32, G13 6.49.
+
+### Spend parity and edit-distribution diagnostics
+
+Arms A/B behaved byte-identically to E-9 (A: s1=0/s2=B; B: s1=k/s2=B−k). Arm C
+filled only 57–104 of k counted L1 probes before the proposal guard tripped;
+unspent stage-1 budget rolled to stage-2 per the D1 clause (e.g. G1''-c
+~67/533, G9-c ~101/1099, G7''-c ~68/532); TOTAL = B exactly in every cell.
+SPICE-minutes: A 10.9 / B 12.5 / C 5.7 (arm-C wall time is dominated by CPU
+token sampling, not simulation). **Distinct realized WLs per C cell: 57–104 —
+the same order as E-9's D1 hand-primitive pools (~40–57).** The generator
+proposes far more raw candidates (~620–1,045 distinct regrown seqs per cell;
+c=0 full-regen used 740×; 97 distinct cut points) but realization collapses
+them to a pool no larger than the hand repertoire's.
+
+### Edit log (ruling honored)
+
+**28,590 rows added** (500 smoke rows → **29,090 total**; arm B 4,299, arm C
+24,291); gate distribution L0 17,112 / realize 7,595 / L1 3,733 / survivor
+150; 14,435 content-addressed sequences under `seqs/`. This is the day-one
+(state → edit → outcome) training substrate for learned move priors.
+
+### Falsifier verdict (§7, applied verbatim)
+
+> *If arm C (generator-as-editor) solves NO goal that arms A and B leave
+> unsolved, the v7-regrowth editor fails at spec-capacity for this goal set,
+> and the ceiling moves to editor training/conditioning — learned move priors
+> trained on the edit log this campaign banked (ROADMAP §7 direction 1), each
+> a future pre-reg.*
+
+Arm C solved 0 goals; C-only solves = none. **FALSIFIER MET — the flat-zero
+sub-reading governs.** With reachability certificates standing on G1'', G9,
+G12, G13 (and near-miss anchors on G7'', G2''), the zero is provably a
+**search-efficiency failure of the untrained v7 editor, not goal
+impossibility**. The v7 generator — trained to emit whole circuits, not to
+*repair* them — does not beat sizing-only or the hand-primitive repertoire at
+spec-capacity. The ceiling now sits at **editor training/conditioning**; the
+banked edit log is the training substrate. Next steps are future
+pre-registrations (learned move priors; goal/spec-conditioned regrowth;
+critic-filtered proposals), each gated on a user ruling.
+
+### Deviations (recorded)
+
+1. **G13 c s1 canary re-run.** First launch was wrapped in `timeout 5400`;
+   arm-C cells need ~2+ h, so the canary was killed cleanly pre-write and
+   re-run untimed under the shared concurrency cap. Its edit-log rows persist
+   (append-only, as designed); no counted sims lost; parity intact.
+2. **`E11_TORCH_THREADS=8` per process** for the fan-out; verified numerically
+   inert (bit-identical samples at fixed seed across thread counts).
+3. One over-broad process-kill attempt during canary cleanup was blocked by
+   the sandbox and replaced with a targeted kill; no collateral.
+
+### Scope limit
+
+This shows only that *untrained, unconditioned* v7 suffix-regrowth at the
+frozen constants, on these six goals at these budgets and seeds, solves
+nothing. It does not bound trained/conditioned editors — that is precisely the
+open lever — nor test infill-style mid-sequence regrowth (needs model
+surgery).

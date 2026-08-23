@@ -205,6 +205,25 @@ pre-authorized, torch CPU-only). Goldens GREEN before/after every landing.
   contrastive design is materially affected (no positives) — user decision
   queued before P2 launches.**
 
+### P1b — BOOSTED BANKING (user ruling 2026-08-24, after the P1 zero-solve deviation)
+
+Re-run the easy tier purely as **training-data generation** (never scoreboard)
+with two changes aimed at the diagnosed causes:
+1. **Anchors = near-miss store designs**: per easy goal, anchor at the
+   base-feasible same-spec store row with the best delta-metric value that
+   still FAILS the delta (nearest non-passing — a pre-solved anchor would bank
+   an empty-edit trivial positive). Anchor choice + residual gap recorded per
+   cell; fall back to the standard anchor (noted) if no such row exists.
+2. **Real survivor budgets**: B=1200, k=120, m=2 → ~540 uninterrupted sizing
+   evals per survivor (vs P1's 120).
+Arms B and C, seeds 1–2, 24 cells (~28.8k counted evals); campaign tag
+`e12-p1b` in the append-only edit log; same containment/goldens/parity
+discipline. Solves here are edit-positives by construction (every survivor is
+an edited topology). If P1b also yields zero positives, that is a major
+finding in its own right (easy targets unreachable even from good anchors with
+540-eval survivor sizing) and P2 proceeds on graded labels with the user
+informed.
+
 ## 12. Open items at GO
 
 1. Approve E1–E6 calibrated targets (§4 rule output).

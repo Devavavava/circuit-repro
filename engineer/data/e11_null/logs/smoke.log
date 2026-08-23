@@ -1,0 +1,71 @@
+Current recursion limit: 1000
+New recursion limit: 9000
+[smoke] anchor=dhruva-s-t2-a wl=f578743ae13296d0 seq_len=181 sha=fc8ed5430639 device_positions=48 class=<LNA_NB> temp=0.7 max_new=256
+{
+ "campaign": "E-11",
+ "phase": "regrowth-smoke",
+ "anchor_task": "dhruva-s-t2-a",
+ "anchor_wl": "f578743ae13296d0",
+ "anchor_seq_sha": "fc8ed5430639452fa9a712af43a57aa788a28035",
+ "anchor_seq_len": 181,
+ "n_device_positions": 48,
+ "frozen_constants": {
+  "generator_checkpoint": "ft_p5v7_v2.pth (cross-line import, main-adopted)",
+  "arm": "p5",
+  "class_token": "<LNA_NB>",
+  "temperature": 0.7,
+  "max_new_tokens": 256,
+  "seed": 1337,
+  "cut_rule": "uniform over {0} U device-token positions (c=tokens kept)",
+  "target_distinct": 50,
+  "max_attempts": 500
+ },
+ "attempts": 500,
+ "distinct_l0_candidates": 46,
+ "l0_pass_count": 112,
+ "l0_pass_rate": 0.224,
+ "realize_pass_count": 110,
+ "realize_pass_rate": 0.22,
+ "realize_rate_of_l0": 0.9821,
+ "cut_depth_histogram": {
+  "0": 6,
+  "2": 9,
+  "5": 11,
+  "8": 3,
+  "11": 2,
+  "17": 1,
+  "101": 1,
+  "111": 2,
+  "121": 1,
+  "125": 1,
+  "131": 3,
+  "138": 1,
+  "144": 1,
+  "147": 2,
+  "151": 4,
+  "157": 1,
+  "160": 3,
+  "163": 4,
+  "166": 11,
+  "169": 15,
+  "172": 8,
+  "175": 10,
+  "178": 12
+ },
+ "regrown_len_stats": {
+  "n": 112,
+  "min": 3,
+  "max": 127,
+  "mean": 35.07
+ },
+ "gate_counts": {
+  "L0_fail": 388,
+  "realize_pass": 110,
+  "realize_fail": 2
+ },
+ "ngspice_calls": 0,
+ "wall_s": 1814.8,
+ "pythonhashseed": "0",
+ "git_sha": "664cabb",
+ "ts": "2026-08-23T05:30:00+00:00"
+}

@@ -200,13 +200,49 @@ from the contained env. Goldens GREEN before first and after last landing.
    count; **0 counted evals** (L0/realize only, no L1). Confirms the v7
    checkpoint emits realizable sequences before the campaign is committed.
 
+### §10.2 + §10.3 RESULTS (executed 2026-08-23, agent eng-e11p; goldens GREEN before/after)
+
+**Null filters: BOTH goals RESISTED — G12 and G13 stay IN the scored set.**
+Arm-A machinery (byte-identical to E-9 arm A), B=600 × seeds 1–3, anchors =
+E-9's reached anchors; cells at `engineer/data/e11_null/`:
+
+| goal | solved | best sizing-only reach | gap to delta |
+|---|---|---|---|
+| G12 (s11_max ≤ −15, dhruva-l5) | 0/3 | −11.29 dB (s3) | 3.71 dB |
+| G13 (nf ≤ 1.45, dhruva-l2) | 0/3 | 1.71 dB (s2/s3) | 0.26 dB |
+
+7,200 ngspice calls (3,600 counted evals). One runner race (shared STATUS temp
+file) was fixed per-PID; the two affected cells crashed before any sim and were
+re-run — no sims wasted.
+
+**Regrowth smoke: the v7 checkpoint DOES prefix-conditioned continuation**, no
+modification to `lna/` or the AnalogGenie clone (loaded via
+`finetune.ext_vocab("p5")`/`load_ft` — extended 1008-token p5 vocab; NOT
+`genie_common.load_model`). Anchor: dhruva-s reached anchor wl `f578743a`
+(181-token seq, 48 device-token positions). **Frozen sampling constants** (from
+the main line's own `finetune.sample` defaults): temperature **0.7**,
+max_new_tokens **256**, class token `<LNA_NB>`, seed 1337; cut depth uniform
+over {0} ∪ device-token positions. Outcome: stopped at the **500-attempt cap
+with 46 distinct L0-passers** (short of the 50 target); L0-pass 22.4%
+(112/500), realize-pass-of-L0 98.2%; regrown length 3–127 tokens (mean 35.1);
+cut-depth histogram bimodal (shallow c∈{0,2,5,8} and near-end c∈166–178
+dominate). **0 ngspice calls.** All 500 proposals logged to the §3 edit log
+(`edits.jsonl` + 423 content-addressed seqs) — the durable-logging ruling is in
+effect from proposal #1. Caveat carried into §7 interpretation: distinct-
+candidate yield from ONE anchor is bounded (46/500), echoing E-9's D1
+pool-size finding — but 46 distinct model-proposed candidates per anchor
+exceeds the ~40–57-candidate hand-primitive pools D1 measured, and stage-1
+k=120 draws from a FRESH anchor per goal, so the screen is not starved.
+
 ## 11. Open items at GO
 
 1. ~~Confirm the §4 goal set once the G2'' verdict lands~~ — RESOLVED: verdict
    NEAR-MISS, G2'' in; goal set = G1'', G9, G7'', G2'', G12, G13.
-2. Confirm G12/G13 targets (−15 dB / 1.45 dB, store-arithmetic-derived above).
-3. Confirm arm C sampling constants (temperature, max regrown length) after the
-   §10.3 smoke — recorded in the runner, frozen at GO.
+2. Confirm G12/G13 targets (−15 dB / 1.45 dB) — both RESISTED the full-budget
+   null (§10.2 results above), so both are validly sizing-resistant as authored.
+3. Confirm arm C sampling constants — now measured (§10.3): temperature 0.7,
+   max_new_tokens 256, `<LNA_NB>` class token, cut uniform over {0} ∪
+   device-token positions; frozen at GO.
 
 <!-- ================================================================= -->
 <!-- RESULTS BELOW — appended AFTER the scored run; nothing above this  -->

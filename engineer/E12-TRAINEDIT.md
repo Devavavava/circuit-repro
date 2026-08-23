@@ -1,6 +1,10 @@
 # E12-TRAINEDIT — trained editors: learned priors + spec-conditioned regrowth (pre-registration DRAFT)
 
-**Status: DRAFT — awaiting user GO.** Engineer line (ROADMAP §7 direction 1;
+**Status: GO (user, 2026-08-23) — phases execute sequentially with review
+between (P0+P1 → P2 → P3); §12 open items resolve by the pre-registered rules,
+outputs recorded before the P3 freeze. FRESH task ruled: 5G n78 LNA,
+3.4–3.6 GHz, 50 Ω source, dhruva-class power/NF limits (band-transfer axis;
+ism58 excluded as main-touched).** Engineer line (ROADMAP §7 direction 1;
 E-11 falsifier destination). All standing governance carries forward:
 goldens-green before/after every landing, engineer never writes under `lna/`,
 append-only stores and edit log, matched TOTAL budgets, user rulings for any

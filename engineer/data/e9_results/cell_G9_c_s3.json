@@ -1,0 +1,75 @@
+{
+ "goal": "G9",
+ "arm": "c",
+ "seed": 3,
+ "task": "dhruva-l5-t2-a",
+ "delta": "s21_ripple_db <= 3 (dhruva-l5); anchor 15.18",
+ "ext": {
+  "s21_ripple_db": {
+   "max": 3.0,
+   "status": "measured"
+  }
+ },
+ "gtype": "band-shape",
+ "B": 1200,
+ "k": 200,
+ "m": 5,
+ "budget_evals": 1200,
+ "evals_spent": 1200,
+ "ngspice_calls": 2400,
+ "spice_min_total": 0.233,
+ "stage1_evals": 40,
+ "stage1_spice_min": 0.01,
+ "stage2_evals": 1160,
+ "stage2_spice_min": 0.223,
+ "n_candidates_screened": null,
+ "survivors": [
+  {
+   "wl": "3d3eb2eaa6ca266c",
+   "move": "p4_insert_series_element(tank)",
+   "s1_obj": 9.97465
+  },
+  {
+   "wl": "faad2d4d7d57326d",
+   "move": "p4_insert_series_element(tank)",
+   "s1_obj": 12.25513
+  },
+  {
+   "wl": "3520e82f7d2028e2",
+   "move": "p5_insert_parallel_element(tank)",
+   "s1_obj": 14.2656
+  },
+  {
+   "wl": "40552efcd6492a08",
+   "move": "p5_insert_parallel_element(tank)",
+   "s1_obj": 14.79733
+  },
+  {
+   "wl": "b7b6eda519bc2c01",
+   "move": "p5_insert_parallel_element(tank)",
+   "s1_obj": 14.91445
+  }
+ ],
+ "blame_extra_sims": 9,
+ "iip3_extra_sim_s": 0.0,
+ "n_iip3_probes": 0,
+ "wall_min": 1.155,
+ "solved": false,
+ "solved_stage": null,
+ "evals_to_solve": null,
+ "spice_min_to_solve": null,
+ "wall_min_to_solve": null,
+ "solve_metrics": null,
+ "edit_seq": null,
+ "n_edits": null,
+ "diagnosis": {
+  "binding_metric": "s21_ripple_db",
+  "verdict": "single",
+  "blame_devices": [],
+  "blame_coverage": "partial",
+  "n_failing": 1
+ },
+ "pythonhashseed": "0",
+ "git_sha": "d244fe6",
+ "ts": "2026-08-22T06:44:53+00:00"
+}

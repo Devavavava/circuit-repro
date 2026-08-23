@@ -1,0 +1,65 @@
+{
+ "goal": "G11pp",
+ "arm": "c",
+ "seed": 1,
+ "task": "dhruva-l5-t2-a",
+ "delta": "iip3_dbm >= -7.4 dBm TASK-LEVEL tier-3 (dhruva-l5); anchor -17.18",
+ "ext": {
+  "iip3_dbm": {
+   "min": -7.4,
+   "status": "measured"
+  }
+ },
+ "gtype": "linearity",
+ "B": 600,
+ "k": 60,
+ "m": 3,
+ "budget_evals": 600,
+ "evals_spent": 600,
+ "ngspice_calls": 1200,
+ "spice_min_total": 0.3061,
+ "stage1_evals": 60,
+ "stage1_spice_min": 0.0212,
+ "stage2_evals": 540,
+ "stage2_spice_min": 0.2849,
+ "n_candidates_screened": null,
+ "survivors": [
+  {
+   "wl": "851e585ddae7cf97",
+   "move": "p1_add_device_of_type@aim",
+   "s1_obj": 13.36432
+  },
+  {
+   "wl": "ef9f734d9ee3e73b",
+   "move": "p7_reconnect_terminal@aim",
+   "s1_obj": 13.96217
+  },
+  {
+   "wl": "3520e82f7d2028e2",
+   "move": "p5_insert_parallel_element@aim",
+   "s1_obj": 14.2656
+  }
+ ],
+ "blame_extra_sims": 0,
+ "iip3_extra_sim_s": 531.23,
+ "n_iip3_probes": 25,
+ "wall_min": 9.534,
+ "solved": false,
+ "solved_stage": null,
+ "evals_to_solve": null,
+ "spice_min_to_solve": null,
+ "wall_min_to_solve": null,
+ "solve_metrics": null,
+ "edit_seq": null,
+ "n_edits": null,
+ "diagnosis": {
+  "binding_metric": "iip3_dbm",
+  "verdict": "single",
+  "blame_devices": [],
+  "blame_coverage": "unavailable",
+  "n_failing": 1
+ },
+ "pythonhashseed": "0",
+ "git_sha": "d244fe6",
+ "ts": "2026-08-22T06:56:14+00:00"
+}

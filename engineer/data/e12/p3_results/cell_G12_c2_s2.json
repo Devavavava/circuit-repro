@@ -1,0 +1,134 @@
+{
+ "campaign": "e12-p3",
+ "goal": "G12",
+ "arm": "c2",
+ "seed": 2,
+ "task": "dhruva-l5-t2-a",
+ "delta": "s11_max_db <= -15 band-wide (dhruva-l5) [DEV]",
+ "ext": {
+  "s11_max_db": {
+   "max": -15.0,
+   "status": "measured"
+  }
+ },
+ "gtype": "match",
+ "B": 600,
+ "k": 120,
+ "m": 4,
+ "budget_evals": 600,
+ "evals_spent": 600,
+ "ngspice_calls": 1200,
+ "spice_min_total": 0.2412,
+ "stage1_evals": 55,
+ "stage1_spice_min": 0.0234,
+ "stage2_evals": 545,
+ "stage2_spice_min": 0.2178,
+ "survivors": [
+  {
+   "wl": "f875d597e9e420f0",
+   "move": "regrow(c=0,len=33)",
+   "s1_obj": 4.15423,
+   "dim": 3,
+   "stage2": {
+    "evals": 136,
+    "best_objective": 2.30675,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "a23b35d4b84abb92",
+   "move": "regrow(c=8,len=97)",
+   "s1_obj": 4.71265,
+   "dim": 11,
+   "stage2": {
+    "evals": 136,
+    "best_objective": 2.30966,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "ecf82b21026dba98",
+   "move": "regrow(c=2,len=102)",
+   "s1_obj": 5.71272,
+   "dim": 11,
+   "stage2": {
+    "evals": 136,
+    "best_objective": 2.19163,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "e5bcdedb2c97aa4f",
+   "move": "regrow(c=0,len=45)",
+   "s1_obj": 6.32769,
+   "dim": 5,
+   "stage2": {
+    "evals": 137,
+    "best_objective": 2.13869,
+    "feasible": false
+   }
+  }
+ ],
+ "n_proposed": 1200,
+ "n_realized": 571,
+ "distinct_realized": 55,
+ "distinct_l0": 64,
+ "cut_depth_histogram": {
+  "0": 30,
+  "2": 24,
+  "5": 8,
+  "8": 9,
+  "26": 2,
+  "45": 1,
+  "47": 47,
+  "51": 54,
+  "55": 41,
+  "57": 37,
+  "59": 44,
+  "63": 44,
+  "66": 48,
+  "76": 52,
+  "80": 47,
+  "83": 42,
+  "86": 42
+ },
+ "regrown_len_stats": {
+  "n": 572,
+  "min": 3,
+  "max": 220,
+  "mean": 32.92
+ },
+ "arm_c_class_token": "<LNA_NB>",
+ "arm_c_torch_seed": 2603949572,
+ "contamination": {
+  "generator_checkpoint": "editor_c2.pth",
+  "arm": "c2",
+  "temperature": 0.7,
+  "max_new_tokens": 256,
+  "cut_rule": "uniform over {0} U device-token positions (c=tokens kept)"
+ },
+ "wall_min": 35.435,
+ "solved": false,
+ "solved_stage": null,
+ "evals_to_solve": null,
+ "spice_min_to_solve": null,
+ "wall_min_to_solve": null,
+ "solve_metrics": null,
+ "edit_seq": null,
+ "n_edits": null,
+ "pythonhashseed": "0",
+ "git_sha": "ed9a6dfa",
+ "ts": "2026-08-24T05:15:06+00:00",
+ "scoreboard": true,
+ "tier": "DEV",
+ "no_early_stop": true,
+ "editor_checkpoint": "/home/dpatni/circuit-repro-engineer/engineer/out_editor/editor_c2.pth",
+ "editor_vocab": 1024,
+ "c2_spec_prefix": [
+  "<NF_B>",
+  "<GAIN_B>",
+  "<MATCH_A>",
+  "<IDD_B>"
+ ],
+ "c2_prefix_rule": "documented public rule: dhruva-s BASE_LIMITS c2_bin; goal-target design (meets every base limit, tightened metric -> goal target)"
+}

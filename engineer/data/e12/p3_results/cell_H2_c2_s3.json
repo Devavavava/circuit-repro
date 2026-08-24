@@ -1,0 +1,166 @@
+{
+ "campaign": "e12-p3",
+ "goal": "H2",
+ "arm": "c2",
+ "seed": 3,
+ "task": "dhruva-l1-t2-a",
+ "delta": "nf_db <= 1.25 (dhruva-l1) [HELD-OUT]",
+ "ext": {
+  "nf_db": {
+   "max": 1.25,
+   "status": "measured"
+  }
+ },
+ "gtype": "noise",
+ "B": 600,
+ "k": 120,
+ "m": 4,
+ "budget_evals": 600,
+ "evals_spent": 600,
+ "ngspice_calls": 1200,
+ "spice_min_total": 0.24,
+ "stage1_evals": 83,
+ "stage1_spice_min": 0.0362,
+ "stage2_evals": 517,
+ "stage2_spice_min": 0.2038,
+ "survivors": [
+  {
+   "wl": "72c5824f81482b38",
+   "move": "regrow(c=2,len=47)",
+   "s1_obj": 5.20311,
+   "dim": 5,
+   "stage2": {
+    "evals": 129,
+    "best_objective": 2.43456,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "ee5cdb8f340a7235",
+   "move": "regrow(c=0,len=65)",
+   "s1_obj": 7.38173,
+   "dim": 7,
+   "stage2": {
+    "evals": 129,
+    "best_objective": 2.28781,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "6f0d080f91dfc642",
+   "move": "regrow(c=8,len=177)",
+   "s1_obj": 8.40553,
+   "dim": 17,
+   "stage2": {
+    "evals": 129,
+    "best_objective": 1.22207,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "ce39a77c91974013",
+   "move": "regrow(c=5,len=174)",
+   "s1_obj": 8.40629,
+   "dim": 16,
+   "stage2": {
+    "evals": 130,
+    "best_objective": 2.518,
+    "feasible": false
+   }
+  }
+ ],
+ "n_proposed": 1200,
+ "n_realized": 887,
+ "distinct_realized": 83,
+ "distinct_l0": 160,
+ "cut_depth_histogram": {
+  "0": 8,
+  "2": 24,
+  "5": 21,
+  "8": 17,
+  "11": 20,
+  "14": 15,
+  "17": 21,
+  "20": 17,
+  "24": 16,
+  "28": 13,
+  "30": 5,
+  "32": 12,
+  "42": 21,
+  "46": 10,
+  "53": 15,
+  "59": 19,
+  "66": 13,
+  "70": 17,
+  "74": 12,
+  "77": 16,
+  "80": 15,
+  "82": 23,
+  "84": 17,
+  "94": 19,
+  "97": 19,
+  "113": 18,
+  "117": 20,
+  "122": 14,
+  "126": 16,
+  "130": 18,
+  "134": 23,
+  "138": 16,
+  "142": 18,
+  "146": 18,
+  "150": 20,
+  "154": 15,
+  "157": 17,
+  "161": 23,
+  "164": 22,
+  "173": 17,
+  "176": 15,
+  "180": 27,
+  "184": 20,
+  "187": 26,
+  "190": 29,
+  "193": 25,
+  "196": 23,
+  "199": 20,
+  "202": 22
+ },
+ "regrown_len_stats": {
+  "n": 887,
+  "min": 3,
+  "max": 205,
+  "mean": 83.64
+ },
+ "arm_c_class_token": "<LNA_NB>",
+ "arm_c_torch_seed": 1060189627,
+ "contamination": {
+  "generator_checkpoint": "editor_c2.pth",
+  "arm": "c2",
+  "temperature": 0.7,
+  "max_new_tokens": 256,
+  "cut_rule": "uniform over {0} U device-token positions (c=tokens kept)"
+ },
+ "wall_min": 92.146,
+ "solved": false,
+ "solved_stage": null,
+ "evals_to_solve": null,
+ "spice_min_to_solve": null,
+ "wall_min_to_solve": null,
+ "solve_metrics": null,
+ "edit_seq": null,
+ "n_edits": null,
+ "pythonhashseed": "0",
+ "git_sha": "ed9a6dfa",
+ "ts": "2026-08-24T08:04:20+00:00",
+ "scoreboard": true,
+ "tier": "HELD-OUT",
+ "no_early_stop": true,
+ "editor_checkpoint": "/home/dpatni/circuit-repro-engineer/engineer/out_editor/editor_c2.pth",
+ "editor_vocab": 1024,
+ "c2_spec_prefix": [
+  "<NF_A>",
+  "<GAIN_B>",
+  "<MATCH_B>",
+  "<IDD_B>"
+ ],
+ "c2_prefix_rule": "documented public rule: dhruva-s BASE_LIMITS c2_bin; goal-target design (meets every base limit, tightened metric -> goal target)"
+}

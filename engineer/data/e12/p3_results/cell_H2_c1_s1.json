@@ -1,0 +1,149 @@
+{
+ "campaign": "e12-p3",
+ "goal": "H2",
+ "arm": "c1",
+ "seed": 1,
+ "task": "dhruva-l1-t2-a",
+ "delta": "nf_db <= 1.25 (dhruva-l1) [HELD-OUT]",
+ "ext": {
+  "nf_db": {
+   "max": 1.25,
+   "status": "measured"
+  }
+ },
+ "gtype": "noise",
+ "B": 600,
+ "k": 120,
+ "m": 4,
+ "budget_evals": 600,
+ "evals_spent": 600,
+ "ngspice_calls": 1200,
+ "spice_min_total": 0.2474,
+ "stage1_evals": 98,
+ "stage1_spice_min": 0.0411,
+ "stage2_evals": 502,
+ "stage2_spice_min": 0.2064,
+ "survivors": [
+  {
+   "wl": "342383465e09bd5a",
+   "move": "regrow(c=11,len=112)",
+   "s1_obj": 3.23953,
+   "dim": 12,
+   "stage2": {
+    "evals": 125,
+    "best_objective": 2.43965,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "01389e803d2e9ff3",
+   "move": "regrow(c=2,len=39)",
+   "s1_obj": 4.08791,
+   "dim": 4,
+   "stage2": {
+    "evals": 125,
+    "best_objective": 2.4292,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "54faaeacc28ef390",
+   "move": "regrow(c=2,len=45)",
+   "s1_obj": 4.1101,
+   "dim": 5,
+   "stage2": {
+    "evals": 125,
+    "best_objective": 2.41805,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "e979a82dd189e4b7",
+   "move": "regrow(c=0,len=59)",
+   "s1_obj": 4.14285,
+   "dim": 6,
+   "stage2": {
+    "evals": 127,
+    "best_objective": 1.88248,
+    "feasible": false
+   }
+  }
+ ],
+ "n_proposed": 1200,
+ "n_realized": 279,
+ "distinct_realized": 98,
+ "distinct_l0": 118,
+ "cut_depth_histogram": {
+  "0": 14,
+  "2": 27,
+  "5": 18,
+  "8": 10,
+  "11": 6,
+  "14": 3,
+  "17": 3,
+  "20": 1,
+  "24": 2,
+  "30": 5,
+  "42": 1,
+  "46": 4,
+  "53": 5,
+  "59": 1,
+  "66": 2,
+  "70": 6,
+  "80": 2,
+  "82": 1,
+  "84": 1,
+  "117": 2,
+  "122": 2,
+  "126": 5,
+  "130": 2,
+  "134": 2,
+  "138": 2,
+  "142": 3,
+  "146": 1,
+  "157": 1,
+  "164": 12,
+  "173": 2,
+  "176": 2,
+  "180": 2,
+  "184": 6,
+  "187": 5,
+  "190": 19,
+  "193": 26,
+  "196": 29,
+  "199": 27,
+  "202": 22
+ },
+ "regrown_len_stats": {
+  "n": 284,
+  "min": 3,
+  "max": 123,
+  "mean": 38.11
+ },
+ "arm_c_class_token": "<LNA_NB>",
+ "arm_c_torch_seed": 2850015193,
+ "contamination": {
+  "generator_checkpoint": "editor_c1.pth",
+  "arm": "c1",
+  "temperature": 0.7,
+  "max_new_tokens": 256,
+  "cut_rule": "uniform over {0} U device-token positions (c=tokens kept)"
+ },
+ "wall_min": 76.856,
+ "solved": false,
+ "solved_stage": null,
+ "evals_to_solve": null,
+ "spice_min_to_solve": null,
+ "wall_min_to_solve": null,
+ "solve_metrics": null,
+ "edit_seq": null,
+ "n_edits": null,
+ "pythonhashseed": "0",
+ "git_sha": "ed9a6dfa",
+ "ts": "2026-08-24T06:32:05+00:00",
+ "scoreboard": true,
+ "tier": "HELD-OUT",
+ "no_early_stop": true,
+ "editor_checkpoint": "/home/dpatni/circuit-repro-engineer/engineer/out_editor/editor_c1.pth",
+ "editor_vocab": 1008
+}

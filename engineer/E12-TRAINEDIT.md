@@ -291,3 +291,84 @@ convention — manifests + scripts + fixed seeds make them reproducible).
 <!-- RESULTS BELOW — appended AFTER the scored run; nothing above this  -->
 <!-- line may be informed by any scored E-12 eval.                      -->
 <!-- ================================================================= -->
+
+## P3 Results (scored transfer campaign, executed 2026-08-24)
+
+Runner `e12_p3.py` (arms A/B byte-identical to E-11; C1/C2 route the trained
+checkpoints through the same two-stage path; no-early-stop scoreboard variant,
+verified) + `e12_p3_orch.sh` + aggregator `e12_p3_agg.py`. 60/60 atomic cells
+at `engineer/data/e12/p3_results/`; independently re-verified at landing:
+**TOTAL = B parity in all 60 cells, solves recomputed from raw metrics,
+`lna/` untouched, edit log append-only (61,443 `e12-p3` rows; 128,479
+total).** Standard E-9 anchors; C2 per-goal spec-bin prefixes recorded in each
+cell. ~39,600 counted evals. Goldens GREEN before first and after last sim.
+
+### Headline (solves per arm, split DEV / HELD-OUT / FRESH)
+
+| arm | DEV (5 goals) | HELD-OUT (G1'', H2) | FRESH (GN78) |
+|---|---|---|---|
+| A (sizing-only; banked for DEV+G1'') | 0 | 0 | **1 (GN78 s2, 202 evals)** |
+| B (primitives; banked for DEV+G1'') | 0 | 0 | 0 |
+| **C1 (contrastive priors)** | 0 | 0 | 0 |
+| **C2 (spec-conditioned)** | 0 | 0 | 0 |
+
+**Neither trained editor solved any goal, anywhere.** The campaign's only
+solve is the FRESH goal GN78 falling to the *sizing-only baseline* — GN78 was
+never null-filtered (only fresh-task A/B baselines were pre-registered), so it
+turned out not to be sizing-resistant and cannot count toward any arm's
+transfer claim by construction.
+
+### Pool-widening diagnostics (distinct realized topologies per cell, vs banked untrained arm-C)
+
+| goal | untrained v7 (banked mean) | C1 | C2 |
+|---|---:|---:|---:|
+| G2'' | 69.0 | 95.0 | **120.0 (screen cap)** |
+| G13 | 71.3 | 95.3 | 83.7 |
+| G9 | 100.7 | 107.7 | 95.7 |
+| G7'' | 68.0 | 69.0 | 61.3 |
+| G12 | 65.7 | 68.0 | 65.7 |
+| G1'' | 64.3 | 91.0 | 75.7 |
+| H2 | — | 95.7 | 77.0 |
+| GN78 | — | 92.3 | **120.0 (screen cap)** |
+
+Training materially widened the realized-candidate pools on most goals (C2
+fills the entire k=120 screen on two goals; the P2 smoke's 3× L0-rate gain
+carries into scored cells) — but wider pools produced zero additional solves.
+
+### §8 falsifier (applied verbatim)
+
+> *If neither C1 nor C2 solves any HELD-OUT or FRESH goal that its A/B
+> baselines leave unsolved, then editor training at this data scale fails the
+> transfer bar — regardless of DEV results — and the next levers are
+> infill-style regrowth and/or retrieval/memory, each its own pre-reg.*
+
+C1 and C2 solved nothing on HELD-OUT or FRESH (or DEV). **FALSIFIER MET.**
+The governing sub-reading is **"flat zero with pool widening"**: training
+moved the D1 realization bottleneck (measurably, on most goals) but not far
+enough to convert proposals into solves — which per §8 argues for **data
+scale (more banking tiers) before architecture surgery**, with the
+memorization reading not applicable (no DEV solves either). The secondary
+observation stands on its own: proposal *quantity/validity* is no longer the
+binding constraint on the widened goals — selection (the unsized L1 probe)
+and edit *quality* now are.
+
+### Deviations
+
+1. GN78 not sizing-resistant (fell to arm A at 202 evals) — a null-filter gap
+   in the pre-registration (FRESH had A/B baselines but no pre-filter);
+   recorded, and GN78 is excluded from any transfer claim by the falsifier's
+   own bar.
+2. Setup-phase relaunches (early-stop patch; orchestrator worker-count fix) —
+   caught before any solve, no counted cells lost (agent report; verified
+   60/60 parity).
+3. C1/C2 edit-log rows carry internal arm="c"; the authoritative c1/c2 split
+   is in the per-cell JSONs and campaign tag.
+
+### Scope limit
+
+This bounds only *these* two training signals at *this* data scale (216
+positives for C1; 2,488 conditioned store labels for C2) under suffix-only
+regrowth and the one-probe L1 screen, on these goals and budgets. The banked
+positives now exist and grow with every campaign; scaled banking, a
+trained/critic-based screen, and infill regrowth are distinct future levers,
+each its own pre-reg.

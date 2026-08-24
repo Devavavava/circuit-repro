@@ -1,0 +1,130 @@
+{
+ "campaign": "e12-p3",
+ "goal": "G12",
+ "arm": "c1",
+ "seed": 3,
+ "task": "dhruva-l5-t2-a",
+ "delta": "s11_max_db <= -15 band-wide (dhruva-l5) [DEV]",
+ "ext": {
+  "s11_max_db": {
+   "max": -15.0,
+   "status": "measured"
+  }
+ },
+ "gtype": "match",
+ "B": 600,
+ "k": 120,
+ "m": 4,
+ "budget_evals": 600,
+ "evals_spent": 600,
+ "ngspice_calls": 1200,
+ "spice_min_total": 0.2262,
+ "stage1_evals": 64,
+ "stage1_spice_min": 0.0249,
+ "stage2_evals": 536,
+ "stage2_spice_min": 0.2013,
+ "survivors": [
+  {
+   "wl": "1dfa747341cd4d62",
+   "move": "regrow(c=0,len=45)",
+   "s1_obj": 4.18662,
+   "dim": 4,
+   "stage2": {
+    "evals": 134,
+    "best_objective": 1.89584,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "00fed48b42a5ca6a",
+   "move": "regrow(c=0,len=51)",
+   "s1_obj": 4.30683,
+   "dim": 5,
+   "stage2": {
+    "evals": 134,
+    "best_objective": 1.71114,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "e39c67efdac68842",
+   "move": "regrow(c=0,len=45)",
+   "s1_obj": 4.31302,
+   "dim": 4,
+   "stage2": {
+    "evals": 134,
+    "best_objective": 2.07911,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "8ce3ed10ea5cb608",
+   "move": "regrow(c=2,len=57)",
+   "s1_obj": 4.31551,
+   "dim": 6,
+   "stage2": {
+    "evals": 134,
+    "best_objective": 1.9962,
+    "feasible": false
+   }
+  }
+ ],
+ "n_proposed": 1200,
+ "n_realized": 520,
+ "distinct_realized": 64,
+ "distinct_l0": 94,
+ "cut_depth_histogram": {
+  "0": 29,
+  "2": 36,
+  "5": 19,
+  "8": 14,
+  "12": 2,
+  "22": 1,
+  "24": 3,
+  "31": 2,
+  "45": 1,
+  "47": 28,
+  "51": 32,
+  "55": 36,
+  "57": 42,
+  "59": 34,
+  "63": 37,
+  "66": 28,
+  "76": 51,
+  "80": 38,
+  "83": 42,
+  "86": 52
+ },
+ "regrown_len_stats": {
+  "n": 527,
+  "min": 3,
+  "max": 101,
+  "mean": 28.07
+ },
+ "arm_c_class_token": "<LNA_NB>",
+ "arm_c_torch_seed": 267116430,
+ "contamination": {
+  "generator_checkpoint": "editor_c1.pth",
+  "arm": "c1",
+  "temperature": 0.7,
+  "max_new_tokens": 256,
+  "cut_rule": "uniform over {0} U device-token positions (c=tokens kept)"
+ },
+ "wall_min": 24.341,
+ "solved": false,
+ "solved_stage": null,
+ "evals_to_solve": null,
+ "spice_min_to_solve": null,
+ "wall_min_to_solve": null,
+ "solve_metrics": null,
+ "edit_seq": null,
+ "n_edits": null,
+ "pythonhashseed": "0",
+ "git_sha": "ed9a6dfa",
+ "ts": "2026-08-24T04:59:13+00:00",
+ "scoreboard": true,
+ "tier": "DEV",
+ "no_early_stop": true,
+ "editor_checkpoint": "/home/dpatni/circuit-repro-engineer/engineer/out_editor/editor_c1.pth",
+ "editor_vocab": 1008
+}

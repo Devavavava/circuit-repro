@@ -1,0 +1,140 @@
+{
+ "campaign": "e12-p3",
+ "goal": "GN78",
+ "arm": "c1",
+ "seed": 3,
+ "task": "n78-t2-a",
+ "delta": "nf_db <= 1.6 (n78, 3.4-3.6 GHz) [FRESH]",
+ "ext": {
+  "nf_db": {
+   "max": 1.6,
+   "status": "measured"
+  }
+ },
+ "gtype": "noise",
+ "B": 600,
+ "k": 120,
+ "m": 4,
+ "budget_evals": 600,
+ "evals_spent": 600,
+ "ngspice_calls": 1200,
+ "spice_min_total": 0.2725,
+ "stage1_evals": 97,
+ "stage1_spice_min": 0.0426,
+ "stage2_evals": 503,
+ "stage2_spice_min": 0.2299,
+ "survivors": [
+  {
+   "wl": "f578743ae13296d0",
+   "move": "regrow(c=169,len=12)",
+   "s1_obj": 2.04541,
+   "dim": 18,
+   "stage2": {
+    "evals": 125,
+    "best_objective": 1.27201,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "7bdbcd9e16727497",
+   "move": "regrow(c=147,len=26)",
+   "s1_obj": 2.54262,
+   "dim": 20,
+   "stage2": {
+    "evals": 125,
+    "best_objective": 1.23879,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "c3c1c19753fa103e",
+   "move": "regrow(c=0,len=49)",
+   "s1_obj": 2.73432,
+   "dim": 4,
+   "stage2": {
+    "evals": 125,
+    "best_objective": 1.72196,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "01389e803d2e9ff3",
+   "move": "regrow(c=2,len=39)",
+   "s1_obj": 3.04813,
+   "dim": 4,
+   "stage2": {
+    "evals": 128,
+    "best_objective": 2.01288,
+    "feasible": false
+   }
+  }
+ ],
+ "n_proposed": 1200,
+ "n_realized": 266,
+ "distinct_realized": 97,
+ "distinct_l0": 117,
+ "cut_depth_histogram": {
+  "0": 10,
+  "2": 25,
+  "5": 27,
+  "8": 11,
+  "11": 1,
+  "14": 6,
+  "17": 8,
+  "20": 2,
+  "28": 1,
+  "37": 1,
+  "44": 1,
+  "63": 1,
+  "65": 1,
+  "108": 1,
+  "121": 5,
+  "125": 1,
+  "131": 3,
+  "135": 3,
+  "138": 6,
+  "144": 3,
+  "147": 5,
+  "151": 7,
+  "157": 4,
+  "160": 9,
+  "163": 9,
+  "166": 29,
+  "169": 25,
+  "172": 23,
+  "175": 20,
+  "178": 22
+ },
+ "regrown_len_stats": {
+  "n": 270,
+  "min": 3,
+  "max": 118,
+  "mean": 32.7
+ },
+ "arm_c_class_token": "<LNA_NB>",
+ "arm_c_torch_seed": 3981430537,
+ "contamination": {
+  "generator_checkpoint": "editor_c1.pth",
+  "arm": "c1",
+  "temperature": 0.7,
+  "max_new_tokens": 256,
+  "cut_rule": "uniform over {0} U device-token positions (c=tokens kept)"
+ },
+ "wall_min": 70.255,
+ "solved": false,
+ "solved_stage": null,
+ "evals_to_solve": null,
+ "spice_min_to_solve": null,
+ "wall_min_to_solve": null,
+ "solve_metrics": null,
+ "edit_seq": null,
+ "n_edits": null,
+ "pythonhashseed": "0",
+ "git_sha": "ed9a6dfa",
+ "ts": "2026-08-24T08:00:52+00:00",
+ "scoreboard": true,
+ "tier": "FRESH",
+ "no_early_stop": true,
+ "editor_checkpoint": "/home/dpatni/circuit-repro-engineer/engineer/out_editor/editor_c1.pth",
+ "editor_vocab": 1008
+}

@@ -121,3 +121,87 @@ No new model training (E-13c/b are separate); no spec/threshold/total-budget cha
 <!-- RESULTS BELOW — appended AFTER the scored run; nothing above this  -->
 <!-- line may be informed by any scored E-13a eval.                     -->
 <!-- ================================================================= -->
+
+## RESULTS (scored, executed 2026-08-24, this session; goldens GREEN before + after)
+
+30/30 cells at `engineer/data/e13/a_results/`. **Parity clean: all 30 cells spent
+exactly B=600 counted evals (0 parity failures); solves recomputed from raw
+`ext_feasible` metrics, not trusted flags.** m=4 column = banked P3 primary-arm cells
+(reused, not re-run). `lna/` untouched.
+
+### Headline — solves + best sized objective per goal per m
+
+`best_objective` = the CMA-ES scalar (see structural finding below: it measures
+distance to **base**-spec feasibility, not to the goal's delta). Lower = better.
+
+| goal | arm | m=1 (best obj / solves) | m=2 | m=4 (P3 banked) |
+|---|---|---|---|---|
+| GN78 | b  | **SOLVED** −1.486 / **1/3** (307 evals, 0.056 SPICE-min) | **SOLVED** −1.001 / **1/3** | +1.008 / 0/3 |
+| H2   | b  | +1.124 / 0/3 | +1.309 / 0/3 | +1.025 / 0/3 |
+| G13  | c2 | +1.944 / 0/3 | −0.771 / 0/3 | +1.011 / 0/3 |
+| G1'' | c2 | +2.362 / 0/3 | +2.093 / 0/3 | +1.054 / 0/3 |
+| G2'' | c2 | −0.911 / 0/3 | −0.705 / 0/3 | +1.134 / 0/3 |
+
+**Real solves (ext_feasible = base AND delta): GN78 only, at m=1 and m=2.** GN78 is the
+FRESH goal that was NOT null-filtered (pre-reg §2 note) — it carries NO transfer claim by
+construction. The four transfer-relevant near-misses (H2 held-out, G13/G1''/G2'' DEV):
+**0 solves at every m**, same as P3.
+
+### Structural finding (uncovered during verification — supersedes the §5 frame)
+
+The two-stage sizer's CMA-ES minimizes `env.evaluate(action="size")["objective"]`, which is
+`size.make_objective(body, spec, …)` built over the **BASE spec** (`engineer/env.py:386`;
+`engineer/e11_run.py:166-168`). **The goal's delta metric (`ext_s`) is NEVER in the sizing
+objective** — it is only checked opportunistically in the solve callback
+(`e11_run.py:346`, `ext_feasible`). Therefore `best_objective` is distance-to-**base**-
+feasibility, not distance-to-delta.
+
+Evidence: G13 m=2 and G2'' m=1 reached strongly **base-feasible** designs (obj −0.77 / −0.91)
+that STILL failed their delta (nf≤1.45 / s22≤−10) → not solved. GN78's loose delta (nf≤1.6)
+was incidentally satisfied by a base-feasible design → solved. Concentration produced
+**better base designs** (GN78 converted; G13/G2'' base-obj driven negative), NOT
+delta-satisfying ones.
+
+**Reframed cluster reading:** the audit's "near-miss cluster" is *base-feasible-but-delta-
+unmet*; the "far-miss cluster" (G9/G7''/G12, audit base-obj ~1.7) is *base-INfeasible*. The
+original zero-sim audit read per-dB "near-miss margins" off `best_objective`, so it measured
+base-feasibility margin, not delta margin — treat that per-dB framing as superseded.
+
+### §5 falsifier — verdict
+
+Literally **NOT met**: a near-miss (GN78) WAS converted to a solve by concentration, so
+budget re-allocation is not inert. But that win is on the transfer-excluded goal; the four
+transfer-relevant near-misses did not convert, and verification shows WHY — their delta
+metric is absent from the sizing objective. This is a **THIRD outcome outside the
+pre-registered budget-vs-screen sub-readings**: an objective-specification gap in the
+two-stage machinery, not a budget or a screening property. Budget concentration is therefore
+neither confirmed nor killed as a lever for delta goals — it is simply **not the operative
+knob** while the delta is outside the objective.
+
+### Implied next levers (each its own pre-reg + GO)
+
+1. **Delta-aware sizing objective (cheapest, most direct):** put the goal's delta metric into
+   the CMA-ES objective (weighted term or constrained formulation) so sizing actually
+   optimizes toward the near-miss target. Directly re-testable on this same 5-goal set.
+2. **E-13b topology selection (critic):** for goals where the anchor topology cannot meet
+   base AND delta jointly, select topologies that can.
+3. **Retrospective to confirm:** this objective gap is shared byte-identical across
+   E-9 / E-11 / E-12 / E-13 (same two-stage machinery) → a plausible contributor to their
+   flat-zero delta-goal results. Worth a zero-sim confirmation before the next build.
+
+### Deviations (recorded)
+
+1. **Thread-oversubscription wedge (first c2 launch).** The initial orchestration launched all
+   18 c2 cells concurrently; each PyTorch worker span 34 threads (≈600 threads on 28 cores,
+   load 34), and after ~80 min **zero** c2 cells had recorded any eval (`ng_total=0`, no atomic
+   result written — no counted evals lost). Killed and relaunched at **≤6 concurrent** with
+   `OMP_NUM_THREADS=4`, which also brings the run into the §7 ≤8-ngspice guard (the first launch
+   had violated it). The 12 b-arm cells (GN78/H2) completed in the first launch, unaffected.
+2. GN78 not sizing-resistant / not a transfer claim — carried over from the E-12 P3
+   null-filter gap; recorded, excluded from any transfer bar.
+
+### Scope
+
+Bounds budget re-allocation on these 5 goals only. The delta-absent-from-objective result is a
+**code-level fact** (verified); its effect on past campaigns is an **inference** to confirm
+separately.

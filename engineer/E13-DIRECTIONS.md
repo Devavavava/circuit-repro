@@ -83,7 +83,20 @@ itself prove a good candidate was screened out (that needs re-sizing sims).
   (b) DISAMBIGUATE budget-starvation from bad-screening: if concentrating budget on the
   top-L1-screened survivor helps → budget lever; if it HURTS vs spreading → the `[0.5]^d`
   screen is misranking → selection lever. Cheapest run, no new model, likely first scored
-  solve. **Pre-reg: E13A-BUDGET.md (this session). GO'd by user 2026-08-24.**
+  solve. **Pre-reg: E13A-BUDGET.md (this session). GO'd by user 2026-08-24. SCORED
+  2026-08-24 — see E13A-BUDGET.md RESULTS.** Outcome reframed the problem: only GN78
+  (transfer-excluded) converted; the 4 transfer near-misses stayed 0. Verification
+  found the real cause — **the two-stage sizer optimizes the BASE spec objective only;
+  the goal's delta metric is never in the CMA-ES objective** (env.py:386,
+  e11_run.py:166-168 vs the opportunistic ext_feasible check at :346). So `best_objective`
+  = distance-to-base-feasible, not to the delta; the "near-miss cluster" is really
+  *base-feasible-but-delta-unmet*, the "far-miss cluster" is *base-infeasible*. This gap
+  is shared byte-identical across E-9/E-11/E-12/E-13.
+- **E-13d — delta-aware sizing objective (NEW, promoted to cheapest next lever by E-13a).**
+  Put the goal's delta metric into the CMA-ES objective (weighted/constrained) so sizing
+  actually optimizes toward the near-miss target instead of hoping a base-feasible design
+  lands there by luck. Directly re-testable on the same 5-goal set; likely the highest-EV
+  structural fix. NEEDS OWN PRE-REG + GO.
 - **E-13c — learned starting-sizing regressor.** Train `x0 = f(topology, spec)` on the
   store's `(topology, spec) → best_params` pairs (thousands of labels already exist);
   warm-start optimization from it instead of the midpoint. Directly attacks the near-miss

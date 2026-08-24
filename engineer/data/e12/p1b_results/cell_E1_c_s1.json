@@ -1,0 +1,118 @@
+{
+ "campaign": "e12-p1b",
+ "goal": "E1",
+ "arm": "c",
+ "seed": 1,
+ "task": "dhruva-s-t2-a",
+ "delta": "s21_db >= 30.5 (dhruva-s) [EASY/P1b]",
+ "ext": {
+  "s21_db": {
+   "min": 30.5,
+   "status": "measured"
+  }
+ },
+ "gtype": "gain",
+ "B": 1200,
+ "k": 120,
+ "m": 2,
+ "budget_evals": 1200,
+ "evals_spent": 1200,
+ "ngspice_calls": 2400,
+ "spice_min_total": 0.4821,
+ "stage1_evals": 76,
+ "stage1_spice_min": 0.0334,
+ "stage2_evals": 1124,
+ "stage2_spice_min": 0.4487,
+ "survivors": [
+  {
+   "wl": "01389e803d2e9ff3",
+   "move": "regrow(c=2,len=39)",
+   "s1_obj": 3.56027,
+   "dim": 4,
+   "stage2": {
+    "evals": 562,
+    "best_objective": 2.01443,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "b4dc4c6551d11821",
+   "move": "regrow(c=0,len=71)",
+   "s1_obj": 3.56363,
+   "dim": 7,
+   "stage2": {
+    "evals": 562,
+    "best_objective": 1.99932,
+    "feasible": false
+   }
+  }
+ ],
+ "n_proposed": 1200,
+ "n_realized": 292,
+ "distinct_realized": 76,
+ "distinct_l0": 99,
+ "cut_depth_histogram": {
+  "0": 14,
+  "2": 20,
+  "5": 19,
+  "8": 4,
+  "11": 5,
+  "14": 2,
+  "18": 9,
+  "21": 1,
+  "55": 1,
+  "101": 3,
+  "109": 4,
+  "113": 6,
+  "120": 1,
+  "127": 10,
+  "131": 10,
+  "135": 9,
+  "141": 7,
+  "145": 8,
+  "152": 35,
+  "156": 24,
+  "159": 26,
+  "162": 24,
+  "165": 28,
+  "168": 25
+ },
+ "regrown_len_stats": {
+  "n": 295,
+  "min": 3,
+  "max": 115,
+  "mean": 34.35
+ },
+ "arm_c_class_token": "<LNA_NB>",
+ "arm_c_torch_seed": 2968898498,
+ "contamination": {
+  "generator_checkpoint": "ft_p5v7_v2.pth (cross-line import, main-adopted)",
+  "arm": "p5",
+  "temperature": 0.7,
+  "max_new_tokens": 256,
+  "cut_rule": "uniform over {0} U device-token positions (c=tokens kept)"
+ },
+ "wall_min": 82.484,
+ "solved": false,
+ "solved_stage": null,
+ "evals_to_solve": null,
+ "spice_min_to_solve": null,
+ "wall_min_to_solve": null,
+ "solve_metrics": null,
+ "edit_seq": null,
+ "n_edits": null,
+ "pythonhashseed": "0",
+ "git_sha": "aa351035",
+ "ts": "2026-08-23T23:04:43+00:00",
+ "scoreboard": false,
+ "anchor": {
+  "kind": "near_miss",
+  "wl": "a528c786eb085ab1",
+  "ts": "2026-08-10T08:05:59+00:00",
+  "reeval_delta": 30.1582,
+  "residual_gap": 0.3418,
+  "stored_delta": 30.1582,
+  "n_evals_recorded": 0,
+  "fallback_reason": null
+ }
+}

@@ -1,0 +1,122 @@
+{
+ "campaign": "e12-p1b",
+ "goal": "E3",
+ "arm": "c",
+ "seed": 1,
+ "task": "dhruva-l2-t2-a",
+ "delta": "nf_db <= 1.9 (dhruva-l2) [EASY/P1b]",
+ "ext": {
+  "nf_db": {
+   "max": 1.9,
+   "status": "measured"
+  }
+ },
+ "gtype": "noise",
+ "B": 1200,
+ "k": 120,
+ "m": 2,
+ "budget_evals": 1200,
+ "evals_spent": 1200,
+ "ngspice_calls": 2400,
+ "spice_min_total": 0.4822,
+ "stage1_evals": 67,
+ "stage1_spice_min": 0.0276,
+ "stage2_evals": 1133,
+ "stage2_spice_min": 0.4545,
+ "survivors": [
+  {
+   "wl": "b6e93031caa6118f",
+   "move": "regrow(c=184,len=38)",
+   "s1_obj": 3.6733,
+   "dim": 24,
+   "stage2": {
+    "evals": 566,
+    "best_objective": 2.24315,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "e39c67efdac68842",
+   "move": "regrow(c=0,len=45)",
+   "s1_obj": 4.27425,
+   "dim": 4,
+   "stage2": {
+    "evals": 567,
+    "best_objective": 2.07708,
+    "feasible": false
+   }
+  }
+ ],
+ "n_proposed": 1200,
+ "n_realized": 222,
+ "distinct_realized": 67,
+ "distinct_l0": 80,
+ "cut_depth_histogram": {
+  "0": 9,
+  "2": 18,
+  "5": 21,
+  "8": 6,
+  "11": 3,
+  "14": 2,
+  "30": 2,
+  "46": 4,
+  "53": 1,
+  "66": 2,
+  "70": 4,
+  "74": 1,
+  "80": 1,
+  "82": 1,
+  "84": 1,
+  "94": 1,
+  "142": 1,
+  "164": 8,
+  "173": 4,
+  "176": 2,
+  "180": 2,
+  "184": 6,
+  "187": 2,
+  "190": 19,
+  "193": 26,
+  "196": 29,
+  "199": 27,
+  "202": 22
+ },
+ "regrown_len_stats": {
+  "n": 225,
+  "min": 3,
+  "max": 123,
+  "mean": 36.16
+ },
+ "arm_c_class_token": "<LNA_NB>",
+ "arm_c_torch_seed": 2948658926,
+ "contamination": {
+  "generator_checkpoint": "ft_p5v7_v2.pth (cross-line import, main-adopted)",
+  "arm": "p5",
+  "temperature": 0.7,
+  "max_new_tokens": 256,
+  "cut_rule": "uniform over {0} U device-token positions (c=tokens kept)"
+ },
+ "wall_min": 72.377,
+ "solved": false,
+ "solved_stage": null,
+ "evals_to_solve": null,
+ "spice_min_to_solve": null,
+ "wall_min_to_solve": null,
+ "solve_metrics": null,
+ "edit_seq": null,
+ "n_edits": null,
+ "pythonhashseed": "0",
+ "git_sha": "aa351035",
+ "ts": "2026-08-23T22:54:44+00:00",
+ "scoreboard": false,
+ "anchor": {
+  "kind": "fallback_standard",
+  "wl": "439032fd40e7e504",
+  "ts": "2026-08-10T07:55:06+00:00",
+  "reeval_delta": null,
+  "residual_gap": null,
+  "stored_delta": null,
+  "n_evals_recorded": null,
+  "fallback_reason": "no base-feasible same-spec store row that fails the delta on re-eval"
+ }
+}

@@ -1,0 +1,123 @@
+{
+ "campaign": "e12-p1b",
+ "goal": "E6",
+ "arm": "c",
+ "seed": 1,
+ "task": "dhruva-l5-t2-a",
+ "delta": "idd_ma <= 12 (dhruva-l5) [EASY/P1b]",
+ "ext": {
+  "idd_ma": {
+   "max": 12.0,
+   "status": "measured"
+  }
+ },
+ "gtype": "current",
+ "B": 1200,
+ "k": 120,
+ "m": 2,
+ "budget_evals": 1200,
+ "evals_spent": 1200,
+ "ngspice_calls": 2400,
+ "spice_min_total": 0.4468,
+ "stage1_evals": 83,
+ "stage1_spice_min": 0.0373,
+ "stage2_evals": 1117,
+ "stage2_spice_min": 0.4095,
+ "survivors": [
+  {
+   "wl": "97194aa4a4e10efe",
+   "move": "regrow(c=0,len=67)",
+   "s1_obj": 4.38805,
+   "dim": 7,
+   "stage2": {
+    "evals": 558,
+    "best_objective": 1.68251,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "01389e803d2e9ff3",
+   "move": "regrow(c=2,len=39)",
+   "s1_obj": 4.44992,
+   "dim": 4,
+   "stage2": {
+    "evals": 559,
+    "best_objective": 2.26179,
+    "feasible": false
+   }
+  }
+ ],
+ "n_proposed": 1200,
+ "n_realized": 279,
+ "distinct_realized": 83,
+ "distinct_l0": 96,
+ "cut_depth_histogram": {
+  "0": 14,
+  "2": 13,
+  "5": 16,
+  "8": 2,
+  "11": 2,
+  "14": 3,
+  "17": 1,
+  "20": 3,
+  "125": 2,
+  "129": 2,
+  "137": 1,
+  "141": 1,
+  "144": 1,
+  "160": 7,
+  "163": 4,
+  "167": 9,
+  "171": 2,
+  "174": 4,
+  "180": 3,
+  "183": 15,
+  "187": 6,
+  "191": 13,
+  "194": 20,
+  "197": 20,
+  "200": 24,
+  "203": 25,
+  "206": 18,
+  "209": 24,
+  "212": 27
+ },
+ "regrown_len_stats": {
+  "n": 282,
+  "min": 3,
+  "max": 131,
+  "mean": 30.17
+ },
+ "arm_c_class_token": "<LNA_NB>",
+ "arm_c_torch_seed": 806571260,
+ "contamination": {
+  "generator_checkpoint": "ft_p5v7_v2.pth (cross-line import, main-adopted)",
+  "arm": "p5",
+  "temperature": 0.7,
+  "max_new_tokens": 256,
+  "cut_rule": "uniform over {0} U device-token positions (c=tokens kept)"
+ },
+ "wall_min": 79.758,
+ "solved": false,
+ "solved_stage": null,
+ "evals_to_solve": null,
+ "spice_min_to_solve": null,
+ "wall_min_to_solve": null,
+ "solve_metrics": null,
+ "edit_seq": null,
+ "n_edits": null,
+ "pythonhashseed": "0",
+ "git_sha": "aa351035",
+ "ts": "2026-08-24T00:24:34+00:00",
+ "scoreboard": false,
+ "anchor": {
+  "kind": "near_miss",
+  "wl": "ace8383c2fa68d03",
+  "ts": "2026-08-10T12:04:26+00:00",
+  "reeval_delta": 12.0941,
+  "residual_gap": 0.0941,
+  "stored_delta": 12.0941,
+  "n_evals_recorded": 674,
+  "fallback_reason": null
+ }
+}

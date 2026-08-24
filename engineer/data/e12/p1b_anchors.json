@@ -1,0 +1,174 @@
+{
+  "campaign": "e12-p1b",
+  "phase": "P1b anchor resolution",
+  "ngspice_calls": 8,
+  "anchors": {
+    "E1": {
+      "goal": {
+        "task": "dhruva-s-t2-a",
+        "spec": "dhruva-s",
+        "metric": "s21_db",
+        "cmp": "min",
+        "target": 30.5
+      },
+      "chosen_anchor": {
+        "kind": "near_miss",
+        "wl": "a528c786eb085ab1",
+        "ts": "2026-08-10T08:05:59+00:00",
+        "reeval_delta": 30.1582,
+        "residual_gap": 0.3418,
+        "stored_delta": 30.1582,
+        "n_evals_recorded": 0
+      },
+      "candidates_tried": [
+        {
+          "wl": "a528c786eb085ab1",
+          "ts": "2026-08-10T08:05:59+00:00",
+          "stored_delta": 30.1582,
+          "reeval_delta": 30.1582,
+          "reeval_base_feasible": true,
+          "reeval_passes_delta": false,
+          "ngspice": 2,
+          "n_evals_recorded": 0
+        }
+      ],
+      "n_near_miss_candidates": 2
+    },
+    "E2": {
+      "goal": {
+        "task": "dhruva-s-t2-a",
+        "spec": "dhruva-s",
+        "metric": "s22_max_db",
+        "cmp": "max",
+        "target": -3.5
+      },
+      "chosen_anchor": {
+        "kind": "fallback_standard",
+        "wl": "f578743ae13296d0",
+        "ts": "2026-08-10T10:57:01+00:00",
+        "reeval_delta": null,
+        "residual_gap": null,
+        "stored_delta": null,
+        "n_evals_recorded": null,
+        "fallback_reason": "no base-feasible same-spec store row that fails the delta on re-eval"
+      },
+      "candidates_tried": [],
+      "n_near_miss_candidates": 0
+    },
+    "E3": {
+      "goal": {
+        "task": "dhruva-l2-t2-a",
+        "spec": "dhruva-l2",
+        "metric": "nf_db",
+        "cmp": "max",
+        "target": 1.9
+      },
+      "chosen_anchor": {
+        "kind": "fallback_standard",
+        "wl": "439032fd40e7e504",
+        "ts": "2026-08-10T07:55:06+00:00",
+        "reeval_delta": null,
+        "residual_gap": null,
+        "stored_delta": null,
+        "n_evals_recorded": null,
+        "fallback_reason": "no base-feasible same-spec store row that fails the delta on re-eval"
+      },
+      "candidates_tried": [],
+      "n_near_miss_candidates": 0
+    },
+    "E4": {
+      "goal": {
+        "task": "dhruva-l2-t2-a",
+        "spec": "dhruva-l2",
+        "metric": "s21_db",
+        "cmp": "min",
+        "target": 26.0
+      },
+      "chosen_anchor": {
+        "kind": "near_miss",
+        "wl": "86d5ce252054a160",
+        "ts": "2026-08-10T08:02:19+00:00",
+        "reeval_delta": 25.3755,
+        "residual_gap": 0.6245,
+        "stored_delta": 25.3755,
+        "n_evals_recorded": 856
+      },
+      "candidates_tried": [
+        {
+          "wl": "86d5ce252054a160",
+          "ts": "2026-08-10T08:02:19+00:00",
+          "stored_delta": 25.3755,
+          "reeval_delta": 25.3755,
+          "reeval_base_feasible": true,
+          "reeval_passes_delta": false,
+          "ngspice": 2,
+          "n_evals_recorded": 856
+        }
+      ],
+      "n_near_miss_candidates": 1
+    },
+    "E5": {
+      "goal": {
+        "task": "dhruva-l5-t2-a",
+        "spec": "dhruva-l5",
+        "metric": "s11_max_db",
+        "cmp": "max",
+        "target": -11.0
+      },
+      "chosen_anchor": {
+        "kind": "near_miss",
+        "wl": "e82f6ea37a9c482f",
+        "ts": "2026-08-10T11:15:01+00:00",
+        "reeval_delta": -10.2745,
+        "residual_gap": 0.7255,
+        "stored_delta": -10.2744,
+        "n_evals_recorded": 1184
+      },
+      "candidates_tried": [
+        {
+          "wl": "e82f6ea37a9c482f",
+          "ts": "2026-08-10T11:15:01+00:00",
+          "stored_delta": -10.2744,
+          "reeval_delta": -10.2745,
+          "reeval_base_feasible": true,
+          "reeval_passes_delta": false,
+          "ngspice": 2,
+          "n_evals_recorded": 1184
+        }
+      ],
+      "n_near_miss_candidates": 27
+    },
+    "E6": {
+      "goal": {
+        "task": "dhruva-l5-t2-a",
+        "spec": "dhruva-l5",
+        "metric": "idd_ma",
+        "cmp": "max",
+        "target": 12.0
+      },
+      "chosen_anchor": {
+        "kind": "near_miss",
+        "wl": "ace8383c2fa68d03",
+        "ts": "2026-08-10T12:04:26+00:00",
+        "reeval_delta": 12.0941,
+        "residual_gap": 0.0941,
+        "stored_delta": 12.0941,
+        "n_evals_recorded": 674
+      },
+      "candidates_tried": [
+        {
+          "wl": "ace8383c2fa68d03",
+          "ts": "2026-08-10T12:04:26+00:00",
+          "stored_delta": 12.0941,
+          "reeval_delta": 12.0941,
+          "reeval_base_feasible": true,
+          "reeval_passes_delta": false,
+          "ngspice": 2,
+          "n_evals_recorded": 674
+        }
+      ],
+      "n_near_miss_candidates": 28
+    }
+  },
+  "note": "near-miss = base-feasible same-spec store row with best delta value that still fails; base-feasibility recomputed from raw metrics; anchor re-evaluated to verify base-feasible AND not-passing before use; fallback = standard reached *-t2-a anchor."
+}

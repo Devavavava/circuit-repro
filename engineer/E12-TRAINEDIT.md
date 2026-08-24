@@ -224,6 +224,38 @@ finding in its own right (easy targets unreachable even from good anchors with
 540-eval survivor sizing) and P2 proceeds on graded labels with the user
 informed.
 
+### P1b RESULTS (executed 2026-08-24, agent eng-e12b; landed after independent verification)
+
+**Banking yield: 9 solves / 24 cells — the positive class exists.** 16,464
+rows appended (campaign `e12-p1b`; log total 66,547). All 9 solving
+trajectories are **single-edit** solutions; per goal (arm B / arm C seeds):
+
+| goal | anchor (kind, wl, residual gap) | solves | notes |
+|---|---|---|---|
+| E1 | near-miss `a528c786` (0.34 dB) | b:2/2, c:0/2 | solve@966/510 evals |
+| E2 | **fallback standard** `f578743a` | b:2/2, **c:2/2** | the untrained v7 editor's first solves ever (843/912 evals); no near-miss row existed — bigger survivor budgets alone rescued this goal |
+| E3 | fallback standard `439032fd` | 0/4 | only fully-unsolved goal (nf delta) |
+| E4 | near-miss `86d5ce25` (0.62 dB) | b:1/2, c:0/2 | |
+| E5 | near-miss `e82f6ea3` (0.73 dB) | b:1/2, c:0/2 | |
+| E6 | near-miss `ace8383c` (0.094 mA) | b:1/2, c:0/2 | solve@135 evals |
+
+- Anchor rule outcome: near-miss anchors found for E1/E4/E5/E6; E2/E3 had no
+  base-feasible same-spec row failing the delta on re-eval → recorded fallback
+  to the standard anchor.
+- **Deviation (recorded): early-stop on solve.** Four solved arm-B cells
+  stopped after the first survivor's sizing run (120+540 = 660 evals spent,
+  not 1200). Legitimate for non-scoreboard banking (post-solve sims buy
+  nothing); all unsolved cells spent structure per plan. These cells carry
+  `scoreboard: false`.
+- Reading: both diagnosed causes are confirmed independently — near-miss
+  anchors turned E1/E4/E5/E6 solvable (arm B), and survivor budget alone
+  turned E2 solvable (both arms, standard anchor). Arm C solved only E2
+  (2/12 cells vs arm B 7/12): even with good anchors and budgets, untrained
+  regrowth remains the weaker proposal distribution — consistent with E-11,
+  and exactly the gap P2 training targets. E3 (nf) resisted everything and is
+  flagged.
+- Goldens GREEN before/after; `lna/` untouched; edit log append-only verified.
+
 ## 12. Open items at GO
 
 1. Approve E1–E6 calibrated targets (§4 rule output).

@@ -1,0 +1,91 @@
+{
+ "campaign": "e12-p1b",
+ "goal": "E2",
+ "arm": "b",
+ "seed": 2,
+ "task": "dhruva-s-t2-a",
+ "delta": "s22_max_db <= -3.5 (dhruva-s) [EASY/P1b]",
+ "ext": {
+  "s22_max_db": {
+   "max": -3.5,
+   "status": "measured"
+  }
+ },
+ "gtype": "match",
+ "B": 1200,
+ "k": 120,
+ "m": 2,
+ "budget_evals": 1200,
+ "evals_spent": 1200,
+ "ngspice_calls": 2400,
+ "spice_min_total": 0.5148,
+ "stage1_evals": 120,
+ "stage1_spice_min": 0.0544,
+ "stage2_evals": 1080,
+ "stage2_spice_min": 0.4604,
+ "survivors": [
+  {
+   "wl": "296107d9d52e1563",
+   "move": "p1_add_device_of_type",
+   "s1_obj": 2.34279,
+   "dim": 19,
+   "stage2": {
+    "evals": 540,
+    "best_objective": 1.28665,
+    "feasible": false
+   }
+  },
+  {
+   "wl": "a72b3a8c8f373321",
+   "move": "p4_insert_series_element",
+   "s1_obj": 2.37599,
+   "dim": 19,
+   "stage2": {
+    "evals": 540,
+    "best_objective": -1.00142,
+    "feasible": true
+   }
+  }
+ ],
+ "n_proposed": 168,
+ "n_realized": 168,
+ "distinct_realized": 120,
+ "distinct_l0": null,
+ "cut_depth_histogram": null,
+ "regrown_len_stats": null,
+ "arm_c_class_token": null,
+ "arm_c_torch_seed": null,
+ "contamination": null,
+ "wall_min": 1.387,
+ "solved": true,
+ "solved_stage": "s2",
+ "evals_to_solve": 929,
+ "spice_min_to_solve": 0.3995,
+ "wall_min_to_solve": 1.2701,
+ "solve_metrics": {
+  "s21_db": 32.689,
+  "s21_ripple_db": 2.371699999999997,
+  "idd_ma": 12.4966,
+  "nf_db": 2.73291,
+  "s11_max_db": -13.1243,
+  "s22_max_db": -3.59004
+ },
+ "edit_seq": [
+  "p4_insert_series_element"
+ ],
+ "n_edits": 1,
+ "pythonhashseed": "0",
+ "git_sha": "aa351035",
+ "ts": "2026-08-23T23:16:07+00:00",
+ "scoreboard": false,
+ "anchor": {
+  "kind": "fallback_standard",
+  "wl": "f578743ae13296d0",
+  "ts": "2026-08-10T10:57:01+00:00",
+  "reeval_delta": null,
+  "residual_gap": null,
+  "stored_delta": null,
+  "n_evals_recorded": null,
+  "fallback_reason": "no base-feasible same-spec store row that fails the delta on re-eval"
+ }
+}

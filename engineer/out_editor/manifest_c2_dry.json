@@ -1,0 +1,99 @@
+{
+ "checkpoint": "C2",
+ "kind": "spec-conditioned regrowth",
+ "dry_run": true,
+ "out_ckpt": null,
+ "warm_from": "/home/dpatni/circuit-repro/lna/out/ft_p5v7_v2.pth",
+ "warm_from_sha1": "874423050def4b8e9521ff9d76e82890dd1eac68",
+ "vocab_size": 1024,
+ "class_token": "<LNA_NB>",
+ "vocab_extension": {
+  "base_p5_vocab": 1008,
+  "new_spec_tokens": [
+   "<NF_A>",
+   "<NF_B>",
+   "<NF_C>",
+   "<NF_D>",
+   "<GAIN_A>",
+   "<GAIN_B>",
+   "<GAIN_C>",
+   "<GAIN_D>",
+   "<MATCH_A>",
+   "<MATCH_B>",
+   "<MATCH_C>",
+   "<MATCH_D>",
+   "<IDD_A>",
+   "<IDD_B>",
+   "<IDD_C>",
+   "<IDD_D>"
+  ],
+  "how": "appended AFTER the 3 p5 class tokens; v7 checkpoint loaded via finetune._load_warm which mean-initializes the 16 new embedding + lm_head rows; upstream 1005 + p5 class ids untouched"
+ },
+ "store": "/home/dpatni/circuit-repro-engineer/lna/data/topo_labels.jsonl",
+ "store_sha1": "66b5df95cbcf2b49e9386ee825edd2bf6a6b73a2",
+ "store_rows_total": 4076,
+ "binning_rule": {
+  "metrics": {
+   "NF": {
+    "key": "nf_db",
+    "sense": "max",
+    "base_limit": 3.5
+   },
+   "GAIN": {
+    "key": "s21_db",
+    "sense": "min",
+    "base_limit": 30.0
+   },
+   "MATCH": {
+    "key": "s11_max_db",
+    "sense": "max",
+    "base_limit": -10.0
+   },
+   "IDD": {
+    "key": "idd_ma",
+    "sense": "max",
+    "base_limit": 13.0
+   }
+  },
+  "classes": "A strong-pass / B pass / C near-miss / D fail",
+  "rule": "sense=max: A val<=lim-0.5|lim|; B val<=lim; C val<=lim+|lim|; D else. sense=min: mirror. |lim| floored at 1.0 when lim==0. Derived from dhruva-s BASE spec limits; NO per-goal tuning.",
+  "prefix_order": [
+   "NF",
+   "GAIN",
+   "MATCH",
+   "IDD"
+  ],
+  "proposal_time": "evaluation goal's own bin prefix; the C2 smoke uses the dhruva-s bin prefix"
+ },
+ "loss": "unweighted cross-entropy over graph tokens; class + spec-prefix tokens masked to IGNORE (conditioning, not targets)",
+ "counts": {
+  "kept": 2488,
+  "train_rows": 2240,
+  "val_rows": 248
+ },
+ "exclusions_applied": {
+  "store_rows_excl_l1": 1534,
+  "store_rows_excl_goal": 50,
+  "store_rows_no_tokens": 4,
+  "excluded_topologies_union": 213
+ },
+ "hyperparams": {
+  "epochs_requested": 1,
+  "lr": 3e-05,
+  "batch": 32,
+  "seed": 1337,
+  "early_stop": "val rose >=1 epoch past best",
+  "ckpt_policy": "best-val"
+ },
+ "history_train_val": [
+  [
+   0.6230259167296546,
+   0.3755437172949314
+  ]
+ ],
+ "best_val": 0.3755437172949314,
+ "best_epoch": 0,
+ "pythonhashseed": "0",
+ "ngspice_calls": 0,
+ "ts": "2026-08-24T00:46:20+00:00"
+}

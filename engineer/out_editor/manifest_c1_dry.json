@@ -1,0 +1,60 @@
+{
+ "checkpoint": "C1",
+ "kind": "contrastive edit priors",
+ "dry_run": true,
+ "out_ckpt": null,
+ "warm_from": "/home/dpatni/circuit-repro/lna/out/ft_p5v7_v2.pth",
+ "warm_from_sha1": "874423050def4b8e9521ff9d76e82890dd1eac68",
+ "vocab_size": 1008,
+ "class_token": "<LNA_NB>",
+ "edit_log": "/home/dpatni/circuit-repro-engineer/engineer/data/e11_edit_log/edits.jsonl",
+ "edit_log_sha1": "5a43c751a8f3e4e23113b836cae77fb35454f36c",
+ "edit_log_rows_total": 66547,
+ "positive_def": "gate==survivor & stage2.feasible (9 e12-p1b solves) OR gate==survivor & stage2.best_objective < l1_objective",
+ "negative_def": "gate==L0 (L0/realize failures), sampled",
+ "armB_primitive_edits": "included as positives -- arm-B moves are stored as the same (anchor_seq_sha,cut_depth,regrown_tokens_sha) sequence pairs, no separate primitive encoding needed",
+ "loss": "per-row weighted cross-entropy; row loss = mean token CE over non-prefix tokens; batch loss = sum(w_i*row_ce_i)/sum(w_i). Prefix (kept anchor) tokens masked to IGNORE => train only the regrown suffix given the anchor prefix.",
+ "weights": {
+  "W_POS": 3.0,
+  "W_NEG": 0.3,
+  "neg_per_pos": 3
+ },
+ "counts": {
+  "positives_total": 216,
+  "solves": 9,
+  "improved_survivors": 207,
+  "negatives_pool": 36976,
+  "train_rows": 340,
+  "train_pos": 85,
+  "train_neg": 255,
+  "val_rows": 48,
+  "val_pos": 12,
+  "val_neg": 36
+ },
+ "exclusions_applied": {
+  "by_line": 8794,
+  "by_realized_wl": 3157,
+  "by_seq_sha": 0,
+  "l1_ban_log_lines": 8794,
+  "l1_ban_store_topos": 210
+ },
+ "hyperparams": {
+  "epochs_requested": 1,
+  "lr": 3e-05,
+  "batch": 32,
+  "seed": 1337,
+  "early_stop": "val rose >=1 epoch past best",
+  "ckpt_policy": "best-val"
+ },
+ "history_train_val": [
+  [
+   0.24070228229869495,
+   0.25754454731941223
+  ]
+ ],
+ "best_val": 0.25754454731941223,
+ "best_epoch": 0,
+ "pythonhashseed": "0",
+ "ngspice_calls": 0,
+ "ts": "2026-08-24T00:43:39+00:00"
+}

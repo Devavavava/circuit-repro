@@ -256,6 +256,29 @@ trajectories are **single-edit** solutions; per goal (arm B / arm C seeds):
   flagged.
 - Goldens GREEN before/after; `lna/` untouched; edit log append-only verified.
 
+### P2 RESULTS (executed 2026-08-24, agent eng-e12c; zero ngspice; goldens GREEN at both ends)
+
+Both editors trained from v7 (CPU, ~30 min total; checkpoints
+`engineer/out_editor/editor_c{1,2}.pth`, gitignored per the repo's `*.pth`
+convention — manifests + scripts + fixed seeds make them reproducible).
+
+- **C1 (contrastive priors):** 216 positives (9 P1b solves + 207 improved
+  survivors) vs 36,976-failure pool → 340-row weighted tensor; l1 ban +
+  answer exclusions enforced (manifest_c1.json). Best-val at epoch 0,
+  early-stopped at 1 — the positive set is small and training moved the model
+  only slightly; honestly noted.
+- **C2 (spec-conditioned):** 2,488 store rows kept after exclusions (1,534 l1
+  + 50 answer rows removed); vocab 1008 → 1024 (16 public sense-aware
+  A/B/C/D bin tokens from base-spec limits). Val fell monotonically
+  0.3755 → **0.1851** over 8 epochs (deviation: no early-stop triggered;
+  best-val = final epoch, recorded).
+- **Zero-sim smoke (dhruva-s anchor, vs untrained 46 distinct/500 att, L0
+  22.4%):** **C1: 50 distinct in 352 attempts, L0 28.1%. C2: 50 distinct in
+  137 attempts, L0 65.7%** — 3× the untrained L0-pass rate; both hit the
+  50-distinct target the untrained editor never reached. The E-11 D1
+  distinct-pool bottleneck moves under training; C2 moves it furthest.
+  489 smoke proposals logged (campaign `e12-p2smoke`; log 67,036 rows).
+
 ## 12. Open items at GO
 
 1. Approve E1–E6 calibrated targets (§4 rule output).

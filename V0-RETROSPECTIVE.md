@@ -366,6 +366,26 @@ flowchart LR
     GEN --> L0 --> L1 --> L2 --> OUT
 ```
 
+**What each block does.**
+
+- **Spec (YAML)** — the target LNA, written as numbers (band, NF, gain, match, power,
+  device limits). It is the only source of truth. Every block downstream reads its rules
+  from here.
+- **Data** — 41 real LNAs plus hand-written archetype templates, turned into training
+  text.
+- **Generator (trained)** — the one learned block. It emits a circuit as a token
+  sequence. Prefix and class tokens steer it toward an LNA.
+- **L0 screen** — a cheap structural check: does this look like an LNA worth simulating?
+  No SPICE yet.
+- **L1 bias** — adds the DC network so the transistors switch on. Rule-based.
+- **L2 sizing + SPICE** — picks device values and measures them in ngspice. The expensive
+  block.
+- **Verified design** — the output: a circuit with real values and measured metrics.
+
+**The connections.** Flow is strictly left to right. Nothing runs backward yet. The spec
+feeds the screen. The cheap rungs (L0, L1) sit in front of the expensive one (L2) on
+purpose, so no bad circuit reaches the simulator.
+
 ### Snapshot 2 — Phase 2: the learning loop is added (M6–M9)
 
 New blocks: the **label store** (captures every expensive sim), the **critic**
@@ -392,6 +412,21 @@ flowchart LR
     OUT -->|expert iteration<br/>winners as imitation data| DATA
 ```
 
+**What is new here.** The pipeline gains a memory and a loop.
+
+- **Label store (new)** — an append-only record of every expensive simulation. Before
+  this, every result was thrown away.
+- **Critic (new, trained)** — predicts the margins a topology would reach *after* sizing.
+  It trains on the store. Its job is to filter candidates before we pay for SPICE.
+- **Search rungs (new)** — rerank a pool by the critic, or evolve it (see §8), and size
+  only the promising ones.
+- **New backward connection** — for the first time information flows right to left:
+  L2 → store → critic → search → back into L2. The pipeline now learns from its own
+  results.
+- **Winners → data (new)** — verified winners are folded back into the training text.
+  This is *expert iteration*, not reinforcement learning. A winner is just more text to
+  predict.
+
 ### Snapshot 3 — diagnosis heads + realistic emission (M17–M22)
 
 Two structural additions: **diagnosis / blame instruments** (a separate model on the
@@ -415,6 +450,17 @@ flowchart LR
     L2 --> OUT[Verified winners] -->|expert iteration| DATA
 ```
 
+**What is new here.** Instruments are added, and one existing block is corrected.
+
+- **Diagnosis heads (new, trained)** — a separate model on the critic's backbone. It
+  names *which device* is the problem. It aims edits; it does not rank.
+- **Point surrogate (new, trained)** — a cheap stand-in for one ngspice call, trained on
+  the 66,000 free interior rows (M22). It saves simulator time; it is not a ranking.
+- **L2, changed** — the same sizing block now emits devices multi-finger (the M19 fix).
+  The block's shape is unchanged; the physics is corrected.
+- **Trust region (new connection)** — search now stays near the critic's training data,
+  because the critic is weak off-distribution.
+
 ### Snapshot 4 — the `engineer` environment wraps the harness (E1–E4)
 
 The `engineer` line does not change the pipeline; it **wraps** the golden harness in an
@@ -436,6 +482,19 @@ flowchart LR
     BENCH --> ENV
     ENV --> STORE2[(engineer store<br/>append-only trajectories)]
 ```
+
+**What is new here.** Nothing in the pipeline changes. The engineer line wraps it.
+
+- **Env (new)** — a budgeted, counted, deterministic, observable interface over the
+  golden harness. Every run is fair and repeatable.
+- **Benchmark (new)** — a frozen set of tasks, each pinned to the exact stored result it
+  cites, scored under a protocol fixed before any run.
+- **Null arms (new)** — CMA-ES and random search, run through the same Env, as honest
+  baselines.
+- **External tracks (new)** — AnalogGym op-amps and LDOs, imported through the same Env
+  contract, so "our sizer is good" can be tested off our own data.
+- **Engineer store (new)** — its own append-only trajectory log. Everything under `lna/`
+  is read-only from here.
 
 ### Snapshot 5 — the unattended loop (E6 / E-4)
 
@@ -460,6 +519,20 @@ flowchart TB
     ESC --> STOP([STOP: recorded verdict])
 ```
 
+**What is new here.** The first closed control loop.
+
+- **Proposer** — runs one bounded sizing stage. It moves the design point; it does not
+  judge it.
+- **Verifier** — reads the full margin and operating-point vector every stage. It can
+  read everything and change nothing.
+- **Intervener** — the only block allowed to change the design. It maps a diagnosis to
+  the next action.
+- **Escalate** — after three stalled stages, it changes the topology (a real structural
+  move), then stops if that also fails.
+- **The connection that matters** — diagnosis feeds intervention, and intervention feeds
+  the next proposal. Memory enters here as *structure* (which move to try first), not as
+  extra budget.
+
 ### Snapshot 6 — the editor ladder (E11 → E16 / E-7 → E-12)
 
 The final structural arc: make the *edit-proposal step* smarter. It climbs from
@@ -482,6 +555,18 @@ flowchart LR
     SIZE --> VERDICT[Scored:<br/>solve / no-solve on transfer]
 ```
 
+**What is new here.** The edit-proposal step itself gets smarter, over three rungs.
+
+- **Primitive moves** — hand-written graph edits (add, remove, rewire).
+- **Generator-as-editor** — the v7 model cuts a segment out and regrows it. No
+  hand-written moves.
+- **Trained editors** — models trained on the banked edit history (C1 contrastive, C2
+  spec-conditioned).
+- **Edit log (new)** — every proposed edit is written down (28,590+ rows) and becomes the
+  training data for the next rung.
+- **The connection** — whichever proposer is used, the flow is the same: propose an edit
+  → size it → score it on a transfer task.
+
 **The structural lesson v0 ends on:** every added block worked *mechanically* — the
 critic ranked, diagnosis fired, the loop ran unattended, the editors trained and moved
 the L0 bottleneck. But on **transfer** tasks the whole stack returned flat zeros,
@@ -492,7 +577,370 @@ walks through.
 
 ---
 
-## 5. One-paragraph summary
+## 5. What we store as data for the future
+
+Everything the program learns from is written to disk as append-only records. Nothing is
+deleted; new rows are added, and snapshots pin exactly what a model saw. This is the
+substrate any future approach inherits.
+
+**Main line — the label store (`lna/data/`, `datastore.py`).** Four append-only JSONL
+tables plus a snapshot index:
+
+| File | What each row is | Kept in git? |
+|---|---|---|
+| `topo_labels.jsonl` | one L2 sizing outcome: (topology, spec) → final metrics. The expensive prize. Keyed `(wl_hash, spec)`, no duplicate keys. | yes |
+| `l1_labels.jsonl` | one L1 bias / operating-point sweep for a topology. | yes (while small) |
+| `sim_points.jsonl` | one row per ngspice evaluation *inside* a sizing run — the ~66,000 free interior points (M22). | gitignored (bulk) |
+| `op_points.jsonl` | the full DC operating point *inside* one evaluation (every node voltage / device region), captured by M21. | gitignored (bulk) |
+| `snapshots.json` | named snapshots: for each table, its line count + sha256, so a critic version always sees exactly its training rows and later tampering shows up as a hash mismatch. |  yes |
+
+**Main line — other durable data:**
+
+- **The playbook (`lna/playbook/`)** — 40+ program stages distilled into machine-queryable
+  entries of (decision, evidence, outcome) plus edges between them.
+- **The frozen NDL@256 protocol and its reference pools** — pinned so a novelty number is
+  reproducible against the exact reference it was measured under.
+- **The corpus (`lna/data/external/`)** — the 50-circuit real set, each external with a
+  `provenance.json`, plus `corpus_manifest.json` (source, license, vetting gates).
+- **Winners** — verified designs fed back as training text (true SPICE numbers only;
+  critic scores never select training data).
+- **The flagship design points (`lna/repro/dhruva-best/*.params.json` + `.meta.json`)** —
+  the exact device values behind every gate claim, reconstructable deterministically.
+
+**Engineer line — its own store (`engineer/data/`):**
+
+- **`trajectories.jsonl`** — one row per evaluation: (state, action, outcome, cost). Every
+  run, from day one, appended in one serial pass so the append-only law holds under
+  parallel workers.
+- **The scoreboards** — `scoreboard_v0.1.json` (in-house), `scoreboard_ext_v0.json`
+  (AnalogGym amps), `scoreboard_ext_ldo_v0.json` (LDOs), `mem_pairs_v0.json` (E-3 warm/cold),
+  `loop_v0.json` (E-4). Each pinned to its pre-registration SHA.
+- **The goldens** — fixed-sizing → fixed-metrics replay fences (e.g. `ext_golden_v0.json`).
+- **The durable edit log** — the 28,590+ `(state → edit → outcome)` rows from E-11, plus
+  the E-12 banked solves. This is the training substrate a learned editor would use next.
+
+The rule that ties it together: **provenance is part of the key.** Rows produced under a
+different NF method, device budget, sizing recipe, or bias-rule set are never silently
+pooled for training, ranking, or noise estimation.
+
+---
+
+## 6. Our approach to sizing, end to end
+
+Sizing is the L2 block: turn a topology into real device values that meet a spec, and
+measure them. It is fully deterministic — no learning inside the loop. Code:
+`lna/size.py`, `lna/spec.py`, `lna/extract.py`, `lna/null_sizer.py`.
+
+**Step 1 — parameterize.** Every device value becomes a knob. The `.param` surface is
+mapped to a vector `x` in `[0,1]^d`. The decode is per kind: **log-scale** for widths,
+resistances, capacitances, inductances (they span orders of magnitude); **linear** for
+bias voltages. The bounds come from the spec's own sizing box (`kind_ranges`), so the
+optimizer can never propose a value the spec disallows.
+
+**Step 2 — emit a parameterized SPICE deck (`prepared_body`).** MOSFETs are emitted
+**multi-finger** (`w_finger = 2 µm` — the M19 fix; single-finger emission piled fake gate
+resistance onto RF devices and inflated noise 26–40%). Inductors get a **finite Q**
+(`inductor_q = 12`) to avoid the ideal-inductor singularity. Every device value in the
+deck is a knob the optimizer drives.
+
+**Step 3 — the objective (`spec.objective`), minimized, feasibility-first.** This is the
+heart of it:
+
+- **Infeasible point** → `1 + Σ(normalized constraint violations)`. Always worse than any
+  feasible point.
+- **Feasible point** → `−Σ(weighted normalized improvement beyond the floor)`. More margin
+  is better.
+
+So the optimizer first claws into the feasible region, then improves margins. Constraints
+are **hard** (pass/fail); objectives are **soft** (improve only after feasible). A metric
+marked `unsupported` (e.g. IIP3 before the two-tone rung existed) is loaded, reported as
+UNMEASURED, and ignored by the objective — never silently passed. **NF is gated inside the
+loop** whenever the spec asks (one extra ~0.07 s series-Rs ngspice call per evaluation),
+because a supported-but-missing metric counts as fully violated and would otherwise
+flatten the objective.
+
+**Step 4 — the optimizer drives ngspice.** Originally ZOAF (a zeroth-order optimizer with
+SGD/CGD phases); later **CMA-ES**, which won a matched-budget head-to-head (4/5 vs 1/5
+feasible) and became the default. Either one calls the *same* objective on the *same*
+deck; they differ only in which `x` they try next. Budget is counted as one tick per
+objective call (two ngspice calls when NF is gated), identical for every arm.
+
+**Step 5 — guards.** A **stability guard** (K/µ) rides the step-acceptance loops so a
+polish step can never walk a design into instability. Box-clamping keeps every parameter
+in range at every step. A monotonic bias guard upstream ensures no bias rule makes
+conduction worse.
+
+**Step 6 — log the free byproducts.** Every ngspice evaluation (→ `sim_points`) and the
+full DC operating point inside it (→ `op_points`) are written to the store. This is where
+the 66,000 interior rows (M22) and the operating-point capture (M21) come from — free, and
+kept.
+
+**Step 7 — output and verify.** The best point's metric vector costs no extra simulation
+(it is kept from the evaluation that produced it) and is written as an L2 row keyed
+`(wl_hash, spec)`. Two checks stand behind every sizing claim:
+
+- **Replay fence** — re-measure the stored design from scratch; it must reproduce every
+  gated metric (spread 0.0000 at this deterministic fidelity).
+- **Anchor re-derivation** — strip a known-good reference to defaults, hand the sizer its
+  topology and spec, and confirm it re-finds feasibility near the hand-tuned numbers. This
+  validates the extractor, the objective encoding, and the budget at once.
+
+---
+
+## 7. CMA-ES — what it is, how we use it, what it achieved, where it stops
+
+**What it is.** CMA-ES is Covariance Matrix Adaptation Evolution Strategy — a black-box
+optimizer for continuous vectors. It keeps a Gaussian sampling cloud with three parts: a
+**mean** (the current best region), a **covariance** (the learned shape and tilt of the
+local landscape), and a **step size σ** (how far to sample). Each generation it does four
+things: sample λ points, evaluate them, move the mean toward the best few, and update the
+covariance and σ so the cloud reshapes itself to the landscape. It needs no gradients and
+no problem knowledge.
+
+**The exact formulation we use.** Hansen's standard `purecmaes`: rank-µ plus rank-one
+covariance update, cumulative step-size adaptation, `λ = 4 + floor(3·ln n)`, `µ = λ/2`
+with log-decreasing weights, `σ0 = 0.3`, and `x0 ~ U[0,1]^n`. No tuning, no surrogate.
+Box limits are handled by **clipping** (projection), and the clipped point is what enters
+the recombination — so the search never builds its covariance from a point it was never
+at. One deliberate deviation from the textbook: a σ-clamp that stops it spending leftover
+budget at σ ≈ 0.
+
+**How it entered and how we use it.** It came in as the **sizer's null hypothesis**
+(`null_sizer.py`): an untuned baseline to test whether ZOAF was earning its keep. It
+shares everything that measures — the same objective, the same box and decode, the same
+ngspice evaluation, the same budget accounting. It differs from the random arm and from
+ZOAF in exactly one thing: which `x` it evaluates next. When it beat ZOAF at matched
+budget, it became the default sizer and the engineer line's `cmaes` arm.
+
+**What it achieved (the honest wins).**
+
+- Beats random search at matched budget on the in-house tasks: **feasible on 5/7 tasks vs
+  0/7** for random.
+- **Replicates off our own data:** on AnalogGym's open op-amp benchmark it ranks first on
+  **13 of 14 amps** (median-rank 1.0 vs 2.0), with 3–10× better FoM.
+- Beat ZOAF **4/5 vs 1/5** feasible at matched compute.
+- Fully **deterministic** — re-runs reproduce `best_obj` bit-for-bit.
+- Produced the first NF-gated feasible dhruva labels.
+
+**Where it stops (the limits, stated plainly).**
+
+- **It sizes one fixed topology.** It cannot change the circuit. The D5 linearity wall is
+  outside its reach by construction.
+- **It finds knife-edge solutions.** Because the objective rewards pushing to the limit, it
+  pins metrics at their boundary — the flagship's S11 and Idd flip under a ±1% supply move
+  (M25).
+- **It fragments badly.** Split into K short starts, each start starves — this is the exact
+  mechanism behind the E-3 (memory) and E-4 (loop) negatives.
+- **It is objective-bound.** It can only optimize what the objective scores. E-13a is the
+  clean proof: the transfer goals asked for something the sizing objective never measured,
+  so no amount of search could register a win.
+- **It does not transfer.** Every run starts cold; nothing learned on one task carries to
+  the next.
+
+---
+
+## 8. Deep dives on specific steps
+
+### 8.1 The genetic algorithm (search Rung 2, M14 — `lna/evolve.py`)
+
+*(This is the "genetic algorithm" referred to in the diagrams; in the chronology it is
+**M14**, not M4.)*
+
+It is a genetic algorithm over **circuit graphs**, not over device values. A population of
+topologies is seeded from the LM / archetype / store designs. Each generation applies a
+**single-edit mutation** — one of ~17 one-edit graph moves from `moves.py` (add a device,
+remove one, rewire a connection, and so on). Each offspring is screened, sized, and scored.
+Selection keeps the best, with two guards:
+
+- A **trust region**: an offspring further from the store's own designs than a set "family
+  radius" is rejected, because the critic is unreliable that far off-distribution.
+- A **novelty bonus** that rewards genuinely new structure.
+
+It is **not reinforcement learning** — there is no policy and no reward gradient. It is
+mutate → measure → select. It won clearly on dhruva-s (found a novel, stable design) and
+tied where the critic had no coverage. Its lasting lesson: the fancy "uncertainty gate"
+never fired; the simple "stay near training data" trust region did the real work.
+
+### 8.2 M20 — the match wall, and what "isolation" means
+
+The generator's designs kept failing input match. "Isolation" here means finding the
+**one structural feature** that explains the whole failure, and nothing else.
+
+A structural instrument (`_match_struct.py`) reads each design with **pure graph
+arithmetic — no device formulas**, honoring the blind protocol. It classifies each design
+by a single binary fact: does the RF input port reach a transistor **source**, or only a
+**gate**? Measured across 828 stored designs, that one fact carries the entire match /
+no-match split, in every provenance class independently.
+
+Why it splits so cleanly — on the honest multi-finger harness, among designs that already
+hold the band match:
+
+| input motif | rows | median NF | clear NF ≤ 2.5 **and** S21 ≥ 22.3 |
+|---|---|---|---|
+| gate-driven | 31 | **7.52 dB** | **0** |
+| source-driven | 139 | **2.97 dB** | **54** |
+
+A gate-driven input in this program is quiet only when it does *not* match, and noisy when
+it does. The generator emitted the source-driven motif just **19.2%** of the time. When
+the capability test was re-run selecting candidates by *that measured predictor* (instead
+of "distance from known families"), **24 of 29 closed the band match and one closed the
+whole gate** — a generator-emitted 16-device topology (`80aaf9f4a0cd7863`) that met Gate D3
+on dhruva-l5. The fix was a **selection criterion**, not a new capability.
+
+### 8.3 M24 — outcome conditioning, in detail (`WP-OUTCOME`, FINDINGS §32)
+
+The idea: fold each design's measured metrics back into the generator's training data as
+extra "outcome" tokens, so the model could be asked to hit a target performance bin. Two
+arms were run:
+
+- **OUT-C** — outcome-conditioned with the **real** labels.
+- **OUT-S** — a **shuffled-label control**: the same new training rows, but the outcome
+  labels randomly permuted so they carry no real information.
+
+The result:
+
+| arm | NDL (narrowband) | NDL (wideband) |
+|---|---|---|
+| OUT-C (real labels) | 99 | 89 |
+| **OUT-S (shuffled control)** | **115** | **105** |
+
+Conditioning raised novelty — but **the shuffled control raised it as much or more**. A
+newly discovered `wifi24` tier-2 feasible design appeared, but its hash was in **both**
+arms' pools, so the shuffled control found it too. Conclusion: the novelty came from the
+extra training rows (a new data channel), **not from the labels meaning anything**.
+(Nuance, recorded honestly: OUT-C did beat OUT-S on the downstream feasibility/quality
+axes 7 of 7 — the labels were not worthless for quality — but for the headline *novelty*
+claim the control took the credit.) Outcome conditioning was **rejected** as a novelty
+lever.
+
+### 8.4 M26 — the D5 linearity wall, measured two independent ways
+
+**What is being measured.** Linearity is measured with a **two-tone test**: drive the
+circuit with two closely-spaced tones and measure the third-order intermodulation product
+(IM3). **IIP3** is the extrapolated input power at which IM3 would equal the fundamental.
+Higher IIP3 = more linear. Gate D5 is the dhruva IIP3 target.
+
+**Why two harnesses.** A single simulator's IIP3 number is easy to fake by accident — the
+negative control shows a loose HB tolerance producing a fantasy **+133 dBm** where the true
+answer is **+21.25 dBm**. Agreement across two independent engines makes the wall a fact
+about the *circuit*, not the *tool*. The two harnesses are:
+
+- **VACASK 0.3.4.rc1 harmonic balance** — a frequency-domain steady-state engine. Validated
+  against a closed-form memoryless cubic (error −0.002…−0.039 dB) with the negative control
+  above as a guard.
+- **A sibling ngspice two-tone transient harness** (`check_iip3.py`) — a completely
+  different simulator and a different BSIM4 implementation.
+
+They agree closely. On the shared quantities the two engines match to **12.96322 vs
+12.96318 mA** on current and **≤ 0.0003 dB** on gain; the later WP-LIN two-tone cross-check
+agrees on IIP3 to **0.08 dB**.
+
+**The verdict.** Gate D5 **fails on all four bands by 21–25 dB** (harmonic balance; 21–27 dB
+across the full WP-LIN range), and the miss is *not* explained by the paper's min-gain
+condition. It is not a sizing problem: output linearity (OIP3 ≈ +3 dBm) is **flat** across
+bands and sizings. It is set by the output stage's swing budget on a 1.1 V / 13 mA
+envelope. Closing it needs a **different circuit**, not more sizing.
+
+---
+
+## 9. Best circuits over time for D4-SIM, D6, D7
+
+All three tier-3 gates were met on **one frozen topology** — `wl_hash ace8383c2fa68d03`, a
+single-ended core of 30 parameters — with the sizing (and, for D6/D7, a small bolt-on
+stage) changing over attempts. The benchmark in every row is the four **dhruva** bands:
+**s** (2492.03 MHz), **l1** (1575.42), **l2** (1227.60), **l5** (1176.45). Full device
+values live in `lna/repro/dhruva-best/*.params.json`.
+
+### D4-SIM — tier-1 + tier-2 feasible on all four bands at one fixed sizing
+
+| date | design ID / recipe | size summary | specs achieved (worst band) | note |
+|---|---|---|---|---|
+| 2026-08-13 | **dhruva-l5** of `ace8383c2fa68d03` (`mf2-v1`) | one fixed 12.963 mA point | NF ≤ **1.253 dB**, S21 **33.7–36.0 dB**, S11 **−10.001 dB** band-wide, Idd **12.963 mA**, K_min 19.9 | Designated D4-SIM point. Cross-eval **16/16** cells pass; replay 3/3, spread 0.0. **S11 margin only +0.001 dB** (knife-edge); **fails at 1.2 V** (Idd 14.879). |
+| 2026-08-13 | **dhruva-simul** (`mf2-v1+harden-v1`), same topology | margin-hardened values | S11 **−11.012 dB** (+1.012), Idd **8.205 mA** (−37%), NF worst 1.726, S21 worst 32.003, K_min 17.2 | Passes at **both 1.1 V and 1.2 V** (9.463 mA, 3.5 mA spare); replay 5/5. Kept on file, not yet designated. |
+| 2026-08-21 → **designated 2026-08-22** | **S49 / WP-RESIZE2** (worst-case-margin descent from `dhruva-simul`) | reconstructed deterministically | S11 **−12.826 dB** (+2.826), S21 worst **33.973 dB**, NF worst **2.021 dB**, Idd **10.038 mA**, K_min 10.7 | **FLAGSHIP.** All 4 bands PASS; original 16-cell matrix still 16/16; worst-case normalized margin ×3.7 (0.051 → 0.192). Replay 16/16. Binding constraint now NF at l5 (+0.479 dB). |
+
+### D6 — gain programmability (≥ 10.6 dB range, ≥ 3 steps)
+
+Mechanism: `out-bank` — three cumulative DC-blocked, NMOS-switched branches on the output
+drain (W = 8 / 8 / 16 µm, all inside the spec's own W box). One netlist; the states differ
+**only** in three control voltages, so the operating point (and Idd) is identical across
+states.
+
+| date | substrate | states → span | S11 / Idd | verdict |
+|---|---|---|---|---|
+| 2026-08-13 | **dhruva-l5** (the D4-SIM point) | S0→S3, span **11.23–11.46 dB** on all 4 bands, monotonic | S11 ≤ −10 dB band-wide every state; Idd **12.963 mA identical every state** | **MET** under proposed mapping; replay 3/3, spread 0.0. Max-gain state still passes every D4-SIM gate. |
+| 2026-08-13 | **dhruva-simul** (hardened) | span **11.99–12.21 dB**; can reach 39.5–42.7 dB | S11 margin ~1.01 dB; Idd 8.205 mA | Same verdict, more comfortable (1.01 dB S11 margin vs 0.004; 4.8 mA headroom). |
+
+**Honest caveat:** the pass buys gain *range*, not linearity. The mechanism sits after the
+last gain stage, so IIP3 is unchanged — the paper's "IIP3 at min-gain" spirit is not met.
+That is a topology/margin finding, and it is why front-end gain control cannot live on this
+design at its match margin.
+
+### D7 — differential output (imbalance ≤ 0.22 dB / ≤ 0.9°)
+
+Mechanism: an **assistant-authored active balun** (`cscg`, CS + CG split-phase splitter)
+grafted at `VOUT1`, built from the existing MOS/R/C/L vocabulary — no vocabulary or emitter
+extension, no coupled inductors. The core (30 params) is **frozen**; only the stage's 13
+parameters are free, all in-box.
+
+| date | host | Sds21 (per band) | imbalance mag / phase | diff NF | verdict |
+|---|---|---|---|---|---|
+| 2026-08-13 | **dhruva-simul** (hardened) | 29.91–30.67 dB, all 4 bands | **0.119 dB** / **≤ 0.339°** (band-wide worst) | 1.339–1.738 dB | **MET.** Margins +0.101 dB / +0.561°. Replay 3/3 in-process **and** from a separate process, spread 0.0. |
+
+**Note:** the designated l5 point had only 0.037 mA of Idd headroom — no room for any output
+stage — so the hardened point was used as the host. A second stage (`dpair`) was also
+authored and measured but the `cscg` splitter is the one that met the gate.
+
+---
+
+## 10. What actually points toward an intelligent tool
+
+These are the concrete results that show the program is more than a script — that it does
+things a competent engineer does. Each is measured, not asserted. The caveat comes at the
+end, kept honest.
+
+1. **A real optimizer that generalizes.** CMA-ES beats random search at matched budget, and
+   it does so **off our own data** — 13 of 14 amps on AnalogGym's open benchmark. That is
+   evidence the sizing engine is doing genuine search, not fitting our store.
+2. **Emergent correct engineering.** The sizer **independently rediscovered textbook RF
+   biasing** (M21) — moderate inversion for input devices, strong for output — with nothing
+   telling it to. It arrived at a known-good practice on its own.
+3. **Root-cause diagnosis, not just optimizing.** D5 was identified as a **physical
+   output-swing wall**, not a sizing miss, and confirmed on two independent simulators. The
+   program can say *why* something cannot be done and stand behind it.
+4. **Non-obvious, correct heuristics it derived.** "Grow the **quietest** parent, not the
+   best one" (M18) was the insight that first met the NF gate — the program found and
+   verified it.
+5. **Isolating a cause by structure alone.** The match-motif instrument (M20) found the
+   single structural feature behind a persistent failure using pure graph analysis, then
+   fixed it by selection — producing a generator-authored design that met the gate.
+6. **It finds its own measurement bugs.** Single-finger fake gate resistance, +12 dB NF
+   flattery, novelty counting template copies — each was caught by the program and the
+   numbers were re-based on corrected physics. A tool that can catch its own errors is
+   closer to one you can trust unattended.
+7. **A trustworthy harness.** Cross-simulator agreement to ~0.0003 dB on gain/current and
+   closed-form agreement on IIP3. Every autonomous claim rests on measurement you can
+   believe.
+8. **It knows what its own parts contribute.** The honest null (M23) showed the 11.8M-param
+   model buys **DC viability and gain** (68% vs 3% working transistors), even though the
+   headline metrics can't see it. The program understands where its value actually sits.
+9. **It diagnosed the limit of its own experiment.** E-13a traced the flat-zero transfer
+   results to the **objective missing the target quantity** — the program found the flaw in
+   its own setup, which is exactly what redirects the next approach.
+10. **Honest measurement infrastructure.** The environment, the frozen benchmark, and the
+    pre-registration-with-falsifiers discipline meant the two big negatives (memory, the
+    autonomous loop) were **measured and published, not buried**.
+
+**The honest caveat.** None of this is yet a learned, closed-loop autonomous designer. What
+v0 proved is narrower and real: a strong classical optimizer, emergent-correct sizing
+behavior, correct root-cause diagnosis, a trustworthy harness, and honest self-assessment.
+The *learned-editor* path — the piece that would make the loop itself intelligent — did not
+clear its bar in v0, and the reason (the objective, not the editor) is what the next
+approach is built to fix.
+
+---
+
+## 11. One-paragraph summary
 
 v0 built, from an 11.8M-parameter borrowed generator and a trustworthy simulator, a full
 **spec → generate → bias → size → verify** LNA pipeline; pushed one real blind target

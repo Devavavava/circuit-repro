@@ -132,12 +132,30 @@ W_FINGER = 2e-6
 class Netlist(object):
     def __init__(self, topo, models=DEFAULT_MODELS, vdd=1.1, vbias=0.5,
                  freq_lo=1e9, freq_hi=4e9, points=201, inductor_q=None,
-                 bjt_models=None, bjt_area=BJT_AREA, w_finger=W_FINGER):
+                 bjt_models=None, bjt_area=BJT_AREA, w_finger=W_FINGER,
+                 pdk=None):
         self.t = topo
+        # PDK abstraction (v0, additive): `pdk=None` -> the bptm45 adapter, which
+        # reproduces THIS emitter byte-for-byte (lna/ref/check_pdk.py proves it),
+        # so every existing caller and every shipped deck is unaffected. The
+        # adapter routes the model `.include`, the MOS device line, and (via
+        # bjt_models()) the bipolar cards; `models=`/`bjt_models=` stay honoured
+        # so the default bptm45 adapter emits exactly the constants this file
+        # always used. Imported lazily to avoid an import cycle (pdk imports
+        # to_spice for DEFAULT_MODELS).
+        if pdk is None:
+            from pdk import default_pdk
+            pdk = default_pdk()
+        self.pdk = pdk
         self.models = models
         # {base: (model_name, card_text)}; override to swap in a real PDK card
         # without touching this file. Emitted only if the topology has bipolars.
-        self.bjt_models = dict(bjt_models or BJT_MODELS)
+        # An explicit `bjt_models=` arg wins (existing callers); otherwise the
+        # adapter's bjt_models() may supply process bipolars, and the generic
+        # Gummel-Poon set is the final fallback (bptm45's adapter returns None,
+        # so the default path resolves to BJT_MODELS exactly as before).
+        _pdk_bjt = None if bjt_models is not None else self.pdk.bjt_models()
+        self.bjt_models = dict(bjt_models or _pdk_bjt or BJT_MODELS)
         self.bjt_area = bjt_area
         self.vdd = vdd
         self.vbias = vbias
@@ -221,6 +239,22 @@ class Netlist(object):
                     break
         return bad
 
+    def _model_includes(self):
+        """Model `.include`/`.lib`/`pre_osdi` lines for this Netlist's PDK.
+
+        For the default bptm45 adapter the include path is THIS Netlist's
+        `self.models` (so a `--models`/`models=` override still flows through and
+        the emitted line is byte-identical to the historical
+        `.include {self.models.replace(os.sep,'/')}`). For a non-bptm45 adapter
+        the model set is a fixed property of the process, so `self.models` does
+        not apply and the adapter's own `model_includes()` is used verbatim
+        (which, for a staged PDK, raises the NotImplementedError pointing at
+        FETCH.md)."""
+        from pdk import bptm45 as _bptm45
+        if isinstance(self.pdk, _bptm45.Bptm45Adapter):
+            return _bptm45.Bptm45Adapter(models=self.models).model_includes()
+        return self.pdk.model_includes()
+
     def _fingers(self, d):
         """` NF={...}` for a MOS instance, or "" under single-finger emission.
 
@@ -249,7 +283,12 @@ class Netlist(object):
         A("* Auto-generated from an AnalogGenie topology by lna/to_spice.py")
         A("* Device values are placeholders exposed as .param for a sizing loop.")
         A("")
-        A(f".include {self.models.replace(os.sep, '/')}")
+        # Model include(s) come from the PDK adapter. The default bptm45 adapter
+        # is bound to THIS Netlist's `self.models` (so a --models override still
+        # flows through) and emits the identical single `.include <path>` line the
+        # emitter always produced. A different PDK may emit .lib/pre_osdi lines.
+        for _inc in self._model_includes():
+            A(_inc)
         # Bipolar cards, only when the topology has a bipolar -- the include above
         # is BSIM4 (MOS) only. See BJT_MODELS for what these are calibrated to.
         kinds = self.bjt_kinds()
@@ -313,10 +352,14 @@ class Netlist(object):
         for d in sorted(t.devices):
             b = base_of(d)
             if b in ("NM", "PM"):
-                model = "nmos" if b == "NM" else "pmos"
-                A(f"M{d} {self._pin_node(d,'D')} {self._pin_node(d,'G')} "
-                  f"{self._pin_node(d,'S')} {self._pin_node(d,'B')} {model} "
-                  f"W={{p{d}W}} L={{p{d}L}}{self._fingers(d)}")
+                # MOS instance line comes from the PDK adapter. The default
+                # bptm45 adapter emits the identical `M<dev> D G S B nmos/pmos
+                # W={..} L={..} NF={..}` line this file always produced; a subckt
+                # PDK (sky130/gf180/IHP) emits an `X` call instead.
+                A(self.pdk.mos_line(
+                    d, self._pin_node(d, 'D'), self._pin_node(d, 'G'),
+                    self._pin_node(d, 'S'), self._pin_node(d, 'B'), b,
+                    f"{{p{d}W}}", f"{{p{d}L}}", self._fingers(d)))
             elif b == "R":
                 A(f"R{d} {self._pin_node(d,'P')} {self._pin_node(d,'N')} {{p{d}V}}")
             elif b == "C":

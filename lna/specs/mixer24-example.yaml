@@ -1,0 +1,58 @@
+# ============================================================================
+# EXPERIMENTAL DRAFT -- active-mixer example spec (circuit_class: mixer).
+# Not a campaign target. Illustrates the mixer class metric vocabulary and the
+# mixer_harness.py measurements. The topology screen is DELIBERATELY PERMISSIVE:
+# class-specific L0 screens for a mixer (LO/RF/IF three-terminal structure,
+# switching-pair detection) are FUTURE WORK -- see kaggle/HARNESS-ROADMAP.md.
+# Mixer NOISE FIGURE is OUT OF SCOPE v0 (no PSS/pnoise in ngspice; transient
+# noise not credible) and is intentionally NOT a constraint here -- documented in
+# the roadmap. Targets are plausible-textbook, not calibrated.
+# ============================================================================
+name: mixer24-example
+circuit_class: mixer
+description: EXPERIMENTAL DRAFT 2.4 GHz active down-mixer example (class metrics demo)
+
+process:
+  models: AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt
+  vdd: 1.1
+  temp: 27
+
+# For a mixer f0 is the RF; the harness takes RF/LO/IF explicitly, but the band
+# block still anchors the RF operating point and any S11-at-RF read.
+band:
+  type: narrowband
+  f0: 2.442e9        # RF
+  f_lo: 2.400e9
+  f_hi: 2.4835e9
+
+ports:
+  z0: 50
+  input: VIN1        # RF
+  output: VOUT1      # IF
+
+constraints:
+  conv_gain_db:  {min: 6, status: measured}
+  lo_rf_iso_db:  {min: 30, status: measured}
+  lo_if_iso_db:  {min: 25, status: measured}
+  iip3_dbm:      {min: 0, status: measured}   # measured by mixer_harness two-tone
+  # NOTE: no nf_db here -- mixer NF is out of scope v0 (see roadmap). Declaring
+  # it as `unsupported` would also be honest; it is omitted to avoid implying a
+  # harness exists.
+
+objectives:
+  - {metric: conv_gain_db, direction: max, weight: 1.0}
+  - {metric: iip3_dbm, direction: max, weight: 0.5}
+
+# PERMISSIVE structural screen (v0). A Gilbert-cell / switching-pair detector is
+# future work; here only the universal criteria are active.
+topology:
+  device_budget: [3, 24]
+  allow_inductorless: true      # active mixers are frequently inductorless
+  reject_floating: true
+
+sizing:
+  w_um: [1, 200]
+  l_fixed: 45e-9
+  r_ohm: [50, 20e3]
+  c_f: [50e-15, 10e-12]
+  vb_v: [0.2, 0.9]

@@ -1,0 +1,30 @@
+generating arm-A pool: 96 topologies ...
+  pool: 96 topologies
+sizing cells: 378  (workers=24)
+  40/378 (24s)
+  80/378 (46s)
+  120/378 (67s)
+  160/378 (91s)
+  200/378 (113s)
+  240/378 (134s)
+  280/378 (156s)
+  320/378 (170s)
+  360/378 (191s)
+  378/378 (195s)
+done in 195s -> capacity_tests/results/capacity_ladder.json
+
+=== capacity ladder — arm A (generator) vs arm B (corpus) ===
+pool: 96 generated topologies; corpus: 6 topologies; budget 300 evals/size
+
+spec          A solved  A best_obj  B solved  B best_obj
+easy1g             YES      -1.698       YES      -4.329  <-- LADDER
+n78-35             YES      -1.084       YES      -1.506  <-- LADDER
+sub900             YES      -0.415       YES      -1.094  <-- LADDER
+wb05-2              no       1.287        no       1.699  <-- LADDER
+unii55              no       1.145        no       1.009  <-- LADDER
+xband8              no       1.323        no       1.510  <-- LADDER
+wifi24             YES      -0.815       YES      -1.560  (reference)
+dhruva-l5           no       2.142       YES      -0.575  (reference)
+gps-l1              no       1.064       YES      -0.178  (reference)
+
+specs solved: arm A 4/9   arm B 6/9

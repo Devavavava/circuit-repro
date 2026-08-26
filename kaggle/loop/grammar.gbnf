@@ -1,0 +1,44 @@
+# GBNF grammar for the proposal netlist format (see netlist_format.md).
+# Feed to llama.cpp with --grammar-file grammar.gbnf (or the "grammar" field of
+# the /v1/chat/completions request) to constrain generation to well-formed device
+# lines. The grammar guarantees line SHAPE (TYPE name nodes, correct node count
+# per type); it does NOT enforce net-name semantics (port presence, inductor
+# count, device budget) -- those are checked by proposal.parse + structural_screen
+# after generation. Keeping the grammar shape-only keeps it small and keeps the
+# semantic gates in one place (the Python funnel), which is the house rule.
+#
+# NOTE (UNTESTED): this grammar has NOT been run through a live llama.cpp on this
+# box (no GPU, no server). It is written to the GBNF spec used by llama.cpp; the
+# Python-side proposal.parse is the authoritative validator and IS tested. Verify
+# the grammar against the actual llama.cpp build once in a GPU session before
+# relying on constrained decode.
+
+root        ::= line (nl line)* nl?
+
+line        ::= comment | device | ws
+
+comment     ::= ("#" | "*") [^\n]*
+
+device      ::= mosline | passline
+
+# NMOS/PMOS: TYPE name D G S B
+mosline     ::= mostype sp name sp node sp node sp node sp node
+
+# R/C/L: TYPE name P N
+passline    ::= passtype sp name sp node sp node
+
+mostype     ::= "NMOS" | "PMOS" | "nmos" | "pmos"
+passtype    ::= "R" | "C" | "L" | "r" | "c" | "l"
+
+# a device label: letter then letters/digits/underscore
+name        ::= letter (letter | digit | "_")*
+
+# a net name: reserved rails/ports, bare ground "0", or an internal node id
+node        ::= letter (letter | digit | "_")* | "0"
+
+letter      ::= [A-Za-z]
+digit       ::= [0-9]
+
+sp          ::= (" " | "\t")+
+ws          ::= (" " | "\t")*
+nl          ::= "\r"? "\n"

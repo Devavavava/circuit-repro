@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://circuit-repro/kaggle/trajectory.schema.json",
+  "title": "LNA reasoning-loop trajectory row",
+  "description": "One JSONL row appended per loop step to /kaggle/working/trajectory/<run_id>.jsonl. Every phase of the loop (consult..edit) emits at least one row; a candidate is checkpointed after each phase so a session timeout loses nothing. Evidence fields (error_verbatim) are stored UNTRUNCATED (house rule: never summarize evidence).",
+  "type": "object",
+  "required": ["run_id", "spec", "iteration", "phase", "ts"],
+  "additionalProperties": true,
+  "properties": {
+    "run_id": {"type": "string", "description": "Unique id for one driver invocation; also the JSONL filename stem."},
+    "spec": {"type": "string", "description": "Spec name being solved (e.g. wifi24)."},
+    "iteration": {"type": "integer", "minimum": 0, "description": "0-based candidate index within the run (a single-round loop uses one iteration per proposal)."},
+    "phase": {
+      "type": "string",
+      "enum": ["consult", "propose", "roundtrip", "screen", "bias", "size", "diagnose", "edit"],
+      "description": "Which funnel stage produced this row."
+    },
+    "model_id": {"type": ["string", "null"], "description": "LLM model id/name that produced the text for propose/diagnose/edit phases (null for deterministic phases). e.g. 'qwen3-30b-a3b-q4_k_m' or 'dryrun'."},
+    "prompt_tokens": {"type": ["integer", "null"], "description": "LLM prompt token count for this phase (from the server usage field), else null."},
+    "completion_tokens": {"type": ["integer", "null"], "description": "LLM completion token count for this phase, else null."},
+    "consult_hits": {
+      "type": ["array", "null"],
+      "description": "playbook --consult --json output (list of {id,score,rule,...}) attached on the consult phase.",
+      "items": {"type": "object"}
+    },
+    "proposal": {
+      "type": ["object", "null"],
+      "description": "The LLM's proposed (or edited) circuit and its stated reasoning. Present on propose/edit.",
+      "properties": {
+        "netlist": {"type": "string", "description": "The proposal netlist text VERBATIM as the model emitted it (before parsing)."},
+        "rationale": {"type": "string", "description": "Free-text reasoning the model gave for the topology choice."},
+        "predicted_deltas": {
+          "type": "object",
+          "description": "The model's PREDICTED metric outcomes/changes, keyed by metric (nf_db, s11_db, s21_db, idd_ma). On propose: predicted absolute values or 'expected feasible' deltas. On edit: predicted CHANGE vs the previous candidate. Recorded so prediction-vs-outcome is a first-class field.",
+          "additionalProperties": {"type": ["number", "string", "null"]}
+        }
+      },
+      "additionalProperties": true
+    },
+    "roundtrip_ok": {"type": ["boolean", "null"], "description": "Did proposal.parse + to_tokens + Topology succeed? Set on the roundtrip phase."},
+    "wl_hash": {"type": ["string", "null"], "description": "Weisfeiler-Lehman graph hash of the parsed topology (novelty.wl_features). Stable identity across netlist orderings; the join key to any stored label."},
+    "l0_pass": {"type": ["boolean", "null"], "description": "spec.structural_screen result on the screen phase."},
+    "l0_criteria": {"type": ["object", "null"], "description": "The per-criterion screen dict {has_transistor: bool, device_budget: bool, ...} for diagnosability.", "additionalProperties": {"type": "boolean"}},
+    "bias_conducting": {"type": ["boolean", "null"], "description": "Did bias insertion produce a sizable two-port deck (not skipped)? Set on the bias phase. A learning signal on whether the topology can even be biased."},
+    "sized": {
+      "type": ["object", "null"],
+      "description": "Result of the sizing phase (the solve_spec size_tokens code path).",
+      "properties": {
+        "feasible": {"type": ["boolean", "null"], "description": "Did the best sized point meet every gated constraint?"},
+        "margins": {"type": ["object", "null"], "description": "spec.margins_for(best_metrics): per-constraint {achieved, required_min, required_max, scale, margin, supported}. margin>=0 iff satisfied. The learning target."},
+        "metrics": {"type": ["object", "null"], "description": "Raw measured metrics at the best point (nf_db, s11_db, s21_db, idd_ma, ...)."},
+        "best_objective": {"type": ["number", "null"], "description": "spec.objective(best_metrics): feasibility-first scalar (minimized)."},
+        "n_evals": {"type": ["integer", "null"], "description": "ngspice evaluations spent on this sizing."},
+        "seconds": {"type": ["number", "null"], "description": "Wall-clock seconds for this sizing."},
+        "seed": {"type": ["integer", "null"], "description": "CMA-ES seed that produced the best result."}
+      },
+      "additionalProperties": true
+    },
+    "diagnosis": {"type": ["string", "null"], "description": "On the diagnose phase: the LLM's reading of the margin table + op summary (which constraint binds and why, what to change). Free text."},
+    "next_action": {"type": ["string", "null"], "description": "The loop's decision after this row: e.g. 'edit', 'accept', 'reject', 'give_up', 'retry'. Drives the trajectory graph."},
+    "prediction_vs_outcome": {
+      "type": ["object", "null"],
+      "description": "Joins the proposal.predicted_deltas against the measured sized.metrics/margins for this candidate. {metric: {predicted, measured, error}}. First-class field: the loop's self-calibration signal.",
+      "additionalProperties": {"type": "object"}
+    },
+    "error_verbatim": {"type": ["string", "null"], "description": "VERBATIM, UNTRUNCATED simulator/parser/round-trip error text when a phase fails. Never summarized. Null when the phase succeeded."},
+    "ts": {"type": "number", "description": "Unix timestamp (seconds, float) when this row was emitted."},
+    "phase_seconds": {"type": ["number", "null"], "description": "Wall-clock seconds this phase took."}
+  }
+}

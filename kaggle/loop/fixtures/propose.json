@@ -1,0 +1,36 @@
+{
+  "responses": [
+    {
+      "id": "dryrun-propose-0",
+      "object": "chat.completion",
+      "model": "dryrun",
+      "choices": [
+        {
+          "index": 0,
+          "finish_reason": "stop",
+          "message": {
+            "role": "assistant",
+            "content": "Inductively-degenerated common-source stage with a tapped-capacitor matched load: Lg+Ls set the input match near 2.4 GHz while Ld resonates the drain and the tapped-C divider (Ct1/Ct2) transforms the load down toward 50 ohm at VOUT1. This is the classic narrowband WiFi topology; I expect NF near 2 dB, S11 well past -10 dB, gain in the mid-teens, and a few mA of bias.\n\n```netlist\n# inductively degenerated CS LNA, tapped-C matched load\nC Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1\n```\n\n```json\n{\"predicted_deltas\": {\"nf_db\": 2.0, \"s11_db\": -15.0, \"s21_db\": 15.0, \"idd_ma\": 3.0}}\n```"
+          }
+        }
+      ],
+      "usage": {"prompt_tokens": 512, "completion_tokens": 190, "total_tokens": 702}
+    },
+    {
+      "id": "dryrun-propose-1",
+      "object": "chat.completion",
+      "model": "dryrun",
+      "choices": [
+        {
+          "index": 0,
+          "finish_reason": "stop",
+          "message": {
+            "role": "assistant",
+            "content": "Common-gate input stage: the source of M1 is driven from the input through Cin with a shunt Lin tuning out the source capacitance, giving a broadband ~1/gm input match and a resistive load RL. Lower gain than the degenerated CS but robust match. Predicting NF a bit higher, S11 around -12 dB, moderate gain, low-ish current.\n\n```netlist\nC Cin VIN1 n1\nL Lin n1 VSS\nNMOS M1 n2 VDD n1 VSS\nR RL VDD n2\nC Cout n2 VOUT1\n```\n\n```json\n{\"predicted_deltas\": {\"nf_db\": 3.0, \"s11_db\": -12.0, \"s21_db\": 12.0, \"idd_ma\": 2.5}}\n```"
+          }
+        }
+      ],
+      "usage": {"prompt_tokens": 512, "completion_tokens": 150, "total_tokens": 662}
+    }
+  ]
+}

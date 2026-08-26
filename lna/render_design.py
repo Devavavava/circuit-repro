@@ -249,6 +249,8 @@ def load_design(prefix):
     if os.path.exists(mp):
         meta = json.load(open(mp))
     name = os.path.basename(prefix)
+    if name in ("design", ""):                      # generic prefix -> use the folder
+        name = os.path.basename(os.path.dirname(os.path.abspath(prefix)))
     return name, tokens, params, meta, None
 
 
@@ -303,6 +305,9 @@ def main():
     elif row is not None:
         print(render_specs_from_margins(row.get("feasible"), row.get("margins"),
                                         row.get("metrics")))
+    elif meta.get("margins"):                       # exported test-winner design
+        print(render_specs_from_margins(meta.get("feasible"), meta.get("margins"),
+                                        meta.get("metrics")))
     else:
         print("SPECS ACHIEVED   (no measured metrics on file)")
 

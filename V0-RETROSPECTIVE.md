@@ -955,3 +955,34 @@ matched compute**, and the editor ladder returned **flat zeros on transfer** bec
 sizing objective couldn't see what the goals were asking for. Nothing was overclaimed,
 every frozen protocol change went to explicit sign-off, and the closing diagnosis
 (objective, not editor) is what makes a **different approach** the right next move.
+
+---
+
+## 12. Addendum — post-v0 verification tests (2026-08-26)
+
+Three exploratory diagnostics were run when v0 was parked (details and commands in
+[`capacity_tests/README.md`](capacity_tests/README.md)). These are honest reads at modest
+budget, **not** pre-registered protocol-scored results.
+
+- **Playbook provenance.** Confirmed the machine-queryable playbook was filled **by hand**
+  (curated distillation of JOURNEY/FINDINGS via `playbook.py --add`, twice), never emitted
+  automatically by the pipeline. E-3 already measured that consulting it did not help
+  sizing.
+- **ZOAF vs CMA-ES, refreshed on a varied grid** (6 topologies × 14 specs × 5 seeds = 420
+  cells, matched budget). **CMA-ES 88/420 feasible vs ZOAF 24/420**; better objective on
+  317/420 cells; wins or ties every spec including untuned bands. Confirms and strengthens
+  FINDINGS §43.2 (was 4/5 vs 1/5).
+- **Capacity across a 6-rung difficulty ladder** (untuned bands 0.9–8 GHz + wideband), arm
+  A (v7 generates → size) vs arm B (size corpus). **Arm A 4/9, arm B 6/9.** The *sizer* is
+  universal — it solves untuned easy/moderate bands as readily as tuned ones. The
+  *generator* solves easy/moderate untuned specs from scratch but does not reproduce the
+  hard curated solutions (dhruva-l5, gps-l1) in a fresh pool. The hardest rungs
+  (5.5/8 GHz, wideband) are a physical ceiling for both arms — not overtraining.
+- **Human-readable designs.** `lna/render_design.py` renders any design's topology +
+  sizing + measured specs; `capacity_tests/export_winners.py` exports the tests' feasible
+  designs as renderable files.
+
+These sharpen the v0 close: the classical sizer (CMA-ES) is a genuinely universal,
+well-behaved optimizer; the trained generator's reach is real on easy/moderate untuned
+specs but still leans on curation for the hard ones — consistent with §10's read of what
+v0 proved and did not.

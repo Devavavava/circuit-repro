@@ -71,9 +71,10 @@ _CORPUS = {}             # wl_hash -> token list
 
 
 # ------------------------------------------------------------------- the sizer
-def size_tokens(tokens, spec_name, seed, budget=BUDGET):
+def size_tokens(tokens, spec_name, seed, budget=BUDGET, with_design=False):
     """Size one topology (given as a token list) to a spec with CMA-ES. Returns
-    (feasible, best_obj, evals_to_best, n_evals) or None if not sizable."""
+    a dict with feasible/best_obj/evals; with_design adds best_params/metrics/
+    margins. Returns None if not sizable. Deterministic in (tokens, spec, seed)."""
     spec = S._spec_for_sizing(spec_id(spec_name), nf_gate=None)
     topo = Topology(list(tokens))
     prep = S.prepared_body(topo, inductor_q=INDUCTOR_Q)
@@ -92,8 +93,14 @@ def size_tokens(tokens, spec_name, seed, budget=BUDGET):
         pass
     bx, bm = bud.best()
     feas = bool(spec.feasible(bm)[0]) if bm else False
-    return {"feasible": feas, "best_obj": round(bud.best_f, 5),
-            "evals_to_best": bud.best_i, "n_evals": bud.n}
+    out = {"feasible": feas, "best_obj": round(bud.best_f, 5),
+           "evals_to_best": bud.best_i, "n_evals": bud.n}
+    if with_design and bx is not None:
+        import datastore as _ds
+        out["best_params"] = decode(bx)
+        out["metrics"] = bm
+        out["margins"] = _ds.margins_for(spec, bm) if bm else {}
+    return out
 
 
 # ------------------------------------------------------------------------ arms
@@ -136,13 +143,19 @@ def generate_pool(n, seed, workdir):
     # generate.py runs with cwd=ROOT, so --out must be absolute or it lands under
     # the main checkout while we look for it in the worktree.
     out = os.path.abspath(os.path.join(workdir, "poolgen"))
-    cmd = [sys.executable, os.path.join(ROOT, "lna", "generate.py"),
-           "--n", str(n), "--batch", "32", "--prefix", "lna",
-           "--prefix-len", "12", "--seed", str(seed), "--device", "cpu",
-           "--out", out]
-    print(f"generating arm-A pool: {n} topologies ...", flush=True)
-    subprocess.run(cmd, check=True, cwd=ROOT,
-                   stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    existing = (sorted(f for f in os.listdir(out) if f.startswith("seq"))
+                if os.path.isdir(out) else [])
+    if len(existing) >= n:
+        print(f"reusing existing arm-A pool: {len(existing)} topologies in {out}",
+              flush=True)
+    else:
+        cmd = [sys.executable, os.path.join(ROOT, "lna", "generate.py"),
+               "--n", str(n), "--batch", "32", "--prefix", "lna",
+               "--prefix-len", "12", "--seed", str(seed), "--device", "cpu",
+               "--out", out]
+        print(f"generating arm-A pool: {n} topologies ...", flush=True)
+        subprocess.run(cmd, check=True, cwd=ROOT,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
     pool = []
     for fn in sorted(os.listdir(out)):
         if fn.startswith("seq") and fn.endswith(".txt"):

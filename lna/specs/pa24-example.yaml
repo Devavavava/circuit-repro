@@ -1,0 +1,60 @@
+# ============================================================================
+# EXPERIMENTAL DRAFT -- power-amplifier example spec (circuit_class: pa).
+# Not a campaign target. Illustrates the pa class metric vocabulary and the
+# pa_harness.py measurements. The topology screen is DELIBERATELY PERMISSIVE:
+# class-specific L0 screens for a PA (output-match structure, class-A/AB bias
+# leg, no input LNA-style degeneration requirement) are FUTURE WORK -- see
+# kaggle/HARNESS-ROADMAP.md. The numeric targets are plausible-textbook, not
+# calibrated to any paper. pae/psat/p1db are MEASURED by pa_harness (golden:
+# lna/ref/check_pa.py) but wired as gateable constraints, not sizing objectives.
+# ============================================================================
+name: pa24-example
+circuit_class: pa
+description: EXPERIMENTAL DRAFT 2.4 GHz power-amplifier example (class metrics demo)
+
+process:
+  models: AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt
+  vdd: 1.1
+  temp: 27
+
+band:
+  type: narrowband
+  f0: 2.442e9
+  f_lo: 2.400e9
+  f_hi: 2.4835e9
+
+ports:
+  z0: 50
+  input: VIN1
+  output: VOUT1
+
+# All pa metrics are declared `measured` (pa_harness produces them; golden
+# check_pa is GREEN) so they gate exactly like any supported metric. Values are
+# illustrative, not calibrated.
+constraints:
+  s21_db:   {min: 10}            # small-signal gain
+  p1db_dbm: {min: 5, status: measured}    # output-referred 1 dB compression
+  psat_dbm: {min: 8, status: measured}
+  pae_pct:  {min: 20, status: measured}
+  s11_db:   {max: -8}
+
+objectives:
+  - {metric: pae_pct, direction: max, weight: 1.0}
+  - {metric: p1db_dbm, direction: max, weight: 0.5}
+
+# PERMISSIVE structural screen (v0): only the universal criteria are active.
+# device_budget is wide; no differential/inductor requirements are asserted, so
+# the screen does not reject generic gain stages -- a class-specific PA screen is
+# future work (roadmap).
+topology:
+  device_budget: [1, 24]
+  allow_inductorless: true      # PAs may be transformer/LC-matched OR not; do
+                                # not force an inductor at L0 in v0
+  reject_floating: true
+
+sizing:
+  w_um: [1, 400]                # PAs run wide output devices
+  l_fixed: 45e-9
+  r_ohm: [10, 20e3]
+  c_f: [50e-15, 20e-12]
+  vb_v: [0.2, 1.0]

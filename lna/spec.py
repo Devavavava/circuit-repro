@@ -50,8 +50,27 @@ from topology import Topology, base_of  # noqa: E402
 SPECS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "specs")
 
 # ---- schema (unknown keys are an error; typo tolerance ships wrong specs) ----
+# circuit_class values (A4): the default `lna` means "absent == lna", so an
+# existing spec with no circuit_class field is unchanged. pa/mixer/balun-lna are
+# the three new RF classes whose harnesses live in lna/{pa,mixer,balun}_harness.
+CIRCUIT_CLASSES = ("lna", "pa", "mixer", "balun-lna")
+
+# Constraint metric names the new class harnesses produce. These are RECOGNIZED
+# for gating/reporting only -- constraints already accept arbitrary metric names
+# (see the constraints loop in _validate), so this set changes NO validation; it
+# is the documented vocabulary a class spec draws from, kept here so a typo like
+# `p1db_dm` is at least greppable against the intended list. Nothing here is
+# wired into the sizing objective automatically (A4): they become measurable/
+# gateable exactly like existing metrics via the constraints block.
+CLASS_METRICS = (
+    "p1db_dbm", "psat_dbm", "pae_pct",                  # pa
+    "conv_gain_db", "lo_rf_iso_db", "lo_if_iso_db",     # mixer
+    "imbalance_amp_db", "imbalance_phase_deg",          # balun-lna
+    "cmrr_db", "sds21_db",
+)
+
 _ALLOWED = {
-    "_top": {"name", "description", "process", "band", "ports",
+    "_top": {"name", "description", "circuit_class", "process", "band", "ports",
              "constraints", "objectives", "topology", "sizing"},
     "process": {"models", "vdd", "temp"},
     "band": {"type", "f0", "f_lo", "f_hi"},
@@ -76,6 +95,11 @@ class Spec(object):
         self._validate(data)
         self.name = data["name"]
         self.description = data.get("description", "")
+        # circuit_class (A4): absent -> "lna", so every existing spec is
+        # unchanged. Selects which measurement harness a driver runs; spec.py
+        # itself stays class-agnostic (feasible/objective gate whatever metrics
+        # the constraints name, regardless of class).
+        self.circuit_class = data.get("circuit_class", "lna")
         self.process = data.get("process", {})
         self.band = data.get("band", {})
         self.ports = data.get("ports", {})
@@ -120,6 +144,11 @@ class Spec(object):
             raise SpecError(f"{where}: missing required 'topology' section "
                             "(the structural screen is derived from it)")
         unknown("<top level>", d.keys(), _ALLOWED["_top"])
+        cc = d.get("circuit_class", "lna")
+        if cc not in CIRCUIT_CLASSES:
+            raise SpecError(f"{where}: circuit_class must be one of "
+                            f"{list(CIRCUIT_CLASSES)} (got {cc!r}); omit for "
+                            "the default 'lna'")
         for sect in ("process", "band", "ports", "topology", "sizing"):
             if sect in d and d[sect] is not None:
                 if not isinstance(d[sect], dict):
@@ -449,6 +478,7 @@ def main():
     s = Spec.load(args.spec)
     print(f"loaded {s.source}")
     print(f"  name        : {s.name}")
+    print(f"  class       : {s.circuit_class}")
     print(f"  description : {s.description}")
     print(f"  band        : {s.band_type}"
           + (f"  f0={s.band.get('f0')}" if s.band.get("f0") else ""))

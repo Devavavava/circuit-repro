@@ -23,24 +23,30 @@ WORK = "/kaggle/working/weights"
 os.makedirs(WORK, exist_ok=True)
 
 # (label, HF repo, filename)   -- huggingface.co/<repo>/resolve/main/<filename>
-# TODO verify exact HF repo/filename at run time (repos get re-uploaded).
+# VERIFIED 2026-08-26 via HEAD from the box (HTTP 200 + content-length):
+#   qwen30  18,556,686,752 B   (Qwen's official 2507 GGUF repo is gated/401; unsloth mirror is open)
+#   gptoss  11,624,759,488 B
+#   qwen8    6,725,899,040 B
+# /kaggle/working output cap is ~19.5 GB -> ONE big model per run/dataset.
 TARGETS = [
-    # primary: Qwen3-30B-A3B (MoE, ~3B active) Q4_K_M
-    ("qwen3-30b-a3b-q4_k_m",
-     "Qwen/Qwen3-30B-A3B-GGUF",                     # TODO verify repo
-     "Qwen3-30B-A3B-Q4_K_M.gguf"),                  # TODO verify filename
-    # fallback: gpt-oss-20b GGUF
-    ("gpt-oss-20b",
-     "ggml-org/gpt-oss-20b-GGUF",                   # TODO verify repo
-     "gpt-oss-20b.gguf"),                           # TODO verify filename
+    # primary: Qwen3-30B-A3B Instruct 2507 (MoE, ~3B active) Q4_K_M
+    ("qwen3-30b-a3b-instruct-2507-q4_k_m",
+     "unsloth/Qwen3-30B-A3B-Instruct-2507-GGUF",
+     "Qwen3-30B-A3B-Instruct-2507-Q4_K_M.gguf"),
+    # fallback: gpt-oss-20b Q4_K_M
+    ("gpt-oss-20b-q4_k_m",
+     "unsloth/gpt-oss-20b-GGUF",
+     "gpt-oss-20b-Q4_K_M.gguf"),
     # volume tier: Qwen3-8B Q6_K
     ("qwen3-8b-q6_k",
-     "Qwen/Qwen3-8B-GGUF",                          # TODO verify repo
-     "Qwen3-8B-Q6_K.gguf"),                         # TODO verify filename
+     "Qwen/Qwen3-8B-GGUF",
+     "Qwen3-8B-Q6_K.gguf"),
 ]
 
 HF_BASE = os.environ.get("HF_BASE", "https://huggingface.co")
-ONLY = os.environ.get("ONLY")            # optional: label substring to fetch just one
+# label substring filter; default = primary only (run #1). Restage with a
+# different default for the fallback+8B run (they fit one output together).
+ONLY = os.environ.get("ONLY", "qwen3-30b")
 
 
 def resolve_url(repo, filename):

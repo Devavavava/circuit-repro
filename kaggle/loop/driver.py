@@ -183,6 +183,12 @@ def parse_completion(content):
         # last resort: strip any single fenced block that looks like device lines
         m = re.search(r"```\s*\n(.*?)```", content, re.DOTALL)
         netlist = m.group(1).strip("\n") if m else None
+    if netlist:
+        # observed live (loop-gpu v7): the model opens a BARE fence and puts the
+        # language tag on its own first line -- drop it before parsing
+        first, _, rest = netlist.partition("\n")
+        if first.strip().lower() in ("netlist", "spice", "text"):
+            netlist = rest.strip("\n")
     deltas = {}
     j_m = _JSON_RE.search(content)
     if j_m:

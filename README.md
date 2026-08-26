@@ -1,5 +1,8 @@
 # circuit-repro
 
+> **Want to design an LNA? → [HOWTO.md](HOWTO.md)** — write a spec, run one command, view
+> the result. Three steps, no need to read the rest of the repo.
+
 Setup and smoke-test harness for 11 analog-circuit ML papers, plus 4 follow-up repos.
 
 **[STATUS.md](STATUS.md) is the main document** — per-work results, environment versions,

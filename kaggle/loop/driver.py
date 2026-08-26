@@ -439,7 +439,8 @@ def size_candidate(tokens, spec_ref, seeds, budget):
 
 # =================================================================== the loop
 def run_candidate(traj, spec, spec_ref, iteration, netlist_text, rationale,
-                  deltas, model_id, usage, phase, no_sim, seeds, budget):
+                  deltas, model_id, usage, phase, no_sim, seeds, budget,
+                  raw_completion=None):
     """Run one proposed/edited netlist through the full funnel, logging each phase.
 
     Returns a dict summarizing outcome for ranking:
@@ -449,7 +450,10 @@ def run_candidate(traj, spec, spec_ref, iteration, netlist_text, rationale,
     errors = []
     prop_row = {"netlist": netlist_text if netlist_text is not None else "",
                 "rationale": rationale, "predicted_deltas": deltas}
+    # completion_verbatim: the model's raw text, untruncated -- the house rule
+    # (context-attrition lesson) and the only way to debug a parse failure.
     traj.row(iteration, phase, model_id=model_id, proposal=prop_row,
+             completion_verbatim=raw_completion,
              prompt_tokens=(usage or {}).get("prompt_tokens"),
              completion_tokens=(usage or {}).get("completion_tokens"))
 
@@ -658,7 +662,7 @@ def main(argv=None):
               % (k, "netlist parsed" if netlist else "NO netlist block"), flush=True)
         cand = run_candidate(traj, spec, spec_ref, k, netlist, rationale, deltas,
                              rmodel, usage, "propose", args.no_sim,
-                             args.seeds, args.budget)
+                             args.seeds, args.budget, raw_completion=content)
         candidates.append(cand)
 
     ok = [c for c in candidates if c["ok"]]
@@ -697,7 +701,7 @@ def main(argv=None):
             ecand = run_candidate(traj, spec, spec_ref, it, netlist, rationale,
                                   deltas, eresp.get("model", model_id),
                                   eresp.get("usage"), "edit", args.no_sim,
-                                  args.seeds, args.budget)
+                                  args.seeds, args.budget, raw_completion=content)
             if ecand["ok"]:
                 candidates.append(ecand)
                 ok.append(ecand)

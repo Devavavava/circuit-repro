@@ -184,14 +184,20 @@ def main():
             sys.exit("[loop-gpu] llama-server never became healthy")
         driver = os.path.join(CLONE, "kaggle", "loop", "driver.py")
         grammar = os.path.join(CLONE, "kaggle", "loop", "grammar.gbnf")
+        # NO --grammar-file: the netlist-only GBNF constrains the WHOLE
+        # completion, which is incompatible with the netlist+rationale+deltas
+        # output contract (v6 live run: prose got mangled into pseudo-device
+        # lines). The tested Python parser is the authoritative validator.
+        # --max-tokens 3072: v6 truncated at the old 1024 default.
         inner = (
             "source %s && exec %s %s --spec %s --base-url http://127.0.0.1:%d/v1 "
-            "--model %s --k %s --budget %s --seeds %s --traj-dir %s --out-dir %s "
-            "--grammar-file %s"
+            "--model %s --k %s --budget %s --seeds %s --max-tokens %s "
+            "--traj-dir %s --out-dir %s"
             % (ENV_SH, sys.executable, driver, SPEC, PORT,
                os.environ.get("MODEL_ID", "qwen3-30b-a3b-instruct-2507-q4km"),
-               LOOP_K, LOOP_BUDGET, LOOP_SEEDS, TRAJ,
-               os.path.join(WORK, "designs"), grammar)
+               LOOP_K, LOOP_BUDGET, LOOP_SEEDS,
+               os.environ.get("LOOP_MAX_TOKENS", "3072"), TRAJ,
+               os.path.join(WORK, "designs"))
         )
         # env-kaggle.sh carries NGSPICE/SPICE_LIB_DIR/LNA_DEPS_ROOT from bootstrap's
         # own process (env set inside bootstrap.sh does not persist to this one).

@@ -132,11 +132,32 @@ def flush_trajectory():
     print("[loop-gpu] trajectory dir has %d jsonl file(s): %s" % (n, TRAJ), flush=True)
 
 
+def preflight():
+    """Fail in seconds -- not after a 5-min source build -- if any input is
+    missing (v1 raced dataset processing and burned quota on the fallback)."""
+    need = {
+        "gh token": "/kaggle/input/**/gh_token*",
+        "ngspice cache": "/kaggle/input/**/ngspice47.tar.gz",
+        "llamacpp cache": "/kaggle/input/**/llamacpp.tar.gz",
+        "GGUF": os.environ.get("GGUF_GLOB", "/kaggle/input/**/Qwen3-30B*.gguf"),
+    }
+    missing = [k for k, pat in need.items()
+               if not glob.glob(pat, recursive=True)]
+    if missing:
+        print("[loop-gpu] /kaggle/input tree (3 levels):",
+              glob.glob("/kaggle/input/*") + glob.glob("/kaggle/input/*/*")
+              + glob.glob("/kaggle/input/*/*/*"), flush=True)
+        sys.exit("[loop-gpu] PREFLIGHT FAILED -- missing inputs: %s "
+                 "(datasets still processing? retry the push)" % ", ".join(missing))
+    print("[loop-gpu] preflight OK: all four inputs present", flush=True)
+
+
 def main():
     os.makedirs(TRAJ, exist_ok=True)
     proc = None
     rc = 1
     try:
+        preflight()
         bootstrap()
         untar_llamacpp()
         proc = launch_server()

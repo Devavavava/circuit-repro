@@ -49,9 +49,13 @@ else
     # NO_VMM drops the only use of that target (memory-pool VMM, optional);
     # the stubs path is belt-and-braces for anything else that wants libcuda.
     export CMAKE_LIBRARY_PATH="/usr/local/cuda/lib64/stubs:${CMAKE_LIBRARY_PATH:-}"
+    # Explicit arch: native detection on the DEFAULT GPU session (P100/sm60)
+    # produced a binary that crashes on the T4 (sm75) loop sessions with
+    # cudaFuncGetAttributes errors. 75 = T4; loop-gpu pins machine_shape=T4.
     cmake -B build \
         -DGGML_CUDA="$GGML_CUDA" \
         -DGGML_CUDA_NO_VMM=ON \
+        -DCMAKE_CUDA_ARCHITECTURES="${CUDA_ARCHS:-75}" \
         -DLLAMA_CURL=OFF \
         -DBUILD_SHARED_LIBS=OFF \
         -DCMAKE_BUILD_TYPE=Release \

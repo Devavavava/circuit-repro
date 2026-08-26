@@ -84,7 +84,9 @@ stage_ngspice() {
     fi
     # fast path: a prebuilt tree attached as a dataset
     local cached
-    cached=$(ls $WEIGHTS_DATASET_GLOB/ngspice47.tar.gz 2>/dev/null | head -1 || true)
+    # find, not ls-glob: mount layout varies by image generation (flat
+    # /kaggle/input/<slug>/ vs nested /kaggle/input/datasets/<user>/<slug>/)
+    cached=$(find /kaggle/input -name ngspice47.tar.gz 2>/dev/null | head -1 || true)
     if [ -n "$cached" ]; then
         log "untarring cached ngspice tree from $cached -> /kaggle/working"
         tar -xzf "$cached" -C /kaggle/working
@@ -133,8 +135,8 @@ stage_checkpoints() {
     local genie="$CLONE_DIR/AnalogGenie/repo/Pretrain.pth"
     local ft="$CLONE_DIR/lna/out/ft_p5v7_v2.pth"
     local src_genie src_ft
-    src_genie=$(ls $WEIGHTS_DATASET_GLOB/Pretrain.pth 2>/dev/null | head -1 || true)
-    src_ft=$(ls $WEIGHTS_DATASET_GLOB/ft_p5v7_v2.pth 2>/dev/null | head -1 || true)
+    src_genie=$(find /kaggle/input -name Pretrain.pth 2>/dev/null | head -1 || true)
+    src_ft=$(find /kaggle/input -name ft_p5v7_v2.pth 2>/dev/null | head -1 || true)
     if [ -n "$src_genie" ] && [ ! -e "$genie" ]; then
         mkdir -p "$(dirname "$genie")"; ln -sf "$src_genie" "$genie"
         log "linked generator checkpoint: $genie -> $src_genie"

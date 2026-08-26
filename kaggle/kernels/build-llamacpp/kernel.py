@@ -20,7 +20,9 @@ GGML_CUDA = os.environ.get("GGML_CUDA", "OFF")  # staged default; "ON" for the G
 
 
 def _token():
-    for p in sorted(glob.glob("/kaggle/input/*/gh_token*")):
+    # recursive: mount layout varies (flat /kaggle/input/<slug>/ vs nested
+    # /kaggle/input/datasets/<user>/<slug>/ depending on image generation)
+    for p in sorted(glob.glob("/kaggle/input/**/gh_token*", recursive=True)):
         tok = open(p).read().strip()
         if tok:
             print("[build-llamacpp-kernel] GH token from", p, flush=True)

@@ -33,7 +33,9 @@ NGSPICE_PREFIX = os.environ.get("NGSPICE_PREFIX", os.path.join(WORK, "ngspice47"
 
 
 def _get_token():
-    for p in sorted(glob.glob("/kaggle/input/*/gh_token*")):
+    # recursive: mount layout varies (flat /kaggle/input/<slug>/ vs nested
+    # /kaggle/input/datasets/<user>/<slug>/ depending on image generation)
+    for p in sorted(glob.glob("/kaggle/input/**/gh_token*", recursive=True)):
         tok = open(p).read().strip()
         if tok:
             print("[setup-cpu] GH token from attached dataset:", p, flush=True)

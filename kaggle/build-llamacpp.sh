@@ -44,8 +44,14 @@ else
     git clone --depth 1 --branch "$LLAMACPP_TAG" "$LLAMACPP_REPO" "$BUILD_DIR"
     cd "$BUILD_DIR"
     log "cmake configure (GGML_CUDA=$GGML_CUDA)"
+    # Kaggle GPU containers: find_package(CUDAToolkit) misses libcuda, so the
+    # CUDA::cuda_driver imported target does not exist (v5 configure failure).
+    # NO_VMM drops the only use of that target (memory-pool VMM, optional);
+    # the stubs path is belt-and-braces for anything else that wants libcuda.
+    export CMAKE_LIBRARY_PATH="/usr/local/cuda/lib64/stubs:${CMAKE_LIBRARY_PATH:-}"
     cmake -B build \
         -DGGML_CUDA="$GGML_CUDA" \
+        -DGGML_CUDA_NO_VMM=ON \
         -DLLAMA_CURL=OFF \
         -DBUILD_SHARED_LIBS=OFF \
         -DCMAKE_BUILD_TYPE=Release \

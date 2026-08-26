@@ -81,7 +81,31 @@ class ChatClient(object):
 
     def complete(self, messages, temperature=0.7, max_tokens=1024, n=1,
                  grammar=None):
-        """Return a raw chat.completions response dict (may hold n choices)."""
+        """Return a raw chat.completions response dict (may hold n choices).
+
+        n>1 fans out as n sequential n=1 requests, choices merged: llama-server
+        caps the OpenAI `n` field at its --parallel slot count (observed live:
+        HTTP 400 "Field 'n': Value must be between 1 <= value <= 1, but got 2"),
+        and sequential singles keep the full context window per request.
+        """
+        if n > 1:
+            base, choices = None, []
+            for _ in range(n):
+                r = self.complete(messages, temperature=temperature,
+                                  max_tokens=max_tokens, n=1, grammar=grammar)
+                ch = dict(r["choices"][0])
+                ch["index"] = len(choices)
+                choices.append(ch)
+                if base is None:
+                    base = r
+                else:
+                    for k2 in ("prompt_tokens", "completion_tokens", "total_tokens"):
+                        try:
+                            base["usage"][k2] += r.get("usage", {}).get(k2, 0)
+                        except (KeyError, TypeError):
+                            pass
+            base["choices"] = choices
+            return base
         body = {"model": self.model, "messages": messages,
                 "temperature": temperature, "max_tokens": max_tokens, "n": n}
         g = grammar if grammar is not None else self.grammar

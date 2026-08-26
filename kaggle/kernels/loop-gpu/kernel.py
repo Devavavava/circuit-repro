@@ -41,6 +41,11 @@ LOOP_K = os.environ.get("LOOP_K", "2")
 LOOP_BUDGET = os.environ.get("LOOP_BUDGET", "150")
 LOOP_SEEDS = os.environ.get("LOOP_SEEDS", "1")
 
+# RUN_MODE=campaign -> the capability-v0 arm-B ladder (campaign.py) instead of
+# the single-spec smoke. Default stays the proven single-spec driver smoke.
+RUN_MODE = os.environ.get("RUN_MODE", "smoke")
+WALL_BUDGET_MIN = os.environ.get("WALL_BUDGET_MIN", "500")
+
 
 def sh(cmd, **kw):
     print("[loop-gpu] $", " ".join(cmd), flush=True)
@@ -183,22 +188,38 @@ def main():
                 pass
             sys.exit("[loop-gpu] llama-server never became healthy")
         driver = os.path.join(CLONE, "kaggle", "loop", "driver.py")
+        campaign = os.path.join(CLONE, "kaggle", "loop", "campaign.py")
+        ladder = os.path.join(CLONE, "kaggle", "specs-ladder", "ladder.json")
         grammar = os.path.join(CLONE, "kaggle", "loop", "grammar.gbnf")
+        model_id = os.environ.get("MODEL_ID", "qwen3-30b-a3b-instruct-2507-q4km")
         # NO --grammar-file: the netlist-only GBNF constrains the WHOLE
         # completion, which is incompatible with the netlist+rationale+deltas
         # output contract (v6 live run: prose got mangled into pseudo-device
         # lines). The tested Python parser is the authoritative validator.
         # --max-tokens 3072: v6 truncated at the old 1024 default.
-        inner = (
-            "source %s && exec %s %s --spec %s --base-url http://127.0.0.1:%d/v1 "
-            "--model %s --k %s --budget %s --seeds %s --max-tokens %s "
-            "--traj-dir %s --out-dir %s"
-            % (ENV_SH, sys.executable, driver, SPEC, PORT,
-               os.environ.get("MODEL_ID", "qwen3-30b-a3b-instruct-2507-q4km"),
-               LOOP_K, LOOP_BUDGET, LOOP_SEEDS,
-               os.environ.get("LOOP_MAX_TOKENS", "3072"), TRAJ,
-               os.path.join(WORK, "designs"))
-        )
+        if RUN_MODE == "campaign":
+            # capability-v0 arm-B ladder: campaign.py owns per-spec budgets
+            # (k/edit_rounds/seeds/budget) and escalation; the kernel only
+            # passes the endpoint, ladder, wall budget, and output dir.
+            print("[loop-gpu] RUN_MODE=campaign -> arm-B ladder (%s)" % ladder,
+                  flush=True)
+            inner = (
+                "source %s && exec %s %s --arm B --ladder %s "
+                "--base-url http://127.0.0.1:%d/v1 --model %s "
+                "--wall-budget-min %s --out %s"
+                % (ENV_SH, sys.executable, campaign, ladder, PORT, model_id,
+                   WALL_BUDGET_MIN, os.path.join(WORK, "campaign"))
+            )
+        else:
+            inner = (
+                "source %s && exec %s %s --spec %s --base-url http://127.0.0.1:%d/v1 "
+                "--model %s --k %s --budget %s --seeds %s --max-tokens %s "
+                "--traj-dir %s --out-dir %s"
+                % (ENV_SH, sys.executable, driver, SPEC, PORT, model_id,
+                   LOOP_K, LOOP_BUDGET, LOOP_SEEDS,
+                   os.environ.get("LOOP_MAX_TOKENS", "3072"), TRAJ,
+                   os.path.join(WORK, "designs"))
+            )
         # env-kaggle.sh carries NGSPICE/SPICE_LIB_DIR/LNA_DEPS_ROOT from bootstrap's
         # own process (env set inside bootstrap.sh does not persist to this one).
         rc = sh(["bash", "-c", inner],

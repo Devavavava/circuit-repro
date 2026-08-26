@@ -25,6 +25,8 @@ def _token():
         if tok:
             print("[build-llamacpp-kernel] GH token from", p, flush=True)
             return tok
+    print("[build-llamacpp-kernel] /kaggle/input contents:",
+          glob.glob("/kaggle/input/*") + glob.glob("/kaggle/input/*/*"), flush=True)
     sys.exit("[build-llamacpp-kernel] no gh token dataset attached "
              "(need the circuit-repro-ghtoken dataset in dataset_sources)")
 

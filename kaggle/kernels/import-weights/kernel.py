@@ -44,9 +44,10 @@ TARGETS = [
 ]
 
 HF_BASE = os.environ.get("HF_BASE", "https://huggingface.co")
-# label substring filter; default = primary only (run #1). Restage with a
-# different default for the fallback+8B run (they fit one output together).
-ONLY = os.environ.get("ONLY", "qwen3-30b")
+# comma-separated label substring filter. Run #1 was "qwen3-30b" (primary alone,
+# 17.3 GiB); run #2 default = fallback + volume tier (10.8 + 6.3 GiB fit one
+# output together under the ~19.5 GB cap).
+ONLY = os.environ.get("ONLY", "gpt-oss,qwen3-8b")
 
 
 def resolve_url(repo, filename):
@@ -81,7 +82,7 @@ def download(url, dest):
 def main():
     manifest = []
     for label, repo, filename in TARGETS:
-        if ONLY and ONLY not in label:
+        if ONLY and not any(s.strip() in label for s in ONLY.split(",") if s.strip()):
             continue
         dest = os.path.join(WORK, filename)
         if os.path.exists(dest) and os.path.getsize(dest) > 0:

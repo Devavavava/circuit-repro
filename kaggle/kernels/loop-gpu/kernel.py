@@ -83,8 +83,19 @@ def untar_llamacpp():
     if os.path.isdir(os.path.join(LLAMACPP_PREFIX, "bin")):
         print("[loop-gpu] llamacpp already present", flush=True)
         return
-    tar = find_one("/kaggle/input/**/llamacpp.tar.gz", "llamacpp cache")
-    sh(["tar", "-xzf", tar, "-C", WORK], check=True)
+    tars = sorted(glob.glob("/kaggle/input/**/llamacpp.tar.gz", recursive=True))
+    if tars:
+        sh(["tar", "-xzf", tars[0], "-C", WORK], check=True)
+        return
+    # Kaggle auto-extracts uploaded archives (nested under an archive-named
+    # dir, execute bits stripped): copy the extracted tree and restore +x.
+    hits = sorted(glob.glob("/kaggle/input/**/llamacpp/bin/llama-server",
+                            recursive=True))
+    if not hits:
+        sys.exit("[loop-gpu] no llamacpp cache (tarball or extracted) found")
+    root = os.path.dirname(os.path.dirname(hits[0]))
+    sh(["cp", "-r", root, WORK], check=True)
+    sh(["bash", "-c", "chmod +x %s/bin/* || true" % LLAMACPP_PREFIX])
 
 
 def wait_health(proc, timeout=600):
@@ -136,13 +147,16 @@ def preflight():
     """Fail in seconds -- not after a 5-min source build -- if any input is
     missing (v1 raced dataset processing and burned quota on the fallback)."""
     need = {
-        "gh token": "/kaggle/input/**/gh_token*",
-        "ngspice cache": "/kaggle/input/**/ngspice47.tar.gz",
-        "llamacpp cache": "/kaggle/input/**/llamacpp.tar.gz",
-        "GGUF": os.environ.get("GGUF_GLOB", "/kaggle/input/**/Qwen3-30B*.gguf"),
+        "gh token": ["/kaggle/input/**/gh_token*"],
+        # tarball OR the auto-extracted tree (Kaggle unpacks uploaded archives)
+        "ngspice cache": ["/kaggle/input/**/ngspice47.tar.gz",
+                          "/kaggle/input/**/ngspice47/bin/ngspice"],
+        "llamacpp cache": ["/kaggle/input/**/llamacpp.tar.gz",
+                           "/kaggle/input/**/llamacpp/bin/llama-server"],
+        "GGUF": [os.environ.get("GGUF_GLOB", "/kaggle/input/**/Qwen3-30B*.gguf")],
     }
-    missing = [k for k, pat in need.items()
-               if not glob.glob(pat, recursive=True)]
+    missing = [k for k, pats in need.items()
+               if not any(glob.glob(p, recursive=True) for p in pats)]
     if missing:
         print("[loop-gpu] /kaggle/input tree (3 levels):",
               glob.glob("/kaggle/input/*") + glob.glob("/kaggle/input/*/*")

@@ -82,19 +82,28 @@ stage_ngspice() {
         log "ngspice already present at $bin -- skipping"
         TIMINGS[ngspice]=$(( $(now) - t0 )); return
     fi
-    # fast path: a prebuilt tree attached as a dataset
-    local cached
-    # find, not ls-glob: mount layout varies by image generation (flat
-    # /kaggle/input/<slug>/ vs nested /kaggle/input/datasets/<user>/<slug>/)
+    # fast path: a prebuilt tree attached as a dataset. find, not ls-glob
+    # (mount layout varies by image generation), and accept the tarball OR the
+    # extracted tree: Kaggle AUTO-EXTRACTS uploaded archives (and nests them
+    # under a dir named after the archive), stripping execute bits.
+    local cached xbin
     cached=$(find /kaggle/input -name ngspice47.tar.gz 2>/dev/null | head -1 || true)
     if [ -n "$cached" ]; then
         log "untarring cached ngspice tree from $cached -> /kaggle/working"
         tar -xzf "$cached" -C /kaggle/working
-        if [ -x "$bin" ]; then
-            TIMINGS[ngspice]=$(( $(now) - t0 )); return
+    else
+        xbin=$(find /kaggle/input -type f -path '*/ngspice47/bin/ngspice' 2>/dev/null | head -1 || true)
+        if [ -n "$xbin" ]; then
+            log "copying extracted ngspice tree from ${xbin%/bin/ngspice} -> $NGSPICE_PREFIX"
+            mkdir -p "$NGSPICE_PREFIX"
+            cp -r "${xbin%/bin/ngspice}/." "$NGSPICE_PREFIX/"
+            chmod +x "$NGSPICE_PREFIX"/bin/* 2>/dev/null || true
         fi
-        log "WARNING: cached tarball did not yield $bin; falling back to source build"
     fi
+    if [ -x "$bin" ]; then
+        TIMINGS[ngspice]=$(( $(now) - t0 )); return
+    fi
+    [ -n "$cached$xbin" ] && log "WARNING: cache did not yield executable $bin; falling back to source build"
     # slow path: build from source at the FIXED prefix
     log "building ngspice ${NGSPICE_VERSION} from source (~5-10 min)"
     mkdir -p "$BUILD_DIR"; cd "$BUILD_DIR"

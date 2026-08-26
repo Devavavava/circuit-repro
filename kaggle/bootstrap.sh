@@ -46,13 +46,13 @@ now() { date +%s; }
 # --------------------------------------------------------------- configuration
 REPO_SLUG="${REPO_SLUG:-Devavavava/circuit-repro}"
 REPO_BRANCH="${REPO_BRANCH:-main}"
-CLONE_DIR="${CLONE_DIR:-/kaggle/working/circuit-repro}"
+CLONE_DIR="${CLONE_DIR:-/tmp/circuit-repro}"   # NOT /kaggle/working: the clone must not become kernel output
 NGSPICE_PREFIX="${NGSPICE_PREFIX:-/kaggle/working/ngspice47}"
 NGSPICE_VERSION="${NGSPICE_VERSION:-47}"
 NGSPICE_TARBALL_URL="${NGSPICE_TARBALL_URL:-https://sourceforge.net/projects/ngspice/files/ng-spice-rework/${NGSPICE_VERSION}/ngspice-${NGSPICE_VERSION}.tar.gz/download}"
 WEIGHTS_DATASET_GLOB="${WEIGHTS_DATASET_GLOB:-/kaggle/input/*}"
 REPORT_DIR="${REPORT_DIR:-/kaggle/working/report}"
-BUILD_DIR="${BUILD_DIR:-/kaggle/working/_ngspice_build}"
+BUILD_DIR="${BUILD_DIR:-/tmp/_ngspice_build}"   # NOT /kaggle/working: everything there becomes kernel output
 
 mkdir -p "$REPORT_DIR"
 T_START=$(now)
@@ -108,6 +108,7 @@ stage_ngspice() {
     make install >/dev/null
     cd /
     [ -x "$bin" ] || { log "FATAL: ngspice build did not produce $bin"; exit 1; }
+    rm -rf "$BUILD_DIR"   # keep kernel output lean: only the installed prefix survives
     TIMINGS[ngspice]=$(( $(now) - t0 ))
 }
 

@@ -27,7 +27,7 @@ import sys
 REPO_SLUG = "Devavavava/circuit-repro"
 REPO_BRANCH = "main"
 WORK = "/kaggle/working"
-CLONE_DIR = os.path.join(WORK, "circuit-repro")
+CLONE_DIR = "/tmp/circuit-repro"  # not under /kaggle/working: the clone must not become kernel output
 NGSPICE_TARBALL = os.path.join(WORK, "ngspice47.tar.gz")
 NGSPICE_PREFIX = os.environ.get("NGSPICE_PREFIX", os.path.join(WORK, "ngspice47"))
 

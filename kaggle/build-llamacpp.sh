@@ -47,6 +47,7 @@ else
     cmake -B build \
         -DGGML_CUDA="$GGML_CUDA" \
         -DLLAMA_CURL=OFF \
+        -DBUILD_SHARED_LIBS=OFF \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$LLAMACPP_PREFIX"
     log "building llama-server (~8-15 min with CUDA)"
@@ -64,7 +65,14 @@ else
     rm -rf "$BUILD_DIR"   # keep kernel output lean
 fi
 
+# hard gate: the binary must EXECUTE, not merely exist (v3 smoke shipped a
+# binary that failed at load time on a missing shared lib)
+"$LLAMACPP_PREFIX/bin/llama-server" --version >/dev/null 2>&1 || {
+    log "FATAL: llama-server does not execute:"
+    "$LLAMACPP_PREFIX/bin/llama-server" --version 2>&1 | head -3 >&2 || true
+    exit 1
+}
 log "tarring $LLAMACPP_PREFIX -> $TARBALL (for caching as a dataset)"
 tar -czf "$TARBALL" -C "$(dirname "$LLAMACPP_PREFIX")" "$(basename "$LLAMACPP_PREFIX")"
-log "done: $("$LLAMACPP_PREFIX/bin/llama-server" --version 2>&1 | head -1 || echo 'llama-server built')"
+log "done: $("$LLAMACPP_PREFIX/bin/llama-server" --version 2>&1 | head -1)"
 log "cached tarball: $TARBALL  ($(du -h "$TARBALL" | cut -f1))"

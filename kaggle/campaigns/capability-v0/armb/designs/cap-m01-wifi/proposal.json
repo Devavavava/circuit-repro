@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "c231ac11552a9404",
+  "rationale": "# rationale\nThe proposed topology employs a tapped inductor-loaded common-source amplifier with source degeneration, optimized for high gain and low noise at 2.44 GHz. The inductive degeneration (Lg) and tuned load (Ld, Ct1, Ct2) enable excellent input matching (S11) and high transconductance gain while maintaining a low noise figure. The tapped load structure (Ct1, Ct2) provides impedance transformation that enhances S21 and enables simultaneous input and output matching within the 45nm CMOS process constraints. The topology avoids floating nodes, respects the device budget, and uses only three inductors\u2014within the allowed limit\u2014while ensuring the input is driven through a grounded gate (no floating gate issues). The structure is robust to process and temperature variations due to its passive tuning and high Q inductors, and the absence of a cascode or resistive load preserves current efficiency and avoids unnecessary Idd overhead. The architecture is well-suited to meet the NF \u2264 2.5 dB, S11 \u2264 -10 dB, S21 \u2265 12 dB, and Idd \u2264 5 mA targets.",
+  "arm": "B",
+  "run_id": "b66e343351c94b26",
+  "trajectory": "trajectory/b66e343351c94b26.jsonl"
+}

@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nC Cg n2 VSS\nNMOS M1 n4 n2 n3 VSS\nPMOS M2 n4 n2 n5 VDD\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "642485a8fad7cac9",
+  "rationale": "The proposed topology enhances the gain and input matching by replacing the single inductor in the gate path with a series inductor-capacitor (LC) resonant network at the input, which improves impedance matching at 2.44 GHz while simultaneously increasing forward gain through resonant peaking. This is critical for meeting the tight S21 requirement of 15 dB, which is currently 1.6 dB below target, while maintaining acceptable NF and Idd. The added capacitance at the gate (Ct1) is tuned with Lg to form a bandpass filter, improving S11 and S21 simultaneously without significantly increasing power consumption. The topology remains stable (as verified by k and mu margins) and retains the low-noise advantage of a common-source amplifier with source degeneration.",
+  "arm": "B",
+  "run_id": "71a4f1f78bab46df",
+  "trajectory": "trajectory/71a4f1f78bab46df.jsonl"
+}

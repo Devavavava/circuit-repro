@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "c231ac11552a9404",
+  "rationale": "# Rationale  \nThe proposed topology leverages an inductively-degenerated common-source stage with a tapped capacitive load to achieve low noise figure and excellent input matching at 5.8 GHz, critical for the tight H-tier spec. The inductor Lg provides series inductive degeneration, enhancing input impedance matching by canceling the input capacitance of the transistor, while the tapped capacitor network (Ct1, Ct2) forms a resonant load tuned to f0, maximizing gain (S21) and enabling high output swing with minimal power. The use of a single NMOS with grounded source and a floating inductor (Lg) in series with the gate ensures minimal gate noise contribution and low intrinsic noise, aligning with the NF \u2264 2.0 target. The topology avoids floating nodes, maintains a low device count (within budget), and strictly uses inductors to meet the narrowband requirement. The load is designed to be resonant at 5.8 GHz, ensuring high gain and good S21 while the input matching is preserved via the inductive degeneration. The topology is robust to process and temperature variations due to its passive tuning and minimal reliance on active biasing.",
+  "arm": "B",
+  "run_id": "01852813ef0b45b7",
+  "trajectory": "trajectory/01852813ef0b45b7.jsonl"
+}

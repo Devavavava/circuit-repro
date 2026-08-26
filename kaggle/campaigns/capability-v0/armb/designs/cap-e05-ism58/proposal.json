@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n3 n2 n4 VSS\nL Ls n4 VSS\nL Ld VDD n3\nC Ct1 n3 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "c231ac11552a9404",
+  "rationale": "The chosen topology is an inductively degenerated common-source amplifier with a tapped inductor load, optimized for high input match and low noise at 5.8 GHz. This architecture leverages the inductor in the source degeneration to extend the input impedance bandwidth and improve S11, while the tapped inductor load provides a high-Q resonant path that enhances gain and selectivity. The use of a single NMOS transistor with a large inductor in series with the source enables excellent noise figure performance by increasing the input impedance without sacrificing transconductance, and the resonant load ensures high S21 with minimal current draw. The topology avoids floating nodes, respects the device budget, and uses only three inductors\u2014well within the limit\u2014making it suitable for the 45nm process with strong matching constraints.",
+  "arm": "B",
+  "run_id": "f132108325ae47e6",
+  "trajectory": "trajectory/f132108325ae47e6.jsonl"
+}

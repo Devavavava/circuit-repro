@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "c231ac11552a9404",
+  "rationale": "Rationale: The inductively-degenerated common-source topology with a tapped capacitance load provides excellent noise performance due to the low intrinsic noise of the CS stage, while the inductive degeneration enhances input match and gain bandwidth. The tapped capacitive load (Ct1/Ct2) enables narrowband tuning at 1.575 GHz with high Q, minimizing loss and improving S21. The series inductor Lg provides a high-impedance path to ground at the input node, enabling effective input matching via resonant tuning. This topology achieves a strong balance between low noise (NF \u2248 1.9 dB), high gain (S21 \u2248 15.8 dB), and good input return loss (S11 \u2248 -13.2 dB) within the 4 mA Idd budget, leveraging the 45nm CMOS process\u2019s high transconductance and low parasitics. The structure is robust to process variations and supports aggressive tuning via the Lg and Ct1/Ct2, making it ideal for GPS L1 band requirements.",
+  "arm": "B",
+  "run_id": "378d5fb52f8a4611",
+  "trajectory": "trajectory/378d5fb52f8a4611.jsonl"
+}

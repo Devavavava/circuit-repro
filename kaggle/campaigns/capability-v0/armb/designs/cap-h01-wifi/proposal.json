@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "c231ac11552a9404",
+  "rationale": "The proposed topology leverages an inductively degenerated common-source stage with a tapped capacitance load, optimized for low noise figure and tight input match at 2.44 GHz. The inductor in the gate path (Lg) provides high impedance at the input, enabling a low-noise, high-input impedance node that supports excellent S11 performance. The source inductor (Ls) enables source degeneration for noise optimization, while the dual-tuned load (Ld, Ct1, Ct2) forms a resonant network that delivers high gain (S21) with narrowband selectivity. The output capacitance (Cout) is shared with the load, ensuring minimal parasitic loading and effective output impedance matching to 50\u03a9. This topology achieves a balanced trade-off between noise, gain, and input match, while remaining within the device budget and avoiding floating nodes.",
+  "arm": "B",
+  "run_id": "6e9d4fd333654a5b",
+  "trajectory": "trajectory/6e9d4fd333654a5b.jsonl"
+}

@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "c231ac11552a9404",
+  "rationale": "The proposed topology is a single-stage inductively degenerated common-source LNA with a tapped capacitor load, optimized for low noise and high gain at 3.5 GHz. The inductive degeneration (Lg) enhances input matching by extending the effective input impedance, while the series inductor (Ls) on the source provides additional tuning flexibility to achieve the required S11 < -8 dB without compromising noise performance. The tapped capacitive load (Ct1/Ct2) enables a resonant narrowband response at f0 = 3.5 GHz, enabling high S21 (>12 dB) with minimal off-band gain. The use of a single NMOS transistor minimizes device count, respects the device budget of 3, and avoids the complexity of cascode or multi-stage architectures that risk degrading S11 due to C_gd feedback. The topology avoids floating nodes and meets all constraints: the inductor in the source path (Ls) enables source inductance-based matching, and the grounded source provides inherent stability. The design leverages the 45nm CMOS process\u2019s low gate resistance and high transconductance, making it suitable for achieving NF \u2264 3.5 dB with moderate Idd.",
+  "arm": "B",
+  "run_id": "d11dc6b6a0224a03",
+  "trajectory": "trajectory/d11dc6b6a0224a03.jsonl"
+}

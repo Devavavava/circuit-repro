@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nPMOS M2 n4 n5 n6 VDD\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "b1e490c2edac6323",
+  "rationale": "The proposed topology improves the binding constraints\u2014particularly NF and IDD\u2014by replacing the single NMOS with a cascode configuration, enhancing output impedance and reducing current leakage while simultaneously improving noise performance via improved transconductance efficiency and isolation. The added PMOS in cascode suppresses the Miller effect, reduces input capacitance, and increases gain and stability, which directly improves S21 and NF. The inductor in the drain path tunes the output resonance, enabling better matching and gain at 1.575 GHz, while the added Cgt and Cgs shunt capacitances (via the cascode) provide better input matching and lower noise figure. This topology maintains differential balance and enables better biasing stability without increasing device count beyond the budget. The layout remains compact and suitable for 45nm CMOS with minimal inductor count.",
+  "arm": "B",
+  "run_id": "cbba78433c294bc9",
+  "trajectory": "trajectory/cbba78433c294bc9.jsonl"
+}

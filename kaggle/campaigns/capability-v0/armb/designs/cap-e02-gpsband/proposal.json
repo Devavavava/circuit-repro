@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "c231ac11552a9404",
+  "rationale": "The chosen topology is an inductively degenerated common-source LNA with a tapped inductor load, optimized for low noise and good input matching in the GPS L1 band (1.57542 GHz). This structure provides inherent bandwidth tuning via the inductor, enables high gain through inductive loading, and allows precise control of input impedance through the inductive degeneration, which is critical for meeting S11 \u2264 -8 dB and NF \u2264 3.5 dB under a tight device budget. The tapped inductor (Ld) allows for impedance transformation and optimal noise matching, while the series inductor (Lg) provides a low-impedance path to ground at the gate, improving input match. The use of a single NMOS with a grounded source and a shunt resonant tank at the drain enables high S21 and low Idd. The topology avoids floating nodes, respects the device budget (3\u201316 devices), and uses only 3 inductors\u2014within the allowed limit\u2014making it suitable for 45nm CMOS with minimal area overhead.",
+  "arm": "B",
+  "run_id": "f17d8cd8bdd644f1",
+  "trajectory": "trajectory/f17d8cd8bdd644f1.jsonl"
+}

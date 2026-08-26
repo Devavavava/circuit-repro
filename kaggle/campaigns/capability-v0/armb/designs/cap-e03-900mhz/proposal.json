@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1\nL Ls1 VIN1 n1",
+  "wl_hash": "0fd8f770f8f60c6b",
+  "rationale": "The proposed topology improves the binding constraint of S11 (current margin: -0.00874) by adding a shunt inductor at the input to enhance input match, while maintaining the high S21 and low NF achieved in the prior design. The added Ls1 in parallel with the gate capacitance reduces the input reactance at 915 MHz, pushing S11 closer to the -8 dB target without increasing power consumption or degrading noise performance. The addition of one inductor keeps the total inductor count within the max limit (4), and the structure remains compatible with the 45nm CMOS process constraints.",
+  "arm": "B",
+  "run_id": "f4d78e7618f64241",
+  "trajectory": "trajectory/f4d78e7618f64241.jsonl"
+}

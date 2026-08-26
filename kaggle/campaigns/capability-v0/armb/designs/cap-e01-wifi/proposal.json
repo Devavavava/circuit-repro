@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "c231ac11552a9404",
+  "rationale": "Rationale: The inductively-degenerated common-source topology with tapped-C output loading is selected for its strong trade-off between noise figure, input matching, and gain. The series inductor at the gate (Lg) provides impedance transformation to improve S11, while the degeneration inductor (Ls) enhances input matching and reduces noise by lowering the input capacitance seen at the gate. The tapped capacitor (Ct1, Ct2) at the drain forms a resonant tank with Ld, enabling high gain and selectivity at 2.44 GHz. This topology is well-suited for the 45nm process, where compact inductors are available and can be leveraged to meet the tight S11 \u2264 -8 dB and NF \u2264 3.5 dB requirements without excessive current. The differential nature is not required per spec, and the single-ended configuration allows for efficient use of the device budget (3\u201316 devices) while maintaining low Idd.",
+  "arm": "B",
+  "run_id": "070186d8f54b4775",
+  "trajectory": "trajectory/070186d8f54b4775.jsonl"
+}

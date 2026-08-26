@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "c231ac11552a9404",
+  "rationale": "The chosen topology is an inductively degenerated common-source amplifier with a tapped capacitor load, optimized for low noise figure at 900 MHz while maintaining tight input match and low power. This structure provides excellent input impedance matching through inductive degeneration (Lg) and resonant tuning via the LC tank (Ld, Ct1, Ct2), enabling a high-quality factor (Q) resonant circuit that enhances gain and selectivity. The tapped capacitor (Ct1/Ct2) allows precise tuning of the output impedance to 50\u03a9, facilitating a strong S21 (>17 dB) and low S11 (< -13 dB). The use of a single NMOS transistor in a CS configuration minimizes device count and power consumption, aligning with the strict device budget (\u226416 devices) and Idd \u2264 4 mA constraint. The topology avoids floating nodes, supports differential operation if needed (though not required here), and leverages the 45nm process's low gate capacitance for improved noise performance.",
+  "arm": "B",
+  "run_id": "c9b32e3a4d6443c3",
+  "trajectory": "trajectory/c9b32e3a4d6443c3.jsonl"
+}

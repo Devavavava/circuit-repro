@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n3 n2 n4 VSS\nL Ls n4 VSS\nL Ld VDD n3\nC Ct1 n3 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "c231ac11552a9404",
+  "rationale": "The proposed topology is a single-stage inductively degenerated common-source LNA with a tapped capacitor load, optimized for high gain, low noise, and tight input matching at 5.8 GHz. The inductive degeneration at the source improves input matching by reducing the effective input capacitance and enhancing the input admittance real part, while the tapped capacitor load provides a high-Q resonant network that boosts gain and selectivity. The use of a single NMOS with inductive source degeneration and a shunt-series resonant load allows for excellent noise performance and gain with minimal device count, fitting within the device budget (3 devices) and avoiding floating nodes. The topology is inherently differential-friendly but operates in single-ended mode as required, with a grounded source and a high-Q LC tank at the output to achieve the targeted S21 and NF while maintaining S11 within spec. The topology avoids cascode isolation, which would otherwise degrade input matching due to C_gd coupling, and instead leverages the inherent input match of the degenerated CS stage.",
+  "arm": "B",
+  "run_id": "acdce78fb7d84885",
+  "trajectory": "trajectory/acdce78fb7d84885.jsonl"
+}

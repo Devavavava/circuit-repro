@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nPMOS M2 n4 VDD n2 VDD\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "0a5583e1dc5d71f4",
+  "rationale": "# Rationale\nThe proposed topology leverages a cascode-configured inductively-degenerated common-source amplifier with a tapped output inductor and shunt-series input matching. This architecture provides excellent input match (S11) through precise control of the input admittance via the series inductor Lg and the degeneration inductor Ls, while the cascode structure suppresses the Miller effect and enhances output isolation. The output is terminated with a tapped inductor (Ld) to form a resonant network at 1.575 GHz, enabling high gain (S21) and good linearity without requiring excessive current. The use of a single NMOS with cascode PMOS ensures low noise figure (NF) by maintaining high transconductance and minimizing gate capacitance impact. The topology avoids floating nodes, respects the device budget (6 devices), and uses only two inductors (within the 4-inductor limit), making it suitable for 45nm CMOS with the given constraints.",
+  "arm": "B",
+  "run_id": "288d0f3563db4254",
+  "trajectory": "trajectory/288d0f3563db4254.jsonl"
+}

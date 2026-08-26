@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "c231ac11552a9404",
+  "rationale": "Rationale: The inductively-degenerated common-source topology with a tapped-C output load is well-suited for the 5.8 GHz ISM band LNA spec due to its inherent high gain, excellent noise figure performance, and tunable input matching via the gate inductor. The series inductor Lg provides inductive degeneration to improve input matching (S11) without sacrificing transconductance, while the tapped capacitor network (Ct1, Ct2) at the drain enables broadband impedance transformation to 50 \u03a9, facilitating high S21 and good output matching. The use of a single NMOS transistor reduces device count and layout complexity, aligning with the device budget constraint. The topology enables strong isolation between input and output through the series inductor and grounded source, mitigating feedback via C_gd and maintaining stability. The design leverages the 45nm bulk CMOS process\u2019s low parasitics and high f_T to achieve high gain and low noise, with the inductor values tuned to resonate at 5.8 GHz for optimal performance. This architecture naturally supports low NF (\u22643.5 dB), good S11 (< -10 dB), high S21 (>12 dB), and Idd < 10 mA under nominal conditions.",
+  "arm": "B",
+  "run_id": "39c7f049cc7e4885",
+  "trajectory": "trajectory/39c7f049cc7e4885.jsonl"
+}

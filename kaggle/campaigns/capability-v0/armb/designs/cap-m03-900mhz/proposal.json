@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "c231ac11552a9404",
+  "rationale": "The proposed topology is a single-stage inductively degenerated common-source LNA with a tapped capacitor load, optimized for low noise and good input matching at 915 MHz. The inductive degeneration (Lg) improves input matching by increasing the input impedance at the desired frequency, while the tapped capacitor (Ct1/Ct2) provides a broadband impedance transformation that enhances gain and bandwidth control. The output inductor (Ld) and parallel capacitor (Cout) form a resonant tank for narrowband operation, enabling high gain and selectivity. The topology is compact, uses only three inductors (within the 4-inductor limit), and avoids floating nodes, satisfying the device budget and process constraints. The NMOS transistor operates in the linear region with a high transconductance-to-current ratio, minimizing noise while maintaining a low power draw, and the structure is inherently robust to gate-to-drain capacitance effects due to the degeneration and resonant load.",
+  "arm": "B",
+  "run_id": "c1d2a9753ddf43db",
+  "trajectory": "trajectory/c1d2a9753ddf43db.jsonl"
+}

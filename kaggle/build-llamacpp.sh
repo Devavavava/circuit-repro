@@ -29,10 +29,10 @@ set -euo pipefail
 log() { printf '[build-llamacpp] %s\n' "$*" >&2; }
 
 LLAMACPP_REPO="${LLAMACPP_REPO:-https://github.com/ggml-org/llama.cpp}"
-LLAMACPP_TAG="${LLAMACPP_TAG:-b4589}"          # TODO verify/pin a current tag at run time
+LLAMACPP_TAG="${LLAMACPP_TAG:-b10636}"         # verified 2026-08-26 (latest release; b4589 predates Qwen3-MoE/gpt-oss support)
 LLAMACPP_PREFIX="${LLAMACPP_PREFIX:-/kaggle/working/llamacpp}"
 GGML_CUDA="${GGML_CUDA:-ON}"
-BUILD_DIR="${BUILD_DIR:-/kaggle/working/_llamacpp_build}"
+BUILD_DIR="${BUILD_DIR:-/tmp/_llamacpp_build}"   # NOT /kaggle/working: everything there becomes kernel output
 JOBS="${JOBS:-$(nproc)}"
 TARBALL="${TARBALL:-/kaggle/working/llamacpp.tar.gz}"
 
@@ -61,6 +61,7 @@ else
     cd /
     [ -x "$LLAMACPP_PREFIX/bin/llama-server" ] || {
         log "FATAL: llama-server not found after build"; exit 1; }
+    rm -rf "$BUILD_DIR"   # keep kernel output lean
 fi
 
 log "tarring $LLAMACPP_PREFIX -> $TARBALL (for caching as a dataset)"

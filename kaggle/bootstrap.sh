@@ -44,7 +44,7 @@ log() { printf '[bootstrap] %s\n' "$*" >&2; }
 now() { date +%s; }
 
 # --------------------------------------------------------------- configuration
-REPO_SLUG="${REPO_SLUG:-TODO-USER/circuit-repro}"   # TODO set to your GitHub slug
+REPO_SLUG="${REPO_SLUG:-Devavavava/circuit-repro}"
 REPO_BRANCH="${REPO_BRANCH:-main}"
 CLONE_DIR="${CLONE_DIR:-/kaggle/working/circuit-repro}"
 NGSPICE_PREFIX="${NGSPICE_PREFIX:-/kaggle/working/ngspice47}"

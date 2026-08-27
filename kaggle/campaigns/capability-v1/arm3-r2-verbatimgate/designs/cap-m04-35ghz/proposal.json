@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nNMOS M2 n5 n4 n6 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n5 n7\nC Ct2 n7 VSS\nC Cout n7 VOUT1",
+  "wl_hash": "bb4640e2801dbcca",
+  "rationale": "The proposed topology improves the Idd_ma margin by adding a cascode transistor to reduce the DC current draw while maintaining gain and noise performance. The cascode structure suppresses the body effect and reduces the effective transconductance of the input stage, lowering the quiescent current without significantly degrading S21 or NF. The added inductor in the drain path provides additional selectivity and helps maintain the required S21 and S11 performance. This edit targets the binding constraint (Idd_ma) directly while preserving the pass status of all other metrics.",
+  "arm": "B",
+  "run_id": "1b586647d1b84b12",
+  "trajectory": "trajectory/1b586647d1b84b12.jsonl"
+}

@@ -40,12 +40,16 @@ CORPUS = ["d6c0e6fc6dc1adaa", "5fa89b4737cdf8cc", "1403690fcd12173e",
 INDUCTOR_Q = 12
 
 
-def size_tokens(tokens, spec_ref, seed, budget):
+def size_tokens(tokens, spec_ref, seed, budget, pdk=None):
     """Size one topology to a spec with CMA-ES. Returns a result dict (feasible,
-    best_obj, best_params, metrics, margins) or None if the topology isn't sizable."""
-    spec = S._spec_for_sizing(spec_ref, nf_gate=None)
+    best_obj, best_params, metrics, margins) or None if the topology isn't sizable.
+
+    `pdk` (cross-PDK v0, additive): None -> the spec's own `pdk:` field (default
+    bptm45), so every existing caller is unchanged. A non-None value is a per-run
+    OVERRIDE that beats the spec field, so the SAME spec sizes on any process."""
+    spec = S._spec_for_sizing(spec_ref, nf_gate=None, pdk=pdk)
     topo = Topology(list(tokens))
-    prep = S.prepared_body(topo, inductor_q=INDUCTOR_Q)
+    prep = S.prepared_body(topo, inductor_q=INDUCTOR_Q, pdk=S._pdk_name(spec))
     if prep is None:
         return None
     body, sizable, fixed = prep
@@ -129,11 +133,19 @@ def main():
     ap.add_argument("--budget", type=int, default=300, help="ngspice evals per sizing")
     ap.add_argument("--out", default=os.path.join(ROOT, "designs"),
                     help="output dir (default <repo>/designs)")
+    ap.add_argument("--pdk", default=None,
+                    help="OVERRIDE the spec's pdk field for this run (bptm45, "
+                         "sky130, gf180mcu, ihp_sg13g2). The SAME spec then sizes "
+                         "on any process; the supply rail comes from the adapter, "
+                         "not the spec. Default: the spec's own pdk (bptm45).")
     args = ap.parse_args()
 
     spec = Spec.load(args.spec)                 # validates; accepts name or path
+    if args.pdk is not None:
+        spec.pdk = args.pdk                     # so the printed banner is honest
     name = spec.name
-    print(f"solving spec '{name}'  (feasible = meets every gated constraint)\n")
+    print(f"solving spec '{name}' on pdk '{S._pdk_name(spec)}'  "
+          f"(feasible = meets every gated constraint)\n")
 
     # gather candidate topologies
     if args.topology:
@@ -153,7 +165,7 @@ def main():
     best = None
     for label, toks in candidates:
         for seed in range(1, args.seeds + 1):
-            r = size_tokens(toks, args.spec, seed, args.budget)
+            r = size_tokens(toks, args.spec, seed, args.budget, pdk=args.pdk)
             if r is None:
                 continue
             r["_label"], r["_tokens"] = label, toks

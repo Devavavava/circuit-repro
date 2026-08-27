@@ -575,7 +575,8 @@ def _log_l1(topo, rep, swept, provenance=None):
         return False
 
 
-def insert_bias(topo, sweep=False, log=False, provenance=None, rules=None, **kw):
+def insert_bias(topo, sweep=False, log=False, provenance=None, rules=None,
+                pdk=None, **kw):
     """Convenience: (netlist, inserter, report, sweep_result). Netlist has the
     winning (or default) scaffolding already set.
 
@@ -585,8 +586,21 @@ def insert_bias(topo, sweep=False, log=False, provenance=None, rules=None, **kw)
 
     `rules` selects the opt-in v3 DC-return rules; `None` (the default) reads
     `LNA_BIAS_RULES` from the environment, which is empty unless a session opts
-    in, so **every existing caller keeps v1 behaviour byte for byte**."""
+    in, so **every existing caller keeps v1 behaviour byte for byte**.
+
+    `pdk` (cross-PDK v0, additive): None -> the bptm45 adapter, which reproduces
+    the historical emission byte-for-byte AND whose vdd (1.1) equals Netlist's
+    own default -- so every existing caller is unchanged. A non-bptm45 adapter is
+    threaded into the emitted deck AND its supply rail (adapter.vdd) is used for
+    the bias sweep, because the rail is a process property (03-BIAS's driven-net
+    rules bias against VDD). An explicit `vdd=` in kw still wins (test hook)."""
     active = rules_from_env() if rules is None else parse_rules(rules)
+    if pdk is not None:
+        from pdk import get_pdk
+        adapter = get_pdk(pdk) if isinstance(pdk, str) else pdk
+        kw = dict(kw)
+        kw["pdk"] = adapter
+        kw.setdefault("vdd", adapter.vdd)     # rail from the process, not 1.1
     nl = Netlist(topo, **kw)
     inserter = BiasInserter(nl)
     rep = inserter.report()

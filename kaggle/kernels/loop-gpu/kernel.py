@@ -51,6 +51,22 @@ WALL_BUDGET_MIN = os.environ.get("WALL_BUDGET_MIN", "500")
 #   selflearn ARM3 arch + reflect-first overlay consult
 ARM = os.environ.get("ARM", "v0")
 
+# PDK selects the process the WHOLE ladder runs on (cross-PDK campaign, passed to
+# campaign.py --pdk). Default bptm45 (the built-in 45 nm flow -- needs no PDK
+# dataset). A foundry PDK (sky130/gf180mcu/ihp_sg13g2) requires its dataset
+# attached: preflight checks for it and bootstrap.sh links it into LNA_PDK_ROOT.
+# bptm45 arms already exist (capability-v0 armA + v1 arm2), so only the 3 foundry
+# PDKs are new campaign work.
+PDK = os.environ.get("PDK", "bptm45")
+
+# per-PDK dataset marker (a file unique to each extracted layout) -- what
+# preflight greps for; bootstrap.sh links the same layout into LNA_PDK_ROOT.
+_PDK_MARKERS = {
+    "sky130": "/kaggle/input/**/sky130/sky130_fd_pr/models/sky130.lib.min.spice",
+    "gf180mcu": "/kaggle/input/**/gf180mcu/models/ngspice/sm141064.ngspice",
+    "ihp_sg13g2": "/kaggle/input/**/ihp_sg13g2/libs.tech/ngspice/osdi/psp103.osdi",
+}
+
 
 def sh(cmd, **kw):
     print("[loop-gpu] $", " ".join(cmd), flush=True)
@@ -165,6 +181,14 @@ def preflight():
                            "/kaggle/input/**/llamacpp/bin/llama-server"],
         "GGUF": [os.environ.get("GGUF_GLOB", "/kaggle/input/**/Qwen3-30B*.gguf")],
     }
+    # cross-PDK: a foundry PDK run needs its dataset attached (bptm45 needs none).
+    # Fail in seconds if it is missing rather than mid-ladder with model errors.
+    if PDK != "bptm45":
+        marker = _PDK_MARKERS.get(PDK)
+        if marker is None:
+            sys.exit("[loop-gpu] PREFLIGHT FAILED -- unknown PDK %r "
+                     "(know: bptm45, %s)" % (PDK, ", ".join(_PDK_MARKERS)))
+        need["pdk:%s" % PDK] = [marker]
     missing = [k for k, pats in need.items()
                if not any(glob.glob(p, recursive=True) for p in pats)]
     if missing:
@@ -173,7 +197,8 @@ def preflight():
               + glob.glob("/kaggle/input/*/*/*"), flush=True)
         sys.exit("[loop-gpu] PREFLIGHT FAILED -- missing inputs: %s "
                  "(datasets still processing? retry the push)" % ", ".join(missing))
-    print("[loop-gpu] preflight OK: all four inputs present", flush=True)
+    print("[loop-gpu] preflight OK: %d inputs present (pdk=%s)"
+          % (len(need), PDK), flush=True)
 
 
 def main():
@@ -206,15 +231,18 @@ def main():
             # capability arm-B ladder: campaign.py owns per-spec budgets
             # (k/edit_rounds/seeds/budget), escalation, and the variant
             # (v0/arch/selflearn); the kernel only passes the endpoint, ladder,
-            # wall budget, variant, and output dir. Launch code is untouched.
-            print("[loop-gpu] RUN_MODE=campaign variant=%s -> arm-B ladder (%s)"
-                  % (ARM, ladder), flush=True)
+            # wall budget, variant, PDK, and output dir. Launch code is untouched.
+            # --pdk runs the WHOLE ladder on the selected process (bptm45 default
+            # is a no-op that keeps the existing campaign byte-identical).
+            print("[loop-gpu] RUN_MODE=campaign variant=%s pdk=%s -> arm-B "
+                  "ladder (%s)" % (ARM, PDK, ladder), flush=True)
+            pdk_arg = " --pdk %s" % PDK if PDK != "bptm45" else ""
             inner = (
-                "source %s && exec %s %s --arm B --variant %s --ladder %s "
+                "source %s && exec %s %s --arm B --variant %s%s --ladder %s "
                 "--base-url http://127.0.0.1:%d/v1 --model %s "
                 "--wall-budget-min %s --out %s"
-                % (ENV_SH, sys.executable, campaign, ARM, ladder, PORT, model_id,
-                   WALL_BUDGET_MIN, os.path.join(WORK, "campaign"))
+                % (ENV_SH, sys.executable, campaign, ARM, pdk_arg, ladder, PORT,
+                   model_id, WALL_BUDGET_MIN, os.path.join(WORK, "campaign"))
             )
         else:
             inner = (

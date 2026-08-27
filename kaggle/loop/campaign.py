@@ -133,21 +133,29 @@ def _render_md(rows):
     variant = next((r.get("variant") for r in rows if r.get("variant")), None)
     title = ("# capability results (EXPERIMENTAL -- not frozen)"
              + (" -- variant=%s" % variant if variant else ""))
-    L = [title,
+    pdk = next((r.get("pdk") for r in rows if r.get("pdk")), None)
+    L = [title + (" -- pdk=%s" % pdk if pdk and pdk != "bptm45" else ""),
          "",
          "Advisory columns (iip3_dbm, stability) NEVER gate the verdict.",
          "0-feasible rows are results, not failures suppressed.",
+         "stages = bias/sized/feasible counts over the candidates a spec walked "
+         "(the cross-PDK funnel-rate signal).",
          "",
-         "| spec | tier | arm | variant | feasible | first-feasible | iters | evals | "
-         "escalated | best_obj | margins (worst) | iip3_dbm | stability | notes |",
-         "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+         "| spec | tier | arm | variant | pdk | feasible | first-feasible | iters | evals | "
+         "escalated | best_obj | margins (worst) | stages(b/s/f of n) | iip3_dbm | stability | notes |",
+         "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for r in rows:
         worst = r.get("worst_margin")
         worst_s = ("%s=%.3g" % (worst[0], worst[1])
                    if worst and isinstance(worst[1], (int, float)) else "-")
-        L.append("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |"
+        sr = r.get("stage_rates") or {}
+        stage_s = ("%s/%s/%s of %s" % (sr.get("n_bias", "-"), sr.get("n_sized", "-"),
+                                       sr.get("n_feasible", "-"),
+                                       sr.get("n_candidates", "-"))
+                   if sr else "-")
+        L.append("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |"
                  % (r.get("spec"), r.get("tier"), r.get("arm"),
-                    r.get("variant") or "-",
+                    r.get("variant") or "-", r.get("pdk") or "-",
                     "YES" if r.get("feasible") else "no",
                     r.get("first_feasible_phase") or "-",
                     _fmt(r.get("iters_to_first_feasible"), "%d")
@@ -156,7 +164,7 @@ def _render_md(rows):
                     if r.get("evals_to_first_feasible") is not None else
                     _fmt(r.get("total_evals"), "%d"),
                     "yes" if r.get("escalated") else "no",
-                    _fmt(r.get("best_obj")), worst_s,
+                    _fmt(r.get("best_obj")), worst_s, stage_s,
                     _fmt(r.get("iip3_dbm"), "%+.2f"),
                     (r.get("stability") or "-"),
                     (r.get("notes") or "").replace("|", "/")[:60]))
@@ -187,6 +195,29 @@ def _worst_margin(margins):
         if isinstance(mar, (int, float)) and (worst is None or mar < worst[1]):
             worst = (name, mar)
     return worst
+
+
+# ---- cross-PDK stage-rate instrumentation (deliverable 3) -------------------
+# Every candidate driver.run_candidate produces carries a `stages` dict
+# {parsed, l0, bias, sized, feasible}; arm A synthesizes the same dict per corpus
+# topology. This folds a spec's candidate stages into uniform per-stage counts so
+# the cross-PDK funnel-rate table (the overfit-to-bptm45 signal = differential
+# stage attrition across processes) falls out of results.jsonl MECHANICALLY.
+_STAGE_KEYS = ("parsed", "l0", "bias", "sized", "feasible")
+
+
+def _stage_rates(cand_stages):
+    """Fold a list of per-candidate `stages` dicts into {n, parsed, l0, bias,
+    sized, feasible} counts. Missing keys count False, so a pre-instrumentation
+    candidate (no stages) contributes only to `n`."""
+    counts = {k: 0 for k in _STAGE_KEYS}
+    n = 0
+    for st in cand_stages or []:
+        n += 1
+        for k in _STAGE_KEYS:
+            if (st or {}).get(k):
+                counts[k] += 1
+    return {"n_candidates": n, **{("n_%s" % k): counts[k] for k in _STAGE_KEYS}}
 
 
 def _overlay_consult(spec, extra_consult_dir=None):
@@ -234,14 +265,16 @@ def _make_client(args):
 
 
 def run_spec_arm_b(spec, client, model_id, cfg, out_dir, traj_dir, no_sim,
-                   temperature=0.7):
+                   temperature=0.7, pdk=None):
     """One spec through the full loop, reusing driver.py machinery verbatim.
 
     Mirrors driver.main's control flow (consult -> K propose -> rank -> diagnose
     -> edit_rounds) but parameterized and instrumented so first-feasibility can
     be attributed to a proposal N vs an edit round M. Returns a partial-row dict
     the caller finishes and appends. Never raises past the outer campaign guard.
-    """
+
+    `pdk` (cross-PDK v0): threaded into every run_candidate so the whole funnel
+    (bias/emission/extract/size) runs on the selected process."""
     spec_ref = spec.source
     run_id = uuid.uuid4().hex[:16]
     traj = D.Trajectory(os.path.join(traj_dir, run_id + ".jsonl"), run_id, spec.name)
@@ -292,7 +325,8 @@ def run_spec_arm_b(spec, client, model_id, cfg, out_dir, traj_dir, no_sim,
         netlist, rationale, deltas = D.parse_completion(content)
         cand = D.run_candidate(traj, spec, spec_ref, k, netlist, rationale,
                                deltas, rmodel, usage, "propose", no_sim,
-                               cfg["seeds"], cfg["budget"], raw_completion=content)
+                               cfg["seeds"], cfg["budget"], raw_completion=content,
+                               pdk=pdk)
         cand["rationale"] = rationale
         total_evals[0] += _size_evals(cand)
         _note_feasible(cand, "propose#%d" % k, k)
@@ -308,11 +342,13 @@ def run_spec_arm_b(spec, client, model_id, cfg, out_dir, traj_dir, no_sim,
                 "iters_to_first_feasible": None, "evals_to_first_feasible": None,
                 "total_evals": total_evals[0], "best_obj": None, "margins": {},
                 "worst_margin": None, "run_id": run_id, "best_cand": None,
+                "stage_rates": _stage_rates([c.get("stages") for c in candidates]),
                 "notes": "no candidate survived the funnel"}
     ok.sort(key=lambda c: D.rank_key(c, spec))
     best = ok[0]
 
     # ---- diagnose + edit rounds -------------------------------------------
+    edit_stages = []          # stage record for edits (incl. ones that fail ok)
     if not no_sim:
         for er in range(cfg["edit_rounds"]):
             if best.get("sized") and best["sized"].get("feasible"):
@@ -341,10 +377,11 @@ def run_spec_arm_b(spec, client, model_id, cfg, out_dir, traj_dir, no_sim,
                                     deltas, eresp.get("model", model_id),
                                     eresp.get("usage"), "edit", no_sim,
                                     cfg["seeds"], cfg["budget"],
-                                    raw_completion=content)
+                                    raw_completion=content, pdk=pdk)
             ecand["rationale"] = rationale
             total_evals[0] += _size_evals(ecand)
             _note_feasible(ecand, "edit#%d" % er, it)
+            edit_stages.append(ecand.get("stages"))    # stage record, all edits
             if ecand["ok"]:
                 candidates.append(ecand)
                 ok.append(ecand)
@@ -366,6 +403,8 @@ def run_spec_arm_b(spec, client, model_id, cfg, out_dir, traj_dir, no_sim,
         "worst_margin": _worst_margin(margins),
         "run_id": run_id,
         "best_cand": best,
+        "stage_rates": _stage_rates([c.get("stages") for c in candidates]
+                                    + edit_stages),
         "notes": "" if feasible else "infeasible (closest attempt saved)",
     }
 
@@ -445,7 +484,7 @@ def _anchor_prompt(spec, hits, approach):
 
 
 def run_spec_arch(spec, client, model_id, cfg, out_dir, traj_dir, no_sim,
-                  temperature=0.7, extra_consult_dir=None):
+                  temperature=0.7, extra_consult_dir=None, pdk=None):
     """ARM2/ARM3 per-spec run: self-diversity + concentration, same TOTAL budget.
 
     Flow:
@@ -456,7 +495,8 @@ def run_spec_arch(spec, client, model_id, cfg, out_dir, traj_dir, no_sim,
          run edit_rounds on it -- spending the remaining eval-equivalents.
     Returns the same partial-row shape as run_spec_arm_b (+ triage details), so
     the table/verify code paths are shared.
-    """
+
+    `pdk` (cross-PDK v0): threaded into every run_candidate."""
     spec_ref = spec.source
     run_id = uuid.uuid4().hex[:16]
     traj = D.Trajectory(os.path.join(traj_dir, run_id + ".jsonl"), run_id, spec.name)
@@ -510,7 +550,8 @@ def run_spec_arch(spec, client, model_id, cfg, out_dir, traj_dir, no_sim,
         cand = D.run_candidate(traj, spec, spec_ref, k, netlist, rationale,
                                deltas, resp.get("model", model_id),
                                resp.get("usage"), "propose", no_sim,
-                               TRIAGE_SEEDS, triage_budget, raw_completion=content)
+                               TRIAGE_SEEDS, triage_budget, raw_completion=content,
+                               pdk=pdk)
         cand["rationale"] = rationale
         cand["approach"] = approaches[k % len(approaches)] if approaches else None
         if not no_sim and (cand.get("sized") is not None
@@ -533,11 +574,13 @@ def run_spec_arch(spec, client, model_id, cfg, out_dir, traj_dir, no_sim,
                 "worst_margin": None, "run_id": run_id, "best_cand": None,
                 "notes": "no candidate survived triage",
                 "consult_hits": n_hits, "overlay_hits": n_overlay,
+                "stage_rates": _stage_rates([c.get("stages") for c in candidates]),
                 "triage": {"n_proposals": len(candidates), "triage_budget": triage_budget,
                            "n_approaches": len(approaches), "winner": None}}
 
     ok.sort(key=lambda c: D.rank_key(c, spec))
     winner = ok[0]
+    conc_stages = []          # concentrate + edit stage records (incl. non-ok)
     traj.row(len(candidates), "diagnose",
              diagnosis="triage winner wl=%s obj=%s (concentrating full budget)"
              % ((winner.get("wl_hash") or "?"), winner.get("objective")),
@@ -550,9 +593,10 @@ def run_spec_arch(spec, client, model_id, cfg, out_dir, traj_dir, no_sim,
         rc = D.run_candidate(traj, spec, spec_ref, it, winner["netlist"],
                              winner.get("rationale"), {}, model_id, None,
                              "propose", no_sim, cfg["seeds"], cfg["budget"],
-                             raw_completion=None)
+                             raw_completion=None, pdk=pdk)
         total_evals[0] += cfg["seeds"] * cfg["budget"]
         _note_feasible(rc, "concentrate", it)
+        conc_stages.append(rc.get("stages"))
         if rc["ok"]:
             candidates.append(rc)
             ok.append(rc)
@@ -587,11 +631,12 @@ def run_spec_arch(spec, client, model_id, cfg, out_dir, traj_dir, no_sim,
                                     deltas, eresp.get("model", model_id),
                                     eresp.get("usage"), "edit", no_sim,
                                     cfg["seeds"], cfg["budget"],
-                                    raw_completion=content)
+                                    raw_completion=content, pdk=pdk)
             ecand["rationale"] = rationale
             if not no_sim and ecand.get("sized") is not None:
                 total_evals[0] += cfg["seeds"] * cfg["budget"]
             _note_feasible(ecand, "edit#%d" % er, it)
+            conc_stages.append(ecand.get("stages"))
             if ecand["ok"]:
                 candidates.append(ecand)
                 ok.append(ecand)
@@ -602,6 +647,8 @@ def run_spec_arch(spec, client, model_id, cfg, out_dir, traj_dir, no_sim,
     sized = best.get("sized") or {}
     margins = sized.get("margins") or {}
     feasible = bool(sized.get("feasible"))
+    # stage rates fold triage proposals + concentrate + edits (the whole funnel
+    # this variant walked), so the cross-PDK table is uniform with arm B / arm A.
     return {
         "feasible": feasible,
         "first_feasible_phase": first_feasible["phase"],
@@ -613,6 +660,8 @@ def run_spec_arch(spec, client, model_id, cfg, out_dir, traj_dir, no_sim,
         "worst_margin": _worst_margin(margins),
         "run_id": run_id,
         "best_cand": best,
+        "stage_rates": _stage_rates([c.get("stages") for c in candidates]
+                                    + conc_stages),
         "notes": "" if feasible else "infeasible (closest attempt saved)",
         "consult_hits": n_hits, "overlay_hits": n_overlay,
         "triage": {"n_proposals": len(candidates), "triage_budget": triage_budget,
@@ -638,12 +687,16 @@ def _arm_a_plan(cfg):
     return topos, seeds, per, total
 
 
-def run_spec_arm_a(spec, cfg, no_sim):
+def run_spec_arm_a(spec, cfg, no_sim, pdk=None):
     """One spec sized over the stored CORPUS at a matched total eval budget.
 
     NO LLM. Reuses solve_spec.size_tokens + CORPUS verbatim. Feasibility-first
     selection identical to arm B (driver.rank_key semantics). Returns the same
-    partial-row shape as run_spec_arm_b, so the table/verify code is shared."""
+    partial-row shape as run_spec_arm_b, so the table/verify code is shared.
+
+    `pdk` (cross-PDK v0): None -> the spec's pdk (bptm45); a value sizes every
+    corpus topology on that process. Each (topology, seed) contributes a `stages`
+    dict so the funnel-rate table is uniform with arm B."""
     import solve_spec as SS
     topos, seeds, per, total = _arm_a_plan(cfg)
     spec_ref = spec.source
@@ -652,19 +705,32 @@ def run_spec_arm_a(spec, cfg, no_sim):
     best_label = None
     total_evals = 0
     first_feasible = {"phase": None, "iter": None, "evals": None}
+    cand_stages = []           # one per (topology, seed) -- the funnel walked
     idx = 0
     for wl in topos:
         try:
             toks = SS.tokens_for(wl)
         except SystemExit:
             continue
+        # a stored corpus topology always parses (it is a token graph) and clears
+        # L0 by construction (it is a real corpus LNA); bias/sized/feasible are
+        # what the process actually decides -- exactly the arm-B stage semantics.
         for seed in range(1, seeds + 1):
             if no_sim:
                 idx += 1
                 continue
-            r = SS.size_tokens(list(toks), spec_ref, seed, per)
+            st = {"parsed": True, "l0": True, "bias": False, "sized": False,
+                  "feasible": False}
+            r = SS.size_tokens(list(toks), spec_ref, seed, per, pdk=pdk)
             total_evals += per
             idx += 1
+            if r is not None:
+                # size_tokens returns non-None only past a conducting bias + a
+                # sizable deck, so a result means bias+sized both cleared.
+                st["bias"] = True
+                st["sized"] = True
+                st["feasible"] = bool(r["feasible"])
+            cand_stages.append(st)
             if r is None:
                 continue
             if first_feasible["phase"] is None and r["feasible"]:
@@ -676,11 +742,13 @@ def run_spec_arm_a(spec, cfg, no_sim):
                           and r["best_obj"] < best["best_obj"]))
             if better:
                 best, best_toks, best_label = r, list(toks), wl[:12]
+    stage_rates = _stage_rates(cand_stages)
     if best is None:
         return {"feasible": False, "first_feasible_phase": None,
                 "iters_to_first_feasible": None, "evals_to_first_feasible": None,
                 "total_evals": total_evals, "best_obj": None, "margins": {},
                 "worst_margin": None, "run_id": "armA", "best_cand": None,
+                "stage_rates": stage_rates,
                 "notes": "no corpus topology sizable for this spec"
                          if not no_sim else "no-sim (arm A structure only)"}
     margins = best.get("margins") or {}
@@ -703,6 +771,7 @@ def run_spec_arm_a(spec, cfg, no_sim):
         "margins": margins,
         "worst_margin": _worst_margin(margins),
         "run_id": "armA", "best_cand": cand,
+        "stage_rates": stage_rates,
         "notes": "matched total eval budget=%d (%d topos x %d seeds x %d)"
                  % (total, len(topos), seeds, per),
     }
@@ -710,7 +779,7 @@ def run_spec_arm_a(spec, cfg, no_sim):
 
 # =================================================================== the runner
 def _finish_row(spec_row, spec, arm, partial, out_dir, cfg, escalated,
-                do_verify, verify_wide, variant=None):
+                do_verify, verify_wide, variant=None, pdk=None):
     """Complete a partial row: save the best design + proposal, run verify."""
     cand = partial.get("best_cand")
     metrics = ((cand or {}).get("sized") or {}).get("metrics")
@@ -745,6 +814,11 @@ def _finish_row(spec_row, spec, arm, partial, out_dir, cfg, escalated,
         "spec": spec.name, "spec_file": spec_row["file"], "tier": spec_row["tier"],
         "band": spec_row["band"], "band_type": spec_row["band_type"], "arm": arm,
         "variant": variant,
+        # cross-PDK v0: the process this row ran on (default bptm45), and the
+        # per-stage funnel counts (parse/L0/bias/sized/feasible) so the cross-PDK
+        # funnel-rate table falls out of results.jsonl mechanically.
+        "pdk": pdk or getattr(spec, "pdk", "bptm45"),
+        "stage_rates": partial.get("stage_rates"),
         "triage": partial.get("triage"),
         "consult_hits": partial.get("consult_hits"),
         "overlay_hits": partial.get("overlay_hits"),
@@ -788,6 +862,12 @@ def main(argv=None):
     ap.add_argument("--out", help="output dir (default depends on env)")
     ap.add_argument("--dry-run", action="store_true", help="arm B: driver DryRunClient")
     ap.add_argument("--no-sim", action="store_true", help="skip ngspice sizing")
+    ap.add_argument("--pdk", default=None,
+                    help="OVERRIDE the spec's pdk for the WHOLE ladder (bptm45, "
+                         "sky130, gf180mcu, ihp_sg13g2). The same 24 ladder YAMLs "
+                         "then run on the named process; the supply rail is the "
+                         "adapter's, not the spec's. Default: each spec's own pdk "
+                         "(bptm45). Applies to both arms.")
     ap.add_argument("--base-url", default="http://127.0.0.1:8080/v1")
     ap.add_argument("--model", default="local")
     ap.add_argument("--grammar-file")
@@ -875,9 +955,10 @@ def main(argv=None):
     per_spec_times = []
     do_verify = not args.no_verify and not args.no_sim
 
-    print("campaign arm=%s  variant=%s  out=%s  specs=%d  wall_budget=%.0f min  "
-          "base=%s" % (args.arm, variant, out_dir, len(specs),
-                       args.wall_budget_min, base_cfg), flush=True)
+    print("campaign arm=%s  variant=%s  pdk=%s  out=%s  specs=%d  "
+          "wall_budget=%.0f min  base=%s"
+          % (args.arm, variant, args.pdk or "(spec default)", out_dir,
+             len(specs), args.wall_budget_min, base_cfg), flush=True)
 
     for i, spec_row in enumerate(specs):
         # time gate: stop cleanly if the next spec would not fit the wall budget
@@ -896,9 +977,11 @@ def main(argv=None):
 
         t0 = time.time()
         spec = Spec.load(spec_row["_path"])
-        print("\n[%d/%d] %s (%s, %s)" % (i + 1, len(specs), spec.name,
-                                         spec_row["tier"], spec_row["band"]),
-              flush=True)
+        if args.pdk is not None:
+            spec.pdk = args.pdk            # ladder-wide override beats the field
+        print("\n[%d/%d] %s (%s, %s) pdk=%s"
+              % (i + 1, len(specs), spec.name, spec_row["tier"],
+                 spec_row["band"], getattr(spec, "pdk", "bptm45")), flush=True)
         def _run_b(cfg):
             # variant dispatch (arm B). v0 is byte-identical to the v0 arm-B
             # code path (run_spec_arm_b); arch/selflearn use run_spec_arch --
@@ -907,15 +990,17 @@ def main(argv=None):
                 return run_spec_arch(spec, client, model_id, cfg, out_dir,
                                      traj_dir, args.no_sim,
                                      temperature=args.temperature,
-                                     extra_consult_dir=extra_consult_dir)
+                                     extra_consult_dir=extra_consult_dir,
+                                     pdk=args.pdk)
             return run_spec_arm_b(spec, client, model_id, cfg, out_dir, traj_dir,
-                                  args.no_sim, temperature=args.temperature)
+                                  args.no_sim, temperature=args.temperature,
+                                  pdk=args.pdk)
 
         try:
             if args.arm == "B":
                 partial = _run_b(base_cfg)
             else:
-                partial = run_spec_arm_a(spec, base_cfg, args.no_sim)
+                partial = run_spec_arm_a(spec, base_cfg, args.no_sim, pdk=args.pdk)
         except Exception as e:                                   # noqa: BLE001
             partial = {"feasible": False, "first_feasible_phase": None,
                        "iters_to_first_feasible": None,
@@ -934,7 +1019,8 @@ def main(argv=None):
                 if args.arm == "B":
                     partial = _run_b(esc_cfg)
                 else:
-                    partial = run_spec_arm_a(spec, esc_cfg, args.no_sim)
+                    partial = run_spec_arm_a(spec, esc_cfg, args.no_sim,
+                                             pdk=args.pdk)
             except Exception as e:                              # noqa: BLE001
                 partial = {"feasible": False, "first_feasible_phase": None,
                            "iters_to_first_feasible": None,
@@ -948,7 +1034,7 @@ def main(argv=None):
 
         row = _finish_row(spec_row, spec, args.arm, partial, out_dir, cfg_used,
                           escalated, do_verify, args.verify_wide_stability,
-                          variant=variant)
+                          variant=variant, pdk=args.pdk)
         rows.append(row)
         _checkpoint(out_dir, rows)          # after EVERY spec
         dt = time.time() - t0

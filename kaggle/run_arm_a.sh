@@ -60,12 +60,25 @@ export OPENBLAS_NUM_THREADS="${OPENBLAS_NUM_THREADS:-1}"
 export MKL_NUM_THREADS="${MKL_NUM_THREADS:-1}"
 export NUMEXPR_NUM_THREADS="${NUMEXPR_NUM_THREADS:-1}"
 
+# ---- cross-PDK: PDK=<name> runs the whole ladder on that process ------------
+# Default bptm45 (the built-in 45 nm flow; needs no PDK dataset -- and bptm45
+# arm A already exists as capability-v0 armA, so PDK is mainly for the 3 foundry
+# PDKs). A foundry PDK needs its models resolvable: either the box .env/pdks tree
+# (found automatically by lna/pdk.pdk_root via the git-common-dir walk) or an
+# explicit LNA_PDK_ROOT. The OUT_DIR is defaulted PER-PDK so a cross-PDK sweep
+# does not overwrite itself.
+PDK="${PDK:-bptm45}"
 LADDER="${LADDER:-$REPO/kaggle/specs-ladder/ladder.json}"
-OUT_DIR="${OUT_DIR:-/home/dpatni/.claude/jobs/de5270c8/tmp/arma-out}"
+OUT_DIR="${OUT_DIR:-/home/dpatni/.claude/jobs/de5270c8/tmp/arma-out-$PDK}"
 mkdir -p "$OUT_DIR"
+
+# --pdk only when non-default: bptm45 keeps the existing invocation byte-identical.
+PDK_ARGS=()
+if [ "$PDK" != "bptm45" ]; then PDK_ARGS=(--pdk "$PDK"); fi
 
 echo "[run_arm_a] repo    = $REPO"
 echo "[run_arm_a] ngspice = ${NGSPICE:-<unset>}"
+echo "[run_arm_a] pdk     = $PDK"
 echo "[run_arm_a] ladder  = $LADDER"
 echo "[run_arm_a] out     = $OUT_DIR"
 echo "[run_arm_a] threads = OMP=$OMP_NUM_THREADS (serial sizer; <=1 ngspice at a time)"
@@ -73,6 +86,7 @@ echo "[run_arm_a] extra   = $*"
 
 exec python "$REPO/kaggle/loop/campaign.py" \
     --arm A \
+    "${PDK_ARGS[@]}" \
     --ladder "$LADDER" \
     --out "$OUT_DIR" \
     "$@"

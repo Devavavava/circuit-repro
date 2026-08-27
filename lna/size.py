@@ -50,18 +50,41 @@ SIM_FAIL_PENALTY = 1e3
 _UNSET = object()
 
 
+def _pdk_name(spec):
+    """The pdk id a spec/driver selected (default 'bptm45'). A spec loaded before
+    the pdk field existed, or a bare object, has no attribute -> bptm45."""
+    return getattr(spec, "pdk", None) or "bptm45"
+
+
 def kind_ranges(spec):
     # PyYAML parses exponentials without a decimal point (20e3, 10e-12) as
     # strings, so coerce every bound to float.
     sz, topo = spec.sizing, spec.topology
     f = float
-    return {   # kind: (lo, hi, log?)
+    ranges = {   # kind: (lo, hi, log?)
         "W":  (f(sz["w_um"][0]) * 1e-6, f(sz["w_um"][1]) * 1e-6, True),
         "L":  (f(topo.get("l_min", 0.3e-9)), f(topo.get("l_max", 12e-9)), True),
         "R":  (f(sz["r_ohm"][0]), f(sz["r_ohm"][1]), True),
         "C":  (f(sz["c_f"][0]), f(sz["c_f"][1]), True),
         "VB": (f(sz["vb_v"][0]), f(sz["vb_v"][1]), False),
     }
+    # Cross-PDK v0: for a NON-bptm45 process the spec's sizing box is in the wrong
+    # units/regime (a foundry FET wants W/L in METRES and its own min L, an R/C
+    # box scaled to the process), so the device-value ranges come from the
+    # adapter's device_ranges instead. bptm45 is untouched -> byte-identical, and
+    # VB (a circuit bias voltage, not a device value) always stays the spec's.
+    name = _pdk_name(spec)
+    if name != "bptm45":
+        try:
+            from pdk import get_pdk
+            dr = get_pdk(name).device_ranges
+            ranges["W"] = (f(dr["W"][0]), f(dr["W"][1]), True)
+            ranges["L"] = (f(dr["L"][0]), f(dr["L"][1]), True)
+            ranges["R"] = (f(dr["R"][0]), f(dr["R"][1]), True)
+            ranges["C"] = (f(dr["C"][0]), f(dr["C"][1]), True)
+        except Exception:                                          # noqa: BLE001
+            pass                          # unknown adapter: fall back to the spec box
+    return ranges
 
 
 def _stab_guard_on():
@@ -114,12 +137,17 @@ def eval_metrics(body, params, spec, nf_gated=None, op_capture=None):
 
     `op_capture` (WP-OBSERVE) is a dict filled in place with the operating point
     read out of the op/sp run that happens anyway -- no extra ngspice call, and
-    the metrics returned are bit-identical either way (`ref/check_op.py`)."""
-    m = E.run_and_extract(body, params, spec, op_capture=op_capture)
+    the metrics returned are bit-identical either way (`ref/check_op.py`).
+
+    Cross-PDK v0: the spec's pdk (default bptm45) is threaded to extract so an
+    OSDI process (IHP) gets its .osdi pre-loaded. For every non-OSDI pdk this is
+    a no-op and the deck is byte-identical."""
+    pdk = _pdk_name(spec)
+    m = E.run_and_extract(body, params, spec, op_capture=op_capture, pdk=pdk)
     if m is None:
         return None
     if nf_is_gated(spec) if nf_gated is None else nf_gated:
-        nf = E.measure_nf(body, params, spec)
+        nf = E.measure_nf(body, params, spec, pdk=pdk)
         m = dict(m, nf_db=nf, nf_method="series_rs" if nf is not None else None)
     return m
 
@@ -298,17 +326,36 @@ def run_zoaf(objective_func, names, seed=1, n_candidates=8, sgd_iters=8, cgd_ite
     return res.x_best, res.f_best, res.n_evals
 
 
+def _pdk_fixed_l(nl):
+    """The fixed channel-length literal for this Netlist's PDK. bptm45 -> the
+    historical '45n' (byte-identical); a foundry adapter -> its pinned drawn L
+    (in METRES, e.g. sky130 0.15e-6) so the sized deck selects a real model bin.
+    Falls back to '45n' for a Netlist with no adapter or an unknown one."""
+    ad = getattr(nl, "pdk", None)
+    if ad is None or getattr(ad, "name", "bptm45") == "bptm45":
+        return "45n"
+    try:
+        return f"{float(ad.device_ranges['L'][0]):g}"
+    except Exception:                                              # noqa: BLE001
+        return "45n"
+
+
 def classify_params(nl):
     """From a bias-inserted Netlist, split .param names into sizable (kind) and
     fixed (literal). Widths/R/C/L values and inserted bias voltages are sized;
-    channel length, bias-feed R, supplies stay fixed."""
+    channel length, bias-feed R, supplies stay fixed.
+
+    Cross-PDK v0: the fixed channel length and supply come from the Netlist's PDK
+    adapter (its pinned L in metres, its vdd) rather than the baked 45 nm / 1.1 V
+    literals. bptm45 resolves to exactly '45n' / '1.1', so its deck is unchanged."""
     from topology import base_of
     sizable, fixed = {}, {}
+    fixed_l = _pdk_fixed_l(nl)
     for d in sorted(nl.t.devices):
         b = base_of(d)
         if b in ("NM", "PM"):
             sizable[f"p{d}W"] = "W"
-            fixed[f"p{d}L"] = "45n"
+            fixed[f"p{d}L"] = fixed_l
         elif b == "R":
             sizable[f"p{d}V"] = "R"
         elif b == "C":
@@ -318,7 +365,10 @@ def classify_params(nl):
     for p, v in nl.extra_params.items():
         (sizable.__setitem__(p, "VB") if p.startswith("pVBG")
          else fixed.__setitem__(p, v))
-    fixed["pVDD"] = "1.1"
+    # supply rail: bptm45 keeps the exact '1.1' literal (byte-identical); a
+    # foundry adapter uses its own vdd (sky130 1.8, gf180 3.3, IHP 1.5).
+    _vdd = getattr(nl, "vdd", 1.1)
+    fixed["pVDD"] = "1.1" if _vdd == 1.1 else f"{float(_vdd):g}"
     fixed["pVB"] = "0.5"
     # Finite-Q constants (pINDQ/pINDW0) are emitted into the netlist's own .param
     # block by to_spice, but E.body_of() strips every .param line, so they must be
@@ -375,7 +425,8 @@ def _enrich_nf(body, params, spec, m, op_capture=None):
     if m is None:
         return m
     try:
-        nf = E.measure_nf(body, params, spec, op_capture=op_capture)
+        nf = E.measure_nf(body, params, spec, op_capture=op_capture,
+                          pdk=_pdk_name(spec))
         if nf is not None:
             return dict(m, nf_db=nf, nf_method="series_rs")
     except Exception:
@@ -677,7 +728,8 @@ def replay_ok(topo, best_params, spec, stored_metrics, sigma=1.0, inductor_q=12)
     nl, _, rep, _ = bias.insert_bias(topo, sweep=True, **kw)
     if rep.get("skipped") or not nl.two_port:
         return False
-    m = E.run_and_extract(E.body_of(nl.emit()), best_params, spec)
+    m = E.run_and_extract(E.body_of(nl.emit()), best_params, spec,
+                          pdk=_pdk_name(spec))
     if m is None:
         return False
     s = max(sigma, 0.5)
@@ -794,19 +846,24 @@ def polish(topo, spec, prior_params, budget=80, inductor_q=12, exclude=()):
                            "start_unstable": start_unstable}}
 
 
-def prepared_body(topo, inductor_q=12, w_finger=_UNSET):
+def prepared_body(topo, inductor_q=12, w_finger=_UNSET, pdk=None):
     """(body, sizable, fixed) for a topology, bias inserted -- or None if biasing
     skips it. Factored out of polish/size_topology so a driver can pay the
     bias-insert cost once and then run many searches on the same deck.
 
     `w_finger` defaults to to_spice's own default (multi-finger since the
     2026-08-10 cutover); pass None to reproduce a pre-cutover single-finger
-    deck, which is what the relabel tool's replay fence needs."""
+    deck, which is what the relabel tool's replay fence needs.
+
+    `pdk` (cross-PDK v0, additive): None -> bptm45, byte-identical. A non-bptm45
+    adapter is threaded into the emitted body (X-subckt device lines, its .lib
+    include, its supply rail) AND into classify_params (its pinned L / vdd). The
+    OSDI pre-load is NOT in the body -- it rides the deck at run time (extract)."""
     import bias
     kw = {"inductor_q": inductor_q} if inductor_q else {}
     if w_finger is not _UNSET:
         kw["w_finger"] = w_finger
-    nl, _, rep, _ = bias.insert_bias(topo, sweep=True, **kw)
+    nl, _, rep, _ = bias.insert_bias(topo, sweep=True, pdk=pdk, **kw)
     if rep.get("skipped") or not nl.two_port:
         return None
     sizable, fixed = classify_params(nl)
@@ -1121,7 +1178,7 @@ def size_match_first(topo, spec, seed=1, inductor_q=12, budget=8,
     _, m_names, m_decode, _ = make_objective(body, spec, msizable, mfixed)
 
     def match_obj(x):
-        m = E.run_and_extract(body, m_decode(x), spec)
+        m = E.run_and_extract(body, m_decode(x), spec, pdk=_pdk_name(spec))
         if m is None:
             return SIM_FAIL_PENALTY
         v = m.get("s11_max_db")
@@ -1186,7 +1243,10 @@ def size_topology(topo, spec, seed=1, n_candidates=6, sgd_iters=6, cgd_iters=1,
     import bias
     from novelty import wl_features
     kw = {"inductor_q": inductor_q} if inductor_q else {}
-    nl, inserter, rep, swept = bias.insert_bias(topo, sweep=True, **kw)
+    # Cross-PDK v0: the process comes from the spec (default bptm45, byte-
+    # identical). Threaded into bias/emission; extract picks it up via the spec.
+    nl, inserter, rep, swept = bias.insert_bias(topo, sweep=True,
+                                                pdk=_pdk_name(spec), **kw)
     if rep.get("skipped") or not nl.two_port:
         return None
     body = E.body_of(nl.emit())
@@ -1329,7 +1389,7 @@ def _nf_gate_default():
     return os.environ.get("LNA_NF_GATE", "1").strip().lower() not in ("0", "false", "no")
 
 
-def _spec_for_sizing(name, nf_gate=None):
+def _spec_for_sizing(name, nf_gate=None, pdk=None):
     """Load a spec for the sizing loop.
 
     HISTORY / LABEL DOMAIN (important when comparing rows): until WP-D1 this
@@ -1342,10 +1402,17 @@ def _spec_for_sizing(name, nf_gate=None):
     Now that `extract.measure_nf` is golden-validated, nf_gate=True (the default)
     honours whatever the YAML says, so NF is a real hard constraint. Pass
     nf_gate=False to reproduce a tier-1 result exactly under the old gating --
-    that is history, not a fallback to be used for new labels."""
+    that is history, not a fallback to be used for new labels.
+
+    `pdk` (cross-PDK v0, additive): a driver-supplied OVERRIDE that BEATS the
+    spec's own `pdk:` field, so the SAME ladder YAML runs on any process with no
+    per-PDK copies. None -> the spec's field (which defaults to bptm45), so every
+    existing caller is unchanged. The chosen adapter's id lands on `spec.pdk`."""
     if nf_gate is None:
         nf_gate = _nf_gate_default()
     spec = Spec.load(name)
+    if pdk is not None:
+        spec.pdk = pdk                    # driver override beats the spec field
     if not nf_gate and "nf_db" in spec.constraints:
         spec.constraints["nf_db"]["status"] = "unsupported"
     return spec

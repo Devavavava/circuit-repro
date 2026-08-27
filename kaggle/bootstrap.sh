@@ -158,6 +158,53 @@ stage_checkpoints() {
     TIMINGS[checkpoints]=$(( $(now) - t0 ))
 }
 
+# --------------------------------------------------- (d2) cross-PDK model roots
+# Locate the three attached foundry-PDK datasets and assemble ONE root that
+# holds `<name>/` subdirs, which is what lna/pdk.pdk_root(name) expects
+# ($LNA_PDK_ROOT). Kaggle AUTO-EXTRACTS each .tar.gz on ingest, so a mount holds
+# the top dir (sky130/, gf180mcu/, ihp_sg13g2/) directly -- possibly at DISTINCT
+# mount paths. We find each by a per-PDK marker file (the incident-proof
+# recursive `find`, never an ls-glob -- mount layout varies by image generation)
+# and symlink its top dir into $PDK_ROOT, so pdk_root resolves regardless of how
+# the datasets were mounted. Absent datasets are skipped: bptm45 needs none, and
+# a PDK whose files are missing degrades to a precise per-PDK "not fetched"
+# (adapters raise a FETCH.md-naming error; the funnel golden skips-with-note).
+PDK_ROOT="${PDK_ROOT:-/kaggle/working/pdks}"
+stage_pdks() {
+    local t0; t0=$(now)
+    mkdir -p "$PDK_ROOT"
+    local found=0
+    # (name marker_relpath) -- a file unique to each PDK's extracted layout
+    # (see kaggle/CAMPAIGN-PDK-V0.md / lna/pdk/FETCH.md for the layouts).
+    _link_pdk() {
+        local name="$1" marker="$2" hit top
+        # find the marker anywhere under /kaggle/input, then walk up to the
+        # `<name>/` top dir (the marker path always contains /<name>/).
+        hit=$(find /kaggle/input -type f -path "*/$name/$marker" 2>/dev/null | head -1 || true)
+        if [ -z "$hit" ]; then
+            log "pdk $name: dataset not attached (marker */$name/$marker) -- skip"
+            return
+        fi
+        # top dir = the portion up to and including /<name>
+        top="${hit%%/$name/*}/$name"
+        if [ ! -e "$PDK_ROOT/$name" ]; then
+            ln -sf "$top" "$PDK_ROOT/$name"
+            log "pdk $name -> $top"
+        fi
+        found=$((found + 1))
+    }
+    _link_pdk sky130     "sky130_fd_pr/models/sky130.lib.min.spice"
+    _link_pdk gf180mcu   "models/ngspice/sm141064.ngspice"
+    _link_pdk ihp_sg13g2 "libs.tech/ngspice/osdi/psp103.osdi"
+    if [ "$found" -gt 0 ]; then
+        export LNA_PDK_ROOT="$PDK_ROOT"
+        log "LNA_PDK_ROOT=$PDK_ROOT ($found PDK(s) linked)"
+    else
+        log "no foundry-PDK datasets attached (ok: bptm45-only run)"
+    fi
+    TIMINGS[pdks]=$(( $(now) - t0 ))
+}
+
 # --------------------------------------------------- (e) env
 stage_env() {
     export NGSPICE="$NGSPICE_PREFIX/bin/ngspice"
@@ -171,6 +218,10 @@ export LNA_DEPS_ROOT="$CLONE_DIR"
 export SPICE_LIB_DIR="$NGSPICE_PREFIX/share/ngspice"
 export PATH="$NGSPICE_PREFIX/bin:\$PATH"
 ENV
+    # cross-PDK: only when a foundry PDK was actually linked (bptm45 needs none).
+    if [ -n "${LNA_PDK_ROOT:-}" ]; then
+        printf 'export LNA_PDK_ROOT="%s"\n' "$LNA_PDK_ROOT" >> /kaggle/working/env-kaggle.sh
+    fi
     log "wrote /kaggle/working/env-kaggle.sh"
 }
 
@@ -231,6 +282,7 @@ main() {
     stage_ngspice
     stage_clone
     stage_checkpoints
+    stage_pdks              # cross-PDK: link attached foundry PDKs -> LNA_PDK_ROOT
     stage_env
     if stage_gate; then
         write_report true

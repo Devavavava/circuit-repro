@@ -400,19 +400,22 @@ def screen_topology(spec, tokens):
     return bool(passed), dict(crit)
 
 
-def bias_probe(tokens):
+def bias_probe(tokens, pdk=None):
     """Report whether the topology biases into a sizable two-port deck.
 
     A lightweight probe (bias.insert_bias with sweep) so bias_conducting is a
     first-class trajectory field. size_tokens re-derives this internally; the
     small double-cost buys a clean learning signal on biasability. Returns
     (conducting_bool, error_or_None).
-    """
+
+    `pdk` (cross-PDK v0): None -> bptm45; a value threads the process rail into
+    the probe so `bias_conducting` reflects the SAME rail the sizer will use
+    (a 3.3 V gf180 gate biases differently from a 1.1 V bptm45 one)."""
     try:
         bias = _lna_import("bias")
         Topology = _lna_import("topology").Topology
         topo = Topology(list(tokens))
-        nl, _ins, rep, _sw = bias.insert_bias(topo, sweep=True)
+        nl, _ins, rep, _sw = bias.insert_bias(topo, sweep=True, pdk=pdk)
         if rep.get("skipped") or not nl.two_port:
             return False, "bias skipped: %s" % (rep.get("skipped") or "no two-port deck")
         return True, None
@@ -420,17 +423,19 @@ def bias_probe(tokens):
         return False, "bias probe raised %s: %s" % (type(e).__name__, e)
 
 
-def size_candidate(tokens, spec_ref, seeds, budget):
+def size_candidate(tokens, spec_ref, seeds, budget, pdk=None):
     """Reuse solve_spec.size_tokens across `seeds`, keep the best (feasible-first).
 
     Returns (best_result_or_None, seconds, total_evals). best_result is exactly
     solve_spec.size_tokens' dict {feasible,best_obj,best_params,metrics,margins,seed}.
-    """
+
+    `pdk` (cross-PDK v0): None -> the spec's own pdk; a value is a per-run
+    override threaded into size_tokens so the SAME spec sizes on any process."""
     solve = _lna_import("solve_spec")
     t0 = time.time()
     best = None
     for seed in range(1, seeds + 1):
-        r = solve.size_tokens(list(tokens), spec_ref, seed, budget)
+        r = solve.size_tokens(list(tokens), spec_ref, seed, budget, pdk=pdk)
         if r is None:
             continue
         if best is None:
@@ -446,14 +451,25 @@ def size_candidate(tokens, spec_ref, seeds, budget):
 # =================================================================== the loop
 def run_candidate(traj, spec, spec_ref, iteration, netlist_text, rationale,
                   deltas, model_id, usage, phase, no_sim, seeds, budget,
-                  raw_completion=None):
+                  raw_completion=None, pdk=None):
     """Run one proposed/edited netlist through the full funnel, logging each phase.
 
     Returns a dict summarizing outcome for ranking:
-      {ok, tokens, wl_hash, netlist, sized, errors:[...], objective}
+      {ok, tokens, wl_hash, netlist, sized, errors:[...], objective, stages}
     `phase` is 'propose' or 'edit' (which phase produced the netlist).
-    """
+
+    `stages` (cross-PDK v0) is a per-candidate booleans dict tracking the funnel
+    each stage the candidate cleared -- parse/roundtrip, L0, bias-conducting,
+    sized-at-all, feasible -- so the campaign's cross-PDK funnel-rate table falls
+    out of the result rows MECHANICALLY (the overfit-to-bptm45 signal is the
+    differential of these rates across processes). It is carried in EVERY return
+    so a candidate that dies at any stage still records how far it got.
+
+    `pdk` is a per-run process override threaded into sizing (default: spec's)."""
     errors = []
+    # every candidate carries the funnel it walked; each stage flips one field.
+    stages = {"parsed": False, "l0": False, "bias": False, "sized": False,
+              "feasible": False}
     prop_row = {"netlist": netlist_text if netlist_text is not None else "",
                 "rationale": rationale, "predicted_deltas": deltas}
     # completion_verbatim: the model's raw text, untruncated -- the house rule
@@ -463,6 +479,11 @@ def run_candidate(traj, spec, spec_ref, iteration, netlist_text, rationale,
              prompt_tokens=(usage or {}).get("prompt_tokens"),
              completion_tokens=(usage or {}).get("completion_tokens"))
 
+    def _ret(ok, tokens, wl, sized, objective):
+        return {"ok": ok, "tokens": tokens, "wl_hash": wl,
+                "netlist": netlist_text, "sized": sized, "errors": errors,
+                "objective": objective, "stages": dict(stages)}
+
     # ---- roundtrip ---------------------------------------------------------
     t0 = time.time()
     if not netlist_text:
@@ -470,18 +491,15 @@ def run_candidate(traj, spec, spec_ref, iteration, netlist_text, rationale,
         errors.append(err)
         traj.row(iteration, "roundtrip", roundtrip_ok=False, error_verbatim=err,
                  phase_seconds=round(time.time() - t0, 3))
-        return {"ok": False, "tokens": None, "wl_hash": None,
-                "netlist": netlist_text, "sized": None, "errors": errors,
-                "objective": None}
+        return _ret(False, None, None, None, None)
     info = P.round_trip(netlist_text)
     traj.row(iteration, "roundtrip", roundtrip_ok=bool(info["ok"]),
              wl_hash=info["wl_hash"], error_verbatim=info["error"],
              phase_seconds=round(time.time() - t0, 3))
     if not info["ok"]:
         errors.append(info["error"] or "round-trip failed")
-        return {"ok": False, "tokens": info.get("tokens"),
-                "wl_hash": info["wl_hash"], "netlist": netlist_text,
-                "sized": None, "errors": errors, "objective": None}
+        return _ret(False, info.get("tokens"), info["wl_hash"], None, None)
+    stages["parsed"] = True
     tokens, wl = info["tokens"], info["wl_hash"]
 
     # ---- screen (L0) -------------------------------------------------------
@@ -495,29 +513,25 @@ def run_candidate(traj, spec, spec_ref, iteration, netlist_text, rationale,
         errors.append(err)
         traj.row(iteration, "screen", wl_hash=wl, l0_pass=False,
                  error_verbatim=err, phase_seconds=round(time.time() - t0, 3))
-        return {"ok": False, "tokens": tokens, "wl_hash": wl,
-                "netlist": netlist_text, "sized": None, "errors": errors,
-                "objective": None}
+        return _ret(False, tokens, wl, None, None)
     if not passed:
         failed = [k for k, v in crit.items() if not v]
         err = "L0 screen rejected: failed %s" % ", ".join(failed)
         errors.append(err)
         traj.row(iteration, "screen", wl_hash=wl, l0_pass=False,
                  l0_criteria=crit, next_action="reject", error_verbatim=err)
-        return {"ok": False, "tokens": tokens, "wl_hash": wl,
-                "netlist": netlist_text, "sized": None, "errors": errors,
-                "objective": None}
+        return _ret(False, tokens, wl, None, None)
+    stages["l0"] = True
 
     # ---- bias (L1) ---------------------------------------------------------
     t0 = time.time()
-    conducting, bias_err = bias_probe(tokens)
+    conducting, bias_err = bias_probe(tokens, pdk=pdk)
     traj.row(iteration, "bias", wl_hash=wl, bias_conducting=conducting,
              error_verbatim=bias_err, phase_seconds=round(time.time() - t0, 3))
     if not conducting:
         errors.append(bias_err or "bias did not conduct")
-        return {"ok": False, "tokens": tokens, "wl_hash": wl,
-                "netlist": netlist_text, "sized": None, "errors": errors,
-                "objective": None}
+        return _ret(False, tokens, wl, None, None)
+    stages["bias"] = True
 
     # ---- size (L2) ---------------------------------------------------------
     if no_sim:
@@ -525,19 +539,17 @@ def run_candidate(traj, spec, spec_ref, iteration, netlist_text, rationale,
                  sized={"feasible": None, "metrics": None, "margins": None,
                         "best_objective": None, "n_evals": 0, "seconds": 0.0},
                  next_action="skip_size(no_sim)")
-        return {"ok": True, "tokens": tokens, "wl_hash": wl,
-                "netlist": netlist_text, "sized": None, "errors": errors,
-                "objective": None}
+        return _ret(True, tokens, wl, None, None)
 
-    best, secs, _ = size_candidate(tokens, spec_ref, seeds, budget)
+    best, secs, _ = size_candidate(tokens, spec_ref, seeds, budget, pdk=pdk)
     if best is None:
         err = "sizing produced no result (topology not sizable for this spec)"
         errors.append(err)
         traj.row(iteration, "size", wl_hash=wl, error_verbatim=err,
                  phase_seconds=secs)
-        return {"ok": False, "tokens": tokens, "wl_hash": wl,
-                "netlist": netlist_text, "sized": None, "errors": errors,
-                "objective": None}
+        return _ret(False, tokens, wl, None, None)
+    stages["sized"] = True
+    stages["feasible"] = bool(best["feasible"])
     sized = {"feasible": best["feasible"], "margins": best["margins"],
              "metrics": best["metrics"], "best_objective": best["best_obj"],
              "seed": best["seed"], "seconds": secs}
@@ -545,10 +557,8 @@ def run_candidate(traj, spec, spec_ref, iteration, netlist_text, rationale,
     traj.row(iteration, "size", wl_hash=wl, sized=sized,
              prediction_vs_outcome=pvo, phase_seconds=secs,
              next_action="accept" if best["feasible"] else "keep_best_effort")
-    return {"ok": True, "tokens": tokens, "wl_hash": wl,
-            "netlist": netlist_text,
-            "sized": {**sized, "best_params": best["best_params"]},
-            "errors": errors, "objective": best["best_obj"]}
+    return _ret(True, tokens, wl, {**sized, "best_params": best["best_params"]},
+                best["best_obj"])
 
 
 def _prediction_vs_outcome(deltas, metrics):

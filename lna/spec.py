@@ -70,8 +70,8 @@ CLASS_METRICS = (
 )
 
 _ALLOWED = {
-    "_top": {"name", "description", "circuit_class", "process", "band", "ports",
-             "constraints", "objectives", "topology", "sizing"},
+    "_top": {"name", "description", "circuit_class", "pdk", "process", "band",
+             "ports", "constraints", "objectives", "topology", "sizing"},
     "process": {"models", "vdd", "temp"},
     "band": {"type", "f0", "f_lo", "f_hi"},
     "ports": {"z0", "input", "output"},
@@ -100,6 +100,12 @@ class Spec(object):
         # itself stays class-agnostic (feasible/objective gate whatever metrics
         # the constraints name, regardless of class).
         self.circuit_class = data.get("circuit_class", "lna")
+        # pdk (cross-PDK v0, additive): absent -> "bptm45", so every existing
+        # spec is unchanged. Names a device technology in the lna/pdk registry;
+        # a driver may OVERRIDE it per-run (solve_spec/campaign --pdk) so the
+        # SAME spec YAML runs on any process with no per-PDK copies. The supply
+        # rail is a property of the chosen adapter (adapter.vdd), NOT this field.
+        self.pdk = data.get("pdk", "bptm45")
         self.process = data.get("process", {})
         self.band = data.get("band", {})
         self.ports = data.get("ports", {})
@@ -149,6 +155,18 @@ class Spec(object):
             raise SpecError(f"{where}: circuit_class must be one of "
                             f"{list(CIRCUIT_CLASSES)} (got {cc!r}); omit for "
                             "the default 'lna'")
+        # pdk (cross-PDK v0): validate against the lna/pdk registry so a typo
+        # fails loudly (same discipline as circuit_class). Imported lazily to
+        # avoid an import cycle -- pdk pulls to_spice, which imports spec-free.
+        pk = d.get("pdk", "bptm45")
+        try:
+            from pdk import known_pdks
+            _known = known_pdks()
+        except Exception:                                          # noqa: BLE001
+            _known = None                     # pdk package unavailable: skip check
+        if _known is not None and pk not in _known:
+            raise SpecError(f"{where}: pdk must be one of {_known} (got {pk!r}); "
+                            "omit for the default 'bptm45'")
         for sect in ("process", "band", "ports", "topology", "sizing"):
             if sect in d and d[sect] is not None:
                 if not isinstance(d[sect], dict):

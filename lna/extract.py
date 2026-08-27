@@ -116,10 +116,19 @@ def scratch(prefix):
             shutil.rmtree(d, ignore_errors=True)
 
 
-def run_deck(text, prefix, fname, timeout=60):
+def run_deck(text, prefix, fname, timeout=60, extra_files=None):
     """Write a deck into self-deleting scratch, run ngspice -b, return combined
-    stdout+stderr (or None on timeout). The single ngspice entry point."""
+    stdout+stderr (or None on timeout). The single ngspice entry point.
+
+    `extra_files` ({name: text}) writes companion files into the SAME scratch dir
+    alongside the run deck -- used by the IHP OSDI split, where a driver deck
+    `source`s a `net.sp` body it sits next to (ngspice resolves a `source`
+    relative to the driver deck's own directory, so the pair travels together).
+    None/empty leaves the single-file behaviour byte-identical."""
     with scratch(prefix) as d:
+        for nm, txt in (extra_files or {}).items():
+            with open(os.path.join(d, nm), "w") as fh:
+                fh.write(txt)
         p = os.path.join(d, fname)
         with open(p, "w") as fh:
             fh.write(text)
@@ -315,7 +324,8 @@ def parse_op(out):
             "branches": branches}
 
 
-def control_block(f0, f_lo, f_hi, supply, op_probe=None):
+def control_block(f0, f_lo, f_hi, supply, op_probe=None, osdi_lines=None,
+                  source_file=None):
     """op + Idd + S-parameters + stability. NF is NOT taken from this (port-driven)
     deck: inoise referred to the S-param port is unphysical with gain (finding #7).
     The trusted NF comes from the separate series-Rs deck (measure_nf).
@@ -323,9 +333,20 @@ def control_block(f0, f_lo, f_hi, supply, op_probe=None):
     `op_probe` (control lines from `op_probe_lines`) is spliced in between
     `print idd` and `sp`: print-only, no `save` (gotcha N1), no extra analysis.
     With it None the returned string is byte-identical to the pre-WP-OBSERVE one.
-    """
+
+    `osdi_lines`/`source_file` (cross-PDK v0, IHP OSDI): an `.osdi` is binary and
+    cannot be `.include`d, and the `osdi` command must run BEFORE the netlist is
+    parsed (else the psp103va/pspnqs103va model types are unknown when the .model
+    cards read). So for an OSDI PDK the body is split into a separate file and this
+    control block loads the .osdi then `source`s it FIRST, before `op`. Both None
+    (every non-OSDI PDK, incl. bptm45) -> the returned string is byte-identical."""
+    prelude = []
+    if osdi_lines:
+        prelude += [f"osdi {p}" for p in osdi_lines]
+    if source_file:
+        prelude += [f"source {source_file}"]
     return "\n".join([
-        ".control", "op",
+        ".control", *prelude, "op",
         f"let idd = -i({supply})", "print idd",
     ] + list(op_probe or []) + [
         f"sp lin 101 {f_lo:g} {f_hi:g} 1",
@@ -339,7 +360,31 @@ def control_block(f0, f_lo, f_hi, supply, op_probe=None):
     ] + _stability_lets() + _stability_meas(f0, f_lo, f_hi) + [".endc", ".end"])
 
 
+def osdi_lines_for(pdk):
+    """The `.osdi` files a PDK adapter needs pre-loaded, or [] (cross-PDK v0).
+
+    None / an adapter with no osdi_files() (bptm45, sky130, gf180mcu) -> [], so
+    the deck stays a single file and every existing path is byte-identical. Only
+    IHP SG13G2's PSP MOS returns paths, which drives the source-split in
+    build_deck. Accepts an adapter name (str) or an adapter object."""
+    if pdk is None:
+        return []
+    try:
+        from pdk import get_pdk
+        ad = get_pdk(pdk) if isinstance(pdk, str) else pdk
+        return list(ad.osdi_files()) if hasattr(ad, "osdi_files") else []
+    except Exception:                                              # noqa: BLE001
+        return []
+
+
 def build_deck(body, params, f0, f_lo, f_hi, supply=None, op_probe=None):
+    """The single self-contained op/sp deck (a string). Unchanged: every existing
+    caller (_lin_*, check_op, recreate) still gets exactly one deck text.
+
+    OSDI PDKs need a two-file source-split instead -- that path is
+    `build_deck_split`, used only inside run_and_extract when the adapter carries
+    .osdi files. Keeping this function string-returning is what leaves the
+    non-PDK callers byte-identical."""
     supply = supply or _supply_name(body)
     lines = [body.rstrip()]
     if params:
@@ -348,20 +393,57 @@ def build_deck(body, params, f0, f_lo, f_hi, supply=None, op_probe=None):
     return "\n".join(lines) + "\n"
 
 
-def run_and_extract(body, params, spec, op_capture=None):
+def build_deck_split(body, params, f0, f_lo, f_hi, osdi, supply=None,
+                     op_probe=None):
+    """(driver_deck, {companion_file: text}) for an OSDI PDK (IHP).
+
+    The body + params go into a companion `net.sp`; the returned driver deck is a
+    control-only file that loads each `.osdi` and `source`s net.sp BEFORE `op`,
+    which is the only order that registers the PSP model types before the netlist
+    parses (single-deck `osdi`-in-control is measured to fail -- the .model cards
+    read at parse time, before the control block runs). `osdi` is a non-empty
+    list of .osdi paths (osdi_lines_for(pdk))."""
+    supply = supply or _supply_name(body)
+    net_lines = [body.rstrip()]
+    if params:
+        net_lines.append(".param " + " ".join(f"{k}={v}"
+                                               for k, v in params.items()))
+    net_lines.append(".end")
+    net_txt = "\n".join(net_lines) + "\n"
+    # ngspice treats the FIRST line of a deck as the title (a comment). A driver
+    # deck that opened with `.control` had that directive silently eaten as the
+    # title, so the whole control block was mis-parsed as netlist -- a title
+    # comment line is mandatory (measured: without it every `let` errored).
+    driver = ("* osdi driver (source-split)\n"
+              + control_block(f0, f_lo, f_hi, supply, op_probe=op_probe,
+                              osdi_lines=osdi, source_file="net.sp") + "\n")
+    return driver, {"net.sp": net_txt}
+
+
+def run_and_extract(body, params, spec, op_capture=None, pdk=None):
     """Run one ngspice evaluation; return a metrics dict (or None on failure).
 
     WP-OBSERVE: if `op_capture` is a dict it is filled IN PLACE with the operating
     point (`parse_op` shape) read out of the SAME ngspice process -- the `op` this
     deck already runs. The return value is unaffected, so every existing caller is
-    untouched, and with `op_capture=None` the deck text is byte-identical."""
+    untouched, and with `op_capture=None` the deck text is byte-identical.
+
+    `pdk` (cross-PDK v0, additive): None or any non-OSDI adapter -> a single deck,
+    byte-identical to before. An OSDI adapter (IHP) triggers the source-split so
+    the PSP .osdi load before parse; the model `.include`/`.lib` lines are already
+    baked into `body` by to_spice, so this only adds the binary-osdi pre-load."""
     band = spec.band
     f0 = float(band.get("f0", 2.442e9))
     f_lo = float(band.get("f_lo", f0 * 0.98))
     f_hi = float(band.get("f_hi", f0 * 1.02))
     probe = op_probe_lines(body) if op_capture is not None else None
-    deck = build_deck(body, params, f0, f_lo, f_hi, op_probe=probe)
-    out = run_deck(deck, "size_", "c.cir")
+    osdi = osdi_lines_for(pdk)
+    if osdi:
+        deck, extra = build_deck_split(body, params, f0, f_lo, f_hi, osdi,
+                                       op_probe=probe)
+    else:
+        deck, extra = build_deck(body, params, f0, f_lo, f_hi, op_probe=probe), None
+    out = run_deck(deck, "size_", "c.cir", extra_files=extra)
     if out is None:
         return None
     if "singular matrix" in out.lower():
@@ -462,7 +544,7 @@ def measure_stability(body, params, f0, f_lo, f_hi, npts=201):
 
 
 def build_noise_deck(body, params, f0, f_lo, f_hi, rs=50.0, rl=50.0,
-                     op_probe=None):
+                     op_probe=None, osdi=None):
     """Rewrite a port-driven DUT body into a **series-Rs noise deck**.
 
     NF from `inoise_spectrum` with an S-parameter *port* source is unphysical
@@ -476,7 +558,12 @@ def build_noise_deck(body, params, f0, f_lo, f_hi, rs=50.0, rl=50.0,
     resistor Rn = Rs reads NF = 10*log10(1+Rn/Rs) = 3.01 dB.
 
     Returns (deck_text, node_in, node_out) or (None, None, None) if the body has
-    no recognizable two-port (no portnum 1/2 lines)."""
+    no recognizable two-port (no portnum 1/2 lines).
+
+    `osdi` (cross-PDK v0, IHP): a non-empty list of .osdi paths triggers the
+    source-split -- the returned deck_text is a control-only driver, and the
+    net-body is returned as a THIRD element only in that case (see the tuple
+    length). None/[] -> the historical single-deck string, byte-identical."""
     lines, node_in, node_out = [], None, None
     for ln in body.splitlines():
         toks = ln.split()
@@ -495,21 +582,34 @@ def build_noise_deck(body, params, f0, f_lo, f_hi, rs=50.0, rl=50.0,
         lines.append(ln)
     if node_in is None or node_out is None:
         return None, None, None
+    nf_idx = round((f0 - f_lo) / (f_hi - f_lo) * 50) if f_hi > f_lo else 0
+    nf_idx = max(0, min(50, nf_idx))
+    ctrl_body = list(op_probe or []) + [
+        f"noise v({node_out}) Vnz lin 51 {f_lo:g} {f_hi:g}",
+        "setplot noise1",
+        f"let nfv = 10*log10((inoise_spectrum*inoise_spectrum)/{K4TRS:.6e})",
+        f"let m_nf_f0 = nfv[{nf_idx}]", "print m_nf_f0"]
+    if osdi:
+        net = ["\n".join(lines)]
+        if params:
+            net.append(".param " + " ".join(f"{k}={v}" for k, v in params.items()))
+        net.append(".end")
+        # title comment first: ngspice eats line 1 as the deck title, so a driver
+        # opening on `.control` mis-parses the whole block (same fix as
+        # build_deck_split).
+        driver = (["* osdi noise driver (source-split)", ".control"]
+                  + [f"osdi {p}" for p in osdi]
+                  + ["source net.sp", "op"] + ctrl_body + [".endc", ".end"])
+        return ("\n".join(driver) + "\n", node_in, node_out,
+                "\n".join(net) + "\n")
     deck = ["\n".join(lines)]
     if params:
         deck.append(".param " + " ".join(f"{k}={v}" for k, v in params.items()))
-    nf_idx = round((f0 - f_lo) / (f_hi - f_lo) * 50) if f_hi > f_lo else 0
-    nf_idx = max(0, min(50, nf_idx))
-    deck += [".control", "op"] + list(op_probe or []) + [
-             f"noise v({node_out}) Vnz lin 51 {f_lo:g} {f_hi:g}",
-             "setplot noise1",
-             f"let nfv = 10*log10((inoise_spectrum*inoise_spectrum)/{K4TRS:.6e})",
-             f"let m_nf_f0 = nfv[{nf_idx}]", "print m_nf_f0",
-             ".endc", ".end"]
+    deck += [".control", "op"] + ctrl_body + [".endc", ".end"]
     return "\n".join(deck) + "\n", node_in, node_out
 
 
-def measure_nf(body, params, spec, rs=50.0, op_capture=None):
+def measure_nf(body, params, spec, rs=50.0, op_capture=None, pdk=None):
     """Physical noise figure at f0 via a series-Rs source (finding #7 fix).
 
     Returns nf_db (float) or None on failure. Separate from run_and_extract's
@@ -524,17 +624,24 @@ def measure_nf(body, params, spec, rs=50.0, op_capture=None):
     DC is identical to the sizing deck's by construction (both port sources were
     `dc 0` and the blocking caps are kept); `ref/check_op.py` tests that claim
     numerically rather than trusting this docstring, and the stored row records
-    which deck it came from either way."""
+    which deck it came from either way.
+
+    `pdk` (cross-PDK v0): None/non-OSDI -> byte-identical single deck. An OSDI
+    adapter (IHP) uses the same source-split as run_and_extract so the PSP .osdi
+    load before parse. The NF method (series-Rs) is otherwise PDK-agnostic."""
     band = spec.band
     f0 = float(band.get("f0", 2.442e9))
     f_lo = float(band.get("f_lo", f0 * 0.98))
     f_hi = float(band.get("f_hi", f0 * 1.02))
     probe = op_probe_lines(body) if op_capture is not None else None
-    deck, _, _ = build_noise_deck(body, params, f0, f_lo, f_hi, rs=rs,
-                                  op_probe=probe)
+    osdi = osdi_lines_for(pdk)
+    built = build_noise_deck(body, params, f0, f_lo, f_hi, rs=rs, op_probe=probe,
+                             osdi=osdi)
+    deck = built[0]
+    extra = {"net.sp": built[3]} if len(built) == 4 else None
     if deck is None:
         return None
-    out = run_deck(deck, "nf_", "nf.cir")
+    out = run_deck(deck, "nf_", "nf.cir", extra_files=extra)
     if out is None:
         return None
     if "singular matrix" in out.lower():

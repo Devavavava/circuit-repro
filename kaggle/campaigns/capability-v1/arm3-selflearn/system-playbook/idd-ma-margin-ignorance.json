@@ -1,0 +1,65 @@
+{
+  "applicability": {
+    "applies": "when evaluating feasibility based on constraint margins, particularly for idd_ma",
+    "not": "when using only average or nominal margins without checking the tightest constraint"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-08-27",
+  "evidence": [
+    {
+      "quote": "worst_margin=idd_ma=0.002476",
+      "source": "spec=cap-e01-wifi tier=E feasible=True"
+    },
+    {
+      "quote": "worst_margin=idd_ma=0.041334",
+      "source": "spec=cap-e02-gpsband tier=E feasible=True"
+    },
+    {
+      "quote": "worst_margin=idd_ma=-0.055651",
+      "source": "spec=cap-e03-900mhz tier=E feasible=False"
+    },
+    {
+      "quote": "worst_margin=idd_ma=0.050411",
+      "source": "spec=cap-e04-35ghz tier=E feasible=True"
+    },
+    {
+      "quote": "worst_margin=idd_ma=0.30389",
+      "source": "spec=cap-e05-ism58 tier=E feasible=True"
+    },
+    {
+      "quote": "worst_margin=s11_db=0.08461",
+      "source": "spec=cap-e06-wifi tier=E feasible=True"
+    }
+  ],
+  "id": "idd-ma-margin-ignorance",
+  "rule": "Always prioritize the smallest margin across all constraints, especially for idd_ma, and treat margins below 0.1 as critical thresholds for feasibility.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-08-27)"
+  ],
+  "trigger": {
+    "analysis": [
+      "per-task-outcomes"
+    ],
+    "failure_signature": [
+      "bias-regulation",
+      "numerical-artefact"
+    ],
+    "family": [
+      "cap-e01-wifi",
+      "cap-e02-gpsband",
+      "cap-e03-900mhz",
+      "cap-e04-35ghz",
+      "cap-e05-ism58",
+      "cap-e06-wifi"
+    ],
+    "keywords": [
+      "idd_ma",
+      "margin",
+      "worst_margin",
+      "feasible",
+      "infeasible"
+    ]
+  },
+  "type": "anti-pattern"
+}

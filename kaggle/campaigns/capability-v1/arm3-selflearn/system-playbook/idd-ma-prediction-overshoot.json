@@ -1,0 +1,52 @@
+{
+  "applicability": {
+    "applies": "when predicting quiescent current in active RF front-ends",
+    "not": "for passive-only designs or where current is not a constraint"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-08-27",
+  "evidence": [
+    {
+      "quote": "idd_ma(predicted=7.8,measured=12.5983,error=4.7983)",
+      "source": "prediction-vs-outcome records"
+    },
+    {
+      "quote": "idd_ma(predicted=7.8,measured=13.530489999999999,error=5.73049)",
+      "source": "prediction-vs-outcome records"
+    },
+    {
+      "quote": "idd_ma(predicted=4.2,measured=5.759466000000001,error=1.559466)",
+      "source": "prediction-vs-outcome records"
+    },
+    {
+      "quote": "idd_ma(predicted=4.7,measured=8.199482,error=3.499482)",
+      "source": "prediction-vs-outcome records"
+    }
+  ],
+  "id": "idd-ma-prediction-overshoot",
+  "rule": "Always apply a conservative margin of at least 2.5 mA when predicting idd_ma to avoid underestimating current consumption.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-08-27)"
+  ],
+  "trigger": {
+    "analysis": [
+      "prediction-vs-outcome"
+    ],
+    "failure_signature": [
+      "bias-regulation"
+    ],
+    "family": [
+      "cap-e07-gpsband",
+      "cap-e08-wideband",
+      "cap-m01-wifi",
+      "cap-m02-gpsband"
+    ],
+    "keywords": [
+      "idd_ma",
+      "predicted",
+      "measured"
+    ]
+  },
+  "type": "diagnosis"
+}

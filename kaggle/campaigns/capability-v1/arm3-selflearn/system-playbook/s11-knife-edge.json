@@ -1,0 +1,54 @@
+{
+  "applicability": {
+    "applies": "when S11 margin is within 1 dB of the constraint boundary",
+    "not": "when S11 margin is well within the allowed range"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-08-27",
+  "evidence": [
+    {
+      "quote": "s11_db(achieved=-0.0282541,margin=-0.99717)",
+      "source": "spec=cap-m03-900mhz tier=M feasible=False first_feasible_phase=None escalated=True best_obj=2.42462 worst_margin=s11_db=-0.99717"
+    },
+    {
+      "quote": "s11_db(achieved=-12.2866,margin=0.11696)",
+      "source": "spec=cap-m04-35ghz tier=M feasible=False first_feasible_phase=None escalated=True best_obj=1.01326 worst_margin=idd_ma=-0.01326"
+    },
+    {
+      "quote": "s11_db(achieved=-0.414466,margin=-0.96546)",
+      "source": "spec=cap-m07-gpsband tier=M feasible=False first_feasible_phase=None escalated=True best_obj=2.92617 worst_margin=s11_db=-0.96546"
+    },
+    {
+      "quote": "s11_db(achieved=-13.1331,margin=0.010238)",
+      "source": "spec=cap-h01-wifi tier=H feasible=False first_feasible_phase=None escalated=True best_obj=2.19646 worst_margin=idd_ma=-1.1965"
+    }
+  ],
+  "id": "s11-knife-edge",
+  "rule": "Avoid placing S11 margins near the knife-edge threshold; ensure robust safety margins in S11 performance to prevent hard failures.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-08-27)"
+  ],
+  "trigger": {
+    "analysis": [
+      "prediction-vs-outcome",
+      "margin-analysis"
+    ],
+    "failure_signature": [
+      "s11-knife-edge"
+    ],
+    "family": [
+      "cap-m03-900mhz",
+      "cap-m04-35ghz",
+      "cap-m07-gpsband",
+      "cap-h01-wifi"
+    ],
+    "keywords": [
+      "s11_db",
+      "knife-edge",
+      "margin",
+      "failure"
+    ]
+  },
+  "type": "anti-pattern"
+}

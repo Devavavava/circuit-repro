@@ -1,0 +1,461 @@
+{
+  "variant": "selflearn",
+  "v0_dir": null,
+  "reflect_cap": 12,
+  "summary": {
+    "accepted": 12,
+    "rejected": 10,
+    "entries_written": [
+      "prediction-overconfidence",
+      "idd-ma-margin-ignorance",
+      "screening-early-termination",
+      "s11-db-oversight",
+      "s21-db-prediction-overshoot",
+      "inductor-screen-failure",
+      "s11-db-prediction-bias",
+      "nf-db-prediction-overshoot",
+      "idd-ma-prediction-overshoot",
+      "netlist-parse-failure",
+      "s11-knife-edge",
+      "idd-ma-bias-regulation"
+    ],
+    "rejected_detail": [
+      {
+        "reason": "duplicate id within this reflect pass: 's21-db-prediction-overshoot'",
+        "entry": {
+          "id": "s21-db-prediction-overshoot",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-e07-gpsband",
+              "cap-e08-wideband",
+              "cap-m01-wifi",
+              "cap-m02-gpsband"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "bias-regulation"
+            ],
+            "keywords": [
+              "s21_db",
+              "predicted",
+              "measured"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "s21_db(predicted=13.1,measured=17.9172,error=4.8172)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "s21_db(predicted=13.5,measured=19.8158,error=6.3158)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "s21_db(predicted=0.2,measured=-1.35182,error=-1.55182)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "s21_db(predicted=-0.1,measured=-1.49328,error=-1.39328)",
+              "source": "prediction-vs-outcome records"
+            }
+          ],
+          "rule": "Cap predicted s21_db values to within \u00b12 dB of the target to prevent over-optimistic predictions that lead to infeasible designs.",
+          "applicability": {
+            "applies": "when predicting s21_db gain in high-gain or narrow-ripple designs",
+            "not": "for designs where s21_db is not a binding constraint"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "parse-error-node-count",
+          "type": "harness-rule",
+          "trigger": {
+            "family": [
+              "cap-m04-35ghz",
+              "cap-h01-wifi"
+            ],
+            "analysis": [
+              "candidate-errors"
+            ],
+            "failure_signature": [
+              "harness-artefact"
+            ],
+            "keywords": [
+              "ParseError",
+              "R needs a name and 2 nodes",
+              "3 node(s)"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "[cap-h01-wifi/roundtrip] ParseError: line 4: R needs a name and 2 nodes (P N), got 3 node(s); line: 'R Rs n3 VSS 100'",
+              "source": "[cap-h01-wifi/roundtrip] ParseError: line 4: R needs a name and 2 nodes (P N), got 3 node(s); line: 'R Rs n3 VSS 100'"
+            },
+            {
+              "quote": "[cap-m04-35ghz/roundtrip] ParseError: line 4: R needs a name and 2 nodes (P N), got 3 node(s); line: 'R Rs n3 VSS 100'",
+              "source": "[cap-m04-35ghz/roundtrip] ParseError: line 4: R needs a name and 2 nodes (P N), got 3 node(s); line: 'R Rs n3 VSS 100'"
+            }
+          ],
+          "rule": "Validate that every resistor definition uses exactly two node references after the name; reject any R line with more than two nodes.",
+          "applicability": {
+            "applies": "when generating netlist entries for resistors",
+            "not": "when using a netlist parser that tolerates extra node fields"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "max-inductors-screen-rejection",
+          "type": "harness-rule",
+          "trigger": {
+            "family": [
+              "cap-m04-35ghz",
+              "cap-m06-wifi"
+            ],
+            "analysis": [
+              "candidate-errors"
+            ],
+            "failure_signature": [
+              "harness-artefact"
+            ],
+            "keywords": [
+              "L0 screen rejected",
+              "failed max_inductors"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "[cap-m04-35ghz/screen] L0 screen rejected: failed max_inductors",
+              "source": "[cap-m04-35ghz/screen] L0 screen rejected: failed max_inductors"
+            },
+            {
+              "quote": "[cap-m06-wifi/screen] L0 screen rejected: failed max_inductors",
+              "source": "[cap-m06-wifi/screen] L0 screen rejected: failed max_inductors"
+            }
+          ],
+          "rule": "Enforce inductor count limits before screen submission; do not generate designs exceeding the maximum allowed inductors.",
+          "applicability": {
+            "applies": "when designing circuits with inductor constraints",
+            "not": "when inductor count is not a design constraint"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "prediction-ignores-idd-ma",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-m03-900mhz",
+              "cap-m04-35ghz",
+              "cap-h01-wifi"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "objective-omission"
+            ],
+            "keywords": [
+              "predicted=-1.0",
+              "measured=7.28752",
+              "error=8.487284"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "idd_ma(predicted=-1.0,measured=7.487284000000001,error=8.487284)",
+              "source": "spec=cap-m03-900mhz wl=e5f1c43d7b86ae2c: nf_db(predicted=-0.15,measured=2.547543,error=2.697543); s11_db(predicted=0.1,measured=-0.115548,error=-0.215548); s21_db(predicted=-0.3,measured=11.0374,error=11.3374); idd_ma(predicted=-1.0,measured=7.487284000000001,error=8.487284)"
+            },
+            {
+              "quote": "idd_ma(predicted=5.2,measured=6.079559,error=0.879559)",
+              "source": "spec=cap-m04-35ghz wl=c231ac11552a9404: nf_db(predicted=2.6,measured=2.196811,error=-0.403189); s11_db(predicted=-11.3,measured=-12.2866,error=-0.9866); s21_db(predicted=14.8,measured=14.7303,error=-0.0697); idd_ma(predicted=5.2,measured=6.079559,error=0.879559)"
+            },
+            {
+              "quote": "idd_ma(predicted=3.8,measured=8.785839,error=4.985839)",
+              "source": "spec=cap-h01-wifi wl=c231ac11552a9404: nf_db(predicted=1.75,measured=1.770625,error=0.020625); s11_db(predicted=-13.2,measured=-13.1331,error=0.0669); s21_db(predicted=16.3,measured=16.9931,error=0.6931); idd_ma(predicted=3.8,measured=8.785839,error=4.985839)"
+            }
+          ],
+          "rule": "Ensure that predicted values for IDD_MA are not systematically under-estimated; validate against measured baseline behavior.",
+          "applicability": {
+            "applies": "when IDD_MA is a critical constraint and predictions show consistent underestimation",
+            "not": "when IDD_MA predictions are consistently accurate"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "s11-prediction-overshoot",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-m03-900mhz",
+              "cap-m04-35ghz",
+              "cap-m07-gpsband"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "bias-regulation"
+            ],
+            "keywords": [
+              "s11_db",
+              "predicted",
+              "measured",
+              "error"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "s11_db(predicted=-11.3,measured=-0.0325136,error=11.267486)",
+              "source": "spec=cap-m03-900mhz wl=c231ac11552a9404: nf_db(predicted=2.2,measured=2.5003,error=0.3003); s11_db(predicted=-11.3,measured=-0.0325136,error=11.267486); s21_db(predicted=15.1,measured=10.9238,error=-4.1762); idd_ma(predicted=5.4,measured=7.2815520000000005,error=1.881552)"
+            },
+            {
+              "quote": "s11_db(predicted=-11.3,measured=-12.2866,error=-0.9866)",
+              "source": "spec=cap-m04-35ghz wl=c231ac11552a9404: nf_db(predicted=2.6,measured=2.196811,error=-0.403189); s11_db(predicted=-11.3,measured=-12.2866,error=-0.9866); s21_db(predicted=14.8,measured=14.7303,error=-0.0697); idd_ma(predicted=5.2,measured=6.079559,error=0.879559)"
+            },
+            {
+              "quote": "s11_db(predicted=-12.3,measured=-0.400941,error=11.899059)",
+              "source": "spec=cap-m07-gpsband wl=c231ac11552a9404: nf_db(predicted=1.95,measured=2.065039,error=0.115039); s11_db(predicted=-12.3,measured=-0.400941,error=11.899059); s21_db(predicted=15.8,measured=11.7448,error=-4.0552); idd_ma(predicted=3.7,measured=6.967685,error=3.267685)"
+            }
+          ],
+          "rule": "Do not predict S11 values that are overly optimistic; use conservative estimates to avoid large negative margin errors.",
+          "applicability": {
+            "applies": "when S11 predictions are significantly better than measured results",
+            "not": "when S11 predictions are close to or worse than measured values"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "device-type-mistake",
+          "type": "harness-rule",
+          "trigger": {
+            "family": [
+              "cap-h08-wideband"
+            ],
+            "analysis": [
+              "verbal-error"
+            ],
+            "failure_signature": [
+              "harness-artefact"
+            ],
+            "keywords": [
+              "Cf",
+              "ParseError",
+              "unknown device TYPE"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "ParseError: line 5: unknown device TYPE 'Cf' (allowed: C, L, NMOS, PMOS, R); line: 'Cf n2 n1'",
+              "source": "[cap-h08-wideband/roundtrip] ParseError: line 5: unknown device TYPE 'Cf' (allowed: C, L, NMOS, PMOS, R); line: 'Cf n2 n1'"
+            }
+          ],
+          "rule": "Always validate device type syntax against the allowed set; never use non-standard or misspelled device types like 'Cf' when the valid types are C, L, NMOS, PMOS, R.",
+          "applicability": {
+            "applies": "when generating or validating circuit netlists with component definitions",
+            "not": "when working with abstract or symbolic representations not tied to device syntax"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "inductor-budget-violation",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-h04-35ghz",
+              "cap-h06-wifi",
+              "cap-h02-gpsband"
+            ],
+            "analysis": [
+              "screen-failure"
+            ],
+            "failure_signature": [
+              "device-budget"
+            ],
+            "keywords": [
+              "max_inductors",
+              "screen rejected"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "L0 screen rejected: failed max_inductors",
+              "source": "[cap-h04-35ghz/screen] L0 screen rejected: failed max_inductors"
+            },
+            {
+              "quote": "L0 screen rejected: failed max_inductors",
+              "source": "[cap-h06-wifi/screen] L0 screen rejected: failed max_inductors"
+            },
+            {
+              "quote": "L0 screen rejected: failed max_inductors",
+              "source": "[cap-h05-ism58/screen] L0 screen rejected: failed max_inductors"
+            }
+          ],
+          "rule": "Ensure the number of inductors in the design does not exceed the hard limit enforced by the screening process.",
+          "applicability": {
+            "applies": "when designing circuits with inductors under constraints on component count",
+            "not": "when inductor count is unconstrained or not part of the design rules"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "prediction-bias-on-idd-ma",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-h03-900mhz",
+              "cap-h04-35ghz",
+              "cap-h07-gpsband",
+              "cap-h08-wideband",
+              "cap-h02-gpsband"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "bias-regulation"
+            ],
+            "keywords": [
+              "idd_ma",
+              "predicted",
+              "measured"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "idd_ma(predicted=-1.0,measured=1.5176930000000002e-08,error=1.0)",
+              "source": "spec=cap-h03-900mhz wl=89b4240dbe1c7cd2: nf_db(predicted=-0.4,measured=17.81288,error=18.21288); s11_db(predicted=2.0,measured=-0.278323,error=-2.278323); s21_db(predicted=-0.5,measured=-16.1705,error=-15.6705); idd_ma(predicted=-1.0,measured=1.5176930000000002e-08,error=1.0)"
+            },
+            {
+              "quote": "idd_ma(predicted=-1.5,measured=1.407665e-08,error=1.5)",
+              "source": "spec=cap-h07-gpsband wl=a5476a67ca49011f: nf_db(predicted=-0.6,measured=5.974286,error=6.574286); s11_db(predicted=-2.0,measured=-4.39128,error=-2.39128); s21_db(predicted=4.0,measured=-4.45224,error=-8.45224); idd_ma(predicted=-1.5,measured=1.407665e-08,error=1.5)"
+            },
+            {
+              "quote": "idd_ma(predicted=3.7,measured=7.15365,error=3.45365)",
+              "source": "spec=cap-h04-35ghz wl=c231ac11552a9404: nf_db(predicted=1.65,measured=1.795972,error=0.145972); s11_db(predicted=-14.2,measured=-21.2652,error=-7.0652); s21_db(predicted=17.3,measured=16.3289,error=-0.9711); idd_ma(predicted=3.7,measured=7.15365,error=3.45365)"
+            },
+            {
+              "quote": "idd_ma(predicted=4.8,measured=8.113472,error=3.313472)",
+              "source": "spec=cap-h08-wideband wl=498290906a891b5b: nf_db(predicted=2.4,measured=2.467551,error=0.067551); s11_db(predicted=-15.2,measured=-0.315444,error=14.884556); s21_db(predicted=16.3,measured=9.9244,error=-6.3756); idd_ma(predicted=4.8,measured=8.113472,error=3.313472)"
+            },
+            {
+              "quote": "idd_ma(predicted=-2.5,measured=0.048285009999999996,error=2.548285)",
+              "source": "spec=cap-h02-gpsband wl=fe347616a58d3da6: nf_db(predicted=-0.1,measured=14.99591,error=15.09591); s11_db(predicted=0.05,measured=-3.79861,error=-3.84861); s21_db(predicted=-0.2,measured=-9.13572,error=-8.93572); idd_ma(predicted=-2.5,measured=0.048285009999999996,error=2.548285)"
+            }
+          ],
+          "rule": "Avoid predicting idd_ma values that are systematically too low or too high; the model consistently underestimates or misaligns with measured idd_ma, especially when it's near zero or in the positive range.",
+          "applicability": {
+            "applies": "when predicting idd_ma performance in circuit designs with tight constraints",
+            "not": "when idd_ma is not a gating constraint or when the model is calibrated for such predictions"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "s11-prediction-overshoot",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-h03-900mhz",
+              "cap-h04-35ghz",
+              "cap-h08-wideband"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "bias-regulation"
+            ],
+            "keywords": [
+              "s11_db",
+              "predicted",
+              "measured"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "s11_db(predicted=2.0,measured=-0.278323,error=-2.278323)",
+              "source": "spec=cap-h03-900mhz wl=89b4240dbe1c7cd2: nf_db(predicted=-0.4,measured=17.81288,error=18.21288); s11_db(predicted=2.0,measured=-0.278323,error=-2.278323); s21_db(predicted=-0.5,measured=-16.1705,error=-15.6705); idd_ma(predicted=-1.0,measured=1.5176930000000002e-08,error=1.0)"
+            },
+            {
+              "quote": "s11_db(predicted=-14.2,measured=-21.2652,error=-7.0652)",
+              "source": "spec=cap-h04-35ghz wl=c231ac11552a9404: nf_db(predicted=1.65,measured=1.795972,error=0.145972); s11_db(predicted=-14.2,measured=-21.2652,error=-7.0652); s21_db(predicted=17.3,measured=16.3289,error=-0.9711); idd_ma(predicted=3.7,measured=7.15365,error=3.45365)"
+            },
+            {
+              "quote": "s11_db(predicted=-15.2,measured=-0.315444,error=14.884556)",
+              "source": "spec=cap-h08-wideband wl=498290906a891b5b: nf_db(predicted=2.4,measured=2.467551,error=0.067551); s11_db(predicted=-15.2,measured=-0.315444,error=14.884556); s21_db(predicted=16.3,measured=9.9244,error=-6.3756); idd_ma(predicted=4.8,measured=8.113472,error=3.313472)"
+            }
+          ],
+          "rule": "Be cautious when predicting s11_db values; the model often predicts values that are too high (less negative) than measured, especially when actual s11_db is highly negative.",
+          "applicability": {
+            "applies": "when using predicted s11_db to guide design decisions in high-performance RF circuits",
+            "not": "when s11_db is not a critical constraint or when the model is known to be calibrated"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "nf-prediction-overshoot",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-h03-900mhz",
+              "cap-h04-35ghz",
+              "cap-h08-wideband"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "bias-regulation"
+            ],
+            "keywords": [
+              "nf_db",
+              "predicted",
+              "measured"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "nf_db(predicted=-0.4,measured=17.81288,error=18.21288)",
+              "source": "spec=cap-h03-900mhz wl=89b4240dbe1c7cd2: nf_db(predicted=-0.4,measured=17.81288,error=18.21288); s11_db(predicted=2.0,measured=-0.278323,error=-2.278323); s21_db(predicted=-0.5,measured=-16.1705,error=-15.6705); idd_ma(predicted=-1.0,measured=1.5176930000000002e-08,error=1.0)"
+            },
+            {
+              "quote": "nf_db(predicted=1.65,measured=1.795972,error=0.145972)",
+              "source": "spec=cap-h04-35ghz wl=c231ac11552a9404: nf_db(predicted=1.65,measured=1.795972,error=0.145972); s11_db(predicted=-14.2,measured=-21.2652,error=-7.0652); s21_db(predicted=17.3,measured=16.3289,error=-0.9711); idd_ma(predicted=3.7,measured=7.15365,error=3.45365)"
+            },
+            {
+              "quote": "nf_db(predicted=2.4,measured=2.467551,error=0.067551)",
+              "source": "spec=cap-h08-wideband wl=498290906a891b5b: nf_db(predicted=2.4,measured=2.467551,error=0.067551); s11_db(predicted=-15.2,measured=-0.315444,error=14.884556); s21_db(predicted=16.3,measured=9.9244,error=-6.3756); idd_ma(predicted=4.8,measured=8.113472,error=3.313472)"
+            }
+          ],
+          "rule": "For nf_db, avoid predicting values significantly below the measured outcome; the model tends to underestimate the actual noise figure, especially when the target is above 1 dB.",
+          "applicability": {
+            "applies": "when modeling noise performance in low-noise amplifier designs with tight nf_db constraints",
+            "not": "when nf_db is not a gating metric or when the model is known to be accurate"
+          }
+        }
+      }
+    ],
+    "overlay_dir": "/kaggle/working/campaign/system-playbook",
+    "run_id": "800bff246eb24850"
+  }
+}

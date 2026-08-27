@@ -1,0 +1,52 @@
+{
+  "applicability": {
+    "applies": "when predicting s11_db performance in designs with tight return loss targets",
+    "not": "for designs where s11_db is not a gating constraint"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-08-27",
+  "evidence": [
+    {
+      "quote": "s11_db(predicted=-10.6,measured=-10.2657,error=0.3343)",
+      "source": "prediction-vs-outcome records"
+    },
+    {
+      "quote": "s11_db(predicted=-11.2,measured=-9.50599,error=1.69401)",
+      "source": "prediction-vs-outcome records"
+    },
+    {
+      "quote": "s11_db(predicted=0.5,measured=-11.3546,error=-11.8546)",
+      "source": "prediction-vs-outcome records"
+    },
+    {
+      "quote": "s11_db(predicted=0.5,measured=-0.994665,error=-1.494665)",
+      "source": "prediction-vs-outcome records"
+    }
+  ],
+  "id": "s11-db-prediction-bias",
+  "rule": "Correct for consistent positive bias in s11_db predictions by adjusting predicted values downward by at least 0.5 dB when the model outputs values near -10 dB or below.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-08-27)"
+  ],
+  "trigger": {
+    "analysis": [
+      "prediction-vs-outcome"
+    ],
+    "failure_signature": [
+      "bias-regulation"
+    ],
+    "family": [
+      "cap-e07-gpsband",
+      "cap-e08-wideband",
+      "cap-m01-wifi",
+      "cap-m02-gpsband"
+    ],
+    "keywords": [
+      "s11_db",
+      "predicted",
+      "measured"
+    ]
+  },
+  "type": "diagnosis"
+}

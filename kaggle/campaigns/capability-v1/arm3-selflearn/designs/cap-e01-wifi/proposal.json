@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n3 n2 VSS VSS\nC Cgds n3 n2\nL Ls n3 n4\nL Ld VDD n3\nC Ct n4 n5\nC Cout n5 VOUT1",
+  "wl_hash": "25905c56359559c7",
+  "rationale": "The proposed topology improves the excessive current draw (IDD) by adding a source degeneration inductor in series with the NMOS transistor's source, which reduces the transconductance and thus lowers the quiescent current without significantly degrading noise figure or gain. This leverages the narrowband nature of the 2.44 GHz target, where inductors can provide resonant impedance matching and current limiting, while maintaining stability margins. The inductor also helps tune the output impedance to improve S21 and S11, correcting the binding issue of IDD without compromising other metrics.",
+  "arm": "B",
+  "run_id": "3c69a6a9fc48493b",
+  "trajectory": "trajectory/3c69a6a9fc48493b.jsonl"
+}

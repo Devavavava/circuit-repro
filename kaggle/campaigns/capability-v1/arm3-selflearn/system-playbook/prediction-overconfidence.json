@@ -1,0 +1,70 @@
+{
+  "applicability": {
+    "applies": "when making predictions for any constraint in a design task with a known history of measurement drift",
+    "not": "when predicting values for a completely new, untested design family without prior data"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-08-27",
+  "evidence": [
+    {
+      "quote": "nf_db(predicted=3.2,measured=0.9422421,error=-2.257758)",
+      "source": "spec=cap-e04-35ghz wl=c231ac11552a9404"
+    },
+    {
+      "quote": "s11_db(predicted=-8.7,measured=-9.10492,error=-0.40492)",
+      "source": "spec=cap-e04-35ghz wl=c231ac11552a9404"
+    },
+    {
+      "quote": "s21_db(predicted=12.5,measured=17.4855,error=4.9855)",
+      "source": "spec=cap-e04-35ghz wl=c231ac11552a9404"
+    },
+    {
+      "quote": "idd_ma(predicted=10.3,measured=14.24384,error=3.94384)",
+      "source": "spec=cap-e04-35ghz wl=c231ac11552a9404"
+    },
+    {
+      "quote": "nf_db(predicted=0.0,measured=2.868375,error=2.868375)",
+      "source": "spec=cap-e03-900mhz wl=0fd8f770f8f60c6b"
+    },
+    {
+      "quote": "s11_db(predicted=0.1,measured=-8.04955,error=-8.14955)",
+      "source": "spec=cap-e03-900mhz wl=0fd8f770f8f60c6b"
+    },
+    {
+      "quote": "s21_db(predicted=-0.1,measured=20.2429,error=20.3429)",
+      "source": "spec=cap-e03-900mhz wl=0fd8f770f8f60c6b"
+    },
+    {
+      "quote": "idd_ma(predicted=0.0,measured=15.83477,error=15.83477)",
+      "source": "spec=cap-e03-900mhz wl=0fd8f770f8f60c6b"
+    }
+  ],
+  "id": "prediction-overconfidence",
+  "rule": "Never predict a constraint value without validating its direction and magnitude against historical data from the same task family.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-08-27)"
+  ],
+  "trigger": {
+    "analysis": [
+      "prediction-vs-outcome"
+    ],
+    "failure_signature": [
+      "attribution-error",
+      "numerical-artefact"
+    ],
+    "family": [
+      "cap-e03-900mhz",
+      "cap-e06-wifi",
+      "cap-e04-35ghz",
+      "cap-e02-gpsband"
+    ],
+    "keywords": [
+      "prediction",
+      "error",
+      "overestimate",
+      "underestimate"
+    ]
+  },
+  "type": "anti-pattern"
+}

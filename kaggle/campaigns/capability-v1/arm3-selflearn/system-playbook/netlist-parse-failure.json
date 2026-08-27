@@ -1,0 +1,35 @@
+{
+  "applicability": {
+    "applies": "in any design phase requiring netlist generation and simulation",
+    "not": "for non-simulated or purely analytical tasks"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-08-27",
+  "evidence": [
+    {
+      "quote": "[cap-e07-gpsband/roundtrip] model emitted no parseable netlist block",
+      "source": "verbatim candidate errors"
+    }
+  ],
+  "id": "netlist-parse-failure",
+  "rule": "Validate that the model output includes a valid netlist block with proper syntax before initiating roundtrip simulation.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-08-27)"
+  ],
+  "trigger": {
+    "analysis": [
+      "roundtrip"
+    ],
+    "failure_signature": [
+      "harness-artefact"
+    ],
+    "family": [
+      "cap-e07-gpsband"
+    ],
+    "keywords": [
+      "model emitted no parseable netlist block"
+    ]
+  },
+  "type": "harness-rule"
+}

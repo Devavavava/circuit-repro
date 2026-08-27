@@ -1,0 +1,49 @@
+{
+  "applicability": {
+    "applies": "when predicting S21_db performance in RF filter designs",
+    "not": "when using a simulator with perfect gain modeling"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-08-27",
+  "evidence": [
+    {
+      "quote": "s21_db(predicted=12.3,measured=19.9935,error=7.6935)",
+      "source": "spec=cap-e02-gpsband wl=c231ac11552a9404"
+    },
+    {
+      "quote": "s21_db(predicted=12.5,measured=17.4855,error=4.9855)",
+      "source": "spec=cap-e04-35ghz wl=c231ac11552a9404"
+    },
+    {
+      "quote": "s21_db(predicted=11.3,measured=15.1715,error=3.8715)",
+      "source": "spec=cap-e03-900mhz wl=c231ac11552a9404"
+    }
+  ],
+  "id": "s21-db-prediction-overshoot",
+  "rule": "Never predict S21_db values below the measured baseline without accounting for circuit gain amplification effects; use historical data to calibrate predictions.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-08-27)"
+  ],
+  "trigger": {
+    "analysis": [
+      "prediction-vs-outcome"
+    ],
+    "failure_signature": [
+      "numerical-artefact",
+      "attribution-error"
+    ],
+    "family": [
+      "cap-e02-gpsband",
+      "cap-e04-35ghz",
+      "cap-e05-ism58"
+    ],
+    "keywords": [
+      "s21_db",
+      "predicted",
+      "measured",
+      "error"
+    ]
+  },
+  "type": "anti-pattern"
+}

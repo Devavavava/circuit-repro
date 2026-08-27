@@ -1,0 +1,52 @@
+{
+  "applicability": {
+    "applies": "when predicting noise figure in low-noise amplifier or filter designs",
+    "not": "for designs where NF is not a primary performance metric"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-08-27",
+  "evidence": [
+    {
+      "quote": "nf_db(predicted=2.7,measured=1.644305,error=-1.055695)",
+      "source": "prediction-vs-outcome records"
+    },
+    {
+      "quote": "nf_db(predicted=2.8,measured=1.568077,error=-1.231923)",
+      "source": "prediction-vs-outcome records"
+    },
+    {
+      "quote": "nf_db(predicted=0.1,measured=186.2677,error=186.1677)",
+      "source": "prediction-vs-outcome records"
+    },
+    {
+      "quote": "nf_db(predicted=-0.15,measured=6.175723,error=6.325723)",
+      "source": "prediction-vs-outcome records"
+    }
+  ],
+  "id": "nf-db-prediction-overshoot",
+  "rule": "Avoid predicting NF values above 3 dB unless the design has proven low-noise topology; otherwise, cap predictions at 2.5 dB to reduce over-optimism.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-08-27)"
+  ],
+  "trigger": {
+    "analysis": [
+      "prediction-vs-outcome"
+    ],
+    "failure_signature": [
+      "bias-regulation"
+    ],
+    "family": [
+      "cap-e07-gpsband",
+      "cap-e08-wideband",
+      "cap-m01-wifi",
+      "cap-m02-gpsband"
+    ],
+    "keywords": [
+      "nf_db",
+      "predicted",
+      "measured"
+    ]
+  },
+  "type": "diagnosis"
+}

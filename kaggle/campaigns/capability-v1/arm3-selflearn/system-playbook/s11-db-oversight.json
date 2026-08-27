@@ -1,0 +1,49 @@
+{
+  "applicability": {
+    "applies": "when s11_db margin is below 0.1 in a feasible design",
+    "not": "when the S11 specification is known to be relaxed or non-critical"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-08-27",
+  "evidence": [
+    {
+      "quote": "s11_db(achieved=-8.50515,margin=0.063144)",
+      "source": "spec=cap-e02-gpsband tier=E feasible=True"
+    },
+    {
+      "quote": "s11_db(achieved=-10.7859,margin=0.34824)",
+      "source": "spec=cap-e05-ism58 tier=E feasible=True"
+    },
+    {
+      "quote": "s11_db(achieved=-10.8461,margin=0.08461)",
+      "source": "spec=cap-e06-wifi tier=E feasible=True"
+    }
+  ],
+  "id": "s11-db-oversight",
+  "rule": "Treat s11_db margin below 0.1 as a high-risk signal, even if overall feasibility is achieved, and prioritize re-evaluation of the S11 constraint.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-08-27)"
+  ],
+  "trigger": {
+    "analysis": [
+      "per-task-outcomes"
+    ],
+    "failure_signature": [
+      "s11-knife-edge",
+      "bias-regulation"
+    ],
+    "family": [
+      "cap-e02-gpsband",
+      "cap-e05-ism58",
+      "cap-e06-wifi"
+    ],
+    "keywords": [
+      "s11_db",
+      "margin",
+      "achieved",
+      "feasible"
+    ]
+  },
+  "type": "anti-pattern"
+}

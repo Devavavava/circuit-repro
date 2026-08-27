@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1\nPMOS M2 n4 VDD n6 VDD\nPMOS M3 n5 VDD n6 VDD\nL Lsrc n3 n7",
+  "wl_hash": "abb45d093eb6f79d",
+  "rationale": "The proposed topology improves the binding constraint of **NF** (currently at 1.774 dB vs. 1.6 dB target) by adding a **source degeneration inductor** to the NMOS transistor, which enhances noise performance by increasing the effective source impedance and improving the transconductance-to-noise ratio without significantly increasing power. This is critical for the H-tier spec where low NF is the primary objective and the margin is most negative. The inductor also helps improve input match (S11) slightly, which is currently far off, while maintaining gain (S21) and keeping power within acceptable limits. The use of a single inductor is compliant with the process constraints, and the topology remains differential-free and inductorless-avoidant, satisfying device budget and topology rules.",
+  "arm": "B",
+  "run_id": "c7b47edf1c0b4619",
+  "trajectory": "trajectory/c7b47edf1c0b4619.jsonl"
+}

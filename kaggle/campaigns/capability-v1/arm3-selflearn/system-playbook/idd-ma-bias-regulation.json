@@ -1,0 +1,48 @@
+{
+  "applicability": {
+    "applies": "when IDD_MA margin is negative or near zero despite positive predicted values",
+    "not": "when IDD_MA margin is robustly positive"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-08-27",
+  "evidence": [
+    {
+      "quote": "idd_ma(achieved=7.28752,margin=-0.21459)",
+      "source": "spec=cap-m03-900mhz tier=M feasible=False first_feasible_phase=None escalated=True best_obj=2.42462 worst_margin=s11_db=-0.99717"
+    },
+    {
+      "quote": "idd_ma(achieved=6.07956,margin=-0.01326)",
+      "source": "spec=cap-m04-35ghz tier=M feasible=False first_feasible_phase=None escalated=True best_obj=1.01326 worst_margin=idd_ma=-0.01326"
+    },
+    {
+      "quote": "idd_ma(achieved=8.78584,margin=-1.1965)",
+      "source": "spec=cap-h01-wifi tier=H feasible=False first_feasible_phase=None escalated=True best_obj=2.19646 worst_margin=idd_ma=-1.1965"
+    }
+  ],
+  "id": "idd-ma-bias-regulation",
+  "rule": "Do not rely on biased or inaccurate predictions for IDD_MA; explicitly verify IDD_MA margins with conservative safety buffers.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-08-27)"
+  ],
+  "trigger": {
+    "analysis": [
+      "prediction-vs-outcome",
+      "margin-analysis"
+    ],
+    "failure_signature": [
+      "bias-regulation"
+    ],
+    "family": [
+      "cap-m03-900mhz",
+      "cap-m04-35ghz",
+      "cap-h01-wifi"
+    ],
+    "keywords": [
+      "idd_ma",
+      "bias",
+      "prediction-error"
+    ]
+  },
+  "type": "anti-pattern"
+}

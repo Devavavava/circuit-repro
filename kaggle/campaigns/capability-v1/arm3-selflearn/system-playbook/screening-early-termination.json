@@ -1,0 +1,39 @@
+{
+  "applicability": {
+    "applies": "when a design is rejected by a screening step due to a hard constraint violation",
+    "not": "when the screening step is known to be final and non-recoverable"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-08-27",
+  "evidence": [
+    {
+      "quote": "[cap-e03-900mhz/screen] L0 screen rejected: failed max_inductors",
+      "source": "verbatim-candidate-errors"
+    }
+  ],
+  "id": "screening-early-termination",
+  "rule": "Do not terminate screening early if a design fails due to hard constraints like max_inductors—log the failure and continue to explore alternative topologies.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-08-27)"
+  ],
+  "trigger": {
+    "analysis": [
+      "verbatim-candidate-errors"
+    ],
+    "failure_signature": [
+      "coverage-collapse",
+      "topology-exhaustion"
+    ],
+    "family": [
+      "cap-e03-900mhz"
+    ],
+    "keywords": [
+      "screen",
+      "rejected",
+      "failed",
+      "max_inductors"
+    ]
+  },
+  "type": "anti-pattern"
+}

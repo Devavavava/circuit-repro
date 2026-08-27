@@ -49,10 +49,72 @@ model_includes() until the model files are fetched -- see lna/pdk/FETCH.md for
 the approval-gated fetch plan. get_pdk() still returns them so a spec can name
 one and get a precise "not fetched yet" error rather than a KeyError.
 """
+import os
+import subprocess
+
 from . import bptm45 as _bptm45
 from . import gf180mcu as _gf180
 from . import ihp_sg13g2 as _ihp
 from . import sky130 as _sky130
+
+# ---------------------------------------------------------------- PDK root
+# Fetched foundry PDK model files live under a gitignored `<root>/.env/pdks/`
+# tree (the same `.env/` the ngspice-47 build sits in). A worktree has no such
+# tree of its own -- the models are in the MAIN checkout -- and a Kaggle worker
+# mounts them at a dataset path. Both are handled by resolving the root the same
+# way extract.resolve_models walks for the 45 nm card: an explicit override
+# first (LNA_PDK_ROOT, or LNA_DEPS_ROOT/.env/pdks), then this package's checkout,
+# then the git common dir's parent (the main checkout, from a worktree), then
+# ancestors. The first candidate that actually contains the named PDK subdir
+# wins, so a partially-fetched box degrades to a precise per-PDK "not fetched".
+_PKG_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+
+def _candidate_roots():
+    """Checkout roots to probe for `.env/pdks/`, nearest first -- mirrors
+    extract._dep_roots so the two resolvers stay in lockstep."""
+    seen, out = set(), []
+
+    def add(p):
+        if p and os.path.isdir(p) and p not in seen:
+            seen.add(p)
+            out.append(p)
+
+    # explicit PDK override (a dir that directly holds <name>/ subdirs)
+    add(os.environ.get("LNA_PDK_ROOT"))
+    # explicit deps override -> its .env/pdks
+    dep = os.environ.get("LNA_DEPS_ROOT")
+    if dep:
+        add(os.path.join(dep, ".env", "pdks"))
+    # this checkout, then the main checkout (from a worktree), then ancestors
+    add(os.path.join(_PKG_ROOT, ".env", "pdks"))
+    try:
+        r = subprocess.run(["git", "rev-parse", "--path-format=absolute",
+                            "--git-common-dir"], cwd=_PKG_ROOT,
+                           capture_output=True, text=True, timeout=10)
+        common = (r.stdout or "").strip()
+        if common:
+            main = os.path.dirname(os.path.abspath(common))
+            add(os.path.join(main, ".env", "pdks"))
+    except Exception:                                              # noqa: BLE001
+        pass
+    p = _PKG_ROOT
+    while os.path.dirname(p) != p:
+        p = os.path.dirname(p)
+        add(os.path.join(p, ".env", "pdks"))
+    return out
+
+
+def pdk_root(name):
+    """Absolute path to the fetched-model root for PDK `name`, or None if not
+    fetched on this host. `name` is the adapter id (its files live in
+    `<root>/<name>/`). Adapters call this from model_includes() and raise a
+    FETCH.md-naming NotImplementedError when it returns None."""
+    for root in _candidate_roots():
+        cand = os.path.join(root, name)
+        if os.path.isdir(cand):
+            return os.path.abspath(cand)
+    return None
 
 # name -> adapter instance. The default (used everywhere the spec omits `pdk:`)
 # is bptm45, the current 45 nm flow refactored into adapter form.

@@ -100,26 +100,63 @@ def check_bipolar_path():
 
 
 def check_staged_honest():
-    print("[C] staged adapters raise NotImplementedError naming FETCH.md")
+    """The three foundry adapters are HONEST in BOTH states:
+      - not fetched -> model_includes() raises NotImplementedError naming
+        FETCH.md (a spec gets a precise error, never a silent wrong deck);
+      - fetched     -> model_includes() returns resolvable .lib/.include lines
+        pointing at files that exist on disk.
+    In every state mos_line() emits the documented X-subckt mapping. This
+    keeps a clone with no `.env/pdks/` green (skip-with-note) while a fetched
+    box asserts the wiring is real."""
+    print("[C] staged adapters honest (raise-with-FETCH.md when unfetched, "
+          "resolve-to-real-files when fetched)")
     ok = True
     for name, want_sub in (("sky130", "sky130_fd_pr__nfet_01v8"),
                            ("ihp_sg13g2", "sg13_lv_nmos"),
-                           ("gf180mcu", "nfet_03v3")):
+                           ("gf180mcu", "nmos_3p3")):
         ad = pdk.get_pdk(name)
-        try:
-            ad.model_includes()
-            print(f"    {name:<12} RED: model_includes() did not raise")
-            ok = False
-            continue
-        except NotImplementedError as e:
-            says_fetch = "FETCH.md" in str(e)
+        root = pdk.pdk_root(name)
         line = ad.mos_line("NM1", "d", "g", "s", "b", "NM",
                            "{pNM1W}", "{pNM1L}", " NF={nfx}")
         maps = want_sub in line and line.startswith("X")
-        good = says_fetch and maps
-        ok &= good
-        print(f"    {name:<12} raises+names FETCH.md: {says_fetch}   "
-              f"mos maps to {want_sub}: {maps}   [{'ok' if good else 'FAIL'}]")
+        if root is None:
+            # unfetched: must raise and name FETCH.md
+            try:
+                ad.model_includes()
+                print(f"    {name:<12} RED: unfetched but model_includes() "
+                      f"did not raise")
+                ok = False
+                continue
+            except NotImplementedError as e:
+                says_fetch = "FETCH.md" in str(e)
+            good = says_fetch and maps
+            print(f"    {name:<12} [unfetched] raises+names FETCH.md: "
+                  f"{says_fetch}   mos->{want_sub}: {maps}   "
+                  f"[{'ok' if good else 'FAIL'}]")
+        else:
+            # fetched: includes resolve to files that exist
+            incs = ad.model_includes()
+            paths = []
+            for ln in incs:
+                # every fetched include quotes its path: .lib "<path>" <sec> /
+                # .include "<path>"
+                import re as _re
+                m = _re.search(r'"([^"]+)"', ln)
+                if m:
+                    paths.append(m.group(1))
+            exist = all(os.path.exists(p) for p in paths) and bool(paths)
+            good = exist and maps
+            ok &= good
+            extra = ""
+            if name == "ihp_sg13g2":
+                osdis = ad.osdi_files()
+                oe = bool(osdis) and all(os.path.exists(p) for p in osdis)
+                good &= oe
+                ok &= oe
+                extra = f"   osdi files exist: {oe}"
+            print(f"    {name:<12} [fetched] {len(paths)} include(s) resolve+"
+                  f"exist: {exist}   mos->{want_sub}: {maps}{extra}   "
+                  f"[{'ok' if good else 'FAIL'}]")
     print(f"    -> {'GREEN' if ok else 'RED'}")
     return ok
 

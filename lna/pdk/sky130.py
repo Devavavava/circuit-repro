@@ -34,6 +34,7 @@ CORNER: the model library is included via a corner `.lib` (typical =
 `sky130.lib.spice` section `tt`). model_includes() will emit that `.lib ... tt`
 line once the files land; the manifest below records the expected file.
 """
+import os
 
 
 class Sky130Adapter(object):
@@ -51,16 +52,26 @@ class Sky130Adapter(object):
              "corner .lib include; 1.8 V core. Most battle-tested open PDK with "
              "ngspice. STAGED: model files not fetched (see FETCH.md).")
 
-    # Expected model files on the box once fetched (relative to the PDK root the
-    # fetch lands under). sha/size are TODO -- filled after the approved fetch.
+    # FETCHED 2026-08-27 (user-approved). Files under
+    # <pdk_root>/sky130/sky130_fd_pr/, from efabless/skywater-pdk-libs-sky130_fd_pr
+    # @ 1232782c (Apache-2.0). sky130.lib.min.spice is a thin new wrapper (see
+    # FETCH.md) that includes ONLY the two 1.8 V core FET cells; each *__tt.pm3
+    # already carries the full .subckt + BSIM4 .model cards self-contained.
+    CORNER_REL = "sky130_fd_pr/models/sky130.lib.min.spice"
+    CORNER_SECTION = "tt"
     expected_files = [
-        {"path": "sky130A/libs.tech/ngspice/sky130.lib.spice",
-         "role": "corner selector (.lib ... tt) -- top include",
-         "sha256": "TODO", "size_bytes": "TODO"},
-        {"path": "sky130A/libs.tech/ngspice/sky130_fd_pr__nfet_01v8__tt.corner.spice",
-         "role": "nfet_01v8 tt subckt", "sha256": "TODO", "size_bytes": "TODO"},
-        {"path": "sky130A/libs.tech/ngspice/sky130_fd_pr__pfet_01v8__tt.corner.spice",
-         "role": "pfet_01v8 tt subckt", "sha256": "TODO", "size_bytes": "TODO"},
+        {"path": "sky130_fd_pr/models/sky130.lib.min.spice",
+         "role": "trimmed corner selector (.lib ... tt) -- nfet_01v8+pfet_01v8 only",
+         "sha256": "6bfa6e4b4ed34dbc6933433f398ff682e6055cce1f142b8acb1f58c241824865",
+         "size_bytes": 1334},
+        {"path": "sky130_fd_pr/cells/nfet_01v8/sky130_fd_pr__nfet_01v8__tt.pm3.spice",
+         "role": "nfet_01v8 tt subckt + BSIM4 binned models",
+         "sha256": "459eca963a134574cf7c842ad6d3814e7e0752bfb5de8e581c2f483534b5ad06",
+         "size_bytes": 1137294},
+        {"path": "sky130_fd_pr/cells/pfet_01v8/sky130_fd_pr__pfet_01v8__tt.pm3.spice",
+         "role": "pfet_01v8 tt subckt + BSIM4 binned models",
+         "sha256": "c943246ce012ea3db2777e3f4633ddccdfee7c8f1bf4dca79af9f7ff17b3d51f",
+         "size_bytes": 809553},
     ]
 
     # MOS device names by harness kind -- the mapping table, usable for docs/tests
@@ -69,10 +80,18 @@ class Sky130Adapter(object):
                   "PM": "sky130_fd_pr__pfet_01v8"}
 
     def model_includes(self):
-        raise NotImplementedError(
-            "sky130 model files not fetched -- see lna/pdk/FETCH.md. "
-            "Once fetched this returns e.g. "
-            "['.lib <root>/sky130A/libs.tech/ngspice/sky130.lib.spice tt'].")
+        """Emit the single `.lib <corner> tt` line. The BSIM4 models are binned
+        by W/L in METRES (bins run 0.15 um .. 100 um), so a sky130 spec must
+        supply W/L in metres; mos_line() passes them through verbatim."""
+        from . import pdk_root
+        root = pdk_root(self.name)
+        if root is None:
+            raise NotImplementedError(
+                "sky130 model files not fetched -- see lna/pdk/FETCH.md. "
+                "Once fetched this returns "
+                "['.lib <root>/sky130_fd_pr/models/sky130.lib.min.spice tt'].")
+        corner = os.path.join(root, self.CORNER_REL).replace(os.sep, "/")
+        return [f'.lib "{corner}" {self.CORNER_SECTION}']
 
     def mos_line(self, name, nd, ng, ns, nb, kind, wexpr, lexpr, fingers_expr):
         """sky130 primitive FET = subcircuit => `X` call. Verified device names,

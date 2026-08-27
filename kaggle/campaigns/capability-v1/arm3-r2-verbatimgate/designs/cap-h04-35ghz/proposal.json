@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n3 n2 n4 VSS\nNMOS M2 n5 n2 n6 VSS\nNMOS M3 n7 n8 n9 VSS\nNMOS M4 n10 n8 n9 VSS\nL Ls n4 n11\nC Cout n3 VOUT1\nR RL VDD n5\nL Ld VDD n3",
+  "wl_hash": "04ea8229954b7608",
+  "rationale": "The proposed topology improves the binding constraints\u2014primarily NF and S21\u2014by introducing a source-degenerated common-source stage with an inductor in the source path to enhance input impedance matching and noise performance, while preserving the low-power and stability characteristics. The addition of the inductor in series with the source of M1 creates a resonant network at 3.5 GHz that improves input match (S11) and simultaneously reduces noise figure by increasing the effective source resistance seen by the gate, which is optimal for low-noise operation in narrowband LNAs. The current mirror (M2\u2013M4) maintains bias current efficiency and gain, while the output load (RL) and output capacitance (Cout) are retained to ensure output matching and gain. This topology is well-suited for H-tier 3.5 GHz LNAs requiring low NF, tight match, and low power.",
+  "arm": "B",
+  "run_id": "cad300adc5164b28",
+  "trajectory": "trajectory/cad300adc5164b28.jsonl"
+}

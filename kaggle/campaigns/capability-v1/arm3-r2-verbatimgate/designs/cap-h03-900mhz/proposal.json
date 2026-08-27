@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lfb n1 VOUT1\nL Ld VDD n3\nL Ls n4 n5\nNMOS M1 n3 n2 n4 VSS\nNMOS M2 n5 n1 VSS VSS\nC Cout n3 VOUT1",
+  "wl_hash": "7a16a07ef63c0621",
+  "rationale": "The proposed topology improves the binding constraints\u2014particularly the high current draw (idd_ma) and poor gain (s21_db)\u2014by replacing the resistive feedback (Rfb) with an inductive feedback (Lfb) to enhance impedance matching and increase gain while reducing quiescent current. The inductor introduces a parallel resonance at 915 MHz, improving both input match (s11_db) and power efficiency. This change simultaneously alleviates the most negative margins: idd_ma (currently 9.13 mA, target 4 mA), s21_db (8.58 dB, target 17 dB), and NF (1.602 dB, target 1.6 dB), while maintaining stability and keeping the device count within budget.",
+  "arm": "B",
+  "run_id": "e0617c305a404016",
+  "trajectory": "trajectory/e0617c305a404016.jsonl"
+}

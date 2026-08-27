@@ -433,8 +433,14 @@ def reflect(v0_dir, overlay_dir, client, model_id, traj_path, cap=DEFAULT_CAP,
     proposed = []
     errors_seen = []
     n_chunks = 0
+    shown_texts = []   # the exact prompts shown to the model: the r2 run rejected
+    # ALL 17 live entries because the digests round numbers (%.5g) while the gate
+    # checked the raw corpus serialization -- the model quoted what it SAW,
+    # faithfully. The verbatim reference is therefore corpus + shown prompts
+    # (both mechanically derived from its own rows; anti-hallucination intact).
     for messages, chunk_specs in chunk_reflect_prompts(results, traj_rows, cap):
         n_chunks += 1
+        shown_texts.append(messages[1]["content"])
         log("reflect_chunk", chunk=n_chunks, specs=chunk_specs,
             est_prompt_tokens=_est_tokens(messages[1]["content"]))
         try:
@@ -463,13 +469,14 @@ def reflect(v0_dir, overlay_dir, client, model_id, traj_path, cap=DEFAULT_CAP,
 
     accepted, rejected = [], []
     seen_ids = set()
+    evidence_reference = corpus_blob + "\n" + "\n".join(shown_texts)
     for idx, raw_entry in enumerate(proposed):
         if len(accepted) >= cap:
             log("cap_reached", cap=cap, dropped_index=idx,
                 entry_verbatim=raw_entry)
             rejected.append({"reason": "cap reached", "entry": raw_entry})
             continue
-        e, reason = stamp_and_validate(raw_entry, corpus_blob, created, seen_ids)
+        e, reason = stamp_and_validate(raw_entry, evidence_reference, created, seen_ids)
         if e is None:
             log("entry_rejected", index=idx, reason=reason,
                 entry_verbatim=raw_entry)

@@ -1,0 +1,8 @@
+{
+  "netlist": "NMOS M1 n1 VIN1 VSS VSS\nNMOS M2 n2 VDD n1 VSS\nL Ld VDD n2\nC Cin VIN1 n1\nC Cout n2 VOUT1\nC Ct1 n2 n3\nC Ct2 n3 VSS\nNMOS M3 n4 n3 n5 VSS\nNMOS M4 n6 VDD n4 VSS\nL Lg n5 VSS\nL Lin n1 VIN1\nL Lout VOUT1 n6",
+  "wl_hash": "9fabdb19acfdf121",
+  "rationale": "The proposed topology improves the binding constraints\u2014specifically S11 and S21\u2014by introducing a shunt inductor at the input to enhance input matching and a series inductor in the output path to boost gain and improve output matching, while preserving the existing cascode structure for noise and stability. This configuration leverages the narrowband nature of the GPS band (1.575 GHz) to tune resonance, thereby improving both reflection and transmission metrics without increasing power or violating device budget. The inductors are placed strategically to create LC matching networks that correct the poor input/output impedance mismatch seen in the previous design.",
+  "arm": "B",
+  "run_id": "86c180f2d6924f73",
+  "trajectory": "trajectory/86c180f2d6924f73.jsonl"
+}

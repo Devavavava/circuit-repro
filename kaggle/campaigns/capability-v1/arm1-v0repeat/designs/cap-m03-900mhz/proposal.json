@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "c231ac11552a9404",
+  "rationale": "Rationale: The inductively-degenerated common-source topology with a tapped capacitor load is selected for its excellent noise performance and inherent input matching at 900 MHz, leveraging the inductor's series resonance to tune the input impedance while minimizing noise figure. The tapped capacitor (Ct1, Ct2) forms a bandpass filter with Ld to achieve high gain and selectivity, critical for narrowband operation. The use of a single NMOS transistor with inductive degeneration enables low current operation while maintaining sufficient transconductance for low NF. The topology is well-suited to the 45nm process, with device budget and inductor count within limits, and avoids floating nodes or ungrounded capacitors. This design balances S11, NF, and S21 targets without overloading the current budget, making it robust under process and temperature variations.",
+  "arm": "B",
+  "run_id": "5db80fe1a88e442c",
+  "trajectory": "trajectory/5db80fe1a88e442c.jsonl"
+}

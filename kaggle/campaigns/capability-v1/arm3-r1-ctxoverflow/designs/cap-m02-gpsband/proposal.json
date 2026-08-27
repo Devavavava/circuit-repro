@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n3 n2 n4 VSS\nL Ls n4 VSS\nL Ld VDD n3\nC Ct1 n3 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1\nNMOS M2 n6 VDD n5 VSS\nR RL VDD n6\nL Lin n2 n7\nC Cs n7 VSS",
+  "wl_hash": "b3051e184aa7a20a",
+  "rationale": "The revised topology introduces a source-degenerated common-source stage with an on-chip inductor at the input to enhance input matching and noise performance, directly addressing the binding constraint of NF (which is just below the 2.2 dB target) while simultaneously improving S11 and reducing Idd by increasing input impedance and reducing current through the active device. The addition of an inductor in series with the gate and a small source resistor (modeled via the inductor's parasitic resistance) improves the input reflection coefficient (S11) and reduces noise figure by increasing the effective source resistance to match the optimal value for minimum noise. The inductor also helps in achieving a higher S21 by improving the gain through better impedance matching at the input, without increasing current consumption significantly.",
+  "arm": "B",
+  "run_id": "97a1acd19e3b4095",
+  "trajectory": "trajectory/97a1acd19e3b4095.jsonl"
+}

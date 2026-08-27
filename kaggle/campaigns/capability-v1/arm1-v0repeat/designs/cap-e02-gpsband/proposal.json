@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "c231ac11552a9404",
+  "rationale": "# Rationale\nThe proposed topology is an inductively-degenerated common-source amplifier with a tapped capacitive output load, chosen for its excellent noise performance and inherent broadband matching capability at 1.575 GHz. The inductive degeneration (Lg) at the source improves input matching by reducing the input capacitance and enhancing the real part of the input admittance, critical for achieving S11 \u2264 -8 dB in a narrowband GPS LNA. The use of a tapped output capacitance (Ct1, Ct2) with an output inductor (Ld) forms a resonant tank that provides high gain (S21 \u2265 10 dB) at the target frequency, while minimizing the number of inductors to stay within the device budget. The topology is inherently differential-friendly but implemented as single-ended to maintain low complexity and comply with the non-differential requirement. The structure avoids the match-forbidden zone by keeping the input node driven through a grounded inductor (Lin) and C_gd coupling is minimized via the degeneration inductor, enabling a stable input match. This design leverages the low-noise, high-gm operation of the NMOS transistor with minimal bias current overhead, supporting the Idd \u2264 15 mA constraint while leaving room for optimization.",
+  "arm": "B",
+  "run_id": "50cfd237a32d4070",
+  "trajectory": "trajectory/50cfd237a32d4070.jsonl"
+}

@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nC Cf1 n1 n2\nC Cf2 n2 VSS\nNMOS M1 n3 n2 VSS VSS\nR Rg n2 VSS\nR Rs n3 VSS\nC Cfb n2 n3\nL Ld VDD n3\nC Cout n3 VOUT1",
+  "wl_hash": "89e50848f8c0943b",
+  "rationale": "The proposed topology enhances input matching and gain flatness by adding a source degeneration resistor and a shunt feedback capacitor, which improve S11 across the band and reduce ripple in S21 by stabilizing the input impedance and increasing bandwidth. This addresses the binding constraints of S21_ripple_db and S11_max_db while maintaining low power and low noise via careful placement of the feedback element to avoid degrading NF or increasing current.",
+  "arm": "B",
+  "run_id": "d01f9ab6eea94db7",
+  "trajectory": "trajectory/d01f9ab6eea94db7.jsonl"
+}

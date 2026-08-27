@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "c231ac11552a9404",
+  "rationale": "Rationale: The inductively-degenerated common-source topology with a tapped capacitive load is well-suited for this 900 MHz LNA spec due to its inherent high gain, good noise figure performance, and tunable input impedance via the series inductor and shunt capacitance. The tapped output capacitance allows for impedance matching at the output while maintaining high transconductance and wideband stability. The inclusion of a source inductor provides additional noise figure improvement through inductive degeneration, and the use of a shunt inductor at the input enables a compact, broadband match without requiring complex biasing or floating nodes. This topology respects the device budget and inductor limits, and the differential-free, single-ended structure aligns with the spec\u2019s constraints. It also avoids the match-forbidden zone issues by placing the load at the output node, where loading is legal and beneficial.",
+  "arm": "B",
+  "run_id": "ec476316b2a8463a",
+  "trajectory": "trajectory/ec476316b2a8463a.jsonl"
+}

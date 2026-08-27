@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "c231ac11552a9404",
+  "rationale": "The chosen topology is an inductively degenerated common-source amplifier with a tapped capacitor load, leveraging inductive source degeneration to enhance input matching and noise performance while maintaining high gain and output swing. The tapped capacitor structure enables a narrowband resonant load at 3.5 GHz, enabling high S21 and low NF, while the inductor in the source path provides additional input impedance control to meet S11 < -8 dB. The use of a single NMOS transistor minimizes device count and current consumption, aligning with the device budget of 3\u201316 and Idd constraint. The topology avoids floating nodes, is inductor-based (within max 3 inductors), and maintains a single-ended structure as required. The architecture is robust to gate-driven input mismatch by design, and the resonant load ensures minimal current loss to parasitic capacitances, preserving the swing efficiency.",
+  "arm": "B",
+  "run_id": "a12ce7eb7f4a4201",
+  "trajectory": "trajectory/a12ce7eb7f4a4201.jsonl"
+}

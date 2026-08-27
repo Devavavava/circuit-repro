@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n3 n2 n4 VSS\nL Ls n4 n5\nL Lf n3 n2\nL Ld VDD n3\nC Ct n3 n5\nC Cout n5 VOUT1",
+  "wl_hash": "d3edc25130b70c91",
+  "rationale": "The proposed topology improves the noise figure (NF) and gain (S21) by adding a source degeneration inductor in series with the NMOS transistor's source, enhancing input matching and reducing noise while maintaining stability and low power. This leverages the 45nm process's ability to support small inductors, directly addressing the most negative margins in NF and S21 without violating S11 or Idd constraints. The inductor provides a higher impedance path at the source, increasing the effective transconductance and improving noise performance, while its resonant behavior with parasitic capacitance enhances gain at the target frequency.",
+  "arm": "B",
+  "run_id": "143033096f3b4705",
+  "trajectory": "trajectory/143033096f3b4705.jsonl"
+}

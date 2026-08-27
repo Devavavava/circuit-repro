@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lin n1 VSS\nNMOS M1 n2 VDD n1 VSS\nL Lfb n2 n1\nR RL VDD n2\nC Cout n2 VOUT1",
+  "wl_hash": "f00c3b97152a6aa0",
+  "rationale": "The proposed topology improves noise performance by replacing the resistive feedback (Rf) with a series inductor (Lfb) to form a narrowband inductive feedback network, which enhances input matching and reduces noise figure by leveraging the inductor\u2019s frequency-dependent reactance to cancel input capacitance and improve gain at 1.575 GHz. This modification directly targets the most negative margin (nf_db = -1.408), which is the binding constraint, while preserving the existing gain and power efficiency. The inductor also aids in stabilizing the amplifier by increasing input impedance roll-off, indirectly improving S11 and S21 margins. The topology remains within device budget and process constraints.",
+  "arm": "B",
+  "run_id": "7cdba571adf64e6c",
+  "trajectory": "trajectory/7cdba571adf64e6c.jsonl"
+}

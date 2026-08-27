@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "c231ac11552a9404",
+  "rationale": "The proposed topology leverages an inductively degenerated common-source stage with a tapped capacitive load to achieve high gain and excellent input matching at 5.8 GHz, critical for meeting the stringent S11 \u2264 -10 dB and NF \u2264 3.5 dB targets. The series inductor Lg at the gate provides impedance transformation to improve input match while maintaining low noise by minimizing gate resistance and leveraging the intrinsic gate capacitance. The tapped capacitive load (Ct1, Ct2) enables resonant tuning at f0 = 5.8 GHz with a high Q, enabling sharp selectivity and high transconductance gain without excessive current. The output is loaded via a shunt inductor (Ld) to achieve impedance matching to 50\u03a9 while maintaining high output swing. This topology avoids the need for a cascode or additional isolation devices, thus preserving the input match integrity and avoiding the match-forbidden zone, as validated by structural analysis. The use of only three inductors (Lg, Ls, Ld) stays within the max_inductors: 3 limit, and the topology remains within the device budget (4 transistors, 6 passive elements). The low L_min and L_max constraints are respected, and the design is fully differential-agnostic with single-ended ports, meeting the non-differential requirement.",
+  "arm": "B",
+  "run_id": "714b59c3b9654b78",
+  "trajectory": "trajectory/714b59c3b9654b78.jsonl"
+}

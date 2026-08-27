@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "c231ac11552a9404",
+  "rationale": "# Rationale  \nThe proposed topology employs an inductively-degenerated common-source stage with a tapped capacitive load, optimized for low noise and high gain in a narrowband GPS LNA. The inductor in the source degeneration (Ls) provides impedance matching at 1.575 GHz while enhancing input matching (S11) and reducing noise figure (NF), critical for this 2.2 dB NF target. The tapped load (Ct1, Ct2) forms a resonant network with Ld, enabling high gain (S21) and bandwidth control with minimal current overhead. The use of a single NMOS transistor in a CS configuration with inductive source degeneration minimizes device count (within budget of 3\u201316) and avoids the complexity and current penalty of cascode or multiple stages. The topology is inherently well-suited for narrowband operation and benefits from the high Q of on-chip inductors at 1.58 GHz, enabling strong selectivity and good gain. This design avoids floating nodes and ensures a low-impedance path to ground through the source inductor and bypass capacitor, satisfying the match-forbidden zone constraint by not introducing parasitic feedback paths via C_gd.",
+  "arm": "B",
+  "run_id": "331efd7caef640f0",
+  "trajectory": "trajectory/331efd7caef640f0.jsonl"
+}

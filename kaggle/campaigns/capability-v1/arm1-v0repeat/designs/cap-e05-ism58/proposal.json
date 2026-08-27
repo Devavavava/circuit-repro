@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "c231ac11552a9404",
+  "rationale": "# Rationale  \nThe chosen topology is an inductively-degenerated common-source amplifier with a tapped capacitive load, optimized for high-frequency narrowband operation at 5.8 GHz. This structure provides excellent input matching through the inductive degeneration (Lg), which resonates with the input capacitance to achieve a low S11 despite the high-frequency challenge. The tapped capacitive load (Ct1, Ct2) enables a high-quality resonant output impedance at the desired frequency, enabling high S21 gain with minimal loss. The use of an inductor in the source path (Ls) enhances input impedance matching while simultaneously increasing the input-referred noise figure by reducing the transconductance-to-noise current ratio, which is critical for meeting the NF \u2264 3.5 dB target. The topology is compact, uses only two inductors (within the 3-inductor limit), and avoids floating nodes, satisfying the rejection of floating devices. The single-stage design ensures low Idd consumption (well below 15 mA), with the inductor in the source leg providing the necessary impedance transformation without requiring additional biasing complexity.",
+  "arm": "B",
+  "run_id": "9318921a3466415b",
+  "trajectory": "trajectory/9318921a3466415b.jsonl"
+}

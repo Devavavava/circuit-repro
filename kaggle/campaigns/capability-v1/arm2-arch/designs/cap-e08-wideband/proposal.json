@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n3 VDD n2 VSS\nNMOS M2 n4 n3 VSS VSS\nC Cout n4 VOUT1\nR RL VDD n4\nR Rg n2 VSS",
+  "wl_hash": "d825159aa27ee2d8",
+  "rationale": "The current LNA topology suffers from poor input matching (S11_max_db = -0.5 dB, far from required -8 dB), which is the most binding constraint with a normalized margin of -0.9374. The issue arises from insufficient input impedance matching due to a lack of an input impedance transformation network. Adding a source-degenerated common-source stage with a small gate inductor (Lg) and a series degeneration resistor (Rg) can improve input reflection by providing better impedance matching at the input, while maintaining low noise and power. The inductor allows the input to resonate at the center frequency (1.75 GHz), improving S11 without adding significant loss or complexity. This is consistent with the inductorless-class relaxation (allow_inductorless: true), and we can use a small inductor (below 1nH) as permitted by max_inductors: 1.",
+  "arm": "B",
+  "run_id": "cbd92a9e18e14e08",
+  "trajectory": "trajectory/cbd92a9e18e14e08.jsonl"
+}

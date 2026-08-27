@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nC Cshunt n1 VSS\nC Cf1 n1 n2\nC Cf2 n1 n3\nNMOS M1 n4 n2 VSS VSS\nNMOS M2 n5 n3 VSS VSS\nR Rs1 n2 VSS\nR Rs2 n3 VSS\nR Rf n2 n3\nR RL VDD n4\nR Rg n3 VDD\nC Cout n4 VOUT1\nC Cinput n1 VSS",
+  "wl_hash": "9e09bd4f7a7a0bbe",
+  "rationale": "The previous topology suffers from insufficient input match (S11) and suboptimal S21 gain, with the most negative margin in S11_max_db. The primary issue arises from inadequate input impedance matching due to the lack of a dedicated input matching network and excessive source degeneration from resistive Rs1/Rs2. To improve S11 without degrading gain or increasing power, we introduce a small input shunt capacitor (Cf1) in parallel with the input, which improves input reflection by reducing the input impedance mismatch at 1.75 GHz. This passive tuning enhances bandwidth and matching without altering the core amplifier architecture, preserving stability and keeping the device budget low. The addition of Cshunt (already present) and Cf1 creates a two-element matching network that better tunes the input impedance to 50\u03a9 across the band.",
+  "arm": "B",
+  "run_id": "90854a0d00844974",
+  "trajectory": "trajectory/90854a0d00844974.jsonl"
+}

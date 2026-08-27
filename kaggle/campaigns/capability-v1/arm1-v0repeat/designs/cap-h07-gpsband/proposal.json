@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "c231ac11552a9404",
+  "rationale": "Rationale: The inductively-degenerated common-source topology with a tapped-C output load is selected for its inherent ability to achieve low noise figure (NF) while maintaining excellent input matching (S11) and high gain (S21) in narrowband GPS LNA applications. The series inductor Lg at the gate provides inductive degeneration, which enhances input match by reducing the real part of the input admittance and improving S11, while simultaneously increasing gain and lowering NF through optimal transconductance-to-noise trade-offs. The tapped-C output network (Ct1 and Ct2) enables resonant tuning at 1.575 GHz with high Q, enabling high gain and selectivity without requiring large on-chip inductors. The output inductor Ld provides a high-impedance load, maximizing gain and ensuring strong output swing. This topology aligns with the H-tier constraints: it leverages inductive degeneration and resonant loading to simultaneously satisfy NF \u2264 1.5 dB, S11 \u2264 -14 dB, S21 \u2265 20 dB, and Idd \u2264 3 mA in a 45nm CMOS process. The architecture avoids floating nodes and respects the device budget, enabling aggressive sizing within the allowed transistor count and inductor limits.",
+  "arm": "B",
+  "run_id": "b0b6ed98b4204125",
+  "trajectory": "trajectory/b0b6ed98b4204125.jsonl"
+}

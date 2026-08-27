@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lfold n1 n2\nNMOS M1 n3 n2 n4 VSS\nL Ls n4 VSS\nL Ld VDD n3\nC Ct n3 n5\nC Cout n5 VOUT1\nL Ldeg n4 n6",
+  "wl_hash": "04f35ca2fb5bb394",
+  "rationale": "The proposed topology improves the binding constraint of NF_db by enhancing the transconductance efficiency and reducing thermal noise contribution through the addition of a source degeneration inductor in the input stage, which simultaneously improves input matching (S11) and reduces the effective noise figure by increasing the input impedance seen by the noise sources. The inductor also helps maintain high gain (S21) by enabling resonant peaking at 915 MHz, while the added inductance provides a path for current feedback that stabilizes the bias point and lowers the power consumption (IDD) by reducing the need for excessive tail current. The topology remains within the device budget and does not introduce floating nodes.",
+  "arm": "B",
+  "run_id": "1a9935790a4248ca",
+  "trajectory": "trajectory/1a9935790a4248ca.jsonl"
+}

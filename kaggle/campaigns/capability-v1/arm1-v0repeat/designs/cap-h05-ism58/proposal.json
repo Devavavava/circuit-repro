@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "c231ac11552a9404",
+  "rationale": "Rationale: The inductively-degenerated common-source topology with a tapped-C output load is selected for its inherent broadband impedance transformation capability, which enables tight input match (S11 \u2264 -13 dB) at 5.8 GHz despite the high-frequency challenge. The series inductor Lg provides inductive degeneration to enhance input impedance matching while maintaining high transconductance, critical for achieving ultra-low noise figure (NF \u2264 2.0 dB). The tapped-C output network (Ct1, Ct2) enables efficient narrowband impedance transformation to 50 \u03a9, supporting high gain (S21 \u2265 16 dB) with minimal loss. The inclusion of Ld for output inductive loading further improves bandwidth and gain flatness without increasing power consumption. This topology leverages the 45nm CMOS process\u2019s high fT and low parasitics, and its design is fully compliant with the device budget (\u226416 devices) and inductor constraint (\u22643 inductors). The structure avoids floating nodes and supports a clean DC path, while the use of a single NMOS transistor minimizes device count and power draw, enabling Idd \u2264 5 mA.",
+  "arm": "B",
+  "run_id": "1b209cd4044e451e",
+  "trajectory": "trajectory/1b209cd4044e451e.jsonl"
+}

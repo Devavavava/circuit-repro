@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1\nL Ldeg n3 n6",
+  "wl_hash": "e5f1c43d7b86ae2c",
+  "rationale": "The proposed topology improves the current power consumption by adding a source degeneration inductor to the NMOS transistor, which reduces the transconductance and thus the drain current, directly addressing the excessive IDD violation. The inductor provides a high-impedance path at the signal frequency, minimizing degradation of gain and noise figure while enabling better current control. This is especially effective in a narrowband LNA where inductive tuning enhances bandwidth and efficiency. The addition is minimal and maintains stability margins, as the inductor resonates with the existing parasitic capacitance to preserve the desired input/output impedance match.",
+  "arm": "B",
+  "run_id": "2c91cfffce444477",
+  "trajectory": "trajectory/2c91cfffce444477.jsonl"
+}

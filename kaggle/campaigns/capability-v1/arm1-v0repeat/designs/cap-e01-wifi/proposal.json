@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "c231ac11552a9404",
+  "rationale": "The chosen topology is an inductively-degenerated common-source amplifier with a tapped capacitive load, optimized for low noise and good input matching at 2.44 GHz. This structure leverages the inductor in the source degeneration path to enhance input impedance matching (S11) while maintaining high transconductance and gain. The tapped capacitive load (Ct1/Ct2) forms a resonant network with Ld to achieve high gain (S21) and narrowband selectivity, critical for the 2.44 GHz WiFi band. The topology is well-suited for the 45nm process with its low device count (within budget), minimal reliance on resistive loss, and inherent stability. The use of a single inductor in the drain path ensures inductorless operation is avoided per spec, and the topology naturally supports low noise due to the high gm/Id ratio achievable in the CS stage. The architecture also avoids the match-forbidden zone by ensuring the input is driven directly by the gate, enabling strong control over gate admittance and enabling S11 to be met without resorting to cascode isolation.",
+  "arm": "B",
+  "run_id": "03fb2c362be34827",
+  "trajectory": "trajectory/03fb2c362be34827.jsonl"
+}

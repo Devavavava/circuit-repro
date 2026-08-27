@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1\nL L1 n2 n6\nC Cgnd n6 VSS",
+  "wl_hash": "705ded8dd07837f8",
+  "rationale": "The proposed topology enhances the LNA's noise performance and input match by introducing a source-degenerated common-source stage with a shunt inductor at the input, which improves input impedance matching and reduces noise figure while maintaining gain and stability. The addition of an inductor in series with the gate provides a resonant network at 1.575 GHz, aligning with the GPS-L1 band, and the source degeneration increases input impedance and lowers noise by reducing the effective transconductance seen at the input. This topology also maintains low power by avoiding excessive transistor sizing, and the inductor placement supports the tight S11 requirement without degrading gain.",
+  "arm": "B",
+  "run_id": "6d6180a1743e4c18",
+  "trajectory": "trajectory/6d6180a1743e4c18.jsonl"
+}

@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "c231ac11552a9404",
+  "rationale": "Rationale: The inductively-degenerated common-source topology with a tapped-C output load is selected for its intrinsic high gain, excellent noise performance, and the ability to achieve a tight input match at 3.5 GHz through careful inductor and capacitor tuning. The series inductor Lg provides inductive degeneration to improve input impedance matching while maintaining high transconductance, and the tapped-C load (Ct1/Ct2) enables a high-Q resonant output network that maximizes S21 gain and suppresses out-of-band noise. The use of a single NMOS transistor reduces device count and power consumption, aligning with the low Idd and device budget constraints. The topology naturally supports narrowband operation and allows for high S11 and S21 performance with minimal parasitic sensitivity, making it ideal for the 3.5 GHz target with aggressive NF and S11 requirements.",
+  "arm": "B",
+  "run_id": "150e272a9d854849",
+  "trajectory": "trajectory/150e272a9d854849.jsonl"
+}

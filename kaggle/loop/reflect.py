@@ -281,6 +281,43 @@ def build_reflect_prompt(results, traj_rows, cap):
             {"role": "user", "content": user}]
 
 
+# The first live ARM3 run failed with the full 24-spec prompt at 11,282 tokens
+# against an 8,192 context (HTTP 400, zero entries). Reflection is therefore
+# CHUNKED: specs are split into contiguous groups whose prompt fits a token
+# budget; one LLM call per chunk; validation always runs against the FULL
+# corpus_blob; ids dedupe across chunks; the entry cap is global.
+REFLECT_TOKEN_BUDGET = int(os.environ.get("REFLECT_PROMPT_TOKEN_BUDGET", "5200"))
+
+
+def _est_tokens(text):
+    """Conservative token estimate (~3 chars/token for this mixed prose/data)."""
+    return len(text) // 3
+
+
+def chunk_reflect_prompts(results, traj_rows, cap, budget=None):
+    """Yield (messages, spec_names) per chunk, each chunk's USER message under
+    the token budget. Bisects the spec count; a single over-budget spec is sent
+    anyway (its digests are internally capped) rather than dropped."""
+    budget = budget or REFLECT_TOKEN_BUDGET
+    n = len(results)
+    start = 0
+    while start < n:
+        take = n - start
+        while take > 1:
+            sub = results[start:start + take]
+            specs = set(r.get("spec") for r in sub)
+            straj = [t for t in traj_rows if t.get("spec") in specs]
+            msgs = build_reflect_prompt(sub, straj, cap)
+            if _est_tokens(msgs[1]["content"]) <= budget:
+                break
+            take //= 2
+        sub = results[start:start + take]
+        specs = set(r.get("spec") for r in sub)
+        straj = [t for t in traj_rows if t.get("spec") in specs]
+        yield build_reflect_prompt(sub, straj, cap), sorted(specs)
+        start += take
+
+
 # ============================================================ entry validation
 def _extract_entries(content):
     """Pull the JSON list of entries from a model completion.
@@ -393,24 +430,36 @@ def reflect(v0_dir, overlay_dir, client, model_id, traj_path, cap=DEFAULT_CAP,
     log("load_corpus", v0_dir=v0_dir, n_results=len(results),
         n_traj_rows=len(traj_rows), corpus_chars=len(corpus_blob), cap=cap)
 
-    messages = build_reflect_prompt(results, traj_rows, cap)
-    try:
-        resp = client.complete(messages, temperature=temperature,
-                               max_tokens=max_tokens, n=1)
-    except Exception as e:                                        # noqa: BLE001
-        log("reflect_call_failed", error_verbatim=str(e))
+    proposed = []
+    errors_seen = []
+    n_chunks = 0
+    for messages, chunk_specs in chunk_reflect_prompts(results, traj_rows, cap):
+        n_chunks += 1
+        log("reflect_chunk", chunk=n_chunks, specs=chunk_specs,
+            est_prompt_tokens=_est_tokens(messages[1]["content"]))
+        try:
+            resp = client.complete(messages, temperature=temperature,
+                                   max_tokens=max_tokens, n=1)
+        except Exception as e:                                    # noqa: BLE001
+            log("reflect_call_failed", chunk=n_chunks, error_verbatim=str(e))
+            errors_seen.append(str(e))
+            continue                       # a failed chunk never kills the rest
+        content = ((resp.get("choices") or [{}])[0].get("message") or {}).get("content", "")
+        log("reflect_completion", chunk=n_chunks, completion_verbatim=content,
+            model=resp.get("model", model_id))
+        chunk_entries, perr = _extract_entries(content)
+        if perr:
+            log("extract_failed", chunk=n_chunks, error_verbatim=perr,
+                completion_verbatim=content)
+            errors_seen.append(perr)
+            continue
+        proposed.extend(chunk_entries)
+    log("proposed", n_proposed=len(proposed), n_chunks=n_chunks,
+        chunk_errors=errors_seen)
+    if not proposed and errors_seen:
         tfh.close()
         return {"accepted": 0, "rejected": 0, "entries_written": [],
-                "error": str(e), "run_id": run_id}
-
-    content = ((resp.get("choices") or [{}])[0].get("message") or {}).get("content", "")
-    log("reflect_completion", completion_verbatim=content,
-        model=resp.get("model", model_id))
-
-    proposed, perr = _extract_entries(content)
-    if perr:
-        log("extract_failed", error_verbatim=perr, completion_verbatim=content)
-    log("proposed", n_proposed=len(proposed))
+                "error": "; ".join(errors_seen)[:2000], "run_id": run_id}
 
     accepted, rejected = [], []
     seen_ids = set()

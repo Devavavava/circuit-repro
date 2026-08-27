@@ -1,0 +1,8 @@
+{
+  "netlist": "NMOS M1 n1 VIN1 VSS VSS\nNMOS M2 n2 VDD n1 VSS\nR R1 VDD n2\nR Rg VIN1 n1\nC Cf n1 VDD\nC Cin VIN1 n1\nC Cout n2 VOUT1",
+  "wl_hash": "558fb95c74b4596b",
+  "rationale": "The current topology exhibits a significant failure in S11_max_db (margin: -0.8883), indicating poor input match, which is critical for wideband operation. The primary issue stems from the lack of deliberate input impedance matching; the input capacitance (Cin) and parasitic elements are unbalanced, causing high reflection at the input. To improve input match without violating the inductorless constraint or increasing device count beyond the budget, we add a small gate resistor (Rg) in series with the gate of M1 to dampen the input pole and improve broadband S11. This is a standard technique in low-noise wideband LNAs where a small gate resistance reduces the input reflection coefficient by stabilizing the input impedance. The addition is minimal and within the allowed device budget, and it directly targets the binding constraint without degrading other metrics.",
+  "arm": "B",
+  "run_id": "0ba1b8508469497d",
+  "trajectory": "trajectory/0ba1b8508469497d.jsonl"
+}

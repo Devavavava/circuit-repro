@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "c231ac11552a9404",
+  "rationale": "Rationale: The inductively-degenerated common-source topology with a tapped-C output load is selected for its superior noise performance and inherent broadband matching capabilities at 2.44 GHz. The series inductor Lg at the gate provides inductive degeneration, which increases input impedance and improves S11 by reducing the reflection from the low input impedance of the MOSFET. The tapped-C output load (Ct1, Ct2) enables narrowband impedance matching at the output while providing high gain through resonant peaking, and the series inductor Ld at the drain forms a resonant tank with Ct1/Ct2, enabling high S21 with minimal power. The use of a single NMOS transistor maintains low device count (within budget), and the topology is well-suited for 45nm CMOS with low NF and tight S11, especially when optimized via the SPICE-driven sizing engine. The inductive loading also allows for fine control of the input match without requiring additional devices, satisfying the constraint on inductor count.",
+  "arm": "B",
+  "run_id": "7c7fd9e87cb64725",
+  "trajectory": "trajectory/7c7fd9e87cb64725.jsonl"
+}

@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "c231ac11552a9404",
+  "rationale": "The proposed topology is a cascode-configured, inductively-degenerated common-source LNA with a tapped output inductor and shunt-series source degeneration, optimized for low noise figure at 915 MHz while maintaining tight input match and low power. The cascode structure provides excellent isolation between input and output, reducing the impact of Cgd feedback and enabling a wider matchable bandwidth despite high gain. The inductive degeneration at the source enhances input impedance matching by resonating with the gate capacitance, while the tapped output inductor enables resonant loading at the desired frequency, maximizing gain and selectivity. The use of a shunt-series source inductor (Ls) further improves input match by extending the effective source impedance, and the series inductor (Lg) in the gate path allows for precise tuning of the input admittance. The topology is fully differential-free as required, avoids floating nodes, and uses only 3 inductors, meeting the device budget and inductor constraints. The architecture is robust against noise, with the cascode suppressing substrate noise and the degeneration reducing noise figure without sacrificing gain, making it ideal for the tight H-tier specification.",
+  "arm": "B",
+  "run_id": "9335108242864856",
+  "trajectory": "trajectory/9335108242864856.jsonl"
+}

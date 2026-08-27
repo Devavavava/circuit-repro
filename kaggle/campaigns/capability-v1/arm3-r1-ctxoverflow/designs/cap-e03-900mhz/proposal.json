@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n3 n2 n4 VSS\nL Ls n4 VSS\nL Ld VDD n3\nC Ct1 n3 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1\nL Ldeg n4 n6",
+  "wl_hash": "e5f1c43d7b86ae2c",
+  "rationale": "The proposed topology improves the binding constraints\u2014specifically S11 and IDD\u2014by adding a source degeneration inductor in series with the NMOS transistor\u2019s source, which enhances input matching (S11) by increasing the input impedance magnitude while simultaneously reducing the DC current through the transistor by increasing effective source impedance. This dual benefit addresses both the S11 margin (currently -0.00874) and the IDD violation (19.22 mA vs 15 mA max) without affecting NF or S21, which are already comfortably within bounds. The inductor also preserves narrowband operation via resonant tuning with parasitic capacitances, aligning with the 45nm CMOS process constraints.",
+  "arm": "B",
+  "run_id": "88e918f845a14d22",
+  "trajectory": "trajectory/88e918f845a14d22.jsonl"
+}

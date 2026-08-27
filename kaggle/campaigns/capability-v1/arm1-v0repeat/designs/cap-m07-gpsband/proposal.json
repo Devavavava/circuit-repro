@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "c231ac11552a9404",
+  "rationale": "Rationale: The inductively-degenerated common-source topology with a tapped-C load is selected for its inherent high gain and excellent noise figure performance at 1.575 GHz, critical for meeting the NF \u2264 2.0 dB target. The series inductor Lg provides inductive degeneration to improve input matching (S11) while preserving transconductance gain, and the tapped-C output network enables precise narrowband tuning to achieve high S21 (\u226515 dB) with minimal loss. The use of a shunt inductor at the source (Ls) further enhances input match by providing a low-impedance path to ground at the design frequency, aligning with the differential-agnostic, single-ended constraint. The topology is well-suited to the 45nm bulk CMOS process and allows for aggressive device sizing within the budget, enabling a low-power operation under 4 mA Idd. The structure avoids floating nodes, respects the device count limit, and ensures sufficient S11 margin when tuned via the SPICE optimizer.",
+  "arm": "B",
+  "run_id": "afef8031ed3e4edd",
+  "trajectory": "trajectory/afef8031ed3e4edd.jsonl"
+}

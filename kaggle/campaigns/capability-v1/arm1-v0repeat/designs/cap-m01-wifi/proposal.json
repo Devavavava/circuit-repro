@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "c231ac11552a9404",
+  "rationale": "# Rationale\nThe chosen topology is an inductively degenerated common-source LNA with a tapped capacitor load, designed to achieve low noise figure (NF \u2264 2.5 dB), good input match (S11 \u2264 -10 dB), high gain (S21 \u2265 12 dB), and low current (Idd \u2264 5 mA) in a 45nm CMOS process. The inductive degeneration (Lg) at the source improves input matching by increasing the input impedance magnitude and shifting the real part toward 50\u03a9, while reducing the impact of gate-drain capacitance (Cgd) on stability and noise. The tapped capacitor load (Ct1, Ct2) enables impedance transformation and resonant tuning at 2.44 GHz, allowing high gain and selectivity without excessive current. The series inductor Ld provides a high-Q resonant path to VDD, enhancing output impedance and gain. This topology is well-suited for narrowband operation, leverages the device budget efficiently, and avoids floating nodes, satisfying all architectural constraints including inductor use and differential rejection. It also supports a clean, high-gain output node at VOUT1, enabling strong swing delivery with minimal current overhead.",
+  "arm": "B",
+  "run_id": "2de4a9db904b4d53",
+  "trajectory": "trajectory/2de4a9db904b4d53.jsonl"
+}

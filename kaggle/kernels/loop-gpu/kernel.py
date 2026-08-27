@@ -140,7 +140,7 @@ def launch_server():
     cmd = [server, "-m", gguf, "--host", "127.0.0.1", "--port", str(PORT),
            "--n-gpu-layers", "999",
            "--split-mode", "layer",
-           "-c", os.environ.get("LLAMA_CTX", "8192"),
+           "-c", os.environ.get("LLAMA_CTX", "16384"),  # 8192 starved the reflect prompt (11.3k tok); KV @16k ~1.6 GB, fits the 2xT4
            "--parallel", "1"]
     log = open(os.path.join(WORK, "llama-server.log"), "w")
     print("[loop-gpu] launching:", " ".join(cmd), flush=True)

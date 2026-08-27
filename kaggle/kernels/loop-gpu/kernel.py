@@ -41,10 +41,15 @@ LOOP_K = os.environ.get("LOOP_K", "2")
 LOOP_BUDGET = os.environ.get("LOOP_BUDGET", "150")
 LOOP_SEEDS = os.environ.get("LOOP_SEEDS", "1")
 
-# RUN_MODE=campaign -> the capability-v0 arm-B ladder (campaign.py) instead of
-# the single-spec smoke. Default stays the proven single-spec driver smoke.
+# RUN_MODE=campaign -> the capability arm-B ladder (campaign.py) instead of the
+# single-spec smoke. Default stays the proven single-spec driver smoke.
 RUN_MODE = os.environ.get("RUN_MODE", "smoke")
 WALL_BUDGET_MIN = os.environ.get("WALL_BUDGET_MIN", "500")
+# ARM selects the capability-v1 variant when RUN_MODE=campaign:
+#   v0        ARM1 v0-repeat (byte-identical v0 arm-B; the default)
+#   arch      ARM2 concentration + self-diversity
+#   selflearn ARM3 arch + reflect-first overlay consult
+ARM = os.environ.get("ARM", "v0")
 
 
 def sh(cmd, **kw):
@@ -198,16 +203,17 @@ def main():
         # lines). The tested Python parser is the authoritative validator.
         # --max-tokens 3072: v6 truncated at the old 1024 default.
         if RUN_MODE == "campaign":
-            # capability-v0 arm-B ladder: campaign.py owns per-spec budgets
-            # (k/edit_rounds/seeds/budget) and escalation; the kernel only
-            # passes the endpoint, ladder, wall budget, and output dir.
-            print("[loop-gpu] RUN_MODE=campaign -> arm-B ladder (%s)" % ladder,
-                  flush=True)
+            # capability arm-B ladder: campaign.py owns per-spec budgets
+            # (k/edit_rounds/seeds/budget), escalation, and the variant
+            # (v0/arch/selflearn); the kernel only passes the endpoint, ladder,
+            # wall budget, variant, and output dir. Launch code is untouched.
+            print("[loop-gpu] RUN_MODE=campaign variant=%s -> arm-B ladder (%s)"
+                  % (ARM, ladder), flush=True)
             inner = (
-                "source %s && exec %s %s --arm B --ladder %s "
+                "source %s && exec %s %s --arm B --variant %s --ladder %s "
                 "--base-url http://127.0.0.1:%d/v1 --model %s "
                 "--wall-budget-min %s --out %s"
-                % (ENV_SH, sys.executable, campaign, ladder, PORT, model_id,
+                % (ENV_SH, sys.executable, campaign, ARM, ladder, PORT, model_id,
                    WALL_BUDGET_MIN, os.path.join(WORK, "campaign"))
             )
         else:

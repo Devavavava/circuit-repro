@@ -1,0 +1,21 @@
+{
+  "_doc": "Canned reflect-stage completion for reflect.py --dry-run. Four proposed entries exercise BOTH paths: two are ACCEPTED (evidence quotes appear VERBATIM in the committed capability-v0 arm-B corpus and the schema validates); one is REJECTED because its evidence is a paraphrase not present verbatim; one is REJECTED on a playbook schema error (empty applicability.not). The two accepted quotes -- 'model emitted no parseable netlist block' and 'HARD FAILURE after escalation; infeasible (closest attempt saved)' -- are real strings in kaggle/campaigns/capability-v0/armb; if that corpus is regenerated these fixtures may need refreshing.",
+  "responses": [
+    {
+      "id": "dryrun-reflect-0",
+      "object": "chat.completion",
+      "model": "dryrun",
+      "choices": [
+        {
+          "index": 0,
+          "finish_reason": "stop",
+          "message": {
+            "role": "assistant",
+            "content": "Reviewing my own run, two shortcomings recur with verbatim support, one candidate rule lacks verbatim grounding, and one is malformed.\n\n```json\n[\n  {\n    \"id\": \"emit-parseable-output-block-first\",\n    \"type\": \"harness-rule\",\n    \"trigger\": {\n      \"family\": [\"lna\"],\n      \"analysis\": [\"generation\"],\n      \"failure_signature\": [\"move-repertoire\"],\n      \"keywords\": [\"netlist\", \"parse\", \"output-contract\", \"narrowband\", \"nf\", \"s11\"]\n    },\n    \"evidence\": [\n      {\"quote\": \"model emitted no parseable netlist block\", \"source\": \"my trajectory rows, roundtrip phase\"}\n    ],\n    \"rule\": \"Always emit the fenced netlist block in the exact contracted shape before anything else, since a candidate with no parseable block is discarded before it can be sized.\",\n    \"applicability\": {\n      \"applies\": \"Every propose and edit turn where I must return a netlist.\",\n      \"not\": \"Turns that only diagnose and are not expected to return a netlist.\"\n    }\n  },\n  {\n    \"id\": \"vary-topology-after-hard-failure\",\n    \"type\": \"strategy\",\n    \"trigger\": {\n      \"family\": [\"lna\"],\n      \"analysis\": [\"generation\"],\n      \"failure_signature\": [\"topology-exhaustion\"],\n      \"keywords\": [\"topology\", \"escalation\", \"hard-failure\", \"diversity\"]\n    },\n    \"evidence\": [\n      {\"quote\": \"HARD FAILURE after escalation; infeasible (closest attempt saved)\", \"source\": \"my results notes\"}\n    ],\n    \"rule\": \"After a hard failure survives escalation, change the topology class on the next attempt rather than re-proposing the same archetype that already hard-failed.\",\n    \"applicability\": {\n      \"applies\": \"Specs that remained infeasible after the escalation retry.\",\n      \"not\": \"Specs that reached feasible at base, where topology variation is unnecessary.\"\n    }\n  },\n  {\n    \"id\": \"paraphrased-evidence-must-reject\",\n    \"type\": \"strategy\",\n    \"trigger\": {\n      \"family\": [\"lna\"],\n      \"analysis\": [\"sizing\"],\n      \"failure_signature\": [\"band-match-wall\"],\n      \"keywords\": [\"match\", \"s11\", \"band\"]\n    },\n    \"evidence\": [\n      {\"quote\": \"my input match was frequently a little bit off across the band\", \"source\": \"my summary impression\"}\n    ],\n    \"rule\": \"Widen the input match network when S11 binds across the band.\",\n    \"applicability\": {\n      \"applies\": \"Narrowband specs where S11 is the worst margin.\",\n      \"not\": \"Wideband specs with band-wide S11.\"\n    }\n  },\n  {\n    \"id\": \"malformed-missing-applicability-not\",\n    \"type\": \"anti-pattern\",\n    \"trigger\": {\n      \"family\": [\"lna\"],\n      \"analysis\": [\"sizing\"],\n      \"failure_signature\": [\"topology-exhaustion\"],\n      \"keywords\": [\"topology\", \"reuse\"]\n    },\n    \"evidence\": [\n      {\"quote\": \"HARD FAILURE after escalation; infeasible (closest attempt saved)\", \"source\": \"my results notes\"}\n    ],\n    \"rule\": \"Vary the topology class between proposals instead of re-proposing the same archetype after a hard failure.\",\n    \"applicability\": {\n      \"applies\": \"Tiers where escalation still hard-fails.\",\n      \"not\": \"\"\n    }\n  }\n]\n```"
+          }
+        }
+      ],
+      "usage": {"prompt_tokens": 2048, "completion_tokens": 640, "total_tokens": 2688}
+    }
+  ]
+}

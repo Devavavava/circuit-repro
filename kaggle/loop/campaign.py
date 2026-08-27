@@ -70,6 +70,23 @@ import verify as V                                                # noqa: E402
 BASE = dict(k=3, edit_rounds=2, seeds=2, budget=300, max_tokens=3072)
 ESCALATE = dict(k=5, edit_rounds=4, seeds=3, budget=600, max_tokens=3072)
 
+# ---- capability-v1 arm variants (see CAMPAIGN-CAPABILITY-V1.md) -------------
+#   v0        ARM1 "v0-repeat"     -- byte-identical v0 arm-B (run-to-run noise)
+#   arch      ARM2 "architecture"  -- v0 + CONCENTRATION (triage) + SELF-DIVERSITY
+#   selflearn ARM3 "self-learning" -- arch + REFLECT-FIRST overlay consult
+VARIANTS = ("v0", "arch", "selflearn")
+
+# CONCENTRATION split (pre-registered). The per-spec TOTAL eval budget is
+# UNCHANGED from v0: (k + edit_rounds) * seeds * budget eval-equivalents. arch
+# re-allocates it as a cheap triage over the k proposals, then ALL remaining
+# budget + full seeds on the single triage winner:
+#   triage:      each of the k proposals sized at TRIAGE_SEEDS=1 seed and
+#                TRIAGE_FRAC * budget evals (base budget=300 -> 60 evals).
+#   concentrate: the triage winner re-sized at full `seeds` and driven through
+#                the edit rounds, spending the remaining eval-equivalents.
+TRIAGE_FRAC = 5            # triage_budget = budget // TRIAGE_FRAC  (300//5 = 60)
+TRIAGE_SEEDS = 1
+
 
 # ===================================================================== helpers
 def _spec_metric_margins(spec, metrics):
@@ -113,20 +130,24 @@ def _fmt(x, spec="%.3g"):
 
 
 def _render_md(rows):
-    L = ["# capability-v0 results (EXPERIMENTAL -- not frozen)",
+    variant = next((r.get("variant") for r in rows if r.get("variant")), None)
+    title = ("# capability results (EXPERIMENTAL -- not frozen)"
+             + (" -- variant=%s" % variant if variant else ""))
+    L = [title,
          "",
          "Advisory columns (iip3_dbm, stability) NEVER gate the verdict.",
          "0-feasible rows are results, not failures suppressed.",
          "",
-         "| spec | tier | arm | feasible | first-feasible | iters | evals | "
+         "| spec | tier | arm | variant | feasible | first-feasible | iters | evals | "
          "escalated | best_obj | margins (worst) | iip3_dbm | stability | notes |",
-         "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+         "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for r in rows:
         worst = r.get("worst_margin")
         worst_s = ("%s=%.3g" % (worst[0], worst[1])
                    if worst and isinstance(worst[1], (int, float)) else "-")
-        L.append("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |"
+        L.append("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |"
                  % (r.get("spec"), r.get("tier"), r.get("arm"),
+                    r.get("variant") or "-",
                     "YES" if r.get("feasible") else "no",
                     r.get("first_feasible_phase") or "-",
                     _fmt(r.get("iters_to_first_feasible"), "%d")
@@ -166,6 +187,39 @@ def _worst_margin(margins):
         if isinstance(mar, (int, float)) and (worst is None or mar < worst[1]):
             worst = (name, mar)
     return worst
+
+
+def _overlay_consult(spec, extra_consult_dir=None):
+    """driver.consult_playbook, optionally ALSO searching a system overlay dir.
+
+    Without extra_consult_dir this is driver.consult_playbook verbatim (the
+    governed lna/playbook only). With it (ARM3), the exact same query is re-run
+    with `--extra-dir <overlay>` so retrieval spans BOTH the governed playbook
+    and the system-authored overlay. Returns (hits, argv, error_or_None); never
+    fatal. Uses playbook.py's own additive --extra-dir flag (default unchanged).
+    """
+    if not extra_consult_dir:
+        return D.consult_playbook(spec)
+    import subprocess
+    band = spec.band_type
+    kws = [band]
+    kws.append("inductorless" if spec.allow_inductorless else "inductor")
+    for m in spec.constraints:
+        kws.append(m.replace("_db", "").replace("_dbm", "").replace("_ma", ""))
+    argv = [sys.executable, os.path.join(LNA, "playbook.py"), "--consult",
+            "--json", "--family", "lna", "--keywords", ",".join(sorted(set(kws))),
+            "--extra-dir", extra_consult_dir, "--top", "5"]
+    try:
+        out = subprocess.run(argv, capture_output=True, text=True, cwd=ROOT,
+                             timeout=120)
+    except Exception as e:                                        # noqa: BLE001
+        return [], argv, "overlay consult subprocess failed: %r" % (e,)
+    if out.returncode != 0:
+        return [], argv, (out.stderr or out.stdout or "").strip()
+    try:
+        return json.loads(out.stdout or "[]"), argv, None
+    except Exception as e:                                        # noqa: BLE001
+        return [], argv, "overlay consult JSON parse failed: %s" % e
 
 
 # ======================================================================= ARM B
@@ -316,6 +370,257 @@ def run_spec_arm_b(spec, client, model_id, cfg, out_dir, traj_dir, no_sim,
     }
 
 
+# ================================================= ARM2/ARM3 (arch, selflearn)
+# CONTENT-NEUTRAL self-diversity prompt. It asks the model to enumerate k
+# structurally distinct approaches IN ITS OWN WORDS -- it names no circuit
+# family, archetype, metric, or design move (the binding no-injected-content
+# clause). {k} is filled from the config; nothing else is domain content.
+DIVERSITY_SYSTEM = (
+    "You are enumerating distinct engineering approaches to one problem. You "
+    "output a numbered list of short, structurally different approach "
+    "descriptions in your own words -- not full designs, just the distinguishing "
+    "idea of each. You invent no facts; each item is a genuinely different "
+    "structural direction from the others."
+)
+
+DIVERSITY_USER = (
+    "For the design problem specified below, enumerate exactly {k} STRUCTURALLY "
+    "DISTINCT approaches you could take. Each approach must differ from the "
+    "others in its core structure, not merely in numeric values. Give each as "
+    "one short sentence describing its distinguishing structural idea. Output a "
+    "plain numbered list (1., 2., ...) and nothing else.\n\n"
+    "=== PROBLEM SPECIFICATION ({name}) ===\n{spec_yaml}\n"
+)
+
+
+def _parse_approaches(content, k):
+    """Extract up to k numbered approach descriptions from a diversity completion.
+
+    Content-neutral: splits on leading '1.'/'2.'/'-'/'*' markers and keeps the
+    text verbatim. Falls back to non-empty lines. Returns a list of strings
+    (possibly shorter than k); the caller cycles if it needs more anchors.
+    """
+    import re
+    items = []
+    for line in (content or "").splitlines():
+        s = line.strip()
+        if not s:
+            continue
+        m = re.match(r"^(?:\(?\d+[.)]|[-*•])\s*(.+)$", s)
+        if m:
+            items.append(m.group(1).strip())
+    if not items:                                   # fallback: any prose lines
+        items = [ln.strip() for ln in (content or "").splitlines() if ln.strip()]
+    return items[:k] if items else []
+
+
+def _diversity_call(spec, client, cfg, temperature):
+    """One preliminary LLM call: the model enumerates k of ITS OWN structurally
+    distinct approaches. Returns (approaches_list, error_or_None). Never fatal --
+    an empty list just means arch anchors fall back to plain propose."""
+    msgs = [{"role": "system", "content": DIVERSITY_SYSTEM},
+            {"role": "user", "content": DIVERSITY_USER.format(
+                k=cfg["k"], name=spec.name, spec_yaml=D._spec_yaml(spec))}]
+    try:
+        resp = client.complete(msgs, temperature=temperature,
+                               max_tokens=cfg["max_tokens"], n=1)
+    except D.LLMError as e:
+        return [], str(e)
+    content = ((resp.get("choices") or [{}])[0].get("message") or {}).get("content", "")
+    return _parse_approaches(content, cfg["k"]), None
+
+
+def _anchor_prompt(spec, hits, approach):
+    """A propose prompt that anchors on ONE of the model's own approach strings.
+
+    Reuses driver.build_propose_prompt verbatim and appends a content-neutral
+    anchor line quoting the model's OWN approach text -- no domain content added.
+    """
+    msgs = D.build_propose_prompt(spec, hits)
+    anchor = ("\n\n=== YOUR CHOSEN APPROACH FOR THIS PROPOSAL (anchor on it) ===\n"
+              "%s\n\nProduce the netlist that realizes THIS approach." % approach)
+    msgs[-1] = {"role": msgs[-1]["role"],
+                "content": msgs[-1]["content"] + anchor}
+    return msgs
+
+
+def run_spec_arch(spec, client, model_id, cfg, out_dir, traj_dir, no_sim,
+                  temperature=0.7, extra_consult_dir=None):
+    """ARM2/ARM3 per-spec run: self-diversity + concentration, same TOTAL budget.
+
+    Flow:
+      0. consult (ARM3: consult overlay via extra_consult_dir); diversity call.
+      1. propose k candidates, each anchored on one of the model's own approaches.
+      2. TRIAGE: size every proposal at TRIAGE_SEEDS x triage_budget (cheap).
+      3. CONCENTRATE: re-size the triage winner at full `seeds` x budget, then
+         run edit_rounds on it -- spending the remaining eval-equivalents.
+    Returns the same partial-row shape as run_spec_arm_b (+ triage details), so
+    the table/verify code paths are shared.
+    """
+    spec_ref = spec.source
+    run_id = uuid.uuid4().hex[:16]
+    traj = D.Trajectory(os.path.join(traj_dir, run_id + ".jsonl"), run_id, spec.name)
+    total_evals = [0]
+    first_feasible = {"phase": None, "iter": None, "evals": None}
+
+    def _note_feasible(cand, phase_label, iteration):
+        if first_feasible["phase"] is not None:
+            return
+        if cand.get("sized") and cand["sized"].get("feasible"):
+            first_feasible.update(phase=phase_label, iter=iteration,
+                                  evals=total_evals[0])
+
+    triage_budget = max(1, cfg["budget"] // TRIAGE_FRAC)
+
+    hits, _argv, cerr = _overlay_consult(spec, extra_consult_dir)
+    n_hits = len(hits or [])
+    # overlay attribution: a retrieved id is a system-overlay hit iff a file of
+    # that name exists in the overlay dir (overlay entries carry author:system).
+    overlay_ids = set()
+    if extra_consult_dir and os.path.isdir(extra_consult_dir):
+        overlay_ids = {f[:-5] for f in os.listdir(extra_consult_dir)
+                       if f.endswith(".json")}
+    n_overlay = sum(1 for h in (hits or []) if h.get("id") in overlay_ids)
+    traj.row(0, "consult", consult_hits=hits, error_verbatim=cerr,
+             next_action="diversity")
+
+    approaches, derr = _diversity_call(spec, client, cfg, temperature)
+    traj.row(0, "propose", diagnosis="self-diversity: %d approach(es)"
+             % len(approaches), completion_verbatim="\n".join(
+                 "%d. %s" % (i + 1, a) for i, a in enumerate(approaches)),
+             error_verbatim=derr, next_action="anchor-propose")
+
+    # ---- propose k, anchored on the model's own approaches -----------------
+    candidates = []
+    for k in range(cfg["k"]):
+        if approaches:
+            msgs = _anchor_prompt(spec, hits, approaches[k % len(approaches)])
+        else:
+            msgs = D.build_propose_prompt(spec, hits)     # graceful fallback
+        try:
+            resp = client.complete(msgs, temperature=temperature,
+                                   max_tokens=cfg["max_tokens"], n=1)
+        except D.LLMError as e:
+            traj.row(k, "propose", error_verbatim=str(e), next_action="skip")
+            continue
+        ch = (resp.get("choices") or [{}])[0]
+        content = (ch.get("message") or {}).get("content", "")
+        netlist, rationale, deltas = D.parse_completion(content)
+        # TRIAGE sizing: 1 seed, small budget
+        cand = D.run_candidate(traj, spec, spec_ref, k, netlist, rationale,
+                               deltas, resp.get("model", model_id),
+                               resp.get("usage"), "propose", no_sim,
+                               TRIAGE_SEEDS, triage_budget, raw_completion=content)
+        cand["rationale"] = rationale
+        cand["approach"] = approaches[k % len(approaches)] if approaches else None
+        if not no_sim and (cand.get("sized") is not None
+                           or (cand.get("errors") and any(
+                               "sizing produced no result" in e for e in cand["errors"]))):
+            total_evals[0] += TRIAGE_SEEDS * triage_budget
+        _note_feasible(cand, "triage#%d" % k, k)
+        candidates.append(cand)
+
+    ok = [c for c in candidates if c["ok"]]
+    if not ok:
+        traj.row(len(candidates), "diagnose",
+                 diagnosis="all triage proposals failed before sizing",
+                 next_action="give_up")
+        traj.close()
+        return {"feasible": False, "first_feasible_phase": first_feasible["phase"],
+                "iters_to_first_feasible": first_feasible["iter"],
+                "evals_to_first_feasible": first_feasible["evals"],
+                "total_evals": total_evals[0], "best_obj": None, "margins": {},
+                "worst_margin": None, "run_id": run_id, "best_cand": None,
+                "notes": "no candidate survived triage",
+                "consult_hits": n_hits, "overlay_hits": n_overlay,
+                "triage": {"n_proposals": len(candidates), "triage_budget": triage_budget,
+                           "n_approaches": len(approaches), "winner": None}}
+
+    ok.sort(key=lambda c: D.rank_key(c, spec))
+    winner = ok[0]
+    traj.row(len(candidates), "diagnose",
+             diagnosis="triage winner wl=%s obj=%s (concentrating full budget)"
+             % ((winner.get("wl_hash") or "?"), winner.get("objective")),
+             wl_hash=winner.get("wl_hash"), next_action="concentrate")
+
+    best = winner
+    # ---- CONCENTRATE: full-seed re-size of the winner ----------------------
+    if not no_sim:
+        it = len(candidates)
+        rc = D.run_candidate(traj, spec, spec_ref, it, winner["netlist"],
+                             winner.get("rationale"), {}, model_id, None,
+                             "propose", no_sim, cfg["seeds"], cfg["budget"],
+                             raw_completion=None)
+        total_evals[0] += cfg["seeds"] * cfg["budget"]
+        _note_feasible(rc, "concentrate", it)
+        if rc["ok"]:
+            candidates.append(rc)
+            ok.append(rc)
+            ok.sort(key=lambda c: D.rank_key(c, spec))
+            best = ok[0]
+
+        # ---- edit rounds on the concentrated winner -----------------------
+        for er in range(cfg["edit_rounds"]):
+            if best.get("sized") and best["sized"].get("feasible"):
+                break
+            if not best.get("sized"):
+                break
+            it = len(candidates)
+            margins = best["sized"].get("margins") or {}
+            binding = D._binding_constraint(margins)
+            diag = ("binding: %s (margin %s)" % (binding[0], binding[1])
+                    if binding else "feasible; soft-objective edit")
+            traj.row(it, "diagnose", wl_hash=best.get("wl_hash"), diagnosis=diag,
+                     next_action="edit")
+            emsgs = D.build_edit_prompt(spec, hits, best["netlist"],
+                                        best["sized"], best["errors"])
+            try:
+                eresp = client.complete(emsgs, temperature=temperature,
+                                        max_tokens=cfg["max_tokens"], n=1)
+            except D.LLMError as e:
+                traj.row(it, "edit", error_verbatim=str(e), next_action="skip_edit")
+                break
+            ech = eresp.get("choices", [{}])[0]
+            content = (ech.get("message") or {}).get("content", "")
+            netlist, rationale, deltas = D.parse_completion(content)
+            ecand = D.run_candidate(traj, spec, spec_ref, it, netlist, rationale,
+                                    deltas, eresp.get("model", model_id),
+                                    eresp.get("usage"), "edit", no_sim,
+                                    cfg["seeds"], cfg["budget"],
+                                    raw_completion=content)
+            ecand["rationale"] = rationale
+            if not no_sim and ecand.get("sized") is not None:
+                total_evals[0] += cfg["seeds"] * cfg["budget"]
+            _note_feasible(ecand, "edit#%d" % er, it)
+            if ecand["ok"]:
+                candidates.append(ecand)
+                ok.append(ecand)
+                ok.sort(key=lambda c: D.rank_key(c, spec))
+                best = ok[0]
+
+    traj.close()
+    sized = best.get("sized") or {}
+    margins = sized.get("margins") or {}
+    feasible = bool(sized.get("feasible"))
+    return {
+        "feasible": feasible,
+        "first_feasible_phase": first_feasible["phase"],
+        "iters_to_first_feasible": first_feasible["iter"],
+        "evals_to_first_feasible": first_feasible["evals"],
+        "total_evals": total_evals[0],
+        "best_obj": best.get("objective"),
+        "margins": margins,
+        "worst_margin": _worst_margin(margins),
+        "run_id": run_id,
+        "best_cand": best,
+        "notes": "" if feasible else "infeasible (closest attempt saved)",
+        "consult_hits": n_hits, "overlay_hits": n_overlay,
+        "triage": {"n_proposals": len(candidates), "triage_budget": triage_budget,
+                   "n_approaches": len(approaches),
+                   "winner": winner.get("wl_hash")},
+    }
+
+
 # ======================================================================= ARM A
 def _arm_a_plan(cfg):
     """Match arm B's TOTAL eval budget with the corpus.
@@ -405,7 +710,7 @@ def run_spec_arm_a(spec, cfg, no_sim):
 
 # =================================================================== the runner
 def _finish_row(spec_row, spec, arm, partial, out_dir, cfg, escalated,
-                do_verify, verify_wide):
+                do_verify, verify_wide, variant=None):
     """Complete a partial row: save the best design + proposal, run verify."""
     cand = partial.get("best_cand")
     metrics = ((cand or {}).get("sized") or {}).get("metrics")
@@ -439,6 +744,10 @@ def _finish_row(spec_row, spec, arm, partial, out_dir, cfg, escalated,
     row = {
         "spec": spec.name, "spec_file": spec_row["file"], "tier": spec_row["tier"],
         "band": spec_row["band"], "band_type": spec_row["band_type"], "arm": arm,
+        "variant": variant,
+        "triage": partial.get("triage"),
+        "consult_hits": partial.get("consult_hits"),
+        "overlay_hits": partial.get("overlay_hits"),
         "feasible": partial["feasible"],
         "first_feasible_phase": partial["first_feasible_phase"],
         "iters_to_first_feasible": partial["iters_to_first_feasible"],
@@ -465,6 +774,16 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--arm", required=True, choices=["A", "B"])
+    ap.add_argument("--variant", choices=VARIANTS, default="v0",
+                    help="arm-B family variant (capability-v1): v0=ARM1 byte-"
+                         "identical v0 arm-B; arch=ARM2 concentration+self-"
+                         "diversity; selflearn=ARM3 arch + reflect-first overlay "
+                         "consult. Ignored for --arm A.")
+    ap.add_argument("--v0-dir",
+                    help="selflearn: dir with v0 arm-B results.jsonl+trajectory/ "
+                         "for the reflect stage (default: repo committed armb)")
+    ap.add_argument("--reflect-cap", type=int, default=12,
+                    help="selflearn: max system overlay entries reflect may write")
     ap.add_argument("--ladder", required=True, help="path to ladder.json")
     ap.add_argument("--out", help="output dir (default depends on env)")
     ap.add_argument("--dry-run", action="store_true", help="arm B: driver DryRunClient")
@@ -513,6 +832,42 @@ def main(argv=None):
     if args.arm == "B":
         client, model_id = _make_client(args)
 
+    # arm A ignores the variant; only arm B carries capability-v1 variants.
+    variant = args.variant if args.arm == "B" else None
+    extra_consult_dir = None
+
+    # ---- ARM3 REFLECT-FIRST: build the system overlay before the ladder runs.
+    # The overlay lives under <out>/system-playbook/ so it is saved in the run
+    # output for audit + later commit. reflect reads the v0 arm-B corpus, writes
+    # its own entries; consult then retrieves BOTH the governed playbook AND this
+    # overlay via playbook.py --extra-dir.
+    reflect_summary = None
+    if variant == "selflearn":
+        import reflect as R
+        v0_dir = args.v0_dir or os.path.join(ROOT, "kaggle", "campaigns",
+                                             "capability-v0", "armb")
+        extra_consult_dir = os.path.join(out_dir, "system-playbook")
+        reflect_traj = os.path.join(traj_dir, "reflect.jsonl")
+        # reflect is a DIFFERENT phase than propose/edit: under --dry-run it must
+        # read fixtures/reflect.json, not the propose fixtures the campaign
+        # client serves. Live runs share the same server client.
+        reflect_client = (R._ReflectDryRunClient(os.path.join(HERE, "fixtures"))
+                          if args.dry_run else client)
+        print("[campaign] ARM3 reflect-first: reading v0 corpus %s -> overlay %s"
+              % (v0_dir, extra_consult_dir), flush=True)
+        try:
+            reflect_summary = R.reflect(v0_dir, extra_consult_dir, reflect_client,
+                                        model_id, reflect_traj,
+                                        cap=args.reflect_cap)
+            print("[campaign] reflect wrote %d overlay entry(ies): %s"
+                  % (reflect_summary.get("accepted", 0),
+                     ", ".join(reflect_summary.get("entries_written", []))),
+                  flush=True)
+        except Exception as e:                                   # noqa: BLE001
+            print("[campaign] reflect FAILED (running with governed playbook "
+                  "only): %r" % e, flush=True)
+            extra_consult_dir = None
+
     from spec import Spec
     rows = []
     wall_budget_s = args.wall_budget_min * 60.0
@@ -520,9 +875,9 @@ def main(argv=None):
     per_spec_times = []
     do_verify = not args.no_verify and not args.no_sim
 
-    print("campaign arm=%s  out=%s  specs=%d  wall_budget=%.0f min  base=%s"
-          % (args.arm, out_dir, len(specs), args.wall_budget_min, base_cfg),
-          flush=True)
+    print("campaign arm=%s  variant=%s  out=%s  specs=%d  wall_budget=%.0f min  "
+          "base=%s" % (args.arm, variant, out_dir, len(specs),
+                       args.wall_budget_min, base_cfg), flush=True)
 
     for i, spec_row in enumerate(specs):
         # time gate: stop cleanly if the next spec would not fit the wall budget
@@ -544,11 +899,21 @@ def main(argv=None):
         print("\n[%d/%d] %s (%s, %s)" % (i + 1, len(specs), spec.name,
                                          spec_row["tier"], spec_row["band"]),
               flush=True)
+        def _run_b(cfg):
+            # variant dispatch (arm B). v0 is byte-identical to the v0 arm-B
+            # code path (run_spec_arm_b); arch/selflearn use run_spec_arch --
+            # selflearn only differs from arch by consulting the overlay dir.
+            if variant in ("arch", "selflearn"):
+                return run_spec_arch(spec, client, model_id, cfg, out_dir,
+                                     traj_dir, args.no_sim,
+                                     temperature=args.temperature,
+                                     extra_consult_dir=extra_consult_dir)
+            return run_spec_arm_b(spec, client, model_id, cfg, out_dir, traj_dir,
+                                  args.no_sim, temperature=args.temperature)
+
         try:
             if args.arm == "B":
-                partial = run_spec_arm_b(spec, client, model_id, base_cfg,
-                                         out_dir, traj_dir, args.no_sim,
-                                         temperature=args.temperature)
+                partial = _run_b(base_cfg)
             else:
                 partial = run_spec_arm_a(spec, base_cfg, args.no_sim)
         except Exception as e:                                   # noqa: BLE001
@@ -567,9 +932,7 @@ def main(argv=None):
             cfg_used = esc_cfg
             try:
                 if args.arm == "B":
-                    partial = run_spec_arm_b(spec, client, model_id, esc_cfg,
-                                             out_dir, traj_dir, args.no_sim,
-                                             temperature=args.temperature)
+                    partial = _run_b(esc_cfg)
                 else:
                     partial = run_spec_arm_a(spec, esc_cfg, args.no_sim)
             except Exception as e:                              # noqa: BLE001
@@ -584,7 +947,8 @@ def main(argv=None):
                                     + partial.get("notes", ""))
 
         row = _finish_row(spec_row, spec, args.arm, partial, out_dir, cfg_used,
-                          escalated, do_verify, args.verify_wide_stability)
+                          escalated, do_verify, args.verify_wide_stability,
+                          variant=variant)
         rows.append(row)
         _checkpoint(out_dir, rows)          # after EVERY spec
         dt = time.time() - t0
@@ -594,9 +958,20 @@ def main(argv=None):
                  row["total_evals"], _fmt(row["iip3_dbm"], "%+.2f"), dt / 60),
               flush=True)
 
+    # ARM3: save the reflect summary + the overlay entries for audit/commit.
+    if reflect_summary is not None:
+        try:
+            with open(os.path.join(out_dir, "reflect-summary.json"), "w",
+                      encoding="utf-8") as fh:
+                json.dump({"variant": variant, "v0_dir": args.v0_dir,
+                           "reflect_cap": args.reflect_cap,
+                           "summary": reflect_summary}, fh, indent=2, default=str)
+        except Exception:
+            pass
+
     n_feas = sum(1 for r in rows if r["feasible"])
-    print("\ncampaign done: %d/%d rows, %d feasible; results -> %s"
-          % (len(rows), len(specs), n_feas, out_dir), flush=True)
+    print("\ncampaign done: variant=%s  %d/%d rows, %d feasible; results -> %s"
+          % (variant, len(rows), len(specs), n_feas, out_dir), flush=True)
     return 0
 
 

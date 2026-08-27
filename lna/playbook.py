@@ -130,16 +130,33 @@ def _write_entry(entry):
     return path
 
 
-def entry_paths():
-    if not os.path.isdir(ENTRY_DIR):
+def entry_paths(entry_dir=None):
+    d = entry_dir or ENTRY_DIR
+    if not os.path.isdir(d):
         return []
-    return sorted(os.path.join(ENTRY_DIR, f) for f in os.listdir(ENTRY_DIR)
+    return sorted(os.path.join(d, f) for f in os.listdir(d)
                   if f.endswith(".json"))
 
 
-def load_entries():
+def load_entries(extra_dirs=None):
+    """Load the governed entries under ENTRY_DIR (unchanged default behavior).
+
+    `extra_dirs` (a list of directories, consult-only) layers additional,
+    read-only OVERLAY stores on top for retrieval: entries from those dirs are
+    merged in, and a governed id always wins over an overlay id of the same name
+    (the governed store is authoritative; an overlay may only ADD, never shadow).
+    Every other call site calls this with no argument, so their behavior is
+    byte-identical to before.
+    """
     out = {}
-    for p in entry_paths():
+    for d in (list(extra_dirs) if extra_dirs else []):
+        for p in entry_paths(d):
+            try:
+                e = _read_json(p)
+            except Exception:
+                continue
+            out[e.get("id", os.path.basename(p)[:-5])] = e
+    for p in entry_paths():                        # governed store last -> wins
         e = _read_json(p)
         out[e.get("id", os.path.basename(p)[:-5])] = e
     return out
@@ -464,8 +481,9 @@ def cmd_consult(args):
               "--analysis / --keywords")
         return 2
 
+    extra = [d for d in (getattr(args, "extra_dir", None) or []) if d]
     hits = []
-    for eid, e in sorted(load_entries().items()):
+    for eid, e in sorted(load_entries(extra_dirs=extra).items()):
         if args.type and e.get("type") != args.type:
             continue
         if args.confidence and e.get("confidence") != args.confidence:
@@ -700,6 +718,11 @@ def main(argv=None):
     ap.add_argument("--analysis", help="consult: comma-separated analysis kinds")
     ap.add_argument("--keywords", help="consult: comma-separated keywords")
     ap.add_argument("--top", type=int, default=6, help="consult: max hits")
+    ap.add_argument("--extra-dir", action="append", default=[],
+                    help="consult ONLY: additional read-only OVERLAY entry dir(s) "
+                         "to merge into retrieval (repeatable). Governed entries "
+                         "always win over an overlay id of the same name. Default "
+                         "empty -> behavior byte-identical to before.")
     ap.add_argument("--json", action="store_true", help="consult: JSON output")
     ap.add_argument("--type", choices=TYPES, help="filter by entry type")
     ap.add_argument("--confidence", choices=CONFIDENCE, help="filter by confidence")

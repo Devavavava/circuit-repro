@@ -20,9 +20,11 @@ Every adapter exposes:
 
     name            str    -- short id, matches the spec `pdk:` field
     vdd             float  -- default supply rail (V), when the spec omits one
-    device_ranges   dict   -- {kind: (lo, hi)} sane W/L/R/C/L box for this
-                              process, in SI units, for a sizer that has no
-                              spec-supplied sizing block. kinds: W, L, R, C, L.
+    device_ranges   dict   -- {kind: (lo, hi)} sane sizing box for this process,
+                              in SI units. kinds: W (MOS width), L (MOS drawn
+                              length, PINNED -- consumed fixed, never sized),
+                              R, C, L_ind (inductor value, henries -- the
+                              sizer's "L" kind), VB (gate-bias voltage box).
     notes           str    -- one-paragraph provenance / caveats
 
     model_includes() -> list[str]

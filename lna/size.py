@@ -71,17 +71,28 @@ def kind_ranges(spec):
     # Cross-PDK v0: for a NON-bptm45 process the spec's sizing box is in the wrong
     # units/regime (a foundry FET wants W/L in METRES and its own min L, an R/C
     # box scaled to the process), so the device-value ranges come from the
-    # adapter's device_ranges instead. bptm45 is untouched -> byte-identical, and
-    # VB (a circuit bias voltage, not a device value) always stays the spec's.
+    # adapter's device_ranges instead. bptm45 is untouched -> byte-identical.
+    # VB comes from the adapter too when it declares one (the spec's vb_v box is
+    # written for bptm45's 1.1 V rail / ~0.45 V Vth).
     name = _pdk_name(spec)
     if name != "bptm45":
         try:
             from pdk import get_pdk
-            dr = get_pdk(name).device_ranges
+            ad = get_pdk(name)
+            dr = ad.device_ranges
             ranges["W"] = (f(dr["W"][0]), f(dr["W"][1]), True)
-            ranges["L"] = (f(dr["L"][0]), f(dr["L"][1]), True)
+            # Sizer kind "L" is the INDUCTOR value (henries) -- adapter key
+            # "L_ind". device_ranges["L"] is the pinned MOS drawn length and is
+            # consumed only by _pdk_fixed_l; mapping it here froze every foreign
+            # inductor at the channel-length literal (cross-PDK campaign,
+            # 2026-08-28: sky 150 nH / gf 280 nH / ihp 130 nH, all designs).
+            ranges["L"] = (f(dr["L_ind"][0]), f(dr["L_ind"][1]), True)
             ranges["R"] = (f(dr["R"][0]), f(dr["R"][1]), True)
             ranges["C"] = (f(dr["C"][0]), f(dr["C"][1]), True)
+            # Gate-bias voltage box must scale with the process rail/Vth (the
+            # spec's vb_v is written for bptm45's 1.1 V): adapters carry "VB".
+            if "VB" in dr:
+                ranges["VB"] = (f(dr["VB"][0]), f(dr["VB"][1]), False)
         except Exception:                                          # noqa: BLE001
             pass                          # unknown adapter: fall back to the spec box
     return ranges
@@ -369,7 +380,17 @@ def classify_params(nl):
     # foundry adapter uses its own vdd (sky130 1.8, gf180 3.3, IHP 1.5).
     _vdd = getattr(nl, "vdd", 1.1)
     fixed["pVDD"] = "1.1" if _vdd == 1.1 else f"{float(_vdd):g}"
-    fixed["pVB"] = "0.5"
+    # Gate bias pVB: on bptm45 the historical fixed 0.5 V literal (above the
+    # 45 nm Vth; every prior campaign sized against it, so it stays for
+    # comparability). On a foundry PDK 0.5 V sits BELOW Vth for sky130 1.8V /
+    # gf180 3.3V devices (cross-PDK campaign 2026-08-28: every design dead at
+    # Idd~uA), so pVB is sized like the inserted pVBG* biases, over the
+    # adapter's "VB" box.
+    _ad = getattr(nl, "pdk", None)
+    if _ad is not None and getattr(_ad, "name", "bptm45") != "bptm45":
+        sizable["pVB"] = "VB"
+    else:
+        fixed["pVB"] = "0.5"
     # Finite-Q constants (pINDQ/pINDW0) are emitted into the netlist's own .param
     # block by to_spice, but E.body_of() strips every .param line, so they must be
     # re-declared here as fixed or the RQ series-R expression evaluates undefined

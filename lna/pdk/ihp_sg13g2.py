@@ -57,6 +57,7 @@ class IhpSg13g2Adapter(object):
         "R": (50.0, 50e3),
         "C": (1e-15, 20e-12),
         "L_ind": (0.1e-9, 20e-9),   # SG13G2 offers good RF spiral inductors
+        "VB": (0.1, 1.5),           # gate-bias box (V); sg13_lv Vth ~0.45
     }
     notes = ("IHP SG13G2 130 nm SiGe BiCMOS (Apache-2.0). npn13G2 SiGe HBT "
              "(~250 GHz fT) + PSP-103 sg13_lv_nmos/pmos. Highest RF value: real "

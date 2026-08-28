@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n3 n2 n4 VSS\nL Ls n4 VSS\nR Rg n2 VSS\nL Ld VDD n3\nC Ct n3 n5\nR Rp n5 VDD\nC Cout n5 VOUT1\nC Cf n4 n2",
+  "wl_hash": "0c55902a5a985495",
+  "rationale": "The previous topology suffers from severe performance degradation across all key metrics, with the most negative normalized margin in NF (\u221214.88) indicating a fundamental issue in noise figure, likely due to insufficient transconductance and poor input matching. The low S21 (\u221250.7 dB) and high S11 (\u22120.05 dB) suggest poor gain and input reflection, implying the input network lacks proper impedance transformation and the transistor is not properly biased or loaded. The addition of a source degeneration inductor (Ls) in series with the source, combined with a shunt feedback capacitor (Cf) from source to gate, can improve input matching, increase effective transconductance, and reduce noise by stabilizing the input impedance and enhancing feedback. This modification directly targets the worst-performing metric (NF) without affecting the current consumption, and improves S11 and S21 through better matching and gain.",
+  "arm": "B",
+  "run_id": "6e8cba9eab65433e",
+  "trajectory": "trajectory/6e8cba9eab65433e.jsonl"
+}

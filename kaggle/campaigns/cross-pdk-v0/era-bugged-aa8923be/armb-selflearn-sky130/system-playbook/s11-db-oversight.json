@@ -1,0 +1,43 @@
+{
+  "applicability": {
+    "applies": "in RF front-end design where return loss is critical for system stability",
+    "not": "in non-reflective or DC-coupled digital systems"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-08-27",
+  "evidence": [
+    {
+      "quote": "s11_db(achieved=-8.50515,margin=0.063144)",
+      "source": "spec=cap-e02-gpsband tier=E feasible=True"
+    },
+    {
+      "quote": "s11_db(achieved=-10.8461,margin=0.08461)",
+      "source": "spec=cap-e06-wifi tier=E feasible=True"
+    }
+  ],
+  "id": "s11-db-oversight",
+  "rule": "Treat S11 margin as a knife-edge constraint; even small positive margins may indicate instability under real-world variation.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-08-27)"
+  ],
+  "trigger": {
+    "analysis": [
+      "gated-constraints"
+    ],
+    "failure_signature": [
+      "s11-knife-edge",
+      "imbalance"
+    ],
+    "family": [
+      "cap-e06-wifi",
+      "cap-e02-gpsband"
+    ],
+    "keywords": [
+      "s11_db",
+      "margin",
+      "feasible"
+    ]
+  },
+  "type": "anti-pattern"
+}

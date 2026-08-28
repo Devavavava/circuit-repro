@@ -1,0 +1,68 @@
+[{"stream_name":"stdout","time":2.008083911,"data":"[loop-gpu] preflight OK: 5 inputs present (pdk=sky130)\n"}
+,{"stream_name":"stdout","time":2.126167666,"data":"[loop-gpu] GH token from /kaggle/input/datasets/devavratpatni/circuit-repro-ghtoken/gh_token\n"}
+,{"stream_name":"stdout","time":2.134271739,"data":"[loop-gpu] $ git clone --depth 1 --branch main https://x-access-token:REDACTED@github.com/Devavavava/circuit-repro.git /tmp/circuit-repro\n"}
+,{"stream_name":"stderr","time":2.170391682,"data":"Cloning into '/tmp/circuit-repro'...\n"}
+,{"stream_name":"stdout","time":4.1597515529999995,"data":"[loop-gpu] $ bash /tmp/circuit-repro/kaggle/bootstrap.sh\n"}
+,{"stream_name":"stderr","time":4.182369552,"data":"[bootstrap] pip: numpy scipy pyyaml\n"}
+,{"stream_name":"stderr","time":9.460390162,"data":"[bootstrap] pip: pandas (WITH_PANDAS=1)\n"}
+,{"stream_name":"stderr","time":12.74375753,"data":"[bootstrap] copying extracted ngspice tree from /kaggle/input/datasets/devavratpatni/circuit-repro-ngspice47/ngspice47/ngspice47 -\u003e /kaggle/working/ngspice47\n"}
+,{"stream_name":"stderr","time":13.129012277,"data":"[bootstrap] clone already present at /tmp/circuit-repro -- skipping\n"}
+,{"stream_name":"stderr","time":13.233261465,"data":"[bootstrap] no checkpoints found in /kaggle/input/* (ok: LLM loop is torch-free)\n"}
+,{"stream_name":"stderr","time":13.29161922,"data":"[bootstrap] pdk sky130 -\u003e /kaggle/input/circuit-repro-pdk-sky130/sky130\n"}
+,{"stream_name":"stderr","time":13.341888048,"data":"[bootstrap] pdk gf180mcu -\u003e /kaggle/input/circuit-repro-pdk-gf180mcu/gf180mcu\n"}
+,{"stream_name":"stderr","time":13.388888855,"data":"[bootstrap] pdk ihp_sg13g2 -\u003e /kaggle/input/circuit-repro-pdk-ihp-sg13g2/circuit-repro-pdk-ihp-sg13g2/ihp_sg13g2\n"}
+,{"stream_name":"stderr","time":13.389009825,"data":"[bootstrap] LNA_PDK_ROOT=/kaggle/working/pdks (3 PDK(s) linked)\n"}
+,{"stream_name":"stderr","time":13.394462775,"data":"[bootstrap] wrote /kaggle/working/env-kaggle.sh\n"}
+,{"stream_name":"stderr","time":13.396552927,"data":"[bootstrap] gate: python lna/extract.py --selftest\n"}
+,{"stream_name":"stderr","time":13.528118952,"data":"[bootstrap] gate: python lna/ref/check_ref.py\n"}
+,{"stream_name":"stderr","time":13.66511376,"data":"[bootstrap] gate: python lna/ref/check_bjt.py\n"}
+,{"stream_name":"stderr","time":13.844242917,"data":"[bootstrap] gate: python lna/spec.py --all\n"}
+,{"stream_name":"stderr","time":14.049314465,"data":"[bootstrap] gate: python lna/solve_spec.py wifi24 --corpus --budget 100 --seeds 1\n"}
+,{"stream_name":"stderr","time":31.985617683,"data":"[bootstrap] wrote /kaggle/working/report/bootstrap.json (ok=true)\n"}
+,{"stream_name":"stderr","time":31.985657185,"data":"[bootstrap] BOOTSTRAP OK\n"}
+,{"stream_name":"stdout","time":32.100130545,"data":"[loop-gpu] $ cp -r /kaggle/input/datasets/devavratpatni/circuit-repro-llamacpp-cuda/llamacpp/llamacpp /kaggle/working\n"}
+,{"stream_name":"stdout","time":35.045965704,"data":"[loop-gpu] $ bash -c chmod +x /kaggle/working/llamacpp/bin/* || true\n"}
+,{"stream_name":"stdout","time":35.18655422,"data":"[loop-gpu] launching: /kaggle/working/llamacpp/bin/llama-server -m /kaggle/input/datasets/devavratpatni/circuit-repro-gguf-qwen30/weights/Qwen3-30B-A3B-Instruct-2507-Q4_K_M.gguf --host 127.0.0.1 --port 8080 --n-gpu-layers 999 --split-mode layer -c 16384 --parallel 1\n"}
+,{"stream_name":"stdout","time":233.253073966,"data":"[loop-gpu] llama-server healthy after 198.1s\n"}
+,{"stream_name":"stdout","time":233.253113575,"data":"[loop-gpu] RUN_MODE=campaign variant=selflearn pdk=sky130 -\u003e arm-B ladder (/tmp/circuit-repro/kaggle/specs-ladder/ladder.json)\n"}
+,{"stream_name":"stdout","time":233.253334885,"data":"[loop-gpu] $ bash -c source /kaggle/working/env-kaggle.sh \u0026\u0026 exec /usr/bin/python3 /tmp/circuit-repro/kaggle/loop/campaign.py --arm B --variant selflearn --pdk sky130 --ladder /tmp/circuit-repro/kaggle/specs-ladder/ladder.json --base-url http://127.0.0.1:8080/v1 --model qwen3-30b-a3b-instruct-2507-q4km --wall-budget-min 500 --out /kaggle/working/campaign\n"}
+,{"stream_name":"stdout","time":233.384360263,"data":"[campaign] ARM3 reflect-first: reading v0 corpus /tmp/circuit-repro/kaggle/campaigns/capability-v0/armb -\u003e overlay /kaggle/working/campaign/system-playbook\n"}
+,{"stream_name":"stdout","time":422.887179308,"data":"[campaign] reflect wrote 12 overlay entry(ies): prediction-overconfidence, idd-ma-margin-neglect, screen-rejection-ignorance, s11-db-oversight, s21-db-prediction-overshoot, inductor-screen-failure, s11-db-prediction-bias, nf-db-prediction-overestimation, idd-ma-prediction-overshoot, netlist-parse-failure, s11-knife-edge-avoidance, idd-ma-margin-oversight\n"}
+,{"stream_name":"stdout","time":422.901774718,"data":"campaign arm=B  variant=selflearn  pdk=sky130  out=/kaggle/working/campaign  specs=24  wall_budget=500 min  base={'k': 3, 'edit_rounds': 2, 'seeds': 2, 'budget': 300, 'max_tokens': 3072}\n"}
+,{"stream_name":"stdout","time":422.907043767,"data":"\n"}
+,{"stream_name":"stdout","time":422.907065945,"data":"[1/24] cap-e01-wifi (E, 2.44 GHz) pdk=sky130\n"}
+,{"stream_name":"stdout","time":708.248735438,"data":"Current recursion limit: 1000\n"}
+,{"stream_name":"stdout","time":708.248819845,"data":"New recursion limit: 9000\n"}
+,{"stream_name":"stdout","time":708.24882837,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":1897.5585674,"data":"    -\u003e feasible=False  first=None  evals=3840  iip3=-  (24.6 min)\n"}
+,{"stream_name":"stdout","time":1897.562496158,"data":"\n"}
+,{"stream_name":"stdout","time":1897.562512168,"data":"[2/24] cap-e02-gpsband (E, 1.58 GHz) pdk=sky130\n"}
+,{"stream_name":"stdout","time":2696.337286517,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":8616.63099446,"data":"    -\u003e feasible=False  first=None  evals=9360  iip3=-  (112.0 min)\n"}
+,{"stream_name":"stdout","time":8616.637065426,"data":"\n"}
+,{"stream_name":"stdout","time":8616.637078983,"data":"[3/24] cap-e03-900mhz (E, 0.915 GHz) pdk=sky130\n"}
+,{"stream_name":"stdout","time":9352.842248376,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":15786.858364174,"data":"    -\u003e feasible=False  first=None  evals=9600  iip3=-  (119.5 min)\n"}
+,{"stream_name":"stdout","time":15786.862934513,"data":"\n"}
+,{"stream_name":"stdout","time":15786.862956204,"data":"[4/24] cap-e04-35ghz (E, 3.5 GHz) pdk=sky130\n"}
+,{"stream_name":"stdout","time":17341.473679653,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":19651.054860884,"data":"    -\u003e feasible=False  first=None  evals=5880  iip3=-  (64.4 min)\n"}
+,{"stream_name":"stdout","time":19651.061832247,"data":"\n"}
+,{"stream_name":"stdout","time":19651.061845668,"data":"[5/24] cap-e05-ism58 (E, 5.8 GHz) pdk=sky130\n"}
+,{"stream_name":"stdout","time":20193.721027177,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":23356.274931196,"data":"    -\u003e feasible=False  first=None  evals=5880  iip3=+9.50  (61.8 min)\n"}
+,{"stream_name":"stdout","time":23356.281488653,"data":"\n"}
+,{"stream_name":"stdout","time":23356.281506129,"data":"[6/24] cap-e06-wifi (E, 2.44 GHz) pdk=sky130\n"}
+,{"stream_name":"stdout","time":24154.371137239,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":26385.0538747,"data":"    -\u003e feasible=False  first=None  evals=7560  iip3=-  (50.5 min)\n"}
+,{"stream_name":"stdout","time":26385.053923668,"data":"[campaign] WALL BUDGET reached; stopping before cap-e07-gpsband\n"}
+,{"stream_name":"stdout","time":26385.053928808,"data":"\n"}
+,{"stream_name":"stdout","time":26385.053932364,"data":"campaign done: variant=selflearn  6/24 rows, 0 feasible; results -\u003e /kaggle/working/campaign\n"}
+,{"stream_name":"stdout","time":26385.283319357,"data":"[loop-gpu] trajectory dir has 0 jsonl file(s): /kaggle/working/trajectory\n"}
+,{"stream_name":"stderr","time":26389.367534548,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":26389.367565918,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":26389.711948179,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":26389.711976522,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":26390.717029396,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":26392.075562956,"data":"[NbConvertApp] Writing 323852 bytes to __results__.html\n"}
+]

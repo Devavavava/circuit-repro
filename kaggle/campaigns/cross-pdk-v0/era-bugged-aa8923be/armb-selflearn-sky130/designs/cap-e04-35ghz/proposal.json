@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nNMOS M1 n2 n1 VSS VSS\nL Ls n1 VSS\nL Ld VDD n2\nR Rf n2 n1\nC Ct n2 n3\nL Lout n3 VOUT1\nC Cout n3 VOUT1",
+  "wl_hash": "5f8ca290a44b1e2f",
+  "rationale": "The proposed topology improves the binding constraints\u2014primarily NF and S21\u2014by introducing a source-degenerated common-source stage with an inductor in the source path to enhance input matching and noise performance, while preserving output matching and power efficiency. The added inductor provides resonant peaking at 3.5 GHz, boosting S21, and the source degeneration reduces transconductance gain degradation due to output loading, improving NF. This maintains stability (K > 1, \u03bc > 1) and keeps the device count within budget.",
+  "arm": "B",
+  "run_id": "dcbd15e3e2be485d",
+  "trajectory": "trajectory/dcbd15e3e2be485d.jsonl"
+}

@@ -1,0 +1,48 @@
+{
+  "applicability": {
+    "applies": "in high-frequency RF design where gain is sensitive to parasitic effects",
+    "not": "in low-frequency or idealized simulation environments"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-08-27",
+  "evidence": [
+    {
+      "quote": "s21_db(predicted=13.2,measured=18.721,error=5.521)",
+      "source": "spec=cap-e06-wifi wl=c231ac11552a9404"
+    },
+    {
+      "quote": "s21_db(predicted=12.3,measured=19.9935,error=7.6935)",
+      "source": "spec=cap-e02-gpsband wl=c231ac11552a9404"
+    },
+    {
+      "quote": "s21_db(predicted=12.5,measured=17.4855,error=4.9855)",
+      "source": "spec=cap-e04-35ghz wl=c231ac11552a9404"
+    }
+  ],
+  "id": "s21-db-prediction-overshoot",
+  "rule": "Do not rely on predicted S21 values; actual gain often exceeds predictions due to unmodeled coupling or parasitics.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-08-27)"
+  ],
+  "trigger": {
+    "analysis": [
+      "prediction-vs-outcome"
+    ],
+    "failure_signature": [
+      "numerical-artefact",
+      "objective-omission"
+    ],
+    "family": [
+      "cap-e06-wifi",
+      "cap-e02-gpsband",
+      "cap-e04-35ghz"
+    ],
+    "keywords": [
+      "s21_db",
+      "predicted",
+      "measured"
+    ]
+  },
+  "type": "anti-pattern"
+}

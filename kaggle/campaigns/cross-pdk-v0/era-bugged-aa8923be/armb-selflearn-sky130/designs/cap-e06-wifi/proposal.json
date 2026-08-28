@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n3 n2 n4 VSS\nL Ls n4 n5\nL Ld VDD n3\nC Cout n3 VOUT1\nR Rf n2 n3\nC Cf n2 n3",
+  "wl_hash": "8e0a4598a7f4fd60",
+  "rationale": "The proposed topology improves the LNA's noise figure and gain by adding a source degeneration inductor in series with the NMOS transistor's source, which enhances input matching and reduces noise while preserving gain and stability margins. This modification directly targets the most negative margin (nf_db at -3.133) and improves s21_db and s11_db indirectly by enhancing input impedance matching and gain flatness across the band, without violating any other constraints.",
+  "arm": "B",
+  "run_id": "d664353a37034668",
+  "trajectory": "trajectory/d664353a37034668.jsonl"
+}

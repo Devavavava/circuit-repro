@@ -1,0 +1,47 @@
+{
+  "applicability": {
+    "applies": "when predicting S11_db performance for designs targeting strong return loss",
+    "not": "when S11_db is not a critical constraint or when the target is above -10 dB"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-08-27",
+  "evidence": [
+    {
+      "quote": "s11_db(predicted=-11.2,measured=-0.986947,error=10.213053)",
+      "source": "prediction-vs-outcome records"
+    },
+    {
+      "quote": "s11_db(predicted=0.5,measured=-11.3546,error=-11.8546)",
+      "source": "prediction-vs-outcome records"
+    },
+    {
+      "quote": "s11_db(predicted=0.5,measured=-0.994665,error=-1.494665)",
+      "source": "prediction-vs-outcome records"
+    }
+  ],
+  "id": "s11-db-prediction-bias",
+  "rule": "When predicting S11_db, avoid overconfidence in negative values; model consistently underestimates magnitude of return loss when the target is below -10 dB.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-08-27)"
+  ],
+  "trigger": {
+    "analysis": [
+      "prediction-vs-outcome"
+    ],
+    "failure_signature": [
+      "bias-regulation"
+    ],
+    "family": [
+      "cap-e08-wideband",
+      "cap-m01-wifi",
+      "cap-m02-gpsband"
+    ],
+    "keywords": [
+      "s11_db",
+      "predicted",
+      "measured"
+    ]
+  },
+  "type": "diagnosis"
+}

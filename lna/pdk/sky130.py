@@ -46,6 +46,7 @@ class Sky130Adapter(object):
         "R": (50.0, 50e3),
         "C": (1e-15, 20e-12),
         "L_ind": (0.3e-9, 20e-9),
+        "VB": (0.1, 1.8),           # gate-bias box (V); nfet_01v8 Vth ~0.7
     }
     notes = ("SkyWater 130 nm (Apache-2.0). Primitive FETs are SUBCIRCUITS "
              "(sky130_fd_pr__nfet_01v8/pfet_01v8) => X-instantiation with a "

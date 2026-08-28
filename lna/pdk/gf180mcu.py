@@ -43,6 +43,7 @@ class Gf180McuAdapter(object):
         "R": (50.0, 50e3),
         "C": (1e-15, 20e-12),
         "L_ind": (0.3e-9, 20e-9),
+        "VB": (0.1, 3.3),           # gate-bias box (V); nfet_03v3 Vth ~0.75
     }
     notes = ("GlobalFoundries 180 nm MCU (Apache-2.0). nfet_03v3/pfet_03v3, "
              "3.3 V core, no SiGe. Easiest to bring up (no OSDI) but least RF "

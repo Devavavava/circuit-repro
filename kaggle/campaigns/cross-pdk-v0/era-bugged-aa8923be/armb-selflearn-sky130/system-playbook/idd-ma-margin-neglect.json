@@ -1,0 +1,57 @@
+{
+  "applicability": {
+    "applies": "in power-sensitive analog or RF design where current consumption is a gated constraint",
+    "not": "in non-power-constrained or digital-only design spaces"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-08-27",
+  "evidence": [
+    {
+      "quote": "worst_margin=idd_ma=-0.055651",
+      "source": "spec=cap-e03-900mhz tier=E feasible=False"
+    },
+    {
+      "quote": "worst_margin=idd_ma=0.041334",
+      "source": "spec=cap-e02-gpsband tier=E feasible=True"
+    },
+    {
+      "quote": "worst_margin=idd_ma=0.050411",
+      "source": "spec=cap-e04-35ghz tier=E feasible=True"
+    },
+    {
+      "quote": "worst_margin=idd_ma=0.30389",
+      "source": "spec=cap-e05-ism58 tier=E feasible=True"
+    },
+    {
+      "quote": "worst_margin=s11_db=0.08461",
+      "source": "spec=cap-e06-wifi tier=E feasible=True"
+    }
+  ],
+  "id": "idd-ma-margin-neglect",
+  "rule": "Always monitor the idd_ma margin as a critical constraint; even small negative margins here can cause infeasibility and should be prioritized during optimization.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-08-27)"
+  ],
+  "trigger": {
+    "analysis": [
+      "gated-constraints"
+    ],
+    "failure_signature": [
+      "bias-regulation",
+      "numerical-artefact"
+    ],
+    "family": [
+      "cap-e03-900mhz",
+      "cap-e06-wifi",
+      "cap-e02-gpsband"
+    ],
+    "keywords": [
+      "idd_ma",
+      "margin",
+      "feasible",
+      "infeasible"
+    ]
+  },
+  "type": "anti-pattern"
+}

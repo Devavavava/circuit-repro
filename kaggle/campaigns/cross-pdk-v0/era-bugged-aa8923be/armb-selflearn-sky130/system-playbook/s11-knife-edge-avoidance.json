@@ -1,0 +1,54 @@
+{
+  "applicability": {
+    "applies": "when S11 margin is predicted within 0.2 dB of the constraint boundary",
+    "not": "when S11 margin is predicted with more than 0.5 dB of buffer"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-08-27",
+  "evidence": [
+    {
+      "quote": "s11_db(achieved=-0.0282541,margin=-0.99717)",
+      "source": "spec=cap-m03-900mhz tier=M feasible=False first_feasible_phase=None escalated=True best_obj=2.42462 worst_margin=s11_db=-0.99717 | margins: nf_db(achieved=2.50521,margin=-0.0020836); s11_db(achieved=-0.0282541,margin=-0.99717); s21_db(achieved=11.0492,margin=-0.21077); idd_ma(achieved=7.28752,margin=-0.21459)"
+    },
+    {
+      "quote": "s11_db(achieved=-12.2866,margin=0.11696)",
+      "source": "spec=cap-m04-35ghz tier=M feasible=False first_feasible_phase=None escalated=True best_obj=1.01326 worst_margin=idd_ma=-0.01326 | margins: nf_db(achieved=2.19681,margin=0.21542); s11_db(achieved=-12.2866,margin=0.11696); s21_db(achieved=14.7303,margin=0.052164); idd_ma(achieved=6.07956,margin=-0.01326)"
+    },
+    {
+      "quote": "s11_db(achieved=-0.414466,margin=-0.96546)",
+      "source": "spec=cap-m07-gpsband tier=M feasible=False first_feasible_phase=None escalated=True best_obj=2.92617 worst_margin=s11_db=-0.96546 | margins: nf_db(achieved=2.03313,margin=-0.016566); s11_db(achieved=-0.414466,margin=-0.96546); s21_db(achieved=11.8392,margin=-0.21072); idd_ma(achieved=6.9337,margin=-0.73343)"
+    },
+    {
+      "quote": "s11_db(achieved=-13.1331,margin=0.010238)",
+      "source": "spec=cap-h01-wifi tier=H feasible=False first_feasible_phase=None escalated=True best_obj=2.19646 worst_margin=idd_ma=-1.1965 | margins: nf_db(achieved=1.77062,margin=0.016319); s11_db(achieved=-13.1331,margin=0.010238); s21_db(achieved=16.9931,margin=0.062069); idd_ma(achieved=8.78584,margin=-1.1965)"
+    }
+  ],
+  "id": "s11-knife-edge-avoidance",
+  "rule": "Avoid placing S11 margin predictions near the knife-edge threshold; ensure at least 0.2 dB of safety margin in predicted S11 to prevent hard failures.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-08-27)"
+  ],
+  "trigger": {
+    "analysis": [
+      "prediction-vs-outcome",
+      "margin-analysis"
+    ],
+    "failure_signature": [
+      "s11-knife-edge"
+    ],
+    "family": [
+      "cap-m03-900mhz",
+      "cap-m04-35ghz",
+      "cap-m07-gpsband",
+      "cap-h01-wifi"
+    ],
+    "keywords": [
+      "s11_db",
+      "knife-edge",
+      "margin",
+      "prediction-error"
+    ]
+  },
+  "type": "anti-pattern"
+}

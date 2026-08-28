@@ -1,0 +1,49 @@
+{
+  "applicability": {
+    "applies": "when IDD_MA margin is predicted within 0.1 mA of the constraint threshold",
+    "not": "when IDD_MA margin is predicted with more than 0.2 mA buffer"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-08-27",
+  "evidence": [
+    {
+      "quote": "idd_ma(achieved=7.28752,margin=-0.21459)",
+      "source": "spec=cap-m03-900mhz tier=M feasible=False first_feasible_phase=None escalated=True best_obj=2.42462 worst_margin=s11_db=-0.99717 | margins: nf_db(achieved=2.50521,margin=-0.0020836); s11_db(achieved=-0.0282541,margin=-0.99717); s21_db(achieved=11.0492,margin=-0.21077); idd_ma(achieved=7.28752,margin=-0.21459)"
+    },
+    {
+      "quote": "idd_ma(achieved=6.07956,margin=-0.01326)",
+      "source": "spec=cap-m04-35ghz tier=M feasible=False first_feasible_phase=None escalated=True best_obj=1.01326 worst_margin=idd_ma=-0.01326 | margins: nf_db(achieved=2.19681,margin=0.21542); s11_db(achieved=-12.2866,margin=0.11696); s21_db(achieved=14.7303,margin=0.052164); idd_ma(achieved=6.07956,margin=-0.01326)"
+    },
+    {
+      "quote": "idd_ma(achieved=8.78584,margin=-1.1965)",
+      "source": "spec=cap-h01-wifi tier=H feasible=False first_feasible_phase=None escalated=True best_obj=2.19646 worst_margin=idd_ma=-1.1965 | margins: nf_db(achieved=1.77062,margin=0.016319); s11_db(achieved=-13.1331,margin=0.010238); s21_db(achieved=16.9931,margin=0.062069); idd_ma(achieved=8.78584,margin=-1.1965)"
+    }
+  ],
+  "id": "idd-ma-margin-oversight",
+  "rule": "Never predict IDD_MA margin within 0.1 mA of the constraint limit; always maintain at least 0.2 mA buffer in the predicted margin to avoid hard infeasibility.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-08-27)"
+  ],
+  "trigger": {
+    "analysis": [
+      "prediction-vs-outcome",
+      "margin-analysis"
+    ],
+    "failure_signature": [
+      "bias-regulation"
+    ],
+    "family": [
+      "cap-m03-900mhz",
+      "cap-m04-35ghz",
+      "cap-h01-wifi"
+    ],
+    "keywords": [
+      "idd_ma",
+      "margin",
+      "prediction-error",
+      "feasibility"
+    ]
+  },
+  "type": "anti-pattern"
+}

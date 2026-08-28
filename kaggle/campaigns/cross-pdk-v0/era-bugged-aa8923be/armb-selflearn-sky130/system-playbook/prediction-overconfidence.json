@@ -1,0 +1,61 @@
+{
+  "applicability": {
+    "applies": "when using predictive models to estimate performance metrics in RF or analog design tasks",
+    "not": "when working with deterministic or fully verified systems"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-08-27",
+  "evidence": [
+    {
+      "quote": "nf_db(predicted=2.8,measured=1.585592,error=-1.214408)",
+      "source": "spec=cap-e06-wifi wl=c231ac11552a9404"
+    },
+    {
+      "quote": "s11_db(predicted=-10.5,measured=-10.8461,error=-0.3461)",
+      "source": "spec=cap-e06-wifi wl=c231ac11552a9404"
+    },
+    {
+      "quote": "s21_db(predicted=13.2,measured=18.721,error=5.521)",
+      "source": "spec=cap-e06-wifi wl=c231ac11552a9404"
+    },
+    {
+      "quote": "idd_ma(predicted=8.3,measured=10.105839999999999,error=1.80584)",
+      "source": "spec=cap-e06-wifi wl=c231ac11552a9404"
+    },
+    {
+      "quote": "nf_db(predicted=0.05,measured=6.103445,error=6.053445)",
+      "source": "spec=cap-e03-900mhz wl=b14549a0cca8046f"
+    },
+    {
+      "quote": "idd_ma(predicted=-6.5,measured=19.28894,error=25.78894)",
+      "source": "spec=cap-e03-900mhz wl=b14549a0cca8046f"
+    }
+  ],
+  "id": "prediction-overconfidence",
+  "rule": "Never assume predicted values are close to measured values; always validate predictions against actual outcomes before committing to a design.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-08-27)"
+  ],
+  "trigger": {
+    "analysis": [
+      "prediction-vs-outcome"
+    ],
+    "failure_signature": [
+      "objective-omission",
+      "numerical-artefact"
+    ],
+    "family": [
+      "cap-e03-900mhz",
+      "cap-e06-wifi",
+      "cap-e04-35ghz",
+      "cap-e02-gpsband"
+    ],
+    "keywords": [
+      "prediction-error",
+      "overconfidence",
+      "measured-vs-predicted"
+    ]
+  },
+  "type": "anti-pattern"
+}

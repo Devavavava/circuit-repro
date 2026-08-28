@@ -1,0 +1,35 @@
+{
+  "applicability": {
+    "applies": "when generating netlists for circuit simulation",
+    "not": "when using non-circuit outputs or synthetic data"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-08-27",
+  "evidence": [
+    {
+      "quote": "[cap-e07-gpsband/roundtrip] model emitted no parseable netlist block",
+      "source": "verbatim candidate errors"
+    }
+  ],
+  "id": "netlist-parse-failure",
+  "rule": "Always validate that the model output contains a valid, parseable netlist block before proceeding to simulation.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-08-27)"
+  ],
+  "trigger": {
+    "analysis": [
+      "roundtrip"
+    ],
+    "failure_signature": [
+      "harness-artefact"
+    ],
+    "family": [
+      "cap-e07-gpsband"
+    ],
+    "keywords": [
+      "model emitted no parseable netlist block"
+    ]
+  },
+  "type": "harness-rule"
+}

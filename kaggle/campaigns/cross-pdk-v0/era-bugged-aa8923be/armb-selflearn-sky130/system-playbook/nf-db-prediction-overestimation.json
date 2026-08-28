@@ -1,0 +1,48 @@
+{
+  "applicability": {
+    "applies": "when predicting noise figure for low-noise amplifier designs",
+    "not": "when the design is not expected to achieve NF_db < 2.0 dB"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-08-27",
+  "evidence": [
+    {
+      "quote": "nf_db(predicted=2.7,measured=1.644305,error=-1.055695)",
+      "source": "prediction-vs-outcome records"
+    },
+    {
+      "quote": "nf_db(predicted=2.8,measured=1.568077,error=-1.231923)",
+      "source": "prediction-vs-outcome records"
+    },
+    {
+      "quote": "nf_db(predicted=0.1,measured=186.2677,error=186.1677)",
+      "source": "prediction-vs-outcome records"
+    }
+  ],
+  "id": "nf-db-prediction-overestimation",
+  "rule": "Never predict NF_db above 2.0 dB unless the design is in an ultra-low-noise regime; model systematically overestimates NF_db in high-performance cases.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-08-27)"
+  ],
+  "trigger": {
+    "analysis": [
+      "prediction-vs-outcome"
+    ],
+    "failure_signature": [
+      "bias-regulation"
+    ],
+    "family": [
+      "cap-e07-gpsband",
+      "cap-e08-wideband",
+      "cap-m01-wifi",
+      "cap-m02-gpsband"
+    ],
+    "keywords": [
+      "nf_db",
+      "predicted",
+      "measured"
+    ]
+  },
+  "type": "diagnosis"
+}

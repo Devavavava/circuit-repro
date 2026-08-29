@@ -21,6 +21,7 @@ Env knobs (defaults are the bounded first-smoke values):
 """
 import glob
 import os
+import re
 import signal
 import subprocess
 import sys
@@ -69,7 +70,12 @@ _PDK_MARKERS = {
 
 
 def sh(cmd, **kw):
-    print("[loop-gpu] $", " ".join(cmd), flush=True)
+    # Redact credentials from the echo: kernel logs become output artifacts
+    # that get archived into git, and an x-access-token clone URL printed
+    # verbatim IS the GH PAT (2026-08-29: push protection caught exactly this
+    # in an archived kernel-run.log).
+    shown = re.sub(r"://[^@/\s]+@", "://REDACTED@", " ".join(cmd))
+    print("[loop-gpu] $", shown, flush=True)
     return subprocess.run(cmd, **kw)
 
 

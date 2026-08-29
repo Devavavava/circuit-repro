@@ -30,16 +30,27 @@ c8114a59 / merge 0b4b497e):
 |---|---|---|---|
 | `arma-sky130` | box (null) | 0/14 | 500-min wall stop before spec 15 |
 | `arma-gf180mcu` | box (null) | 0/24 | complete |
-| `arma-ihp_sg13g2` | box (null) | 11/12 at fix time | added when its wall budget ends; feasible DESPITE bug 1 |
+| `arma-ihp_sg13g2` | box (null) | 12/13 | exited during spec 14; feasible DESPITE bug 1 |
 | `armb-selflearn-sky130` | Kaggle 2xT4 (arm-B selflearn) | 0/6 | wall stop; reflect wrote 12 admission-passing entries live (`system-playbook/`); `kernel-run.log` = kernel log |
 
 These runs measure the two bugs, not the model or the processes. They are kept
 as the negative-control era: the post-fix reruns must differ in exactly the way
 the bug analysis predicts (sky/gf circuits conduct; ihp improves or holds).
 
-### era-fixed-0b4b497e (code at merge 0b4b497e, 2026-08-28 →)
+### era-fixed-0b4b497e (code at merge 0b4b497e, run 2026-08-28/29)
 
-Post-fix arm-A rerun chain (box, sky130 → gf180mcu → ihp_sg13g2, same ladder,
-same budgets, `kaggle/run_arm_a.sh`) — results land here when the chain
-finishes. GPU arm-B continuation is a user ruling after the rerun verdict
-(and needs the fix pushed to origin/main first: Kaggle clones origin).
+Post-fix arm-A rerun chain (box, same ladder, same budgets,
+`kaggle/run_arm_a.sh`). Per-spec tables + verdicts:
+`cross-pdk-per-spec-fixed.md`.
+
+| run | result | verdict |
+|---|---|---|
+| `arma-sky130` (+ `arma-sky130-resume-tail`, together the full 24) | **0/24** | STILL SETUP-LIMITED: ~2/3 ngspice-failure rate at random sizing points starves the sizer (suspect fd_pr W/L binning); own bring-up fix needed before any sky130 capability claim |
+| `arma-gf180mcu` | **0/24** | ALIVE at the boundary: rides the Idd cap exactly, NF ~7–8 vs gates 1.5–3.5, S21 ~ −2 dB — physics and/or 45nm-bred topology priors; arm-B comparison now meaningful here |
+| `arma-ihp_sg13g2` | **23/24** | TRANSFER SUCCESS — beats the bptm45 null (20/24); only the known wideband wall (h08) stands |
+
+`arma-sky130-resume-tail`: 10 specs run with the same fixed code by a leftover
+gated resume job from the prior session that wrote into the old buggy-era
+output dir (ts-verified post-merge; the buggy-era archive predates that write
+and is uncontaminated). GPU arm-B continuation is a user ruling after this
+verdict (and needs the fix pushed to origin/main first: Kaggle clones origin).

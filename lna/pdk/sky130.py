@@ -94,16 +94,28 @@ class Sky130Adapter(object):
         corner = os.path.join(root, self.CORNER_REL).replace(os.sep, "/")
         return [f'.lib "{corner}" {self.CORNER_SECTION}']
 
+    # Per-unit device width for the m= split below. 2 um matches the harness's
+    # RF finger practice (to_spice.W_FINGER) and sits safely inside the fd_pr
+    # bin table (L=0.15 bins end at W=7 um; measured 2026-08-29: w >= 6.9 um is
+    # a FATAL negative-Nfactor bin extrapolation).
+    W_UNIT = 2e-6
+
     def mos_line(self, name, nd, ng, ns, nb, kind, wexpr, lexpr, fingers_expr):
         """sky130 primitive FET = subcircuit => `X` call. Verified device names,
         emitted even while the models are unfetched so the mapping is testable.
 
-        `fingers_expr` arrives as ` NF={...}` (harness convention); sky130's
-        subckt takes `nf`, so it is re-expressed as ` nf={...}`."""
+        The fd_pr models are BINNED on the subckt's `w` AS GIVEN -- the `nf`
+        hint does not enter ngspice's bin selection (cross-PDK campaign,
+        2026-08-29: every w above the bin table was a fatal parameter-check
+        abort, which starved the sizer to 0/24). So a wide device is emitted as
+        m parallel units of in-bin width w=W/m via ngspice's hierarchical `m=`
+        subckt multiplier: total width exact, every unit inside the bin table.
+        `fingers_expr` is ignored -- the unit split IS the fingering here."""
         subckt = self.MOS_SUBCKT[kind]
-        nf = fingers_expr.replace(" NF=", " nf=") if fingers_expr else ""
+        p = f"p{name}W"
+        m = f"max(1,ceil({p}/{self.W_UNIT:g}))"
         return (f"X{name} {nd} {ng} {ns} {nb} {subckt} "
-                f"w={wexpr} l={lexpr}{nf}")
+                f"w={{{p}/{m}}} l={lexpr} m={{{m}}}")
 
     def bjt_models(self):
         return None

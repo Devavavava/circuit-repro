@@ -1,9 +1,16 @@
 # goldens-parity evidence (label-domain rule)
 
-RULING STATUS: **not ruled — pooling stays BLOCKED.** Every Kaggle-produced
-measurement row keeps its Kaggle-domain tag and stays out of the box stores
-until the user rules on the evidence here (rule text: `kaggle/PLAYBOOK.md`
-§label-domain, `kaggle/schemas/README.md`).
+RULING STATUS: **RULED — ADOPTED (user, 2026-08-29).** On the evidence in
+`REPORT.md` (34/34 fields bit-exact), the box and the pinned Kaggle recipe are
+ONE measurement domain for bptm45 golden quantities. Terms, per the verdict
+draft the user approved: pooling allowed ONLY for rows produced by the pinned
+recipe (the cached `circuit-repro-ngspice47` dataset + this image lineage);
+every Kaggle-origin row RETAINS its Kaggle tag for traceability; parity must
+be RE-RUN (same instrument) whenever the ngspice cache dataset or the Kaggle
+image generation changes, and pooling re-blocks until it passes again.
+Foreign-PDK rows are NOT covered (bptm45-scope evidence only) — extending
+coverage needs a foreign-PDK parity section first.
+(Rule text: `kaggle/PLAYBOOK.md` §label-domain, `kaggle/schemas/README.md`.)
 
 The question: is a number measured on Kaggle the SAME number the box would
 have measured — digit for digit — so that rows from both machines may ever be

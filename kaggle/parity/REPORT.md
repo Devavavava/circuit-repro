@@ -1,7 +1,7 @@
 # goldens-parity comparison — box vs Kaggle, 2026-08-28
 
-RULING STATUS: **evidence complete, awaiting user ruling. Pooling stays
-BLOCKED until ruled.**
+RULING STATUS: **RULED — ADOPTED (user, 2026-08-29)** under the verdict-draft
+terms below. The binding statement lives in README.md.
 
 ## Runs compared
 

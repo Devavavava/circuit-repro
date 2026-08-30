@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nC Cg n2 VSS\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 n8\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1\nNMOS M2 n6 n4 n7 VSS\nL Lc n7 VDD\nPMOS P1 n6 VDD n4 VDD",
+  "wl_hash": "9c02e4ae598426c9",
+  "rationale": "The current topology suffers from poor noise performance (NF \u2248 17 dB vs target 1.8 dB), indicating insufficient input transconductance and/or high input-referred noise. The binding constraint is NF, with a massive negative normalized margin, while S11 and S21 are also below target. The primary issue is the lack of a proper input matching network and insufficient gain at the input stage. Adding a source degeneration inductor (Ls) in series with the NMOS source improves input impedance matching and boosts effective transconductance, thereby reducing noise figure and improving S11/S21 via better gain and matching. This is a minimal, targeted edit that directly addresses the NF bottleneck without disrupting the existing structure or violating the device budget.",
+  "arm": "B",
+  "run_id": "76003227cf584f56",
+  "trajectory": "trajectory/76003227cf584f56.jsonl"
+}

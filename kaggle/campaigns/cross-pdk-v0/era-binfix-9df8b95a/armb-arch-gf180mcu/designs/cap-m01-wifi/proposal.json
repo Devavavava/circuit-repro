@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 VSS\nNMOS M1 n2 n1 n3 VSS\nL Ld VDD n2\nC Cgds n2 n1\nR Rfb n2 n1\nC Cout n2 VOUT1",
+  "wl_hash": "da8a8efae41976e9",
+  "rationale": "The proposed topology improves the S21 gain by adding a gate inductor to enhance input matching and resonant gain at 2.44 GHz, directly addressing the binding S21 failure while maintaining stability and low noise. The inductor tunes the input impedance to better match 50\u03a9, increasing forward gain without degrading NF or Idd. The addition of a single inductor is within the allowed budget and aligns with narrowband LNA best practices for gain peaking.",
+  "arm": "B",
+  "run_id": "be2756cfd415495a",
+  "trajectory": "trajectory/be2756cfd415495a.jsonl"
+}

@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL L1 n1 n2\nL L2 n2 VSS\nNMOS M1 n3 n2 n4 VSS\nL L3 VDD n3\nC Ct n3 n5\nC Cout n5 VOUT1\nC Cfb n3 n1",
+  "wl_hash": "f138f8b0f53d7954",
+  "rationale": "The proposed topology improves the LNA's noise figure and gain by adding a source degeneration inductor and a shunt feedback capacitor, enhancing input impedance matching and noise performance while maintaining stability. The inductor L1 provides impedance transformation to improve S11 and S21, while the feedback capacitor Cfb stabilizes the gain and reduces NF by lowering the effective transconductance. This edit targets the most negative margin (nf_db at -10.59) without degrading other constraints.",
+  "arm": "B",
+  "run_id": "9db3a5518a6c448e",
+  "trajectory": "trajectory/9db3a5518a6c448e.jsonl"
+}

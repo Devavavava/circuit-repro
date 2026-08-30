@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nNMOS M1 n2 n1 VSS VSS\nR Rf n2 VIN1\nL Ld VDD n2\nNMOS M2 VOUT1 n2 n3 VSS\nL Lg n3 VDD\nC Ct n2 VOUT1\nC Cout VOUT1 0",
+  "wl_hash": "602b32185dba24a6",
+  "rationale": "The proposed topology improves the LNA's noise figure and gain by introducing a common-gate (CG) stage following the common-source (CS) input stage, forming a cascode-like structure with a grounded-gate inductor for impedance matching. This topology enhances input matching and reduces the noise contribution from the output stage, directly addressing the large negative margin in NF and S21. The inductor Ld is tuned to resonate at the center frequency, improving gain and input match while maintaining low power. The addition of the CG stage also provides isolation, reducing feedback and improving stability, which is critical for the tight NF and S21 requirements.",
+  "arm": "B",
+  "run_id": "30dc493839e34097",
+  "trajectory": "trajectory/30dc493839e34097.jsonl"
+}

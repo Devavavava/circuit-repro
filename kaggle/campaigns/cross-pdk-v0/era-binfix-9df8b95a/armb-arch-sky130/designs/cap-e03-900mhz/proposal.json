@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nR Rsh n1 VSS\nL Lg n1 n2\nNMOS M1 n3 n2 n4 VSS\nL Ls n3 n4\nL Ld VDD n3\nC Ct n3 n5\nC Cout n5 VOUT1\nR Rf n5 n2",
+  "wl_hash": "02ea40631c290d21",
+  "rationale": "The proposed topology improves the binding constraints\u2014particularly S21 and NF\u2014by adding a source inductor (Ls) to enhance input impedance matching and boost gain through inductive degeneration, while preserving the existing feedback path for stability and noise performance. This leverages the 45nm process's ability to support small inductors (within l_min/l_max) and aligns with the narrowband 900 MHz target by resonating with parasitic capacitance to form a tuned input stage. The addition is minimal, maintaining device count under budget, and does not disrupt the existing output stage or biasing integrity.",
+  "arm": "B",
+  "run_id": "42bd20fbee8d42b3",
+  "trajectory": "trajectory/42bd20fbee8d42b3.jsonl"
+}

@@ -54,3 +54,30 @@ gated resume job from the prior session that wrote into the old buggy-era
 output dir (ts-verified post-merge; the buggy-era archive predates that write
 and is uncontaminated). GPU arm-B continuation is a user ruling after this
 verdict (and needs the fix pushed to origin/main first: Kaggle clones origin).
+
+### era-binfix-9df8b95a (sky130 binning fix 5b132013, run 2026-08-29/30)
+
+sky130's third defect fixed (fd_pr bin table vs the W box — see the
+5b132013 commit message); environment healthy on all four PDKs
+(check_pdk_wsweep GREEN). Box null `arma-sky130` + the user-commissioned GPU
+arm-B ARCH chain (matched ladder/budgets, kernels v17-v19).
+
+| PDK | arm-A null | arm-B arch (LLM) | B-solves-where-A-fails |
+|---|---|---|---|
+| sky130 | 0/14 (wall stop; now ALIVE: S21 ~+1 dB, Idd rides budget) | 0/11 (wall stop) | 0 |
+| gf180mcu | 0/24 (era-fixed run) | **2/24** | **2 — cap-e01-wifi, cap-m06-wifi** |
+| ihp_sg13g2 | 23/24 (era-fixed run) | 10/17 (wall stop) | 0 (null dominates) |
+
+**First topology-credit cells in the program's history.** On gf180mcu the
+null — 45nm-bred corpus topologies, matched escalated budgets — scores 0/24
+and rides the Idd cap at S21 ~ −2 dB; the model's proposals hit
+cap-e01-wifi (NF 2.39/3.5, S21 13.3/10, S11 −9.8/−8, Idd 11.9/15, wl
+88dde50b, NOT in the topology store: single NMOS + PMOS pair + 3 inductors)
+and cap-m06-wifi (NF 2.2/2.2, S21 15.9/15, S11 −14/−12, Idd 5.3/6, wl
+15b5d521: minimal single-NMOS + R + 3 inductors). Both are
+process-appropriate simplifications the corpus set does not contain.
+ADVISORY: both winners are conditionally stable in-band (k_min 0.52 / 0.33);
+stability has never been a ladder gate for ANY arm (advisory verify metric
+only) — a K>=1 gate would need a new pre-registered ladder version.
+sky130: both arms zero — a real wall at these budgets, no attribution.
+ihp: the null dominates; arm-B found no cell the null missed.

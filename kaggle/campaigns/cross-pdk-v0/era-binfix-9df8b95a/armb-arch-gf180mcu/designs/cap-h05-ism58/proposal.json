@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n3 n2 n4 VSS\nL Ls n4 n5\nNMOS M2 n6 n5 n7 VSS\nL Ld VDD n3\nC Ct n3 n8\nC Cout n8 VOUT1",
+  "wl_hash": "e33d410dc1b0f90e",
+  "rationale": "The proposed topology improves the binding constraints\u2014particularly NF and S21\u2014by incorporating a common-gate (CG) stage in series with the common-source (CS) amplifier, enhancing input matching and noise performance while preserving gain. The added CG stage reduces the input reflection (improving S11) and lowers the noise figure by increasing the input impedance seen by the source, mitigating the high input capacitance that degrades NF in the original design. The inductor in the drain of the CG stage provides resonant tuning at 5.8 GHz, enabling high gain and narrowband selectivity without increasing power. This topology maintains low power and stability, with no added bias networks, and aligns with the 45nm CMOS process constraints.",
+  "arm": "B",
+  "run_id": "4118c25acc5a4ba1",
+  "trajectory": "trajectory/4118c25acc5a4ba1.jsonl"
+}

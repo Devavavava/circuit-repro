@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nNMOS M1 n2 n1 n3 VSS\nL Ls n3 VSS\nC Cf n1 n2\nL Ld VDD n2\nL Lg n1 n3\nC Cout n2 VOUT1",
+  "wl_hash": "9d1af323944b14d2",
+  "rationale": "The proposed topology improves the NF and S21 margins by adding a source degeneration inductor in series with the NMOS transistor\u2019s source, enhancing input matching and noise performance without degrading S11 or increasing power. This is critical for the H-tier spec where NF and S21 are tightly constrained and currently failing. The inductor provides a reactive termination that improves both noise figure and gain by increasing the effective transconductance while maintaining low input reflection through impedance matching. The inductor also helps isolate the source from high-frequency ground, reducing noise coupling and improving stability.",
+  "arm": "B",
+  "run_id": "606371cbc7e6417c",
+  "trajectory": "trajectory/606371cbc7e6417c.jsonl"
+}

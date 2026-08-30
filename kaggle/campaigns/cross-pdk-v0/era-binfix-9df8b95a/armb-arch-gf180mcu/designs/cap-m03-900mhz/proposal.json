@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nNMOS M1 n2 n1 n3 VSS\nL Ls n3 n4\nL Ld VDD n2\nC Cout n2 VOUT1\nR Rfb VOUT1 n1\nL Lg n1 n4",
+  "wl_hash": "df44aed52c1d2acc",
+  "rationale": "The proposed topology improves the binding constraints\u2014particularly NF and S21\u2014by adding a source degeneration inductor in series with the NMOS transistor's source, enhancing input matching and noise performance while maintaining gain. This is critical for 900 MHz operation where low noise figure and sufficient gain are tightly coupled. The inductor provides impedance transformation to better match the 50\u03a9 input, reducing reflection and improving both NF and S21, while the added inductance helps stabilize the gain without increasing power. The topology remains compact and within device budget.",
+  "arm": "B",
+  "run_id": "4ad52b9d4d2e4551",
+  "trajectory": "trajectory/4ad52b9d4d2e4551.jsonl"
+}

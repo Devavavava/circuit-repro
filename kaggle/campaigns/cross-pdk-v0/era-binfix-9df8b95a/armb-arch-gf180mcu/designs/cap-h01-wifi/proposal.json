@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Ls n1 n2\nNMOS M1 n2 VDD n1 VSS\nNMOS M2 n3 n2 n1 VSS\nL Lg n1 n4\nNMOS M3 n4 VDD n3 VSS\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1\nR RL VDD n5",
+  "wl_hash": "4457e6caf1136fa5",
+  "rationale": "The current topology suffers from poor noise figure and insufficient gain, with the most negative margins in NF (\u22120.627) and S21 (\u22121.03). The primary issue stems from inadequate transconductance and improper impedance matching due to the lack of a proper inductive degeneration or load network. Adding a source inductor to M1 (the input transistor) will improve both noise figure and gain by increasing the effective input impedance and enhancing the transconductance-to-noise ratio, while maintaining stability. This is a standard technique in low-noise amplifier design for 45nm CMOS to achieve high gain with low NF, particularly in narrowband applications like 2.44 GHz WiFi. The inductor provides a resonant load at f0, improving gain and matching without adding significant power overhead.",
+  "arm": "B",
+  "run_id": "e9d3b163c6ce4ff5",
+  "trajectory": "trajectory/e9d3b163c6ce4ff5.jsonl"
+}

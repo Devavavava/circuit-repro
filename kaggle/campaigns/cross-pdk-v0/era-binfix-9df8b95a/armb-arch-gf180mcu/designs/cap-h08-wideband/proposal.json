@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nNMOS M1 n2 n1 n3 VSS\nR Rf n2 n1\nR RL VDD n2\nC Cout n2 VOUT1",
+  "wl_hash": "0000afdbb4a4414f",
+  "rationale": "A current-mode LNA with resistive feedback and a single-stage active load provides a robust, inductorless solution for wideband operation, enabling low NF and tight S11 across 0.5\u20133 GHz. The resistive feedback stabilizes the input impedance, achieving band-wide matching without requiring inductors, while the active load boosts gain and maintains high output swing efficiency. This topology leverages a common-source amplifier with a feedback resistor from drain to gate (Rf), which simultaneously improves input match and gain flatness. The use of a current-mode architecture minimizes voltage swing requirements, reducing power consumption while maintaining headroom for low noise. The absence of inductors and reliance on passive resistors and capacitors ensures process robustness and wideband compatibility, aligning with the inductorless constraint and the tight NF and S11 requirements.",
+  "arm": "B",
+  "run_id": "46f735c331e04d47",
+  "trajectory": "trajectory/46f735c331e04d47.jsonl"
+}

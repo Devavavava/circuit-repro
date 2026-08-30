@@ -1,0 +1,86 @@
+[{"stream_name":"stdout","time":2.328782146,"data":"[loop-gpu] preflight OK: 5 inputs present (pdk=sky130)\n"}
+,{"stream_name":"stdout","time":2.404926582,"data":"[loop-gpu] GH token from /kaggle/input/datasets/devavratpatni/circuit-repro-ghtoken/gh_token\n"}
+,{"stream_name":"stdout","time":2.414071429,"data":"[loop-gpu] $ git clone --depth 1 --branch main https://REDACTED@github.com/Devavavava/circuit-repro.git /tmp/circuit-repro\n"}
+,{"stream_name":"stderr","time":2.46690045,"data":"Cloning into '/tmp/circuit-repro'...\n"}
+,{"stream_name":"stdout","time":4.407569968,"data":"[loop-gpu] $ bash /tmp/circuit-repro/kaggle/bootstrap.sh\n"}
+,{"stream_name":"stderr","time":4.431643882,"data":"[bootstrap] pip: numpy scipy pyyaml\n"}
+,{"stream_name":"stderr","time":10.213483175,"data":"[bootstrap] pip: pandas (WITH_PANDAS=1)\n"}
+,{"stream_name":"stderr","time":13.605225289,"data":"[bootstrap] copying extracted ngspice tree from /kaggle/input/datasets/devavratpatni/circuit-repro-ngspice47/ngspice47/ngspice47 -\u003e /kaggle/working/ngspice47\n"}
+,{"stream_name":"stderr","time":13.768100247,"data":"[bootstrap] clone already present at /tmp/circuit-repro -- skipping\n"}
+,{"stream_name":"stderr","time":13.858488705,"data":"[bootstrap] no checkpoints found in /kaggle/input/* (ok: LLM loop is torch-free)\n"}
+,{"stream_name":"stderr","time":13.914509382,"data":"[bootstrap] pdk sky130 -\u003e /kaggle/input/circuit-repro-pdk-sky130/sky130\n"}
+,{"stream_name":"stderr","time":13.958376165,"data":"[bootstrap] pdk gf180mcu -\u003e /kaggle/input/circuit-repro-pdk-gf180mcu/gf180mcu\n"}
+,{"stream_name":"stderr","time":14.001216568,"data":"[bootstrap] pdk ihp_sg13g2 -\u003e /kaggle/input/circuit-repro-pdk-ihp-sg13g2/circuit-repro-pdk-ihp-sg13g2/ihp_sg13g2\n"}
+,{"stream_name":"stderr","time":14.001257575,"data":"[bootstrap] LNA_PDK_ROOT=/kaggle/working/pdks (3 PDK(s) linked)\n"}
+,{"stream_name":"stderr","time":14.006921394,"data":"[bootstrap] wrote /kaggle/working/env-kaggle.sh\n"}
+,{"stream_name":"stderr","time":14.008915954,"data":"[bootstrap] gate: python lna/extract.py --selftest\n"}
+,{"stream_name":"stderr","time":14.146627734,"data":"[bootstrap] gate: python lna/ref/check_ref.py\n"}
+,{"stream_name":"stderr","time":14.287885602,"data":"[bootstrap] gate: python lna/ref/check_bjt.py\n"}
+,{"stream_name":"stderr","time":14.476880824,"data":"[bootstrap] gate: python lna/spec.py --all\n"}
+,{"stream_name":"stderr","time":14.688955858,"data":"[bootstrap] gate: python lna/solve_spec.py wifi24 --corpus --budget 100 --seeds 1\n"}
+,{"stream_name":"stderr","time":33.538596977,"data":"[bootstrap] wrote /kaggle/working/report/bootstrap.json (ok=true)\n"}
+,{"stream_name":"stderr","time":33.538630354,"data":"[bootstrap] BOOTSTRAP OK\n"}
+,{"stream_name":"stdout","time":33.626920673,"data":"[loop-gpu] $ cp -r /kaggle/input/datasets/devavratpatni/circuit-repro-llamacpp-cuda/llamacpp/llamacpp /kaggle/working\n"}
+,{"stream_name":"stdout","time":34.435292347,"data":"[loop-gpu] $ bash -c chmod +x /kaggle/working/llamacpp/bin/* || true\n"}
+,{"stream_name":"stdout","time":34.508153688,"data":"[loop-gpu] launching: /kaggle/working/llamacpp/bin/llama-server -m /kaggle/input/datasets/devavratpatni/circuit-repro-gguf-qwen30/weights/Qwen3-30B-A3B-Instruct-2507-Q4_K_M.gguf --host 127.0.0.1 --port 8080 --n-gpu-layers 999 --split-mode layer -c 16384 --parallel 1\n"}
+,{"stream_name":"stdout","time":145.552651801,"data":"[loop-gpu] llama-server healthy after 111.0s\n"}
+,{"stream_name":"stdout","time":145.553233238,"data":"[loop-gpu] RUN_MODE=campaign variant=arch pdk=sky130 -\u003e arm-B ladder (/tmp/circuit-repro/kaggle/specs-ladder/ladder.json)\n"}
+,{"stream_name":"stdout","time":145.553248771,"data":"[loop-gpu] $ bash -c source /kaggle/working/env-kaggle.sh \u0026\u0026 exec /usr/bin/python3 /tmp/circuit-repro/kaggle/loop/campaign.py --arm B --variant arch --pdk sky130 --ladder /tmp/circuit-repro/kaggle/specs-ladder/ladder.json --base-url http://127.0.0.1:8080/v1 --model qwen3-30b-a3b-instruct-2507-q4km --wall-budget-min 500 --out /kaggle/working/campaign\n"}
+,{"stream_name":"stdout","time":145.689779909,"data":"campaign arm=B  variant=arch  pdk=sky130  out=/kaggle/working/campaign  specs=24  wall_budget=500 min  base={'k': 3, 'edit_rounds': 2, 'seeds': 2, 'budget': 300, 'max_tokens': 3072}\n"}
+,{"stream_name":"stdout","time":145.694868743,"data":"\n"}
+,{"stream_name":"stdout","time":145.694887541,"data":"[1/24] cap-e01-wifi (E, 2.44 GHz) pdk=sky130\n"}
+,{"stream_name":"stdout","time":455.907339398,"data":"Current recursion limit: 1000\n"}
+,{"stream_name":"stdout","time":455.907385534,"data":"New recursion limit: 9000\n"}
+,{"stream_name":"stdout","time":455.907392181,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":1963.839552431,"data":"    -\u003e feasible=False  first=None  evals=3840  iip3=-  (30.3 min)\n"}
+,{"stream_name":"stdout","time":1963.845761681,"data":"\n"}
+,{"stream_name":"stdout","time":1963.845782753,"data":"[2/24] cap-e02-gpsband (E, 1.58 GHz) pdk=sky130\n"}
+,{"stream_name":"stdout","time":2404.257169072,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":4668.515226222,"data":"    -\u003e feasible=False  first=None  evals=9600  iip3=-  (45.1 min)\n"}
+,{"stream_name":"stdout","time":4668.522725358,"data":"\n"}
+,{"stream_name":"stdout","time":4668.522747185,"data":"[3/24] cap-e03-900mhz (E, 0.915 GHz) pdk=sky130\n"}
+,{"stream_name":"stdout","time":5127.150007851,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":7492.64357244,"data":"    -\u003e feasible=False  first=None  evals=9600  iip3=-  (47.1 min)\n"}
+,{"stream_name":"stdout","time":7492.650018607,"data":"\n"}
+,{"stream_name":"stdout","time":7492.650036214,"data":"[4/24] cap-e04-35ghz (E, 3.5 GHz) pdk=sky130\n"}
+,{"stream_name":"stdout","time":7806.98301994,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":9943.322485646,"data":"    -\u003e feasible=False  first=None  evals=9360  iip3=-  (40.8 min)\n"}
+,{"stream_name":"stdout","time":9943.327443001,"data":"\n"}
+,{"stream_name":"stdout","time":9943.327463713,"data":"[5/24] cap-e05-ism58 (E, 5.8 GHz) pdk=sky130\n"}
+,{"stream_name":"stdout","time":10522.804495112,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":14116.367530029,"data":"    -\u003e feasible=False  first=None  evals=9360  iip3=+7.18  (69.6 min)\n"}
+,{"stream_name":"stdout","time":14116.377008682,"data":"\n"}
+,{"stream_name":"stdout","time":14116.37702879,"data":"[6/24] cap-e06-wifi (E, 2.44 GHz) pdk=sky130\n"}
+,{"stream_name":"stdout","time":14534.328625771,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":16354.979884769,"data":"    -\u003e feasible=False  first=None  evals=7680  iip3=-  (37.3 min)\n"}
+,{"stream_name":"stdout","time":16354.986505583,"data":"\n"}
+,{"stream_name":"stdout","time":16354.986532496,"data":"[7/24] cap-e07-gpsband (E, 1.58 GHz) pdk=sky130\n"}
+,{"stream_name":"stdout","time":16591.256534403,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":17892.479582459,"data":"    -\u003e feasible=False  first=None  evals=9240  iip3=-  (25.6 min)\n"}
+,{"stream_name":"stdout","time":17892.486093907,"data":"\n"}
+,{"stream_name":"stdout","time":17892.48611277,"data":"[8/24] cap-e08-wideband (E, wideband 0.5-3 GHz) pdk=sky130\n"}
+,{"stream_name":"stdout","time":18118.008689816,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":20509.922019193,"data":"    -\u003e feasible=False  first=None  evals=9240  iip3=-  (43.6 min)\n"}
+,{"stream_name":"stdout","time":20509.928742006,"data":"\n"}
+,{"stream_name":"stdout","time":20509.92876037,"data":"[9/24] cap-m01-wifi (M, 2.44 GHz) pdk=sky130\n"}
+,{"stream_name":"stdout","time":20811.218518351,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":23640.69562984,"data":"    -\u003e feasible=False  first=None  evals=5760  iip3=+2.84  (52.2 min)\n"}
+,{"stream_name":"stdout","time":23640.702326503,"data":"\n"}
+,{"stream_name":"stdout","time":23640.702338446,"data":"[10/24] cap-m02-gpsband (M, 1.58 GHz) pdk=sky130\n"}
+,{"stream_name":"stdout","time":24097.371642576,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":25637.414460862,"data":"    -\u003e feasible=False  first=None  evals=4080  iip3=+12.92  (33.3 min)\n"}
+,{"stream_name":"stdout","time":25637.420328937,"data":"\n"}
+,{"stream_name":"stdout","time":25637.420349088,"data":"[11/24] cap-m03-900mhz (M, 0.915 GHz) pdk=sky130\n"}
+,{"stream_name":"stdout","time":26053.637369416,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":29281.292460711,"data":"    -\u003e feasible=False  first=None  evals=9480  iip3=-  (60.7 min)\n"}
+,{"stream_name":"stdout","time":29281.292508459,"data":"[campaign] WALL BUDGET reached; stopping before cap-m04-35ghz\n"}
+,{"stream_name":"stdout","time":29281.292514046,"data":"\n"}
+,{"stream_name":"stdout","time":29281.29251829,"data":"campaign done: variant=arch  11/24 rows, 0 feasible; results -\u003e /kaggle/working/campaign\n"}
+,{"stream_name":"stdout","time":29281.528430035,"data":"[loop-gpu] trajectory dir has 0 jsonl file(s): /kaggle/working/trajectory\n"}
+,{"stream_name":"stderr","time":29285.455653188,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":29285.455684208,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":29285.774131842,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":29285.774167822,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":29286.759339155,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":29288.083090437,"data":"[NbConvertApp] Writing 324671 bytes to __results__.html\n"}
+]

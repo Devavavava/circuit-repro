@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nNMOS M1 n2 n1 n3 VSS\nNMOS M2 n4 n2 n3 VSS\nL Lg n1 n5\nC Cg VSS n5\nNMOS M3 n6 n5 n7 VSS\nPMOS M4 n8 n5 n6 VDD\nC Cfb n6 n7\nR Rf n6 n8\nC Cout n7 VOUT1\nL Ld VDD n8",
+  "wl_hash": "7a8cbc6a2a87abfb",
+  "rationale": "A cascode LNA with active inductor replacement via a current buffer enables high gain, excellent isolation, and superior input matching by replacing bulky off-chip inductors with a compact, on-chip inductive load formed through a current buffer and feedback. This topology leverages the cascode\u2019s inherent isolation to suppress reverse transmission and C_gd feedback, enabling robust S11 performance even with tight device budget constraints. The active inductor avoids the area and Q-factor limitations of real inductors while maintaining the high Q required for narrowband GPS-band operation (1.575 GHz). The current buffer provides a low-impedance output to drive the load, enabling gain and S21 maximization without sacrificing NF or Idd. This architecture naturally supports the required S11 \u2264 -10 dB, NF \u2264 3.0 dB, and S21 \u2265 12 dB targets within the 10 mA Idd limit, while satisfying all process and layout constraints.",
+  "arm": "B",
+  "run_id": "4d335b69f2a74410",
+  "trajectory": "trajectory/4d335b69f2a74410.jsonl"
+}

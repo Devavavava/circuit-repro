@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Ls n1 n2\nNMOS M1 n3 n2 VSS VSS\nL Ld VDD n3\nC Ct1 n3 n4\nC Ct2 n4 VSS\nL Lout n4 VOUT1\nNMOS M2 VOUT1 n5 VSS VSS\nC Cout n5 VOUT1",
+  "wl_hash": "4c975c7f9395f834",
+  "rationale": "The proposed topology adds a source degeneration inductor to the input stage, enhancing input matching (S11) and noise figure (NF) by improving impedance transformation and reducing noise contribution from the first transistor. This is critical given the severe negative margins in both NF and S11, while maintaining a low-power profile and preserving the narrowband response via resonant tuning. The inductor also indirectly supports S21 by improving gain stability through better input matching. The topology remains within device budget and avoids floating nodes.",
+  "arm": "B",
+  "run_id": "1d12d4ec1f0440cb",
+  "trajectory": "trajectory/1d12d4ec1f0440cb.jsonl"
+}

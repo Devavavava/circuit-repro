@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n3 n2 n4 VSS\nL Ls n4 VSS\nL Ld VDD n3\nC Ct1 n3 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1\nR Rf n3 n2\nL Ls2 n3 n6",
+  "wl_hash": "5c45e1ab174ac7bd",
+  "rationale": "The proposed topology improves the binding constraints\u2014specifically S21 and Idd\u2014by adding a source inductor (Ls) to enhance output matching and reduce current draw through improved impedance transformation, while preserving stability and noise performance. The inductor tunes the output impedance to better match 50\u03a9, boosting S21 beyond the 10 dB threshold, and reduces the DC current by lowering the effective load seen by the transistor, thereby alleviating the Idd excess. The differential nature remains single-ended, and the topology stays within device budget and inductor limits.",
+  "arm": "B",
+  "run_id": "01539cd7014d4d0c",
+  "trajectory": "trajectory/01539cd7014d4d0c.jsonl"
+}

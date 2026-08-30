@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n3 n2 n4 VSS\nL Ld VDD n3\nC Ct1 n3 n5\nNMOS M2 n6 n5 n7 VSS\nL Ls n7 VSS\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "8ada7bf7c43eff74",
+  "rationale": "The proposed topology introduces a source degeneration inductor (Ls) and a shunt feedback capacitor (Ct2) to enhance input matching (S11) and noise figure (NF), while maintaining gain (S21) and power efficiency. The inductor Ls improves the input impedance transformation, reducing reflection, and the feedback capacitor stabilizes the gain and improves NF by reducing the effective transconductance at the input. The topology remains fully differential-friendly and respects the 45nm CMOS process constraints with no floating nodes.",
+  "arm": "B",
+  "run_id": "9e9d2f861d5f43a2",
+  "trajectory": "trajectory/9e9d2f861d5f43a2.jsonl"
+}

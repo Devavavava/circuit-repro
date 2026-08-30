@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Ls n1 VSS\nNMOS M1 n2 VDD n1 VSS\nL Ld VDD n2\nL Lg n1 n3\nC Cout n2 VOUT1",
+  "wl_hash": "db8653257f34235d",
+  "rationale": "The proposed topology improves the S21 gain by adding a source inductor to enhance input impedance matching and increase the gain bandwidth product, directly addressing the binding constraint of S21_db failing by -0.4944. The additional inductor resonates with the gate capacitance at 915 MHz, boosting the forward transmission while maintaining stability and keeping the Idd and NF within spec. The topology remains within the device budget and inductor limits, and the added inductor is placed in series with the source to avoid introducing parasitic poles that would degrade stability.",
+  "arm": "B",
+  "run_id": "4be9e29aa795434a",
+  "trajectory": "trajectory/4be9e29aa795434a.jsonl"
+}

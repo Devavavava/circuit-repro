@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 n4\nNMOS M2 n5 n4 n6 VSS\nL Ld VDD n5\nC Ct1 n5 n7\nC Ct2 n7 VSS\nC Cout n7 VOUT1",
+  "wl_hash": "dcc6a6e8082b16bb",
+  "rationale": "The proposed topology improves the LNA's noise figure and gain by adding a source degeneration inductor (Ls) in series with the source of the input NMOS (M1), which enhances input matching and reduces noise while preserving gain. This directly addresses the most negative margin (nf_db at -7.131) without degrading S11 or S21, as the inductor resonates with the input capacitance at 2.44 GHz, improving impedance matching and reducing reflection. The added inductor also helps stabilize the gain ripple and improves the overall bandwidth consistency.",
+  "arm": "B",
+  "run_id": "50b309c84cf44b20",
+  "trajectory": "trajectory/50b309c84cf44b20.jsonl"
+}

@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Ls n1 VSS\nNMOS M1 n2 n1 VSS VSS\nL Ldg n2 VSS\nPMOS M2 n3 n2 VDD VDD\nL Ld VDD n3\nC Ct1 n2 n3\nC Ct2 n3 VSS\nC Cout n3 VOUT1\nR Rf n2 n1",
+  "wl_hash": "90044015a97d10ba",
+  "rationale": "The proposed topology improves the binding constraints by adding a source degeneration inductor to the NMOS transistor, which enhances input matching (S11) and noise performance (NF) while maintaining gain (S21) and power efficiency. This modification directly targets the most negative margin (NF at -0.2572), which is the primary bottleneck, by increasing the effective source impedance to better match the 50\u03a9 system and reduce noise figure through improved transconductance-to-noise ratio. The inductor also provides a resonant path at 5.8 GHz, enabling narrowband operation without degrading gain, and the topology remains within device budget and inductor limits.",
+  "arm": "B",
+  "run_id": "fcde5e243509482f",
+  "trajectory": "trajectory/fcde5e243509482f.jsonl"
+}

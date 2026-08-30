@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nNMOS M1 n2 n1 n3 VSS\nNMOS M2 n4 n1 n3 VSS\nL Ls n3 VSS\nL Lg n1 VDD\nL Ld n4 VDD\nC Ct1 n2 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "8303d330f80a8773",
+  "rationale": "The previous topology lacks proper gate inductance for impedance matching and stability at 1.575 GHz, resulting in poor S11 and S21 performance and excessive NF due to mismatch and insufficient gain. Adding a gate inductor (Lg) between the gate of M1 and VDD improves input matching, reduces reflection (S11), enhances forward gain (S21), and lowers noise by enabling optimal conjugate matching at the input. This single change targets the most negative margin (nf_db at -5.985) while simultaneously improving S21 (currently at -23.25) and S11 (at -0.03), all without increasing power or violating device budget.",
+  "arm": "B",
+  "run_id": "d34568eb8066473d",
+  "trajectory": "trajectory/d34568eb8066473d.jsonl"
+}

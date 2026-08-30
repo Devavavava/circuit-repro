@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n3 n2 n4 VSS\nL Ls n4 n5\nL Ld VDD n3\nC Ct1 n3 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1\nL L_in n1 VSS",
+  "wl_hash": "08e91c55ac4c4a55",
+  "rationale": "The proposed topology enhances input matching and gain by introducing a shunt inductor at the input node to resonate with the input capacitance, improving S11 and S21 simultaneously. This is critical in the 900 MHz ISM band where parasitic capacitance limits bandwidth and input impedance matching. The added inductor provides a low-impedance path at resonance, reducing reflected power and boosting forward gain without increasing current draw or violating device budget constraints. The topology remains fully compatible with the 45nm CMOS process and maintains stability margins.",
+  "arm": "B",
+  "run_id": "1686522124444ee2",
+  "trajectory": "trajectory/1686522124444ee2.jsonl"
+}

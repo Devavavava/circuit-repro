@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nNMOS M1 n2 n1 n3 VSS\nL Ls n3 VSS\nC Cgds n2 n1\nR Rf n2 VIN1\nL Ld VDD n2\nC Cfb n2 n1\nC Cout n2 VOUT1\nL Lg n1 VSS",
+  "wl_hash": "4a88d156ea2d35fe",
+  "rationale": "The proposed topology improves the critical noise figure (NF) and gain (S21) constraints by adding a source degeneration inductor to enhance input matching and reduce noise while maintaining low power. The inductor provides a series inductive reactance at 900 MHz that cancels the input capacitance of the transistor, improving the input match (S11) and reducing the effective transconductance variation, which directly reduces NF. The added inductor also increases the input impedance magnitude at resonance, improving the gain by better impedance matching to 50 ohms. The topology remains compact and within the device budget, with the inductor placed in series with the source to enable optimal noise performance without increasing power.",
+  "arm": "B",
+  "run_id": "8c20ce0c9f584d71",
+  "trajectory": "trajectory/8c20ce0c9f584d71.jsonl"
+}

@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nNMOS M1 n2 n1 VSS VSS\nR Rs n1 VSS\nR Rf n2 n1\nL Ld VDD n2\nL Lout n2 VOUT1\nC Cout n2 VOUT1",
+  "wl_hash": "036f6e5c821e2d79",
+  "rationale": "The proposed topology adds a source degeneration resistor and a shunt inductor at the output to improve input match (S11), noise figure (NF), and gain (S21) by enhancing stability and impedance matching without increasing current draw excessively. The added inductor resonates with the output capacitance at 3.5 GHz, boosting S21 and improving bandwidth, while the source resistor reduces noise and improves input return loss by increasing input impedance. This leverages the device budget efficiently and aligns with the narrowband focus, maintaining the required topology constraints.",
+  "arm": "B",
+  "run_id": "1b0d245a1e784e09",
+  "trajectory": "trajectory/1b0d245a1e784e09.jsonl"
+}

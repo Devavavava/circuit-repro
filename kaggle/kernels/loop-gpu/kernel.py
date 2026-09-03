@@ -60,6 +60,12 @@ ARM = os.environ.get("ARM", "v0")
 # PDKs are new campaign work.
 PDK = os.environ.get("PDK", "bptm45")
 
+# REFLECT_V0_DIRS (selflearn only): colon-separated REPO-RELATIVE dirs for the
+# reflect corpus; each becomes a repeated campaign.py --v0-dir (corpora
+# concatenate additively -- selflearn-gf180-v0 pre-reg). Empty (default) keeps
+# campaign.py's committed capability-v0 armb default.
+REFLECT_V0_DIRS = os.environ.get("REFLECT_V0_DIRS", "")
+
 # per-PDK dataset marker (a file unique to each extracted layout) -- what
 # preflight greps for; bootstrap.sh links the same layout into LNA_PDK_ROOT.
 _PDK_MARKERS = {
@@ -243,12 +249,16 @@ def main():
             print("[loop-gpu] RUN_MODE=campaign variant=%s pdk=%s -> arm-B "
                   "ladder (%s)" % (ARM, PDK, ladder), flush=True)
             pdk_arg = " --pdk %s" % PDK if PDK != "bptm45" else ""
+            reflect_args = "".join(
+                " --v0-dir %s" % os.path.join(CLONE, d)
+                for d in REFLECT_V0_DIRS.split(":") if d)
             inner = (
-                "source %s && exec %s %s --arm B --variant %s%s --ladder %s "
+                "source %s && exec %s %s --arm B --variant %s%s%s --ladder %s "
                 "--base-url http://127.0.0.1:%d/v1 --model %s "
                 "--wall-budget-min %s --out %s"
-                % (ENV_SH, sys.executable, campaign, ARM, pdk_arg, ladder, PORT,
-                   model_id, WALL_BUDGET_MIN, os.path.join(WORK, "campaign"))
+                % (ENV_SH, sys.executable, campaign, ARM, pdk_arg, reflect_args,
+                   ladder, PORT, model_id, WALL_BUDGET_MIN,
+                   os.path.join(WORK, "campaign"))
             )
         else:
             inner = (

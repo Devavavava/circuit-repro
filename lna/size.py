@@ -50,6 +50,42 @@ SIM_FAIL_PENALTY = 1e3
 _UNSET = object()
 
 
+class SimHealth(object):
+    """Sim-health tally for one sizing run (observability, additive).
+
+    An optional sink threaded into `make_objective`: every objective evaluation
+    ticks `n_evals`; an evaluation whose ngspice run produced no metrics ticks
+    `n_sim_fail` and, for the FIRST such failure, keeps ONE verbatim ngspice
+    error line (`first_error`). It only READS the pass/fail the objective already
+    decided and the error line extract already surfaced, so the objective value
+    is byte-for-byte unchanged whether or not a run carries a sink -- the same
+    additive-hook invariant `points`/`op_sink` hold to.
+
+    The SIM_FAIL_PENALTY inside the objective still swallows the failure into the
+    optimizer's score (a bptm45-era robustness choice, deliberately untouched);
+    this sink is the parallel channel that lets a failure be COUNTED and NAMED in
+    the record without changing that score."""
+
+    __slots__ = ("n_evals", "n_sim_fail", "first_error")
+
+    def __init__(self):
+        self.n_evals = 0
+        self.n_sim_fail = 0
+        self.first_error = None
+
+    def tick(self, failed, err_line=None):
+        self.n_evals += 1
+        if failed:
+            self.n_sim_fail += 1
+            if self.first_error is None and err_line:
+                self.first_error = err_line
+
+    def as_dict(self):
+        """The additive JSON fields, for embedding in a sizing/trajectory row."""
+        return {"n_evals": self.n_evals, "n_sim_fail": self.n_sim_fail,
+                "sim_error": self.first_error}
+
+
 def _pdk_name(spec):
     """The pdk id a spec/driver selected (default 'bptm45'). A spec loaded before
     the pdk field existed, or a bare object, has no attribute -> bptm45."""
@@ -143,18 +179,24 @@ def nf_is_gated(spec):
     return bool(c) and c.get("status") != "unsupported"
 
 
-def eval_metrics(body, params, spec, nf_gated=None, op_capture=None):
+def eval_metrics(body, params, spec, nf_gated=None, op_capture=None,
+                 err_sink=None):
     """One full L2 evaluation: op/sp/stability, plus the series-Rs NF when gated.
 
     `op_capture` (WP-OBSERVE) is a dict filled in place with the operating point
     read out of the op/sp run that happens anyway -- no extra ngspice call, and
     the metrics returned are bit-identical either way (`ref/check_op.py`).
 
+    `err_sink` (SIM-HEALTH, additive): a dict filled in place with the first
+    verbatim ngspice error line when the sp/op run fails. Failure path only;
+    return value unchanged. Passed straight through to run_and_extract.
+
     Cross-PDK v0: the spec's pdk (default bptm45) is threaded to extract so an
     OSDI process (IHP) gets its .osdi pre-loaded. For every non-OSDI pdk this is
     a no-op and the deck is byte-identical."""
     pdk = _pdk_name(spec)
-    m = E.run_and_extract(body, params, spec, op_capture=op_capture, pdk=pdk)
+    m = E.run_and_extract(body, params, spec, op_capture=op_capture, pdk=pdk,
+                          err_sink=err_sink)
     if m is None:
         return None
     if nf_is_gated(spec) if nf_gated is None else nf_gated:
@@ -281,7 +323,8 @@ class OpSink:
         return n
 
 
-def make_objective(body, spec, sizable, fixed, points=None, op_sink=None):
+def make_objective(body, spec, sizable, fixed, points=None, op_sink=None,
+                   sim_health=None):
     """sizable: {param_name: kind}; fixed: {param_name: literal}. Returns
     (objective_func for ZOAF, names, decode(x)->metrics helper).
 
@@ -293,7 +336,13 @@ def make_objective(body, spec, sizable, fixed, points=None, op_sink=None):
     `op_sink` (an `OpSink`, WP-OBSERVE) does the same one level down: it decides
     which evaluations carry the print-only op probe and buffers the resulting
     rows. Same invariant -- the probe adds no analysis, so the objective value is
-    unchanged whether or not a given evaluation is sampled."""
+    unchanged whether or not a given evaluation is sampled.
+
+    `sim_health` (a `SimHealth`, observability) counts evals and sim failures and
+    keeps the first verbatim ngspice error line. Same invariant -- it only reads
+    the pass/fail the objective already decided (and the error line the failing
+    eval already surfaced), so the objective value is unchanged whether or not a
+    sink is attached."""
     names = list(sizable)
     ranges = kind_ranges(spec)
     nf_gated = nf_is_gated(spec)
@@ -308,13 +357,14 @@ def make_objective(body, spec, sizable, fixed, points=None, op_sink=None):
             params[name] = f"{v:.6g}"
         return params
 
-    def evaluate(x, op_capture=None):
+    def evaluate(x, op_capture=None, err_sink=None):
         return eval_metrics(body, decode(x), spec, nf_gated=nf_gated,
-                            op_capture=op_capture)
+                            op_capture=op_capture, err_sink=err_sink)
 
     def objective_func(x):
         cap = {} if (op_sink is not None and op_sink.want()) else None
-        m = evaluate(x, op_capture=cap)
+        esink = {} if sim_health is not None else None
+        m = evaluate(x, op_capture=cap, err_sink=esink)
         if points is not None:
             points.append(([float(v) for v in x], m))
         if cap is not None:
@@ -322,6 +372,8 @@ def make_objective(body, spec, sizable, fixed, points=None, op_sink=None):
                         metrics=m, stage="zoaf")
         if op_sink is not None:
             op_sink.tick()
+        if sim_health is not None:
+            sim_health.tick(m is None, (esink or {}).get("error"))
         return SIM_FAIL_PENALTY if m is None else spec.objective(m)
 
     return objective_func, names, decode, evaluate

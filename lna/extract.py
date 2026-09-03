@@ -140,6 +140,39 @@ def run_deck(text, prefix, fname, timeout=60, extra_files=None):
         return (r.stdout or "") + (r.stderr or "")
 
 
+# --- sim-health: verbatim ngspice error line (observability, additive) -------
+# Substrings that mark a fatal ngspice line -- model-load failures (the same set
+# ref/check_pdk_funnel.py's _MODEL_ERRORS scans for, so the two agree on what a
+# "model error" is), plus the solver aborts that kill a whole deck (singular
+# matrix, the BSIM4 negative-Nfactor bin abort). Matching is on the verbatim,
+# lowercased combined stdout+stderr; the RETURNED line is the original casing.
+_FATAL_MARKERS = (
+    "unknown model", "could not find", "unable to find", "no such model",
+    "specify .model", "unknown subckt", "cannot find", "unknown model type",
+    "can't open osdi", "error loading osdi", "osdi load failed",
+    "failed to load", "singular matrix", "fatal error", "abort",
+    "negative", "error:",
+)
+
+
+def first_error_line(out):
+    """The FIRST fatal ngspice line in a combined stdout+stderr string, verbatim
+    (original casing, stripped of surrounding whitespace), or None.
+
+    Purely a read-out: it never changes a deck or a metric. Used to attach ONE
+    verbatim error line to a sizing row when a simulation failed, so the loop's
+    diagnose/reflect stage can see environment breakage as the system's own
+    artifact (verbatim matters -- reflect's admission control only accepts the
+    system's captured output as evidence)."""
+    if not out:
+        return None
+    for ln in out.splitlines():
+        low = ln.lower()
+        if any(mk in low for mk in _FATAL_MARKERS):
+            return ln.strip()[:500]      # cap: one line, not a traceback dump
+    return None
+
+
 def _supply_name(body):
     m = re.search(r"^(V\w+)\s+VDD\s+0", body, re.IGNORECASE | re.MULTILINE)
     return m.group(1) if m else "Vsup"
@@ -420,13 +453,20 @@ def build_deck_split(body, params, f0, f_lo, f_hi, osdi, supply=None,
     return driver, {"net.sp": net_txt}
 
 
-def run_and_extract(body, params, spec, op_capture=None, pdk=None):
+def run_and_extract(body, params, spec, op_capture=None, pdk=None, err_sink=None):
     """Run one ngspice evaluation; return a metrics dict (or None on failure).
 
     WP-OBSERVE: if `op_capture` is a dict it is filled IN PLACE with the operating
     point (`parse_op` shape) read out of the SAME ngspice process -- the `op` this
     deck already runs. The return value is unaffected, so every existing caller is
     untouched, and with `op_capture=None` the deck text is byte-identical.
+
+    SIM-HEALTH (observability, additive): if `err_sink` is a dict and this eval
+    FAILS (timeout / no metrics / fatal ngspice line), it is filled in place with
+    `{"error": <first verbatim ngspice fatal line or None>}`. It is only touched
+    on the failure path, never on success, so the return value and the deck are
+    unchanged -- same additive-hook invariant as `op_capture`. It reads only the
+    combined output this eval already produced; no extra ngspice call.
 
     `pdk` (cross-PDK v0, additive): None or any non-OSDI adapter -> a single deck,
     byte-identical to before. An OSDI adapter (IHP) triggers the source-split so
@@ -445,8 +485,12 @@ def run_and_extract(body, params, spec, op_capture=None, pdk=None):
         deck, extra = build_deck(body, params, f0, f_lo, f_hi, op_probe=probe), None
     out = run_deck(deck, "size_", "c.cir", extra_files=extra)
     if out is None:
+        if err_sink is not None:
+            err_sink["error"] = "ngspice timed out (no output)"
         return None
     if "singular matrix" in out.lower():
+        if err_sink is not None:
+            err_sink["error"] = first_error_line(out) or "singular matrix"
         return None
     if op_capture is not None:
         op_capture.update(parse_op(out))
@@ -459,6 +503,8 @@ def run_and_extract(body, params, spec, op_capture=None, pdk=None):
     s11 = g("m_s11_f0")
     s21 = g("m_s21_f0")
     if s11 is None or s21 is None:
+        if err_sink is not None:
+            err_sink["error"] = first_error_line(out)   # None if no fatal line
         return None
     s21_min, s21_max = g("m_s21_min"), g("m_s21_max")
     idd = g("idd")

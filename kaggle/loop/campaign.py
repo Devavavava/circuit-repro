@@ -915,9 +915,11 @@ def main(argv=None):
                          "identical v0 arm-B; arch=ARM2 concentration+self-"
                          "diversity; selflearn=ARM3 arch + reflect-first overlay "
                          "consult. Ignored for --arm A.")
-    ap.add_argument("--v0-dir",
-                    help="selflearn: dir with v0 arm-B results.jsonl+trajectory/ "
-                         "for the reflect stage (default: repo committed armb)")
+    ap.add_argument("--v0-dir", action="append",
+                    help="selflearn: dir with results.jsonl (+ optional "
+                         "trajectory/) for the reflect stage; may be repeated "
+                         "-- corpora concatenate additively (default: repo "
+                         "committed armb)")
     ap.add_argument("--reflect-cap", type=int, default=12,
                     help="selflearn: max system overlay entries reflect may write")
     ap.add_argument("--ladder", required=True, help="path to ladder.json")

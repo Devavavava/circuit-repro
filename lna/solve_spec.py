@@ -58,8 +58,14 @@ def size_tokens(tokens, spec_ref, seed, budget, pdk=None):
     points = []
     obj, names, decode, _ = S.make_objective(body, spec, sizable, fixed, points=points)
     bud = N._Budget(obj, budget, points)
+    # learned-x0 warm start (DEFAULT OFF via LNA_X0_PRIOR; None -> byte-identical
+    # null). Conditions on the spec's OWN gated targets (no measured metrics yet).
+    x0 = S.warm_start_x0(
+        {"tokens": list(tokens), "counts": topo.counts(),
+         "n_devices": topo.n_devices, "inductor_ratio": topo.inductor_ratio},
+        S._spec_target_metrics(spec), spec, sizable, pdk=S._pdk_name(spec))
     try:
-        N.run_cmaes(bud, len(names), seed)
+        N.run_cmaes(bud, len(names), seed, x0=x0)
     except N._BudgetOut:
         pass
     bx, bm = bud.best()

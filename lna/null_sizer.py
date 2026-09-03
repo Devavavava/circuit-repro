@@ -167,7 +167,7 @@ def run_random(f, n, seed):
         f(rng.random(n))            # _BudgetOut ends it
 
 
-def run_cmaes(f, n, seed, sigma0=0.3, lam=None, diag=None):
+def run_cmaes(f, n, seed, sigma0=0.3, lam=None, diag=None, x0=None):
     """CMA-ES, Hansen's standard formulation (purecmaes.m), self-contained.
 
     Defaults are the published ones -- nothing here is tuned to this problem:
@@ -177,9 +177,20 @@ def run_cmaes(f, n, seed, sigma0=0.3, lam=None, diag=None):
     stagnates, so the whole matched budget is spent. `diag` is a caller-owned
     dict filled in place with run diagnostics -- it must survive the `_BudgetOut`
     that ends the search, so it is never a return value. The results themselves
-    live in the `_Budget`."""
+    live in the `_Budget`.
+
+    `x0` (learned-x0 warm start, DEFAULT None -> byte-identical behaviour): a
+    length-n vector in [0,1] that SEEDS ONLY THE FIRST restart's mean, replacing
+    the first `rng.random(n)`. It is flag-gated at the call site (see
+    `size.warm_start_x0` / `x0_prior.enabled`), never on by default. To keep the
+    RNG stream identical to the null on that first restart we consume the same
+    `rng.random(n)` draw and discard it, so restarts 2..N are byte-identical to
+    the unseeded run -- the ONLY change is the first mean's value."""
     diag = {} if diag is None else diag
     rng = np.random.default_rng(seed)
+    _x0 = None if x0 is None else np.clip(np.asarray(x0, dtype=float), 0.0, 1.0)
+    if _x0 is not None and _x0.shape != (n,):
+        _x0 = None                                # schema mismatch -> null path
     if lam is None:
         lam = 4 + int(math.floor(3 * math.log(n)))
     mu = lam // 2
@@ -196,8 +207,13 @@ def run_cmaes(f, n, seed, sigma0=0.3, lam=None, diag=None):
 
     diag.update(lam=lam, mu=mu, mueff=round(mueff, 4), sigma0=sigma0,
                 box="clip", restarts=0, gens=0, sigma_final=None)
+    _first = True
     while True:                                   # restart loop
-        xmean = rng.random(n)
+        xmean = rng.random(n)                     # always drawn (keeps RNG stream)
+        if _first and _x0 is not None:
+            xmean = _x0                           # warm start: seed 1st mean only
+            diag["x0_seeded"] = True
+        _first = False
         sigma = sigma0
         pc, ps = np.zeros(n), np.zeros(n)
         B, D = np.eye(n), np.ones(n)

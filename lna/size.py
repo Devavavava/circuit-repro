@@ -379,6 +379,52 @@ def make_objective(body, spec, sizable, fixed, points=None, op_sink=None,
     return objective_func, names, decode, evaluate
 
 
+def warm_start_x0(graph, metrics, spec, sizable, pdk=None):
+    """Learned-x0 warm start (DEFAULT OFF). Returns a normalised x0 in [0,1]^d
+    aligned to `list(sizable)`, or None when the flag is off / unavailable.
+
+    Flag-gated by `LNA_X0_PRIOR` (see x0_prior.mode): 'off' -> None (byte-
+    identical null); 'retrieval' -> nearest stored winner (arm A1); 'learned' ->
+    the trained per-kind prior (arm A2). Any import/model/shape problem falls
+    back to None (the null) rather than raising -- a warm start must never be able
+    to break the sizer. `metrics` is the ACHIEVED-target the prior conditions on;
+    at solve time it is the spec's own constraint targets (see _spec_target_metrics)."""
+    try:
+        import x0_prior as XP
+        m = XP.mode()
+        if m == "off":
+            return None
+        import x0_data as XD
+        band_f0 = XD.spec_band_f0(spec)
+        pdkn = pdk or _pdk_name(spec)
+        if m == "retrieval":
+            import x0_retrieval as XR
+            wl = (graph or {}).get("wl_hash")
+            return XR.get_retriever().x0_for(graph, metrics, band_f0, pdkn,
+                                             sizable, wl_hash=wl)
+        model = XP.X0Prior.load()
+        if model is None:
+            return None
+        return model.x0_for(graph, metrics, band_f0, pdkn, sizable)
+    except Exception:                                              # noqa: BLE001
+        return None
+
+
+def _spec_target_metrics(spec):
+    """The spec's own gated targets as a 'metrics'-shaped dict the prior reads
+    (nf_db/s11_db/s21_db/idd_ma). Used when solving a NEW spec: we don't yet have
+    measured metrics, so we condition on what the spec ASKS for."""
+    out = {}
+    for name, c in (getattr(spec, "constraints", None) or {}).items():
+        key = "s11_db" if name == "s11_max_db" else name
+        if not isinstance(c, dict):
+            continue
+        v = c.get("max", c.get("min"))
+        if v is not None:
+            out[key] = float(v)
+    return out
+
+
 def run_zoaf(objective_func, names, seed=1, n_candidates=8, sgd_iters=8, cgd_iters=2):
     bounds = np.array([[0.0, 1.0]] * len(names))   # x normalised; decode maps to values
     opt = ZOAF(objective_func, bounds, maximize=False, n_candidates=n_candidates,

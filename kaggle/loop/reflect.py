@@ -100,35 +100,41 @@ def _iter_strings(obj):
 def load_corpus(v0_dir):
     """Load results.jsonl + all trajectory/*.jsonl under v0_dir.
 
+    v0_dir may be a single dir or a list of dirs (repeated --v0-dir); corpora
+    concatenate additively in the order given. Each dir must hold a
+    results.jsonl; trajectory/ is optional per dir.
+
     Returns (results_rows, traj_rows, corpus_blob) where corpus_blob is one big
     string of every value in every row -- the substring haystack the verbatim
     evidence check runs against. Raising here is a hard error: reflect cannot
     run without its own prior output to reflect on.
     """
-    results_path = os.path.join(v0_dir, "results.jsonl")
-    if not os.path.isfile(results_path):
-        raise SystemExit("[reflect] no results.jsonl under %s" % v0_dir)
+    dirs = [v0_dir] if isinstance(v0_dir, str) else list(v0_dir)
     results = []
-    with open(results_path, encoding="utf-8") as fh:
-        for line in fh:
-            line = line.strip()
-            if line:
-                results.append(json.loads(line))
-
     traj_rows = []
-    traj_dir = os.path.join(v0_dir, "trajectory")
-    if os.path.isdir(traj_dir):
-        for fn in sorted(os.listdir(traj_dir)):
-            if not fn.endswith(".jsonl"):
-                continue
-            with open(os.path.join(traj_dir, fn), encoding="utf-8") as fh:
-                for line in fh:
-                    line = line.strip()
-                    if line:
-                        try:
-                            traj_rows.append(json.loads(line))
-                        except Exception:
-                            pass
+    for d in dirs:
+        results_path = os.path.join(d, "results.jsonl")
+        if not os.path.isfile(results_path):
+            raise SystemExit("[reflect] no results.jsonl under %s" % d)
+        with open(results_path, encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if line:
+                    results.append(json.loads(line))
+
+        traj_dir = os.path.join(d, "trajectory")
+        if os.path.isdir(traj_dir):
+            for fn in sorted(os.listdir(traj_dir)):
+                if not fn.endswith(".jsonl"):
+                    continue
+                with open(os.path.join(traj_dir, fn), encoding="utf-8") as fh:
+                    for line in fh:
+                        line = line.strip()
+                        if line:
+                            try:
+                                traj_rows.append(json.loads(line))
+                            except Exception:
+                                pass
 
     # the verbatim haystack: every reachable string value + the raw file text.
     parts = []
@@ -162,12 +168,17 @@ def _results_digest(results):
                                    % (name,
                                       ("%.6g" % ach if isinstance(ach, (int, float))
                                        else ach), mar))
+        sh = (r.get("stage_rates") or {}).get("sim_health") or {}
+        sh_s = ("n_evals=%s,n_sim_fail=%s,sim_success_rate=%s"
+                % (sh.get("n_evals"), sh.get("n_sim_fail"),
+                   sh.get("sim_success_rate")) if sh else "-")
         lines.append(
             "- spec=%s tier=%s feasible=%s first_feasible_phase=%s "
-            "escalated=%s best_obj=%s worst_margin=%s | margins: %s | notes=%r"
+            "escalated=%s best_obj=%s worst_margin=%s | margins: %s | "
+            "sim_health: %s | notes=%r"
             % (r.get("spec"), r.get("tier"), r.get("feasible"),
                r.get("first_feasible_phase"), r.get("escalated"),
-               r.get("best_obj"), wm_s, "; ".join(margin_bits),
+               r.get("best_obj"), wm_s, "; ".join(margin_bits), sh_s,
                (r.get("notes") or "")))
     return "\n".join(lines)
 
@@ -205,6 +216,14 @@ def _error_digest(traj_rows, cap=40):
         if ev and isinstance(ev, str):
             tag = "%s/%s" % (r.get("spec"), r.get("phase"))
             item = "- [%s] %s" % (tag, ev)
+            if item not in seen:
+                seen.append(item)
+        sh = r.get("sim_health") or {}
+        sv = sh.get("sim_error")
+        if sv and isinstance(sv, str):
+            tag = "%s/%s" % (r.get("spec"), r.get("phase"))
+            item = ("- [%s] sim_health n_sim_fail=%s n_evals=%s error: %s"
+                    % (tag, sh.get("n_sim_fail"), sh.get("n_evals"), sv))
             if item not in seen:
                 seen.append(item)
         if len(seen) >= cap:
@@ -533,10 +552,10 @@ def main(argv=None):
     ap = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--v0-dir",
-                    default=os.path.join(ROOT, "kaggle", "campaigns",
-                                         "capability-v0", "armb"),
-                    help="dir holding results.jsonl + trajectory/ (v0 arm-B)")
+    ap.add_argument("--v0-dir", action="append", dest="v0_dir",
+                    help="dir holding results.jsonl (+ optional trajectory/); "
+                         "may be repeated -- corpora concatenate additively "
+                         "in the order given (default: capability-v0 armb)")
     ap.add_argument("--overlay-dir", required=True,
                     help="output dir for accepted system-authored entries")
     ap.add_argument("--traj", required=True,
@@ -553,6 +572,9 @@ def main(argv=None):
     ap.add_argument("--print-prompt", action="store_true",
                     help="print the reflect prompt (audit) and exit -- no LLM call")
     args = ap.parse_args(argv)
+    if not args.v0_dir:
+        args.v0_dir = [os.path.join(ROOT, "kaggle", "campaigns",
+                                    "capability-v0", "armb")]
 
     if args.print_prompt:
         results, traj_rows, _ = load_corpus(args.v0_dir)

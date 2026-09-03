@@ -140,10 +140,13 @@ def _render_md(rows):
          "0-feasible rows are results, not failures suppressed.",
          "stages = bias/sized/feasible counts over the candidates a spec walked "
          "(the cross-PDK funnel-rate signal).",
+         "sim-health = per-stage sim-success rate over the sized candidates' "
+         "ngspice evals (1.00 = every eval simulated; <<1 = ENVIRONMENT wall, "
+         "not a design miss). '-' = no sized candidate / no-sim run.",
          "",
          "| spec | tier | arm | variant | pdk | feasible | first-feasible | iters | evals | "
-         "escalated | best_obj | margins (worst) | stages(b/s/f of n) | iip3_dbm | stability | notes |",
-         "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+         "escalated | best_obj | margins (worst) | stages(b/s/f of n) | sim-health | iip3_dbm | stability | notes |",
+         "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for r in rows:
         worst = r.get("worst_margin")
         worst_s = ("%s=%.3g" % (worst[0], worst[1])
@@ -153,7 +156,12 @@ def _render_md(rows):
                                        sr.get("n_feasible", "-"),
                                        sr.get("n_candidates", "-"))
                    if sr else "-")
-        L.append("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |"
+        sh = sr.get("sim_health") or {}
+        rate = sh.get("sim_success_rate")
+        sim_s = ("%.2f (%s/%s)" % (rate, sh.get("n_sim_fail", "-"),
+                                   sh.get("n_evals", "-"))
+                 if isinstance(rate, (int, float)) else "-")
+        L.append("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |"
                  % (r.get("spec"), r.get("tier"), r.get("arm"),
                     r.get("variant") or "-", r.get("pdk") or "-",
                     "YES" if r.get("feasible") else "no",
@@ -164,7 +172,7 @@ def _render_md(rows):
                     if r.get("evals_to_first_feasible") is not None else
                     _fmt(r.get("total_evals"), "%d"),
                     "yes" if r.get("escalated") else "no",
-                    _fmt(r.get("best_obj")), worst_s, stage_s,
+                    _fmt(r.get("best_obj")), worst_s, stage_s, sim_s,
                     _fmt(r.get("iip3_dbm"), "%+.2f"),
                     (r.get("stability") or "-"),
                     (r.get("notes") or "").replace("|", "/")[:60]))
@@ -206,10 +214,51 @@ def _worst_margin(margins):
 _STAGE_KEYS = ("parsed", "l0", "bias", "sized", "feasible")
 
 
-def _stage_rates(cand_stages):
+def _sim_health(cands):
+    """Fold per-candidate sim-health (driver's `sized.sim_health`) into one
+    sim-success summary for a spec (observability, deliverable 3).
+
+    A candidate that reached the sized stage carries n_evals / n_sim_fail; this
+    sums them across the candidates a spec walked and derives a per-stage
+    sim-success RATE (fraction of ngspice evals that produced metrics). That rate
+    is the column the overfit / cross-PDK analysis needs to separate an
+    ENVIRONMENT wall (rate << 1: ngspice broke on this process) from a DESIGN
+    wall (rate == 1: everything simulated, nothing met the gates). `sim_error` is
+    the first verbatim ngspice error line seen across the spec's candidates.
+
+    Returns None when no candidate reached sizing (nothing to report), so a
+    pre-instrumentation / no-sim run adds no sim-health key at all."""
+    n_evals = n_fail = 0
+    seen = 0
+    first_err = None
+    for c in cands or []:
+        sh = ((c or {}).get("sized") or {}).get("sim_health") or {}
+        ne, nf = sh.get("n_evals"), sh.get("n_sim_fail")
+        if ne is None:
+            continue
+        seen += 1
+        n_evals += int(ne or 0)
+        n_fail += int(nf or 0)
+        if first_err is None and sh.get("sim_error"):
+            first_err = sh.get("sim_error")
+    if seen == 0:
+        return None
+    rate = (1.0 - n_fail / n_evals) if n_evals else None
+    return {"n_evals": n_evals, "n_sim_fail": n_fail,
+            "sim_success_rate": (round(rate, 4) if rate is not None else None),
+            "sim_error": first_err}
+
+
+def _stage_rates(cand_stages, cands=None):
     """Fold a list of per-candidate `stages` dicts into {n, parsed, l0, bias,
     sized, feasible} counts. Missing keys count False, so a pre-instrumentation
-    candidate (no stages) contributes only to `n`."""
+    candidate (no stages) contributes only to `n`.
+
+    `cands` (observability, additive): the full candidate dicts for the same
+    spec. When given, an additive `sim_health` sub-dict (per-stage sim-success
+    rate + first verbatim ngspice error line) is folded in from each candidate's
+    `sized.sim_health`. Omitted / no sized candidate -> no `sim_health` key, so
+    the existing matrix shape is unchanged for callers that do not pass it."""
     counts = {k: 0 for k in _STAGE_KEYS}
     n = 0
     for st in cand_stages or []:
@@ -217,7 +266,11 @@ def _stage_rates(cand_stages):
         for k in _STAGE_KEYS:
             if (st or {}).get(k):
                 counts[k] += 1
-    return {"n_candidates": n, **{("n_%s" % k): counts[k] for k in _STAGE_KEYS}}
+    out = {"n_candidates": n, **{("n_%s" % k): counts[k] for k in _STAGE_KEYS}}
+    sh = _sim_health(cands)
+    if sh is not None:
+        out["sim_health"] = sh
+    return out
 
 
 def _overlay_consult(spec, extra_consult_dir=None):
@@ -342,7 +395,8 @@ def run_spec_arm_b(spec, client, model_id, cfg, out_dir, traj_dir, no_sim,
                 "iters_to_first_feasible": None, "evals_to_first_feasible": None,
                 "total_evals": total_evals[0], "best_obj": None, "margins": {},
                 "worst_margin": None, "run_id": run_id, "best_cand": None,
-                "stage_rates": _stage_rates([c.get("stages") for c in candidates]),
+                "stage_rates": _stage_rates([c.get("stages") for c in candidates],
+                                            candidates),
                 "notes": "no candidate survived the funnel"}
     ok.sort(key=lambda c: D.rank_key(c, spec))
     best = ok[0]
@@ -404,7 +458,7 @@ def run_spec_arm_b(spec, client, model_id, cfg, out_dir, traj_dir, no_sim,
         "run_id": run_id,
         "best_cand": best,
         "stage_rates": _stage_rates([c.get("stages") for c in candidates]
-                                    + edit_stages),
+                                    + edit_stages, candidates),
         "notes": "" if feasible else "infeasible (closest attempt saved)",
     }
 
@@ -574,7 +628,8 @@ def run_spec_arch(spec, client, model_id, cfg, out_dir, traj_dir, no_sim,
                 "worst_margin": None, "run_id": run_id, "best_cand": None,
                 "notes": "no candidate survived triage",
                 "consult_hits": n_hits, "overlay_hits": n_overlay,
-                "stage_rates": _stage_rates([c.get("stages") for c in candidates]),
+                "stage_rates": _stage_rates([c.get("stages") for c in candidates],
+                                            candidates),
                 "triage": {"n_proposals": len(candidates), "triage_budget": triage_budget,
                            "n_approaches": len(approaches), "winner": None}}
 
@@ -661,7 +716,7 @@ def run_spec_arch(spec, client, model_id, cfg, out_dir, traj_dir, no_sim,
         "run_id": run_id,
         "best_cand": best,
         "stage_rates": _stage_rates([c.get("stages") for c in candidates]
-                                    + conc_stages),
+                                    + conc_stages, candidates),
         "notes": "" if feasible else "infeasible (closest attempt saved)",
         "consult_hits": n_hits, "overlay_hits": n_overlay,
         "triage": {"n_proposals": len(candidates), "triage_budget": triage_budget,
@@ -706,6 +761,7 @@ def run_spec_arm_a(spec, cfg, no_sim, pdk=None):
     total_evals = 0
     first_feasible = {"phase": None, "iter": None, "evals": None}
     cand_stages = []           # one per (topology, seed) -- the funnel walked
+    cand_meta = []             # candidate-shaped dicts carrying sized.sim_health
     idx = 0
     for wl in topos:
         try:
@@ -730,6 +786,12 @@ def run_spec_arm_a(spec, cfg, no_sim, pdk=None):
                 st["bias"] = True
                 st["sized"] = True
                 st["feasible"] = bool(r["feasible"])
+                # SIM-HEALTH: carry the per-run counts in the arm-B candidate
+                # shape so _stage_rates folds the same sim-success column here.
+                cand_meta.append({"stages": st, "sized": {"sim_health": {
+                    "n_evals": r.get("n_evals"),
+                    "n_sim_fail": r.get("n_sim_fail"),
+                    "sim_error": r.get("sim_error")}}})
             cand_stages.append(st)
             if r is None:
                 continue
@@ -742,7 +804,7 @@ def run_spec_arm_a(spec, cfg, no_sim, pdk=None):
                           and r["best_obj"] < best["best_obj"]))
             if better:
                 best, best_toks, best_label = r, list(toks), wl[:12]
-    stage_rates = _stage_rates(cand_stages)
+    stage_rates = _stage_rates(cand_stages, cand_meta)
     if best is None:
         return {"feasible": False, "first_feasible_phase": None,
                 "iters_to_first_feasible": None, "evals_to_first_feasible": None,

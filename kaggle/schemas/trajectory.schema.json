@@ -52,7 +52,8 @@
         "best_objective": {"type": ["number", "null"], "description": "spec.objective(best_metrics): feasibility-first scalar (minimized)."},
         "n_evals": {"type": ["integer", "null"], "description": "ngspice evaluations spent on this sizing."},
         "seconds": {"type": ["number", "null"], "description": "Wall-clock seconds for this sizing."},
-        "seed": {"type": ["integer", "null"], "description": "CMA-ES seed that produced the best result."}
+        "seed": {"type": ["integer", "null"], "description": "CMA-ES seed that produced the best result."},
+        "sim_health": {"type": ["object", "null"], "description": "Sim-health tally summed over every seed this candidate walked, so an ngspice failure in any seed shows even if it lost. {n_evals: total objective evaluations, n_sim_fail: how many produced no metrics (an ngspice/environment failure, NOT a design miss), sim_error: the first VERBATIM ngspice error line or null}. Additive; distinguishes an environment wall from a design wall.", "properties": {"n_evals": {"type": ["integer", "null"]}, "n_sim_fail": {"type": ["integer", "null"]}, "sim_error": {"type": ["string", "null"], "description": "First VERBATIM ngspice fatal line across this candidate's evals; null when none failed."}}, "additionalProperties": true}
       },
       "additionalProperties": true
     },
@@ -64,6 +65,7 @@
       "additionalProperties": {"type": "object"}
     },
     "error_verbatim": {"type": ["string", "null"], "description": "VERBATIM, UNTRUNCATED simulator/parser/round-trip error text when a phase fails. Never summarized. Null when the phase succeeded."},
+    "sim_health": {"type": ["object", "null"], "description": "On the size phase: the same sim-health tally carried in `sized.sim_health`, hoisted to the row top level so a generic row renderer surfaces it. {n_evals, n_sim_fail, sim_error}. sim_error is a VERBATIM ngspice line; the whole object is additive/observability -- it never affects sizing, scoring, or selection."},
     "ts": {"type": "number", "description": "Unix timestamp (seconds, float) when this row was emitted."},
     "phase_seconds": {"type": ["number", "null"], "description": "Wall-clock seconds this phase took."}
   }

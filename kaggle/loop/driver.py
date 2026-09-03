@@ -429,15 +429,29 @@ def size_candidate(tokens, spec_ref, seeds, budget, pdk=None):
     Returns (best_result_or_None, seconds, total_evals). best_result is exactly
     solve_spec.size_tokens' dict {feasible,best_obj,best_params,metrics,margins,seed}.
 
+    SIM-HEALTH (observability, additive): the returned best_result also carries
+    sim-health totals summed over EVERY seed this candidate walked (not just the
+    winning seed), so an ngspice failure in a losing seed still shows up:
+      * `sh_n_evals`  -- total objective evaluations across all seeds
+      * `sh_n_sim_fail` -- how many of those failed in ngspice (no metrics)
+      * `sh_sim_error` -- the first verbatim ngspice error line seen, or None
+    These are named `sh_*` on the best_result to avoid colliding with the
+    winning seed's own single-run `n_evals`; they never affect ranking.
+
     `pdk` (cross-PDK v0): None -> the spec's own pdk; a value is a per-run
     override threaded into size_tokens so the SAME spec sizes on any process."""
     solve = _lna_import("solve_spec")
     t0 = time.time()
     best = None
+    sh_evals, sh_fail, sh_err = 0, 0, None
     for seed in range(1, seeds + 1):
         r = solve.size_tokens(list(tokens), spec_ref, seed, budget, pdk=pdk)
         if r is None:
             continue
+        sh_evals += int(r.get("n_evals") or 0)
+        sh_fail += int(r.get("n_sim_fail") or 0)
+        if sh_err is None and r.get("sim_error"):
+            sh_err = r.get("sim_error")
         if best is None:
             best = r
         elif r["feasible"] and (not best["feasible"]
@@ -445,6 +459,9 @@ def size_candidate(tokens, spec_ref, seeds, budget, pdk=None):
             best = r
         elif not best["feasible"] and r["best_obj"] < best["best_obj"]:
             best = r
+    if best is not None:
+        best = dict(best, sh_n_evals=sh_evals, sh_n_sim_fail=sh_fail,
+                    sh_sim_error=sh_err)
     return best, round(time.time() - t0, 3), None
 
 
@@ -550,11 +567,21 @@ def run_candidate(traj, spec, spec_ref, iteration, netlist_text, rationale,
         return _ret(False, tokens, wl, None, None)
     stages["sized"] = True
     stages["feasible"] = bool(best["feasible"])
+    # SIM-HEALTH (observability, additive): n_evals/n_sim_fail summed over every
+    # seed + one verbatim ngspice error line, so the record can tell an
+    # ENVIRONMENT failure (ngspice broke on this process) from a DESIGN miss
+    # (simulated fine, missed the gates). Additive fields on `sized`; nothing
+    # existing changes.
+    sim_health = {"n_evals": best.get("sh_n_evals"),
+                  "n_sim_fail": best.get("sh_n_sim_fail"),
+                  "sim_error": best.get("sh_sim_error")}
     sized = {"feasible": best["feasible"], "margins": best["margins"],
              "metrics": best["metrics"], "best_objective": best["best_obj"],
-             "seed": best["seed"], "seconds": secs}
+             "seed": best["seed"], "seconds": secs,
+             "sim_health": sim_health}
     pvo = _prediction_vs_outcome(deltas, best["metrics"])
     traj.row(iteration, "size", wl_hash=wl, sized=sized,
+             sim_health=sim_health,
              prediction_vs_outcome=pvo, phase_seconds=secs,
              next_action="accept" if best["feasible"] else "keep_best_effort")
     return _ret(True, tokens, wl, {**sized, "best_params": best["best_params"]},

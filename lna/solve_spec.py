@@ -46,7 +46,14 @@ def size_tokens(tokens, spec_ref, seed, budget, pdk=None):
 
     `pdk` (cross-PDK v0, additive): None -> the spec's own `pdk:` field (default
     bptm45), so every existing caller is unchanged. A non-None value is a per-run
-    OVERRIDE that beats the spec field, so the SAME spec sizes on any process."""
+    OVERRIDE that beats the spec field, so the SAME spec sizes on any process.
+
+    SIM-HEALTH (observability, additive): the returned dict also carries
+    `n_evals` (total objective evaluations this run spent), `n_sim_fail` (how
+    many of those produced no metrics -- an ngspice failure, not a design miss)
+    and `sim_error` (the first verbatim ngspice error line, or None). These are
+    read from a `SimHealth` sink attached to the objective; they do not change
+    the search, the score, or any existing field."""
     spec = S._spec_for_sizing(spec_ref, nf_gate=None, pdk=pdk)
     topo = Topology(list(tokens))
     prep = S.prepared_body(topo, inductor_q=INDUCTOR_Q, pdk=S._pdk_name(spec))
@@ -56,7 +63,9 @@ def size_tokens(tokens, spec_ref, seed, budget, pdk=None):
     if not sizable:
         return None
     points = []
-    obj, names, decode, _ = S.make_objective(body, spec, sizable, fixed, points=points)
+    health = S.SimHealth()
+    obj, names, decode, _ = S.make_objective(body, spec, sizable, fixed,
+                                             points=points, sim_health=health)
     bud = N._Budget(obj, budget, points)
     try:
         N.run_cmaes(bud, len(names), seed)
@@ -68,7 +77,9 @@ def size_tokens(tokens, spec_ref, seed, budget, pdk=None):
     feas = bool(spec.feasible(bm)[0]) if bm else False
     return {"feasible": feas, "best_obj": round(bud.best_f, 5),
             "best_params": decode(bx), "metrics": bm,
-            "margins": ds.margins_for(spec, bm) if bm else {}, "seed": seed}
+            "margins": ds.margins_for(spec, bm) if bm else {}, "seed": seed,
+            "n_evals": health.n_evals, "n_sim_fail": health.n_sim_fail,
+            "sim_error": health.first_error}
 
 
 def tokens_for(wl_hash):

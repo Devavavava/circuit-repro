@@ -67,6 +67,14 @@ from topology import Topology        # noqa: E402
 TOPO_LABELS = os.path.join(ROOT, "lna", "data", "topo_labels.jsonl")
 LADDER = os.path.join(ROOT, "kaggle", "specs-ladder", "ladder.json")
 
+
+def rows_cache_path():
+    """Optional accelerator cache path (env `LNA_X0_ROWS_CACHE`), or None. When
+    set, `build_rows(cache=...)` skips the expensive per-row prepared_body on
+    subsequent runs. Purely a speedup; the label store stays the source of truth.
+    Ignored transparently at runtime -- the sizer never depends on it existing."""
+    return os.environ.get("LNA_X0_ROWS_CACHE") or None
+
 # device kinds the sizer emits (see size.classify_params). Fixed order == the
 # per-kind output head order in x0_prior.
 KINDS = ["W", "L", "R", "C", "VB"]

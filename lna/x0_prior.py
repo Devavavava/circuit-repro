@@ -205,7 +205,8 @@ def cli():
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
 
-    rows = list(XD.build_rows(feasible_only=args.feasible_only, verbose=True))
+    rows = list(XD.build_rows(feasible_only=args.feasible_only, verbose=True,
+                              cache=XD.rows_cache_path()))
     if not rows:
         sys.exit("no training rows (is topo_labels.jsonl present?)")
     rng = np.random.default_rng(args.seed)

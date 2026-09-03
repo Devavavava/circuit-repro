@@ -48,7 +48,8 @@ class Retriever:
     @staticmethod
     def build(feasible_only=False):
         entries = []
-        for r in XD.build_rows(feasible_only=feasible_only):
+        for r in XD.build_rows(feasible_only=feasible_only,
+                               cache=XD.rows_cache_path()):
             entries.append({"feat": r["feat"], "target": r["target"],
                             "wl_hash": r["meta"]["wl_hash"],
                             "pdk": r["meta"]["pdk"],

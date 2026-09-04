@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nC Cg n2 n3\nL Ld VDD n4\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 n5\nL Ls_deg n5 n6\nC Ct1 n4 n6\nC Ct2 n6 VSS\nC Cout n6 VOUT1",
+  "wl_hash": "73952c64eb3d071f",
+  "rationale": "The proposed topology improves the binding constraints\u2014primarily NF and S21\u2014by adding a source degeneration inductor in series with the NMOS's source, enhancing input impedance matching and reducing noise while preserving gain. This is critical in narrowband GPS-band applications where noise figure and forward gain are tightly constrained. The inductor provides a reactive path to tune the input matching, directly addressing the poor S21 and excessive NF. The topology remains within the device budget and inductor limit, and the added inductor enables better stability and bandwidth control without increasing power.",
+  "arm": "B",
+  "run_id": "61597d7ef68249bc",
+  "trajectory": "trajectory/61597d7ef68249bc.jsonl"
+}

@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 n5\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "a5476a67ca49011f",
+  "rationale": "The proposed topology improves the binding constraints by adding a source inductor to enhance input impedance matching and boost S21 gain, which is currently far below target. The original netlist lacks intentional inductive loading at the source, leading to poor S21 and excessive noise due to suboptimal input matching and gain degradation. By inserting a source inductor (Ls) between the source of M1 and ground, we increase the input reactance to better cancel out the input capacitance, improving S11 and S21 simultaneously. This also raises the effective transconductance at the operating frequency, enhancing gain without increasing power. The added inductor is placed to resonate with the input capacitance at 3.5 GHz, which improves the overall stability and gain flatness, directly targeting the most negative margin (S21_db). The topology remains within the device budget and keeps the circuit inductorless only if needed\u2014here, one inductor is essential and permitted.",
+  "arm": "B",
+  "run_id": "5e727a24c4454589",
+  "trajectory": "trajectory/5e727a24c4454589.jsonl"
+}

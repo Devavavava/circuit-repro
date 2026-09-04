@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n3 n2 n4 VSS\nL Ls n4 n5\nC Cs n5 VSS\nL Ld VDD n3\nC Ct1 n3 n6\nC Ct2 n6 VSS\nNMOS M2 n6 n7 n4 VSS\nNMOS M3 n6 n7 n8 VSS\nC Cout n6 VOUT1\nR Rf n4 n7",
+  "wl_hash": "18533180d17bc1c3",
+  "rationale": "The proposed topology improves the binding constraints\u2014particularly NF and S21\u2014by incorporating a degenerated common-source stage with an inductor in the source path to enhance gain and noise performance, while maintaining stability and input match. The inductor provides an impedance boost at 915 MHz, improving S21 and reducing noise figure through increased transconductance-to-noise ratio, and the degeneration stabilizes the input impedance, tightening S11. The addition of a single inductor (Ls) in series with the source of M1 enables a resonant boost at f0, directly improving the gain and noise figure without violating the device budget or current constraint. The topology remains compact and suitable for the 45nm CMOS process.",
+  "arm": "B",
+  "run_id": "a3aeb123df16413c",
+  "trajectory": "trajectory/a3aeb123df16413c.jsonl"
+}

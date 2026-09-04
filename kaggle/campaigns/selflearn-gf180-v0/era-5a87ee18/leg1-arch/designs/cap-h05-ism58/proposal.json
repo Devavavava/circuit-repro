@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Ls n1 VSS\nNMOS M1 n2 n1 VSS VSS\nL Ld n2 VDD\nC Cg n2 n1\nC Cd n3 VOUT1\nL Lout VDD n3\nNMOS M2 n3 n2 n1 n1",
+  "wl_hash": "72b1899c2f4f25c5",
+  "rationale": "The proposed topology improves the binding constraints\u2014primarily NF and S21\u2014by introducing a source-degenerated common-source stage with an inductor-loaded resonant network, which enhances gain and noise performance while maintaining input match. The addition of an inductor in the drain path of M1 forms a resonant tank at 5.8 GHz, boosting S21 and reducing NF by increasing the effective transconductance gain while preserving input impedance. The degeneration resistor (modeled as a small R) is omitted to avoid noise penalty, and the topology remains fully passive in the signal path, ensuring low power and high stability. This design leverages the 45nm process\u2019s low parasitics to achieve narrowband resonance without excessive inductor count, satisfying the tight NF and gain requirements.",
+  "arm": "B",
+  "run_id": "c9ad9e276f1e4a4b",
+  "trajectory": "trajectory/c9ad9e276f1e4a4b.jsonl"
+}

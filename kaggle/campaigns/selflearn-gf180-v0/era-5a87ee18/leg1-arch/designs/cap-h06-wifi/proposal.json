@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n3 n2 n4 VSS\nL Ls n4 n5\nL Ld VDD n3\nC Ct1 n3 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "a5476a67ca49011f",
+  "rationale": "The proposed topology improves the binding constraints\u2014particularly NF and S11\u2014by adding a source degeneration inductor in series with the NMOS transistor\u2019s source, enhancing input match and noise performance without increasing power. This is critical in a narrowband 2.44 GHz LNA where low NF and tight S11 are both binding. The inductor provides impedance matching at the input while isolating the transistor\u2019s intrinsic source resistance from the input, reducing reflection and improving noise figure. The added inductor is tuned to resonate with the input capacitance at 2.44 GHz, enabling a low-impedance path to ground at the signal frequency while maintaining high impedance at DC for stability. This topology maintains the device budget, avoids floating nodes, and respects the inductor limit.",
+  "arm": "B",
+  "run_id": "e74ffe130e144403",
+  "trajectory": "trajectory/e74ffe130e144403.jsonl"
+}

@@ -1,0 +1,91 @@
+circuit-repro env: git=/tools/xilinx/2025.1/tps/lnx64/git-2.46.0/bin/git, python=/home/dpatni/circuit-repro/.env/envs/cr/bin/python, ngspice=/home/dpatni/circuit-repro/.env/envs/cr/bin/ngspice
+[run_arm_a] repo    = /home/dpatni/circuit-repro
+[run_arm_a] ngspice = /home/dpatni/circuit-repro/.env/ngspice-47/bin/ngspice
+[run_arm_a] pdk     = bptm45
+[run_arm_a] ladder  = /home/dpatni/circuit-repro/kaggle/specs-ladder/ladder.json
+[run_arm_a] out     = /home/dpatni/.claude/jobs/21240829/tmp/x0v0/arm0-null
+[run_arm_a] threads = OMP=1 (serial sizer; <=1 ngspice at a time)
+[run_arm_a] extra   = 
+campaign arm=A  variant=None  pdk=(spec default)  out=/home/dpatni/.claude/jobs/21240829/tmp/x0v0/arm0-null  specs=24  wall_budget=500 min  base={'k': 3, 'edit_rounds': 2, 'seeds': 2, 'budget': 300, 'max_tokens': 3072}
+
+[1/24] cap-e01-wifi (E, 2.44 GHz) pdk=bptm45
+    -> feasible=True  first=corpus#1403690f  evals=3000  iip3=-31.51  (1.9 min)
+
+[2/24] cap-e02-gpsband (E, 1.58 GHz) pdk=bptm45
+    -> feasible=True  first=corpus#1403690f  evals=3000  iip3=-38.20  (2.6 min)
+
+[3/24] cap-e03-900mhz (E, 0.915 GHz) pdk=bptm45
+    -> feasible=True  first=corpus#182aa0c7  evals=3000  iip3=-30.43  (2.6 min)
+
+[4/24] cap-e04-35ghz (E, 3.5 GHz) pdk=bptm45
+    -> feasible=True  first=corpus#1403690f  evals=3000  iip3=-30.28  (2.4 min)
+
+[5/24] cap-e05-ism58 (E, 5.8 GHz) pdk=bptm45
+    -> feasible=True  first=corpus#1403690f  evals=3000  iip3=-30.57  (2.3 min)
+
+[6/24] cap-e06-wifi (E, 2.44 GHz) pdk=bptm45
+    -> feasible=True  first=corpus#1403690f  evals=3000  iip3=-31.28  (2.5 min)
+
+[7/24] cap-e07-gpsband (E, 1.58 GHz) pdk=bptm45
+    -> feasible=True  first=corpus#1403690f  evals=3000  iip3=-33.09  (2.4 min)
+
+[8/24] cap-e08-wideband (E, wideband 0.5-3 GHz) pdk=bptm45
+    infeasible at base -> ESCALATE
+    -> feasible=False  first=None  evals=16200  iip3=-20.21  (11.3 min)
+
+[9/24] cap-m01-wifi (M, 2.44 GHz) pdk=bptm45
+    -> feasible=True  first=corpus#1403690f  evals=3000  iip3=-29.57  (2.7 min)
+
+[10/24] cap-m02-gpsband (M, 1.58 GHz) pdk=bptm45
+    -> feasible=True  first=corpus#1403690f  evals=3000  iip3=-33.69  (2.4 min)
+
+[11/24] cap-m03-900mhz (M, 0.915 GHz) pdk=bptm45
+    -> feasible=True  first=corpus#ace8383c  evals=3000  iip3=-32.58  (2.4 min)
+
+[12/24] cap-m04-35ghz (M, 3.5 GHz) pdk=bptm45
+    -> feasible=True  first=corpus#1403690f  evals=3000  iip3=-29.27  (2.7 min)
+
+[13/24] cap-m05-ism58 (M, 5.8 GHz) pdk=bptm45
+    -> feasible=True  first=corpus#1403690f  evals=3000  iip3=-23.04  (2.4 min)
+
+[14/24] cap-m06-wifi (M, 2.44 GHz) pdk=bptm45
+    -> feasible=True  first=corpus#1403690f  evals=3000  iip3=-27.16  (2.4 min)
+
+[15/24] cap-m07-gpsband (M, 1.58 GHz) pdk=bptm45
+    -> feasible=True  first=corpus#1403690f  evals=3000  iip3=-12.74  (2.1 min)
+
+[16/24] cap-m08-ism58 (M, 5.8 GHz) pdk=bptm45
+    -> feasible=True  first=corpus#182aa0c7  evals=3000  iip3=-28.35  (2.5 min)
+
+[17/24] cap-h01-wifi (H, 2.44 GHz) pdk=bptm45
+    infeasible at base -> ESCALATE
+    -> feasible=True  first=corpus#1403690f  evals=16200  iip3=-33.13  (11.3 min)
+
+[18/24] cap-h02-gpsband (H, 1.58 GHz) pdk=bptm45
+    infeasible at base -> ESCALATE
+    -> feasible=True  first=corpus#1403690f  evals=16200  iip3=-32.19  (11.4 min)
+
+[19/24] cap-h03-900mhz (H, 0.915 GHz) pdk=bptm45
+    infeasible at base -> ESCALATE
+    -> feasible=False  first=None  evals=16200  iip3=-34.47  (11.4 min)
+
+[20/24] cap-h04-35ghz (H, 3.5 GHz) pdk=bptm45
+    infeasible at base -> ESCALATE
+    -> feasible=True  first=corpus#ace8383c  evals=16200  iip3=-28.14  (11.4 min)
+
+[21/24] cap-h05-ism58 (H, 5.8 GHz) pdk=bptm45
+    infeasible at base -> ESCALATE
+    -> feasible=True  first=corpus#182aa0c7  evals=16200  iip3=-35.99  (11.4 min)
+
+[22/24] cap-h06-wifi (H, 2.44 GHz) pdk=bptm45
+    -> feasible=True  first=corpus#1403690f  evals=3000  iip3=-8.86  (2.2 min)
+
+[23/24] cap-h07-gpsband (H, 1.58 GHz) pdk=bptm45
+    infeasible at base -> ESCALATE
+    -> feasible=False  first=None  evals=16200  iip3=-34.43  (11.5 min)
+
+[24/24] cap-h08-wideband (H, wideband 0.5-3 GHz) pdk=bptm45
+    infeasible at base -> ESCALATE
+    -> feasible=False  first=None  evals=16200  iip3=+0.49  (11.7 min)
+
+campaign done: variant=None  24/24 rows, 20 feasible; results -> /home/dpatni/.claude/jobs/21240829/tmp/x0v0/arm0-null

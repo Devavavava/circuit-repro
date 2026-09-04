@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n3 n2 n4 VSS\nL Ls n4 n5\nL Ld VDD n3\nC Ct1 n3 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "a5476a67ca49011f",
+  "rationale": "The current topology suffers from excessive noise figure (NF) and poor gain (S21), with the binding constraint being the noise figure at -4.637 normalized margin. The primary issue stems from inadequate input matching and insufficient transconductance gain, exacerbated by the lack of a proper input inductor to resonate with the input capacitance. Adding a gate inductor (Lg) improves input impedance matching at 1.575 GHz, reducing reflection (S11) and enhancing signal transfer into the transistor, which directly reduces NF by improving the noise contribution from the input stage. The inductor also helps establish a resonant tank with the input capacitance, boosting gain (S21) without increasing power. This change targets the worst metric (NF) while simultaneously improving S11 and S21, all within the device budget and process constraints.",
+  "arm": "B",
+  "run_id": "b76d1e1f1d7a47cd",
+  "trajectory": "trajectory/b76d1e1f1d7a47cd.jsonl"
+}

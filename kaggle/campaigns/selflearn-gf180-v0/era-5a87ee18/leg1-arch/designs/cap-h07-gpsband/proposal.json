@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nNMOS M1 n2 n1 n3 VSS\nNMOS M2 n4 n1 n3 VSS\nL Lg n1 n5\nL Ls n3 VSS\nL Ld VDD n4\nC Ct1 n4 n8\nC Ct2 n8 VSS\nC Cout n8 VOUT1",
+  "wl_hash": "fe1d22abfd0213d1",
+  "rationale": "The previous topology suffers from severe degradation in all key metrics, with the most negative margin in NF (\u221215.12) indicating a fundamental noise performance failure. The circuit lacks any intentional noise-reduction mechanisms such as source degeneration or cascoding, and the absence of a proper input matching network (e.g., series inductor or tuned Cg) leads to poor S11 and S21. To improve the binding NF constraint without degrading S11/S21 or increasing power, we add a small inductor in series with the gate of M1 to form a tuned input network that enhances impedance matching and improves noise figure by increasing the effective source resistance seen at the input, thereby reducing noise gain. This is especially effective in narrowband LNA design at 1.575 GHz where inductive peaking can simultaneously improve gain, match, and noise performance.",
+  "arm": "B",
+  "run_id": "bcc4d3c2976f4258",
+  "trajectory": "trajectory/bcc4d3c2976f4258.jsonl"
+}

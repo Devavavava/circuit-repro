@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 n5\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "a5476a67ca49011f",
+  "rationale": "The proposed topology improves the binding constraints\u2014particularly the noise figure (NF) and S21, which are severely underperforming\u2014by adding a source degeneration inductor (Ls) in series with the NMOS transistor\u2019s source, enhancing input matching and noise performance while preserving gain. This is critical in a 900 MHz LNA where low NF and high gain are tightly coupled to device sizing and parasitic control. The added inductor increases the effective source impedance, improving stability and reducing noise contribution from the transistor, while the existing gate inductor (Lg) maintains input tuning. The topology remains within device budget and inductor limits, and the change is minimal yet impactful.",
+  "arm": "B",
+  "run_id": "66ca7660968f48f6",
+  "trajectory": "trajectory/66ca7660968f48f6.jsonl"
+}

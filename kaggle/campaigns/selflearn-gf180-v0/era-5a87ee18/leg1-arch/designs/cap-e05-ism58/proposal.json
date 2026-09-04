@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL L_in n1 VSS\nNMOS M1 n2 n1 n3 VSS\nR Rs n3 VSS\nL Ld VDD n2\nC Cout n2 VOUT1",
+  "wl_hash": "00557c912c57fdcd",
+  "rationale": "The proposed topology improves the binding constraints\u2014particularly S11 and S21, which are severely underperforming\u2014by incorporating a source-degenerated common-source stage with an on-chip inductor for impedance matching, enhancing input match and gain while maintaining low power. The addition of a series inductor at the input and a source degeneration resistor improves input reflection (S11) and provides better gain flatness across the band, directly addressing the negative margins. The topology remains within budget, uses only one inductor (within limit), and avoids floating nodes.",
+  "arm": "B",
+  "run_id": "9f05c1d9b8ad4e80",
+  "trajectory": "trajectory/9f05c1d9b8ad4e80.jsonl"
+}

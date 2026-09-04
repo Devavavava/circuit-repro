@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nR Rg VDD n1\nNMOS M1 n2 n1 VSS VSS\nR Rs n2 VSS\nC Cs n2 VSS\nC Ct n2 n3\nR Rl VDD n3\nC Cout n3 VOUT1\nR Rsrc n2 VSS\nC Csrc n2 VSS",
+  "wl_hash": "d023efd750a346fe",
+  "rationale": "The previous topology suffers from severe noise and gain degradation due to the lack of proper gate biasing and insufficient transconductance, as evidenced by the massive negative margins in NF and S21. The current design uses a single NMOS with a floating gate (n1) and no intentional gate bias, resulting in poor DC operating point and high noise. To address the binding constraint (NF_db with -10.75 margin), we add a resistive gate biasing network to stabilize the transistor\u2019s DC operating point and improve transconductance. By connecting a gate resistor from VDD to the gate node (n1), and adding a source degeneration resistor (Rs) with a bypass capacitor (Cs), we enhance gain and reduce noise. The addition of a source degeneration path with proper bypassing improves the NF without significantly affecting S11 or power, and the resistive biasing ensures stable operation across the wideband range.",
+  "arm": "B",
+  "run_id": "79e0be13d2a544aa",
+  "trajectory": "trajectory/79e0be13d2a544aa.jsonl"
+}

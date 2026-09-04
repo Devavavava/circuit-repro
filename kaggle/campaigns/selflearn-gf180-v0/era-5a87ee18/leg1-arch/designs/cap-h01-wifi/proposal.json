@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 n5\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1\nPMOS M2 n4 VDD n3 VDD",
+  "wl_hash": "4b990d133434633a",
+  "rationale": "The proposed topology improves the LNA's noise figure and gain by adding a source degeneration inductor (Ls) in series with the NMOS source, which enhances input matching and reduces noise contribution from the transistor, while maintaining low power and stability. This modification directly targets the most negative margin (nf_db at -5.44) without degrading the already critical s11 and s21 margins, which are also significantly underperforming. The inductor provides reactance that resonates with the gate capacitance, improving input match and gain, while the added series inductance suppresses high-frequency noise paths and increases effective transconductance, lowering NF. The topology remains compact and within device budget.",
+  "arm": "B",
+  "run_id": "23820775aaab4551",
+  "trajectory": "trajectory/23820775aaab4551.jsonl"
+}

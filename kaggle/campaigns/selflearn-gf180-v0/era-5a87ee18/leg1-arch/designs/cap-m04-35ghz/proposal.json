@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nNMOS M1 n2 n1 n3 VSS\nPMOS M2 n2 VDD n1 VDD\nL Lin n3 VSS\nL Lout n2 VOUT1\nC Cout n2 VOUT1",
+  "wl_hash": "9078b15140ab2364",
+  "rationale": "The proposed topology improves the binding constraints\u2014particularly NF and Idd\u2014by replacing the resistive load (R1) with a parallel LC tank at the output, enhancing gain and input match while reducing DC current. This resonant load provides frequency selectivity at 3.5 GHz, improving S21 and S11 by increasing output impedance at the desired frequency and reducing the quiescent current through the PMOS. The inductor also enables better noise performance by increasing the effective transconductance-to-current ratio, directly lowering NF. The addition of a single inductor is within the allowed device budget and maintains stability margins.",
+  "arm": "B",
+  "run_id": "806c802551e54bb4",
+  "trajectory": "trajectory/806c802551e54bb4.jsonl"
+}

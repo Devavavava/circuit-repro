@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n3 n2 n4 VSS\nL Ls n4 VSS\nL Ld VDD n3\nC Ct1 n3 n5\nC Ct2 n5 VSS\nL Ld1 n5 n6\nC Cmatch n6 VOUT1\nPMOS M2 n6 VDD n2 VDD\nC Cfb n5 n2",
+  "wl_hash": "47ccd17e4813100f",
+  "rationale": "The proposed topology improves the S21 performance by adding a resonant output matching network using an inductor and capacitor, which enhances the gain at the target frequency (1.575 GHz) while maintaining stability and low power. The added inductor Ld1 and capacitor Cmatch form a series-tuned circuit at the output, boosting S21 without increasing current draw or degrading NF, S11, or Idd. This directly addresses the binding failure in S21_db, where the previous design fell far below the 10 dB requirement.",
+  "arm": "B",
+  "run_id": "fa8eb03a4cc94a7e",
+  "trajectory": "trajectory/fa8eb03a4cc94a7e.jsonl"
+}

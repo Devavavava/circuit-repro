@@ -1,0 +1,49 @@
+x0-v1 leg: LNA_X0_PRIOR=learned  pdk=(spec default=bptm45)  cells=14  out=/home/dpatni/.claude/jobs/21240829/tmp/x0v1/arm2-learned
+   base={'k': 3, 'edit_rounds': 2, 'seeds': 2, 'budget': 300, 'max_tokens': 3072}  escalate={'k': 5, 'edit_rounds': 4, 'seeds': 3, 'budget': 600, 'max_tokens': 3072}
+
+[1/14] cap-e01-wifi (E, 2.44 GHz) split=NOVEL wl=25905c563595 pdk=bptm45
+    -> feasible=True  first=propose#0  e2f=600  total_evals=600  escalated=False  (0.2 min)
+
+[2/14] cap-e02-gpsband (E, 1.58 GHz) split=NOVEL wl=a13885258ca3 pdk=bptm45
+    -> feasible=True  first=propose#0  e2f=600  total_evals=600  escalated=False  (0.2 min)
+
+[3/14] cap-e04-35ghz (E, 3.5 GHz) split=NOVEL wl=f49a8abd26dd pdk=bptm45
+    -> feasible=True  first=propose#0  e2f=600  total_evals=600  escalated=False  (0.2 min)
+
+[4/14] cap-e05-ism58 (E, 5.8 GHz) split=seen wl=c231ac11552a pdk=bptm45
+    -> feasible=True  first=propose#0  e2f=600  total_evals=600  escalated=False  (0.2 min)
+
+[5/14] cap-e06-wifi (E, 2.44 GHz) split=NOVEL wl=0a5583e1dc5d pdk=bptm45
+    -> feasible=True  first=propose#0  e2f=600  total_evals=600  escalated=False  (0.3 min)
+
+[6/14] cap-e07-gpsband (E, 1.58 GHz) split=NOVEL wl=164fb57cffc4 pdk=bptm45
+    -> feasible=True  first=propose#0  e2f=600  total_evals=600  escalated=False  (0.2 min)
+
+[7/14] cap-h01-wifi (H, 2.44 GHz) split=seen wl=1bf4c880c7fa pdk=bptm45
+    -> feasible=True  first=propose#0  e2f=600  total_evals=600  escalated=False  (0.2 min)
+
+[8/14] cap-h02-gpsband (H, 1.58 GHz) split=NOVEL wl=e25b5a021ab6 pdk=bptm45
+    infeasible at base -> ESCALATE
+    -> feasible=True  first=propose#0  e2f=1800  total_evals=1800  escalated=True  (0.9 min)
+
+[9/14] cap-h05-ism58 (H, 5.8 GHz) split=NOVEL wl=7c8c8f9e0d2a pdk=bptm45
+    -> feasible=True  first=propose#0  e2f=600  total_evals=600  escalated=False  (0.2 min)
+
+[10/14] cap-m01-wifi (M, 2.44 GHz) split=seen wl=1bf4c880c7fa pdk=bptm45
+    -> feasible=True  first=propose#0  e2f=600  total_evals=600  escalated=False  (0.2 min)
+
+[11/14] cap-m04-35ghz (M, 3.5 GHz) split=NOVEL wl=fb45bc8be87f pdk=bptm45
+    -> feasible=True  first=propose#0  e2f=600  total_evals=600  escalated=False  (0.3 min)
+
+[12/14] cap-m05-ism58 (M, 5.8 GHz) split=seen wl=c231ac11552a pdk=bptm45
+    -> feasible=True  first=propose#0  e2f=600  total_evals=600  escalated=False  (0.2 min)
+
+[13/14] cap-m06-wifi (M, 2.44 GHz) split=NOVEL wl=642485a8fad7 pdk=bptm45
+    infeasible at base -> ESCALATE
+    -> feasible=True  first=propose#0  e2f=1800  total_evals=1800  escalated=True  (1.0 min)
+
+[14/14] cap-m08-ism58 (M, 5.8 GHz) split=NOVEL wl=3a2658be7000 pdk=bptm45
+    infeasible at base -> ESCALATE
+    -> feasible=True  first=propose#0  e2f=1800  total_evals=1800  escalated=True  (0.9 min)
+
+x0-v1 leg done: flag=learned  14 cells, 14 feasible (NOVEL 10/10); results -> /home/dpatni/.claude/jobs/21240829/tmp/x0v1/arm2-learned

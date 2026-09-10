@@ -71,6 +71,21 @@ declaring infeasibility; exotic noise-cancelling topologies are noted as
 outside the bound's strict scope (engineering-strength certificate, not a
 theorem).
 
+**AMENDMENT (2026-09-11, pre-results — logged deviation).** At probe time
+(before any spec sweep) ngspice-47's `sp ... 1` (donoise) was found to
+expose direct noise-correlation two-port vectors: NF, **NFmin** (dB), Rn,
+SOpt. T2 PRIMARY is therefore the sp-donoise NFmin vector (a direct
+measurement, strictly better than the grid's upper bound), taken over the
+full T1 Vgs grid at Vds = 1.65, `sp dec 20 1e8 2e10 1`. The frozen Rs×Lg
+grid method is DEMOTED to a cross-check fence on a reduced subset (3
+biases): (i) grid NF at Rs = 50 Ω, Lg = 0 must agree with the sp NF vector
+within 0.75 dB at 2.442 GHz; (ii) grid NFmin_est must be ≥ sp NFmin −
+0.25 dB (an upper bound must sit above the direct measurement). Either
+failure ⇒ FENCE-FAIL, classifications withheld. Classification rule and
+slack are unchanged (now conservative on a direct measurement). Motivated
+purely by capability discovery at probe time, not by any spec outcome; no
+spec sweep had run when this was written.
+
 ## Pre-set classification rule (frozen before any results)
 
 Per spec:

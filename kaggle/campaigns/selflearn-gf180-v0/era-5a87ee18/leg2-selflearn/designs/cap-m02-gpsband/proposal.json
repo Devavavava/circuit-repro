@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n3 n2 n4 VSS\nL Ls n4 n5\nL Ld VDD n3\nC Ct1 n3 n6\nC Ct2 n6 VSS\nL Lout n6 VDD\nC Cout n6 VOUT1\nNMOS M2 n7 VDD n6 VSS\nR RF n7 VDD",
+  "wl_hash": "45b231cd1d846d19",
+  "rationale": "The proposed topology improves the binding constraint (nf_db) by adding a source degeneration inductor in series with the NMOS transistor's source, which increases input impedance and reduces noise figure by stabilizing the gate-to-source voltage and reducing the impact of gate noise. This is particularly effective in a 45nm CMOS process where gate leakage and channel-length modulation degrade noise performance. The inductor also enables better impedance matching at 1.575 GHz, simultaneously improving both S11 and S21 by enhancing the input match and gain. The addition of a single inductor (Ls) is within the allowed budget and does not violate the device count or inductor limits.",
+  "arm": "B",
+  "run_id": "34e0f26de2d642ac",
+  "trajectory": "trajectory/34e0f26de2d642ac.jsonl"
+}

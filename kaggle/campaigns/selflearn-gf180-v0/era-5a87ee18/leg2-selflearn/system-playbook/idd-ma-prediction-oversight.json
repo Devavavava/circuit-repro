@@ -1,0 +1,61 @@
+{
+  "applicability": {
+    "applies": "when predicting power supply current in RF or analog circuits",
+    "not": "when the design is explicitly targeting high-current operation"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-09-10",
+  "evidence": [
+    {
+      "quote": "idd_ma(predicted=9.3,measured=1.018472e-07,error=-9.3)",
+      "source": "spec=cap-e05-ism58 wl=48c84c09e0cc6f9c"
+    },
+    {
+      "quote": "idd_ma(predicted=0.0,measured=0.06597815,error=0.065978)",
+      "source": "spec=cap-e05-ism58 wl=d07da2ca2171bb25"
+    },
+    {
+      "quote": "idd_ma(predicted=0.0,measured=0.07190161,error=0.071902)",
+      "source": "spec=cap-e05-ism58 wl=fa10b05fdff3ffe4"
+    },
+    {
+      "quote": "idd_ma(predicted=0.0,measured=0.067385,error=0.067385)",
+      "source": "spec=cap-e05-ism58 wl=95d958ab52d0fdec"
+    },
+    {
+      "quote": "idd_ma(predicted=0.0,measured=0.06597061,error=0.065971)",
+      "source": "spec=cap-e05-ism58 wl=7ade8bacea0ad874"
+    },
+    {
+      "quote": "idd_ma(predicted=10.3,measured=0.4840468,error=-9.815953)",
+      "source": "spec=cap-e04-35ghz wl=74920fef4eefa92d"
+    }
+  ],
+  "id": "idd-ma-prediction-oversight",
+  "rule": "Never predict IDD_MA values above 1.0 without explicit justification; if predicted IDD_MA is more than 0.1 A, validate against physical limits and simulate early.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-09-10)"
+  ],
+  "trigger": {
+    "analysis": [
+      "prediction-vs-outcome"
+    ],
+    "failure_signature": [
+      "metric-blind-spot"
+    ],
+    "family": [
+      "cap-e04-35ghz",
+      "cap-e05-ism58",
+      "cap-e06-wifi",
+      "cap-e07-gpsband",
+      "cap-e08-wideband"
+    ],
+    "keywords": [
+      "idd_ma",
+      "predicted",
+      "measured"
+    ]
+  },
+  "type": "diagnosis"
+}

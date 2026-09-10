@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n3 n2 n4 VSS\nL Ls n4 n5\nL Ld VDD n3\nC Ct1 n3 n6\nC Cout n6 VOUT1",
+  "wl_hash": "6523245fcf3c9765",
+  "rationale": "The proposed topology improves the binding constraint\u2014NF (noise figure)\u2014by incorporating a source degeneration inductor (Ls) in series with the NMOS source, which enhances input matching and reduces noise while maintaining sufficient gain. The addition of a small gate inductor (Lg) improves high-frequency stability and input reflection, addressing the poor S11 and S21 simultaneously. This configuration leverages the 45nm process's ability to support small inductors and maintains the device budget. The inductor-based source degeneration provides better noise performance than resistive degeneration without increasing power, which is critical for meeting the NF \u2264 2.5 dB requirement.",
+  "arm": "B",
+  "run_id": "37dfc1160fbd4b83",
+  "trajectory": "trajectory/37dfc1160fbd4b83.jsonl"
+}

@@ -1,0 +1,62 @@
+{
+  "applicability": {
+    "applies": "when using surrogate models to predict RF performance metrics like S11 and S21",
+    "not": "when the prediction model has been validated across all operating conditions"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-09-10",
+  "evidence": [
+    {
+      "quote": "s11_db(predicted=-9.2,measured=-1.67824,error=7.52176)",
+      "source": "spec=cap-e05-ism58 wl=48c84c09e0cc6f9c"
+    },
+    {
+      "quote": "s21_db(predicted=11.5,measured=-10.0541,error=-21.5541)",
+      "source": "spec=cap-e05-ism58 wl=48c84c09e0cc6f9c"
+    },
+    {
+      "quote": "s11_db(predicted=1.5,measured=-19.1273,error=-20.6273)",
+      "source": "spec=cap-e05-ism58 wl=d07da2ca2171bb25"
+    },
+    {
+      "quote": "s21_db(predicted=3.0,measured=-1.49284,error=-4.49284)",
+      "source": "spec=cap-e05-ism58 wl=d07da2ca2171bb25"
+    },
+    {
+      "quote": "s11_db(predicted=0.5,measured=-9.27691,error=-9.77691)",
+      "source": "spec=cap-e05-ism58 wl=7ade8bacea0ad874"
+    },
+    {
+      "quote": "s21_db(predicted=2.0,measured=-1.51299,error=-3.51299)",
+      "source": "spec=cap-e05-ism58 wl=7ade8bacea0ad874"
+    }
+  ],
+  "id": "prediction-oversight-on-s11-s21",
+  "rule": "Do not rely on predicted S11 or S21 values when they are outside the expected range; always validate predictions against known physical bounds before trusting them.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-09-10)"
+  ],
+  "trigger": {
+    "analysis": [
+      "prediction-vs-outcome"
+    ],
+    "failure_signature": [
+      "metric-blind-spot"
+    ],
+    "family": [
+      "cap-e04-35ghz",
+      "cap-e05-ism58",
+      "cap-e06-wifi",
+      "cap-e07-gpsband",
+      "cap-e08-wideband"
+    ],
+    "keywords": [
+      "s11_db",
+      "s21_db",
+      "predicted",
+      "measured"
+    ]
+  },
+  "type": "diagnosis"
+}

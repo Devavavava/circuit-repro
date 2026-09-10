@@ -1,0 +1,37 @@
+{
+  "applicability": {
+    "applies": "when generating or modifying netlists with component declarations",
+    "not": "when using pre-validated netlists with known unique device names"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-09-10",
+  "evidence": [
+    {
+      "quote": "[cap-m01-wifi/roundtrip] ParseError: line 2: duplicate device name 'Cin'; line: 'C Cin VIN1 n2'",
+      "source": "verbatim candidate errors"
+    }
+  ],
+  "id": "device-name-duplication",
+  "rule": "Ensure all device names in netlist entries are unique before roundtrip processing to prevent parse failures.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-09-10)"
+  ],
+  "trigger": {
+    "analysis": [
+      "roundtrip"
+    ],
+    "failure_signature": [
+      "ParseError"
+    ],
+    "family": [
+      "cap-m01-wifi",
+      "cap-m02-gpsband"
+    ],
+    "keywords": [
+      "duplicate device name",
+      "device-name-drift"
+    ]
+  },
+  "type": "anti-pattern"
+}

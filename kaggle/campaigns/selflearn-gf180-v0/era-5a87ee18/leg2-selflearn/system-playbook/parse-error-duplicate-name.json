@@ -1,0 +1,37 @@
+{
+  "applicability": {
+    "applies": "during circuit netlist generation or modification",
+    "not": "for single-device or non-redundant netlists"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-09-10",
+  "evidence": [
+    {
+      "quote": "[cap-e01-wifi/roundtrip] ParseError: line 9: duplicate device name 'Cdb'; line: 'C Cdb n5 VSS'",
+      "source": "verbatim candidate errors"
+    }
+  ],
+  "id": "parse-error-duplicate-name",
+  "rule": "Validate device names for uniqueness before roundtrip simulation to prevent parse errors.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-09-10)"
+  ],
+  "trigger": {
+    "analysis": [
+      "roundtrip"
+    ],
+    "failure_signature": [
+      "harness-artefact"
+    ],
+    "family": [
+      "cap-e01-wifi",
+      "cap-e02-gpsband"
+    ],
+    "keywords": [
+      "ParseError",
+      "duplicate device name"
+    ]
+  },
+  "type": "harness-rule"
+}

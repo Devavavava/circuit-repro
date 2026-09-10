@@ -1,0 +1,60 @@
+{
+  "applicability": {
+    "applies": "when generating netlists for circuit synthesis with strict device type validation",
+    "not": "when using a simulator that supports custom device types or non-canonical syntax"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-09-10",
+  "evidence": [
+    {
+      "quote": "ParseError: line 2: unknown device TYPE 'T' (allowed: C, L, NMOS, PMOS, R); line: 'T T1 n1 n2 VDD VSS'",
+      "source": "[cap-e04-35ghz/roundtrip]"
+    },
+    {
+      "quote": "ParseError: line 11: duplicate device name 'Ct'; line: 'C Ct n3b VDD'",
+      "source": "[cap-e07-gpsband/roundtrip]"
+    },
+    {
+      "quote": "ParseError: line 5: C needs a name and 2 nodes (P N), got 3 node(s); line: 'C Cgds M1 n3 n4'",
+      "source": "[cap-e04-35ghz/roundtrip]"
+    },
+    {
+      "quote": "ParseError: line 5: C needs a name and 2 nodes (P N), got 3 node(s); line: 'C Cgds M1 n4 n2'",
+      "source": "[cap-e06-wifi/roundtrip]"
+    },
+    {
+      "quote": "ParseError: line 5: C needs a name and 2 nodes (P N), got 3 node(s); line: 'C Cgds M1 n3 n2'",
+      "source": "[cap-e06-wifi/roundtrip]"
+    }
+  ],
+  "id": "device-name-alias-avoidance",
+  "rule": "Never use non-standard or ambiguous device aliases (e.g., 'T', 'Cgds') in netlist generation; always use canonical names with exactly two node references for capacitors.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-09-10)"
+  ],
+  "trigger": {
+    "analysis": [
+      "prediction-vs-outcome",
+      "verbatim-errors"
+    ],
+    "failure_signature": [
+      "harness-artefact"
+    ],
+    "family": [
+      "cap-e04-35ghz",
+      "cap-e05-ism58",
+      "cap-e06-wifi",
+      "cap-e07-gpsband",
+      "cap-e08-wideband"
+    ],
+    "keywords": [
+      "ParseError",
+      "unknown device TYPE",
+      "T1",
+      "Ct",
+      "Cgds"
+    ]
+  },
+  "type": "harness-rule"
+}

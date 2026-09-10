@@ -1,0 +1,62 @@
+{
+  "applicability": {
+    "applies": "when using predictive models for noise figure in RF circuit design",
+    "not": "when the model is trained on data with extreme outliers and has been validated accordingly"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-09-10",
+  "evidence": [
+    {
+      "quote": "nf_db(predicted=3.1,measured=21.20092,error=18.10092)",
+      "source": "spec=cap-e04-35ghz wl=72bba878a6a0f26e"
+    },
+    {
+      "quote": "nf_db(predicted=-8.0,measured=11.65522,error=19.65522)",
+      "source": "spec=cap-e04-35ghz wl=5d8d165e17ea77de"
+    },
+    {
+      "quote": "nf_db(predicted=-4.0,measured=13.38586,error=17.38586)",
+      "source": "spec=cap-e04-35ghz wl=837034b8fda28d35"
+    },
+    {
+      "quote": "nf_db(predicted=-2.0,measured=6.607081,error=8.607081)",
+      "source": "spec=cap-e04-35ghz wl=4c975c7f9395f834"
+    },
+    {
+      "quote": "nf_db(predicted=2.8,measured=3.158006,error=0.358006)",
+      "source": "spec=cap-e05-ism58 wl=63e0f1397a755c5e"
+    },
+    {
+      "quote": "nf_db(predicted=0.0,measured=3.066525,error=3.066525)",
+      "source": "spec=cap-e05-ism58 wl=63e0f1397a755c5e"
+    }
+  ],
+  "id": "nf-db-prediction-overshoot",
+  "rule": "Avoid predicting NF_db values that are far outside the expected range; if the predicted NF_db is more than 5 dB from the target, re-evaluate the model's assumptions or input data.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-09-10)"
+  ],
+  "trigger": {
+    "analysis": [
+      "prediction-vs-outcome"
+    ],
+    "failure_signature": [
+      "metric-blind-spot"
+    ],
+    "family": [
+      "cap-e04-35ghz",
+      "cap-e05-ism58",
+      "cap-e06-wifi",
+      "cap-e07-gpsband",
+      "cap-e08-wideband"
+    ],
+    "keywords": [
+      "nf_db",
+      "predicted",
+      "measured",
+      "error"
+    ]
+  },
+  "type": "diagnosis"
+}

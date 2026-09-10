@@ -1,0 +1,2818 @@
+{
+  "variant": "selflearn",
+  "v0_dir": [
+    "/tmp/circuit-repro/kaggle/campaigns/cross-pdk-v0/era-binfix-9df8b95a/armb-arch-gf180mcu",
+    "/tmp/circuit-repro/kaggle/campaigns/cross-pdk-v0/era-fixed-0b4b497e/arma-gf180mcu"
+  ],
+  "reflect_cap": 12,
+  "summary": {
+    "accepted": 12,
+    "rejected": 63,
+    "entries_written": [
+      "device-budget-overflow",
+      "parse-error-duplicate-name",
+      "parse-error-incorrect-node-count",
+      "systematic-prediction-bias",
+      "metric-blind-spot-iddma",
+      "device-name-alias-avoidance",
+      "inductor-budget-enforcement",
+      "prediction-oversight-on-s11-s21",
+      "nf-db-prediction-overshoot",
+      "idd-ma-prediction-oversight",
+      "roundtrip-failure-detection",
+      "device-name-duplication"
+    ],
+    "rejected_detail": [
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "inductor-budget-violation",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-m01-wifi",
+              "cap-m02-gpsband"
+            ],
+            "analysis": [
+              "screen"
+            ],
+            "failure_signature": [
+              "failed max_inductors"
+            ],
+            "keywords": [
+              "device-budget",
+              "inductor-count"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "[cap-m01-wifi/screen] L0 screen rejected: failed max_inductors",
+              "source": "verbatim candidate errors"
+            },
+            {
+              "quote": "[cap-m02-gpsband/screen] L0 screen rejected: failed max_inductors",
+              "source": "verbatim candidate errors"
+            }
+          ],
+          "rule": "Validate inductor count against hard limits before applying L0 screening to avoid rejection.",
+          "applicability": {
+            "applies": "during topology generation when inductor count is constrained",
+            "not": "when inductor limits are not enforced by design spec"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "l-node-syntax-error",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-m02-gpsband"
+            ],
+            "analysis": [
+              "roundtrip"
+            ],
+            "failure_signature": [
+              "ParseError"
+            ],
+            "keywords": [
+              "node-name-drift",
+              "l-node-syntax"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "[cap-m02-gpsband/roundtrip] ParseError: line 5: L needs a name and 2 nodes (P N), got 3 node(s); line: 'L Lg1 G1 G2 1.0e-08'",
+              "source": "verbatim candidate errors"
+            }
+          ],
+          "rule": "Ensure all inductor (L) netlist entries follow the format 'L <name> <P> <N> <value>' with exactly two node arguments.",
+          "applicability": {
+            "applies": "when generating or validating inductor netlist entries",
+            "not": "when using fully automated netlist generators with built-in syntax validation"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "prediction-overshoot-on-s21",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-m01-wifi",
+              "cap-m02-gpsband"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "bias-regulation"
+            ],
+            "keywords": [
+              "s21_db",
+              "prediction-error"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "s21_db(predicted=14.2,measured=-6.68135,error=-20.88135)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "s21_db(predicted=15.2,measured=-37.7317,error=-52.9317)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "s21_db(predicted=14.7,measured=-76.2364,error=-90.9364)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "s21_db(predicted=12.5,measured=-44.5321,error=-57.0321)",
+              "source": "prediction-vs-outcome records"
+            }
+          ],
+          "rule": "When predicting S21_db, apply a conservative offset to avoid overestimating gain due to model bias in high-gain regimes.",
+          "applicability": {
+            "applies": "when using predictive models for S21_db in RF filter design",
+            "not": "when using direct simulation for S21_db"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "prediction-overshoot-on-nf-db",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-m01-wifi",
+              "cap-m02-gpsband"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "bias-regulation"
+            ],
+            "keywords": [
+              "nf_db",
+              "prediction-error"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "nf_db(predicted=2.15,measured=5.654946,error=3.504946)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "nf_db(predicted=2.1,measured=38.60017,error=36.50017)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "nf_db(predicted=2.15,measured=75.06739,error=72.91739)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "nf_db(predicted=-1.8,measured=8.525166,error=10.325166)",
+              "source": "prediction-vs-outcome records"
+            }
+          ],
+          "rule": "When predicting NF_db, apply a significant positive offset to account for model underestimation in high-noise regimes.",
+          "applicability": {
+            "applies": "when using predictive models for NF_db in low-noise amplifier design",
+            "not": "when using direct simulation for NF_db"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "idd-ma-prediction-miss",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-m01-wifi",
+              "cap-m02-gpsband"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "bias-regulation"
+            ],
+            "keywords": [
+              "idd_ma",
+              "prediction-error"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "idd_ma(predicted=4.8,measured=0.344189,error=-4.455811)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "idd_ma(predicted=4.7,measured=1.354067e-08,error=-4.7)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "idd_ma(predicted=4.8,measured=7.939395000000001e-08,error=-4.8)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "idd_ma(predicted=0.0,measured=1.1540759999999999,error=1.154076)",
+              "source": "prediction-vs-outcome records"
+            }
+          ],
+          "rule": "When predicting Idd_ma, avoid assuming high current draw; default to low or zero unless strong evidence suggests otherwise.",
+          "applicability": {
+            "applies": "when predicting quiescent current in RF front-end designs",
+            "not": "when using measured or simulated current data directly"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "s11-db-prediction-overshoot",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-m01-wifi",
+              "cap-m02-gpsband"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "bias-regulation"
+            ],
+            "keywords": [
+              "s11_db",
+              "prediction-error"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "s11_db(predicted=-10.3,measured=-6.75322,error=3.54678)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "s11_db(predicted=-10.5,measured=-0.00225651,error=10.497743)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "s11_db(predicted=-10.8,measured=-0.0874631,error=10.712537)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "s11_db(predicted=-10.8,measured=-14.5367,error=-14.5867)",
+              "source": "prediction-vs-outcome records"
+            }
+          ],
+          "rule": "When predicting S11_db, avoid assuming deep return loss; model predictions tend to overestimate magnitude in high-reflection scenarios.",
+          "applicability": {
+            "applies": "when using predictive models for input match in RF circuits",
+            "not": "when using direct simulation for S11_db"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "inductor-screen-failure",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-m03-900mhz",
+              "cap-m04-35ghz",
+              "cap-m05-ism58",
+              "cap-m06-wifi"
+            ],
+            "analysis": [
+              "screen",
+              "roundtrip"
+            ],
+            "failure_signature": [
+              "failed max_inductors",
+              "failed has_inductor"
+            ],
+            "keywords": [
+              "inductor",
+              "screen",
+              "max_inductors",
+              "has_inductor"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "L0 screen rejected: failed max_inductors",
+              "source": "[cap-m04-35ghz/screen] L0 screen rejected: failed max_inductors"
+            },
+            {
+              "quote": "L0 screen rejected: failed has_inductor",
+              "source": "[cap-m03-900mhz/screen] L0 screen rejected: failed has_inductor"
+            },
+            {
+              "quote": "L0 screen rejected: failed max_inductors",
+              "source": "[cap-m06-wifi/screen] L0 screen rejected: failed max_inductors"
+            },
+            {
+              "quote": "L0 screen rejected: failed max_inductors",
+              "source": "[cap-m05-ism58/screen] L0 screen rejected: failed max_inductors"
+            }
+          ],
+          "rule": "Ensure all candidates satisfy inductor constraints (max_inductors and has_inductor) before screen submission to prevent rejection.",
+          "applicability": {
+            "applies": "when screening or roundtripping designs with inductor requirements",
+            "not": "when working with purely passive or non-inductive topologies"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "parse-error-circuit-syntax",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-m03-900mhz",
+              "cap-m05-ism58"
+            ],
+            "analysis": [
+              "roundtrip"
+            ],
+            "failure_signature": [
+              "ParseError"
+            ],
+            "keywords": [
+              "ParseError",
+              "C needs a name and 2 nodes",
+              "C Cgds M1 n4 n5"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "ParseError: line 4: C needs a name and 2 nodes (P N), got 3 node(s); line: 'C Cgds M1 n4 n5'",
+              "source": "[cap-m03-900mhz/roundtrip] ParseError: line 4: C needs a name and 2 nodes (P N), got 3 node(s); line: 'C Cgds M1 n4 n5'"
+            },
+            {
+              "quote": "ParseError: line 1: C needs a name and 2 nodes (P N), got 3 node(s); line: 'C Cin1 VIN1 n1 0'",
+              "source": "[cap-m05-ism58/roundtrip] ParseError: line 1: C needs a name and 2 nodes (P N), got 3 node(s); line: 'C Cin1 VIN1 n1 0'"
+            }
+          ],
+          "rule": "Validate circuit netlist syntax: ensure every 'C' element has exactly two node references (P N) and a valid name.",
+          "applicability": {
+            "applies": "during roundtrip or netlist generation when using SPICE-style syntax",
+            "not": "when using abstract topology representations or non-SPICE simulators"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "prediction-error-s21-db",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-m03-900mhz",
+              "cap-m04-35ghz",
+              "cap-m05-ism58"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "bias-regulation",
+              "numerical-artefact"
+            ],
+            "keywords": [
+              "s21_db",
+              "predicted=15.1",
+              "measured=-32.3975"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "s21_db(predicted=15.1,measured=-32.3975,error=-47.4975)",
+              "source": "spec=cap-m03-900mhz wl=c231ac11552a9404: nf_db(predicted=2.3,measured=33.89401,error=31.59401); s11_db(predicted=-11.2,measured=-0.00466955,error=11.19533); s21_db(predicted=15.4,measured=-32.3975,error=-47.7975); idd_ma(predicted=5.1,measured=1.002437e-07,error=-5.1)"
+            },
+            {
+              "quote": "s21_db(predicted=15.3,measured=-121.777,error=-137.077)",
+              "source": "spec=cap-m03-900mhz wl=25517dd6eda399e1: nf_db(predicted=2.3,measured=197.2602,error=194.9602); s11_db(predicted=-10.8,measured=-9.80595e-06,error=10.79999); s21_db(predicted=15.2,measured=-600.0,error=-615.2); idd_ma(predicted=5.7,measured=3.119153e-08,error=-5.7)"
+            },
+            {
+              "quote": "s21_db(predicted=14.8,measured=-47.9773,error=-62.7773)",
+              "source": "spec=cap-m04-35ghz wl=52f372166a054e36: nf_db(predicted=2.6,measured=39.61555,error=37.01555); s11_db(predicted=-11.2,measured=-0.773416,error=10.426584); s21_db(predicted=14.8,measured=-47.9773,error=-62.7773); idd_ma(predicted=5.3,measured=1.8191199999999998e-08,error=-5.3)"
+            }
+          ],
+          "rule": "When predicted s21_db is positive, expect a large negative measured value\u2014this indicates a fundamental model failure in gain/loss prediction, likely due to unmodeled parasitics or topology instability.",
+          "applicability": {
+            "applies": "when s21_db prediction is above 10 dB and measured is negative",
+            "not": "when s21_db is predicted negative and measured positive"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "prediction-error-nf-db",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-m03-900mhz",
+              "cap-m04-35ghz",
+              "cap-m05-ism58"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "bias-regulation",
+              "numerical-artefact"
+            ],
+            "keywords": [
+              "nf_db",
+              "predicted=2.3",
+              "measured=33.89401"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "nf_db(predicted=2.3,measured=33.89401,error=31.59401)",
+              "source": "spec=cap-m03-900mhz wl=c231ac11552a9404: nf_db(predicted=2.3,measured=33.89401,error=31.59401); s11_db(predicted=-11.2,measured=-0.00466955,error=11.19533); s21_db(predicted=15.4,measured=-32.3975,error=-47.7975); idd_ma(predicted=5.1,measured=1.002437e-07,error=-5.1)"
+            },
+            {
+              "quote": "nf_db(predicted=2.2,measured=122.9437,error=120.7437)",
+              "source": "spec=cap-m03-900mhz wl=4d4c7ed24379203a: nf_db(predicted=2.2,measured=122.9437,error=120.7437); s11_db(predicted=-10.8,measured=-8.06547e-05,error=10.799919); s21_db(predicted=15.3,measured=-121.777,error=-137.077); idd_ma(predicted=5.1,measured=1.2391990000000001e-08,error=-5.1)"
+            },
+            {
+              "quote": "nf_db(predicted=-3.5,measured=7.075138,error=10.575138)",
+              "source": "spec=cap-m03-900mhz wl=df44aed52c1d2acc: nf_db(predicted=-3.5,measured=7.075138,error=10.575138); s11_db(predicted=0.5,measured=-13.1507,error=-13.6507); s21_db(predicted=2.0,measured=-5.82258,error=-7.82258); idd_ma(predicted=0.0,measured=1.376657e-08,error=0.0)"
+            }
+          ],
+          "rule": "When predicted nf_db is below 0 dB and measured is above 0 dB, the model likely fails to capture noise amplification\u2014check for active device bias or feedback loop instability.",
+          "applicability": {
+            "applies": "when predicted nf_db < 0 dB and measured nf_db > 0 dB",
+            "not": "when predicted and measured nf_db are both positive or both negative"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "prediction-error-idd-ma",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-m03-900mhz",
+              "cap-m04-35ghz",
+              "cap-m05-ism58",
+              "cap-m06-wifi"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "bias-regulation",
+              "numerical-artefact"
+            ],
+            "keywords": [
+              "idd_ma",
+              "predicted=5.1",
+              "measured=1.002437e-07"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "idd_ma(predicted=5.1,measured=1.002437e-07,error=-5.1)",
+              "source": "spec=cap-m03-900mhz wl=c231ac11552a9404: nf_db(predicted=2.3,measured=33.89401,error=31.59401); s11_db(predicted=-11.2,measured=-0.00466955,error=11.19533); s21_db(predicted=15.4,measured=-32.3975,error=-47.7975); idd_ma(predicted=5.1,measured=1.002437e-07,error=-5.1)"
+            },
+            {
+              "quote": "idd_ma(predicted=5.3,measured=1.8191199999999998e-08,error=-5.3)",
+              "source": "spec=cap-m04-35ghz wl=52f372166a054e36: nf_db(predicted=2.6,measured=39.61555,error=37.01555); s11_db(predicted=-11.2,measured=-0.773416,error=10.426584); s21_db(predicted=14.8,measured=-47.9773,error=-62.7773); idd_ma(predicted=5.3,measured=1.8191199999999998e-08,error=-5.3)"
+            },
+            {
+              "quote": "idd_ma(predicted=0.0,measured=1.376657e-08,error=0.0)",
+              "source": "spec=cap-m03-900mhz wl=df44aed52c1d2acc: nf_db(predicted=-3.5,measured=7.075138,error=10.575138); s11_db(predicted=0.5,measured=-13.1507,error=-13.6507); s21_db(predicted=2.0,measured=-5.82258,error=-7.82258); idd_ma(predicted=0.0,measured=1.376657e-08,error=0.0)"
+            }
+          ],
+          "rule": "When predicted idd_ma is significantly above zero but measured is near zero, the candidate likely has no active bias\u2014verify transistor biasing and DC path integrity.",
+          "applicability": {
+            "applies": "when predicted idd_ma > 0.5 mA and measured idd_ma < 1e-8 A",
+            "not": "when both predicted and measured idd_ma are near zero"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "prediction-overshoot",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-m07-gpsband",
+              "cap-m08-ism58",
+              "cap-h01-wifi",
+              "cap-h02-gpsband"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "attribution-error"
+            ],
+            "keywords": [
+              "prediction-error",
+              "overestimation",
+              "model-misalignment"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "nf_db(predicted=1.95,measured=26.83031,error=24.88031)",
+              "source": "spec=cap-m07-gpsband wl=54d13a2750879586"
+            },
+            {
+              "quote": "s11_db(predicted=-12.3,measured=-0.0222923,error=12.277708)",
+              "source": "spec=cap-m07-gpsband wl=54d13a2750879586"
+            },
+            {
+              "quote": "s21_db(predicted=15.8,measured=-25.0783,error=-40.8783)",
+              "source": "spec=cap-m07-gpsband wl=54d13a2750879586"
+            },
+            {
+              "quote": "idd_ma(predicted=3.8,measured=1.055673e-07,error=-3.8)",
+              "source": "spec=cap-m07-gpsband wl=54d13a2750879586"
+            }
+          ],
+          "rule": "Never trust predicted values that deviate by more than 5 units from measured values; always validate predictions against actual simulation outcomes before proceeding.",
+          "applicability": {
+            "applies": "when using predictive models to guide design iterations",
+            "not": "when working with fully deterministic or verified benchmarks"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "device-budget-violation",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-m08-ism58",
+              "cap-h01-wifi"
+            ],
+            "analysis": [
+              "candidate-errors"
+            ],
+            "failure_signature": [
+              "device-budget"
+            ],
+            "keywords": [
+              "device-budget",
+              "component-limit",
+              "screen-rejection"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "[cap-m08-ism58/screen] L0 screen rejected: failed max_inductors",
+              "source": "verbatim candidate errors"
+            },
+            {
+              "quote": "[cap-h01-wifi/screen] L0 screen rejected: failed device_budget",
+              "source": "verbatim candidate errors"
+            }
+          ],
+          "rule": "Always verify that candidate designs adhere to device budget constraints before submission to screening.",
+          "applicability": {
+            "applies": "when generating circuit designs with component limits",
+            "not": "when component counts are unconstrained"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "inductor-usage-mismanagement",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-h02-gpsband"
+            ],
+            "analysis": [
+              "candidate-errors"
+            ],
+            "failure_signature": [
+              "device-budget"
+            ],
+            "keywords": [
+              "inductor",
+              "max_inductors",
+              "screen-rejection"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "[cap-h02-gpsband/screen] L0 screen rejected: failed has_inductor",
+              "source": "verbatim candidate errors"
+            },
+            {
+              "quote": "[cap-h02-gpsband/screen] L0 screen rejected: failed max_inductors",
+              "source": "verbatim candidate errors"
+            }
+          ],
+          "rule": "Ensure that inductor usage is explicitly checked and constrained to avoid both missing required inductors and exceeding maximum limits.",
+          "applicability": {
+            "applies": "when inductor presence or count is a design constraint",
+            "not": "when inductors are not part of the design space"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "netlist-parse-error",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-h02-gpsband"
+            ],
+            "analysis": [
+              "candidate-errors"
+            ],
+            "failure_signature": [
+              "harness-artefact"
+            ],
+            "keywords": [
+              "ParseError",
+              "netlist",
+              "C needs a name and 2 nodes"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "[cap-h02-gpsband/roundtrip] ParseError: line 6: C needs a name and 2 nodes (P N), got 3 node(s); line: 'C Cg M2 n2 VSS'",
+              "source": "verbatim candidate errors"
+            },
+            {
+              "quote": "[cap-h02-gpsband/roundtrip] ParseError: line 6: C needs a name and 2 nodes (P N), got 3 node(s); line: 'C Cgds M1 n3 n2'",
+              "source": "verbatim candidate errors"
+            }
+          ],
+          "rule": "Always validate netlist syntax before roundtrip; ensure every component has exactly one name and two nodes.",
+          "applicability": {
+            "applies": "when generating or modifying netlists for circuit simulation",
+            "not": "when using fully validated and automated netlist generators"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "objective-omission",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-m07-gpsband",
+              "cap-m08-ism58",
+              "cap-h01-wifi",
+              "cap-h02-gpsband"
+            ],
+            "analysis": [
+              "per-task-outcomes"
+            ],
+            "failure_signature": [
+              "objective-omission"
+            ],
+            "keywords": [
+              "best_obj",
+              "feasible=False",
+              "escalated=True"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "feasible=False first_feasible_phase=None escalated=True best_obj=5.81602",
+              "source": "spec=cap-m07-gpsband tier=M"
+            },
+            {
+              "quote": "feasible=False first_feasible_phase=None escalated=True best_obj=5.18278",
+              "source": "spec=cap-m08-ism58 tier=M"
+            },
+            {
+              "quote": "feasible=False first_feasible_phase=None escalated=True best_obj=2.60649",
+              "source": "spec=cap-h01-wifi tier=H"
+            },
+            {
+              "quote": "feasible=False first_feasible_phase=None escalated=True best_obj=11.69105",
+              "source": "spec=cap-h02-gpsband tier=H"
+            }
+          ],
+          "rule": "Never escalate a task without first confirming that the objective function is correctly defined and inclusive of all critical constraints.",
+          "applicability": {
+            "applies": "when using optimization loops with escalation",
+            "not": "when using fixed, non-iterative design flows"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "device-budget-violation",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-h03-900mhz",
+              "cap-h04-35ghz",
+              "cap-h05-ism58"
+            ],
+            "analysis": [
+              "screen",
+              "roundtrip"
+            ],
+            "failure_signature": [
+              "device_budget",
+              "max_inductors"
+            ],
+            "keywords": [
+              "device_budget",
+              "max_inductors",
+              "screen rejected"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "[cap-h05-ism58/screen] L0 screen rejected: failed max_inductors",
+              "source": "verbatim candidate errors"
+            },
+            {
+              "quote": "[cap-h03-900mhz/screen] L0 screen rejected: failed max_inductors",
+              "source": "verbatim candidate errors"
+            },
+            {
+              "quote": "[cap-h04-35ghz/screen] L0 screen rejected: failed device_budget, max_inductors",
+              "source": "verbatim candidate errors"
+            },
+            {
+              "quote": "[cap-h04-35ghz/screen] L0 screen rejected: failed max_inductors",
+              "source": "verbatim candidate errors"
+            }
+          ],
+          "rule": "Always validate device count against budget constraints before submission to screen, especially for inductor-heavy topologies.",
+          "applicability": {
+            "applies": "when designing circuits with inductors under device budget constraints",
+            "not": "when device budgets are unconstrained or not specified"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "node-name-duplication",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-h03-900mhz"
+            ],
+            "analysis": [
+              "roundtrip"
+            ],
+            "failure_signature": [
+              "node-name-drift",
+              "duplicate device name"
+            ],
+            "keywords": [
+              "duplicate device name",
+              "ParseError",
+              "Cin"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "[cap-h03-900mhz/roundtrip] ParseError: line 6: duplicate device name 'Cin'; line: 'C Cin VIN1 n2'",
+              "source": "verbatim candidate errors"
+            }
+          ],
+          "rule": "Ensure all device names are unique in netlist generation to prevent parse failures during roundtrip simulation.",
+          "applicability": {
+            "applies": "during netlist generation for circuit design",
+            "not": "when using tools that auto-deduplicate names"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "prediction-misalignment",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-h03-900mhz",
+              "cap-h04-35ghz",
+              "cap-h05-ism58"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "attribution-error",
+              "metric-blind-spot"
+            ],
+            "keywords": [
+              "predicted",
+              "measured",
+              "error"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "nf_db(predicted=1.55,measured=172.9853,error=171.4353)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "s11_db(predicted=-13.2,measured=-0.000691858,error=13.199308)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "s21_db(predicted=17.4,measured=-169.544,error=-186.944)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "idd_ma(predicted=3.8,measured=46.67161,error=42.87161)",
+              "source": "prediction-vs-outcome records"
+            }
+          ],
+          "rule": "When prediction errors exceed 10x the expected magnitude, treat the model as unreliable and re-evaluate the simulation setup or training data.",
+          "applicability": {
+            "applies": "when prediction error is consistently greater than 10x the target metric value",
+            "not": "when prediction errors are within 10% of measured values"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "s21-db-oversight",
+          "type": "corner-lesson",
+          "trigger": {
+            "family": [
+              "cap-h03-900mhz",
+              "cap-h04-35ghz",
+              "cap-h05-ism58"
+            ],
+            "analysis": [
+              "margins"
+            ],
+            "failure_signature": [
+              "s11-knife-edge",
+              "nf-wall"
+            ],
+            "keywords": [
+              "s21_db",
+              "worst_margin",
+              "infeasible"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "worst_margin=s21_db=-1.079",
+              "source": "per-task outcomes"
+            },
+            {
+              "quote": "worst_margin=s21_db=-1.2762",
+              "source": "per-task outcomes"
+            },
+            {
+              "quote": "worst_margin=s21_db=-1.1292",
+              "source": "per-task outcomes"
+            }
+          ],
+          "rule": "Prioritize S21_db margin monitoring during optimization, as it is the most common bottleneck in feasible design achievement.",
+          "applicability": {
+            "applies": "in RF filter or matching network design with S21 as a key performance metric",
+            "not": "in DC or low-frequency analog designs where S21 is not critical"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "max-inductors-screen-failure",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-h06-wifi",
+              "cap-h07-gpsband",
+              "cap-h08-wideband"
+            ],
+            "analysis": [
+              "screen-rejection"
+            ],
+            "failure_signature": [
+              "device-budget"
+            ],
+            "keywords": [
+              "max_inductors",
+              "screen rejected"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "[cap-h06-wifi/screen] L0 screen rejected: failed max_inductors",
+              "source": "verbatim candidate errors"
+            },
+            {
+              "quote": "[cap-h07-gpsband/screen] L0 screen rejected: failed match_plausible",
+              "source": "verbatim candidate errors"
+            },
+            {
+              "quote": "[cap-h08-wideband/screen] L0 screen rejected: failed max_inductors",
+              "source": "verbatim candidate errors"
+            }
+          ],
+          "rule": "Avoid generating designs that exceed the maximum inductor count constraint during early screening; explicitly validate inductor count before screen pass.",
+          "applicability": {
+            "applies": "when screening designs with inductor limits in RF filter specifications",
+            "not": "when inductor count is unconstrained or not part of the design space"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "nf-wall-prediction-error",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-h06-wifi",
+              "cap-h07-gpsband",
+              "cap-h08-wideband"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "bias-regulation",
+              "metric-blind-spot"
+            ],
+            "keywords": [
+              "nf_db",
+              "predicted",
+              "measured"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "nf_db(predicted=1.45,measured=60.78204,error=59.33204)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "nf_db(predicted=2.3,measured=197.0711,error=194.7711)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "nf_db(predicted=-25.0,measured=50.57062,error=75.57062)",
+              "source": "prediction-vs-outcome records"
+            }
+          ],
+          "rule": "Re-evaluate the neural predictor's behavior on NF (noise figure) metrics; its predictions are systematically biased and fail to capture the true performance wall.",
+          "applicability": {
+            "applies": "when using a neural predictor for noise figure in RF filter design",
+            "not": "when using a non-neural or calibrated model for NF estimation"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "s21-db-prediction-error",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-h06-wifi",
+              "cap-h07-gpsband",
+              "cap-h08-wideband"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "bias-regulation",
+              "metric-blind-spot"
+            ],
+            "keywords": [
+              "s21_db",
+              "predicted",
+              "measured"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "s21_db(predicted=20.3,measured=-69.0276,error=-89.3276)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "s21_db(predicted=16.8,measured=-600.0,error=-616.8)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "s21_db(predicted=18.7,measured=-16.7535,error=-35.4535)",
+              "source": "prediction-vs-outcome records"
+            }
+          ],
+          "rule": "The predictor consistently misestimates S21 performance; treat S21 as a high-impact, high-variance metric requiring tighter validation and guardrails.",
+          "applicability": {
+            "applies": "when predicting S21 in RF filter designs where passband loss or gain is critical",
+            "not": "when S21 is not a design constraint or is well-behaved in the training data"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "s11-db-prediction-error",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-h06-wifi",
+              "cap-h07-gpsband",
+              "cap-h08-wideband"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "bias-regulation",
+              "metric-blind-spot"
+            ],
+            "keywords": [
+              "s11_db",
+              "predicted",
+              "measured"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "s11_db(predicted=-14.2,measured=-6.94904e-06,error=14.199993)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "s11_db(predicted=-15.3,measured=-0.320767,error=14.979233)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "s11_db(predicted=0.1,measured=-15.0046,error=-15.1046)",
+              "source": "prediction-vs-outcome records"
+            }
+          ],
+          "rule": "The predictor fails to capture S11 performance near the target; avoid relying on predicted S11 values for margin assessment.",
+          "applicability": {
+            "applies": "when S11 is a tight constraint and the predictor shows large signed errors",
+            "not": "when S11 is loosely constrained or the predictor has been validated on S11 data"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "idd-ma-prediction-error",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-h06-wifi",
+              "cap-h07-gpsband",
+              "cap-h08-wideband"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "bias-regulation",
+              "metric-blind-spot"
+            ],
+            "keywords": [
+              "idd_ma",
+              "predicted",
+              "measured"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "idd_ma(predicted=2.8,measured=5.1274459999999994e-08,error=-2.8)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "idd_ma(predicted=4.7,measured=3.3555060000000004e-08,error=-4.7)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "idd_ma(predicted=0.0,measured=1.133462e-07,error=0.0)",
+              "source": "prediction-vs-outcome records"
+            }
+          ],
+          "rule": "The predictor's IDD_MA estimates are severely off and often fail to reflect actual power consumption; treat IDD_MA as a high-risk metric requiring direct simulation validation.",
+          "applicability": {
+            "applies": "when IDD_MA is a critical power or thermal constraint in RF designs",
+            "not": "when IDD_MA is not a design constraint or is not used in simulation"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "s21-ripple-db-metric-blind-spot",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-h08-wideband"
+            ],
+            "analysis": [
+              "margins"
+            ],
+            "failure_signature": [
+              "metric-blind-spot"
+            ],
+            "keywords": [
+              "s21_ripple_db",
+              "margin",
+              "achieved"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "s21_ripple_db(achieved=1.42922,margin=0.047187)",
+              "source": "margins"
+            }
+          ],
+          "rule": "Do not treat small margin values in ripple metrics as acceptable; ensure ripple constraints are enforced with conservative safety margins.",
+          "applicability": {
+            "applies": "when ripple in S21 is a tight constraint in wideband filter designs",
+            "not": "when ripple is not a design requirement"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "parse-error-detection",
+          "type": "harness-rule",
+          "trigger": {
+            "family": [
+              "cap-e01-wifi",
+              "cap-e02-gpsband",
+              "cap-e03-900mhz"
+            ],
+            "analysis": [
+              "candidate-error"
+            ],
+            "failure_signature": [
+              "harness-artefact"
+            ],
+            "keywords": [
+              "ParseError",
+              "duplicate device name",
+              "needs a name and 2 nodes"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "ParseError: line 9: duplicate device name 'Cdb'; line: 'C Cdb n5 VSS'",
+              "source": "[cap-e01-wifi/roundtrip] ParseError: line 9: duplicate device name 'Cdb'; line: 'C Cdb n5 VSS'"
+            },
+            {
+              "quote": "ParseError: line 5: C needs a name and 2 nodes (P N), got 3 node(s); line: 'C Cgds M1 n2 n1'",
+              "source": "[cap-e02-gpsband/roundtrip] ParseError: line 5: C needs a name and 2 nodes (P N), got 3 node(s); line: 'C Cgds M1 n2 n1'"
+            }
+          ],
+          "rule": "Before submitting a candidate netlist, validate that all device declarations have unique names and exactly two node references.",
+          "applicability": {
+            "applies": "when generating or modifying netlist files in circuit design tasks with symbolic device syntax",
+            "not": "when using fully automated or non-symbolic netlist generators"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "inductor-budget-screening",
+          "type": "harness-rule",
+          "trigger": {
+            "family": [
+              "cap-e03-900mhz",
+              "cap-e02-gpsband"
+            ],
+            "analysis": [
+              "candidate-error"
+            ],
+            "failure_signature": [
+              "device-budget"
+            ],
+            "keywords": [
+              "L0 screen rejected",
+              "failed max_inductors"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "L0 screen rejected: failed max_inductors",
+              "source": "[cap-e03-900mhz/screen] L0 screen rejected: failed max_inductors"
+            },
+            {
+              "quote": "L0 screen rejected: failed max_inductors",
+              "source": "[cap-e02-gpsband/screen] L0 screen rejected: failed max_inductors"
+            }
+          ],
+          "rule": "Always check that the total number of inductors in a design does not exceed the maximum allowed by the screening rule before submission.",
+          "applicability": {
+            "applies": "in tasks with hard limits on inductor count during L0 screening",
+            "not": "in tasks with no explicit inductor budget or where screening is bypassed"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "prediction-oversight-on-negative-margins",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-e01-wifi",
+              "cap-e02-gpsband",
+              "cap-e03-900mhz"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "attribution-error"
+            ],
+            "keywords": [
+              "predicted=11.5",
+              "measured=-26.4696",
+              "error=-37.9696"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "s21_db(predicted=11.5,measured=-26.4696,error=-37.9696)",
+              "source": "spec=cap-e01-wifi wl=13eb78e8c858f97a: nf_db(predicted=3.3,measured=31.84599,error=28.54599); s11_db(predicted=-9.2,measured=-0.0900914,error=9.109909); s21_db(predicted=11.5,measured=-26.4696,error=-37.9696); idd_ma(predicted=11.8,measured=9.967463e-08,error=-11.8)"
+            },
+            {
+              "quote": "s21_db(predicted=11.3,measured=-46.8636,error=-58.1636)",
+              "source": "spec=cap-e02-gpsband wl=b60b33d2fc7bcb1b: nf_db(predicted=2.8,measured=48.27332,error=45.47332); s11_db(predicted=-9.1,measured=-0.943255,error=8.156745); s21_db(predicted=11.3,measured=-46.8636,error=-58.1636); idd_ma(predicted=9.7,measured=5.811027e-08,error=-9.7)"
+            },
+            {
+              "quote": "s21_db(predicted=11.5,measured=-57.4178,error=-68.9178)",
+              "source": "spec=cap-e03-900mhz wl=dbc4b941cd0168e2: nf_db(predicted=2.9,measured=59.43672,error=56.53672); s11_db(predicted=-9.2,measured=-8.32187e-05,error=9.199917); s21_db(predicted=11.5,measured=-57.4178,error=-68.9178); idd_ma(predicted=12.3,measured=1.3841710000000001e-08,error=-12.3)"
+            }
+          ],
+          "rule": "Never assign a positive predicted value to a constraint that is measured as negative and far from the target; such predictions indicate a systematic misalignment with physical behavior.",
+          "applicability": {
+            "applies": "when predicting S21, S11, or NF dB values in RF circuit optimization",
+            "not": "when using models trained on data where negative predictions are not penalized"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "idd-ma-prediction-overconfidence",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-e01-wifi",
+              "cap-e02-gpsband",
+              "cap-e03-900mhz"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "attribution-error"
+            ],
+            "keywords": [
+              "predicted=11.8",
+              "measured=9.967463e-08",
+              "error=-11.8"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "idd_ma(predicted=11.8,measured=9.967463e-08,error=-11.8)",
+              "source": "spec=cap-e01-wifi wl=13eb78e8c858f97a: nf_db(predicted=3.3,measured=31.84599,error=28.54599); s11_db(predicted=-9.2,measured=-0.0900914,error=9.109909); s21_db(predicted=11.5,measured=-26.4696,error=-37.9696); idd_ma(predicted=11.8,measured=9.967463e-08,error=-11.8)"
+            },
+            {
+              "quote": "idd_ma(predicted=12.7,measured=1.060377e-07,error=-12.7)",
+              "source": "spec=cap-e01-wifi wl=c231ac11552a9404: nf_db(predicted=3.2,measured=18.34717,error=15.14717); s11_db(predicted=-9.1,measured=-0.250459,error=8.849541); s21_db(predicted=11.3,measured=-15.2672,error=-26.5672); idd_ma(predicted=12.7,measured=1.060377e-07,error=-12.7)"
+            }
+          ],
+          "rule": "If a predicted IDD_MA is significantly greater than zero but the measured value is near zero, the prediction is invalid and the model is not capturing the true behavior of the design.",
+          "applicability": {
+            "applies": "when IDD_MA is predicted to be high but measured as negligible in simulations",
+            "not": "when IDD_MA is consistently non-zero and model predictions are within tolerance"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "s11-prediction-overshoot",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-e01-wifi",
+              "cap-e02-gpsband",
+              "cap-e03-900mhz"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "attribution-error"
+            ],
+            "keywords": [
+              "predicted=-9.2",
+              "measured=-0.0900914",
+              "error=9.109909"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "s11_db(predicted=-9.2,measured=-0.0900914,error=9.109909)",
+              "source": "spec=cap-e01-wifi wl=13eb78e8c858f97a: nf_db(predicted=3.3,measured=31.84599,error=28.54599); s11_db(predicted=-9.2,measured=-0.0900914,error=9.109909); s21_db(predicted=11.5,measured=-26.4696,error=-37.9696); idd_ma(predicted=11.8,measured=9.967463e-08,error=-11.8)"
+            },
+            {
+              "quote": "s11_db(predicted=-9.1,measured=-0.943255,error=8.156745)",
+              "source": "spec=cap-e02-gpsband wl=b60b33d2fc7bcb1b: nf_db(predicted=2.8,measured=48.27332,error=45.47332); s11_db(predicted=-9.1,measured=-0.943255,error=8.156745); s21_db(predicted=11.3,measured=-46.8636,error=-58.1636); idd_ma(predicted=9.7,measured=5.811027e-08,error=-9.7)"
+            }
+          ],
+          "rule": "Avoid predicting S11 values that are far below the measured outcome; such predictions suggest a model failure to capture impedance matching behavior.",
+          "applicability": {
+            "applies": "in tasks involving S11 optimization where measured values are close to 0 dB",
+            "not": "when S11 is expected to be highly negative in the target design"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "device-name-syntax-error",
+          "type": "harness-rule",
+          "trigger": {
+            "family": [
+              "cap-e04-35ghz",
+              "cap-e06-wifi",
+              "cap-e07-gpsband"
+            ],
+            "analysis": [
+              "roundtrip"
+            ],
+            "failure_signature": [
+              "ParseError"
+            ],
+            "keywords": [
+              "ParseError",
+              "device name",
+              "C needs a name and 2 nodes"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "ParseError: line 5: C needs a name and 2 nodes (P N), got 3 node(s); line: 'C Cgds M1 n3 n2'",
+              "source": "verbatim candidate error"
+            },
+            {
+              "quote": "ParseError: line 5: C needs a name and 2 nodes (P N), got 3 node(s); line: 'C Cgds M1 n4 n2'",
+              "source": "verbatim candidate error"
+            },
+            {
+              "quote": "ParseError: line 11: duplicate device name 'Ct'; line: 'C Ct n3b VDD'",
+              "source": "verbatim candidate error"
+            },
+            {
+              "quote": "ParseError: line 2: unknown device TYPE 'T' (allowed: C, L, NMOS, PMOS, R); line: 'T T1 n1 n2 VDD VSS'",
+              "source": "verbatim candidate error"
+            }
+          ],
+          "rule": "Ensure all device declarations use valid types and follow the syntax C NAME P N, with unique names and exactly two nodes.",
+          "applicability": {
+            "applies": "when generating netlists for circuit simulation, especially after topology synthesis",
+            "not": "when using only abstract representations or symbolic models without netlist generation"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "inductor-budget-violation",
+          "type": "harness-rule",
+          "trigger": {
+            "family": [
+              "cap-e04-35ghz",
+              "cap-e05-ism58",
+              "cap-e06-wifi",
+              "cap-e07-gpsband",
+              "cap-e08-wideband"
+            ],
+            "analysis": [
+              "screen"
+            ],
+            "failure_signature": [
+              "L0 screen rejected: failed max_inductors"
+            ],
+            "keywords": [
+              "max_inductors",
+              "screen rejected",
+              "inductor budget"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "L0 screen rejected: failed max_inductors",
+              "source": "verbatim candidate error"
+            },
+            {
+              "quote": "L0 screen rejected: failed device_budget, max_inductors",
+              "source": "verbatim candidate error"
+            },
+            {
+              "quote": "L0 screen rejected: failed match_plausible",
+              "source": "verbatim candidate error"
+            }
+          ],
+          "rule": "Enforce inductor count constraints during topology screening to prevent rejection in downstream validation.",
+          "applicability": {
+            "applies": "during initial topology generation or screening phase when device budgets are enforced",
+            "not": "when simulating already-screened topologies or when device budget is not a constraint"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "prediction-overconfidence",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-e04-35ghz",
+              "cap-e05-ism58",
+              "cap-e06-wifi",
+              "cap-e07-gpsband",
+              "cap-e08-wideband"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "attribution-error"
+            ],
+            "keywords": [
+              "predicted",
+              "measured",
+              "error"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "nf_db(predicted=3.1,measured=21.20092,error=18.10092)",
+              "source": "prediction-vs-outcome record"
+            },
+            {
+              "quote": "s21_db(predicted=13.4,measured=-22.992,error=-36.392)",
+              "source": "prediction-vs-outcome record"
+            },
+            {
+              "quote": "s11_db(predicted=-9.2,measured=-1.13697,error=8.06303)",
+              "source": "prediction-vs-outcome record"
+            },
+            {
+              "quote": "idd_ma(predicted=9.8,measured=1.3545059999999999e-08,error=-9.8)",
+              "source": "prediction-vs-outcome record"
+            }
+          ],
+          "rule": "Avoid relying on predicted values that show systematic overconfidence; validate predictions against measured outcomes before committing to a candidate.",
+          "applicability": {
+            "applies": "when using predictive models to guide search in constrained optimization tasks",
+            "not": "when using deterministic or fully simulated evaluation without prediction"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "roundtrip-failure",
+          "type": "harness-rule",
+          "trigger": {
+            "family": [
+              "cap-e05-ism58",
+              "cap-e07-gpsband",
+              "cap-e04-35ghz"
+            ],
+            "analysis": [
+              "roundtrip"
+            ],
+            "failure_signature": [
+              "round-trip produced no Eulerian token path from VSS"
+            ],
+            "keywords": [
+              "roundtrip",
+              "Eulerian token path",
+              "VSS"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "[cap-e05-ism58/roundtrip] round-trip produced no Eulerian token path from VSS",
+              "source": "verbatim candidate error"
+            },
+            {
+              "quote": "[cap-e07-gpsband/roundtrip] ParseError: line 11: duplicate device name 'Ct'; line: 'C Ct n3b VDD'",
+              "source": "verbatim candidate error"
+            }
+          ],
+          "rule": "Ensure roundtrip validation includes path connectivity checks from VSS and avoids duplicate or invalid device names.",
+          "applicability": {
+            "applies": "during netlist roundtrip validation after topology generation",
+            "not": "when skipping roundtrip validation or using non-physical representations"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "model-ignores-sim-health",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-e04-35ghz",
+              "cap-e05-ism58",
+              "cap-e06-wifi",
+              "cap-e07-gpsband",
+              "cap-e08-wideband"
+            ],
+            "analysis": [
+              "per-task outcomes"
+            ],
+            "failure_signature": [
+              "HARD FAILURE after escalation"
+            ],
+            "keywords": [
+              "HARD FAILURE",
+              "escalated",
+              "sim_health"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "sim_health: -",
+              "source": "per-task outcomes"
+            },
+            {
+              "quote": "HARD FAILURE after escalation; matched total eval budget=16200 (6 topos x 3 seeds x 900)",
+              "source": "per-task outcomes"
+            }
+          ],
+          "rule": "Always monitor sim_health during evaluation; treat missing or negative sim_health as a signal to abort early and re-evaluate the candidate generation process.",
+          "applicability": {
+            "applies": "during any evaluation phase where simulation health is a known metric",
+            "not": "when sim_health is not tracked or reported"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "inductor-budget-violation",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-m01-wifi",
+              "cap-m02-gpsband",
+              "cap-m03-900mhz"
+            ],
+            "analysis": [
+              "screen"
+            ],
+            "failure_signature": [
+              "failed max_inductors"
+            ],
+            "keywords": [
+              "inductor",
+              "budget",
+              "screen",
+              "rejection"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "[cap-m01-wifi/screen] L0 screen rejected: failed max_inductors",
+              "source": "verbatim candidate errors"
+            },
+            {
+              "quote": "[cap-m02-gpsband/screen] L0 screen rejected: failed max_inductors",
+              "source": "verbatim candidate errors"
+            },
+            {
+              "quote": "[cap-m03-900mhz/screen] L0 screen rejected: failed max_inductors",
+              "source": "verbatim candidate errors"
+            }
+          ],
+          "rule": "Always validate inductor count against the max_inductors constraint before generating any candidate layout.",
+          "applicability": {
+            "applies": "when generating circuit topologies with inductors under a fixed inductor budget",
+            "not": "when inductor count is unconstrained or not checked during screening"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "missing-inductor-name",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-m02-gpsband"
+            ],
+            "analysis": [
+              "roundtrip"
+            ],
+            "failure_signature": [
+              "ParseError"
+            ],
+            "keywords": [
+              "ParseError",
+              "L",
+              "needs a name",
+              "3 node(s)"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "[cap-m02-gpsband/roundtrip] ParseError: line 5: L needs a name and 2 nodes (P N), got 3 node(s); line: 'L Lg1 G1 G2 1.0e-08'",
+              "source": "verbatim candidate errors"
+            }
+          ],
+          "rule": "Ensure every inductor (L) in the netlist has a unique name and exactly two node connections.",
+          "applicability": {
+            "applies": "when parsing or generating netlists with inductors",
+            "not": "when inductor definitions are not validated for syntax"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "duplicate-device-name",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-m01-wifi"
+            ],
+            "analysis": [
+              "roundtrip"
+            ],
+            "failure_signature": [
+              "ParseError"
+            ],
+            "keywords": [
+              "ParseError",
+              "duplicate device name",
+              "Cin"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "[cap-m01-wifi/roundtrip] ParseError: line 2: duplicate device name 'Cin'; line: 'C Cin VIN1 n2'",
+              "source": "verbatim candidate errors"
+            }
+          ],
+          "rule": "Enforce unique device names across all components in the netlist to prevent parse failures.",
+          "applicability": {
+            "applies": "when generating or validating netlist syntax",
+            "not": "when device naming is not checked for duplicates"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "missing-device-name",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-m03-900mhz"
+            ],
+            "analysis": [
+              "roundtrip"
+            ],
+            "failure_signature": [
+              "ParseError"
+            ],
+            "keywords": [
+              "ParseError",
+              "C needs a name",
+              "3 node(s)"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "[cap-m03-900mhz/roundtrip] ParseError: line 4: C needs a name and 2 nodes (P N), got 3 node(s); line: 'C Cgds M1 n4 n5'",
+              "source": "verbatim candidate errors"
+            }
+          ],
+          "rule": "Ensure every capacitor (C) in the netlist has a name and exactly two node connections.",
+          "applicability": {
+            "applies": "when generating or validating netlist syntax for capacitors",
+            "not": "when capacitor definitions are not validated for naming and node count"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "systematic-prediction-bias",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-m01-wifi",
+              "cap-m02-gpsband",
+              "cap-m03-900mhz",
+              "cap-m04-35ghz"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "attribution-error"
+            ],
+            "keywords": [
+              "predicted",
+              "measured",
+              "error",
+              "positive",
+              "negative"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "nf_db(predicted=2.3,measured=43.65752,error=41.35752)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "s11_db(predicted=-10.8,measured=-0.0874631,error=10.712537)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "s21_db(predicted=12.5,measured=-44.5321,error=-57.0321)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "idd_ma(predicted=4.2,measured=1.305117e-08,error=-4.2)",
+              "source": "prediction-vs-outcome records"
+            }
+          ],
+          "rule": "Never trust predicted values when the error magnitude exceeds 10% of the measured range; revalidate predictions against known failure patterns.",
+          "applicability": {
+            "applies": "when using predictive models to guide optimization in constrained design spaces",
+            "not": "when predictions are used without error thresholding"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "model-oversimplification",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-m01-wifi",
+              "cap-m02-gpsband",
+              "cap-m03-900mhz",
+              "cap-m04-35ghz"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "objective-omission"
+            ],
+            "keywords": [
+              "predicted=0",
+              "measured=large",
+              "error=large"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "idd_ma(predicted=0.0,measured=2.864554e-08,error=0.0)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "idd_ma(predicted=0.0,measured=1.154076,error=1.154076)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "idd_ma(predicted=0,measured=1.879916e-08,error=0.0)",
+              "source": "prediction-vs-outcome records"
+            }
+          ],
+          "rule": "Avoid setting predicted values to zero when the actual measured value is non-zero and significant; this indicates model failure to capture baseline behavior.",
+          "applicability": {
+            "applies": "when using zero as a default prediction for any metric",
+            "not": "when predictions are calibrated to actual operating ranges"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "prediction-bias-in-nf-db",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-m05-ism58",
+              "cap-m06-wifi",
+              "cap-m07-gpsband"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "attribution-error"
+            ],
+            "keywords": [
+              "nf_db",
+              "prediction error",
+              "systematic bias"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "nf_db(predicted=1.95,measured=26.83031,error=24.88031)",
+              "source": "spec=cap-m07-gpsband wl=54d13a2750879586"
+            },
+            {
+              "quote": "nf_db(predicted=-6.8,measured=32.66952,error=39.46952)",
+              "source": "spec=cap-m07-gpsband wl=e0e9ad7c0e3faeb5"
+            },
+            {
+              "quote": "nf_db(predicted=3.2,measured=13.64924,error=10.44924)",
+              "source": "spec=cap-m05-ism58 wl=75cec43335ac8caf"
+            }
+          ],
+          "rule": "Never trust predicted nf_db values when they consistently deviate by more than 10 units from measured values; always validate prediction direction and magnitude against ground truth.",
+          "applicability": {
+            "applies": "when predicting nf_db in any RF filter design task with high measured error",
+            "not": "when nf_db prediction is within \u00b12 units of measured value"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "s11-db-prediction-overshoot",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-m05-ism58",
+              "cap-m06-wifi",
+              "cap-m07-gpsband"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "attribution-error"
+            ],
+            "keywords": [
+              "s11_db",
+              "prediction error",
+              "negative bias"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "s11_db(predicted=-12.3,measured=-0.0222923,error=12.277708)",
+              "source": "spec=cap-m07-gpsband wl=54d13a2750879586"
+            },
+            {
+              "quote": "s11_db(predicted=-12.3,measured=-3.34237,error=8.95763)",
+              "source": "spec=cap-m07-gpsband wl=609fce04442c76b0"
+            },
+            {
+              "quote": "s11_db(predicted=-11.0,measured=-12.2896,error=-1.2896)",
+              "source": "spec=cap-m05-ism58 wl=0c1007a01a8a5cdc"
+            }
+          ],
+          "rule": "Avoid predicting s11_db values that are more negative than -10 dB unless validated; such predictions are systematically too optimistic and lead to false confidence in passband performance.",
+          "applicability": {
+            "applies": "when predicting s11_db with predicted value < -10 dB",
+            "not": "when predicted s11_db is \u2265 -10 dB"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "s21-db-prediction-overshoot",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-m05-ism58",
+              "cap-m06-wifi",
+              "cap-m07-gpsband"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "attribution-error"
+            ],
+            "keywords": [
+              "s21_db",
+              "prediction error",
+              "negative bias"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "s21_db(predicted=15.8,measured=-25.0783,error=-40.8783)",
+              "source": "spec=cap-m07-gpsband wl=54d13a2750879586"
+            },
+            {
+              "quote": "s21_db(predicted=15.8,measured=-26.4109,error=-42.2109)",
+              "source": "spec=cap-m07-gpsband wl=609fce04442c76b0"
+            },
+            {
+              "quote": "s21_db(predicted=15.8,measured=6.32195,error=-9.47805)",
+              "source": "spec=cap-m06-wifi wl=15b5d5214bf6ffff"
+            }
+          ],
+          "rule": "Never predict s21_db values above 10 dB when the measured value is negative; such predictions are systematically over-optimistic and indicate model misalignment with real-world gain behavior.",
+          "applicability": {
+            "applies": "when predicted s21_db > 10 dB and measured s21_db < 0 dB",
+            "not": "when predicted s21_db \u2264 10 dB"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "idd-ma-prediction-overshoot",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-m05-ism58",
+              "cap-m06-wifi",
+              "cap-m07-gpsband"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "attribution-error"
+            ],
+            "keywords": [
+              "idd_ma",
+              "prediction error",
+              "zero-measured"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "idd_ma(predicted=8.3,measured=1.016659e-07,error=-8.3)",
+              "source": "spec=cap-m05-ism58 wl=75cec43335ac8caf"
+            },
+            {
+              "quote": "idd_ma(predicted=5.7,measured=5.992515,error=0.292515)",
+              "source": "spec=cap-m06-wifi wl=15b5d5214bf6ffff"
+            },
+            {
+              "quote": "idd_ma(predicted=0.0,measured=58.20036,error=58.20036)",
+              "source": "spec=cap-m07-gpsband wl=ee33c4e290c0f5c5"
+            }
+          ],
+          "rule": "When predicted idd_ma is non-zero but measured idd_ma is near zero, reject the prediction as invalid; such cases indicate model failure to capture power consumption floor.",
+          "applicability": {
+            "applies": "when predicted idd_ma > 0.1 and measured idd_ma < 1e-6",
+            "not": "when predicted idd_ma is \u2264 0.1"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "inductor-limit-screen-failure",
+          "type": "harness-rule",
+          "trigger": {
+            "family": [
+              "cap-m05-ism58",
+              "cap-m06-wifi"
+            ],
+            "analysis": [
+              "candidate-errors"
+            ],
+            "failure_signature": [
+              "harness-artefact"
+            ],
+            "keywords": [
+              "max_inductors",
+              "screen rejected"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "[cap-m05-ism58/screen] L0 screen rejected: failed max_inductors",
+              "source": "verbatim candidate error"
+            },
+            {
+              "quote": "[cap-m06-wifi/screen] L0 screen rejected: failed max_inductors",
+              "source": "verbatim candidate error"
+            }
+          ],
+          "rule": "Always enforce inductor count limits during screening; candidates exceeding max_inductors must be rejected early to prevent simulation failure.",
+          "applicability": {
+            "applies": "when inductor count exceeds allowed maximum in any design",
+            "not": "when inductor count is within allowed limit"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "node-name-drift-in-circuit",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-m05-ism58"
+            ],
+            "analysis": [
+              "candidate-errors"
+            ],
+            "failure_signature": [
+              "node-name-drift"
+            ],
+            "keywords": [
+              "ParseError",
+              "C needs a name and 2 nodes",
+              "3 node(s)"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "[cap-m05-ism58/roundtrip] ParseError: line 1: C needs a name and 2 nodes (P N), got 3 node(s); line: 'C Cin1 VIN1 n1 0'",
+              "source": "verbatim candidate error"
+            }
+          ],
+          "rule": "Ensure all components in netlists have exactly two node connections; extra nodes in component definitions cause parse errors and must be corrected before simulation.",
+          "applicability": {
+            "applies": "when a component definition includes more than two nodes in the netlist",
+            "not": "when component definitions have exactly two nodes"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "device-budget-overrun",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-m08-ism58",
+              "cap-h01-wifi",
+              "cap-h02-gpsband",
+              "cap-h03-900mhz"
+            ],
+            "analysis": [
+              "constraint-violation",
+              "feasibility-check"
+            ],
+            "failure_signature": [
+              "device_budget"
+            ],
+            "keywords": [
+              "device_budget",
+              "max_inductors",
+              "rejected"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "[cap-m08-ism58/screen] L0 screen rejected: failed max_inductors",
+              "source": "verbatim candidate errors"
+            },
+            {
+              "quote": "[cap-h01-wifi/screen] L0 screen rejected: failed device_budget",
+              "source": "verbatim candidate errors"
+            },
+            {
+              "quote": "[cap-h02-gpsband/screen] L0 screen rejected: failed has_inductor",
+              "source": "verbatim candidate errors"
+            },
+            {
+              "quote": "[cap-h03-900mhz/screen] L0 screen rejected: failed max_inductors",
+              "source": "verbatim candidate errors"
+            }
+          ],
+          "rule": "Ensure all candidate designs comply with device budget constraints before screening, especially for inductors and named components.",
+          "applicability": {
+            "applies": "when screening candidates with component count or type limits",
+            "not": "when using unconstrained topology generation"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "parse-error-duplicate-name",
+          "type": "harness-rule",
+          "trigger": {
+            "family": [
+              "cap-h02-gpsband",
+              "cap-h03-900mhz"
+            ],
+            "analysis": [
+              "roundtrip-failure",
+              "syntax-validation"
+            ],
+            "failure_signature": [
+              "harness-artefact"
+            ],
+            "keywords": [
+              "ParseError",
+              "duplicate device name",
+              "roundtrip"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "[cap-h02-gpsband/roundtrip] ParseError: line 6: C needs a name and 2 nodes (P N), got 3 node(s); line: 'C Cg M2 n2 VSS'",
+              "source": "verbatim candidate errors"
+            },
+            {
+              "quote": "[cap-h03-900mhz/roundtrip] ParseError: line 6: duplicate device name 'Cin'; line: 'C Cin VIN1 n2'",
+              "source": "verbatim candidate errors"
+            }
+          ],
+          "rule": "Validate device names for uniqueness and correct syntax before roundtrip simulation to prevent parse errors.",
+          "applicability": {
+            "applies": "during circuit netlist generation and roundtrip testing",
+            "not": "when using fully validated synthesis pipelines"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "prediction-error-nf-db",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-m08-ism58",
+              "cap-h01-wifi",
+              "cap-h02-gpsband",
+              "cap-h03-900mhz"
+            ],
+            "analysis": [
+              "prediction-vs-measurement",
+              "error-analysis"
+            ],
+            "failure_signature": [
+              "attribution-error"
+            ],
+            "keywords": [
+              "nf_db",
+              "predicted",
+              "measured",
+              "error"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "nf_db(predicted=-0.05,measured=5.260474,error=5.310474)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "nf_db(predicted=1.55,measured=172.9853,error=171.4353)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "nf_db(predicted=-2.5,measured=28.08028,error=30.58028)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "nf_db(predicted=1.75,measured=24.70695,error=22.95695)",
+              "source": "prediction-vs-outcome records"
+            }
+          ],
+          "rule": "Re-evaluate the prediction model for nf_db when measured values deviate by more than 10x the predicted value.",
+          "applicability": {
+            "applies": "when nf_db prediction error exceeds 10x the predicted magnitude",
+            "not": "when prediction errors are within 10% of the predicted value"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "prediction-error-s11-db",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-m08-ism58",
+              "cap-h01-wifi",
+              "cap-h02-gpsband",
+              "cap-h03-900mhz"
+            ],
+            "analysis": [
+              "prediction-vs-measurement",
+              "error-analysis"
+            ],
+            "failure_signature": [
+              "attribution-error"
+            ],
+            "keywords": [
+              "s11_db",
+              "predicted",
+              "measured",
+              "error"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "s11_db(predicted=0.1,measured=-14.9406,error=-15.0406)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "s11_db(predicted=-13.2,measured=-0.000691858,error=13.199308)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "s11_db(predicted=0.2,measured=-12.2113,error=-12.4113)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "s11_db(predicted=0.3,measured=-14.0632,error=-14.3632)",
+              "source": "prediction-vs-outcome records"
+            }
+          ],
+          "rule": "Re-calibrate the prediction model for s11_db when predicted and measured values have opposite signs or differ by more than 12 dB.",
+          "applicability": {
+            "applies": "when s11_db prediction and measurement have opposite signs or error exceeds 12 dB",
+            "not": "when prediction and measurement are within 1 dB and same sign"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "prediction-error-s21-db",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-m08-ism58",
+              "cap-h01-wifi",
+              "cap-h02-gpsband",
+              "cap-h03-900mhz"
+            ],
+            "analysis": [
+              "prediction-vs-measurement",
+              "error-analysis"
+            ],
+            "failure_signature": [
+              "attribution-error"
+            ],
+            "keywords": [
+              "s21_db",
+              "predicted",
+              "measured",
+              "error"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "s21_db(predicted=1.2,measured=-2.72772,error=-3.92772)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "s21_db(predicted=17.4,measured=-169.544,error=-186.944)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "s21_db(predicted=0.6,measured=-22.2963,error=-22.8963)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "s21_db(predicted=16.3,measured=-23.6616,error=-40.2397)",
+              "source": "prediction-vs-outcome records"
+            }
+          ],
+          "rule": "Re-evaluate the prediction model for s21_db when predicted and measured values differ by more than 20 dB or have opposite signs.",
+          "applicability": {
+            "applies": "when s21_db prediction error exceeds 20 dB or sign mismatch occurs",
+            "not": "when prediction and measurement are within 5 dB and same sign"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "prediction-error-idd-ma",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-m08-ism58",
+              "cap-h01-wifi",
+              "cap-h02-gpsband",
+              "cap-h03-900mhz"
+            ],
+            "analysis": [
+              "prediction-vs-measurement",
+              "error-analysis"
+            ],
+            "failure_signature": [
+              "attribution-error"
+            ],
+            "keywords": [
+              "idd_ma",
+              "predicted",
+              "measured",
+              "error"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "idd_ma(predicted=0.01,measured=1.379694e-08,error=-0.01)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "idd_ma(predicted=3.8,measured=46.67161,error=42.87161)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "idd_ma(predicted=0.0,measured=1.9482079999999998e-08,error=0.0)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "idd_ma(predicted=0.0,measured=3.071008e-08,error=0.0)",
+              "source": "prediction-vs-outcome records"
+            }
+          ],
+          "rule": "Re-calibrate the prediction model for idd_ma when predicted values are non-zero but measured values are near zero, or vice versa.",
+          "applicability": {
+            "applies": "when predicted idd_ma is non-zero but measured is below 1e-8, or predicted is zero but measured is above 1e-8",
+            "not": "when predicted and measured idd_ma are within 1e-8"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "prediction-overconfidence",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-h04-35ghz",
+              "cap-h05-ism58"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "attribution-error"
+            ],
+            "keywords": [
+              "prediction-error",
+              "overconfidence",
+              "model-misalignment"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "nf_db(predicted=1.65,measured=9.16392,error=7.51392)",
+              "source": "spec=cap-h04-35ghz wl=d49aa738ff693324"
+            },
+            {
+              "quote": "s11_db(predicted=-14.2,measured=-0.0933627,error=14.106637)",
+              "source": "spec=cap-h04-35ghz wl=d49aa738ff693324"
+            },
+            {
+              "quote": "s21_db(predicted=17.3,measured=-4.24314,error=-21.54314)",
+              "source": "spec=cap-h04-35ghz wl=d49aa738ff693324"
+            },
+            {
+              "quote": "idd_ma(predicted=3.7,measured=12.12531,error=8.42531)",
+              "source": "spec=cap-h04-35ghz wl=d49aa738ff693324"
+            },
+            {
+              "quote": "nf_db(predicted=1.9,measured=3.184387,error=1.284387)",
+              "source": "spec=cap-h05-ism58 wl=d49aa738ff693324"
+            },
+            {
+              "quote": "s11_db(predicted=-13.2,measured=-0.901098,error=12.298902)",
+              "source": "spec=cap-h05-ism58 wl=d49aa738ff693324"
+            },
+            {
+              "quote": "s21_db(predicted=16.8,measured=14.8342,error=-1.9658)",
+              "source": "spec=cap-h05-ism58 wl=d49aa738ff693324"
+            },
+            {
+              "quote": "idd_ma(predicted=4.7,measured=13.496279999999999,error=8.79628)",
+              "source": "spec=cap-h05-ism58 wl=d49aa738ff693324"
+            }
+          ],
+          "rule": "Never trust predicted values without validating against measured outcomes; always treat predictions as upper bounds on error, not estimates.",
+          "applicability": {
+            "applies": "when using predictive models to guide design or screening decisions",
+            "not": "when operating in purely deterministic or closed-loop environments"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "screening-early-rejection",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-h04-35ghz",
+              "cap-h05-ism58"
+            ],
+            "analysis": [
+              "candidate-errors"
+            ],
+            "failure_signature": [
+              "device-budget",
+              "max_inductors"
+            ],
+            "keywords": [
+              "early-screening",
+              "constraint-violation",
+              "L0-rejection"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "[cap-h04-35ghz/screen] L0 screen rejected: failed device_budget, max_inductors",
+              "source": "verbatim candidate errors"
+            },
+            {
+              "quote": "[cap-h04-35ghz/screen] L0 screen rejected: failed max_inductors",
+              "source": "verbatim candidate errors"
+            },
+            {
+              "quote": "[cap-h05-ism58/screen] L0 screen rejected: failed max_inductors",
+              "source": "verbatim candidate errors"
+            }
+          ],
+          "rule": "Do not apply hard constraints in L0 screening if they are known to be violated by feasible designs; instead, use soft penalties or relaxed thresholds to avoid premature rejection.",
+          "applicability": {
+            "applies": "during initial design screening when constraints are tight and frequently violated",
+            "not": "when constraints are absolute and non-negotiable"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "margin-ignorance",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-h04-35ghz",
+              "cap-h05-ism58"
+            ],
+            "analysis": [
+              "margins"
+            ],
+            "failure_signature": [
+              "nf-wall",
+              "s11-knife-edge"
+            ],
+            "keywords": [
+              "margin-analysis",
+              "constraint-violation",
+              "feasibility-margin"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "nf_db(achieved=7.85558,margin=-3.3642)",
+              "source": "spec=cap-h04-35ghz tier=H"
+            },
+            {
+              "quote": "s11_db(achieved=-0.374513,margin=-0.97325)",
+              "source": "spec=cap-h04-35ghz tier=H"
+            },
+            {
+              "quote": "s21_db(achieved=-2.72841,margin=-1.1605)",
+              "source": "spec=cap-h04-35ghz tier=H"
+            },
+            {
+              "quote": "idd_ma(achieved=4.01575,margin=-0.0039383)",
+              "source": "spec=cap-h04-35ghz tier=H"
+            },
+            {
+              "quote": "nf_db(achieved=8.0589,margin=-3.0295)",
+              "source": "spec=cap-h05-ism58 tier=H"
+            },
+            {
+              "quote": "s11_db(achieved=-0.942815,margin=-0.92748)",
+              "source": "spec=cap-h05-ism58 tier=H"
+            },
+            {
+              "quote": "s21_db(achieved=-3.04603,margin=-1.1904)",
+              "source": "spec=cap-h05-ism58 tier=H"
+            },
+            {
+              "quote": "idd_ma(achieved=5.09411,margin=-0.018822)",
+              "source": "spec=cap-h05-ism58 tier=H"
+            }
+          ],
+          "rule": "Always check the margin of every gated constraint; a negative margin indicates infeasibility, even if the objective is low.",
+          "applicability": {
+            "applies": "when evaluating design feasibility under multiple constraints",
+            "not": "when operating in unconstrained optimization"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "inductor-limit-violation",
+          "type": "anti-pattern",
+          "trigger": {
+            "family": [
+              "cap-h06-wifi",
+              "cap-h07-gpsband",
+              "cap-h08-wideband"
+            ],
+            "analysis": [
+              "screen-rejection",
+              "feasibility-failure"
+            ],
+            "failure_signature": [
+              "max_inductors"
+            ],
+            "keywords": [
+              "inductor",
+              "limit",
+              "screen",
+              "rejected"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "[cap-h06-wifi/screen] L0 screen rejected: failed max_inductors",
+              "source": "verbatim candidate errors"
+            },
+            {
+              "quote": "[cap-h07-gpsband/screen] L0 screen rejected: failed max_inductors",
+              "source": "verbatim candidate errors"
+            },
+            {
+              "quote": "[cap-h08-wideband/screen] L0 screen rejected: failed max_inductors",
+              "source": "verbatim candidate errors"
+            }
+          ],
+          "rule": "Ensure inductor count remains within design limits before screen evaluation to avoid early rejection.",
+          "applicability": {
+            "applies": "when screening candidates in RF filter design tasks with inductor constraints",
+            "not": "when inductor count is not a gated constraint"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "nf-db-prediction-misalignment",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-h06-wifi",
+              "cap-h07-gpsband",
+              "cap-h08-wideband"
+            ],
+            "analysis": [
+              "prediction-vs-outcome",
+              "objective-omission"
+            ],
+            "failure_signature": [
+              "attribution-error",
+              "numerical-artefact"
+            ],
+            "keywords": [
+              "nf_db",
+              "predicted",
+              "measured",
+              "error"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "nf_db(predicted=1.45,measured=60.78204,error=59.33204)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "nf_db(predicted=-3.5,measured=5.198312,error=8.698312)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "nf_db(predicted=2.3,measured=197.0711,error=194.7711)",
+              "source": "prediction-vs-outcome records"
+            }
+          ],
+          "rule": "Re-evaluate the prediction model's calibration for nf_db, especially when predicted values are near zero or negative but measured values are large positive.",
+          "applicability": {
+            "applies": "when nf_db prediction errors exceed 10 dB in magnitude",
+            "not": "when nf_db predictions are consistently within 5 dB of measured values"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "s11-db-prediction-overshoot",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-h06-wifi",
+              "cap-h07-gpsband",
+              "cap-h08-wideband"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "attribution-error",
+              "instrument-perturbation"
+            ],
+            "keywords": [
+              "s11_db",
+              "predicted",
+              "measured",
+              "error"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "s11_db(predicted=-14.2,measured=-6.94904e-06,error=14.199993)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "s11_db(predicted=0.5,measured=-14.0339,error=-14.5339)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "s11_db(predicted=-15.3,measured=-0.320767,error=14.979233)",
+              "source": "prediction-vs-outcome records"
+            }
+          ],
+          "rule": "Avoid overconfidence in s11_db predictions when the model outputs extreme negative values that do not match measured near-zero reflections.",
+          "applicability": {
+            "applies": "when s11_db prediction is below -10 dB but measured value is above -10 dB",
+            "not": "when s11_db predictions are within 5 dB of measured values"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "s21-db-prediction-oscillation",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-h06-wifi",
+              "cap-h07-gpsband",
+              "cap-h08-wideband"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "attribution-error",
+              "numerical-artefact"
+            ],
+            "keywords": [
+              "s21_db",
+              "predicted",
+              "measured",
+              "error"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "s21_db(predicted=20.3,measured=-69.0276,error=-89.3276)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "s21_db(predicted=18.0,measured=-20.9346,error=-38.9346)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "s21_db(predicted=16.8,measured=-600.0,error=-616.8)",
+              "source": "prediction-vs-outcome records"
+            }
+          ],
+          "rule": "Flag candidate designs where s21_db prediction is positive but measured value is highly negative, indicating a model failure in gain/loss estimation.",
+          "applicability": {
+            "applies": "when s21_db predicted gain is > 10 dB but measured loss exceeds 50 dB",
+            "not": "when s21_db predictions are within 15 dB of measured values"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "idd-ma-prediction-overshoot",
+          "type": "diagnosis",
+          "trigger": {
+            "family": [
+              "cap-h06-wifi",
+              "cap-h07-gpsband",
+              "cap-h08-wideband"
+            ],
+            "analysis": [
+              "prediction-vs-outcome"
+            ],
+            "failure_signature": [
+              "attribution-error",
+              "numerical-artefact"
+            ],
+            "keywords": [
+              "idd_ma",
+              "predicted",
+              "measured",
+              "error"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "idd_ma(predicted=4.3,measured=9.342867e-08,error=-4.3)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "idd_ma(predicted=4.7,measured=1.352929e-08,error=-4.7)",
+              "source": "prediction-vs-outcome records"
+            },
+            {
+              "quote": "idd_ma(predicted=0.0,measured=0.1421809,error=0.142181)",
+              "source": "prediction-vs-outcome records"
+            }
+          ],
+          "rule": "Do not trust predicted idd_ma values when the model predicts high current but measured current is near zero or vice versa.",
+          "applicability": {
+            "applies": "when predicted idd_ma exceeds 1 mA but measured idd_ma is below 100 \u03bcA",
+            "not": "when idd_ma predictions and measurements are within 0.5 mA"
+          }
+        }
+      },
+      {
+        "reason": "cap reached",
+        "entry": {
+          "id": "topology-exhaustion-without-escalation",
+          "type": "strategy",
+          "trigger": {
+            "family": [
+              "cap-h06-wifi",
+              "cap-h07-gpsband",
+              "cap-h08-wideband"
+            ],
+            "analysis": [
+              "feasibility-failure",
+              "eval-budget"
+            ],
+            "failure_signature": [
+              "topology-exhaustion"
+            ],
+            "keywords": [
+              "escalated",
+              "total eval budget",
+              "feasible=False"
+            ]
+          },
+          "evidence": [
+            {
+              "quote": "HARD FAILURE after escalation; matched total eval budget=16200 (6 topos x 3 seeds x 900)",
+              "source": "per-task outcomes"
+            },
+            {
+              "quote": "escalated=True",
+              "source": "per-task outcomes"
+            }
+          ],
+          "rule": "Before escalating, verify that the topology space has been sufficiently explored to avoid premature failure due to topology exhaustion.",
+          "applicability": {
+            "applies": "when using a fixed evaluation budget across multiple topologies and seeds",
+            "not": "when topology space is small or already exhausted"
+          }
+        }
+      }
+    ],
+    "overlay_dir": "/kaggle/working/campaign/system-playbook",
+    "run_id": "a0e7818ecf0d4780"
+  }
+}

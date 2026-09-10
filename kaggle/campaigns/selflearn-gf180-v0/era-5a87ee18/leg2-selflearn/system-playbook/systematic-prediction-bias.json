@@ -1,0 +1,51 @@
+{
+  "applicability": {
+    "applies": "when prediction errors consistently exceed 10 dB or 10% in magnitude",
+    "not": "for tasks with small, stable prediction errors"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-09-10",
+  "evidence": [
+    {
+      "quote": "nf_db(predicted=3.3,measured=31.84599,error=28.54599)",
+      "source": "prediction-vs-outcome records"
+    },
+    {
+      "quote": "s11_db(predicted=-9.2,measured=-0.0900914,error=9.109909)",
+      "source": "prediction-vs-outcome records"
+    },
+    {
+      "quote": "s21_db(predicted=11.5,measured=-26.4696,error=-37.9696)",
+      "source": "prediction-vs-outcome records"
+    },
+    {
+      "quote": "idd_ma(predicted=11.8,measured=9.967463e-08,error=-11.8)",
+      "source": "prediction-vs-outcome records"
+    }
+  ],
+  "id": "systematic-prediction-bias",
+  "rule": "Systematic under-prediction of magnitude and sign errors in key metrics indicates model misalignment; recalibrate predictions using measured outliers.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-09-10)"
+  ],
+  "trigger": {
+    "analysis": [
+      "prediction-vs-outcome"
+    ],
+    "failure_signature": [
+      "attribution-error"
+    ],
+    "family": [
+      "cap-e01-wifi",
+      "cap-e02-gpsband",
+      "cap-e03-900mhz"
+    ],
+    "keywords": [
+      "predicted",
+      "measured",
+      "error"
+    ]
+  },
+  "type": "diagnosis"
+}

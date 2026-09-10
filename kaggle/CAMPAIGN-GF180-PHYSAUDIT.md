@@ -86,6 +86,26 @@ slack are unchanged (now conservative on a direct measurement). Motivated
 purely by capability discovery at probe time, not by any spec outcome; no
 spec sweep had run when this was written.
 
+**AMENDMENT 2 (2026-09-11, pre-full-run — logged deviation).** Quick-mode
+plumbing diagnostics (labeled non-audit, dirs physaudit-quick*) exposed that
+the sp-donoise NFmin vector reads ≈ 0 dB (≤ 1e-14) at every bias, with NF(50Ω)
+frequency-FLAT and Rn ≈ γ/gm. Root cause verified in the PDK model card
+itself: `sm141064.ngspice` sets **tnoiMod = 0 and rgateMod = 0 on all bins**
+— no induced-gate noise, no gate-resistance noise. Under this model a
+MOSFET's noise is a single fully-correlated drain source, so true NFmin ≈ 1
+(0 dB) by construction: the device noise floor CANNOT bind, for any spec, as
+a matter of the model, not of the audit. Consequences, fixed before the full
+run: (1) the NOISE AXIS IS DEMOTED TO ADVISORY — no spec may be classified
+DEVICE-INFEASIBLE on nf under this model, and the audit records per spec the
+grid method's realizable-matching NF floor (advisory) plus the model
+caveat; (2) CLASSIFICATION RESTS ON THE T1 GAIN AXIS alone (rule below,
+nf clauses void); (3) the finding itself is a primary audit output: the
+campaign's measured NF 7–8 dB failures on gf180 are circuit-level (joint
+match/gain/Idd design), not a device noise floor. Motivated by a model-
+validity discovery; the only spec-level quantities seen at amendment time
+were quick-mode diagnostics (5-point bias grid), recorded verbatim in the
+session transcript; the solved-cell validation fence remains in force.
+
 ## Pre-set classification rule (frozen before any results)
 
 Per spec:

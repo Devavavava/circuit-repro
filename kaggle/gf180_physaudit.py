@@ -276,16 +276,16 @@ def main():
 
     # ---- fence (b): W-invariance spot-check at W=60um -------------------------
     inv_fail = []
-    for vgs in (0.7, 1.0):
+    mid_rows = sorted((r for r in t1 if abs(r["vds"] - 1.65) < 1e-9),
+                      key=lambda r: r["id_a"])
+    for ref in (mid_rows[len(mid_rows) // 3], mid_rows[2 * len(mid_rows) // 3]):
+        vgs = ref["vgs"]
         tag = f"inv_w60_vg{vgs:g}"
         log = run_deck(deck_sp(vgs, 1.65, w=60e-6, nfing=30, tag=tag,
                                donoise=0), raw, tag)
         idv = parse_id(log)
-        d = read_wrdata(raw / f"{tag}_nfv.csv") or read_wrdata(
-            raw / f"{tag}_sp.csv")
-        ref = next((r for r in t1 if abs(r["vgs"] - vgs) < 1e-9
-                    and abs(r["vds"] - 1.65) < 1e-9), None)
-        if idv is None or d is None or ref is None:
+        d = read_wrdata(raw / f"{tag}_sp.csv")
+        if idv is None or d is None:
             inv_fail.append(f"{tag}: missing data")
             continue
         figw = s_to_figures(d)
@@ -324,7 +324,9 @@ def main():
     # ---- T2 grid (frozen pre-reg method) --------------------------------------
     t2g = []  # rows: vgs, id, J, rs, lg, f array, nf array (dB)
     if args.t2_mode in ("grid", "both"):
-        biases = vgs_t2 if args.t2_mode == "grid" else vgs_t2[1:6:2]
+        n_g = len(vgs_grid)
+        biases = vgs_t2 if args.t2_mode == "grid" else [
+            vgs_grid[n_g // 4], vgs_grid[n_g // 2], vgs_grid[3 * n_g // 4]]
         rs_g = rs_grid if args.t2_mode == "grid" else sorted(
             set([50] + rs_grid[::2]))  # 50 ohm needed for NF50 cross-check
         lg_g = lg_grid if args.t2_mode == "grid" else lg_grid[::2]
@@ -409,16 +411,16 @@ def main():
                         for r in t2sp), default=None)
         nfmin_grid = min((interp_at(r["f"], r["nf_db"], sp["f0"])
                           for r in t2g), default=None)
-        nfmin = nfmin_sp if nfmin_sp is not None else nfmin_grid
+        # advisory floor: grid (realizable matching) preferred over sp (~0 dB)
+        nfmin = nfmin_grid if nfmin_grid is not None else nfmin_sp
         gain_margin = best["cum_gain_db"] - sp["s21_gate"]
         nf_margin = (sp["nf_gate"] - nfmin) if nfmin is not None else None
+        # AMENDMENT 2: noise axis advisory only (tnoiMod=0/rgateMod=0 -> model
+        # NFmin ~ 0 dB by construction; nf cannot bind at device level).
         gain_inf = gain_margin < 0
-        noise_inf = (nfmin is not None
-                     and nfmin - NF_SLACK_DB > sp["nf_gate"])
-        if gain_inf or noise_inf:
+        if gain_inf:
             cls = "DEVICE-INFEASIBLE"
-        elif ((nfmin is not None and abs(nfmin - sp["nf_gate"]) <= NF_SLACK_DB)
-              or gain_margin <= GAIN_BORDER_DB):
+        elif gain_margin <= GAIN_BORDER_DB:
             cls = "BORDERLINE"
         else:
             cls = "TOPOLOGY-GAP"
@@ -426,8 +428,12 @@ def main():
             fence_fail.append(sp["spec"])
         row = {**sp, "gain_best": best, "gain_margin_db": round(gain_margin, 2),
                "nfmin_sp_db": None if nfmin_sp is None else round(nfmin_sp, 3),
-               "nfmin_grid_db": None if nfmin_grid is None else round(nfmin_grid, 3),
-               "nf_margin_db": None if nf_margin is None else round(nf_margin, 3),
+               "nf_floor_grid_adv_db": None if nfmin_grid is None
+               else round(nfmin_grid, 3),
+               "nf_margin_adv_db": None if nf_margin is None
+               else round(nf_margin, 3),
+               "nf_axis": "advisory only: model-non-binding "
+               "(tnoiMod=0, rgateMod=0 => NFmin~0 dB by construction)",
                "class": cls, "ts": time.time()}
         rows.append(row)
         md.append(f"| {sp['spec']} | {sp['band']} | {sp['s21_gate']:g} | "
@@ -456,8 +462,10 @@ def main():
         print("FENCE-FAIL solved-cell:", fence_fail)
         return 2
     (out / "results.md").write_text(
-        hdr + "| spec | band | s21 gate | gain ceiling dB (stages) | nf gate | "
-        "NFmin_est dB | Idd cap mA | class |\n|---|---|---|---|---|---|---|---|\n"
+        hdr + "NF axis ADVISORY per Amendment 2 (tnoiMod=0/rgateMod=0: model "
+        "NFmin~0 dB by construction; class rests on the gain axis).\n\n"
+        "| spec | band | s21 gate | gain ceiling dB (stages) | nf gate | "
+        "nf floor adv dB | Idd cap mA | class |\n|---|---|---|---|---|---|---|---|\n"
         + "\n".join(md) + "\n")
     counts = {}
     for r in rows:

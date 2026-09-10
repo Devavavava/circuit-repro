@@ -1,0 +1,25 @@
+* physaudit T2p sp-noise vgs=1.125 vds=1.65
+.include "/home/dpatni/circuit-repro/.env/pdks/gf180mcu/models/ngspice/design.ngspice"
+.lib "/home/dpatni/circuit-repro/.env/pdks/gf180mcu/models/ngspice/sm141064.ngspice" typical
+Vg gb 0 dc 1.125
+Lg gb g 1
+Vd db 0 dc 1.65
+Ld db d 1
+Vp1 p1 0 dc 0 ac 1 portnum 1 z0 50
+Cp1 p1 g 1
+Vp2 p2 0 dc 0 ac 0 portnum 2 z0 50
+Cp2 p2 d 1
+X1 d g 0 0 nmos_3p3 w=2e-05 l=0.28e-6 nf=10
+.control
+op
+let id = -i(Vd)
+print id
+sp dec 20 1e8 2e10 1
+set wr_singlescale
+set wr_vecnames
+let nfr = real(NF)
+let nfminr = real(NFmin)
+let rnr = real(Rn)
+wrdata t2p_vg1.125_nfv.csv nfr nfminr rnr
+.endc
+.end

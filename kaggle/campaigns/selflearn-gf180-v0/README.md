@@ -1,4 +1,4 @@
-# selflearn-gf180-v0 — results (INTERIM: leg 1 of 2)
+# selflearn-gf180-v0 — results (COMPLETE: both legs)
 
 Pre-reg: `kaggle/CAMPAIGN-SELFLEARN-GF180.md`. Question: does the self-learning
 channel (reflect-first, gf180-only corpus) generalize off bptm45? Primary
@@ -29,24 +29,55 @@ unchanged (base 3000 / escalation 16200 eval-equivalents per spec).
   datapoint the pre-reg ordered LEG1 to provide; it also RAISES the bar for
   reading any LEG2 delta.
 
-## LEG2 — selflearn (PENDING, quota-blocked)
+## LEG2 — selflearn (COMPLETE, 2026-09-10, kernel v21, ~8.1 h campaign wall)
 
-Push attempt 2026-09-04 19:38 IST rejected: **"Maximum weekly GPU quota of
-30.00 hours reached"** (leg1's ~8.4 h GPU landed on top of ~21.6 h already
-spent this quota week). Auto-retry scheduled after the weekly reset. INCIDENT
-note for future chains: `kaggle kernels push` prints the quota error but exits
-0, and `kernels status` keeps reporting the PREVIOUS run's COMPLETE — a
-poll-too-soon chain will download a stale duplicate and declare success.
-Fix applied to the launcher: verify "successfully pushed" in push output, then
-wait for status to flip to RUNNING before polling for COMPLETE, then verify
-the downloaded `results.jsonl` variant matches the pushed leg.
+**0/23 feasible; wall-stop before spec 24/24** (`PARTIAL`: elapsed 488.7 min
++ mean 21.2 min/spec > 500 min budget — cap-h08-wideband never ran; leg1 had
+it infeasible too, so the primary comparison uses the 23 common specs).
 
-Era freeze remains in force: no origin/main pushes until LEG2 has cloned
-era-5a87ee18.
+- **PRIMARY PRE-REGISTERED RESULT: selflearn − arch = 0 − 0 = ZERO.** The
+  self-learning channel produced no feasibility lift on gf180 at this budget.
+- **Environment health:** `sim_success_rate = 1.00` on all 23 specs — zero
+  ngspice failures in 162,840 evals. Same verdict as leg1: the zero is
+  design/physics, not environment.
+- **Binding constraints:** s21_db ×11, nf_db ×11, s11_max_db ×1 — the same
+  gain/noise-at-the-Idd-boundary wall as leg1 and both prior gf180 eras.
+- **Reflect mechanism WORKED off-bptm45** (first live proof): 12
+  admission-passing playbook entries written from the ruled gf180-only corpus
+  (63 candidates rejected on cap/admission), and every spec's propose stage
+  consulted them (consult_hits = 5 on all 23). Entries are prediction-
+  calibration + netlist-mechanics lessons (metric-blind-spot-iddma,
+  nf-db-prediction-overshoot, systematic-prediction-bias, parse/naming
+  anti-patterns...) — see `leg2-selflearn/system-playbook/` and
+  `reflect-summary.json`.
+- **Margins vs leg1** (13 cells with the same binding metric): 5 better /
+  8 worse — no directional lift. Single-cell swings are huge in BOTH
+  directions (cap-h06-wifi nf −5.39 → **−0.14, the closest gf180 near-miss
+  in program history**; cap-h03-900mhz nf −2.80 → −19.44), consistent with
+  leg1's large run-to-run variance finding. h06 is read as a
+  noise-distribution tail, not a selflearn effect, per leg1's raised bar.
+
+**CAMPAIGN VERDICT: the pre-registered question is answered NO at this
+budget — reflect-first self-learning (gf180-only corpus) does not lift gf180
+capability; the wall stands in both arms. What the campaign DID establish:
+the reflect→consult plumbing works off-bptm45 end-to-end, sim-health rows
+prove environment integrity live, and gf180 arch variance is large (2/24 →
+0/24 → 0/23 across eras). Next levers would target the wall itself
+(topology-prior work), not the learning channel.**
+
+Ops notes: (1) the 2026-09-05 quota-reset auto-retry NEVER FIRED — it was
+scheduled inside a session that ended; one-shot retries must live in host
+crontab or be re-armed by a live session. LEG2 was pushed 2026-09-10 10:38
+IST by `resume-selflearn.sh` (push accepted first try; RUNNING fence and
+`variant=selflearn` fence both passed). (2) The stale-status incident fix
+(push-verify → wait-RUNNING → variant-verify) is now validated in anger.
+
+Era freeze LIFTED: LEG2 cloned era-5a87ee18; origin/main pushes may resume
+(per-instance permission still required as always).
 
 ## Layout
 
 ```
-era-5a87ee18/leg1-arch/    results.jsonl/.md, designs/, trajectory/, kernel-run.log
-era-5a87ee18/leg2-selflearn/   (added when LEG2 completes)
+era-5a87ee18/leg1-arch/        results.jsonl/.md, designs/, trajectory/, kernel-run.log
+era-5a87ee18/leg2-selflearn/   + reflect-summary.json, system-playbook/, PARTIAL
 ```

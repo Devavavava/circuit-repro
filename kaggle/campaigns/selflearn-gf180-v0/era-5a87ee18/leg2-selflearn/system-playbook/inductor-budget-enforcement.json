@@ -1,0 +1,57 @@
+{
+  "applicability": {
+    "applies": "when the design spec includes a hard cap on inductor count",
+    "not": "when the spec allows unbounded inductor usage or when the screening stage is disabled"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-09-10",
+  "evidence": [
+    {
+      "quote": "L0 screen rejected: failed max_inductors",
+      "source": "[cap-e05-ism58/screen]"
+    },
+    {
+      "quote": "L0 screen rejected: failed max_inductors",
+      "source": "[cap-e04-35ghz/screen]"
+    },
+    {
+      "quote": "L0 screen rejected: failed max_inductors",
+      "source": "[cap-e08-wideband/screen]"
+    },
+    {
+      "quote": "L0 screen rejected: failed device_budget, max_inductors",
+      "source": "[cap-e07-gpsband/screen]"
+    },
+    {
+      "quote": "L0 screen rejected: failed max_inductors",
+      "source": "[cap-e06-wifi/screen]"
+    }
+  ],
+  "id": "inductor-budget-enforcement",
+  "rule": "Always enforce inductor count limits during early screening; never generate designs exceeding the maximum allowed inductors.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-09-10)"
+  ],
+  "trigger": {
+    "analysis": [
+      "margins",
+      "verbatim-errors"
+    ],
+    "failure_signature": [
+      "device-budget"
+    ],
+    "family": [
+      "cap-e04-35ghz",
+      "cap-e05-ism58",
+      "cap-e06-wifi",
+      "cap-e07-gpsband",
+      "cap-e08-wideband"
+    ],
+    "keywords": [
+      "failed max_inductors",
+      "max_inductors"
+    ]
+  },
+  "type": "anti-pattern"
+}

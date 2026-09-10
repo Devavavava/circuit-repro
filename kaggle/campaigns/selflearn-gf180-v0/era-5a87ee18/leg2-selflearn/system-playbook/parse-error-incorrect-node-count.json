@@ -1,0 +1,36 @@
+{
+  "applicability": {
+    "applies": "when generating or modifying netlists with passive components",
+    "not": "for components with variable node counts (e.g., multi-port devices)"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-09-10",
+  "evidence": [
+    {
+      "quote": "[cap-e02-gpsband/roundtrip] ParseError: line 5: C needs a name and 2 nodes (P N), got 3 node(s); line: 'C Cgds M1 n2 n1'",
+      "source": "verbatim candidate errors"
+    }
+  ],
+  "id": "parse-error-incorrect-node-count",
+  "rule": "Ensure all components have exactly two nodes in netlist entries; validate node count before parsing.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-09-10)"
+  ],
+  "trigger": {
+    "analysis": [
+      "roundtrip"
+    ],
+    "failure_signature": [
+      "harness-artefact"
+    ],
+    "family": [
+      "cap-e02-gpsband"
+    ],
+    "keywords": [
+      "ParseError",
+      "C needs a name and 2 nodes"
+    ]
+  },
+  "type": "harness-rule"
+}

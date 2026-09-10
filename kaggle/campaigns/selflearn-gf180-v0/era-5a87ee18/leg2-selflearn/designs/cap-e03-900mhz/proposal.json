@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lin n1 VSS\nNMOS M1 n2 VDD n1 VSS\nPMOS M2 n3 VDD n2 VDD\nL Lf n2 n3\nC Cf n3 VSS\nL Ld VDD n3\nC Cout n3 VOUT1",
+  "wl_hash": "67de931af3a240ea",
+  "rationale": "The proposed topology improves the binding constraints\u2014particularly S21_db and IDD_ma\u2014by adding a cascode stage to increase gain and reduce current consumption through better transistor utilization, while maintaining stability and input matching. The addition of a PMOS cascode device (M2) in series with the input NMOS (M1) enhances output impedance and isolates the input from output loading, which boosts S21 and lowers power by reducing the required tail current. The inductor in the source of M1 (Lin) remains for impedance matching and stability, while the new inductor (Ld) in the drain of M2 provides resonant tuning at 900 MHz, critical for meeting S21 and NF targets. The topology stays within the device budget and inductor limit, and the added cascode improves gain without degrading S11 due to careful placement of Ld and Cf.",
+  "arm": "B",
+  "run_id": "7f4316e2c4f74572",
+  "trajectory": "trajectory/7f4316e2c4f74572.jsonl"
+}

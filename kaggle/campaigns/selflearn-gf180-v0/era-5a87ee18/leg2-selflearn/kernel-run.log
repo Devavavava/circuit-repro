@@ -1,0 +1,137 @@
+[{"stream_name":"stdout","time":2.003476486,"data":"[loop-gpu] preflight OK: 5 inputs present (pdk=gf180mcu)\n"}
+,{"stream_name":"stdout","time":2.109242847,"data":"[loop-gpu] GH token from /kaggle/input/datasets/devavratpatni/circuit-repro-ghtoken/gh_token\n"}
+,{"stream_name":"stdout","time":2.113771882,"data":"[loop-gpu] $ git clone --depth 1 --branch main https://REDACTED@github.com/Devavavava/circuit-repro.git /tmp/circuit-repro\n"}
+,{"stream_name":"stderr","time":2.138183278,"data":"Cloning into '/tmp/circuit-repro'...\n"}
+,{"stream_name":"stdout","time":4.585990765,"data":"[loop-gpu] $ bash /tmp/circuit-repro/kaggle/bootstrap.sh\n"}
+,{"stream_name":"stderr","time":4.60445246,"data":"[bootstrap] pip: numpy scipy pyyaml\n"}
+,{"stream_name":"stderr","time":9.847448466,"data":"[bootstrap] pip: pandas (WITH_PANDAS=1)\n"}
+,{"stream_name":"stderr","time":13.81337558,"data":"[bootstrap] copying extracted ngspice tree from /kaggle/input/datasets/devavratpatni/circuit-repro-ngspice47/ngspice47/ngspice47 -\u003e /kaggle/working/ngspice47\n"}
+,{"stream_name":"stderr","time":14.046895552,"data":"[bootstrap] clone already present at /tmp/circuit-repro -- skipping\n"}
+,{"stream_name":"stderr","time":14.187703836,"data":"[bootstrap] no checkpoints found in /kaggle/input/* (ok: LLM loop is torch-free)\n"}
+,{"stream_name":"stderr","time":14.272573457,"data":"[bootstrap] pdk sky130 -\u003e /kaggle/input/circuit-repro-pdk-sky130/sky130\n"}
+,{"stream_name":"stderr","time":14.357800111,"data":"[bootstrap] pdk gf180mcu -\u003e /kaggle/input/circuit-repro-pdk-gf180mcu/gf180mcu\n"}
+,{"stream_name":"stderr","time":14.443795479,"data":"[bootstrap] pdk ihp_sg13g2 -\u003e /kaggle/input/circuit-repro-pdk-ihp-sg13g2/circuit-repro-pdk-ihp-sg13g2/ihp_sg13g2\n"}
+,{"stream_name":"stderr","time":14.443830641,"data":"[bootstrap] LNA_PDK_ROOT=/kaggle/working/pdks (3 PDK(s) linked)\n"}
+,{"stream_name":"stderr","time":14.449939024,"data":"[bootstrap] wrote /kaggle/working/env-kaggle.sh\n"}
+,{"stream_name":"stderr","time":14.452275271,"data":"[bootstrap] gate: python lna/extract.py --selftest\n"}
+,{"stream_name":"stderr","time":14.59910295,"data":"[bootstrap] gate: python lna/ref/check_ref.py\n"}
+,{"stream_name":"stderr","time":14.765327797,"data":"[bootstrap] gate: python lna/ref/check_bjt.py\n"}
+,{"stream_name":"stderr","time":14.993449048,"data":"[bootstrap] gate: python lna/spec.py --all\n"}
+,{"stream_name":"stderr","time":15.234268502,"data":"[bootstrap] gate: python lna/solve_spec.py wifi24 --corpus --budget 100 --seeds 1\n"}
+,{"stream_name":"stderr","time":37.654950421,"data":"[bootstrap] wrote /kaggle/working/report/bootstrap.json (ok=true)\n"}
+,{"stream_name":"stderr","time":37.655007588,"data":"[bootstrap] BOOTSTRAP OK\n"}
+,{"stream_name":"stdout","time":37.790361747,"data":"[loop-gpu] $ cp -r /kaggle/input/datasets/devavratpatni/circuit-repro-llamacpp-cuda/llamacpp/llamacpp /kaggle/working\n"}
+,{"stream_name":"stdout","time":39.051060349,"data":"[loop-gpu] $ bash -c chmod +x /kaggle/working/llamacpp/bin/* || true\n"}
+,{"stream_name":"stdout","time":39.155887707,"data":"[loop-gpu] launching: /kaggle/working/llamacpp/bin/llama-server -m /kaggle/input/datasets/devavratpatni/circuit-repro-gguf-qwen30/weights/Qwen3-30B-A3B-Instruct-2507-Q4_K_M.gguf --host 127.0.0.1 --port 8080 --n-gpu-layers 999 --split-mode layer -c 16384 --parallel 1\n"}
+,{"stream_name":"stdout","time":165.207517245,"data":"[loop-gpu] llama-server healthy after 126.1s\n"}
+,{"stream_name":"stdout","time":165.207634368,"data":"[loop-gpu] RUN_MODE=campaign variant=selflearn pdk=gf180mcu -\u003e arm-B ladder (/tmp/circuit-repro/kaggle/specs-ladder/ladder.json)\n"}
+,{"stream_name":"stdout","time":165.207965637,"data":"[loop-gpu] $ bash -c source /kaggle/working/env-kaggle.sh \u0026\u0026 exec /usr/bin/python3 /tmp/circuit-repro/kaggle/loop/campaign.py --arm B --variant selflearn --pdk gf180mcu --v0-dir /tmp/circuit-repro/kaggle/campaigns/cross-pdk-v0/era-binfix-9df8b95a/armb-arch-gf180mcu --v0-dir /tmp/circuit-repro/kaggle/campaigns/cross-pdk-v0/era-fixed-0b4b497e/arma-gf180mcu --ladder /tmp/circuit-repro/kaggle/specs-ladder/ladder.json --base-url http://127.0.0.1:8080/v1 --model qwen3-30b-a3b-instruct-2507-q4km --wall-budget-min 500 --out /kaggle/working/campaign\n"}
+,{"stream_name":"stdout","time":165.368101555,"data":"[campaign] ARM3 reflect-first: reading v0 corpus ['/tmp/circuit-repro/kaggle/campaigns/cross-pdk-v0/era-binfix-9df8b95a/armb-arch-gf180mcu', '/tmp/circuit-repro/kaggle/campaigns/cross-pdk-v0/era-fixed-0b4b497e/arma-gf180mcu'] -\u003e overlay /kaggle/working/campaign/system-playbook\n"}
+,{"stream_name":"stdout","time":705.959290291,"data":"[campaign] reflect wrote 12 overlay entry(ies): device-budget-overflow, parse-error-duplicate-name, parse-error-incorrect-node-count, systematic-prediction-bias, metric-blind-spot-iddma, device-name-alias-avoidance, inductor-budget-enforcement, prediction-oversight-on-s11-s21, nf-db-prediction-overshoot, idd-ma-prediction-oversight, roundtrip-failure-detection, device-name-duplication\n"}
+,{"stream_name":"stdout","time":705.975600524,"data":"campaign arm=B  variant=selflearn  pdk=gf180mcu  out=/kaggle/working/campaign  specs=24  wall_budget=500 min  base={'k': 3, 'edit_rounds': 2, 'seeds': 2, 'budget': 300, 'max_tokens': 3072}\n"}
+,{"stream_name":"stdout","time":705.981913855,"data":"\n"}
+,{"stream_name":"stdout","time":705.981967585,"data":"[1/24] cap-e01-wifi (E, 2.44 GHz) pdk=gf180mcu\n"}
+,{"stream_name":"stdout","time":977.791323267,"data":"Current recursion limit: 1000\n"}
+,{"stream_name":"stdout","time":977.791369664,"data":"New recursion limit: 9000\n"}
+,{"stream_name":"stdout","time":977.791375735,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":2334.28600364,"data":"    -\u003e feasible=False  first=None  evals=9480  iip3=-  (27.1 min)\n"}
+,{"stream_name":"stdout","time":2334.293463792,"data":"\n"}
+,{"stream_name":"stdout","time":2334.293481832,"data":"[2/24] cap-e02-gpsband (E, 1.58 GHz) pdk=gf180mcu\n"}
+,{"stream_name":"stdout","time":2463.808915772,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":3634.631013205,"data":"    -\u003e feasible=False  first=None  evals=7680  iip3=-  (21.7 min)\n"}
+,{"stream_name":"stdout","time":3634.638256359,"data":"\n"}
+,{"stream_name":"stdout","time":3634.638284396,"data":"[3/24] cap-e03-900mhz (E, 0.915 GHz) pdk=gf180mcu\n"}
+,{"stream_name":"stdout","time":3891.225932154,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":5284.706340847,"data":"    -\u003e feasible=False  first=None  evals=9600  iip3=-  (27.5 min)\n"}
+,{"stream_name":"stdout","time":5284.714649023,"data":"\n"}
+,{"stream_name":"stdout","time":5284.714672816,"data":"[4/24] cap-e04-35ghz (E, 3.5 GHz) pdk=gf180mcu\n"}
+,{"stream_name":"stdout","time":5541.048697897,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":6910.313882138,"data":"    -\u003e feasible=False  first=None  evals=9480  iip3=-  (27.1 min)\n"}
+,{"stream_name":"stdout","time":6910.319371955,"data":"\n"}
+,{"stream_name":"stdout","time":6910.31940085,"data":"[5/24] cap-e05-ism58 (E, 5.8 GHz) pdk=gf180mcu\n"}
+,{"stream_name":"stdout","time":7087.331770036,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":8061.854571319,"data":"    -\u003e feasible=False  first=None  evals=5880  iip3=-  (19.2 min)\n"}
+,{"stream_name":"stdout","time":8061.862979582,"data":"\n"}
+,{"stream_name":"stdout","time":8061.862993366,"data":"[6/24] cap-e06-wifi (E, 2.44 GHz) pdk=gf180mcu\n"}
+,{"stream_name":"stdout","time":8312.80155394,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":8816.607940382,"data":"    -\u003e feasible=False  first=None  evals=2160  iip3=-  (12.6 min)\n"}
+,{"stream_name":"stdout","time":8816.614931153,"data":"\n"}
+,{"stream_name":"stdout","time":8816.614945545,"data":"[7/24] cap-e07-gpsband (E, 1.58 GHz) pdk=gf180mcu\n"}
+,{"stream_name":"stdout","time":9074.212024731,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":9631.270259733,"data":"    -\u003e feasible=False  first=None  evals=2400  iip3=-  (13.6 min)\n"}
+,{"stream_name":"stdout","time":9631.278229853,"data":"\n"}
+,{"stream_name":"stdout","time":9631.278249978,"data":"[8/24] cap-e08-wideband (E, wideband 0.5-3 GHz) pdk=gf180mcu\n"}
+,{"stream_name":"stdout","time":9891.948130581,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":11111.001781585,"data":"    -\u003e feasible=False  first=None  evals=9120  iip3=-  (24.7 min)\n"}
+,{"stream_name":"stdout","time":11111.009117211,"data":"\n"}
+,{"stream_name":"stdout","time":11111.009146011,"data":"[9/24] cap-m01-wifi (M, 2.44 GHz) pdk=gf180mcu\n"}
+,{"stream_name":"stdout","time":11221.843035502,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":12573.340043509,"data":"    -\u003e feasible=False  first=None  evals=9480  iip3=-  (24.4 min)\n"}
+,{"stream_name":"stdout","time":12573.348125666,"data":"\n"}
+,{"stream_name":"stdout","time":12573.348164239,"data":"[10/24] cap-m02-gpsband (M, 1.58 GHz) pdk=gf180mcu\n"}
+,{"stream_name":"stdout","time":12835.020562618,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":14022.523059646,"data":"    -\u003e feasible=False  first=None  evals=7680  iip3=-  (24.2 min)\n"}
+,{"stream_name":"stdout","time":14022.530195797,"data":"\n"}
+,{"stream_name":"stdout","time":14022.530224278,"data":"[11/24] cap-m03-900mhz (M, 0.915 GHz) pdk=gf180mcu\n"}
+,{"stream_name":"stdout","time":14227.000410026,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":15545.196972764,"data":"    -\u003e feasible=False  first=None  evals=9360  iip3=-  (25.4 min)\n"}
+,{"stream_name":"stdout","time":15545.203968129,"data":"\n"}
+,{"stream_name":"stdout","time":15545.203987962,"data":"[12/24] cap-m04-35ghz (M, 3.5 GHz) pdk=gf180mcu\n"}
+,{"stream_name":"stdout","time":15733.524302375,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":16433.497077321,"data":"    -\u003e feasible=False  first=None  evals=3840  iip3=-  (14.8 min)\n"}
+,{"stream_name":"stdout","time":16433.505542066,"data":"\n"}
+,{"stream_name":"stdout","time":16433.505561224,"data":"[13/24] cap-m05-ism58 (M, 5.8 GHz) pdk=gf180mcu\n"}
+,{"stream_name":"stdout","time":16700.639336967,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":17230.380307028,"data":"    -\u003e feasible=False  first=None  evals=2280  iip3=-6.49  (13.3 min)\n"}
+,{"stream_name":"stdout","time":17230.387911296,"data":"\n"}
+,{"stream_name":"stdout","time":17230.387937248,"data":"[14/24] cap-m06-wifi (M, 2.44 GHz) pdk=gf180mcu\n"}
+,{"stream_name":"stdout","time":17486.218295416,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":18426.669020714,"data":"    -\u003e feasible=False  first=None  evals=5880  iip3=-  (19.9 min)\n"}
+,{"stream_name":"stdout","time":18426.677305727,"data":"\n"}
+,{"stream_name":"stdout","time":18426.677359051,"data":"[15/24] cap-m07-gpsband (M, 1.58 GHz) pdk=gf180mcu\n"}
+,{"stream_name":"stdout","time":18618.582172987,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":19968.522033902,"data":"    -\u003e feasible=False  first=None  evals=9360  iip3=-1.51  (25.7 min)\n"}
+,{"stream_name":"stdout","time":19968.529275032,"data":"\n"}
+,{"stream_name":"stdout","time":19968.529301375,"data":"[16/24] cap-m08-ism58 (M, 5.8 GHz) pdk=gf180mcu\n"}
+,{"stream_name":"stdout","time":20086.739987929,"data":"error\n"}
+,{"stream_name":"stdout","time":20086.740032619,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":21226.16393783,"data":"    -\u003e feasible=False  first=None  evals=7680  iip3=-  (21.0 min)\n"}
+,{"stream_name":"stdout","time":21226.170354568,"data":"\n"}
+,{"stream_name":"stdout","time":21226.170365083,"data":"[17/24] cap-h01-wifi (H, 2.44 GHz) pdk=gf180mcu\n"}
+,{"stream_name":"stdout","time":21482.44209658,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":22446.776001287,"data":"    -\u003e feasible=False  first=None  evals=5880  iip3=-2.82  (20.3 min)\n"}
+,{"stream_name":"stdout","time":22446.783899139,"data":"\n"}
+,{"stream_name":"stdout","time":22446.783919558,"data":"[18/24] cap-h02-gpsband (H, 1.58 GHz) pdk=gf180mcu\n"}
+,{"stream_name":"stdout","time":22688.534380426,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":23754.602585704,"data":"    -\u003e feasible=False  first=None  evals=7800  iip3=-  (21.8 min)\n"}
+,{"stream_name":"stdout","time":23754.610357218,"data":"\n"}
+,{"stream_name":"stdout","time":23754.610371521,"data":"[19/24] cap-h03-900mhz (H, 0.915 GHz) pdk=gf180mcu\n"}
+,{"stream_name":"stdout","time":24003.607283539,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":25394.745627526,"data":"    -\u003e feasible=False  first=None  evals=9480  iip3=-  (27.3 min)\n"}
+,{"stream_name":"stdout","time":25394.753967926,"data":"\n"}
+,{"stream_name":"stdout","time":25394.753996703,"data":"[20/24] cap-h04-35ghz (H, 3.5 GHz) pdk=gf180mcu\n"}
+,{"stream_name":"stdout","time":25598.690871359,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":26480.926981515,"data":"    -\u003e feasible=False  first=None  evals=5760  iip3=-  (18.1 min)\n"}
+,{"stream_name":"stdout","time":26480.933834696,"data":"\n"}
+,{"stream_name":"stdout","time":26480.933881241,"data":"[21/24] cap-h05-ism58 (H, 5.8 GHz) pdk=gf180mcu\n"}
+,{"stream_name":"stdout","time":26649.622955289,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":27824.312027235,"data":"    -\u003e feasible=False  first=None  evals=9360  iip3=+16.79  (22.4 min)\n"}
+,{"stream_name":"stdout","time":27824.31811824,"data":"\n"}
+,{"stream_name":"stdout","time":27824.318139055,"data":"[22/24] cap-h06-wifi (H, 2.44 GHz) pdk=gf180mcu\n"}
+,{"stream_name":"stdout","time":27933.86283168,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":28970.551930157,"data":"    -\u003e feasible=False  first=None  evals=7560  iip3=+21.65  (19.1 min)\n"}
+,{"stream_name":"stdout","time":28970.556878937,"data":"\n"}
+,{"stream_name":"stdout","time":28970.556892649,"data":"[23/24] cap-h07-gpsband (H, 1.58 GHz) pdk=gf180mcu\n"}
+,{"stream_name":"stdout","time":29219.352718514,"data":"    infeasible at base -\u003e ESCALATE\n"}
+,{"stream_name":"stdout","time":30026.19705734,"data":"    -\u003e feasible=False  first=None  evals=5640  iip3=-  (17.6 min)\n"}
+,{"stream_name":"stdout","time":30026.1970883,"data":"[campaign] WALL BUDGET reached; stopping before cap-h08-wideband\n"}
+,{"stream_name":"stdout","time":30026.202205115,"data":"\n"}
+,{"stream_name":"stdout","time":30026.202214425,"data":"campaign done: variant=selflearn  23/24 rows, 0 feasible; results -\u003e /kaggle/working/campaign\n"}
+,{"stream_name":"stdout","time":30026.377709188,"data":"[loop-gpu] trajectory dir has 0 jsonl file(s): /kaggle/working/trajectory\n"}
+,{"stream_name":"stderr","time":30029.887531063,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":30029.887558981,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":30030.113744855,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":30030.113771722,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":30030.8070354,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":30032.029019875,"data":"[NbConvertApp] Writing 326551 bytes to __results__.html\n"}
+]

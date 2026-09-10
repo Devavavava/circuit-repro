@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n3 n2 n4 VSS\nL Ls n4 n5\nL Lf VDD n3\nC Cf n3 n5\nC Cout n5 VOUT1",
+  "wl_hash": "d0b07239513672e5",
+  "rationale": "The proposed topology improves the binding constraints\u2014particularly the noise figure (NF) and S21 gain\u2014by adding a source degeneration inductor (Ls) in series with the NMOS source, which enhances input matching and increases transconductance efficiency without significantly increasing power. This leverages the 45nm process\u2019s ability to support small inductors while reducing gate-to-source capacitance effects that degrade NF and S21. The added inductor also improves stability margins and helps push the S21 minimum into the required range by sharpening the resonant gain peak near 3.5 GHz, while maintaining low current draw.",
+  "arm": "B",
+  "run_id": "db33abef63df4181",
+  "trajectory": "trajectory/db33abef63df4181.jsonl"
+}

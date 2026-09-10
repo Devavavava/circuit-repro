@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL L1 n1 n2\nL Ls n2 VSS\nC Cg1 n2 n3\nC Cg2 n3 VSS\nNMOS M1 n4 n3 VSS VSS\nL Ld VDD n4\nC Cout n4 VOUT1",
+  "wl_hash": "2bea4d2b5a490d3c",
+  "rationale": "The proposed topology improves the LNA's gain and noise performance by adding a source inductor (Ls) to implement a source degeneration inductively, which enhances input matching and reduces noise figure while maintaining stability. The inductor tunes the input impedance to better match 50\u03a9, directly addressing the poor S11 and low S21. The addition also increases the effective transconductance gain without significantly increasing current, preserving low power and maintaining stability margins. This modification targets the binding constraints (nf_db and s21_db) more effectively than previous attempts.",
+  "arm": "B",
+  "run_id": "f4cf41f335524195",
+  "trajectory": "trajectory/f4cf41f335524195.jsonl"
+}

@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lt n1 n2\nL Ls n2 VSS\nNMOS M1 n3 n2 VSS VSS\nC Ct1 n3 n4\nC Ct2 n4 VSS\nC Cout n4 VOUT1\nL Lg n3 VSS",
+  "wl_hash": "7a49907f41184451",
+  "rationale": "The proposed topology adds a source inductor to improve input matching and noise figure by enhancing the input impedance transformation, which is critical for achieving the tight NF \u2264 2.0 target. The existing circuit suffers from poor input impedance matching (S11 margin is positive but close to limit) and a severely degraded noise figure (over 26 dB), indicating excessive input noise and poor impedance transformation. By adding a source inductor (Ls) in series with the NMOS source, the input impedance is better tuned toward 50\u03a9, reducing reflection and improving the effective transconductance-to-noise ratio, which directly improves NF and S21. The inductor also enables better trade-off between gain and noise, crucial for the 1.58 GHz GPS L1 band. The addition is minimal and maintains the single-stage structure, preserving stability and low power.",
+  "arm": "B",
+  "run_id": "a63da611f0b24d8d",
+  "trajectory": "trajectory/a63da611f0b24d8d.jsonl"
+}

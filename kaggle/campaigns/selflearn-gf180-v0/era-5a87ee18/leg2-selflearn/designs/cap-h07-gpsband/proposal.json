@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 n5\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1\nR Rf n4 n3\nL Lsrc n3 n6",
+  "wl_hash": "71d26d485c9ac9b1",
+  "rationale": "The proposed topology improves the binding constraints\u2014particularly NF and S21\u2014by adding a source degeneration inductor in series with the NMOS's source, enhancing input matching and noise performance without increasing power. The inductor provides additional reactance to tune the input impedance toward 50\u03a9, directly improving S11 and S21, while the degeneration increases transconductance stability and reduces noise figure by lowering the effective input-referred noise. The addition of a single inductor maintains the device budget and stays within the inductor limit. This modification targets the most negative margin (NF at -11.37) while improving S21 (currently -16.48, required 20) and S11 (currently -0.17, required -14), all without violating the Idd constraint.",
+  "arm": "B",
+  "run_id": "75a78831c2d44fdc",
+  "trajectory": "trajectory/75a78831c2d44fdc.jsonl"
+}

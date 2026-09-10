@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n4 n2 n3 VSS\nL Ls n3 n5\nR Rf n4 n2\nL Ld VDD n4\nC Ct1 n4 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1",
+  "wl_hash": "596def95e9adfab0",
+  "rationale": "The proposed topology improves the noise figure and gain margins by adding a source degeneration inductor in series with the NMOS transistor's source, enhancing input impedance matching and reducing noise while maintaining stability. This modification directly targets the binding constraints of NF and S21, which are significantly below target, without affecting Idd or S11. The inductor provides frequency-selective impedance boosting at 2.44 GHz, aligning with the narrowband requirement.",
+  "arm": "B",
+  "run_id": "70c8b72e70ae403c",
+  "trajectory": "trajectory/70c8b72e70ae403c.jsonl"
+}

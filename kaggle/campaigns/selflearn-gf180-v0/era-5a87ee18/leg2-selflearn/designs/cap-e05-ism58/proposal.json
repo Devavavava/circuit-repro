@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nNMOS M1 n3 n2 n4 VSS\nL Ld VDD n3\nC Ct1 n3 n5\nC Ct2 n5 VSS\nC Cout n5 VOUT1\nR Rf VOUT1 n2\nL Ls n4 n6\nC Cs n6 VSS",
+  "wl_hash": "dc598debfbe9b78f",
+  "rationale": "The proposed topology improves the binding constraints (NF and S21) by adding a source degeneration inductor to enhance input matching and increase gain bandwidth, while preserving stability and current efficiency. This addresses the poor NF and low S21 by increasing the effective input impedance and improving transconductance efficiency in the 5.8 GHz band, without increasing power or violating the device budget. The inductor provides a resonant path that boosts S21 and reduces noise by optimizing the input impedance match to 50\u03a9, directly attacking the most negative margins.",
+  "arm": "B",
+  "run_id": "19921c84c8644538",
+  "trajectory": "trajectory/19921c84c8644538.jsonl"
+}

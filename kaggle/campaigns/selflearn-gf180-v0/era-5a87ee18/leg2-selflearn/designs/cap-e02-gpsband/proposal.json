@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 VDD\nNMOS M1 n2 n1 VSS VSS\nL Ls n2 VSS\nNMOS M2 n3 VDD n2 VSS\nC Cout n3 VOUT1\nL Lp n3 VDD\nL Ls2 n2 n4\nC Cg n4 VSS",
+  "wl_hash": "bbfb519cb5c529ee",
+  "rationale": "The current topology suffers from poor noise figure, low gain, and excessive current draw, all due to an insufficiently biased common-source amplifier with no inductive degeneration or matching. The binding constraints are NF, S21, and Idd, with the most negative margin in Idd, followed by NF. To improve the binding constraints without breaking others, we must reduce current while increasing gain and improving noise performance. Adding a source inductor (Ls) with appropriate value provides inductive peaking for S21, reduces effective transconductance, lowers Idd, and improves NF by stabilizing the input impedance and reducing the noise contribution from the gate resistance. This is a well-established technique in narrowband LNAs for 45nm CMOS.",
+  "arm": "B",
+  "run_id": "125223db573541b7",
+  "trajectory": "trajectory/125223db573541b7.jsonl"
+}

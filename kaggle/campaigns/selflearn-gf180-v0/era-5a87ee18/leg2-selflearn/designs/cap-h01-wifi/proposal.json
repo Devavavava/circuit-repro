@@ -1,0 +1,8 @@
+{
+  "netlist": "C Cin VIN1 n1\nL Lg n1 n2\nL Ls n2 n3\nNMOS M1 n4 n3 n5 VSS\nL Ld VDD n4\nNMOS M2 n6 n4 n7 VSS\nC Ct1 n6 n8\nC Ct2 n8 VSS\nC Cout n8 VOUT1\nC Cgd n4 n3",
+  "wl_hash": "61f09d059c38352d",
+  "rationale": "The proposed topology improves the binding constraint\u2014NF (9.076 dB, margin -4.042) by adding a source degeneration inductor in series with the gate of M1, which enhances input matching and reduces noise figure by increasing the effective source resistance seen at the gate, while maintaining gain and power efficiency. This is critical for the H-tier spec where low NF is the dominant constraint. The added inductor also improves stability and input match by shifting the input impedance towards 50\u03a9, directly addressing the S11 margin. The topology remains compact, uses only one additional inductor (within the 3-inductor limit), and does not alter the existing biasing structure or introduce floating nodes.",
+  "arm": "B",
+  "run_id": "97de5b16a9834965",
+  "trajectory": "trajectory/97de5b16a9834965.jsonl"
+}

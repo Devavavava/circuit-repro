@@ -1,0 +1,17 @@
+* physaudit fence: check_pdk_live gf180 smoke repro
+.include "/home/dpatni/circuit-repro/.env/pdks/gf180mcu/models/ngspice/design.ngspice"
+.lib "/home/dpatni/circuit-repro/.env/pdks/gf180mcu/models/ngspice/sm141064.ngspice" typical
+Vdd vdd 0 3.3
+Vin in 0 dc 1.2 ac 1
+Rd vdd d 5k
+XM1 d in 0 0 nmos_3p3 w=10e-6 l=0.28e-6 nf=1
+.control
+op
+print v(d)
+let id = (3.3 - v(d))/5k
+print id
+ac dec 10 1e3 1e9
+let gdb = db(v(d))
+meas ac gainlf find gdb at=1e3
+.endc
+.end

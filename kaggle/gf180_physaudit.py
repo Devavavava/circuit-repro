@@ -404,8 +404,9 @@ def main():
                             "stage_msg_db": msg_db,
                             "ft_ghz": (unity_crossing(r["fig"]["f"],
                                                       r["fig"]["h21"]) or 0) / 1e9,
-                            "fmax_ghz": (unity_crossing(r["fig"]["f"],
-                                                        np.sqrt(r["fig"]["U"])) or 0) / 1e9}
+                            "fmax_ghz": None,
+                            "fmax_note": "undefined under rgateMod=0 "
+                            "(Re[Y11]~0, Mason U numerically degenerate)"}
         # noise floor (primary = spnoise if available, else grid)
         nfmin_sp = min((interp_at(r["f"], r["nfmin_db"], sp["f0"])
                         for r in t2sp), default=None)

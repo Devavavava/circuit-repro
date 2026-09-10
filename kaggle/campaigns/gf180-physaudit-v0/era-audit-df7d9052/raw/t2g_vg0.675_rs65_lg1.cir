@@ -1,0 +1,24 @@
+* physaudit T2 noise vgs=0.675 rs=65 lg=1e-09
+.include "/home/dpatni/circuit-repro/.env/pdks/gf180mcu/models/ngspice/design.ngspice"
+.lib "/home/dpatni/circuit-repro/.env/pdks/gf180mcu/models/ngspice/sm141064.ngspice" typical
+Vnz nin 0 dc 0 ac 1
+Rns nin n1 65
+Lser n1 n2 1e-09
+Cblk n2 g 1
+Vg gb 0 dc 0.675
+Lgb gb g 1
+Vd db 0 dc 1.65
+Ld db d 1
+X1 d g 0 0 nmos_3p3 w=2e-05 l=0.28e-6 nf=10
+.control
+op
+let id = -i(Vd)
+print id
+noise v(d) Vnz dec 10 8e8 6.5e9
+setplot noise1
+set wr_singlescale
+set wr_vecnames
+let inr = inoise_spectrum
+wrdata t2g_vg0.675_rs65_lg1_nz.csv inr
+.endc
+.end

@@ -61,4 +61,8 @@ system's job).
 
 ## Round approval record
 
-- Round 1 approved families: ____ (user, date)
+- Round 1 approved families: **C1 + C3 + C4** (user approval of the
+  suggested round-1 subset, 2026-09-11, "Fable day 3" session). C2/C5 remain
+  candidates for round 2, unapproved. Origin push NOT covered by this
+  approval (needs its own per-instance wording); GPU retrieval leg is
+  push-gated accordingly.

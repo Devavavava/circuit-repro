@@ -1,0 +1,12 @@
+* C3: current-reuse NMOS/PMOS push-pull CS LNA (Karanicolas JSSC 1996 /
+* CMOS inverter-LNA lineage). Both devices share one bias current; total
+* gm = gm_n + gm_p -- attacks the audited gain-per-mA bind directly.
+* Tuned load L3+C3 avoids disturbing the shared DC path. Structure only.
+* Round-1 external, approved 2026-09-11.
+L L1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1

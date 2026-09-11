@@ -1,0 +1,11 @@
+* C4: resistive shunt-feedback CS LNA with shunt-peaked load (wideband;
+* Bruccoleri/Klumperink/Nauta wideband-LNA lineage + Mohan et al. JSSC 2000
+* shunt peaking). Broadband real input match via R1 feedback; targets the
+* 0.5-3 GHz cells (e08/h08). Structure only. Round-1 external, approved
+* 2026-09-11.
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n3
+R R2 n3 n2
+C C2 n2 VOUT1

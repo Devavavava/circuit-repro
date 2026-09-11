@@ -1,0 +1,22 @@
+# x0-v1 results (EXPERIMENTAL -- pre-registered, not frozen)
+
+arm = LNA_X0_PRIOR = (unset -> off/A0)   (off=A0 null / retrieval=A1 / learned=A2)
+Fixed topology per cell, k=1, NO screening, no LLM. 0-feasible rows are results, not suppressed failures.
+NOVEL-10 = wl not in the store (primary set); SEEN-4 = control strip.
+sim-health = fraction of ngspice evals that produced metrics (1.00 = healthy; <<1 = environment wall).
+
+| spec | tier | split | flag | pdk | feasible | first-feasible | evals | escalated | best_obj | margins (worst) | sim-health | wl_hash | notes |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| cap-e02-gpsband | E | seen | off | gf180mcu | no | - | 3600 | no | 1.61 | s11_db=-0.613 | 1.00 (0/3600) | dcda50191d7c | infeasible (closest attempt saved) |
+| cap-e03-900mhz | E | seen | off | gf180mcu | no | - | 3600 | no | 1.56 | s21_db=-0.447 | 1.00 (0/3600) | dcda50191d7c | infeasible (closest attempt saved) |
+| cap-e07-gpsband | E | seen | off | gf180mcu | no | - | 3600 | no | 1.72 | s11_db=-0.694 | 1.00 (0/3600) | 226544590d47 | infeasible (closest attempt saved) |
+| cap-e08-wideband | E | seen | off | gf180mcu | no | - | 3600 | no | 2.06 | s11_max_db=-0.687 | 1.00 (0/3600) | 226544590d47 | infeasible (closest attempt saved) |
+| cap-h01-wifi | H | seen | off | gf180mcu | no | - | 3600 | no | 1.1 | nf_db=-0.0976 | 1.00 (0/3600) | dcda50191d7c | infeasible (closest attempt saved) |
+| cap-h02-gpsband | H | seen | off | gf180mcu | no | - | 3600 | no | 2.3 | s11_db=-0.988 | 1.00 (0/3600) | dcda50191d7c | infeasible (closest attempt saved) |
+| cap-h03-900mhz | H | seen | off | gf180mcu | no | - | 3600 | no | 2.93 | s11_db=-0.993 | 1.00 (0/3600) | dcda50191d7c | infeasible (closest attempt saved) |
+| cap-h06-wifi | H | seen | off | gf180mcu | no | - | 3600 | no | 1.32 | s21_db=-0.169 | 1.00 (0/3600) | 226544590d47 | infeasible (closest attempt saved) |
+| cap-h07-gpsband | H | seen | off | gf180mcu | no | - | 3600 | no | 2.59 | s11_db=-0.984 | 1.00 (0/3600) | dcda50191d7c | infeasible (closest attempt saved) |
+| cap-h08-wideband | H | seen | off | gf180mcu | no | - | 3600 | no | 2.83 | s11_max_db=-0.975 | 1.00 (0/3600) | 226544590d47 | infeasible (closest attempt saved) |
+| cap-m02-gpsband | M | seen | off | gf180mcu | no | - | 3600 | no | 2.14 | s11_db=-0.805 | 1.00 (0/3600) | 226544590d47 | infeasible (closest attempt saved) |
+| cap-m03-900mhz | M | seen | off | gf180mcu | no | - | 3600 | no | 2.73 | s11_db=-0.96 | 1.00 (0/3600) | 226544590d47 | infeasible (closest attempt saved) |
+| cap-m07-gpsband | M | seen | off | gf180mcu | no | - | 3600 | no | 2.52 | s11_db=-0.849 | 1.00 (0/3600) | 226544590d47 | infeasible (closest attempt saved) |

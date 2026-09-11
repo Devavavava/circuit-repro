@@ -1,4 +1,4 @@
-# CAMPAIGN qwen-editcap-v0 — can Qwen reason from a failed circuit to a topological fix? (DRAFT — awaiting user GO)
+# CAMPAIGN qwen-editcap-v0 — can Qwen reason from a failed circuit to a topological fix? (GO 2026-09-11)
 
 Devised 2026-09-11 on user direction: the sizer is a known-good tool, not
 the subject. The subject is the MODEL: **identify the situations in which
@@ -39,12 +39,27 @@ Pre-registered situation buckets:
 - **S3 wideband** (e08 h08, c4 anchor): s11/ripple binds — feedback/peaking
   structure territory.
 
+**MATERIALIZED AT FREEZE (rule-derived, kaggle/editcap-lib/INDEX.json; all
+13 render fences green):**
+- S1 (×4): e02(c1, s21 −0.02), e03(c1, s21 −0.39), h01(c1, nf −0.21),
+  h06(c3, nf −0.26)
+- S2 (×7): e07(c3), h02(c1), h03(c1), h07(c1), m02(c3), m03(c3), m07(c3) —
+  binding constraint is s11 at −0.74..−0.98 on ALL seven: with the best
+  anchor per cell, gain/NF are held and the residual failure is
+  SIMULTANEOUS INPUT MATCH. (The draft's "gain gap" reading described the
+  single-family view; the frozen bucket RULE is unchanged, the
+  interpretation is updated to what the library actually shows.)
+- S3 (×2): e08(c3), h08(c3) — s11_max −0.60/−0.98.
+
 ## Arms (per cell; sizing recipe byte-identical everywhere)
 
 - **A — sizing-extension null (box, no GPU):** anchor re-sized at the
   MATCHED TOTAL eval budget that B spends across its k edits (matched-total
-  discipline per E-13a). Expected to close some S1 cells; that outcome
-  labels them "no topology fix needed" in the map — an answer, not a loss.
+  discipline per E-13a): B = 3 edits × 600 base + 1800 best-edit
+  escalation = 3600 evals/cell ⇒ A runs seeds 3 × budget 1200,
+  no-escalate = 3600 exactly, single phase. Expected to close some S1
+  cells; that outcome labels them "no topology fix needed" in the map — an
+  answer, not a loss.
 - **B — evidence edit (GPU):** prompt = spec + anchor netlist + failure
   evidence (metrics, margins, binding constraint, Idd headroom) → Qwen must
   (1) diagnose the failure in words, (2) emit k=3 structural edits in the
@@ -76,6 +91,37 @@ failed proposals (recorded, not resized).
 - Falsifier: B ≈ C everywhere AND B ≤ A ⇒ diagnose→edit capability absent
   at this scale under maximally favorable anchors; named next levers
   (edit-log FT, larger model tier) are OUT of this campaign's scope.
+
+## Diagnosis adjudication record (user requirement, 2026-09-11 GO)
+
+The user will later have a stronger model audit Qwen's diagnoses for
+grounding vs confabulation. Therefore the GPU driver MUST archive, per cell
+per arm, VERBATIM: the exact rendered prompt (the full evidence package as
+shown), the raw model output, the parsed diagnosis text, every edit netlist
+with WL hash and predicted deltas, per-edit fence outcomes, and per-edit
+sized results. Layout: `<campaign>/adjudication/<spec>/<arm>/...`. Nothing
+summarized, nothing paraphrased — the audit needs exactly what the model
+saw and said.
+
+**Pre-registered adjudication rubric** (frozen now so the later audit is
+disciplined, not post-hoc): each arm-B diagnosis is graded on
+(1) GROUNDING — every factual claim checked against the shown evidence
+(netlist, metrics, margins); claims directly refuted by shown evidence are
+flagged CONTRADICTED (the "lie" case);
+(2) MECHANISM — is the causal story physics-consistent (checked against
+standard RF theory and the physaudit record, which the model did NOT see);
+(3) COHERENCE — does the proposed edit actually follow from the stated
+diagnosis;
+(4) CALIBRATION — predicted vs measured binding-metric delta.
+Verdicts: GROUNDED / PARTIAL / CONFABULATED (+CONTRADICTED flag).
+Adjudication runs AFTER scoring, is archived alongside results, and NEVER
+feeds back into system prompts/playbook (no-guidance-injection preserved).
+
+**Evidence-content rule (frozen):** arm-B prompts contain ONLY the failure
+record — spec, anchor netlist, sized-best metrics, margins, binding
+constraint, Idd headroom. The physaudit data (MSG ceilings etc.) is
+EXCLUDED from prompts: it would do the S2 reasoning for the model; it is
+reserved for the adjudicator.
 
 ## Governance
 

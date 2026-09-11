@@ -1,0 +1,81 @@
+{
+ "spec": "cap-h08-wideband",
+ "band": "wideband 0.5-3 GHz",
+ "band_type": "wideband",
+ "tier": "H",
+ "pdk": "gf180mcu",
+ "wl_hash": "226544590d47717b",
+ "feasible": false,
+ "worst_margin": [
+  "s11_max_db",
+  -0.9795877999999999
+ ],
+ "margins": {
+  "nf_db": {
+   "achieved": 4.559941,
+   "margin": -0.8239764,
+   "supported": true
+  },
+  "s11_max_db": {
+   "achieved": -0.306183,
+   "margin": -0.9795877999999999,
+   "supported": true
+  },
+  "s21_db": {
+   "achieved": 3.822,
+   "margin": -0.761125,
+   "supported": true
+  },
+  "s21_ripple_db": {
+   "achieved": 0.22546,
+   "margin": 0.8496933333333333,
+   "supported": true
+  },
+  "idd_ma": {
+   "achieved": 4.850681,
+   "margin": 0.02986380000000004,
+   "supported": true
+  },
+  "iip3_dbm": {
+   "achieved": null,
+   "margin": null,
+   "supported": false
+  }
+ },
+ "metrics": {
+  "s11_db": -0.331475,
+  "s11_max_db": -0.306183,
+  "s21_db": 3.822,
+  "s21_min_db": 3.73035,
+  "idd_ma": 4.850681,
+  "nf_db": 4.559941,
+  "s22_db": -1.2053,
+  "s22_max_db": -1.1905,
+  "s12_db": -30.3608,
+  "k_f0": 0.171103,
+  "k_min": 0.147295,
+  "mu_f0": 0.577176,
+  "mu_min": 0.440411,
+  "mu_src_f0": 0.847534,
+  "mu_src_min": 0.737547,
+  "delta_f0": 0.836831,
+  "delta_max": 0.837788,
+  "stab_band": [
+   500000000.0,
+   3000000000.0
+  ],
+  "s21_ripple_db": 0.22546,
+  "nf_method": "series_rs"
+ },
+ "total_evals": 1800,
+ "escalated": true,
+ "budgets": {
+  "k": 5,
+  "edit_rounds": 4,
+  "seeds": 3,
+  "budget": 600,
+  "max_tokens": 3072
+ },
+ "stability": null,
+ "anchor_family": "c3"
+}

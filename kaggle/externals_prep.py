@@ -66,10 +66,17 @@ def main():
             ok_all = False
             continue
         try:
-            bs = bias.insert_bias(topo, sweep=True, pdk="gf180mcu")
-            rec["gates"]["gf180_bias"] = bool(bs is not None)
+            _nl, _ins, _rep, sw = bias.insert_bias(topo, sweep=True,
+                                                   pdk="gf180mcu")
+            # Informational only: in-topology bias networks may need SIZING
+            # before conduction; the binding launch fence is the 40-eval
+            # conduction smoke (best idd_ma > 0.05) run via the x0v1 engine.
+            rec["gates"]["gf180_bias_sweep"] = {
+                "all_conduct_at_placeholders": bool(sw.get("all_conduct")),
+                "n_conducting": sw.get("n_conducting"),
+                "n_mos": sw.get("n_mos")}
         except Exception as e:
-            rec["gates"]["gf180_bias"] = f"FAIL: {e}"
+            rec["gates"]["gf180_bias_sweep"] = f"FAIL: {e}"
             ok_all = False
             continue
         tf = EXT / f"{fam}.tokens.json"

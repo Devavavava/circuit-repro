@@ -32,6 +32,27 @@ Topology.valid, L0 vs cap-e01-wifi, gf180 bias sweep — see
 (159 hashes, digest 8f25e960cccff34e): the system has never held these
 shapes.
 
+**AMENDMENT 1 (2026-09-11, post-v0-legs — logged deviation).** The v0 legs
+ran 0/72, but design forensics showed c1's best designs at idd_ma = 0.0
+(never conducted) and c3 running PMOS-only: the v0/v0.1 templates omitted
+their published BIAS NETWORKS, and under the default (v1) harness bias
+rules a cap-isolated gate gets NOTHING inserted (sweep: biased=false;
+the opt-in LNA_BIAS_RULES v3 machinery is NOT used — flipping it would
+change the recipe vs every comparison arm). The era-binfix gf180 winner
+confirms the house idiom: gate bias lives IN the topology (diode-connected
+device feeding the gate node). v0.2 templates therefore carry their
+published bias networks as structure (C1: mirror ref R→diode-NM3→R to the
+input gate, per Shaeffer-Lee; C3: same for the NMOS gate + diode-PM2
+reference for the PMOS gate), input DC-blocked — still zero authored
+values. New hashes: c1 dcda50191d7c5e73 (103 tokens), c3 226544590d47717b
+(157 tokens); both NOVEL vs ref-v3. NEW LAUNCH FENCE (binding, replaces the
+vacuous prep bias gate): 40-eval conduction smoke per family on
+cap-e01-wifi must show best idd_ma > 0.05 — passed (c1: 4.74 mA, s21 +9.4,
+nf 1.6; c3: 14.7 mA). Scoring is UNCHANGED; the v0 c1/c3 legs are archived
+as INVALID-PROBE (transcription flaw, not a physics result) and superseded
+by v0.2 reruns; the v0 c4 leg is VALID (self-biased via feedback R) and
+stands. c4 hash unchanged a6122feb26e8d4dc.
+
 ## Pre-set scoring (frozen before results)
 
 - Primary: per-spec feasible-in-any-leg count, vs the in-era gf180 record —

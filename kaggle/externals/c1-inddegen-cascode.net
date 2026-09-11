@@ -1,10 +1,18 @@
-* C1: inductively-degenerated cascode CS LNA (Shaeffer & Lee, JSSC 1997 family)
-* Structure-only transcription; all component values come from the sizer.
-* Cascode gate tied to VDD (AC ground); input/bias DC handled by the harness
-* bias inserter. Round-1 external, approved 2026-09-11.
-L L1 VIN1 n1
+* C1: inductively-degenerated cascode CS LNA (Shaeffer & Lee, JSSC 1997).
+* Structure-only transcription incl. the published BIAS NETWORK: current-
+* mirror reference (R1 -> diode NM3) feeding the input gate through R2;
+* input DC-blocked (C1); cascode gate at VDD (AC ground). v0.2 after v0/v0.1
+* dead-bias forensics: default harness bias rules insert nothing for
+* floating gates -- bias must be in-topology (= the published form, and the
+* idiom of the era-binfix gf180 winner). All values sized, none authored.
+* Round-1 external, approved 2026-09-11.
+C C1 VIN1 n0
+L L1 n0 n1
 NMOS NM1 n2 n1 n3 VSS
 L L2 n3 VSS
 NMOS NM2 n4 VDD n2 VSS
 L L3 VDD n4
-C C1 n4 VOUT1
+C C2 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1

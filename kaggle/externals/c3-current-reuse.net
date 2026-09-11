@@ -1,12 +1,22 @@
 * C3: current-reuse NMOS/PMOS push-pull CS LNA (Karanicolas JSSC 1996 /
-* CMOS inverter-LNA lineage). Both devices share one bias current; total
-* gm = gm_n + gm_p -- attacks the audited gain-per-mA bind directly.
-* Tuned load L3+C3 avoids disturbing the shared DC path. Structure only.
+* inverter-LNA lineage). Shared bias current; gm_n + gm_p attacks the
+* audited gain-per-mA bind. Tuned load L2+C2 off the shared DC path.
+* v0.2: in-topology bias networks (published form; default harness rules
+* insert nothing for floating gates): NMOS gate via mirror ref R1->diode
+* NM3 through R2; PMOS gate via diode PM2 (current set by R4) through R5.
+* Input DC-blocked (C4). All values sized, none authored.
 * Round-1 external, approved 2026-09-11.
-L L1 VIN1 n1
+C C4 VIN1 n0
+L L1 n0 n1
 NMOS NM1 n2 n1 VSS VSS
 C C1 n1 n3
 PMOS PM1 n2 n3 VDD VDD
 L L2 n2 n4
 C C2 n4 VSS
 C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3

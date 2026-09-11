@@ -92,6 +92,18 @@ failed proposals (recorded, not resized).
   at this scale under maximally favorable anchors; named next levers
   (edit-log FT, larger model tier) are OUT of this campaign's scope.
 
+**DRIVER MATERIALIZATION NOTES (pre-GPU-run, accepted 2026-09-11, driver
+commit 9c34349c):** (1) the k=3 edits come from ONE completion per cell per
+arm (diagnosis + 3 fenced netlists in a single turn) — accepted as better
+for adjudication: one coherent diagnosis→edits causal chain per cell;
+(2) sizing runs `--pdk gf180mcu` (the library's process; ladder YAML model
+paths are overridden as in all gf180 campaigns); (3) escalation picks the
+best edit by feasibility-first → worst-margin-closest-to-zero → best_obj
+(the loop's own discipline). Mock-LLM validation ran the full path on
+cap-e02 (S1) + cap-h02 (S2), both arms, real ngspice, sim-health clean,
+adjudication tree verified. Launch checklist:
+`kaggle/kernels-editcap/editcap-gpu/README-LAUNCH.md`.
+
 ## Diagnosis adjudication record (user requirement, 2026-09-11 GO)
 
 The user will later have a stronger model audit Qwen's diagnoses for

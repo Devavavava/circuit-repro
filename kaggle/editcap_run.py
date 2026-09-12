@@ -67,6 +67,8 @@ _spec.loader.exec_module(C)
 import driver as D                                                  # noqa: E402
 import proposal as P                                                # noqa: E402
 from spec import Spec                                               # noqa: E402
+sys.path.insert(0, os.path.join(ROOT, "kaggle"))                   # editcap_annotate
+import editcap_annotate as A                                        # noqa: E402
 
 assert hasattr(C, "BASE") and C.__file__ == _camp_path, \
     "wrong campaign module loaded: %r" % getattr(C, "__file__", None)
@@ -76,6 +78,12 @@ SMOKE = dict(seeds=1, budget=40)      # conduction fence (idd > 0.05 mA)
 BASE = dict(seeds=2, budget=300)      # every edit that clears smoke
 ESCALATE = dict(seeds=3, budget=600)  # ONLY the single best edit per cell
 IDD_FENCE_MA = 0.05                    # externals-v0 conduction lesson
+S21_FENCE_DB = -30.0                   # v1 signal-path fence: any measurable
+                                       # forward path (bias-branch idd alone let a
+                                       # dead-signal edit clear the v0 fence --
+                                       # ADJUDICATION.md "conduction fence passes
+                                       # on TOTAL supply current"). Applied only
+                                       # when the smoke best exposes s21_db.
 K_EDITS = 3                            # pre-reg k=3 structural edits/cell
 
 LADDER_DIR = os.path.join(ROOT, "kaggle", "specs-ladder")
@@ -98,12 +106,24 @@ class _MockLLM(object):
       edit1: + R Radd VOUT1 VSS   (output shunt resistor)
       edit2: + C Cadd2 VIN1 VSS   (input shunt cap)
     These are legal proposal-dialect lines on reserved nets, guaranteed distinct
-    from the anchor WL hash and from each other, and size on real ngspice."""
+    from the anchor WL hash and from each other, and size on real ngspice.
+
+    For round r>1 (arm F/EF verify-refine), a STRUCTURALLY distinct set is used
+    (shunts to VDD / a series R into the output) so the round-2 edits survive the
+    WL-dedup-vs-all-prior-edits and exercise the round-2 base-size path too. (WL
+    hashes are graph-structural, so merely renaming a device does not dedup-clear;
+    the nets themselves must differ round to round.)"""
 
     _ADDS = [
         "C Cadd VOUT1 VSS",
         "R Radd VOUT1 VSS",
         "C Cadd2 VIN1 VSS",
+    ]
+    # round 2+: distinct nets (VDD-side shunts + a series R) so the graphs differ.
+    _ADDS_R2 = [
+        "C Cadd VOUT1 VDD",
+        "R Radd VIN1 VDD",
+        "C Cadd2 VIN1 VOUT1",
     ]
 
     def __init__(self, k=K_EDITS):
@@ -115,16 +135,23 @@ class _MockLLM(object):
                 "s11 sits well above target. Each variant below perturbs the "
                 "loading to probe whether added structure moves the match.")
 
-    def complete_edit(self, anchor_net, arm):
+    def complete_edit(self, anchor_net, arm, round_no=1):
         """Return (raw_output_text, diagnosis_or_None, [edit_texts]).
 
-        arm B includes a worded diagnosis; arm C omits it (matches the prompts).
-        """
+        Evidence arms (B/E/F/EF) include a worded diagnosis; the blind control C
+        omits it (matches the prompts). `round_no` perturbs the appended devices
+        so round-2 mock edits DIFFER from round-1 (WL-dedup vs prior rounds is
+        then exercised end to end).
+
+        The raw text places each edit's prediction AFTER its fence (the observed
+        live format -- see the archived raw_output.txt), so the predicted-text
+        association fix is exercised on realistic layout."""
         edits = []
+        adds = self._ADDS_R2 if round_no > 1 else self._ADDS
         for i in range(self.k):
-            add = self._ADDS[i % len(self._ADDS)]
+            add = adds[i % len(adds)]
             edits.append(anchor_net.rstrip("\n") + "\n" + add + "\n")
-        diag = self._diagnosis() if arm == "B" else None
+        diag = self._diagnosis() if arm != "C" else None
         # Render a raw output that LOOKS like a real model reply, so the archived
         # raw_output.txt exercises the SAME parse path a live reply would.
         parts = []
@@ -132,9 +159,10 @@ class _MockLLM(object):
             parts.append(diag + "\n")
         for i, e in enumerate(edits):
             pred = ("PREDICTED for the binding metric: s11_db improves "
-                    "(more negative) by ~2 dB." if arm == "B"
+                    "(more negative) by ~2 dB." if arm != "C"
                     else "variant %d." % i)
-            parts.append("EDIT %d -- %s\n```netlist\n%s```\n" % (i, pred, e))
+            # fence FIRST, prediction AFTER (matches observed live layout).
+            parts.append("```netlist\n%s```\n\n%s\n" % (e, pred))
         return "\n".join(parts), diag, edits
 
 
@@ -181,9 +209,10 @@ class _LiveLLM(object):
         ch = (resp.get("choices") or [{}])[0]
         content = (ch.get("message") or {}).get("content", "") or ""
         edits = _parse_edits_from_raw(content)[:self.k]
-        # diagnosis (arm B) = everything before the first fence, trimmed.
+        # diagnosis (evidence arms B/E/F/EF) = everything before the first fence,
+        # trimmed. The blind control C requests no diagnosis, so none is parsed.
         diag = None
-        if arm == "B":
+        if arm != "C":
             fence = content.find("```")
             diag = (content[:fence] if fence >= 0 else content).strip() or None
         return content, diag, edits
@@ -296,18 +325,53 @@ def _instructions_C(k):
         % (k, DIALECT))
 
 
-def build_prompt_B(spec, anchor_net, ev, k=K_EDITS):
-    """Arm B prompt: spec constraints + anchor netlist VERBATIM + failure
-    evidence + diagnose-then-k-edits instructions. Returns (messages, prompt_text).
-    """
+# ---- arm taxonomy (v1): B,C,E,F,EF ----------------------------------------
+# E = B + annotation; F = B + rounds 2; EF = both. C stays the blind control
+# (no annotation, no rounds -- enforced in main()). All non-C arms are
+# "evidence" arms (same evidence package as B); the arm string only toggles the
+# annotate/rounds capabilities layered on top of B's prompt.
+def _arm_has_evidence(arm):
+    return arm != "C"
+
+
+def _arm_annotates(arm):
+    return arm in ("E", "EF")
+
+
+def _arm_rounds(arm):
+    """True if the arm letter implies a verify-refine second round (F / EF)."""
+    return arm in ("F", "EF")
+
+
+def _annotation_block(anchor_net):
+    """The arm-E annotation, rendered from the SAME anchor text the model sees.
+
+    Wrapped in neutral section headers by editcap_annotate itself. A leading
+    banner labels it as machine-derived so the model does not mistake it for
+    additional spec content."""
+    body = A.annotate(anchor_net)
+    return ("=== STRUCTURAL ANNOTATION (auto-derived from the netlist graph "
+            "above; facts only) ===\n" + body)
+
+
+def build_prompt_B(spec, anchor_net, ev, k=K_EDITS, annotate=False):
+    """Arm B (and E/F/EF) prompt: spec constraints + anchor netlist VERBATIM +
+    (optional) structural annotation + failure evidence + diagnose-then-k-edits
+    instructions. Returns (messages, prompt_text).
+
+    `annotate=False` reproduces v0 byte-for-byte; `annotate=True` (arm E/EF)
+    inserts the auto-derived GRAPH FACTS block between the anchor and the
+    evidence (targets the measured comprehension failures)."""
+    anno = ("%s\n\n" % _annotation_block(anchor_net)) if annotate else ""
     user = (
         "%s\n\n"
         "=== ANCHOR NETLIST (the failed circuit, dialect form) ===\n"
         "```netlist\n%s```\n\n"
+        "%s"
         "%s\n\n"
         "%s"
     ) % (_spec_constraint_block(spec), anchor_net.rstrip("\n") + "\n",
-         _evidence_block(ev), _instructions_B(k))
+         anno, _evidence_block(ev), _instructions_B(k))
     messages = [{"role": "system", "content": SYSTEM},
                 {"role": "user", "content": user}]
     return messages, SYSTEM + "\n\n" + user
@@ -316,7 +380,8 @@ def build_prompt_B(spec, anchor_net, ev, k=K_EDITS):
 def build_prompt_C(spec, anchor_net, k=K_EDITS):
     """Arm C prompt: IDENTICAL to B minus ALL evidence (no metrics/margins, no
     diagnosis request -- just spec + anchor + 'propose k structural variants').
-    Returns (messages, prompt_text)."""
+    The blind control stays blind: no annotation, no rounds (arm C never sets
+    them). Returns (messages, prompt_text)."""
     user = (
         "%s\n\n"
         "=== ANCHOR NETLIST (starting circuit, dialect form) ===\n"
@@ -340,6 +405,38 @@ def _smoke_idd(tokens, spec_ref, pdk):
         return None, None
     idd = (best.get("metrics") or {}).get("idd_ma")
     return (idd if isinstance(idd, (int, float)) else None), best
+
+
+def _fence_eval(idd, smoke_best, fence_s21):
+    """Decide the conduction fence from the smoke best. Returns (passed, detail).
+
+    v0 fence: idd > IDD_FENCE_MA (bias-branch current). v1 signal-path fence
+    (`fence_s21`, default ON): ALSO require the smoke best's s21_db > S21_FENCE_DB
+    -- any measurable forward path -- to reject dead-signal edits that the bias
+    branch alone floated past the v0 fence (ADJUDICATION.md). If the smoke metrics
+    lack s21_db, the s21 gate is skipped (fence falls back to idd-only), recorded
+    as s21=None. `detail` is archived into the edit meta + result row."""
+    metrics = (smoke_best or {}).get("metrics") or {}
+    s21 = metrics.get("s21_db")
+    s21 = s21 if isinstance(s21, (int, float)) else None
+    idd_ok = isinstance(idd, (int, float)) and idd > IDD_FENCE_MA
+    s21_ok = True
+    s21_applied = bool(fence_s21) and s21 is not None
+    if s21_applied:
+        s21_ok = s21 > S21_FENCE_DB
+    passed = bool(idd_ok and s21_ok)
+    detail = {
+        "passed": passed,
+        "idd_ma": idd if isinstance(idd, (int, float)) else None,
+        "idd_ok": idd_ok,
+        "idd_floor_ma": IDD_FENCE_MA,
+        "s21_db": s21,
+        "s21_ok": s21_ok,
+        "s21_applied": s21_applied,
+        "s21_floor_db": S21_FENCE_DB if s21_applied else None,
+        "fence_s21_flag": bool(fence_s21),
+    }
+    return passed, detail
 
 
 def _size_at(tokens, spec_ref, cfg, pdk):
@@ -385,77 +482,101 @@ def _margins_compact(margins):
             for k, m in (margins or {}).items()}
 
 
+# ---- round-2 prompt (arm F/EF verify-refine) -------------------------------
+def _measured_results_block(round_no, edit_summaries):
+    """Render the VERBATIM measured results for one round's edits, for the next
+    round's prompt: per edit, its WL hash, fence outcome, and (if sized) the
+    sized metrics, per-constraint margins, and worst margin. This is the model's
+    own round-1 attempts + what the deterministic sizer actually measured -- the
+    feedback the verify-refine loop is built to consume."""
+    lines = ["=== MEASURED RESULTS OF YOUR ROUND %d EDITS ===" % round_no]
+    for s in edit_summaries:
+        i = s.get("index")
+        lines.append("")
+        lines.append("--- your edit %d ---" % i)
+        lines.append("WL hash: %s" % (s.get("wl_hash") or "(unparseable)"))
+        lines.append("outcome: %s" % s.get("fence_outcome"))
+        if s.get("error"):
+            lines.append("parse/round-trip error: %s" % s["error"])
+        if s.get("fence_detail"):
+            fd = s["fence_detail"]
+            lines.append("conduction fence: idd=%s mA (floor %s), s21=%s dB%s -> %s"
+                         % (fd.get("idd_ma"), fd.get("idd_floor_ma"),
+                            fd.get("s21_db"),
+                            (" (floor %s)" % fd.get("s21_floor_db"))
+                            if fd.get("s21_applied") else " (s21 gate off)",
+                            "PASS" if fd.get("passed") else "FAIL"))
+        sm = s.get("sized_metrics")
+        if sm is not None:
+            lines.append("sized: feasible=%s  worst_margin=%s"
+                         % (s.get("sized_feasible"), s.get("worst_margin")))
+            lines.append("sized metrics (verbatim): %s"
+                         % json.dumps(sm, default=float))
+            if s.get("sized_margins"):
+                lines.append("per-constraint margins: %s"
+                             % json.dumps(s["sized_margins"], default=float))
+    return "\n".join(lines)
+
+
+def _instructions_round2(k):
+    return (
+        "YOUR TASK (round 2 -- verify and refine):\n"
+        "Above are your round-1 edits and EXACTLY what the deterministic sizer "
+        "measured for each. Using ONLY those measured outcomes, propose EXACTLY "
+        "%d NEW structural edits: you may iterate on whichever round-1 edit did "
+        "best, or change course entirely. Each edit is a complete netlist (not a "
+        "diff), structurally DIFFERENT from the anchor, from every round-1 edit, "
+        "and from the other round-2 edits.\n"
+        "After EACH edit, state a PREDICTED direction AND magnitude for the "
+        "binding metric.\n\n"
+        "Emit each edit in its OWN fenced ```netlist block.\n\n%s"
+        % (k, DIALECT))
+
+
+def build_prompt_round2(base_prompt_text, round_no, prev_edit_summaries, k=K_EDITS):
+    """Round-r prompt = the ORIGINAL round-1 prompt content (spec + anchor +
+    [annotation] + evidence) with the round-1 instruction block replaced by the
+    VERBATIM measured results + the verify-refine instruction. Returns
+    (messages, prompt_text). The original content is reused verbatim by prefixing
+    it (minus its trailing task block would over-engineer; instead we append the
+    measured-results feedback and a fresh task -- the model re-reads its own prior
+    task above and now sees the outcomes)."""
+    results = _measured_results_block(round_no - 1, prev_edit_summaries)
+    user = "%s\n\n%s\n\n%s" % (base_prompt_text, results, _instructions_round2(k))
+    messages = [{"role": "system", "content": SYSTEM},
+                {"role": "user", "content": user}]
+    return messages, user
+
+
 # ================================================================ per-cell run
-def run_cell(cell_name, cell_dir, arm, llm, out_dir, pdk):
-    """Run ONE cell for ONE arm end to end. Returns (row_dict, n_valid_edits).
+def _process_round(adj_round, edit_texts, raw_output, seen_wl, spec_ref, pdk,
+                   fence_s21, round_no=1):
+    """Parse/validate/dedup/fence/base-size one round of edit texts.
 
-    Control flow (pre-reg):
-      build prompt -> one LLM completion -> parse k edits (loop fence regex)
-      -> validate each via proposal.round_trip -> WL-dedup vs anchor and each
-      other -> per VALID edit: 40-eval smoke; idd<=0.05 -> fence_fail (skip size);
-      else base-size (2x300) -> after all edits, escalate ONLY the best (3x600).
-    Archives VERBATIM throughout (hard pre-reg requirement)."""
-    anchor_net = open(os.path.join(cell_dir, "anchor.net"), encoding="utf-8").read()
-    anchor_tokens = json.load(open(os.path.join(cell_dir, "anchor.tokens.json"),
-                                   encoding="utf-8"))
-    ev = json.load(open(os.path.join(cell_dir, "evidence.json"), encoding="utf-8"))
-
-    spec_path = os.path.join(LADDER_DIR, cell_name + ".yaml")
-    spec = Spec.load(spec_path)
-    spec_ref = spec_path
-
-    # anchor WL hash (library-frozen) + its normalized worst margin from evidence.
-    anchor_wl = ev.get("wl_hash")
-    anchor_worst = ev.get("worst_margin")
-
-    # ---- build prompt --------------------------------------------------------
-    if arm == "B":
-        messages, prompt_text = build_prompt_B(spec, anchor_net, ev, K_EDITS)
-    else:
-        messages, prompt_text = build_prompt_C(spec, anchor_net, K_EDITS)
-
-    adj = _adj_dir(out_dir, cell_name, arm)
-    _write_verbatim(os.path.join(adj, "prompt.txt"), prompt_text)
-
-    # ---- one completion ------------------------------------------------------
-    diagnosis = None
-    raw_output = ""
-    edit_texts = []
-    llm_error = None
-    try:
-        if isinstance(llm, _MockLLM):
-            raw_output, diagnosis, edit_texts = llm.complete_edit(anchor_net, arm)
-        else:
-            raw_output, diagnosis, edit_texts = llm.complete_edit(messages, arm)
-    except D.LLMError as e:                                          # transport/HTTP
-        llm_error = str(e)
-        raw_output = "LLM ERROR: %s" % llm_error
-
-    _write_verbatim(os.path.join(adj, "raw_output.txt"), raw_output)
-    if arm == "B":
-        _write_verbatim(os.path.join(adj, "diagnosis.txt"), diagnosis or "")
-
-    # ---- parse + validate + dedup + size each edit ---------------------------
-    seen_wl = {anchor_wl} if anchor_wl else set()
-    edit_summaries = []   # one per PROPOSED edit (valid or not), in order
-    sized_edits = []      # valid + clearing smoke + base-sized, for escalation
-    # recover per-edit predicted delta text verbatim: split raw_output on fences
-    # so each archived edit<i>.meta carries the model's own prediction text.
+    Archives edit<i>.net + edit<i>.meta.json into `adj_round` (VERBATIM). Mutates
+    `seen_wl` (dedup vs anchor + ALL prior rounds' edits). Returns
+    (edit_summaries, sized_edits) where sized_edits carries (index, tokens, meta,
+    sized, adj_round) for each edit that cleared the fence and base-sized -- the
+    escalation candidates. The predicted-delta text is associated with each edit's
+    FOLLOWING prose (the v0 off-by-one fix)."""
+    edit_summaries = []
+    sized_edits = []
     pred_texts = _predicted_texts(raw_output, len(edit_texts))
 
     for i, etext in enumerate(edit_texts):
-        meta = {"index": i, "predicted_delta_text": pred_texts[i],
+        meta = {"index": i, "round": round_no,
+                "predicted_delta_text": pred_texts[i],
                 "wl_hash": None, "valid": False, "dup": False,
-                "fence_outcome": None, "sized": None, "error": None}
-        # archive the raw edit netlist VERBATIM regardless of validity.
-        _write_verbatim(os.path.join(adj, "edit%d.net" % i), etext)
+                "fence_outcome": None, "fence_detail": None, "sized": None,
+                "error": None}
+        _write_verbatim(os.path.join(adj_round, "edit%d.net" % i), etext)
 
         info = P.round_trip(etext)
         meta["wl_hash"] = info.get("wl_hash")
         if not info["ok"]:
             meta["error"] = info.get("error") or "round-trip failed"
             meta["fence_outcome"] = "parse_fail"
-            _write_verbatim(os.path.join(adj, "edit%d.meta.json" % i),
+            _write_verbatim(os.path.join(adj_round, "edit%d.meta.json" % i),
                             json.dumps(meta, indent=2, default=float))
             edit_summaries.append(_edit_summary(meta))
             continue
@@ -464,19 +585,21 @@ def run_cell(cell_name, cell_dir, arm, llm, out_dir, pdk):
         if wl in seen_wl:
             meta["dup"] = True
             meta["fence_outcome"] = "dup_skip"
-            _write_verbatim(os.path.join(adj, "edit%d.meta.json" % i),
+            _write_verbatim(os.path.join(adj_round, "edit%d.meta.json" % i),
                             json.dumps(meta, indent=2, default=float))
             edit_summaries.append(_edit_summary(meta))
             continue
         seen_wl.add(wl)
         tokens = info["tokens"]
 
-        # -- 40-eval conduction smoke --
-        idd, _smoke_best = _smoke_idd(tokens, spec_ref, pdk)
+        # -- 40-eval conduction smoke + signal-path fence --
+        idd, smoke_best = _smoke_idd(tokens, spec_ref, pdk)
         meta["smoke_idd_ma"] = idd
-        if idd is None or idd <= IDD_FENCE_MA:
-            meta["fence_outcome"] = "fence_fail"   # dead edit -- not resized
-            _write_verbatim(os.path.join(adj, "edit%d.meta.json" % i),
+        passed, fence_detail = _fence_eval(idd, smoke_best, fence_s21)
+        meta["fence_detail"] = fence_detail
+        if not passed:
+            meta["fence_outcome"] = "fence_fail"   # dead / no-signal -- not resized
+            _write_verbatim(os.path.join(adj_round, "edit%d.meta.json" % i),
                             json.dumps(meta, indent=2, default=float))
             edit_summaries.append(_edit_summary(meta))
             continue
@@ -485,17 +608,111 @@ def run_cell(cell_name, cell_dir, arm, llm, out_dir, pdk):
         sized = _size_at(tokens, spec_ref, BASE, pdk)
         meta["fence_outcome"] = "smoke_pass"
         meta["sized"] = sized
-        _write_verbatim(os.path.join(adj, "edit%d.meta.json" % i),
+        _write_verbatim(os.path.join(adj_round, "edit%d.meta.json" % i),
                         json.dumps(meta, indent=2, default=float))
         edit_summaries.append(_edit_summary(meta))
         if sized is not None:
-            sized_edits.append((i, tokens, meta, sized))
+            sized_edits.append((i, tokens, meta, sized, adj_round))
+    return edit_summaries, sized_edits
 
-    # ---- escalate ONLY the best base-sized edit (3 x 600) --------------------
+
+def run_cell(cell_name, cell_dir, arm, llm, out_dir, pdk, rounds=1,
+             fence_s21=True, annotate=None):
+    """Run ONE cell for ONE arm end to end. Returns (row_dict, n_valid_edits).
+
+    Control flow (pre-reg, v1):
+      build prompt -> one LLM completion -> parse k edits (loop fence regex)
+      -> validate each via proposal.round_trip -> WL-dedup vs anchor and ALL
+      prior-round edits -> per VALID edit: 40-eval smoke + signal-path fence
+      (idd>0.05 AND s21>-30 when measurable, `fence_s21`); fail -> not resized;
+      pass -> base-size (2x300). With --rounds N>1 (arm F/EF), a verify-refine
+      round embeds the VERBATIM measured round-1 results and asks for k NEW edits
+      (same parse/dedup/fence/base-size path). After the FINAL round, escalate
+      ONLY the overall best base-sized edit (3x600), as v0. Archives VERBATIM.
+
+    Archive layout: rounds==1 keeps the FLAT v0 layout
+    (adjudication/<spec>/<arm>/{prompt,raw_output,diagnosis,edit<i>.*}); rounds>1
+    uses per-round subdirs adjudication/<spec>/<arm>/round<r>/{...}."""
+    anchor_net = open(os.path.join(cell_dir, "anchor.net"), encoding="utf-8").read()
+    ev = json.load(open(os.path.join(cell_dir, "evidence.json"), encoding="utf-8"))
+
+    spec_path = os.path.join(LADDER_DIR, cell_name + ".yaml")
+    spec = Spec.load(spec_path)
+    spec_ref = spec_path
+
+    anchor_wl = ev.get("wl_hash")
+    anchor_worst = ev.get("worst_margin")
+    has_evidence = _arm_has_evidence(arm)
+    # annotate: explicit override (main derives it from arm + --annotate); when
+    # None, fall back to the arm letter. The blind control C is NEVER annotated
+    # and NEVER runs extra rounds, whatever the flags say.
+    if annotate is None:
+        annotate = _arm_annotates(arm)
+    if arm == "C":
+        annotate = False
+        rounds = 1
+
+    adj = _adj_dir(out_dir, cell_name, arm)
+    # rounds==1 -> flat v0 layout (byte-identical archive paths); rounds>1 ->
+    # per-round subdirs. round_dir(r) picks the right directory for round r.
+    def round_dir(r):
+        if rounds <= 1:
+            return adj
+        d = os.path.join(adj, "round%d" % r)
+        os.makedirs(d, exist_ok=True)
+        return d
+
+    # ---- round 1 prompt (v0 path when annotate off) --------------------------
+    if has_evidence:
+        messages, prompt_text = build_prompt_B(spec, anchor_net, ev, K_EDITS,
+                                               annotate=annotate)
+    else:
+        messages, prompt_text = build_prompt_C(spec, anchor_net, K_EDITS)
+
+    seen_wl = {anchor_wl} if anchor_wl else set()
+    all_summaries = []       # every proposed edit across rounds (with round tag)
+    all_sized = []           # escalation candidates across ALL rounds
+    llm_error = None
+    diagnosis_r1 = None
+    base_prompt_text = prompt_text   # reused verbatim for the round-2 prompt
+
+    for r in range(1, rounds + 1):
+        rdir = round_dir(r)
+        if r == 1:
+            msgs, ptext = messages, prompt_text
+        else:
+            msgs, ptext = build_prompt_round2(base_prompt_text, r,
+                                              prev_summaries, K_EDITS)
+        _write_verbatim(os.path.join(rdir, "prompt.txt"), ptext)
+
+        diagnosis = None
+        raw_output = ""
+        edit_texts = []
+        try:
+            if isinstance(llm, _MockLLM):
+                raw_output, diagnosis, edit_texts = llm.complete_edit(
+                    anchor_net, arm, round_no=r)
+            else:
+                raw_output, diagnosis, edit_texts = llm.complete_edit(msgs, arm)
+        except D.LLMError as e:                                     # transport/HTTP
+            llm_error = str(e)
+            raw_output = "LLM ERROR: %s" % llm_error
+
+        _write_verbatim(os.path.join(rdir, "raw_output.txt"), raw_output)
+        if has_evidence:
+            _write_verbatim(os.path.join(rdir, "diagnosis.txt"), diagnosis or "")
+        if r == 1:
+            diagnosis_r1 = diagnosis
+
+        summaries, sized = _process_round(rdir, edit_texts, raw_output, seen_wl,
+                                          spec_ref, pdk, fence_s21, round_no=r)
+        all_summaries.extend(summaries)     # each already tagged with its round
+        all_sized.extend(sized)
+        prev_summaries = summaries
+
+    # ---- escalate ONLY the overall best base-sized edit across rounds (3x600) -
     best_entry = None
-    if sized_edits:
-        # rank feasibility-first, then worst-margin (closer to 0 is better),
-        # then best_obj -- mirrors the loop's feasibility-first discipline.
+    if all_sized:
         def _key(entry):
             s = entry[3]
             wm = s.get("worst_margin")
@@ -503,14 +720,14 @@ def run_cell(cell_name, cell_dir, arm, llm, out_dir, pdk):
             obj = s.get("best_obj")
             obj = obj if isinstance(obj, (int, float)) else float("inf")
             return (0 if s.get("feasible") else 1, -wm_v, obj)
-        sized_edits.sort(key=_key)
-        best_entry = sized_edits[0]
-        bi, btokens, bmeta, bbase = best_entry
+        all_sized.sort(key=_key)
+        best_entry = all_sized[0]
+        bi, btokens, bmeta, bbase, bdir = best_entry
         esc = _size_at(btokens, spec_ref, ESCALATE, pdk)
         bmeta["escalated"] = True
         bmeta["sized_escalated"] = esc
         # re-archive the best edit's meta with the escalation result folded in.
-        _write_verbatim(os.path.join(adj, "edit%d.meta.json" % bi),
+        _write_verbatim(os.path.join(bdir, "edit%d.meta.json" % bi),
                         json.dumps(bmeta, indent=2, default=float))
         best_sized = esc if esc is not None else bbase
     else:
@@ -519,10 +736,11 @@ def run_cell(cell_name, cell_dir, arm, llm, out_dir, pdk):
     # ---- build the results row -----------------------------------------------
     best_feasible = bool((best_sized or {}).get("feasible"))
     best_worst = (best_sized or {}).get("worst_margin")
-    # binding margin delta vs evidence's worst_margin (same metric where possible).
     binding_delta = _binding_delta(anchor_worst, best_sized)
 
-    n_valid = sum(1 for m in edit_summaries if m.get("valid") and not m.get("dup"))
+    n_valid = sum(1 for m in all_summaries if m.get("valid") and not m.get("dup"))
+    n_smoke_pass = sum(1 for m in all_summaries
+                       if m.get("fence_outcome") == "smoke_pass")
     row = {
         "spec": cell_name,
         "arm": arm,
@@ -532,12 +750,18 @@ def run_cell(cell_name, cell_dir, arm, llm, out_dir, pdk):
         "anchor_worst_margin": anchor_worst,
         "bucket": ev.get("bucket") or _bucket_of(cell_name),
         "llm_error": llm_error,
-        "n_edits_proposed": len(edit_texts),
+        "rounds": rounds,
+        "annotate": annotate,
+        "fence_s21": bool(fence_s21),
+        "fence_config": {"idd_floor_ma": IDD_FENCE_MA,
+                         "s21_floor_db": S21_FENCE_DB, "s21_gate": bool(fence_s21)},
+        "n_edits_proposed": len(all_summaries),
         "n_edits_valid": n_valid,
-        "n_edits_smoke_pass": len(sized_edits),
-        "edits": edit_summaries,
+        "n_edits_smoke_pass": n_smoke_pass,
+        "edits": all_summaries,
         "best_edit_index": (best_entry[0] if best_entry else None),
         "best_edit_wl": (best_entry[2].get("wl_hash") if best_entry else None),
+        "best_edit_round": (best_entry[2].get("round") if best_entry else None),
         "best_edit_feasible": best_feasible,
         "best_edit_worst_margin": best_worst,
         "best_edit_metrics": (best_sized or {}).get("metrics"),
@@ -553,32 +777,48 @@ def run_cell(cell_name, cell_dir, arm, llm, out_dir, pdk):
 
 
 def _predicted_texts(raw_output, n):
-    """Best-effort: split the raw reply into the text segments that PRECEDE each
-    fenced netlist block, so edit<i>.meta carries the model's own predicted-delta
-    prose VERBATIM. Falls back to the whole reply if fences can't be located."""
+    """Associate each edit with the prose that FOLLOWS its fenced netlist block --
+    the model's predicted-delta text is stated AFTER each edit (observed live
+    format: fence, then "Prediction: ...").
+
+    v0 BUGFIX (logged in ADJUDICATION.md "predicted_delta_text is misaligned by
+    one block; holds the PREVIOUS edit's prediction; last prediction dropped"):
+    v0 used segs[i] (the prose BEFORE fence i), which for the fence-then-prediction
+    layout shifted every prediction back by one and dropped the last. The split
+    yields segs of length (#fences + 1) where segs[j] is the prose after fence
+    j-1 / before fence j; edit i's FOLLOWING prose is therefore segs[i+1]. Any
+    leading diagnosis prose lands in segs[0] and is correctly NOT assigned to an
+    edit. Falls back to None where a segment is absent."""
     import re as _re
     segs = _re.split(r"```(?:netlist|spice|text)?\s*\n.*?```", raw_output,
                      flags=_re.DOTALL | _re.IGNORECASE)
-    # segs has len == (#fences + 1); segs[i] is the prose before fence i.
     out = []
     for i in range(n):
-        out.append((segs[i].strip() if i < len(segs) else "") or None)
+        j = i + 1                       # the segment AFTER edit i's fence
+        out.append((segs[j].strip() if j < len(segs) else "") or None)
     return out
 
 
 def _edit_summary(meta):
-    """Compact per-edit row for results.jsonl (mirrors the archived meta)."""
+    """Compact per-edit row for results.jsonl + round-2 feedback (mirrors the
+    archived meta). Carries the round tag, the fence detail (idd + s21 gate), and
+    the sized metrics/margins the verify-refine prompt shows back to the model."""
     s = meta.get("sized") or {}
     return {
         "index": meta.get("index"),
+        "round": meta.get("round"),
         "wl_hash": meta.get("wl_hash"),
         "wl12": (meta.get("wl_hash") or "")[:12] or None,
         "valid": meta.get("valid"),
         "dup": meta.get("dup"),
         "fence_outcome": meta.get("fence_outcome"),
+        "fence_detail": meta.get("fence_detail"),
         "smoke_idd_ma": meta.get("smoke_idd_ma"),
         "feasible": s.get("feasible"),
+        "sized_feasible": s.get("feasible"),
         "worst_margin": s.get("worst_margin"),
+        "sized_metrics": s.get("metrics"),
+        "sized_margins": _margins_compact(s.get("margins")) if s else None,
         "predicted_delta_text": meta.get("predicted_delta_text"),
         "error": meta.get("error"),
     }
@@ -664,10 +904,29 @@ def main(argv=None):
     ap.add_argument("--lib", default=os.path.join(ROOT, "kaggle", "editcap-lib"),
                     help="the failure library dir (kaggle/editcap-lib)")
     ap.add_argument("--out", required=True, help="output dir for this run")
-    ap.add_argument("--arm", choices=("B", "C", "both"), default="both",
-                    help="which arm(s) to run")
+    ap.add_argument("--arm", default="both",
+                    help="which arm(s) to run: B, C, E (=B+annotate), "
+                         "F (=B+rounds2), EF (=both), or 'both' (=B,C, v0 "
+                         "default). Comma-separated lists accepted (e.g. B,C,E).")
     ap.add_argument("--only", action="append",
                     help="restrict to these cell/spec names (repeatable)")
+    ap.add_argument("--annotate", action="store_true",
+                    help="arm E: prepend a deterministic, purely-structural "
+                         "annotation block (graph facts) after the anchor "
+                         "netlist. Forced ON for arms E/EF; never for C.")
+    ap.add_argument("--rounds", type=int, default=1,
+                    help="arm F: number of verify-refine rounds (>=1). Forced to "
+                         "at least 2 for arms F/EF; never >1 for C. Default 1 "
+                         "(=v0 single completion).")
+    _fence = ap.add_mutually_exclusive_group()
+    _fence.add_argument("--fence-s21", dest="fence_s21", action="store_true",
+                        default=True,
+                        help="signal-path fence (default ON for v1): the "
+                             "conduction smoke must ALSO show s21_db > -30 dB "
+                             "when measurable, not just idd > 0.05 mA.")
+    _fence.add_argument("--no-fence-s21", dest="fence_s21", action="store_false",
+                        help="disable the s21 signal-path fence (idd-only, v0 "
+                             "conduction behaviour).")
     ap.add_argument("--mock-llm", action="store_true",
                     help="no server: deterministic stub returns a canned "
                          "diagnosis + k valid netlist edits derived from the "
@@ -696,7 +955,29 @@ def main(argv=None):
                  % (lib_dir, (" matching --only %s" % args.only) if args.only
                     else ""))
 
-    arms = ["B", "C"] if args.arm == "both" else [args.arm]
+    # arm taxonomy (v1): 'both' == B,C (v0 default preserved byte-for-byte).
+    # Accept a single arm or a comma-separated list; validate against B/C/E/F/EF.
+    _VALID_ARMS = ("B", "C", "E", "F", "EF")
+    if args.arm == "both":
+        arms = ["B", "C"]
+    else:
+        arms = [a.strip() for a in args.arm.split(",") if a.strip()]
+    bad = [a for a in arms if a not in _VALID_ARMS]
+    if bad:
+        sys.exit("editcap: FATAL -- unknown arm(s) %s (choose from %s or 'both')"
+                 % (bad, ", ".join(_VALID_ARMS)))
+
+    # per-arm effective capabilities: arm letter forces the capability on; the
+    # explicit --annotate / --rounds flags can ALSO turn them on for arm B; C
+    # stays blind always (enforced again in run_cell).
+    def _eff_annotate(arm):
+        return arm != "C" and (_arm_annotates(arm) or args.annotate)
+
+    def _eff_rounds(arm):
+        if arm == "C":
+            return 1
+        want = 2 if _arm_rounds(arm) else 1
+        return max(want, args.rounds)
 
     # one LLM client reused across cells/arms; mock is per-cell deterministic.
     if args.mock_llm:
@@ -705,8 +986,8 @@ def main(argv=None):
         llm = _LiveLLM(args.llm_url, model=args.model, k=args.k,
                        temperature=args.temperature, max_tokens=args.max_tokens)
 
-    print("editcap: lib=%s out=%s arms=%s cells=%d pdk=%s mode=%s"
-          % (lib_dir, out_dir, arms, len(names), args.pdk,
+    print("editcap: lib=%s out=%s arms=%s cells=%d pdk=%s fence_s21=%s mode=%s"
+          % (lib_dir, out_dir, arms, len(names), args.pdk, args.fence_s21,
              "mock" if args.mock_llm else ("live %s" % args.llm_url)),
           flush=True)
 
@@ -717,14 +998,19 @@ def main(argv=None):
     total_valid = 0          # parseable+non-dup edits across ALL cells/arms
     for arm in arms:
         rows = []
+        eff_annotate = _eff_annotate(arm)
+        eff_rounds = _eff_rounds(arm)
         for i, name in enumerate(names):
             cell_dir = os.path.join(lib_dir, name)
             if not os.path.isdir(cell_dir):
                 sys.exit("editcap: FATAL -- cell dir missing: %s" % cell_dir)
-            print("\n[arm %s] [%d/%d] %s  pdk=%s"
-                  % (arm, i + 1, len(names), name, args.pdk), flush=True)
+            print("\n[arm %s] [%d/%d] %s  pdk=%s annotate=%s rounds=%d"
+                  % (arm, i + 1, len(names), name, args.pdk, eff_annotate,
+                     eff_rounds), flush=True)
             t0 = time.time()
-            row, n_valid = run_cell(name, cell_dir, arm, llm, out_dir, args.pdk)
+            row, n_valid = run_cell(name, cell_dir, arm, llm, out_dir, args.pdk,
+                                    rounds=eff_rounds, fence_s21=args.fence_s21,
+                                    annotate=eff_annotate)
             total_valid += n_valid
             rows.append(row)
             _checkpoint(out_dir, arm, rows)          # durable after EVERY cell

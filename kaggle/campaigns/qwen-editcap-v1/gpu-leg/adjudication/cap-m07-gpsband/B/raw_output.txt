@@ -1,0 +1,71 @@
+### DIAGNOSIS:
+The circuit fails primarily due to **poor input match (S11)**, which is **-1.84 dB** (well below the required **-12 dB**), and is the binding constraint with a **-0.846 dB margin**. The S11 failure is caused by **excessive input reflection** due to improper input impedance matching. The topology uses a **common-source amplifier with no input matching network** (e.g., no inductor or capacitor to resonate with the input capacitance), and the input is driven directly through a capacitor C1 to an inductor L1, which forms a series LC tank at the input. However, the NMOS gate is connected to **node n2**, which is the **bottom of L1**, and **not** the top (VIN1), so the input is effectively **not at the right node for impedance transformation**. Additionally, the **source of NM1 is connected to n2**, which is part of the inductor loop, causing **shunting of the input signal** and **degrading input impedance**. The large input capacitance of NM1 (from gate-to-source) is not compensated, and the lack of a **source degeneration inductor or series input matching element** prevents achieving low S11. The NMOS gate is also floating (connected to n6 via R1 and R2, but n6 is not connected to VIN1), which further degrades input impedance control.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+L L3 n1 VSS
+```
+
+**Prediction**: `s11_db improves by ~4 dB`  
+*Reasoning*: Adding an inductor L3 from VIN1 to VSS creates a **shunt-series input matching path** (essentially a **shunt inductor to ground**). This helps tune out the input capacitance (C1 + gate capacitance) at 1.575 GHz, forming a resonant network that improves input impedance matching. This is a classic technique in narrowband LNAs to achieve low S11.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C5 n1 VSS
+```
+
+**Prediction**: `s11_db improves by ~3.5 dB`  
+*Reasoning*: Adding a **shunt capacitor C5 from VIN1 to VSS** creates a **low-impedance path to ground at the input**, which helps **resonate with L1** to form a **parallel LC tank** at the input. This is a standard **input shunt-capacitor** technique to improve input matching in narrowband LNAs. The added capacitance tunes the input impedance to 50Ω, reducing reflection.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+L L3 n2 VSS
+```
+
+**Prediction**: `s11_db improves by ~4.5 dB`  
+*Reasoning*: Adding an **inductor L3 from the gate node (n2) to VSS** introduces **source degeneration inductance**. This creates a **series inductor at the gate**, which increases the input impedance and helps **tune out the gate capacitance**. This is a well-known method in LNA design to improve input match and stability. The inductor resonates with the input capacitance to create a higher impedance at the input node, reducing reflection. This is especially effective in common-source topologies where gate capacitance dominates input impedance.

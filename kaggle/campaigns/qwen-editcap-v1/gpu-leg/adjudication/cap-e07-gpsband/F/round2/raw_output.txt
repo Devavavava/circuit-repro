@@ -1,0 +1,59 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+NMOS NM3 n6 n2 VSS VSS
+```
+
+Predicted: s11_db improves by ~2.0 dB (adding a second source-degenerated NMOS at the input node enhances input matching by increasing input impedance and improving feedback, directly targeting the S11 failure).
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+PMOS PM3 n6 n2 VDD VDD
+```
+
+Predicted: s11_db improves by ~1.8 dB (adding a PMOS in series with the input degeneration reduces input capacitance and increases input impedance, enhancing input match while maintaining gain and stability).
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+L L3 n6 n2
+```
+
+Predicted: s11_db improves by ~2.3 dB (inserting an inductor in series with the input degeneration node increases input impedance at resonance, significantly improving input match at 1.575 GHz, directly attacking the S11 failure).

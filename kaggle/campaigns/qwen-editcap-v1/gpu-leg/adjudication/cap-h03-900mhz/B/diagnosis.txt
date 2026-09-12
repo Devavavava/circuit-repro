@@ -1,0 +1,6 @@
+### DIAGNOSIS:
+The circuit fails primarily due to **poor input matching (S11)**, which is **-0.236 dB** (well below the required **-13 dB**). The binding constraint margin is **-0.98 dB**, indicating a severe mismatch. The root cause lies in the **input impedance being too high and reactive**, due to the **series inductor L1** and **shunt capacitor C1** forming a resonant network that is not properly tuned to 915 MHz. Additionally, the **source degeneration via R2** (between n6 and n3) introduces significant resistive loss and detunes the input match. The **NMOS NM3** (with gate tied to source) acts as a **diode-connected current source**, but its use as a fixed biasing device without proper control over the tail current or voltage swing limits the input impedance tuning range. The **lack of a proper input matching network** (e.g., a shunt or series inductor/capacitor to resonate the input) and **poor isolation between gate and source** prevent effective impedance transformation. The **NMOS NM2** is connected directly from VDD to output, which may cause unwanted loading and instability.
+
+---
+
+### EDIT 1: Add a shunt input inductor to resonate C1 at 915 MHz

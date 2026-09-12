@@ -1,0 +1,81 @@
+### DIAGNOSIS:
+The circuit fails primarily due to **poor input matching (S11)**, which is **-1.59 dB** (well below the required **-10 dB**), and this is the binding constraint with a **-0.84 dB margin**. The secondary issue is **excessive Idd (4.94 mA)**, slightly over the 5 mA budget, but this is less critical than S11.
+
+The root cause of poor S11 lies in the **input impedance mismatch**. The input is driven via a series inductor L1 from VIN1 to node n1, but the input node n1 is connected to the gate of NM1 (which is a common-source amplifier) and the drain of NM2. However, **NM2 is floating (gate tied to source)** and acts as a **diode-connected PMOS**, but it's **not properly biasing the input node**. More critically, **NM2 is connected with gate and source tied to n6**, which is a floating node connected via R1 to VDD and R2 to n2. This creates **uncontrolled DC and AC loading** at the input node, and the gate of NM1 is not properly DC-biased.
+
+Moreover, **PM2 is also floating (gate and source tied to n7)**, and R3/R4 form a floating bias network with no DC path to ground or VDD. This results in **unstable or unpredictable bias points**, especially for the input stage. The input impedance is dominated by the reactive components (L1) and parasitic capacitances, but **no deliberate input matching network** (e.g., series/parallel L/C) is present to tune input impedance to 50Ω.
+
+The primary issue is **lack of a deliberate input matching network** and **uncontrolled floating nodes** that degrade input match and stability.
+
+---
+
+### EDIT 1: **Add input series inductor and shunt capacitor for input matching**
+This introduces a **series L and shunt C** at the input to form a **low-pass L-match** for input impedance matching.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C5 VIN1 n1
+L L3 VIN1 n1
+```
+
+> **Prediction**: `s11_db improves by ~4 dB` — The added series L3 and shunt C5 form a **matching network** that transforms the input impedance to ~50Ω. This directly targets the S11 failure. The L3 provides series inductive reactance to cancel input capacitance, and C5 shunts high-frequency components.
+
+---
+
+### EDIT 2: **Replace floating NM2 and PM2 with a single diode-connected PMOS and grounded source**
+Remove the floating devices and replace them with a **diode-connected PMOS** (gate-to-drain) as a **current mirror reference** and **DC biasing device**, connected to VDD.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n3 n3 VDD VDD
+R R1 VDD n2
+R R2 n2 n3
+R R3 n3 VSS
+```
+
+> **Prediction**: `s11_db improves by ~2.5 dB` — The floating PM2 and NM2 are removed. The new PM2 is diode-connected (gate-drain tied) and acts as a stable biasing diode. R1/R2/R3 now form a **stable current mirror + bias network** with known DC paths. This improves DC stability and reduces parasitic loading, improving input match.
+
+---
+
+### EDIT 3: **Replace NM2 and PM2 with a single cascode PMOS and add gate feedback**
+Add a **cascode PMOS** (PM3) with its gate tied to a fixed DC node (via R3), and **add a feedback path** to stabilize the input node.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n3 n3 VDD VDD
+PMOS PM3 n3 n6 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n6 VSS
+```
+
+> **Prediction**: `s11_db improves by ~3 dB` — The PM3 cascode device isolates the input node from output variations and improves input impedance. The gate of PM3 is biased via R1/R3 (now forming a voltage divider to VDD/VSS), providing a stable DC point. This reduces Miller effect and improves input match and stability.
+
+---

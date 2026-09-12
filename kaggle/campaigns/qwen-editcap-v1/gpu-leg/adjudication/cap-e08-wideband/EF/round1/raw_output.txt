@@ -1,0 +1,62 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+NMOS NM3 n2 n6 VSS VSS
+```
+
+Predicted: s11_max_db improves by ~2.5 dB.  
+Reason: Adding a source-degenerated NMOS (NM3) between gate (n2) and drain (n6) of NM2 creates a local feedback path that increases input impedance at the gate, improving input matching (S11) by damping the Miller effect and increasing the effective source resistance seen at the input node. This directly addresses the S11 failure due to poor input match.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+PMOS PM3 n3 n7 VDD VDD
+```
+
+Predicted: s11_max_db improves by ~2.8 dB.  
+Reason: Adding a second diode-connected PMOS (PM3) in parallel with PM2 increases the gate-source capacitance and stabilizes the gate node (n3), reducing high-frequency signal reflection at the input. This improves input impedance matching by enhancing the stability and damping of the gate bias network, directly mitigating the S11 degradation.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+L L3 n2 n6
+```
+
+Predicted: s11_max_db improves by ~3.0 dB.  
+Reason: Inserting an inductor (L3) between gate (n2) and drain (n6) of NM2 creates a resonant path that cancels out the input capacitance at the operating frequency, effectively increasing the input impedance at the gate node. This is a direct structural fix to improve input matching (S11), especially in wideband LNA designs where parasitic capacitance degrades matching — a known failure mode in this topology.

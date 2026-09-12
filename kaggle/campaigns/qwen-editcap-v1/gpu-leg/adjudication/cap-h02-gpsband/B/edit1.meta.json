@@ -1,0 +1,105 @@
+{
+  "index": 1,
+  "round": 1,
+  "predicted_delta_text": "**PREDICTION**:  \n`s11_db improves by ~3 dB` \u2014 replacing the resistor R2 with a **capacitor C3 to ground** at the source node (n3) **removes the resistive degeneration** and instead provides **AC grounding** of the source. This **reduces the source impedance seen at RF**, which improves input impedance matching. The capacitor **shunts the source to ground at RF**, effectively **removing the source degeneration effect** that was degrading S11, while still allowing DC bias. This is a **common trick in LNA design to improve input match**.\n\n---",
+  "wl_hash": "8188473f7676d1aa",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 7.0707390000000006,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -9.87113,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.8865,
+    "metrics": {
+      "s11_db": -0.145414,
+      "s11_max_db": -0.141926,
+      "s21_db": 8.24353,
+      "s21_min_db": 8.17165,
+      "idd_ma": 2.321593,
+      "nf_db": 2.544904,
+      "s22_db": -9.28766,
+      "s22_max_db": -9.13609,
+      "s12_db": -51.333,
+      "k_f0": 2.28783,
+      "k_min": 2.27719,
+      "mu_f0": 2.08159,
+      "mu_min": 2.02735,
+      "mu_src_f0": 1.01047,
+      "mu_src_min": 1.01037,
+      "delta_f0": 0.341989,
+      "delta_max": 0.348331,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.12976000000000099,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.544904,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -0.4138355555555554,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.145414,
+        "required_min": null,
+        "required_max": -12,
+        "scale": 12,
+        "margin": -0.9878821666666666,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 8.24353,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": -0.484779375,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 2.321593,
+        "required_min": null,
+        "required_max": 3,
+        "scale": 3,
+        "margin": 0.22613566666666665,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -6,
+        "required_max": null,
+        "scale": 6,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.9878821666666666
+    ],
+    "seed": 1,
+    "seconds": 60.692,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 7.0707390000000006
+}

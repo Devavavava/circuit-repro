@@ -1,0 +1,85 @@
+### 1. DIAGNOSIS OF FAILURE
+
+The binding constraint is **s11_max_db = -3.22284 dB**, which is **0.597 dB below** the required **-8 dB**, meaning the input match is severely poor. This is the dominant failure.
+
+The circuit uses a **common-source LNA topology** with **source degeneration via NMOS NM2** (which is shorted between gate and source, acting as a resistor) and **inductive source degeneration** via L1 from VIN1 to node n2. However, **NM2 is floating (gate and source connected to same node n6)** — this is not a valid degeneration device; it’s effectively **a short from n6 to VSS**, which creates a **low-impedance path to ground at the source of NM1**, but **without proper DC biasing**, the transistor is likely off or in cutoff.
+
+Additionally, **PM2 is similarly shorted** (gate and source to n7), so it’s also non-functional. These two devices are **misconnected** and **do not serve any useful purpose** — they are **structurally broken**.
+
+The real issue: **the input impedance is dominated by the parasitic capacitance C1 and inductor L1**, but **the feedback path and source degeneration are misconfigured**. The **source of NM1 (node n5)** is connected to **L2** to VOUT1 and **C3 to VSS**, but **no proper source degeneration path** exists from n2 (source node) to ground — instead, **R2 connects n6 (a floating node) to n2**, and **R1 connects VDD to n6**, forming a **non-functional bias network**. The **gate of NM1 is connected to n2**, which is the **source**, so **NM1 is in diode configuration**, not amplifying.
+
+Thus, the **entire circuit is electrically broken**: NM1 is likely off, no proper amplification path exists, and **input impedance is uncontrolled** due to lack of valid biasing and degeneration. The **input mismatch (s11)** is the direct result of **incorrect topology** — the **source degeneration is not connected properly**, the **DC biasing is unstable**, and **NM1 is not in active region**.
+
+---
+
+### 2. PROPOSED STRUCTURAL EDITS
+
+#### Edit 1: Fix source degeneration and enable active NMOS biasing
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n2 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n3 n3 VDD VDD
+R R1 VDD n3
+R R2 n3 n2
+R R3 n2 VSS
+R R4 n2 n3
+```
+
+**Prediction**:  
+- **s11_db improves by ~4 dB** (from -3.22 dB to ~0.8 dB).  
+- **Reason**: NM2 is now connected from gate to source (n2), creating **active source degeneration**. R2 and R3 form a **proper DC biasing network** for the gate of NM1 via R2–R3. The source of NM1 (n2) is now properly biased. The inductor L1 provides input matching, and source degeneration stabilizes input impedance. This fixes the broken topology.
+
+---
+
+#### Edit 2: Replace floating bias nodes with grounded source degeneration and proper gate drive
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n2 n3 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n3 n3 VDD VDD
+R R1 VDD n3
+R R2 n3 VSS
+R R3 n2 VSS
+R R4 n2 VSS
+```
+
+**Prediction**:  
+- **s11_db improves by ~5 dB** (from -3.22 dB to ~1.8 dB).  
+- **Reason**: NM2 is now a **proper source degeneration transistor** with gate tied to n3 (which is now biased via R1–R2 to VDD). R3 and R4 provide **strong source grounding**, improving DC stability. The gate of NM1 is tied to n2 (source), so NM1 is **diode-connected**, but with NM2 providing active degeneration, **input impedance is improved**. The circuit now has a **valid DC path** and **active input matching**.
+
+---
+
+#### Edit 3: Introduce feedback inductance and remove floating nodes via grounded gate bias
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n3 VDD VDD
+R R1 VDD n3
+R R2 n3 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+
+**Prediction**:  
+- **s11_db improves by ~6 dB** (from -3.22 dB to ~2.8 dB).  
+- **Reason**: NM2 is now a **source follower** (gate at n6, source at n2), creating **negative feedback** and **input impedance enhancement**. R2 and R1 form a **proper gate bias network** (R1 from VDD to n3, R2 from n3 to n2), grounding the gate via R2. This **stabilizes the bias point**, and the **feedback via NM2 improves input match** significantly. The floating nodes are eliminated. This topology enables **active input impedance control**, directly addressing the poor s11.

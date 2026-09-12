@@ -1,0 +1,47 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n2 n3 n1 VSS
+```
+
+**Prediction**: s21_db improves by ~0.8 dB. The added NMOS (NM4) from gate (n3) to source (n1) creates a feedback path that increases forward gain by enhancing transconductance efficiency and reducing signal loss at the input node, directly addressing the s21 deficit.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+PMOS PM1 n3 n2 VSS VSS
+```
+
+**Prediction**: s21_db improves by ~1.0 dB. Replacing the resistive degeneration (R2) with a PMOS (PM1) in source follower configuration provides current mirror-like behavior with lower loss and better impedance matching, reducing input reflection and boosting gain through improved output stage efficiency.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n4 n3 VSS VSS
+```
+
+**Prediction**: s21_db improves by ~0.6 dB. Adding a source-coupled NMOS (NM4) between n4 (source of NM1) and n3 (gate of NM2) increases effective transconductance and improves current steering, enhancing gain while maintaining stability through controlled feedback. This topology improves signal transfer from input to output.

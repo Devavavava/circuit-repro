@@ -1,0 +1,105 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**Prediction**: `nf_db` improves by ~0.7 dB.  \n**Reason**: Adding **feedback resistor R3 from source (n3) to gate (n5)** introduces **gate-source feedback**, which stabilizes the gain, improves input impedance match, and significantly reduces noise figure by increasing effective transconductance and reducing input noise. This is a **feedback-configured LNA**, known for superior NF and stability at RF. The feedback also improves linearity and bandwidth, though not directly targeted here.",
+  "wl_hash": "b55503752b194ea2",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 1.8461230000000002,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -18.4428,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 4.64536,
+    "metrics": {
+      "s11_db": -7.93205,
+      "s11_max_db": -7.82135,
+      "s21_db": 3.29636,
+      "s21_min_db": 3.1732,
+      "idd_ma": 4.441193,
+      "nf_db": 6.032227,
+      "s22_db": -18.2205,
+      "s22_max_db": -14.4034,
+      "s12_db": -22.7766,
+      "k_f0": 3.98184,
+      "k_min": 3.91662,
+      "mu_f0": 4.59366,
+      "mu_min": 3.12257,
+      "mu_src_f0": 2.00314,
+      "mu_src_min": 1.9905,
+      "delta_f0": 0.146718,
+      "delta_max": 0.167772,
+      "stab_band": [
+        2400000000.0,
+        2483500000.0
+      ],
+      "s21_ripple_db": 0.12977000000000016,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 6.032227,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -2.351237222222222,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -7.93205,
+        "required_min": null,
+        "required_max": -13,
+        "scale": 13,
+        "margin": -0.38984230769230765,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 3.29636,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": -0.7939775,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 4.441193,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": -0.11029825000000004,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -2.351237222222222
+    ],
+    "seed": 1,
+    "seconds": 59.881,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 1.8461230000000002
+}

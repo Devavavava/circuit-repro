@@ -1,0 +1,105 @@
+{
+  "index": 1,
+  "round": 1,
+  "predicted_delta_text": "**Prediction:** s11_db improves by ~3.0 dB.  \n*Reasoning:* Replacing the diode-connected NMOS (NM3) with a diode-connected PMOS (PM1) at the gate node (n3) shifts the DC bias point upward and increases the effective input impedance at the gate. The PMOS provides a high-impedance path with better matching at 1.58 GHz, directly improving input return loss.",
+  "wl_hash": "26e0d9ff05abd365",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 13.26098,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -7.83648,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 3.42537,
+    "metrics": {
+      "s11_db": -0.384591,
+      "s11_max_db": -0.38195,
+      "s21_db": 4.46505,
+      "s21_min_db": 4.41779,
+      "idd_ma": 1.9899000000000002,
+      "nf_db": 2.514135,
+      "s22_db": -4.1249,
+      "s22_max_db": -4.10666,
+      "s12_db": -53.9583,
+      "k_f0": 8.0991,
+      "k_min": 7.99867,
+      "mu_f0": 1.5619,
+      "mu_min": 1.55733,
+      "mu_src_f0": 1.04147,
+      "mu_src_min": 1.04126,
+      "delta_f0": 0.596971,
+      "delta_max": 0.59804,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.08962000000000003,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.514135,
+        "required_min": null,
+        "required_max": 1.5,
+        "scale": 1.5,
+        "margin": -0.67609,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.384591,
+        "required_min": null,
+        "required_max": -14,
+        "scale": 14,
+        "margin": -0.9725292142857143,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 4.46505,
+        "required_min": 20,
+        "required_max": null,
+        "scale": 20,
+        "margin": -0.7767475,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 1.9899000000000002,
+        "required_min": null,
+        "required_max": 3,
+        "scale": 3,
+        "margin": 0.33669999999999994,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.9725292142857143
+    ],
+    "seed": 1,
+    "seconds": 62.196,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 13.26098
+}

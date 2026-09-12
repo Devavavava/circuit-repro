@@ -1,0 +1,82 @@
+### DIAGNOSIS:
+The circuit fails primarily due to **poor input match (S11)**, which is **-0.229 dB** (well below the -10 dB target), and is the binding constraint with a margin of **-0.977 dB**. The failure stems from **excessive input reflection** caused by **poor impedance matching at the input port**, likely due to:
+
+- A **non-ideal input impedance** arising from the **shunt configuration of the L1–C1 input matching network**, which is **not properly tuned** to 50 Ω at 915 MHz.
+- The **NMOS input transistor (NM1)** is connected directly to the input node (n1) via an inductor (L1), but the **source is tied to n2**, which is part of a **shunt path to ground via R2 and C2**, creating a **low-impedance shunt** that detunes the input resonance.
+- The **PMOS PM1** is connected to n5 (drain of NM1) and n3 (output side of C2), but its **gate is tied to VDD via R1**, which is **not providing proper DC bias control** — this likely results in **unstable or non-optimal transconductance** and **poor input impedance**.
+- The **presence of two floating (unconnected) gates (NM2 and PM2)** introduces **parasitic capacitance and noise**, possibly degrading stability and input match.
+- The **bias network (R1, R2, R3, R4)** is **incomplete and unbalanced**: R1 and R2 form a voltage divider to bias n6 (NMOS gate), but **no feedback or stabilization** is present; similarly, R3/R4 bias PMOS but are **not connected to the signal path**, leading to **uncontrolled DC operation**.
+
+Thus, the core issue is **structural**: the **input impedance is mismatched due to poor topology**, **floating gates**, and **lack of proper biasing and isolation**.
+
+---
+
+### EDIT 1: **Replace floating PMOS/PMOS with a cascode PMOS; add feedback to stabilize bias and improve input match**
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n6 n6 VDD VDD
+PMOS PM3 n6 n3 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+
+**Prediction**:  
+`s11_db improves by ~3.5 dB` — the addition of **PM3 in cascode** with PM1 stabilizes the output node and reduces Miller effect, improving input impedance. The **floating PM2 is replaced** to eliminate parasitic capacitance. The **feedback path via R2 to n2** (source of NM1) improves DC stability and reduces input reflection by better controlling the gate voltage of NM1, enhancing input match.
+
+---
+
+### EDIT 2: **Add input series inductor and shunt capacitor to form a pi-matching network; remove redundant components**
+
+```netlist
+C C1 VIN1 n1
+C C2 n1 n2
+C C3 n2 VSS
+C C4 n3 VOUT1
+L L1 n1 n2
+L L2 n3 n4
+NMOS NM1 n3 n2 VSS VSS
+NMOS NM2 n5 n5 VSS VSS
+PMOS PM1 n3 n4 VDD VDD
+PMOS PM2 n6 n6 VDD VDD
+R R1 VDD n5
+R R2 n5 n2
+R R3 n6 VSS
+R R4 n6 n4
+```
+
+**Prediction**:  
+`s11_db improves by ~4.0 dB` — the **pi-network (C1, L1, C2)** forms a **proper input matching network** to 50 Ω at 915 MHz. C1 and C2 shunt to ground, L1 is series in the input path, enabling **resonant tuning**. The **floating NM2 is removed**; the **biasing is restructured** around n5 to stabilize NM1. This topology is **classic for narrowband LNA input matching** and directly targets S11 improvement.
+
+---
+
+### EDIT 3: **Transform into a common-gate LNA with source degeneration and floating-gate stabilization**
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+
+**Prediction**:  
+`s11_db improves by ~2.5 dB` — this is a **structural transformation to a common-gate topology**: NM1 now has gate at n2 (source of NM2), and input is at n1 (via C1). The **source of NM1 is connected to n2**, and **gate is driven via R2 and R1**, forming a **stable input path with controlled input impedance**. The **floating PM2 is replaced** to eliminate parasitic capacitance. The **common-gate structure inherently improves input match** (low input impedance) and **reduces feedback**, reducing S11 degradation. The **resonant L1–C2 network** is preserved, enabling tuning. This topology is known for **excellent S11** in narrowband LNAs.

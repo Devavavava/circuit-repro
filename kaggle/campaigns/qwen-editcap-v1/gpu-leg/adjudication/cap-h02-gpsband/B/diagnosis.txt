@@ -1,0 +1,13 @@
+### 1. DIAGNOSIS:
+
+The circuit fails primarily due to **poor input match (S11)**, which is **-0.22 dB** (far below the required **-12 dB**), and this is the binding constraint with a margin of **-0.98 dB** (normalized). The negative margin indicates a significant mismatch at the input. 
+
+The anchor netlist uses a **common-source LNA with a source degeneration resistor R2**, but the **source is not properly isolated from the input**, and **no input matching network** is present. The input is directly connected to the gate via C1 and L1, which are not tuned for 50Ω matching at 1.575 GHz. The gate is also tied to a DC node (n3) through NM1, which introduces a low-impedance path to ground at RF, degrading input impedance. The **source of NM1 is grounded via R2 to n3**, but the **source is not properly AC-decoupled**, causing the source impedance to appear in parallel with the input, shunting the signal and degrading S11.
+
+Additionally, the **source degeneration resistor R2 is connected directly to the gate node (n3)**, which is a **critical error** — this creates a **direct RF path from source to gate**, creating **negative feedback and poor input impedance control**, and likely causing **high input reflection**.
+
+Moreover, **NM3 is a floating device (n6 n6)** — this is invalid and likely causes simulation issues. This suggests a design flaw in the bias network, but since we are not allowed to add biasing, we must assume it’s a placeholder. However, its presence indicates an incomplete or incorrect biasing structure.
+
+### 2. PROPOSED STRUCTURAL EDITS (3 distinct topology changes):
+
+---

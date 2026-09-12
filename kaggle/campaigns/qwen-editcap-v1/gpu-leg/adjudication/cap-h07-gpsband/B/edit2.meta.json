@@ -1,0 +1,189 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**Prediction**:  \n- **S11_db improves by ~10 dB** (from -0.69 dB to ~9.3 dB).  \n- Replacing **NM3 (short)** with **PMOS PM1 (diode-connected)** removes the **VDD-VSS short**, and creates a **stable biasing path**.  \n- PMOS in diode mode (gate-drain at n6) **draws current from VDD to n7**, which is **not grounded** \u2192 avoids short.  \n- The **biasing voltage at n6** is now set by **R1/R2** and **PM1**, which is more stable than NMOS.  \n- This enables **proper DC operating point**, allowing **SPICE optimizer to tune input network** and improve **S11**.\n\n---\n\n### Summary of Predictions:\n| Edit | Structural Change | Predicted S11_db Improvement |\n|------|-------------------|-------------------------------|\n| 1    | Fix NM3 (diode PMOS or NMOS) | +12 dB (from -0.69 \u2192 ~11.3 dB) |\n| 2    | Add shunt C3 at input | +8 dB (from -0.69 \u2192 ~7.3 dB) |\n| 3    | Replace NM3 with PMOS | +10 dB (from -0.69 \u2192 ~9.3 dB) |\n\nAll edits **fix the fatal VDD-VSS short** caused by NM3 and **enable a functional LNA** with **potential for good S11**.",
+  "wl_hash": "0b4c36efba590b25",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 8.857866000000001,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -9.14343,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 10.45489,
+    "metrics": {
+      "s11_db": -0.145747,
+      "s11_max_db": -0.144509,
+      "s21_db": -1.23958,
+      "s21_min_db": -1.34892,
+      "idd_ma": 11.77021,
+      "nf_db": 8.219871,
+      "s22_db": -10.5753,
+      "s22_max_db": -9.82727,
+      "s12_db": -53.2308,
+      "k_f0": 8.25625,
+      "k_min": 8.15584,
+      "mu_f0": 3.36401,
+      "mu_min": 3.09075,
+      "mu_src_f0": 1.01541,
+      "mu_src_min": 1.01535,
+      "delta_f0": 0.292919,
+      "delta_max": 0.319079,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.20099999999999985,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 8.219871,
+        "required_min": null,
+        "required_max": 1.5,
+        "scale": 1.5,
+        "margin": -4.479914,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.145747,
+        "required_min": null,
+        "required_max": -14,
+        "scale": 14,
+        "margin": -0.9895895,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -1.23958,
+        "required_min": 20,
+        "required_max": null,
+        "scale": 20,
+        "margin": -1.061979,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 11.77021,
+        "required_min": null,
+        "required_max": 3,
+        "scale": 3,
+        "margin": -2.9234033333333334,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -4.479914
+    ],
+    "seed": 2,
+    "seconds": 63.385,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 8.857866000000001,
+  "escalated": true,
+  "sized_escalated": {
+    "feasible": false,
+    "best_obj": 10.08168,
+    "metrics": {
+      "s11_db": -0.129823,
+      "s11_max_db": -0.128774,
+      "s21_db": 1.30392,
+      "s21_min_db": 1.18835,
+      "idd_ma": 10.967009999999998,
+      "nf_db": 8.250715,
+      "s22_db": -11.7506,
+      "s22_max_db": -10.9804,
+      "s12_db": -57.5378,
+      "k_f0": 9.11151,
+      "k_min": 8.97842,
+      "mu_f0": 3.68009,
+      "mu_min": 3.42276,
+      "mu_src_f0": 1.01371,
+      "mu_src_min": 1.01367,
+      "delta_f0": 0.255907,
+      "delta_max": 0.27959,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.21340000000000003,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 8.250715,
+        "required_min": null,
+        "required_max": 1.5,
+        "scale": 1.5,
+        "margin": -4.500476666666667,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.129823,
+        "required_min": null,
+        "required_max": -14,
+        "scale": 14,
+        "margin": -0.9907269285714285,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 1.30392,
+        "required_min": 20,
+        "required_max": null,
+        "scale": 20,
+        "margin": -0.934804,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 10.967009999999998,
+        "required_min": null,
+        "required_max": 3,
+        "scale": 3,
+        "margin": -2.6556699999999993,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -4.500476666666667
+    ],
+    "seed": 3,
+    "seconds": 191.181,
+    "evals": 1800,
+    "sim_health": {
+      "n_evals": 1800,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  }
+}

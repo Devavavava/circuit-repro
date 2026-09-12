@@ -1,0 +1,77 @@
+### DIAGNOSIS (failure analysis):
+
+The circuit fails primarily on **S11_db** (input return loss), with a margin of **-0.98 dB**, which is the worst-case constraint. The achieved S11_db is **-0.22 dB**, far from the required **≤ -12 dB**. This indicates **poor input impedance matching** at 1.575 GHz. 
+
+Looking at the structure:
+- The input is fed through **C1** (series capacitor), which isolates DC.
+- The gate of **NM1** (the main LNA transistor) is tied to **n3**, which is connected via **R2** to **n6**, and **R1** from **VDD** to **n6** — forming a **resistive divider** to set the gate bias.
+- However, **NM3** is diode-connected (gate-drain tied to n6), and **R1** and **R2** form a **biasing resistor chain** that sets the gate voltage of NM1.
+- The gate of **NM2** is directly tied to **VDD**, so it is permanently on — this is a **fixed bias** transistor.
+- The **source of NM1** is connected to **VSS** via **L2**, which is a **series inductor** — this is intended to provide AC grounding at VSS while blocking DC, but in this case, it may be **detuning** the input matching.
+- The **gate of NM1 is not directly connected** to a low-impedance AC ground. Instead, it’s connected through **R1 and R2** (a resistive divider), which **increases the input impedance** and **degrades input match**.
+- The **bias network (R1/R2)** is **not decoupled**, and with **no AC grounding** at node n3, the gate of NM1 sees a **high impedance at RF**, leading to **poor input reflection**.
+
+Thus, the **primary issue** is **lack of AC grounding at the gate of NM1**. The resistive divider (R1/R2) presents a high impedance at RF, and the lack of a **shunt path to ground** at the gate causes **S11 to be poor**. This is a classic **input matching failure** due to **unshunted gate biasing**.
+
+---
+
+### EDIT 1: Add a shunt AC ground at the gate of NM1 via a bypass capacitor
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+C C3 n3 VSS
+```
+
+**PREDICTION:**  
+→ **s11_db improves by ~5 dB** (predicted from typical bypassing effect at gate node; reduces input impedance mismatch, improves matching to 50Ω). The added **C3** provides a low-impedance AC path to ground at the gate of NM1, drastically improving input match.
+
+---
+
+### EDIT 2: Replace resistive gate bias with a current source (diode-connected NMOS) to reduce gate impedance
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+NMOS NM4 n3 VDD n6 VSS
+R R1 VDD n6
+```
+
+**PREDICTION:**  
+→ **s11_db improves by ~4 dB**. Replacing the **R1/R2** resistive divider with a **diode-connected NMOS (NM4)** in the gate bias path creates a **current source** that provides a **low-impedance path to VDD** at RF, while still setting the gate voltage. The **diode-connected NM3** (n6) still provides bias, but NM4 **shunts AC to VDD**, reducing the gate impedance and improving input matching. The gate is now better AC-grounded via the current source.
+
+---
+
+### EDIT 3: Move the gate bias node to a lower-impedance node via a source follower (bootstrapped gate)
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+NMOS NM4 n3 n6 n6 VSS
+R R1 VDD n6
+```
+
+**PREDICTION:**  
+→ **s11_db improves by ~6 dB**. The addition of **NM4** (source follower) with gate tied to **n6**, source to **n3**, and bulk to VSS creates a **buffering effect**. Since **n6** is a stable bias node (via R1 and NM3), NM4 **drives the gate of NM1** with a low-impedance output. This effectively **lowers the gate impedance** at RF, improving input match. The source follower provides **AC grounding** at the gate node via its low output impedance. This structural change is more aggressive than a simple capacitor and provides better control of gate impedance.
+
+---

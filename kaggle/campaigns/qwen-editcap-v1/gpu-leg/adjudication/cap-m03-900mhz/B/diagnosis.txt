@@ -1,0 +1,14 @@
+### DIAGNOSIS:
+The circuit fails primarily due to **poor input match (S11)**, which is **-0.229 dB** (well below the -10 dB target), and is the binding constraint with a margin of **-0.977 dB**. The failure stems from **excessive input reflection** caused by **poor impedance matching at the input port**, likely due to:
+
+- A **non-ideal input impedance** arising from the **shunt configuration of the L1–C1 input matching network**, which is **not properly tuned** to 50 Ω at 915 MHz.
+- The **NMOS input transistor (NM1)** is connected directly to the input node (n1) via an inductor (L1), but the **source is tied to n2**, which is part of a **shunt path to ground via R2 and C2**, creating a **low-impedance shunt** that detunes the input resonance.
+- The **PMOS PM1** is connected to n5 (drain of NM1) and n3 (output side of C2), but its **gate is tied to VDD via R1**, which is **not providing proper DC bias control** — this likely results in **unstable or non-optimal transconductance** and **poor input impedance**.
+- The **presence of two floating (unconnected) gates (NM2 and PM2)** introduces **parasitic capacitance and noise**, possibly degrading stability and input match.
+- The **bias network (R1, R2, R3, R4)** is **incomplete and unbalanced**: R1 and R2 form a voltage divider to bias n6 (NMOS gate), but **no feedback or stabilization** is present; similarly, R3/R4 bias PMOS but are **not connected to the signal path**, leading to **uncontrolled DC operation**.
+
+Thus, the core issue is **structural**: the **input impedance is mismatched due to poor topology**, **floating gates**, and **lack of proper biasing and isolation**.
+
+---
+
+### EDIT 1: **Replace floating PMOS/PMOS with a cascode PMOS; add feedback to stabilize bias and improve input match**

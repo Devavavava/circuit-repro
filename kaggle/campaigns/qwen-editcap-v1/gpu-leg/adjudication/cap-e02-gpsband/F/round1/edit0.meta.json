@@ -1,0 +1,105 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "**Prediction:** s21_db improves by ~0.8 dB.  \n*Reason:* Adding a cross-coupled NMOS (NM4) from gate of NM2 to source of NM1 enhances forward gain by improving current mirror matching and increasing effective transconductance in the signal path, directly boosting S21 without increasing Idd significantly.",
+  "wl_hash": "49c6c3202708dc65",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 16.04525,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -9.6425,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 1.86226,
+    "metrics": {
+      "s11_db": -1.31583,
+      "s11_max_db": -1.24141,
+      "s21_db": 9.73264,
+      "s21_min_db": 9.71363,
+      "idd_ma": 3.416098,
+      "nf_db": 2.007186,
+      "s22_db": -15.8927,
+      "s22_max_db": -14.3,
+      "s12_db": -23.6136,
+      "k_f0": 0.710528,
+      "k_min": 0.70845,
+      "mu_f0": 0.675499,
+      "mu_min": 0.657116,
+      "mu_src_f0": 0.932374,
+      "mu_src_min": 0.931729,
+      "delta_f0": 0.227622,
+      "delta_max": 0.231465,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.02412999999999954,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.007186,
+        "required_min": null,
+        "required_max": 3.5,
+        "scale": 3.5,
+        "margin": 0.42651828571428574,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -1.31583,
+        "required_min": null,
+        "required_max": -8,
+        "scale": 8,
+        "margin": -0.83552125,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 9.73264,
+        "required_min": 10,
+        "required_max": null,
+        "scale": 10,
+        "margin": -0.026736000000000003,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 3.416098,
+        "required_min": null,
+        "required_max": 15,
+        "scale": 15,
+        "margin": 0.7722601333333333,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.83552125
+    ],
+    "seed": 2,
+    "seconds": 60.583,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 16.04525
+}

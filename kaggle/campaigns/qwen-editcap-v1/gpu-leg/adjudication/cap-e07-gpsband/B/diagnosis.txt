@@ -1,0 +1,8 @@
+### DIAGNOSIS:
+The circuit fails primarily due to **poor input matching (S11)**, which is **-2.589 dB**, falling short of the required **-10 dB**. The normalized margin is **-0.741**, indicating a significant violation. The failure is not due to noise or gain, as NF and S21 are within spec (though Idd is slightly over). The root cause lies in the **input impedance mismatch** caused by the **parasitic input capacitance (C1)** and the **lack of effective input inductance or impedance transformation**. The input inductor L1 is connected between VIN1 and n1, but the gate of NM1 is tied directly to n2, which is not properly tuned to the input frequency. The **NMOS NM1's gate is at n2**, while the input is at n1 — creating a non-optimal impedance path. Additionally, the **parasitic C2 and C3** are not properly configured to form a resonant input network, and **the biasing structure (R1–R4)** introduces resistive loading that degrades input reflection.
+
+The **input matching is further degraded** by the **unbalanced topology**, particularly the **presence of unconnected or floating devices (NM2, PM2)** which are effectively shorted (gate tied to source), acting as resistive loads. These uncontrolled devices **introduce parasitic resistances and capacitances** that disrupt input impedance tuning. The **lack of a proper input resonant network** (e.g., series inductor + shunt capacitor) and **absence of a tuned input port** are the fundamental structural flaws.
+
+---
+
+### EDIT 1: Replace NM2 and PM2 with a tuned input resonator

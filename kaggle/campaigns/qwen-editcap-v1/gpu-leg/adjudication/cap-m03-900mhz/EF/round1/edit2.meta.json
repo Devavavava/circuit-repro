@@ -1,0 +1,105 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**Prediction**: s11_db improves by ~4.0 dB.  \n*Reasoning*: The input node (n2) is currently connected to NM1 gate via R2 and to PM1 gate via R4. The lack of a proper input matching network causes the input impedance to be poorly matched. Introducing L3 (inductor) between n2 and n3 (which are both gate nodes) forms a **series resonant loop** with C2 (between n2 and n3). This creates a tuned input network: L3 + C2 resonates at 915 MHz, creating a low-impedance path at f0 that effectively shunts the input to ground at resonance, improving input match. The inductor L3 is placed between the two gate nodes, forming a loop that enhances the real part of the input impedance toward 50\u03a9. This is a classic technique in narrowband LNAs \u2014 using a resonant gate loop to achieve impedance matching. The structure is fully passive and adds no biasing complexity, making it a clean structural fix. The improvement is expected to be significant due to resonant input tuning.",
+  "wl_hash": "7e62a018d991fb23",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 1.304411,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -13.1356,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 3.16589,
+    "metrics": {
+      "s11_db": -0.318237,
+      "s11_max_db": -0.316862,
+      "s21_db": 6.17189,
+      "s21_min_db": 6.16489,
+      "idd_ma": 8.398908,
+      "nf_db": 3.096858,
+      "s22_db": -2.82565,
+      "s22_max_db": -2.82434,
+      "s12_db": -33.9651,
+      "k_f0": 0.292284,
+      "k_min": 0.28972,
+      "mu_f0": 0.634986,
+      "mu_min": 0.630957,
+      "mu_src_f0": 0.940089,
+      "mu_src_min": 0.938935,
+      "delta_f0": 0.689125,
+      "delta_max": 0.689143,
+      "stab_band": [
+        902000000.0,
+        928000000.0
+      ],
+      "s21_ripple_db": 0.01393000000000022,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.096858,
+        "required_min": null,
+        "required_max": 2.5,
+        "scale": 2.5,
+        "margin": -0.23874320000000004,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.318237,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.9681763,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 6.17189,
+        "required_min": 14,
+        "required_max": null,
+        "scale": 14,
+        "margin": -0.5591507142857143,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 8.398908,
+        "required_min": null,
+        "required_max": 6,
+        "scale": 6,
+        "margin": -0.39981800000000006,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -5,
+        "required_max": null,
+        "scale": 5,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.9681763
+    ],
+    "seed": 2,
+    "seconds": 61.579,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 1.304411
+}

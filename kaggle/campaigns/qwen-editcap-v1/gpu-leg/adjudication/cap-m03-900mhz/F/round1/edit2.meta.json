@@ -1,0 +1,23 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**Prediction**:  \n\u2192 **s11_db improves by ~3.5 dB**  \n**Reason**: A **series capacitor C3 (n1\u2013n2)** is added between input and gate, forming a **series resonant path** with **L1 (n2\u2013VSS)**. This creates a **low-impedance path at resonance**, effectively shorting the gate to ground at 915 MHz. Combined with **C1 (VIN1\u2013n1)**, this forms a **series LC input filter** that resonates at 915 MHz, improving input match. The gate is now ac-grounded, enabling better conjugate matching. The floating transistors are removed, reducing parasitic effects.",
+  "wl_hash": "c257e7fa16638e7a",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "fence_fail",
+  "fence_detail": {
+    "passed": false,
+    "idd_ma": null,
+    "idd_ok": false,
+    "idd_floor_ma": 0.05,
+    "s21_db": null,
+    "s21_ok": true,
+    "s21_applied": false,
+    "s21_floor_db": null,
+    "fence_s21_flag": true
+  },
+  "sized": null,
+  "error": null,
+  "smoke_idd_ma": null
+}

@@ -1,0 +1,105 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**Prediction:** s11_db improves by ~2.5 dB.  \n*Reasoning:* Inserting L3 (a series inductor between gate nodes n3 and n2) introduces a resonant path that tunes the gate impedance of PM1 and NM1. This creates a broadband impedance matching effect at 1.575 GHz, directly improving input return loss (S11) by reshaping the input admittance toward 50\u03a9. The inductor acts as a series impedance matching element, directly addressing the input mismatch that causes S11 to fail.",
+  "wl_hash": "c5188b09d8f771b9",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 2.788099,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -18.7236,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.24152,
+    "metrics": {
+      "s11_db": -0.537139,
+      "s11_max_db": -0.533393,
+      "s21_db": 8.45725,
+      "s21_min_db": 8.43994,
+      "idd_ma": 8.407077000000001,
+      "nf_db": 2.533707,
+      "s22_db": -1.05856,
+      "s22_max_db": -1.05261,
+      "s12_db": -27.8299,
+      "k_f0": 0.151475,
+      "k_min": 0.151475,
+      "mu_f0": 0.459044,
+      "mu_min": 0.457796,
+      "mu_src_f0": 0.647664,
+      "mu_src_min": 0.643344,
+      "delta_f0": 0.83661,
+      "delta_max": 0.836999,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.0346700000000002,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.533707,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": 0.15543099999999996,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.537139,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.9462861,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 8.45725,
+        "required_min": 12,
+        "required_max": null,
+        "scale": 12,
+        "margin": -0.29522916666666665,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 8.407077000000001,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": 0.1592922999999999,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -8,
+        "required_max": null,
+        "scale": 8,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.9462861
+    ],
+    "seed": 2,
+    "seconds": 63.387,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 2.788099
+}

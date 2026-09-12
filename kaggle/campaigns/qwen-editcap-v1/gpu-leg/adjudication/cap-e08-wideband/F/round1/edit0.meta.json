@@ -1,0 +1,205 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "**Prediction**:  \n- **s11_db improves by ~4 dB** (from -3.22 dB to ~0.8 dB).  \n- **Reason**: NM2 is now connected from gate to source (n2), creating **active source degeneration**. R2 and R3 form a **proper DC biasing network** for the gate of NM1 via R2\u2013R3. The source of NM1 (n2) is now properly biased. The inductor L1 provides input matching, and source degeneration stabilizes input impedance. This fixes the broken topology.\n\n---\n\n#### Edit 2: Replace floating bias nodes with grounded source degeneration and proper gate drive",
+  "wl_hash": "459f26333b12deb1",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 5.4940299999999995,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": 1.38491,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.20395,
+    "metrics": {
+      "s11_db": -0.631578,
+      "s11_max_db": -0.552021,
+      "s21_db": 7.27045,
+      "s21_min_db": 7.14758,
+      "idd_ma": 7.671588,
+      "nf_db": 2.764859,
+      "s22_db": -1.2489,
+      "s22_max_db": -1.23419,
+      "s12_db": -27.3386,
+      "k_f0": 0.156073,
+      "k_min": 0.14453,
+      "mu_f0": 0.532765,
+      "mu_min": 0.419649,
+      "mu_src_f0": 0.707357,
+      "mu_src_min": 0.537326,
+      "delta_f0": 0.80356,
+      "delta_max": 0.8068,
+      "stab_band": [
+        500000000.0,
+        3000000000.0
+      ],
+      "s21_ripple_db": 0.31931000000000065,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.764859,
+        "required_min": null,
+        "required_max": 3.5,
+        "scale": 3.5,
+        "margin": 0.21004028571428573,
+        "supported": true
+      },
+      "s11_max_db": {
+        "achieved": -0.552021,
+        "required_min": null,
+        "required_max": -8,
+        "scale": 8,
+        "margin": -0.930997375,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 7.27045,
+        "required_min": 10,
+        "required_max": null,
+        "scale": 10,
+        "margin": -0.27295499999999995,
+        "supported": true
+      },
+      "s21_ripple_db": {
+        "achieved": 0.31931000000000065,
+        "required_min": null,
+        "required_max": 2.0,
+        "scale": 2.0,
+        "margin": 0.8403449999999997,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 7.671588,
+        "required_min": null,
+        "required_max": 15,
+        "scale": 15,
+        "margin": 0.4885608,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 5,
+        "required_max": null,
+        "scale": 5,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_max_db",
+      -0.930997375
+    ],
+    "seed": 2,
+    "seconds": 62.561,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 5.4940299999999995,
+  "escalated": true,
+  "sized_escalated": {
+    "feasible": false,
+    "best_obj": 2.09278,
+    "metrics": {
+      "s11_db": -2.40788,
+      "s11_max_db": -2.18625,
+      "s21_db": 6.33938,
+      "s21_min_db": 6.12941,
+      "idd_ma": 7.714871,
+      "nf_db": 3.381207,
+      "s22_db": -1.14292,
+      "s22_max_db": -1.11631,
+      "s12_db": -28.2096,
+      "k_f0": 0.567925,
+      "k_min": 0.388765,
+      "mu_f0": 0.912929,
+      "mu_min": 0.812143,
+      "mu_src_f0": 0.833128,
+      "mu_src_min": 0.625823,
+      "delta_f0": 0.659237,
+      "delta_max": 0.6717,
+      "stab_band": [
+        500000000.0,
+        3000000000.0
+      ],
+      "s21_ripple_db": 0.4429299999999996,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.381207,
+        "required_min": null,
+        "required_max": 3.5,
+        "scale": 3.5,
+        "margin": 0.03394085714285718,
+        "supported": true
+      },
+      "s11_max_db": {
+        "achieved": -2.18625,
+        "required_min": null,
+        "required_max": -8,
+        "scale": 8,
+        "margin": -0.7267187500000001,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 6.33938,
+        "required_min": 10,
+        "required_max": null,
+        "scale": 10,
+        "margin": -0.366062,
+        "supported": true
+      },
+      "s21_ripple_db": {
+        "achieved": 0.4429299999999996,
+        "required_min": null,
+        "required_max": 2.0,
+        "scale": 2.0,
+        "margin": 0.7785350000000002,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 7.714871,
+        "required_min": null,
+        "required_max": 15,
+        "scale": 15,
+        "margin": 0.4856752666666667,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 5,
+        "required_max": null,
+        "scale": 5,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_max_db",
+      -0.7267187500000001
+    ],
+    "seed": 2,
+    "seconds": 187.315,
+    "evals": 1800,
+    "sim_health": {
+      "n_evals": 1800,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  }
+}

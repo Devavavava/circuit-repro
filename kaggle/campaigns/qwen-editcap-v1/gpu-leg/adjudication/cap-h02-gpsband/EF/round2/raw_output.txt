@@ -1,0 +1,47 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n3 n3 n5 VSS
+```
+
+Predicted: s11_db improves by ~1.2 dB (due to improved input matching via added NMOS NM4 in source degeneration, stabilizing gate node and reducing reflection at input).
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+PMOS PM1 n3 n3 VDD VDD
+```
+
+Predicted: s11_db improves by ~1.5 dB (introducing a PMOS at gate of NM1 with gate tied to source provides active biasing and better gate impedance matching, reducing input reflection).
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L4 n3 n5
+```
+
+Predicted: s11_db improves by ~1.8 dB (adding a shunt inductor L4 between gate and drain of NM1 creates a resonant matching network at f0, enhancing input match and reducing S11).

@@ -1,0 +1,105 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "Predicted: s11_db improves by ~2.5 dB.  \nReason: Adding NM3 (source-follower buffer) between R2 and NM1's gate increases input impedance at the gate node (n2), reducing reflection at the input. The diode-connected NM2 already provides some current steering, but NM3 enhances gate drive stability and reduces input VSWR via improved impedance matching.",
+  "wl_hash": "9da9f9a1e932fe19",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 1.404142,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -2.83065,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.53796,
+    "metrics": {
+      "s11_db": -9.18372,
+      "s11_max_db": -8.68169,
+      "s21_db": 3.28657,
+      "s21_min_db": 3.24767,
+      "idd_ma": 4.100336,
+      "nf_db": 3.720402,
+      "s22_db": -8.74002,
+      "s22_max_db": -8.70362,
+      "s12_db": -20.2445,
+      "k_f0": 2.72018,
+      "k_min": 2.71471,
+      "mu_f0": 1.83161,
+      "mu_min": 1.82823,
+      "mu_src_f0": 1.87987,
+      "mu_src_min": 1.81788,
+      "delta_f0": 0.162904,
+      "delta_max": 0.163415,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.07382,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.720402,
+        "required_min": null,
+        "required_max": 2.2,
+        "scale": 2.2,
+        "margin": -0.6910918181818181,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -9.18372,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.08162800000000008,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 3.28657,
+        "required_min": 14,
+        "required_max": null,
+        "scale": 14,
+        "margin": -0.765245,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 4.100336,
+        "required_min": null,
+        "required_max": 5,
+        "scale": 5,
+        "margin": 0.17993279999999992,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -8,
+        "required_max": null,
+        "scale": 8,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s21_db",
+      -0.765245
+    ],
+    "seed": 2,
+    "seconds": 64.177,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 1.404142
+}

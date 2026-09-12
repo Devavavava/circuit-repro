@@ -1,0 +1,47 @@
+```netlist
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+C C1 VIN1 n1
+C C2 n2 VOUT1
+```
+
+Predicted: s11_db improves by ~2.5 dB (due to better input matching via restructured inductor placement and reduced parasitic feedback).
+
+```netlist
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+C C1 VIN1 n1
+C C2 n2 VOUT1
+C C3 n3 n5
+```
+
+Predicted: s11_db improves by ~3.0 dB (added feedback capacitor C3 between gate and source of NM1, enhancing input match and reducing reflection).
+
+```netlist
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+C C1 VIN1 n1
+C C2 n2 VOUT1
+C C3 n3 n5
+L L4 n5 n6
+```
+
+Predicted: s11_db improves by ~3.5 dB (added series inductor L4 from gate of NM1 to node n6, creating a resonant matching network with C3 and improving input return loss).

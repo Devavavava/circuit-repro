@@ -1,0 +1,71 @@
+### DIAGNOSIS:
+The binding constraint is **NF_db = 1.888 dB (margin -0.259)**, which exceeds the 1.5 dB target. The primary physical limitation is **excessive noise from the input stage**, exacerbated by **high input-referred noise current** due to the **parasitic source degeneration and low transconductance gain**. The NMOS NM1 is the input transistor but is operated with **very low transconductance** (likely due to poor biasing or lack of effective gate drive), and the **source is not properly degenerated** for noise performance. Additionally, **PMOS PM1 is in a floating-gate configuration** (gate tied to drain, no gate control), making it ineffective as a current source and contributing to **high noise and poor gain**. The **NMOS NM2 and PMOS PM2 are disconnected (gate tied to source)**, acting as diodes or resistors, further degrading performance. The **input impedance is poorly matched** due to the lack of an intentional input matching network, and **the output is not properly terminated**. The **current consumption is slightly over budget**, but that is not the dominant failure — the **noise figure is the main bottleneck**.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+R R5 n2 VSS
+```
+
+**Prediction:**  
+*NF_db improves by ~0.4 dB* — adding a source resistor (R5) to NM1 introduces **source degeneration**, which reduces noise gain and improves input matching, directly lowering input-referred noise. This is a standard trade-off in LNA design to improve NF.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+R R5 n2 VSS
+```
+
+**Prediction:**  
+*NF_db improves by ~0.5 dB* — replacing the floating NMOS NM2 with a **source follower (NM2) tied to input node n2** provides **active source degeneration**. This increases effective source impedance, improving noise figure by reducing noise current injection into the input. The NM2 now acts as a **buffered degeneration element**, enhancing transconductance efficiency and reducing noise.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+R R5 n2 VSS
+R R6 n3 VSS
+```
+
+**Prediction:**  
+*NF_db improves by ~0.6 dB* — removing **both floating transistors (NM2 and PM2)** and adding **two source degeneration resistors (R5 and R6)** to NM1 and PM1 respectively. This creates **a fully degenerated differential pair-like structure** with **controlled biasing**. The resistors provide **active feedback**, reducing noise gain and increasing input impedance stability. This structural change improves **input matching and noise performance** significantly, directly targeting the NF floor.

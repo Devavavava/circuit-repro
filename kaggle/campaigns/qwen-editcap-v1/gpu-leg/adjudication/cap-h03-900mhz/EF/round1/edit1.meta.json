@@ -1,0 +1,105 @@
+{
+  "index": 1,
+  "round": 1,
+  "predicted_delta_text": "**Prediction:** s11_db improves by ~3.0 dB.  \n*Reasoning:* Replacing the R2 resistor with a PMOS (PM1) in a current mirror-like configuration (gate tied to VDD, source to n3, drain to n5) creates a dynamic load at the gate of NM1. This improves input impedance matching by introducing a voltage-controlled current source that stabilizes and tunes the gate voltage of NM1, reducing the reflection at the input (n1). The PMOS provides better impedance transformation than R2, especially at 915 MHz, directly improving s11_db.",
+  "wl_hash": "7da22e54494966d4",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 6.231612,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -21.9056,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 3.12694,
+    "metrics": {
+      "s11_db": -0.150175,
+      "s11_max_db": -0.148229,
+      "s21_db": 7.13397,
+      "s21_min_db": 7.05276,
+      "idd_ma": 4.616989,
+      "nf_db": 2.246221,
+      "s22_db": -8.2506,
+      "s22_max_db": -7.95033,
+      "s12_db": -58.5545,
+      "k_f0": 5.51631,
+      "k_min": 5.34781,
+      "mu_f0": 2.24258,
+      "mu_min": 2.14948,
+      "mu_src_f0": 1.01462,
+      "mu_src_min": 1.01458,
+      "delta_f0": 0.381103,
+      "delta_max": 0.39425,
+      "stab_band": [
+        902000000.0,
+        928000000.0
+      ],
+      "s21_ripple_db": 0.14283999999999963,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.246221,
+        "required_min": null,
+        "required_max": 1.6,
+        "scale": 1.6,
+        "margin": -0.4038881249999998,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.150175,
+        "required_min": null,
+        "required_max": -13,
+        "scale": 13,
+        "margin": -0.9884480769230769,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 7.13397,
+        "required_min": 17,
+        "required_max": null,
+        "scale": 17,
+        "margin": -0.5803547058823529,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 4.616989,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": -0.15424725000000006,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.9884480769230769
+    ],
+    "seed": 2,
+    "seconds": 62.563,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 6.231612
+}

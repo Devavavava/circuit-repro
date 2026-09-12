@@ -1,0 +1,113 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**Prediction:** s11_max_db improves by ~4 dB.  \n*Reason:* Adding L3 (a series inductor between n2 and n3) creates a resonant path that tunes out the parasitic capacitance at the gate node (n2), effectively improving input matching over the 0.5\u20133 GHz band. This is a classic technique for wideband input matching via inductive peaking, directly targeting S11 improvement in high-frequency LNAs.",
+  "wl_hash": "7e62a018d991fb23",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 1.2057490000000002,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -13.7455,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 3.2407,
+    "metrics": {
+      "s11_db": -0.561583,
+      "s11_max_db": -0.446448,
+      "s21_db": 6.92862,
+      "s21_min_db": 6.63148,
+      "idd_ma": 7.636303,
+      "nf_db": 2.940602,
+      "s22_db": -1.0627,
+      "s22_max_db": -0.903922,
+      "s12_db": -27.8667,
+      "k_f0": 0.13973,
+      "k_min": 0.136919,
+      "mu_f0": 0.526884,
+      "mu_min": 0.442503,
+      "mu_src_f0": 0.694015,
+      "mu_src_min": 0.455868,
+      "delta_f0": 0.828691,
+      "delta_max": 0.82877,
+      "stab_band": [
+        500000000.0,
+        3000000000.0
+      ],
+      "s21_ripple_db": 0.8647800000000005,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.940602,
+        "required_min": null,
+        "required_max": 2.5,
+        "scale": 2.5,
+        "margin": -0.17624080000000006,
+        "supported": true
+      },
+      "s11_max_db": {
+        "achieved": -0.446448,
+        "required_min": null,
+        "required_max": -15,
+        "scale": 15,
+        "margin": -0.9702368,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 6.92862,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": -0.5669612500000001,
+        "supported": true
+      },
+      "s21_ripple_db": {
+        "achieved": 0.8647800000000005,
+        "required_min": null,
+        "required_max": 1.5,
+        "scale": 1.5,
+        "margin": 0.42347999999999963,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 7.636303,
+        "required_min": null,
+        "required_max": 5,
+        "scale": 5,
+        "margin": -0.5272606,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_max_db",
+      -0.9702368
+    ],
+    "seed": 1,
+    "seconds": 62.21,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 1.2057490000000002
+}

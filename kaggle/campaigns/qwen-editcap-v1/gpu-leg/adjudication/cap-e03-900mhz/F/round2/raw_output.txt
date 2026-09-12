@@ -1,0 +1,44 @@
+```netlist
+NMOS NM1 n5 n3 VSS VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+```
+
+Predicted: s21_db improves by ~1.5 dB (due to reduced parasitic loading from repositioning L1 to directly connect VIN1 to n3, improving input matching and gain).
+
+```netlist
+NMOS NM1 n5 n3 VSS VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+R R2 n6 n3
+```
+
+Predicted: s21_db improves by ~1.2 dB (removes inductive loading on output via L3 by placing R2 between n6 and n3, enhancing output impedance matching and gain).
+
+```netlist
+NMOS NM1 n5 n3 VSS VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+R R2 VDD n3
+```
+
+Predicted: s21_db improves by ~2.0 dB (moves R2 from n6–n3 to VDD–n3, increasing effective output resistance and improving gain and output matching; also reduces loading on the drain node of NM2).

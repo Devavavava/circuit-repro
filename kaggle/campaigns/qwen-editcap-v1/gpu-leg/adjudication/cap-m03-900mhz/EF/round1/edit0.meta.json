@@ -1,0 +1,105 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "**Prediction**: s11_db improves by ~2.5 dB.  \n*Reasoning*: The failure is dominated by poor input match (s11_db = -0.23 dB), indicating high input reflection due to mismatch between source impedance and LNA input impedance. The current topology lacks an input matching network. Adding NM3 (source-degenerated NMOS from gate n2 to source n3) introduces a resistive loading path that can be used to tune input impedance toward 50\u03a9. The NM3 is diode-connected (gate tied to drain) and placed between n2 and n3 \u2014 effectively adding a degeneration resistance in series with the input node. This structural change provides an additional degree of freedom for impedance shaping without adding bias complexity. The diode-connected NMOS provides a small-signal resistance (\u2248 1/gm) that can be optimized to improve input match.\n\n---",
+  "wl_hash": "237c5dbf3e2aa2fa",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 1.9919550000000001,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -19.7561,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.90866,
+    "metrics": {
+      "s11_db": -0.485748,
+      "s11_max_db": -0.481565,
+      "s21_db": 8.11467,
+      "s21_min_db": 8.09161,
+      "idd_ma": 8.154202,
+      "nf_db": 2.944542,
+      "s22_db": -0.997772,
+      "s22_max_db": -0.989369,
+      "s12_db": -32.3031,
+      "k_f0": 0.177935,
+      "k_min": 0.177203,
+      "mu_f0": 0.606873,
+      "mu_min": 0.60346,
+      "mu_src_f0": 0.77371,
+      "mu_src_min": 0.768132,
+      "delta_f0": 0.843142,
+      "delta_max": 0.843739,
+      "stab_band": [
+        902000000.0,
+        928000000.0
+      ],
+      "s21_ripple_db": 0.046020000000000394,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.944542,
+        "required_min": null,
+        "required_max": 2.5,
+        "scale": 2.5,
+        "margin": -0.17781680000000008,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.485748,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.9514252000000001,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 8.11467,
+        "required_min": 14,
+        "required_max": null,
+        "scale": 14,
+        "margin": -0.4203807142857143,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 8.154202,
+        "required_min": null,
+        "required_max": 6,
+        "scale": 6,
+        "margin": -0.35903366666666664,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -5,
+        "required_max": null,
+        "scale": 5,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.9514252000000001
+    ],
+    "seed": 2,
+    "seconds": 64.336,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 1.9919550000000001
+}

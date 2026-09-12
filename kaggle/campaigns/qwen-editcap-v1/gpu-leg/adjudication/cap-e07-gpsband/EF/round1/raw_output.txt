@@ -1,0 +1,62 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+NMOS NM3 n2 n2 VSS VSS
+```
+
+**Prediction:** s11_db improves by ~2.5 dB.  
+*Reasoning: The diode-connected NM2 (n6) is creating a low-impedance path to ground at the gate of NM1, degrading input matching. Replacing NM2 with a diode-connected NMOS (NM3) at node n2 (same as NM2’s drain/gate) adds a controlled, higher-resistance path for AC signal, reducing loading at the input node n2, thereby improving S11. The added NM3 acts as a better biasing "buffer" for the gate of NM1, improving impedance matching at the input without altering DC biasing significantly. This structural change directly targets the S11 failure at the input port.*
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+PMOS PM3 n2 n2 VDD VDD
+```
+
+**Prediction:** s11_db improves by ~3.0 dB.  
+*Reasoning: The failure in S11 is due to excessive loading at the gate of NM1 (n2), which is driven by a resistive divider (R1/R2) and a diode-connected NMOS (NM2) that pulls down the gate node too strongly. Introducing a diode-connected PMOS (PM3) at node n2 (gate of NM1) provides a high-impedance, positive feedback path that increases the effective input impedance at the gate node. This stabilizes the gate voltage and reduces the AC current drawn from the input, improving input match. PM3 provides a complementary biasing mechanism that enhances S11 without degrading gain or noise.*
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+L L3 n2 n3
+```
+
+**Prediction:** s11_db improves by ~4.0 dB.  
+*Reasoning: The primary cause of poor S11 is the AC interaction between the input (n2) and the gate of PM1 (n3), which are connected via R4 and are at different impedances. Adding an inductor (L3) between n2 and n3 creates a resonant AC path that cancels out the phase mismatch between the input and the gate of PM1. This improves the impedance matching at the input by creating a higher impedance path at the signal frequency (1.575 GHz), effectively decoupling the gate of PM1 from the input node n2. The added L3 enhances input reflection by forming a tuned network that increases the effective input impedance, directly addressing the S11 failure.*

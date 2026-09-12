@@ -1,0 +1,11 @@
+### DIAGNOSIS:
+The circuit fails primarily due to poor input matching (S11), which is the binding constraint with a margin of -0.98 dB (i.e., S11_max_db = -0.306 dB vs. required ≤ -15 dB). The simulated S11 is catastrophically poor — this indicates that the input impedance is mismatched across the band, especially at 1.75 GHz. The root cause lies in the **topology** of the input stage: the input is driven directly through a series inductor (L1) to a source-degenerated NMOS (NM1), but the DC biasing network is unbalanced and poorly structured. Specifically:
+- NM2 and PM2 are floating (gate tied to drain, but no connection to control node), forming **uncontrolled, floating transistors** that act as parasitic diodes or floating capacitors, destabilizing the input impedance.
+- The gate of NM1 is connected to L1 (VIN1–n1–n2), but the gate bias is not properly established — there is no DC path from the gate to VDD or VSS for proper DC operation.
+- The absence of a proper gate bias network (e.g., resistive divider or diode-connected PMOS) leads to unpredictable DC operating points, causing the NMOS to be either off or in weak inversion, drastically increasing input reflection.
+
+Additionally, the presence of **two floating transistors (NM2 and PM2)** creates unmodeled parasitic paths and introduces instability. Their floating gates cause large gate capacitance variations and degrade input matching. This topology is fundamentally flawed for wideband operation.
+
+---
+
+### EDIT 1: Replace floating transistors with a proper input bias network using a diode-connected PMOS and a gate resistor

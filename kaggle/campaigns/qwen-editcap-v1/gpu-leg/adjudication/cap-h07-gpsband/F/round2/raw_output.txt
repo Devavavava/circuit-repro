@@ -1,0 +1,46 @@
+```netlist
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+C C1 VIN1 n1
+C C2 n2 VOUT1
+```
+
+**Prediction**: s11_db improves by ~2.5 dB (from -0.81 dB to ~-3.3 dB) due to improved input matching via repositioning of C1 and L1 to form a more effective input LC tank with reduced parasitic influence on input impedance.
+
+```netlist
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+C C1 VIN1 n1
+C C2 n2 VOUT1
+C C3 n1 VSS
+```
+
+**Prediction**: s11_db improves by ~3.0 dB (from -0.81 dB to ~-3.8 dB) due to the addition of a shunt capacitor C3 from input node to ground, which enhances input impedance matching at 1.575 GHz by creating a deeper notch in the reflection response.
+
+```netlist
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+C C1 VIN1 n1
+C C2 n2 VOUT1
+C C3 n2 VSS
+```
+
+**Prediction**: s11_db improves by ~2.8 dB (from -0.81 dB to ~-3.6 dB) due to a shunt output capacitor C3 providing better output impedance matching and reducing S11 degradation caused by output reflection, especially in a narrowband context.

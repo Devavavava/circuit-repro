@@ -1,0 +1,105 @@
+{
+  "index": 2,
+  "round": 2,
+  "predicted_delta_text": "Predicted: s11_db improves by ~2.3 dB (inserting an inductor in series with the input degeneration node increases input impedance at resonance, significantly improving input match at 1.575 GHz, directly attacking the S11 failure).",
+  "wl_hash": "108964fef7eeb954",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 4.7961339999999995,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -15.7382,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.63525,
+    "metrics": {
+      "s11_db": -0.248575,
+      "s11_max_db": -0.247433,
+      "s21_db": 6.10868,
+      "s21_min_db": 6.10177,
+      "idd_ma": 10.86263,
+      "nf_db": 3.248689,
+      "s22_db": -1.78178,
+      "s22_max_db": -1.7792,
+      "s12_db": -29.5662,
+      "k_f0": 0.101978,
+      "k_min": 0.101953,
+      "mu_f0": 0.371143,
+      "mu_min": 0.370082,
+      "mu_src_f0": 0.833934,
+      "mu_src_min": 0.832513,
+      "delta_f0": 0.788378,
+      "delta_max": 0.788543,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.013840000000000074,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.248689,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": -0.08289633333333339,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.248575,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.9751424999999999,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 6.10868,
+        "required_min": 12,
+        "required_max": null,
+        "scale": 12,
+        "margin": -0.49094333333333334,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 10.86263,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": -0.08626299999999994,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -8,
+        "required_max": null,
+        "scale": 8,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.9751424999999999
+    ],
+    "seed": 2,
+    "seconds": 64.764,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 4.7961339999999995
+}

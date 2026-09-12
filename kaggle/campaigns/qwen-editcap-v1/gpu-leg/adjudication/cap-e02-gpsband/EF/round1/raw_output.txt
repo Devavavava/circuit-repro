@@ -1,0 +1,49 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n5 n3 VDD VDD
+```
+
+**Prediction**: s21_db improves by ~1.2 dB.  
+*Reason*: Adding a PMOS (NM4) between drain of NM1 (n5) and VDD creates a current mirror-like load, increasing effective transconductance and output impedance, enhancing gain and reducing the impact of parasitic capacitance at the output. This directly boosts forward gain (S21) without increasing Idd significantly.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n2 n3 VSS VSS
+```
+
+**Prediction**: s21_db improves by ~1.5 dB.  
+*Reason*: Replacing the resistive biasing on NM1 gate (R2) with a diode-connected NMOS (NM4) between n2 and n3 creates a more stable, higher-gain gate bias via a current mirror-like path. This increases transconductance of NM1 and improves gain, especially in narrowband operation. The new structure also reduces gate leakage and enhances bias stability.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+NMOS NM4 n5 n6 VSS VSS
+```
+
+**Prediction**: s21_db improves by ~1.8 dB.  
+*Reason*: Replacing the R2 resistor (n6 to n3) with a diode-connected NMOS (NM4) between n5 and n6 enhances the biasing of the gate (n3) via a current-controlled voltage drop. This increases the effective gate voltage swing, boosting NM1's transconductance and output current. The improved biasing increases gain (S21) while maintaining low Idd and reducing noise impact. The structure also improves stability and gain flatness in narrowband mode.

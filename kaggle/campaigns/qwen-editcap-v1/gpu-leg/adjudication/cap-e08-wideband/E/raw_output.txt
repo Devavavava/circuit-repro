@@ -1,0 +1,62 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+PMOS PM3 n5 n6 VDD VDD
+```
+
+**Prediction:** s11_max_db improves by ~2.5 dB.  
+*Rationale:* The addition of PM3 (drain at n5, gate at n6, source/drain tied to VDD) creates a feedback path from the input bias node (n6) to the output node (n5), which effectively increases the input impedance at the gate of NM1 (n2) by bootstrapping. This enhances input matching (S11) by reducing the reflection at the input, directly targeting the binding constraint. The structural change introduces a positive feedback mechanism that improves input matching without significantly affecting current or noise.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+NMOS NM3 n4 n3 VSS VSS
+```
+
+**Prediction:** s11_max_db improves by ~2.0 dB.  
+*Rationale:* Adding NM3 (drain at n4, gate at n3, source/drain to VSS) creates a feedback path from the PM1 gate (n3) to the source of NM1 (n4), which is part of the output inductor path. This feedback lowers the impedance at the output node (n5) at input frequencies, effectively increasing the input reflection impedance (S11) through a form of impedance transformation. The structure enhances input matching via active feedback from the gate of PM1 to the source of NM1, improving the worst-case S11.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+NMOS NM3 n3 n2 VSS VSS
+```
+
+**Prediction:** s11_max_db improves by ~3.0 dB.  
+*Rationale:* Adding NM3 (drain at n3, gate at n2, source/drain to VSS) creates a direct feedback path from the PM1 gate (n3) to the NM1 gate (n2), forming a degenerative feedback loop. This feedback reduces the effective transconductance of NM1 at the input node (n2), thereby increasing the input impedance and reducing signal reflection (improving S11). This structural edit directly targets the input matching failure by stabilizing the gate node with a negative feedback path, which is a known technique to improve S11 in LNA topologies.

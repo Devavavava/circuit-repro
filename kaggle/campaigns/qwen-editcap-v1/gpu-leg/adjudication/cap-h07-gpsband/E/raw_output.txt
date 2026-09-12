@@ -1,0 +1,50 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n3 n3 VSS VSS
+```
+
+**Prediction:** s11_db improves by ~2.5 dB.  
+*Reasoning:* The addition of a diode-connected NMOS (NM4) at the gate of NM1 (n3) increases the effective gate capacitance and stabilizes the gate node, reducing reflection by improving input impedance matching. This directly targets the S11 failure.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+PMOS PM1 n3 n3 VDD VDD
+```
+
+**Prediction:** s11_db improves by ~3.0 dB.  
+*Reasoning:* Replacing the diode-connected NMOS (NM3) with a diode-connected PMOS (PM1) at the gate node (n3) shifts the DC bias point upward and increases the effective input impedance at the gate. The PMOS provides a high-impedance path with better matching at 1.58 GHz, directly improving input return loss.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L4 n3 n3
+```
+
+**Prediction:** s11_db improves by ~1.8 dB.  
+*Reasoning:* Adding a self-loop inductor (L4) at the gate node (n3) introduces a series inductive reactance that resonates with the parasitic capacitance at the input, improving impedance matching at 1.58 GHz. This is a passive tuning method to enhance S11 without altering active device biasing.

@@ -1,0 +1,69 @@
+### DIAGNOSIS:
+The circuit fails primarily due to poor input matching (S11), which is the binding constraint with a margin of -0.98 dB (i.e., S11_max_db = -0.306 dB vs. required ≤ -15 dB). The simulated S11 is catastrophically poor — this indicates that the input impedance is mismatched across the band, especially at 1.75 GHz. The root cause lies in the **topology** of the input stage: the input is driven directly through a series inductor (L1) to a source-degenerated NMOS (NM1), but the DC biasing network is unbalanced and poorly structured. Specifically:
+- NM2 and PM2 are floating (gate tied to drain, but no connection to control node), forming **uncontrolled, floating transistors** that act as parasitic diodes or floating capacitors, destabilizing the input impedance.
+- The gate of NM1 is connected to L1 (VIN1–n1–n2), but the gate bias is not properly established — there is no DC path from the gate to VDD or VSS for proper DC operation.
+- The absence of a proper gate bias network (e.g., resistive divider or diode-connected PMOS) leads to unpredictable DC operating points, causing the NMOS to be either off or in weak inversion, drastically increasing input reflection.
+
+Additionally, the presence of **two floating transistors (NM2 and PM2)** creates unmodeled parasitic paths and introduces instability. Their floating gates cause large gate capacitance variations and degrade input matching. This topology is fundamentally flawed for wideband operation.
+
+---
+
+### EDIT 1: Replace floating transistors with a proper input bias network using a diode-connected PMOS and a gate resistor
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n3 n3 VDD VDD
+R R1 VDD n3
+R R2 n3 n2
+```
+
+**Prediction**:  
+s11_db improves by ~4 dB (predicted margin: -0.306 + 4 = 3.694 dB → still below -15 dB, but moving in correct direction). The diode-connected PM2 provides a stable gate voltage, and R1/R2 form a bias network that sets the gate of NM1 to a known DC level, improving input impedance match and stabilizing the stage.
+
+---
+
+### EDIT 2: Insert a source follower buffer (PMOS) at the input to isolate the LNA input from input capacitance
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n3 n2 VDD VDD
+R R1 VDD n3
+R R2 n3 n2
+```
+
+**Prediction**:  
+s11_db improves by ~6 dB (predicted margin: -0.306 + 6 = 5.694 dB). The PM2 source follower (with gate tied to VDD via R1) provides a low-impedance driving point at the input node, reducing the effective input capacitance seen by VIN1 and improving input matching. The source follower isolates the main LNA stage from the input load, improving S11 across the band.
+
+---
+
+### EDIT 3: Replace the floating NM2/PM2 with a resistive divider from VDD to VSS, and reconfigure the gate of NM1 to be driven through a high-impedance path
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+R R1 VDD n2
+R R2 n2 VSS
+```
+
+**Prediction**:  
+s11_db improves by ~8 dB (predicted margin: -0.306 + 8 = 7.694 dB). The resistive divider (R1 and R2) provides a stable DC gate bias for NM1, eliminating floating nodes and enabling a predictable, stable operating point. The input is now properly biased, and the gate drive is isolated from the input signal via L1. This dramatically improves input matching by stabilizing the transconductance and reducing parasitic feedback paths. This structure is more robust and suitable for wideband LNA design.

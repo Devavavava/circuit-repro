@@ -1,0 +1,105 @@
+{
+  "index": 1,
+  "round": 1,
+  "predicted_delta_text": "**Prediction**: S11_db improves by **~5 dB** (predicted achieved: ~4.3 dB).  \n*Reasoning*: Adding **C3 from gate (n3) to VSS** creates a **shunt capacitive path** to ground, forming a **shunt-series LC network** with L1. This resonates with the input capacitance at 1.58 GHz, improving the input return loss. The shunt capacitance helps tune out the inductive reactance of L1, pulling the input impedance toward 50 \u03a9. This is a standard technique for input matching in LNA design.\n\n---",
+  "wl_hash": "8188473f7676d1aa",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 7.116886,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -9.86053,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 3.38959,
+    "metrics": {
+      "s11_db": -0.813754,
+      "s11_max_db": -0.806553,
+      "s21_db": 5.18619,
+      "s21_min_db": 5.1482,
+      "idd_ma": 2.5941430000000003,
+      "nf_db": 2.560536,
+      "s22_db": -3.72341,
+      "s22_max_db": -3.68345,
+      "s12_db": -53.7029,
+      "k_f0": 13.5013,
+      "k_min": 13.3265,
+      "mu_f0": 1.51412,
+      "mu_min": 1.50687,
+      "mu_src_f0": 1.09371,
+      "mu_src_min": 1.09292,
+      "delta_f0": 0.595576,
+      "delta_max": 0.597831,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.07223000000000024,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.560536,
+        "required_min": null,
+        "required_max": 1.5,
+        "scale": 1.5,
+        "margin": -0.707024,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.813754,
+        "required_min": null,
+        "required_max": -14,
+        "scale": 14,
+        "margin": -0.9418747142857143,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 5.18619,
+        "required_min": 20,
+        "required_max": null,
+        "scale": 20,
+        "margin": -0.7406905,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 2.5941430000000003,
+        "required_min": null,
+        "required_max": 3,
+        "scale": 3,
+        "margin": 0.13528566666666655,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.9418747142857143
+    ],
+    "seed": 1,
+    "seconds": 60.18,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 7.116886
+}

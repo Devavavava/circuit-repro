@@ -1,0 +1,59 @@
+### DIAGNOSIS:
+The circuit fails primarily due to **excessive noise figure (NF)**, with a margin of -0.212 dB (i.e., 2.18 dB vs. 1.8 dB target). The root cause lies in the **low transconductance (gm) of the input stage** and **inadequate noise matching**. The NMOS NM1 (input transistor) is configured in a common-source topology with a floating source (via R2 and L1), but it lacks a dedicated source degeneration or a noise-optimized biasing structure. The current mirror (NM2) is not properly sized or isolated, and the floating gate of NM3 (used as a current sink) is shorted to its source — this creates a dummy device with no function, wasting current and increasing noise. The small signal gain and noise performance are degraded because the input transistor operates with low gm and high output impedance, leading to poor noise figure. Additionally, the current consumption is acceptable (2.65 mA), so the issue is not power but **topology-level noise efficiency**.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+R R3 n3 VSS
+```
+
+**Prediction**: `nf_db` improves by ~0.5 dB.  
+**Reason**: Adding a **source resistor (R3)** to NM1 provides **source degeneration**, which increases input impedance, improves noise matching, and reduces noise figure by stabilizing gain and improving transconductance efficiency. This is a classic noise-optimized CMOS LNA topology.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+R R3 n3 n4
+```
+
+**Prediction**: `nf_db` improves by ~0.6 dB.  
+**Reason**: Replacing the floating node (n3) between R2 and NM1's source with a **direct connection to VSS via R3** creates a grounded source for NM1, improving noise performance through better noise matching and higher effective gm. This is a **shunt-feedback-type LNA structure**, which enhances noise figure by reducing input noise and increasing gain.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+R R3 n3 n5
+```
+
+**Prediction**: `nf_db` improves by ~0.7 dB.  
+**Reason**: Adding **feedback resistor R3 from source (n3) to gate (n5)** introduces **gate-source feedback**, which stabilizes the gain, improves input impedance match, and significantly reduces noise figure by increasing effective transconductance and reducing input noise. This is a **feedback-configured LNA**, known for superior NF and stability at RF. The feedback also improves linearity and bandwidth, though not directly targeted here.

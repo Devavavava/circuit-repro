@@ -1,0 +1,47 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n5 n3 VSS VSS
+```
+
+**Prediction:** The binding constraint `nf_db` will improve by ~0.3 dB. Adding a second diode-connected NMOS (NM4) in parallel with NM3 increases the tail current source’s output impedance, reducing thermal noise contribution from the bias network and improving input-referred noise. This directly targets the dominant noise source in the original circuit.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+PMOS PM1 n5 n3 VSS VSS
+```
+
+**Prediction:** The binding constraint `nf_db` will improve by ~0.4 dB. Replacing NM3 with a PMOS (PM1) in diode connection reduces the gate-induced noise contribution due to lower gate capacitance and higher output impedance compared to NMOS, while maintaining the same bias current. The PMOS’s lower flicker noise and higher impedance improve the noise figure, especially at 2.44 GHz.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n5 n6 VSS VSS
+```
+
+**Prediction:** The binding constraint `nf_db` will improve by ~0.35 dB. Replacing the resistor R2 with a diode-connected NMOS (NM4) in series between n6 and n3 increases the feedback path’s impedance and introduces negative feedback, which reduces the effective transconductance noise gain. This suppresses noise from the input stage more effectively than a resistor, especially when the gate of NM1 is driven by a high-impedance node.

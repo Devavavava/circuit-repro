@@ -1,0 +1,10 @@
+### DIAGNOSIS:
+The circuit fails primarily due to **poor input match (S11)**, with a margin of -0.98 dB — the worst constraint. The S11_db is only -0.22 dB, far from the -12 dB target. This indicates excessive input reflection, likely due to **high input impedance mismatch** caused by the **lack of a proper input matching network** and **inadequate gate loading**.
+
+The current topology uses a single NMOS (NM1) as the input transistor with a source degeneration resistor (R2) from source to node n3, but the gate is directly driven via C1 from VIN1. This creates a high input impedance at the gate, which is not matched to 50 Ω. The source resistor R2 is only connected to n3 (which is tied to L1 and NM1’s drain), so it provides minimal feedback or impedance transformation. Additionally, NM3 (a degenerated NMOS with gate and source tied together) is not properly utilized — it's acting like a diode-connected device but is not contributing to bias or matching.
+
+The main issue is **no intentional input impedance transformation or matching structure**, and **no feedback mechanism** to stabilize input reflection. The circuit behaves like a poorly matched common-source amplifier with no tuning or loading at the input.
+
+---
+
+### EDIT 1: Add input series inductor and gate-source feedback capacitor

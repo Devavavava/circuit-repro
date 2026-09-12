@@ -1,0 +1,113 @@
+### 1. DIAGNOSIS
+
+The circuit fails primarily due to **poor input match (S11)**, which is **-1.59 dB**, falling **0.84 dB below the -10 dB target**. This is the binding constraint. The secondary issues are:
+- **NF = 2.7 dB** (>2.2 dB target), indicating excessive noise figure.
+- **S21 = 11.79 dB** (<14 dB target), indicating insufficient gain.
+- **Idd = 4.94 mA** (~1% over budget), which is acceptable but tight.
+
+However, the root physical cause of the S11 failure lies in the **input impedance mismatch** due to:
+- **No input series inductor** (L1) to resonate with input capacitance (C1).
+- **The input inductor L1 is not properly tuned** — it is connected from VIN1 to n1, and n1 is connected to C1, but the inductor is not in series with the input port in a way that provides resonance at 1.575 GHz.
+- The **source degeneration at NM1 is incomplete or missing**: the NMOS NM1 has its gate connected to n2, which is tied to the inductor L1, but the source is grounded. However, the gate of NM2 is shorted to itself (n6-n6), which is a **dead short** — this suggests **NM2 is not connected and effectively disabled**.
+- Similarly, **PM2 has its gate tied to itself (n7-n7)** — this is also **a floating or dead device**, effectively **not contributing to the circuit**.
+
+This means:
+- **The input path is dominated by C1 and L1**, forming a **low-pass LC tank**, but **not resonated at 1.575 GHz**.
+- The **transconductance of NM1 is poorly matched to the input impedance**, and the **lack of proper feedback or impedance transformation** prevents good matching.
+- The **floating PM2 and NM2** suggest **a design error in the biasing topology** — possibly meant to be part of a current mirror or bias network, but their self-connections make them non-functional.
+
+Thus, **the primary failure mechanism is poor input impedance matching due to unbalanced or non-functional biasing devices and missing input resonant tuning**.
+
+---
+
+### 2. STRUCTURAL EDITS
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n3 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n6 n2 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+
+**Prediction for S11_db**: **Improves by ~4 dB**.
+
+**Rationale**:  
+- Removed floating PM2/NM2 (now properly connected).  
+- Added **current mirror from PM2/NM2** (PM2: gate to n2, source to VDD; NM2: gate to n3, source to VSS) — enables **active biasing** and **impedance transformation** at input.  
+- The gate of PM2 is now at **n2**, which is connected to the inductor L1, so it creates **negative feedback** from output to input via the current mirror.  
+- This structure enhances **input matching** by introducing **feedback that tunes input impedance** toward 50Ω at resonance.  
+- The current mirror stabilizes the DC operating point and increases transconductance gain.  
+- Predicted **S11 improvement**: ~4 dB (from -1.59 dB to ~2.4 dB), well above -10 dB.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n3 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+
+**Prediction for S11_db**: **Improves by ~3 dB**.
+
+**Rationale**:  
+- Removed floating NM2 and PM2 by **connecting NM2 gate to n2 (input node)** and PM2 gate to n3 (bias node).  
+- NM2 now acts as a **source follower** from n2 to VSS, providing **source degeneration** at the input node.  
+- This reduces input capacitance seen from VIN1 via Miller effect and increases input impedance.  
+- PM2 acts as a **current source** pulling current from VDD through n3, helping set DC bias at the gate of PM1.  
+- This creates **better input impedance control** and improves **matching via degeneration**.  
+- The feedback path from n2 to NM2 gate improves stability and input match.  
+- Predicted **S11 improvement**: ~3 dB (from -1.59 dB to ~1.4 dB), still not meeting target but within reach.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C5 n2 n6
+```
+
+**Prediction for S11_db**: **Improves by ~5 dB**.
+
+**Rationale**:  
+- Added **a capacitor C5 between n2 and n6**, forming a **feedback path** from input node n2 to the bias node n6.  
+- This creates **a feedback capacitor** that stabilizes the DC operating point and **modifies the input impedance** via frequency-dependent feedback.  
+- At 1.575 GHz, C5 acts as a **shunt path** that **resonates with L1 and C1**, effectively forming a **parallel-tuned input stage**.  
+- This **resonant feedback** enhances **input matching** by shaping the input impedance to 50Ω at f0.  
+- The feedback reduces input reflection by **canceling out reactance** via tuned shunt feedback.  
+- Unlike the previous edits, this is **a passive structural change** that improves matching **without altering active device connectivity**.  
+- Predicted **S11 improvement**: ~5 dB (from -1.59 dB to ~3.4 dB), which is **well above the -10 dB target**, making it the most promising fix.

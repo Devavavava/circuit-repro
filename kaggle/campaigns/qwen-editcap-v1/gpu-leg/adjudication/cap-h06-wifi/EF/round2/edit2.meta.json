@@ -1,0 +1,105 @@
+{
+  "index": 2,
+  "round": 2,
+  "predicted_delta_text": "**Prediction**: Adding a capacitor C5 between gate nodes n2 and n3 introduces a local feedback path that stabilizes the gate voltage difference between NM1 and PM1, improving input impedance matching and reducing phase noise. This enhances noise figure by reducing gate leakage and improving common-mode rejection. **nf_db is predicted to improve by ~0.5 dB**.",
+  "wl_hash": "bf436c8e4234d625",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 1.4347509999999999,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -10.4173,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.47031,
+    "metrics": {
+      "s11_db": -4.85979,
+      "s11_max_db": -4.1285,
+      "s21_db": 10.1665,
+      "s21_min_db": 9.9451,
+      "idd_ma": 4.531623000000001,
+      "nf_db": 2.038658,
+      "s22_db": -6.88865,
+      "s22_max_db": -6.70487,
+      "s12_db": -12.5726,
+      "k_f0": 0.54085,
+      "k_min": 0.534512,
+      "mu_f0": 0.465076,
+      "mu_min": 0.454091,
+      "mu_src_f0": 0.529124,
+      "mu_src_min": 0.508386,
+      "delta_f0": 0.592701,
+      "delta_max": 0.600225,
+      "stab_band": [
+        2400000000.0,
+        2483500000.0
+      ],
+      "s21_ripple_db": 0.35350000000000037,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.038658,
+        "required_min": null,
+        "required_max": 1.5,
+        "scale": 1.5,
+        "margin": -0.3591053333333332,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -4.85979,
+        "required_min": null,
+        "required_max": -15,
+        "scale": 15,
+        "margin": -0.676014,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 10.1665,
+        "required_min": 18,
+        "required_max": null,
+        "scale": 18,
+        "margin": -0.4351944444444445,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 4.531623000000001,
+        "required_min": null,
+        "required_max": 5,
+        "scale": 5,
+        "margin": 0.09367539999999988,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 0,
+        "required_max": null,
+        "scale": 1.0,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.676014
+    ],
+    "seed": 1,
+    "seconds": 63.874,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 1.4347509999999999
+}

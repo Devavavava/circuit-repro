@@ -1,0 +1,105 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "> **Prediction**: `s11_db improves by ~3 dB` \u2014 The PM3 cascode device isolates the input node from output variations and improves input impedance. The gate of PM3 is biased via R1/R3 (now forming a voltage divider to VDD/VSS), providing a stable DC point. This reduces Miller effect and improves input match and stability.\n\n---",
+  "wl_hash": "a92410c951e0e13a",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 0.225437,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -24.3679,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 14.72829,
+    "metrics": {
+      "s11_db": -0.317546,
+      "s11_max_db": -0.314228,
+      "s21_db": -22.8708,
+      "s21_min_db": -23.0949,
+      "idd_ma": 0.4482981,
+      "nf_db": 24.47812,
+      "s22_db": -8.33861,
+      "s22_max_db": -7.84312,
+      "s12_db": -20.9639,
+      "k_f0": 4.98801,
+      "k_min": 4.88723,
+      "mu_f0": 2.46929,
+      "mu_min": 2.3329,
+      "mu_src_f0": 1.03173,
+      "mu_src_min": 1.03157,
+      "delta_f0": 0.374495,
+      "delta_max": 0.395892,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.43159999999999954,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 24.47812,
+        "required_min": null,
+        "required_max": 2.2,
+        "scale": 2.2,
+        "margin": -10.126418181818181,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.317546,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.9682454,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -22.8708,
+        "required_min": 14,
+        "required_max": null,
+        "scale": 14,
+        "margin": -2.6336285714285714,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 0.4482981,
+        "required_min": null,
+        "required_max": 5,
+        "scale": 5,
+        "margin": 0.9103403800000001,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -8,
+        "required_max": null,
+        "scale": 8,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -10.126418181818181
+    ],
+    "seed": 2,
+    "seconds": 65.109,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 0.225437
+}

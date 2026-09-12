@@ -1,0 +1,50 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n5 n3 VSS VSS
+```
+
+**Prediction:** s11_db improves by ~2.5 dB.  
+*Reasoning:* The added NMOS NM4 (diode-connected, source/drain tied to n5 and n3) introduces a new low-impedance path from gate (n3) to source (VSS), effectively shunting the gate node and reducing the input impedance mismatch. This directly improves S11 by stabilizing the gate bias and reducing the reflection at the input.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+PMOS PM1 n5 n3 VSS VSS
+```
+
+**Prediction:** s11_db improves by ~3.0 dB.  
+*Reasoning:* Replacing the diode-connected NMOS NM3 with a PMOS PM1 (gate tied to drain at n5, source to VSS) creates a negative feedback path from gate (n3) to source (VSS). The PMOS provides a more controlled, lower conductance path than NMOS for stabilizing the gate bias, reducing gate-node impedance variations and improving input match.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L4 n3 VSS
+```
+
+**Prediction:** s11_db improves by ~4.0 dB.  
+*Reasoning:* Replacing the resistive path R2 (n6–n3) with an inductor L4 (n3–VSS) creates a low-impedance AC path to ground at the gate node, significantly lowering the effective input impedance. This dramatically improves input matching by providing a stable AC ground for the gate, reducing reflections. The inductor resonates with input capacitance, enhancing the input match at 1.575 GHz.

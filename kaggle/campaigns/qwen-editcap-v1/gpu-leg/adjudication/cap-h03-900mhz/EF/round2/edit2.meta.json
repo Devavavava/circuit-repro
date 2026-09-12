@@ -1,0 +1,105 @@
+{
+  "index": 2,
+  "round": 2,
+  "predicted_delta_text": "**Prediction**: s11_db improves by ~3.2 dB. Adding an inductor between the gate (n3) and drain (n5) of NM1 introduces a resonant feedback path that enhances input impedance at the target frequency through impedance transformation. This structural change directly targets the S11 binding constraint by tuning input reflection via resonant loading.",
+  "wl_hash": "06d7b43eb050e1c7",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 4.720346,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -3.64902,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 3.51764,
+    "metrics": {
+      "s11_db": -16.0869,
+      "s11_max_db": -16.0202,
+      "s21_db": 1.25812,
+      "s21_min_db": 1.10601,
+      "idd_ma": 3.5579449999999997,
+      "nf_db": 4.146629,
+      "s22_db": -11.1314,
+      "s22_max_db": -10.5395,
+      "s12_db": -24.8456,
+      "k_f0": 6.79257,
+      "k_min": 6.65204,
+      "mu_f0": 2.80876,
+      "mu_min": 2.68051,
+      "mu_src_f0": 4.02565,
+      "mu_src_min": 4.01587,
+      "delta_f0": 0.0232904,
+      "delta_max": 0.0289607,
+      "stab_band": [
+        902000000.0,
+        928000000.0
+      ],
+      "s21_ripple_db": 0.28151000000000015,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 4.146629,
+        "required_min": null,
+        "required_max": 1.6,
+        "scale": 1.6,
+        "margin": -1.5916431249999998,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -16.0869,
+        "required_min": null,
+        "required_max": -13,
+        "scale": 13,
+        "margin": 0.23745384615384615,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 1.25812,
+        "required_min": 17,
+        "required_max": null,
+        "scale": 17,
+        "margin": -0.9259929411764706,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 3.5579449999999997,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": 0.11051375000000008,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -1.5916431249999998
+    ],
+    "seed": 1,
+    "seconds": 60.202,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 4.720346
+}

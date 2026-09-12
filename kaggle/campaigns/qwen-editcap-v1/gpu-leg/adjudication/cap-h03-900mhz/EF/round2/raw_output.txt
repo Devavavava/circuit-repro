@@ -1,0 +1,47 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+PMOS PM1 n5 VDD n3 VDD
+```
+
+**Prediction**: s11_db improves by ~2.5 dB. The addition of a PMOS in the feedback path (from drain of NM1 to gate of NM1, with source tied to VDD) creates a positive feedback mechanism that increases input impedance at resonance, directly improving S11 by reducing reflection at the input.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+PMOS PM1 n6 VDD n3 VDD
+```
+
+**Prediction**: s11_db improves by ~2.8 dB. The PMOS is placed between VDD and the gate of NM1, effectively creating a voltage divider with R1 and R2 but with enhanced gate drive control. This topology stabilizes the gate potential of NM1, increasing input impedance and reducing input reflection, especially at the design frequency.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L4 n3 n5
+```
+
+**Prediction**: s11_db improves by ~3.2 dB. Adding an inductor between the gate (n3) and drain (n5) of NM1 introduces a resonant feedback path that enhances input impedance at the target frequency through impedance transformation. This structural change directly targets the S11 binding constraint by tuning input reflection via resonant loading.

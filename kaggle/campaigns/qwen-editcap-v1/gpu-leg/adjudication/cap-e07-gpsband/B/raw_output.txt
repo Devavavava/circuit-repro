@@ -1,0 +1,69 @@
+### DIAGNOSIS:
+The circuit fails primarily due to **poor input matching (S11)**, which is **-2.589 dB**, falling short of the required **-10 dB**. The normalized margin is **-0.741**, indicating a significant violation. The failure is not due to noise or gain, as NF and S21 are within spec (though Idd is slightly over). The root cause lies in the **input impedance mismatch** caused by the **parasitic input capacitance (C1)** and the **lack of effective input inductance or impedance transformation**. The input inductor L1 is connected between VIN1 and n1, but the gate of NM1 is tied directly to n2, which is not properly tuned to the input frequency. The **NMOS NM1's gate is at n2**, while the input is at n1 — creating a non-optimal impedance path. Additionally, the **parasitic C2 and C3** are not properly configured to form a resonant input network, and **the biasing structure (R1–R4)** introduces resistive loading that degrades input reflection.
+
+The **input matching is further degraded** by the **unbalanced topology**, particularly the **presence of unconnected or floating devices (NM2, PM2)** which are effectively shorted (gate tied to source), acting as resistive loads. These uncontrolled devices **introduce parasitic resistances and capacitances** that disrupt input impedance tuning. The **lack of a proper input resonant network** (e.g., series inductor + shunt capacitor) and **absence of a tuned input port** are the fundamental structural flaws.
+
+---
+
+### EDIT 1: Replace NM2 and PM2 with a tuned input resonator
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+C C5 n2 VSS
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+
+**Prediction:**  
+`s11_db` improves by **~4 dB** (from -2.589 dB to ~1.4 dB), due to **adding a shunt capacitor (C5) at the input node (n2)**, forming a **series-LC resonant circuit (L1 + C5)** with the input capacitance (C1), which improves input impedance match at 1.575 GHz. The floating NM2 and PM2 are removed, eliminating parasitic loading.
+
+---
+
+### EDIT 2: Introduce input series inductor and shunt capacitor for resonant input tuning
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 VIN1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C5 n2 VSS
+```
+
+**Prediction:**  
+`s11_db` improves by **~5 dB** (to ~2.4 dB), due to **placing L1 directly from VIN1 to n2**, forming a **series-LC input resonator (L1 + C5)**, which resonates at 1.575 GHz. This creates a low-impedance path at the design frequency, drastically improving input match. The removal of NM2/PM2 eliminates parasitic loading.
+
+---
+
+### EDIT 3: Shift input node to create a grounded-gate topology with input tuning
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C5 VIN1 VSS
+```
+
+**Prediction:**  
+`s11_db` improves by **~3.5 dB** (to ~1.0 dB), due to **adding a shunt capacitor (C5) from VIN1 to VSS**, which forms a **parallel resonant circuit with L1**, tuning the input impedance to 50 Ω at 1.575 GHz. This grounded-gate configuration enhances input matching by stabilizing the input node and enabling a resonant path. Removal of NM2/PM2 reduces parasitic loading.
+
+---

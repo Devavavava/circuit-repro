@@ -1,0 +1,113 @@
+{
+  "index": 1,
+  "round": 1,
+  "predicted_delta_text": "**Prediction:** s11_max_db improves by ~3 dB.  \n*Reason:* PM3 (source follower from n4 to n2) provides a low-impedance pull-up path to the gate node (n2), enhancing input impedance matching by stabilizing the gate node against high-frequency variations. This is effective in reducing S11 in cascode LNAs where gate node impedance is poorly controlled.\n\n---",
+  "wl_hash": "701febc13c24083b",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 1.2258040000000001,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -4.05716,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 3.03169,
+    "metrics": {
+      "s11_db": -0.480582,
+      "s11_max_db": -0.425459,
+      "s21_db": 5.36846,
+      "s21_min_db": 5.16334,
+      "idd_ma": 5.42448,
+      "nf_db": 3.27672,
+      "s22_db": -2.33854,
+      "s22_max_db": -2.13946,
+      "s12_db": -27.1409,
+      "k_f0": 0.289509,
+      "k_min": 0.285967,
+      "mu_f0": 0.539609,
+      "mu_min": 0.460718,
+      "mu_src_f0": 0.863864,
+      "mu_src_min": 0.809694,
+      "delta_f0": 0.725327,
+      "delta_max": 0.734825,
+      "stab_band": [
+        500000000.0,
+        3000000000.0
+      ],
+      "s21_ripple_db": 0.24649000000000054,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.27672,
+        "required_min": null,
+        "required_max": 2.5,
+        "scale": 2.5,
+        "margin": -0.310688,
+        "supported": true
+      },
+      "s11_max_db": {
+        "achieved": -0.425459,
+        "required_min": null,
+        "required_max": -15,
+        "scale": 15,
+        "margin": -0.9716360666666667,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 5.36846,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": -0.6644712500000001,
+        "supported": true
+      },
+      "s21_ripple_db": {
+        "achieved": 0.24649000000000054,
+        "required_min": null,
+        "required_max": 1.5,
+        "scale": 1.5,
+        "margin": 0.8356733333333329,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 5.42448,
+        "required_min": null,
+        "required_max": 5,
+        "scale": 5,
+        "margin": -0.084896,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_max_db",
+      -0.9716360666666667
+    ],
+    "seed": 2,
+    "seconds": 64.733,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 1.2258040000000001
+}

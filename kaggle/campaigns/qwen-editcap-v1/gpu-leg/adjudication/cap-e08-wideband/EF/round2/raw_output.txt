@@ -1,0 +1,59 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+PMOS PM3 n6 n2 VDD VDD
+```
+
+Predicted: s11_max_db improves by ~2.5 dB. The addition of PM3 from n6 (gate of NM2) to n2 (NM1 gate) creates a feedback path that stabilizes the input gate node, reducing input reflection by improving input match through dynamic impedance adjustment. This directly targets the S11 failure.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+NMOS NM3 n3 n2 VSS VSS
+```
+
+Predicted: s11_max_db improves by ~2.0 dB. Adding NM3 from n3 (PM1 gate) to n2 (NM1 gate) introduces a negative feedback path that reduces the effective input impedance variation across frequency, improving input match. This leverages the existing resistor bias chain to stabilize the gate node and mitigate S11 degradation.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+L L3 n6 n3
+```
+
+Predicted: s11_max_db improves by ~3.0 dB. Inserting an inductor L3 between n6 (NM2 drain/gate) and n3 (PM1 gate) creates a resonant feedback loop that tunes the input impedance at the operating frequency. This compensates for the high-frequency S11 degradation seen in the original topology by introducing a frequency-selective impedance shift, directly addressing the binding constraint.

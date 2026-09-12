@@ -1,0 +1,58 @@
+```netlist
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C1 VIN1 n1
+C C2 n1 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+```
+
+**Prediction for s11_db**: Improves by ~2.0 dB. The insertion of C2 between n1 and n3 (input node and PM1 gate) creates a grounded-gate feedback path that enhances input matching by reducing input reflection, especially at 915 MHz. The round-1 edit with the best s11_db margin was edit 0 (s11_db = -0.4857), and this topology further stabilizes input impedance through intentional feedback.
+
+```netlist
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+C C5 n2 n3
+```
+
+**Prediction for s11_db**: Improves by ~1.8 dB. Adding a shunt capacitor C5 between gate nodes n2 and n3 (NM1 and PM1 gates) creates a balanced AC feedback path that stabilizes the input impedance and improves S11 by reducing gate-node reactance mismatch. This is a refinement of edit 0’s feedback concept but with direct gate-to-gate tuning, which better targets input reflection without degrading gain or increasing current.
+
+```netlist
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+C C5 n1 n3
+```
+
+**Prediction for s11_db**: Improves by ~2.5 dB. Placing C5 from n1 (input node) to n3 (PM1 gate) introduces an input-to-gate capacitance that tunes the input impedance toward 50 Ω at 915 MHz. This creates a more effective matching network than the original C1-only approach. The feedback is now from input to PM1 gate, directly shaping the input reflection coefficient. This topology leverages the best-performing structural insight from edit 0 (feedback) but with a more targeted and grounded placement, predicted to significantly improve S11.

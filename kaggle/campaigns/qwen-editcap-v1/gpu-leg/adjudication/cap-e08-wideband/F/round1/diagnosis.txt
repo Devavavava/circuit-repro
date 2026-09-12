@@ -1,0 +1,17 @@
+### 1. DIAGNOSIS OF FAILURE
+
+The binding constraint is **s11_max_db = -3.22284 dB**, which is **0.597 dB below** the required **-8 dB**, meaning the input match is severely poor. This is the dominant failure.
+
+The circuit uses a **common-source LNA topology** with **source degeneration via NMOS NM2** (which is shorted between gate and source, acting as a resistor) and **inductive source degeneration** via L1 from VIN1 to node n2. However, **NM2 is floating (gate and source connected to same node n6)** — this is not a valid degeneration device; it’s effectively **a short from n6 to VSS**, which creates a **low-impedance path to ground at the source of NM1**, but **without proper DC biasing**, the transistor is likely off or in cutoff.
+
+Additionally, **PM2 is similarly shorted** (gate and source to n7), so it’s also non-functional. These two devices are **misconnected** and **do not serve any useful purpose** — they are **structurally broken**.
+
+The real issue: **the input impedance is dominated by the parasitic capacitance C1 and inductor L1**, but **the feedback path and source degeneration are misconfigured**. The **source of NM1 (node n5)** is connected to **L2** to VOUT1 and **C3 to VSS**, but **no proper source degeneration path** exists from n2 (source node) to ground — instead, **R2 connects n6 (a floating node) to n2**, and **R1 connects VDD to n6**, forming a **non-functional bias network**. The **gate of NM1 is connected to n2**, which is the **source**, so **NM1 is in diode configuration**, not amplifying.
+
+Thus, the **entire circuit is electrically broken**: NM1 is likely off, no proper amplification path exists, and **input impedance is uncontrolled** due to lack of valid biasing and degeneration. The **input mismatch (s11)** is the direct result of **incorrect topology** — the **source degeneration is not connected properly**, the **DC biasing is unstable**, and **NM1 is not in active region**.
+
+---
+
+### 2. PROPOSED STRUCTURAL EDITS
+
+#### Edit 1: Fix source degeneration and enable active NMOS biasing

@@ -1,0 +1,105 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "**Prediction:** nf_db improves by ~0.4 dB.  \n*Reasoning:* The addition of a cascode NMOS (NM4) with source resistor R3 (n8-VSS) increases output impedance and isolates the input node from output loading, reducing noise gain and improving NF. The new source degeneration stabilizes the gain and reduces the impact of gate-to-drain feedthrough, directly targeting the high NF.\n\n---",
+  "wl_hash": "823022510207c2b2",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 3.620628,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -6.48707,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.60784,
+    "metrics": {
+      "s11_db": -1.01314,
+      "s11_max_db": -0.969158,
+      "s21_db": 8.88013,
+      "s21_min_db": 8.86346,
+      "idd_ma": 3.572012,
+      "nf_db": 2.233407,
+      "s22_db": -1.98275,
+      "s22_max_db": -1.86019,
+      "s12_db": -47.9065,
+      "k_f0": 3.84758,
+      "k_min": 3.75583,
+      "mu_f0": 1.21751,
+      "mu_min": 1.20212,
+      "mu_src_f0": 1.10402,
+      "mu_src_min": 1.09945,
+      "delta_f0": 0.715175,
+      "delta_max": 0.721686,
+      "stab_band": [
+        2400000000.0,
+        2483500000.0
+      ],
+      "s21_ripple_db": 0.02516999999999925,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.233407,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -0.24078166666666673,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -1.01314,
+        "required_min": null,
+        "required_max": -13,
+        "scale": 13,
+        "margin": -0.9220661538461539,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 8.88013,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": -0.44499187500000004,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 3.572012,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": 0.10699700000000001,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.9220661538461539
+    ],
+    "seed": 2,
+    "seconds": 61.7,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 3.620628
+}

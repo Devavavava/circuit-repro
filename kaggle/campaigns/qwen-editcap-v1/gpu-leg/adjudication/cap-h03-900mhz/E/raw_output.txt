@@ -1,0 +1,54 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n3 n3 n4 VSS
+```
+
+**Prediction**: s11_db improves by ~2.5 dB.  
+*Reasoning*: Adding a diode-connected NMOS (NM4) at the gate node (n3) increases the effective gate input impedance by creating a parasitic feedback path that stabilizes the gate voltage, reducing reflection at input. This directly improves input match (S11), which is the binding constraint.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+PMOS PM1 n3 n3 VDD VDD
+```
+
+**Prediction**: s11_db improves by ~3 dB.  
+*Reasoning*: Replacing the diode-connected NMOS (NM3) with a diode-connected PMOS (PM1) at the gate node (n3) changes the DC biasing behavior. The PMOS provides a higher impedance path from VDD to the gate node (n3), reducing the effective loading on the input and improving input return loss. This structural change enhances input impedance matching.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L4 n3 VSS
+```
+
+**Prediction**: s11_db improves by ~4 dB.  
+*Reasoning*: Adding a low-impedance path from the gate node (n3) to VSS via L4 (a short at DC) stabilizes the gate DC bias and reduces the effective input impedance mismatch. The inductor provides a low-impedance DC path to ground while being open at RF, thus improving the input match (S11) without affecting RF gain. This structural edit directly addresses the S11 failure by grounding the gate node at DC, which reduces reflection.

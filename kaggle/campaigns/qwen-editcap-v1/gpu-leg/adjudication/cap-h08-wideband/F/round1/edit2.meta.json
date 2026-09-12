@@ -1,0 +1,113 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**Prediction**:  \ns11_db improves by ~8 dB (predicted margin: -0.306 + 8 = 7.694 dB). The resistive divider (R1 and R2) provides a stable DC gate bias for NM1, eliminating floating nodes and enabling a predictable, stable operating point. The input is now properly biased, and the gate drive is isolated from the input signal via L1. This dramatically improves input matching by stabilizing the transconductance and reducing parasitic feedback paths. This structure is more robust and suitable for wideband LNA design.",
+  "wl_hash": "d7beb57b40207007",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 12.27954,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -3.24778,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 3.62536,
+    "metrics": {
+      "s11_db": -0.201547,
+      "s11_max_db": -0.17058,
+      "s21_db": 3.30068,
+      "s21_min_db": 3.19882,
+      "idd_ma": 4.911815,
+      "nf_db": 4.607554,
+      "s22_db": -1.93548,
+      "s22_max_db": -1.89707,
+      "s12_db": -30.1741,
+      "k_f0": 0.128626,
+      "k_min": 0.122043,
+      "mu_f0": 0.43117,
+      "mu_min": 0.347066,
+      "mu_src_f0": 0.894665,
+      "mu_src_min": 0.819894,
+      "delta_f0": 0.778918,
+      "delta_max": 0.782631,
+      "stab_band": [
+        500000000.0,
+        3000000000.0
+      ],
+      "s21_ripple_db": 0.17001,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 4.607554,
+        "required_min": null,
+        "required_max": 2.5,
+        "scale": 2.5,
+        "margin": -0.8430216000000001,
+        "supported": true
+      },
+      "s11_max_db": {
+        "achieved": -0.17058,
+        "required_min": null,
+        "required_max": -15,
+        "scale": 15,
+        "margin": -0.9886280000000001,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 3.30068,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": -0.7937075,
+        "supported": true
+      },
+      "s21_ripple_db": {
+        "achieved": 0.17001,
+        "required_min": null,
+        "required_max": 1.5,
+        "scale": 1.5,
+        "margin": 0.88666,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 4.911815,
+        "required_min": null,
+        "required_max": 5,
+        "scale": 5,
+        "margin": 0.017637000000000035,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_max_db",
+      -0.9886280000000001
+    ],
+    "seed": 2,
+    "seconds": 60.677,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 12.27954
+}

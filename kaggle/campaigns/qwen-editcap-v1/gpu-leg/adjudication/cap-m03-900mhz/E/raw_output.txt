@@ -1,0 +1,62 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+NMOS NM3 n2 n2 VSS VSS
+```
+
+Predicted: s11_db improves by ~2.5 dB.  
+Reason: Adding a diode-connected NMOS (NM3) at the gate of NM1 (n2) increases input impedance at the gate node by shunting AC signals to ground through the gate-source capacitance, reducing reflection at the input — directly improving S11.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+PMOS PM3 n3 n3 VDD VDD
+```
+
+Predicted: s11_db improves by ~2.0 dB.  
+Reason: Adding a diode-connected PMOS (PM3) at the gate of PM1 (n3) increases the input impedance at the PM1 gate node by providing a low-impedance path to VDD for AC signals, improving input matching and reducing signal reflection at the input.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+L L3 n2 n3
+```
+
+Predicted: s11_db improves by ~4.0 dB.  
+Reason: Adding an inductor (L3) between the gates of NM1 and PM1 (n2 and n3) creates a resonant network at 915 MHz, which enhances input impedance matching by forming a tuned LC network at the input node, significantly improving S11 performance. This structural change directly targets the input reflection mechanism.

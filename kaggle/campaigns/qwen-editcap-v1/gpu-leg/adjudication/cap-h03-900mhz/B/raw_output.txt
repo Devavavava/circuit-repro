@@ -1,0 +1,52 @@
+### DIAGNOSIS:
+The circuit fails primarily due to **poor input matching (S11)**, which is **-0.236 dB** (well below the required **-13 dB**). The binding constraint margin is **-0.98 dB**, indicating a severe mismatch. The root cause lies in the **input impedance being too high and reactive**, due to the **series inductor L1** and **shunt capacitor C1** forming a resonant network that is not properly tuned to 915 MHz. Additionally, the **source degeneration via R2** (between n6 and n3) introduces significant resistive loss and detunes the input match. The **NMOS NM3** (with gate tied to source) acts as a **diode-connected current source**, but its use as a fixed biasing device without proper control over the tail current or voltage swing limits the input impedance tuning range. The **lack of a proper input matching network** (e.g., a shunt or series inductor/capacitor to resonate the input) and **poor isolation between gate and source** prevent effective impedance transformation. The **NMOS NM2** is connected directly from VDD to output, which may cause unwanted loading and instability.
+
+---
+
+### EDIT 1: Add a shunt input inductor to resonate C1 at 915 MHz
+```netlist
+C C1 VIN1 n1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L4 VIN1 VSS
+```
+**Prediction**: `s11_db improves by ~6 dB` — the added shunt inductor L4 resonates with C1 at 915 MHz, creating a low-impedance path to ground at the input, drastically improving input match.
+
+---
+
+### EDIT 2: Replace the series R2 with a shunt inductor to tune input impedance
+```netlist
+C C1 VIN1 n1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+L L4 n3 VSS
+```
+**Prediction**: `s11_db improves by ~4 dB` — replacing R2 (which damps input impedance) with a shunt inductor L4 provides a reactive path that resonates with the input capacitance, improving input match without increasing DC power.
+
+---
+
+### EDIT 3: Insert a gate-shunt capacitor to enhance input matching via negative feedback
+```netlist
+C C1 VIN1 n1
+C C2 n1 VSS
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+**Prediction**: `s11_db improves by ~3 dB` — adding a shunt capacitor C2 from n1 to VSS creates a feedback path that lowers input impedance and improves matching at 915 MHz, while the series L1 still provides inductive reactance for tuning.

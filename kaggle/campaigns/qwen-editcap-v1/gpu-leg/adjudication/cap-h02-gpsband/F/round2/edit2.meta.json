@@ -1,0 +1,105 @@
+{
+  "index": 2,
+  "round": 2,
+  "predicted_delta_text": "**Prediction**: s11_db improves by ~5 dB (target: from -0.22 to ~-5.2). Replacing the output capacitor C2 with a resistor R3 at the output node reduces the output loading and increases output impedance, improving output matching and reducing feedback from output to input. This breaks the loop gain that degrades input match, especially in narrowband LNA designs with high gain. The resistor also helps stabilize the output node, which indirectly improves input reflection.",
+  "wl_hash": "f6045fa4191c4002",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 3.142931,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -12.683,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 5.23812,
+    "metrics": {
+      "s11_db": -0.432619,
+      "s11_max_db": -0.429032,
+      "s21_db": 2.18265,
+      "s21_min_db": 2.15441,
+      "idd_ma": 3.916093,
+      "nf_db": 5.589393,
+      "s22_db": -1.47255,
+      "s22_max_db": -1.45163,
+      "s12_db": -58.7875,
+      "k_f0": 9.15456,
+      "k_min": 9.00366,
+      "mu_f0": 1.16139,
+      "mu_min": 1.15868,
+      "mu_src_f0": 1.04501,
+      "mu_src_min": 1.0447,
+      "delta_f0": 0.802924,
+      "delta_max": 0.804535,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.0561799999999999,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 5.589393,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -2.1052183333333336,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.432619,
+        "required_min": null,
+        "required_max": -12,
+        "scale": 12,
+        "margin": -0.9639484166666666,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 2.18265,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": -0.863584375,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 3.916093,
+        "required_min": null,
+        "required_max": 3,
+        "scale": 3,
+        "margin": -0.30536433333333335,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -6,
+        "required_max": null,
+        "scale": 6,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -2.1052183333333336
+    ],
+    "seed": 2,
+    "seconds": 60.324,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 3.142931
+}

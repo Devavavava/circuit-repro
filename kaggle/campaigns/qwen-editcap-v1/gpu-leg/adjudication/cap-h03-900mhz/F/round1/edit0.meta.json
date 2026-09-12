@@ -1,0 +1,189 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "**Predicted effect on binding metric (S11_db):**  \nImproves by **~4 dB**.  \n*Reason:* Adding L4 in series at the input creates a **low-pass input filter** and increases input inductance, which helps tune the input impedance toward 50 \u03a9 via resonance with C1. The series inductor pushes the input impedance higher and allows better tuning of the LC tank to match 50 \u03a9 at 915 MHz. This is a standard technique in LNA input matching.\n\n---\n\n### EDIT 2: Replace NM3 with a grounded gate NMOS to stabilize source bias (source degeneration with gate tied to VSS)",
+  "wl_hash": "6f3b265eef2ea241",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 12.928790000000001,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": 0.402342,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 3.21978,
+    "metrics": {
+      "s11_db": -0.179488,
+      "s11_max_db": -0.177061,
+      "s21_db": 7.53031,
+      "s21_min_db": 7.35537,
+      "idd_ma": 5.1032459999999995,
+      "nf_db": 2.241178,
+      "s22_db": -8.00373,
+      "s22_max_db": -7.74428,
+      "s12_db": -58.0633,
+      "k_f0": 5.98547,
+      "k_min": 5.79982,
+      "mu_f0": 2.33391,
+      "mu_min": 2.29804,
+      "mu_src_f0": 1.01816,
+      "mu_src_min": 1.01809,
+      "delta_f0": 0.391752,
+      "delta_max": 0.403717,
+      "stab_band": [
+        902000000.0,
+        928000000.0
+      ],
+      "s21_ripple_db": 0.32554000000000016,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.241178,
+        "required_min": null,
+        "required_max": 1.6,
+        "scale": 1.6,
+        "margin": -0.40073625,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.179488,
+        "required_min": null,
+        "required_max": -13,
+        "scale": 13,
+        "margin": -0.9861932307692308,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 7.53031,
+        "required_min": 17,
+        "required_max": null,
+        "scale": 17,
+        "margin": -0.5570405882352941,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 5.1032459999999995,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": -0.2758114999999999,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.9861932307692308
+    ],
+    "seed": 1,
+    "seconds": 61.109,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 12.928790000000001,
+  "escalated": true,
+  "sized_escalated": {
+    "feasible": false,
+    "best_obj": 2.9771,
+    "metrics": {
+      "s11_db": -0.160085,
+      "s11_max_db": -0.157445,
+      "s21_db": 7.07316,
+      "s21_min_db": 6.89341,
+      "idd_ma": 4.084217000000001,
+      "nf_db": 2.215084,
+      "s22_db": -8.3932,
+      "s22_max_db": -8.04902,
+      "s12_db": -58.4866,
+      "k_f0": 6.02441,
+      "k_min": 5.85894,
+      "mu_f0": 2.45627,
+      "mu_min": 2.39675,
+      "mu_src_f0": 1.01622,
+      "mu_src_min": 1.01611,
+      "delta_f0": 0.375447,
+      "delta_max": 0.390683,
+      "stab_band": [
+        902000000.0,
+        928000000.0
+      ],
+      "s21_ripple_db": 0.33352000000000004,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.215084,
+        "required_min": null,
+        "required_max": 1.6,
+        "scale": 1.6,
+        "margin": -0.3844275,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.160085,
+        "required_min": null,
+        "required_max": -13,
+        "scale": 13,
+        "margin": -0.9876857692307692,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 7.07316,
+        "required_min": 17,
+        "required_max": null,
+        "scale": 17,
+        "margin": -0.5839317647058824,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 4.084217000000001,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": -0.021054250000000163,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.9876857692307692
+    ],
+    "seed": 3,
+    "seconds": 180.64,
+    "evals": 1800,
+    "sim_health": {
+      "n_evals": 1800,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  }
+}

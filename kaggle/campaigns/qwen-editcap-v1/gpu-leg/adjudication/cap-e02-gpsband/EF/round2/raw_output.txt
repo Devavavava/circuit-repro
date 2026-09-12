@@ -1,0 +1,49 @@
+```netlist
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+```
+
+Predicted: s21_db improves by ~8 dB (from 9.79 to ~17.8), as the inductor L1 is now properly connected between input node n1 and NM1 gate n3, enabling proper AC input matching and gain enhancement. This corrects the missing inductive degeneration path that was critical for bandwidth and gain.
+
+---
+
+```netlist
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 n2 VDD
+```
+
+Predicted: s21_db improves by ~5 dB (to ~14.8), as the output inductor L3 now connects from n2 to VDD, forming a proper resonant tank with C2, enhancing output impedance matching and gain at f0. This improves output matching and S21 while maintaining low Idd.
+
+---
+
+```netlist
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+PMOS PM1 n2 n3 VDD VDD
+```
+
+Predicted: s21_db improves by ~6 dB (to ~15.8), as the added PMOS PM1 in a cascode-like configuration (source n2, gate n3, drain to VDD) increases output impedance and isolates the drain of NM2, improving gain and output match. The added positive feedback via gate connection to n3 (NM1 gate) stabilizes the bias point and enhances transconductance gain. Idd remains within budget due to low DC current through PMOS.

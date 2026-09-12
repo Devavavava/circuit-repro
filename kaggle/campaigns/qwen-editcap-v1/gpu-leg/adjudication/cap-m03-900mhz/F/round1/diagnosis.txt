@@ -1,0 +1,17 @@
+### 1. DIAGNOSIS
+
+The binding constraint is **s11_db = -0.229 dB**, which is **0.977 dB short** of the required -10 dB (i.e., margin = -0.977). This indicates **poor input matching** at 915 MHz. The LNA's input impedance is not properly conjugate-matched to 50 Ω, leading to significant reflection.
+
+Key observations from the failed netlist:
+- The input is driven through **C1 (VIN1–n1)** and **L1 (n1–n2)**, forming a series LC input network.
+- The gate of NM1 is connected to **n2**, and the source is **n5**, which is tied to **VOUT1** via **C4** and **L2** (n5–n4).
+- **NM2 and PM2 are floating (no gate connection)** — their gates are tied to their own source/drain, making them **non-functional** and **wasting current**.
+- **PM1** is connected with gate to **n3**, which is tied to **n4** via **C2**, and **n4** to **VSS** via **C3** — this forms a **DC path from VDD to VSS via R1–R2–R3–R4**, but **no proper bias** is established for NM1 or PM1.
+- **NM1's source is at n5**, which is connected to **VOUT1** via **C4**, so the output is **AC-coupled**, but **no feedback or stabilization** is present.
+- The **input LC tank (C1–L1)** is not resonant at 915 MHz because the load (NM1's gate) is poorly biased and high-impedance, causing **mismatch**.
+
+The **primary issue** is that **the input network is not properly tuned** and the **transistor is not biased for correct input impedance**. The floating PM2 and NM2 act as **parasitic diodes**, distorting the input match and increasing noise. The **lack of a proper input matching network** (e.g., shunt inductor or series capacitor) and **uncontrolled gate bias** prevent the circuit from achieving a good input reflection.
+
+---
+
+### EDIT 1: Introduce a Shunt Input Inductor and Remove Floating Devices

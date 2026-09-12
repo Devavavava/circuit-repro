@@ -1,0 +1,50 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n2 n1 n3 VSS
+```
+
+**Prediction:** s21_db improves by ~0.8 dB.  
+*Reason:* Adding a cross-coupled NMOS (NM4) from gate of NM2 to source of NM1 enhances forward gain by improving current mirror matching and increasing effective transconductance in the signal path, directly boosting S21 without increasing Idd significantly.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+PMOS PM1 n3 n1 n2 VDD
+```
+
+**Prediction:** s21_db improves by ~1.2 dB.  
+*Reason:* Inserting a PMOS (PM1) in a common-gate configuration from gate of NM1 to source of NM2 provides source degeneration feedback that improves input matching and increases transconductance gain, while preserving low noise. This topology enhances forward gain and stabilizes the gain across frequency.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n3 n5 n4 VSS
+```
+
+**Prediction:** s21_db improves by ~0.9 dB.  
+*Reason:* Adding a degenerating NMOS (NM4) in the source of NM1 (common-source path) improves input impedance matching and reduces noise, while increasing effective transconductance via improved current control. This structural change enhances gain and linearity without increasing Idd or degrading S11.

@@ -1,0 +1,94 @@
+### DIAGNOSIS:
+The circuit fails primarily due to **poor input matching (S11)**, which is **-1.84 dB** (margin = -0.85 dB), falling short of the required **≤ -12 dB**. This is the binding constraint. The root cause lies in the **input impedance mismatch** at 1.58 GHz, exacerbated by the **lack of deliberate input impedance transformation** and **unbalanced parasitic loading** from the NMOS gate (NM1) and the inductor L1.
+
+Specifically:
+- The input is driven via C1 and L1, forming a simple LC tank, but the **gate of NM1 (node n2)** is connected directly to the inductor L1 and grounded via R2 to VSS — this creates a **shunt path to ground at high frequency**, severely degrading input reflection (S11).
+- The **PMOS PM1** (gate at n3, connected to R4 to VSS) forms a **weak, non-optimized bias** that doesn't help stabilize the input impedance.
+- **NMOS NM2 and PMOS PM2** are unused (floating gate, source tied to gate), acting as **parasitic diodes** or **uncontrolled switches**, introducing **nonlinearities and instability**.
+- The **lack of a proper input matching network** (e.g., series inductor or shunt capacitor) prevents tuning of the input impedance to 50 Ω.
+
+Thus, the **input is under-damped and mismatched**, and the **parasitic effects from unconnected transistors** further degrade performance.
+
+---
+
+### EDIT 1: Add series input inductor to improve input impedance matching
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+L L3 VIN1 n1
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+
+**Prediction**:  
+`s11_db improves by ~4 dB` — The added series inductor L3 shifts the input impedance toward 50 Ω at resonance, improving input match by enhancing series inductive reactance to cancel input capacitance (C1) and L1 parasitics. This is a standard technique in narrowband LNAs.
+
+---
+
+### EDIT 2: Replace NM2 and PM2 with a single input shunt inductor to stabilize gate bias and reduce parasitics
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+L L3 n1 n6
+NMOS NM1 n5 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+
+**Explanation**:  
+- Removed NM2 and PM2 entirely — they were invalid (floating gates).
+- Added **L3** from input node n1 to internal node n6, forming a **shunt inductor at input**.
+- The gate bias (via R1 and R2) now sees a **high-impedance path** through L3 at RF, reducing loading and improving input impedance.
+- This creates a **parallel resonant path** at input, which can be tuned to match 50 Ω.
+
+**Prediction**:  
+`s11_db improves by ~5 dB` — The shunt inductor provides a controlled path to ground at RF, enabling better impedance matching. This is a standard "shunt inductor" technique in LNA input stages.
+
+---
+
+### EDIT 3: Reconfigure input stage as a grounded-gate LNA with input series inductor and shunt resistor
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+L L3 VIN1 n1
+R R1 n1 VSS
+NMOS NM1 n5 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+R R2 VDD n3
+R R3 n3 VSS
+R R4 n7 VSS
+R R5 n7 n3
+```
+
+**Explanation**:  
+- Replaced the floating PMOS/PMOS pair (PM2, NM2) with a **grounded-gate topology**.
+- Added **R1 from n1 to VSS** to provide DC bias to the gate (now grounded via R1).
+- Removed unused transistors (NM2, PM2).
+- Added **L3** as series inductor for input impedance shaping.
+- Replaced R3/R4 with R2/R3 to form a **voltage divider** to bias the PMOS gate (n3), enabling stable operation.
+
+**Prediction**:  
+`s11_db improves by ~6 dB` — The grounded-gate configuration inherently provides **lower input impedance**, which, when combined with L3 and R1, allows for **precise 50 Ω matching** at 1.58 GHz. The added series inductor and shunt resistor enable strong tuning of input impedance.
+
+---

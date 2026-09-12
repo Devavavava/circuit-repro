@@ -1,0 +1,116 @@
+You are an analog IC designer repairing a low-noise amplifier (LNA) that FAILED its specification after full SPICE sizing. You reason about the failure and propose STRUCTURAL (topology) changes. You output TOPOLOGY ONLY as a small line-oriented netlist; a downstream deterministic tool inserts biasing and sizes every device with a SPICE optimizer. Never invent device values, DC sources, or bias networks -- only the connectivity.
+
+=== SPEC (cap-h08-wideband) ===
+description: capability-v0 H tier: wideband 0.5-3 GHz LNA (NF<=2.5 S11_max<=-15 S21>=16 Idd<=5)
+band: wideband, f0=1750000000.0 Hz
+gated constraints:
+  nf_db      max 2.5
+  s11_max_db max -15
+  s21_db     min 16
+  s21_ripple_db max 1.5
+  idd_ma     max 5
+
+=== ANCHOR NETLIST (the failed circuit, dialect form) ===
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+
+=== FAILURE EVIDENCE (this circuit was sized and MISSED) ===
+binding (worst) constraint: s11_max_db  margin=-0.979588 (normalized; negative == failing)
+feasible: False   total sizing evals spent: 1800
+
+per-constraint margins (achieved vs gate, normalized margin):
+  metric     achieved       margin         supported
+  nf_db      4.55994        -0.823976      True
+  s11_max_db -0.306183      -0.979588      True
+  s21_db     3.822          -0.761125      True
+  s21_ripple_db 0.22546        0.849693       True
+  idd_ma     4.85068        0.0298638      True
+  iip3_dbm   -              -              False
+
+Idd: achieved 4.85068 mA (normalized margin 0.02986380000000004 vs the idd_ma cap; negative == over budget).
+
+full sized-best metrics (verbatim):
+{
+  "s11_db": -0.331475,
+  "s11_max_db": -0.306183,
+  "s21_db": 3.822,
+  "s21_min_db": 3.73035,
+  "idd_ma": 4.850681,
+  "nf_db": 4.559941,
+  "s22_db": -1.2053,
+  "s22_max_db": -1.1905,
+  "s12_db": -30.3608,
+  "k_f0": 0.171103,
+  "k_min": 0.147295,
+  "mu_f0": 0.577176,
+  "mu_min": 0.440411,
+  "mu_src_f0": 0.847534,
+  "mu_src_min": 0.737547,
+  "delta_f0": 0.836831,
+  "delta_max": 0.837788,
+  "stab_band": [
+    500000000.0,
+    3000000000.0
+  ],
+  "s21_ripple_db": 0.22546,
+  "nf_method": "series_rs"
+}
+
+YOUR TASK (arm B):
+1. DIAGNOSE the failure in words: what is physically limiting the binding constraint in the circuit above?
+2. Propose EXACTLY 3 STRUCTURAL edits as FULL netlists in the dialect below. Each edit is a complete netlist (not a diff), each structurally DIFFERENT from the anchor and from the other edits.
+3. After EACH edit, state a PREDICTED direction AND magnitude for the binding metric (e.g. 's11_db improves by ~3 dB').
+
+Emit each edit in its OWN fenced ```netlist block.
+
+NETLIST DIALECT (obey exactly, one device per line):
+  TYPE name node1 node2 [node3 node4]
+  TYPE in {NMOS, PMOS, R, C, L}.
+  NMOS/PMOS take 4 nodes in order D G S B; R/C/L take 2 nodes P N.
+  Nets: VIN1 (input), VOUT1 (output), VDD, VSS (ground); any internal node name otherwise. NO device values. NO V sources. NO bias networks.
+
+=== MEASURED RESULTS OF YOUR ROUND 1 EDITS ===
+
+--- your edit 0 ---
+WL hash: fb9354e4eaf5fec6
+outcome: fence_fail
+conduction fence: idd=2.0125459999999998e-08 mA (floor 0.05), s21=-37.0492 dB (floor -30.0) -> FAIL
+
+--- your edit 1 ---
+WL hash: 48c47f92784efa8c
+outcome: fence_fail
+conduction fence: idd=2.01322e-08 mA (floor 0.05), s21=-37.0513 dB (floor -30.0) -> FAIL
+
+--- your edit 2 ---
+WL hash: d7beb57b40207007
+outcome: smoke_pass
+conduction fence: idd=12.27954 mA (floor 0.05), s21=-3.24778 dB (floor -30.0) -> PASS
+sized: feasible=False  worst_margin=('s11_max_db', -0.9886280000000001)
+sized metrics (verbatim): {"s11_db": -0.201547, "s11_max_db": -0.17058, "s21_db": 3.30068, "s21_min_db": 3.19882, "idd_ma": 4.911815, "nf_db": 4.607554, "s22_db": -1.93548, "s22_max_db": -1.89707, "s12_db": -30.1741, "k_f0": 0.128626, "k_min": 0.122043, "mu_f0": 0.43117, "mu_min": 0.347066, "mu_src_f0": 0.894665, "mu_src_min": 0.819894, "delta_f0": 0.778918, "delta_max": 0.782631, "stab_band": [500000000.0, 3000000000.0], "s21_ripple_db": 0.17001, "nf_method": "series_rs"}
+per-constraint margins: {"nf_db": {"achieved": 4.607554, "margin": -0.8430216000000001, "supported": true}, "s11_max_db": {"achieved": -0.17058, "margin": -0.9886280000000001, "supported": true}, "s21_db": {"achieved": 3.30068, "margin": -0.7937075, "supported": true}, "s21_ripple_db": {"achieved": 0.17001, "margin": 0.88666, "supported": true}, "idd_ma": {"achieved": 4.911815, "margin": 0.017637000000000035, "supported": true}, "iip3_dbm": {"achieved": null, "margin": null, "supported": false}}
+
+YOUR TASK (round 2 -- verify and refine):
+Above are your round-1 edits and EXACTLY what the deterministic sizer measured for each. Using ONLY those measured outcomes, propose EXACTLY 3 NEW structural edits: you may iterate on whichever round-1 edit did best, or change course entirely. Each edit is a complete netlist (not a diff), structurally DIFFERENT from the anchor, from every round-1 edit, and from the other round-2 edits.
+After EACH edit, state a PREDICTED direction AND magnitude for the binding metric.
+
+Emit each edit in its OWN fenced ```netlist block.
+
+NETLIST DIALECT (obey exactly, one device per line):
+  TYPE name node1 node2 [node3 node4]
+  TYPE in {NMOS, PMOS, R, C, L}.
+  NMOS/PMOS take 4 nodes in order D G S B; R/C/L take 2 nodes P N.
+  Nets: VIN1 (input), VOUT1 (output), VDD, VSS (ground); any internal node name otherwise. NO device values. NO V sources. NO bias networks.

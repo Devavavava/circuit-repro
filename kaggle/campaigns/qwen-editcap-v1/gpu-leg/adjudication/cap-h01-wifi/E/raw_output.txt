@@ -1,0 +1,54 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n3 n3 VSS VSS
+```
+
+**Prediction**: NF_db improves by ~0.3 dB.  
+*Reasoning*: Adding a diode-connected NMOS (NM4) at the gate of NM1 (n3) increases the effective gate resistance and stabilizes the bias point, reducing noise contribution from the input transistor. This improves transconductance linearity and reduces gate noise, directly addressing the high NF (binding constraint).
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+PMOS PM1 n3 VDD n6 VDD
+```
+
+**Prediction**: NF_db improves by ~0.5 dB.  
+*Reasoning*: Replacing the resistor R2 with a PMOS (PM1) in diode configuration (gate tied to drain at n6) provides a more stable and lower-noise bias current path. The PMOS has better noise performance than a resistor at the gate node, and its current is less sensitive to process/temperature variations, improving input match and reducing gate noise.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n3 n5 VSS VSS
+```
+
+**Prediction**: NF_db improves by ~0.4 dB.  
+*Reasoning*: Adding a source-degenerated NMOS (NM4) between n3 and n5 (the common source node) introduces local feedback, reducing transconductance variation and increasing linearity. This reduces noise figure by improving the input stage's stability and suppressing noise from the gain stage, particularly critical at high gain where noise is amplified. The degeneration improves NF without significantly degrading gain.

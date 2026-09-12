@@ -1,0 +1,105 @@
+{
+  "index": 1,
+  "round": 2,
+  "predicted_delta_text": "Predicted: s11_db improves by ~3.0 dB (introducing a series inductor L3 between gate (n2) and drain (n5) creates a resonant matching network at f0, enhancing input return loss via inductive peaking).",
+  "wl_hash": "c772e57cf513cbcf",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 0.6514552,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -0.921246,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.05522,
+    "metrics": {
+      "s11_db": -17.8744,
+      "s11_max_db": -17.7823,
+      "s21_db": -0.662601,
+      "s21_min_db": -0.672164,
+      "idd_ma": 0.5492646999999999,
+      "nf_db": 2.986276,
+      "s22_db": -16.1586,
+      "s22_max_db": -16.072,
+      "s12_db": -0.662542,
+      "k_f0": 1.00294,
+      "k_min": 1.0029,
+      "mu_f0": 1.02258,
+      "mu_min": 1.02255,
+      "mu_src_f0": 1.02448,
+      "mu_src_min": 1.02446,
+      "delta_f0": 0.873264,
+      "delta_max": 0.87486,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.018774999999999986,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.986276,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": 0.004574666666666616,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -17.8744,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": 0.7874400000000001,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -0.662601,
+        "required_min": 12,
+        "required_max": null,
+        "scale": 12,
+        "margin": -1.05521675,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 0.5492646999999999,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": 0.9450735299999999,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -8,
+        "required_max": null,
+        "scale": 8,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s21_db",
+      -1.05521675
+    ],
+    "seed": 2,
+    "seconds": 70.185,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 0.6514552
+}

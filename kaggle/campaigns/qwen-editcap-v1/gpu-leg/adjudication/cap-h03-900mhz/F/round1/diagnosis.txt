@@ -1,0 +1,22 @@
+### 1. DIAGNOSE the failure in words:
+
+The binding constraint is **S11_db = -0.236 dB**, which fails by **~0.98 dB** below the required **-13 dB**. This indicates **poor input matching** — the input impedance is not well matched to 50 Ω at 915 MHz. 
+
+Looking at the anchor netlist:
+- The input is a series LC tank (L1, C1) feeding into NM1's gate via node n3.
+- NM1 is a common-source amplifier with source degeneration (via R2 and R1?).
+- NM2 is a current mirror (with gate tied to VDD), but its source is connected to VSS — this implies it's a diode-connected NMOS acting as a current source, but its drain is tied to VDD, so it’s floating (not useful).
+- NM3 is a diode-connected NMOS (D=S=VSS) — it's just a resistor-like device, but not properly biasing anything.
+
+The key issue: **no proper input impedance transformation or matching network**. The input LC tank (L1–C1) is not tuned to 50 Ω at 915 MHz — it's likely resonating but not properly terminated. Moreover, the gate of NM1 is directly connected to the tank output (n3), but the source is grounded through NM3 (which is not a proper bias device) and R2, which is floating (R2 connects n6 to n3 — but n6 is tied to VDD via R1). Thus, the **source degeneration is not properly stabilized**, and **the input impedance is heavily loaded and mismatched**.
+
+Additionally, **NM2** is incorrectly configured: its gate is connected to VDD, and its drain to VDD — this means it’s off. It’s not serving any useful purpose. The current mirror is broken.
+
+Thus, the failure stems from:
+- **Incorrect biasing and lack of stable DC operating point**.
+- **No intentional input matching** — the LC tank is not properly terminated, and there’s no isolation or impedance transformation.
+- **Uncontrolled source degeneration** due to floating R2 and uncontrolled NM3.
+
+---
+
+### EDIT 1: Add input series inductor + gate inductor for impedance transformation (common-source with gate inductance)

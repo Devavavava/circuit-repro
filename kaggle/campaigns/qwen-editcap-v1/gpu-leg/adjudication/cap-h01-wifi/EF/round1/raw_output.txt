@@ -1,0 +1,56 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n7 n3 n8 VSS
+R R3 n8 VSS
+```
+
+**Prediction:** nf_db improves by ~0.4 dB.  
+*Reasoning:* The addition of a cascode NMOS (NM4) with source resistor R3 (n8-VSS) increases output impedance and isolates the input node from output loading, reducing noise gain and improving NF. The new source degeneration stabilizes the gain and reduces the impact of gate-to-drain feedthrough, directly targeting the high NF.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+PMOS PM1 n9 n3 n10 VDD
+R R3 n10 VDD
+```
+
+**Prediction:** nf_db improves by ~0.5 dB.  
+*Reasoning:* Replacing the NMOS gate biasing resistor chain (R1/R2) with a PMOS current mirror (PM1) in a cascode-like configuration (with gate tied to n3, source tied to VDD via R3) enables a more stable and higher-impedance gate bias. This reduces the noise contribution from the bias network and improves input matching by lowering the effective input resistance, thereby lowering noise figure.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L4 n5 VSS
+```
+
+**Prediction:** nf_db improves by ~0.6 dB.  
+*Reasoning:* Adding an inductor (L4) from the drain of NM1 (n5) to VSS creates a tuned inductive degeneration path. This increases the input impedance at the gate (n3) and reduces the noise contribution from the transconductance of NM1 by increasing the effective source impedance. This improves the noise figure by reducing noise gain, especially at the design frequency, and enhances stability without increasing power.

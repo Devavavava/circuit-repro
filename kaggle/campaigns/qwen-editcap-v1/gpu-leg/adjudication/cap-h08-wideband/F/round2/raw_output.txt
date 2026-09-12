@@ -1,0 +1,58 @@
+```netlist
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+C C1 VIN1 n1
+C C2 n1 n2
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+
+Predicted: s11_max_db improves by ~1.2 dB (due to improved input matching via shunt input capacitance at n1, reducing reflection at input).
+
+```netlist
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+C C1 VIN1 n1
+C C2 n1 n2
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+R R5 n2 VSS
+```
+
+Predicted: s11_max_db improves by ~1.5 dB (added shunt resistor at input node n2 improves low-frequency input match and stabilizes impedance).
+
+```netlist
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+R R5 n2 n4
+```
+
+Predicted: s11_max_db improves by ~1.8 dB (added feedback resistor from n2 to n4 introduces controlled input reflection cancellation, improving input match).

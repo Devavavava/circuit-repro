@@ -1,0 +1,105 @@
+{
+  "index": 1,
+  "round": 1,
+  "predicted_delta_text": "**Prediction**:  \n`s11_db improves by ~5 dB`  \n*Reason*: Replaced the floating PM2 with a direct shunt from n3 to VSS (via R3) and removed R4 (no need for feedback to VSS). Added R2 from n2 to n1 (input node), creating a **resistive input termination** that directly stabilizes the input impedance. This forms a **T-network input matching** structure (C1 + R2 + L1), which is well-suited for narrowband LNA design at 1.575 GHz. The R2 provides damping, improving S11 while maintaining gain. This structural change enables precise input match tuning.\n\n---",
+  "wl_hash": "625d7963c681c8a8",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 23.045530000000003,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -3.12304,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 4.2978,
+    "metrics": {
+      "s11_db": -0.537808,
+      "s11_max_db": -0.524909,
+      "s21_db": 3.93278,
+      "s21_min_db": 3.87368,
+      "idd_ma": 20.950409999999998,
+      "nf_db": 4.752801,
+      "s22_db": -6.12904,
+      "s22_max_db": -6.10629,
+      "s12_db": -28.45,
+      "k_f0": 0.68415,
+      "k_min": 0.680291,
+      "mu_f0": 0.793557,
+      "mu_min": 0.791266,
+      "mu_src_f0": 0.97412,
+      "mu_src_min": 0.973836,
+      "delta_f0": 0.456841,
+      "delta_max": 0.457627,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.11852000000000018,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 4.752801,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": -0.584267,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.537808,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.9462192,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 3.93278,
+        "required_min": 12,
+        "required_max": null,
+        "scale": 12,
+        "margin": -0.6722683333333332,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 20.950409999999998,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": -1.0950409999999997,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -8,
+        "required_max": null,
+        "scale": 8,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "idd_ma",
+      -1.0950409999999997
+    ],
+    "seed": 2,
+    "seconds": 62.405,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 23.045530000000003
+}

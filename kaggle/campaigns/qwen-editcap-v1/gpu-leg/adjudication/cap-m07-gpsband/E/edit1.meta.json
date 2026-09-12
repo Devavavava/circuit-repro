@@ -1,0 +1,23 @@
+{
+  "index": 1,
+  "round": 1,
+  "predicted_delta_text": "**PREDICTION**:  \n- **s11_db improves by ~3.0 dB**  \n- *Reason*: Replacing **L1 (series inductor)** with **L1 (shunt inductor to ground)** changes the input topology from a **series L-C1** network to a **parallel LC tank at the input**, where **C1 and L1** form a **parallel resonant structure**. This allows **better impedance matching** at 1.575 GHz, and the **gate node (n2)** is now only connected via **C2 and R2**, reducing loading. The **input impedance becomes more resistive and tunable**.\n\n---\n\n### EDIT 3: **Insert a gate input matching network: add a series capacitor and shunt inductor at the gate node**",
+  "wl_hash": "efb5ce61f5a999dc",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "fence_fail",
+  "fence_detail": {
+    "passed": false,
+    "idd_ma": 1.231637,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -600.0,
+    "s21_ok": false,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": null,
+  "error": null,
+  "smoke_idd_ma": 1.231637
+}

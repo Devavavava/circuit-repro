@@ -1,0 +1,66 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+NMOS NM3 n5 n3 VSS VSS
+```
+
+**Prediction:** s11_max_db improves by ~2.5 dB.  
+*Reason:* The addition of NM3 (source follower-like path from n5 to n3) creates a low-impedance path from gate (n3) to drain (n5), reducing input reflection by improving input matching at the transistor gate node. This is especially effective for wideband S11 improvement in a cascode-like structure with shared gate bias.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+PMOS PM3 n4 n2 VDD VDD
+```
+
+**Prediction:** s11_max_db improves by ~3 dB.  
+*Reason:* PM3 (source follower from n4 to n2) provides a low-impedance pull-up path to the gate node (n2), enhancing input impedance matching by stabilizing the gate node against high-frequency variations. This is effective in reducing S11 in cascode LNAs where gate node impedance is poorly controlled.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+L L3 n2 n3
+```
+
+**Prediction:** s11_max_db improves by ~4 dB.  
+*Reason:* Adding L3 (a series inductor between n2 and n3) creates a resonant path that tunes out the parasitic capacitance at the gate node (n2), effectively improving input matching over the 0.5–3 GHz band. This is a classic technique for wideband input matching via inductive peaking, directly targeting S11 improvement in high-frequency LNAs.

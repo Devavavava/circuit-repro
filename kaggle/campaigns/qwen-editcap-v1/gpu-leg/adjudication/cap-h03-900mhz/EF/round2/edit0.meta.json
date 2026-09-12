@@ -1,0 +1,105 @@
+{
+  "index": 0,
+  "round": 2,
+  "predicted_delta_text": "**Prediction**: s11_db improves by ~2.5 dB. The addition of a PMOS in the feedback path (from drain of NM1 to gate of NM1, with source tied to VDD) creates a positive feedback mechanism that increases input impedance at resonance, directly improving S11 by reducing reflection at the input.",
+  "wl_hash": "470df5423d037f6c",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 6.220261000000001,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -21.8881,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 3.04976,
+    "metrics": {
+      "s11_db": -0.0677087,
+      "s11_max_db": -0.0664088,
+      "s21_db": 6.64058,
+      "s21_min_db": 6.50084,
+      "idd_ma": 4.423548,
+      "nf_db": 2.143531,
+      "s22_db": -7.78826,
+      "s22_max_db": -7.68686,
+      "s12_db": -59.2629,
+      "k_f0": 2.97734,
+      "k_min": 2.89548,
+      "mu_f0": 1.99369,
+      "mu_min": 1.94635,
+      "mu_src_f0": 1.00561,
+      "mu_src_min": 1.0056,
+      "delta_f0": 0.406031,
+      "delta_max": 0.410911,
+      "stab_band": [
+        902000000.0,
+        928000000.0
+      ],
+      "s21_ripple_db": 0.2576799999999997,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.143531,
+        "required_min": null,
+        "required_max": 1.6,
+        "scale": 1.6,
+        "margin": -0.33970687499999985,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.0677087,
+        "required_min": null,
+        "required_max": -13,
+        "scale": 13,
+        "margin": -0.9947916384615384,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 6.64058,
+        "required_min": 17,
+        "required_max": null,
+        "scale": 17,
+        "margin": -0.6093776470588236,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 4.423548,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": -0.10588700000000006,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.9947916384615384
+    ],
+    "seed": 2,
+    "seconds": 61.825,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 6.220261000000001
+}

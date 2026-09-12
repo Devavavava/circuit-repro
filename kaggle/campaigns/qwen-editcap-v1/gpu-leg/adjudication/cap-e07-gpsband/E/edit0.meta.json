@@ -1,0 +1,189 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "**Prediction:** s11_db improves by ~2.0 dB.  \n*Reasoning:* The addition of NM3 (source follower-like degeneration) injects a low-impedance path from n6 to n2, reducing the input reflection by stabilizing the gate drive and lowering the effective input impedance mismatch. This directly targets the S11 failure (currently -2.59 dB), which is 0.74 dB below target.",
+  "wl_hash": "9da9f9a1e932fe19",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 2.491686,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -5.97753,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.17963,
+    "metrics": {
+      "s11_db": -5.05053,
+      "s11_max_db": -4.82989,
+      "s21_db": 4.92977,
+      "s21_min_db": 4.8534,
+      "idd_ma": 6.2621400000000005,
+      "nf_db": 3.286477,
+      "s22_db": -7.9542,
+      "s22_max_db": -7.88668,
+      "s12_db": -20.477,
+      "k_f0": 1.7448,
+      "k_min": 1.74416,
+      "mu_f0": 1.42312,
+      "mu_min": 1.42221,
+      "mu_src_f0": 1.27094,
+      "mu_src_min": 1.25698,
+      "delta_f0": 0.235363,
+      "delta_max": 0.236105,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.15085000000000015,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.286477,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": -0.09549233333333336,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -5.05053,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.49494699999999997,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 4.92977,
+        "required_min": 12,
+        "required_max": null,
+        "scale": 12,
+        "margin": -0.5891858333333333,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 6.2621400000000005,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": 0.37378599999999995,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -8,
+        "required_max": null,
+        "scale": 8,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s21_db",
+      -0.5891858333333333
+    ],
+    "seed": 2,
+    "seconds": 66.388,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 2.491686,
+  "escalated": true,
+  "sized_escalated": {
+    "feasible": false,
+    "best_obj": 1.72016,
+    "metrics": {
+      "s11_db": -8.10187,
+      "s11_max_db": -7.61374,
+      "s21_db": 5.63581,
+      "s21_min_db": 5.57806,
+      "idd_ma": 9.796451,
+      "nf_db": 2.935708,
+      "s22_db": -14.3956,
+      "s22_max_db": -14.1308,
+      "s12_db": -19.3402,
+      "k_f0": 2.00387,
+      "k_min": 2.00064,
+      "mu_f0": 1.89229,
+      "mu_min": 1.89203,
+      "mu_src_f0": 1.54545,
+      "mu_src_min": 1.50845,
+      "delta_f0": 0.135996,
+      "delta_max": 0.141367,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.1088300000000002,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.935708,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": 0.02143066666666667,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -8.10187,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.189813,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 5.63581,
+        "required_min": 12,
+        "required_max": null,
+        "scale": 12,
+        "margin": -0.5303491666666666,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 9.796451,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": 0.020354900000000065,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -8,
+        "required_max": null,
+        "scale": 8,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s21_db",
+      -0.5303491666666666
+    ],
+    "seed": 2,
+    "seconds": 196.087,
+    "evals": 1800,
+    "sim_health": {
+      "n_evals": 1800,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  }
+}

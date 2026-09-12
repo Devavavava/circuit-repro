@@ -1,0 +1,105 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**Prediction:**  \n`s11_db improves by ~5.0 dB`  \n*Reason:* The gate node (n3) is now driven via **R1 (VDD \u2192 n3)** and **C3 (n3 \u2192 VSS)**, forming a **shunt RC low-pass filter** at RF. This provides a **low-impedance path to ground at 1.58 GHz**, while R1 sets DC bias. The direct VDD-to-gate path is removed (no NM2 gate tied to VDD), reducing RF coupling to VDD. The improved RF grounding at n3 drastically improves input match. This topology is more robust and commonly used in LNAs.",
+  "wl_hash": "699b167d8d33bf0e",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 5.563357,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -25.6858,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 7.61703,
+    "metrics": {
+      "s11_db": -8.30729,
+      "s11_max_db": -8.19954,
+      "s21_db": -3.0636,
+      "s21_min_db": -3.07366,
+      "idd_ma": 11.28774,
+      "nf_db": 4.941973,
+      "s22_db": -1.66857,
+      "s22_max_db": -1.66413,
+      "s12_db": -62.6501,
+      "k_f0": 262.57,
+      "k_min": 260.802,
+      "mu_f0": 1.21102,
+      "mu_min": 1.21042,
+      "mu_src_f0": 2.59445,
+      "mu_src_min": 2.56205,
+      "delta_f0": 0.317284,
+      "delta_max": 0.32107,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.010749999999999815,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 4.941973,
+        "required_min": null,
+        "required_max": 1.5,
+        "scale": 1.5,
+        "margin": -2.294648666666667,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -8.30729,
+        "required_min": null,
+        "required_max": -14,
+        "scale": 14,
+        "margin": -0.4066221428571429,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -3.0636,
+        "required_min": 20,
+        "required_max": null,
+        "scale": 20,
+        "margin": -1.15318,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 11.28774,
+        "required_min": null,
+        "required_max": 3,
+        "scale": 3,
+        "margin": -2.76258,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "idd_ma",
+      -2.76258
+    ],
+    "seed": 2,
+    "seconds": 58.916,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 5.563357
+}

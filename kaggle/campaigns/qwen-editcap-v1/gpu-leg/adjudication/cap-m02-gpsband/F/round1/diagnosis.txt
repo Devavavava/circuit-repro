@@ -1,0 +1,25 @@
+### 1. DIAGNOSIS
+
+The circuit fails primarily due to **poor input match (S11)**, which is **-1.59 dB**, falling **0.84 dB below the -10 dB target**. This is the binding constraint. The secondary issues are:
+- **NF = 2.7 dB** (>2.2 dB target), indicating excessive noise figure.
+- **S21 = 11.79 dB** (<14 dB target), indicating insufficient gain.
+- **Idd = 4.94 mA** (~1% over budget), which is acceptable but tight.
+
+However, the root physical cause of the S11 failure lies in the **input impedance mismatch** due to:
+- **No input series inductor** (L1) to resonate with input capacitance (C1).
+- **The input inductor L1 is not properly tuned** — it is connected from VIN1 to n1, and n1 is connected to C1, but the inductor is not in series with the input port in a way that provides resonance at 1.575 GHz.
+- The **source degeneration at NM1 is incomplete or missing**: the NMOS NM1 has its gate connected to n2, which is tied to the inductor L1, but the source is grounded. However, the gate of NM2 is shorted to itself (n6-n6), which is a **dead short** — this suggests **NM2 is not connected and effectively disabled**.
+- Similarly, **PM2 has its gate tied to itself (n7-n7)** — this is also **a floating or dead device**, effectively **not contributing to the circuit**.
+
+This means:
+- **The input path is dominated by C1 and L1**, forming a **low-pass LC tank**, but **not resonated at 1.575 GHz**.
+- The **transconductance of NM1 is poorly matched to the input impedance**, and the **lack of proper feedback or impedance transformation** prevents good matching.
+- The **floating PM2 and NM2** suggest **a design error in the biasing topology** — possibly meant to be part of a current mirror or bias network, but their self-connections make them non-functional.
+
+Thus, **the primary failure mechanism is poor input impedance matching due to unbalanced or non-functional biasing devices and missing input resonant tuning**.
+
+---
+
+### 2. STRUCTURAL EDITS
+
+---

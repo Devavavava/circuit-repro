@@ -22,9 +22,12 @@ NOTE the server is launched WITHOUT a server-level grammar: the tested Python
 parser (proposal.round_trip) is the authoritative validator; a server-level GBNF
 would force the diagnosis prose into netlist shape.
 
-Env knobs (defaults are the pre-reg values):
-    EDITCAP_ARM (both)  EDITCAP_K (3)  PDK (gf180mcu)
-    GGUF_GLOB (/kaggle/input/**/Qwen3-30B*.gguf)  LLAMA_CTX (16384)
+Env knobs (defaults are the pre-reg values; v1 additions default OFF so the
+constructed command with no new env vars is byte-identical to v0):
+    EDITCAP_ARMS (unset->EDITCAP_ARM)  EDITCAP_ARM (both)  EDITCAP_K (3)
+    EDITCAP_ANNOTATE (off; truthy->--annotate, arm-E structural annotation)
+    EDITCAP_ROUNDS (unset->1; N->--rounds N, arm-F verify-refine)
+    PDK (gf180mcu)  GGUF_GLOB (/kaggle/input/**/Qwen3-30B*.gguf)  LLAMA_CTX (16384)
 """
 import glob
 import os
@@ -44,8 +47,21 @@ ENV_SH = os.path.join(WORK, "env-kaggle.sh")
 PORT = int(os.environ.get("LLAMA_PORT", "8080"))
 
 # editcap knobs (pre-reg): run BOTH arms over all 13 library cells, k=3 edits.
-EDITCAP_ARM = os.environ.get("EDITCAP_ARM", "both")
+# EDITCAP_ARMS (plural, v1) is preferred and takes precedence when set; the v0
+# EDITCAP_ARM (singular) remains honoured for back-compat. Both default such that
+# WITH NO NEW ENV VARS the constructed command is BYTE-IDENTICAL to v0
+# (--arm both, no --annotate / --rounds / --fence flags added).
+EDITCAP_ARMS = os.environ.get("EDITCAP_ARMS")            # v1: "B,C" / "E" / "EF"
+EDITCAP_ARM = EDITCAP_ARMS or os.environ.get("EDITCAP_ARM", "both")
 EDITCAP_K = os.environ.get("EDITCAP_K", "3")
+# v1 additive capabilities, OFF by default (byte-identical-to-v0 command):
+#   EDITCAP_ANNOTATE truthy -> pass --annotate (arm-E structural annotation).
+#   EDITCAP_ROUNDS N (>1)   -> pass --rounds N (arm-F verify-refine).
+# Arm letters E/F/EF already imply these in the driver; the env vars let the
+# operator layer them onto arm B without changing the arm string.
+_TRUTHY = ("1", "true", "yes", "on")
+EDITCAP_ANNOTATE = os.environ.get("EDITCAP_ANNOTATE", "").strip().lower() in _TRUTHY
+EDITCAP_ROUNDS = os.environ.get("EDITCAP_ROUNDS", "").strip()  # "" => omit --rounds
 # The failure library is gf180mcu (evidence.json pdk); sizing threads --pdk.
 PDK = os.environ.get("PDK", "gf180mcu")
 
@@ -211,13 +227,23 @@ def main():
         # NO --grammar: the netlist-only GBNF would constrain the WHOLE
         # completion (diagnosis prose + k fenced edits), which is incompatible
         # with the editcap output contract. proposal.round_trip is the validator.
-        print("[editcap-gpu] arm=%s k=%s pdk=%s -> editcap over library %s"
-              % (EDITCAP_ARM, EDITCAP_K, PDK, lib), flush=True)
+        # v1 additive flags -- appended ONLY when their env vars are set, so with
+        # no new env vars the command below is byte-identical to the v0 kernel's.
+        extra = ""
+        if EDITCAP_ANNOTATE:
+            extra += " --annotate"
+        if EDITCAP_ROUNDS:
+            extra += " --rounds %s" % EDITCAP_ROUNDS
+        print("[editcap-gpu] arm=%s k=%s pdk=%s annotate=%s rounds=%s -> editcap "
+              "over library %s"
+              % (EDITCAP_ARM, EDITCAP_K, PDK, EDITCAP_ANNOTATE,
+                 EDITCAP_ROUNDS or "1", lib), flush=True)
         inner = (
             "source %s && exec %s %s --lib %s --out %s --arm %s --k %s "
-            "--pdk %s --llm-url http://127.0.0.1:%d/v1 --model %s --max-tokens %s"
+            "--pdk %s --llm-url http://127.0.0.1:%d/v1 --model %s --max-tokens %s%s"
             % (ENV_SH, sys.executable, editcap, lib, out, EDITCAP_ARM, EDITCAP_K,
-               PDK, PORT, model_id, os.environ.get("EDITCAP_MAX_TOKENS", "3072"))
+               PDK, PORT, model_id, os.environ.get("EDITCAP_MAX_TOKENS", "3072"),
+               extra)
         )
         # env-kaggle.sh carries NGSPICE/SPICE_LIB_DIR/LNA_DEPS_ROOT from
         # bootstrap's own process (env set inside bootstrap.sh does not persist

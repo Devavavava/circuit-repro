@@ -1,4 +1,16 @@
-# CAMPAIGN editmoves-v0 — selection vs randomness over a valid-by-construction move library (DRAFT — freezes at build completion, before any arm runs)
+# CAMPAIGN editmoves-v0 — selection vs randomness over a valid-by-construction move library (FROZEN 2026-09-13, pre-run)
+
+**MATERIALIZED AT FREEZE:** library kaggle/editmoves.py + driver
+kaggle/editmoves_run.py (builder agent + orchestrator completion; commit
+below). Nine operators: add_series_L_input, add_shunt_C_input,
+add_L_match_section_input, add_cascode_NMOS, add_source_degen_L,
+add_shunt_feedback_RC, add_second_stage_CS, add_output_shunt_C,
+add_series_L_output. Unit test: 24/24 applied (move, site) pairs across
+both anchor families preserve ALL four invariants (round-trip + distinct
+WL, DC-block convention, in-topology bias for new gates, device budget).
+Validation runs (real ngspice): arm R on cap-e02 (3/3 valid, 3/3 smoke,
+best wm s11 −0.14) and cap-m07 (3/3, 3/3, binding delta +0.015). Arm R
+seed fixed at 1. No spec-level R/M campaign rows existed at freeze.
 
 User GO 2026-09-13 ("setup and run move library test"). Rationale from the
 editcap adjudication: the LLM cannot author valid netlists reliably but

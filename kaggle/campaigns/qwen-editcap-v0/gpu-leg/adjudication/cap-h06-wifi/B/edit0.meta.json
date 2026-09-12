@@ -1,0 +1,177 @@
+{
+  "index": 0,
+  "predicted_delta_text": "### DIAGNOSIS:\nThe circuit fails primarily due to excessive noise figure (NF = 1.888 dB, target \u22641.5 dB), with a margin of **-0.259 dB** \u2014 the binding constraint. The high NF indicates that the input stage is not efficiently converting signal power into output while minimizing added noise. The topology uses a single NMOS transistor (NM1) as the input device, which is common in LNA designs, but it is loaded by a parallel LC tank (L1, C2, C1) that is not properly tuned or isolated. The presence of two unconnected, floating PMOS devices (PM2, PM2) with their gates tied to their drains and source/drain shorted to VDD/VSS suggests they are inactive or misconfigured \u2014 possibly acting as dummy devices or parasitic elements. The NMOS NM2 is similarly floating (gate and drain tied to same node, source/drain to VSS), effectively a resistor or diode-connected, but its purpose is unclear. This creates an uncontrolled DC path and noise contribution. The lack of proper cascoding or source degeneration reduces input impedance matching and increases noise. The primary issue is **poor noise performance due to unoptimized input stage topology**: no cascode to reduce gate-to-drain feedback (Miller effect), no source degeneration to stabilize gain and reduce noise, and floating devices contributing parasitic noise and DC loading. The circuit is not leveraging the trade-off between gain, noise, and stability effectively.\n\n---",
+  "wl_hash": "93fa990da012e5d0",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.57996,
+    "metrics": {
+      "s11_db": -11.5674,
+      "s11_max_db": -8.90411,
+      "s21_db": 9.25327,
+      "s21_min_db": 8.89136,
+      "idd_ma": 4.72628,
+      "nf_db": 2.79778,
+      "s22_db": -3.96035,
+      "s22_max_db": -3.56315,
+      "s12_db": -14.7908,
+      "k_f0": 0.692411,
+      "k_min": 0.690255,
+      "mu_f0": 0.769041,
+      "mu_min": 0.767954,
+      "mu_src_f0": 0.613502,
+      "mu_src_min": 0.564864,
+      "delta_f0": 0.451085,
+      "delta_max": 0.480378,
+      "stab_band": [
+        2400000000.0,
+        2483500000.0
+      ],
+      "s21_ripple_db": 0.6337200000000003,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.79778,
+        "required_min": null,
+        "required_max": 1.5,
+        "scale": 1.5,
+        "margin": -0.8651866666666667,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -11.5674,
+        "required_min": null,
+        "required_max": -15,
+        "scale": 15,
+        "margin": -0.22884000000000004,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 9.25327,
+        "required_min": 18,
+        "required_max": null,
+        "scale": 18,
+        "margin": -0.4859294444444444,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 4.72628,
+        "required_min": null,
+        "required_max": 5,
+        "scale": 5,
+        "margin": 0.054743999999999994,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 0,
+        "required_max": null,
+        "scale": 1.0,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -0.8651866666666667
+    ],
+    "seed": 1,
+    "seconds": 66.221,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 0.4627816,
+  "escalated": true,
+  "sized_escalated": {
+    "feasible": false,
+    "best_obj": 1.69806,
+    "metrics": {
+      "s11_db": -19.0914,
+      "s11_max_db": -15.274,
+      "s21_db": 14.0796,
+      "s21_min_db": 13.9136,
+      "idd_ma": 4.230799,
+      "nf_db": 2.22039,
+      "s22_db": 0.303981,
+      "s22_max_db": 0.748936,
+      "s12_db": -16.2925,
+      "k_f0": 0.241259,
+      "k_min": 0.23627,
+      "mu_f0": 0.52713,
+      "mu_min": 0.525202,
+      "mu_src_f0": -0.0461562,
+      "mu_src_min": -0.116954,
+      "delta_f0": 0.677368,
+      "delta_max": 0.756266,
+      "stab_band": [
+        2400000000.0,
+        2483500000.0
+      ],
+      "s21_ripple_db": 0.22560000000000002,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.22039,
+        "required_min": null,
+        "required_max": 1.5,
+        "scale": 1.5,
+        "margin": -0.4802600000000001,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -19.0914,
+        "required_min": null,
+        "required_max": -15,
+        "scale": 15,
+        "margin": 0.27276,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 14.0796,
+        "required_min": 18,
+        "required_max": null,
+        "scale": 18,
+        "margin": -0.21780000000000005,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 4.230799,
+        "required_min": null,
+        "required_max": 5,
+        "scale": 5,
+        "margin": 0.15384019999999995,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 0,
+        "required_max": null,
+        "scale": 1.0,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -0.4802600000000001
+    ],
+    "seed": 1,
+    "seconds": 194.969,
+    "evals": 1800,
+    "sim_health": {
+      "n_evals": 1800,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  }
+}

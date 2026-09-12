@@ -1,0 +1,79 @@
+### DIAGNOSIS:
+The circuit fails primarily due to **poor input matching (S11)**, which is the binding constraint with a margin of -0.977 dB. The S11 is only -0.23 dB, far from the -10 dB target. The root cause lies in the **unbalanced and poorly terminated input network**:  
+- The input is driven through a series inductor L1 from VIN1 to n1, but the gate of NM1 (n2) is connected directly to n2 with no DC path or biasing structure.  
+- NM2 and PM2 are floating (both gates tied to their own drains), forming **non-functional dummy devices** — they do not contribute to biasing or signal path.  
+- The gate of NM1 (n2) is connected to R2 and R1, but R1 connects VDD to n6 (a floating node), and R2 connects n6 to n2 — this creates an undefined DC operating point and no proper gate bias.  
+- The input impedance is dominated by L1 and C1, but there is **no feedback or resonant tuning** to cancel the inductive reactance at 915 MHz.  
+- The circuit lacks any **source degeneration or impedance transformation** to match 50 Ω, and the active device (NM1) is not properly biased, leading to poor input match and gain.
+
+The floating PM2 and NM2 act as parasitic capacitors and disrupt the AC behavior. The lack of a proper DC bias network prevents the NMOS from operating in the desired region, and the input impedance remains mismatched.
+
+---
+
+### EDIT 1: **Add a source degeneration inductor and feedback path to improve input match**
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+L L3 n2 n6
+NMOS NM1 n5 n6 VSS VSS
+NMOS NM2 n7 n7 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n8 n8 VDD VDD
+R R1 VDD n7
+R R2 n7 n3
+R R3 n8 VSS
+R R4 n8 n3
+```
+
+**Prediction**: `s11_db improves by ~4 dB`.  
+*Reasoning*: The addition of L3 from source (n2) to a new node n6, and re-routing NM1’s gate to n6 (via L1), creates a **source degeneration inductor**. This forms a resonant L-C tank with C1 and L1, enabling **input impedance matching** at 915 MHz. The new structure supports a balanced input network with feedback and improved matching.
+
+---
+
+### EDIT 2: **Replace floating PM2/NM2 with a resistive feedback network for input matching**
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+L L3 n2 n6
+NMOS NM1 n5 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n3 VSS
+R R4 n3 n4
+```
+
+**Prediction**: `s11_db improves by ~3.5 dB`.  
+*Reasoning*: The floating PM2 and NM2 are removed and replaced by a **feedback resistive network** (R1, R2) from VDD to n6 and n6 to n2. This creates a **voltage divider** that sets the gate bias and introduces a controlled resistive path at the input. This improves the input match by damping the input reactance and stabilizing the DC operating point. The L3 (source inductor) enables resonant tuning with C1.
+
+---
+
+### EDIT 3: **Implement a common-gate topology with input inductor and source follower bias**
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+L L3 n2 n6
+```
+
+**Prediction**: `s11_db improves by ~5 dB`.  
+*Reasoning*: The structure now includes **L3 from n2 (source of NM1) to n6**, creating a **source follower configuration** with feedback. The gate is driven via L1, and the source is tied through L3 to a node with a resistor (R1) to VDD and R2 to gate. This forms a **high-input-impedance, low-output-impedance** stage with improved input matching. The L3 and C1 form a **series resonance** at 915 MHz, canceling the input reactance. This topology is known for excellent input match and stability in LNAs.

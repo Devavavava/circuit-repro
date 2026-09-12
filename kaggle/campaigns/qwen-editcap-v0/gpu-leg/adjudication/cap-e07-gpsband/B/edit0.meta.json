@@ -1,0 +1,93 @@
+{
+  "index": 0,
+  "predicted_delta_text": "### DIAGNOSIS:\nThe binding constraint is **S11_db = -2.589 dB**, which fails the required **\u2264 -10 dB** (i.e., margin of -0.74 dB). The circuit exhibits poor input match due to excessive input impedance mismatch at 1.575 GHz. The primary cause lies in the **input network topology**: the series inductor L1 (between VIN1 and n1) and shunt capacitor C1 (from n1 to ground) form a low-pass LC tank, but the shunt path to ground is dominated by the gate of NMOS NM1 at node n2 (connected via R2 and R1), which presents a high impedance at RF. This creates a **high input impedance at the input port**, severely degrading S11. Additionally, the NMOS NM2 and PMOS PM2 are floating-gate (source and gate tied), acting as **diodes or biasing elements with no active function**, effectively creating parasitic paths and poor DC/RF isolation. These floating devices contribute to **unwanted loading and phase shift**, worsening input match. The main issue is **lack of intentional input impedance transformation** and **uncontrolled RF grounding** via the NMOS/PMOS gate nodes.\n\n---",
+  "wl_hash": "7fb0ef50e9d4ff8b",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "sized": {
+    "feasible": false,
+    "best_obj": 3.05108,
+    "metrics": {
+      "s11_db": -0.8023,
+      "s11_max_db": -0.790909,
+      "s21_db": 6.8469,
+      "s21_min_db": 6.80093,
+      "idd_ma": 12.43491,
+      "nf_db": 4.375194,
+      "s22_db": -0.727549,
+      "s22_max_db": -0.714011,
+      "s12_db": -29.4997,
+      "k_f0": 0.21085,
+      "k_min": 0.210377,
+      "mu_f0": 0.694386,
+      "mu_min": 0.693424,
+      "mu_src_f0": 0.670698,
+      "mu_src_min": 0.661359,
+      "delta_f0": 0.841517,
+      "delta_max": 0.842129,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.09216999999999942,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 4.375194,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": -0.45839799999999986,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.8023,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.91977,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 6.8469,
+        "required_min": 12,
+        "required_max": null,
+        "scale": 12,
+        "margin": -0.429425,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 12.43491,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": -0.24349100000000004,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -8,
+        "required_max": null,
+        "scale": 8,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.91977
+    ],
+    "seed": 2,
+    "seconds": 69.455,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 19.68383
+}

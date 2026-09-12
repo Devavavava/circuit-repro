@@ -1,0 +1,93 @@
+{
+  "index": 0,
+  "predicted_delta_text": "### DIAGNOSIS (failure cause):\n\nThe binding constraint is **S11_db = -1.59 dB**, which is **0.84 dB below** the required -10 dB (i.e., margin = -0.84). This indicates poor input matching \u2014 the LNA is not effectively transferring signal from the 50\u03a9 source into the amplifier, leading to significant reflection at the input.\n\nThe root cause lies in the **input impedance mismatch** due to:\n- The input is driven through **C1** and **L1**, forming a series LC tank with **no intentional shunt path** for impedance tuning.\n- The gate of NM1 is tied directly to **n2**, which is the **common node** between L1 (input inductor) and C2 (a \"shunt\" capacitor to the gate of NM2).\n- NM2 is **floating** (its gate and drain are tied together to n6), making it **non-functional** in the signal path \u2014 it's essentially a **diode-connected PMOS** with no DC path, acting as a **parasitic load**.\n- PM2 is similarly **floating** (gate and drain tied to n7), so it's not contributing to biasing or signal flow.\n- The **input impedance** is dominated by **L1 and C1** forming a series resonant circuit at f0, but without a proper shunt path to ground (e.g., a gate degeneration or source degeneration resistor), the input impedance remains high and reactive, leading to poor S11.\n\nAdditionally, **NM2 and PM2** are not connected correctly \u2014 they are **not part of the active amplification path** and may cause **unintended loading** or **bias instability**.\n\nThus, the core issue is **structural**: the input network lacks a **controlled shunt path** to ground (via gate or source degeneration), and **non-functional transistors** are present, creating parasitic loading and degrading input match.\n\n---\n\n### EDIT 1: Add a gate-degeneration path using PMOS as a shunt to ground at input",
+  "wl_hash": "199080a0cc516e7f",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "sized": {
+    "feasible": false,
+    "best_obj": 9.86212,
+    "metrics": {
+      "s11_db": -10.7433,
+      "s11_max_db": -10.7295,
+      "s21_db": -11.8764,
+      "s21_min_db": -11.8784,
+      "idd_ma": 0.6353122,
+      "nf_db": 17.63038,
+      "s22_db": -1.37324,
+      "s22_max_db": -1.37315,
+      "s12_db": -36.7611,
+      "k_f0": 33.5035,
+      "k_min": 33.278,
+      "mu_f0": 1.16544,
+      "mu_min": 1.16543,
+      "mu_src_f0": 3.26231,
+      "mu_src_min": 3.25769,
+      "delta_f0": 0.247114,
+      "delta_max": 0.247486,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.0038999999999997925,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 17.63038,
+        "required_min": null,
+        "required_max": 2.2,
+        "scale": 2.2,
+        "margin": -7.01380909090909,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -10.7433,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": 0.07432999999999997,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -11.8764,
+        "required_min": 14,
+        "required_max": null,
+        "scale": 14,
+        "margin": -1.8483142857142858,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 0.6353122,
+        "required_min": null,
+        "required_max": 5,
+        "scale": 5,
+        "margin": 0.8729375600000001,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -8,
+        "required_max": null,
+        "scale": 8,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -7.01380909090909
+    ],
+    "seed": 2,
+    "seconds": 65.261,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 0.3023627
+}

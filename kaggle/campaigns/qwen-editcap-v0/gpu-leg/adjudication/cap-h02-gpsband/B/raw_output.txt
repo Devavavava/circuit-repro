@@ -1,0 +1,66 @@
+### DIAGNOSIS:
+The circuit fails primarily due to **poor input match (S11)**, with a margin of -0.98 dB — the worst constraint. The S11 is far from the required -12 dB (achieved -0.22 dB), indicating excessive input reflection. The root cause lies in the **input impedance mismatch** caused by the **unbalanced and poorly terminated input network**.
+
+The input is driven through a series inductor L1 (from VIN1 to n1), but the gate of NM1 is connected to n3, which is tied to the drain of NM2 and the source of NM1. The gate of NM1 is effectively floating unless biased, and the only DC path is through R1 and R2 — but these are not properly configured for gate biasing. This results in a high input impedance at the gate (due to the MOSFET gate’s near-infinite resistance), causing a large mismatch. Additionally, the source of NM1 (n3) is connected to a resistor R2 to n6 (a node with no direct DC path to ground), further destabilizing the bias point and input impedance.
+
+The circuit lacks a proper **input biasing network** and **source degeneration** to stabilize the input impedance and improve matching. The current structure has a high input impedance at the gate of NM1 and no intentional termination to 50Ω, making it impossible to achieve S11 ≤ -12 dB.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n1 n3 VSS VSS
+```
+
+**PREDICTION**:  
+**s11_db improves by ~4 dB**  
+*Reason*: Adding a source-degenerated NMOS (NM4) with source grounded and gate tied to input (n1) creates a low-impedance input path. This reduces input reflection by shunting the gate and forming a grounded-source amplifier stage, improving input match. The NM4 acts as a buffer, lowering input impedance toward 50Ω.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 VDD n3 VSS VSS
+```
+
+**PREDICTION**:  
+**s11_db improves by ~3.5 dB**  
+*Reason*: Adding NM4 with gate tied to n3 (the gate of NM1) and source to VSS creates a source follower at the input node. This reduces the input impedance seen at VIN1 by presenting a low-impedance path to VSS through the NMOS, improving input match. The NM4 effectively stabilizes the gate node and lowers input impedance toward 50Ω.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+R R3 VIN1 n3
+```
+
+**PREDICTION**:  
+**s11_db improves by ~5 dB**  
+*Reason*: Adding a 50Ω resistive input termination (R3) from VIN1 to n3 (the gate node of NM1) directly provides a matched input impedance. This forces the input to see 50Ω, significantly improving S11. While R3 dissipates power, it directly addresses the mismatch without altering the core topology. The resistor provides a fixed reference for input matching, which is critical for narrowband LNA design.

@@ -1,0 +1,50 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n2 n5 n3 VSS
+```
+
+**Prediction:** s21_db improves by ~0.8 dB.  
+*Reasoning:* Adding a source-degenerated NMOS (NM4) between output node and the source of NM2 increases output impedance and improves voltage gain by reducing the degeneration effect of the output node's parasitic capacitance. This enhances forward gain (S21) without significantly increasing power or degrading stability.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+PMOS PM1 n3 n1 n2 VDD
+```
+
+**Prediction:** s21_db improves by ~1.2 dB.  
+*Reasoning:* Inserting a PMOS (PM1) as a current mirror load with gate tied to input (VIN1) and source to output (VOUT1) creates a high-gain, current-steering topology. This boosts the effective transconductance gain and improves forward gain (S21) while maintaining low noise. The PMOS acts as a dynamic load, increasing gain without increasing Idd significantly.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n3 n1 n4 VSS
+```
+
+**Prediction:** s21_db improves by ~1.0 dB.  
+*Reasoning:* Adding a source follower NMOS (NM4) from input node to the source of NM1 (n3) provides a low-impedance buffer for the input stage, reducing input loading and improving input matching (S11), which indirectly enhances S21 by improving signal transfer efficiency. The added NMOS increases transconductance gain at the input, lifting overall S21 without increasing DC current.

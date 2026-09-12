@@ -1,0 +1,8 @@
+### DIAGNOSIS:
+The circuit fails primarily due to **poor input match (S11)**, with a margin of -0.98 dB — the worst constraint. The S11 is far from the required -12 dB (achieved -0.22 dB), indicating excessive input reflection. The root cause lies in the **input impedance mismatch** caused by the **unbalanced and poorly terminated input network**.
+
+The input is driven through a series inductor L1 (from VIN1 to n1), but the gate of NM1 is connected to n3, which is tied to the drain of NM2 and the source of NM1. The gate of NM1 is effectively floating unless biased, and the only DC path is through R1 and R2 — but these are not properly configured for gate biasing. This results in a high input impedance at the gate (due to the MOSFET gate’s near-infinite resistance), causing a large mismatch. Additionally, the source of NM1 (n3) is connected to a resistor R2 to n6 (a node with no direct DC path to ground), further destabilizing the bias point and input impedance.
+
+The circuit lacks a proper **input biasing network** and **source degeneration** to stabilize the input impedance and improve matching. The current structure has a high input impedance at the gate of NM1 and no intentional termination to 50Ω, making it impossible to achieve S11 ≤ -12 dB.
+
+---

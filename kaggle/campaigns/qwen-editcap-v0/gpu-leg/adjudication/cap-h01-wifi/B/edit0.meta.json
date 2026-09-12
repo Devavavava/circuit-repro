@@ -1,0 +1,93 @@
+{
+  "index": 0,
+  "predicted_delta_text": "### DIAGNOSIS:\nThe binding constraint is **NF_db = 2.182 dB (margin = -0.212)**, which exceeds the 1.8 dB target. The primary physical limitation is **excessive noise from the input stage**, particularly due to **high input-referred noise current** and **poor noise matching**. The current topology uses a **common-gate (CG) input stage (NM2)** with **source degeneration (NM3, R1, R2)**, but the **source of NM2 is not properly isolated from the input** \u2014 instead, it's connected directly to a voltage node (n6) that is driven by a **resistor (R1) to VDD and R2 to n3**, forming a **non-ideal biasing node**. This creates a **high impedance at the source of NM2**, which **degrades the noise performance** by increasing the effective source resistance seen by the input. Additionally, **NM1 (the input transistor)** is in a **common-source (CS) configuration**, but its **source is connected to ground via NM3**, which is a **non-ideal degeneration path** and introduces **excessive noise**. The **lack of a proper cascode stage** also results in **poor isolation**, increasing noise and gain ripple, and degrading stability. The **current mirror (NM2, NM3)** is poorly structured, with **NM3's gate tied to its own source (n6)**, which **fails to set a stable bias point** and adds **nonlinearities and noise**.\n\n### EDIT 1: Replace NM3 with a cascode PMOS (PM1) to stabilize the source of NM2 and improve noise figure via improved isolation and lower input noise.",
+  "wl_hash": "3b159e60134eb131",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "sized": {
+    "feasible": false,
+    "best_obj": 53.50119,
+    "metrics": {
+      "s11_db": -6.19767,
+      "s11_max_db": -4.74572,
+      "s21_db": -44.4987,
+      "s21_min_db": -45.2291,
+      "idd_ma": 120.5135,
+      "nf_db": 36.12311,
+      "s22_db": -0.0862899,
+      "s22_max_db": -0.0861593,
+      "s12_db": -56.3261,
+      "k_f0": 822.338,
+      "k_min": 784.074,
+      "mu_f0": 1.00998,
+      "mu_min": 1.00996,
+      "mu_src_f0": 2.04051,
+      "mu_src_min": 1.72686,
+      "delta_f0": 0.485074,
+      "delta_max": 0.573339,
+      "stab_band": [
+        2400000000.0,
+        2483500000.0
+      ],
+      "s21_ripple_db": 1.1763000000000048,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 36.12311,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -19.068394444444444,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -6.19767,
+        "required_min": null,
+        "required_max": -13,
+        "scale": 13,
+        "margin": -0.5232561538461539,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -44.4987,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": -3.78116875,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 120.5135,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": -29.128375,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "idd_ma",
+      -29.128375
+    ],
+    "seed": 1,
+    "seconds": 68.596,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 121.1009
+}

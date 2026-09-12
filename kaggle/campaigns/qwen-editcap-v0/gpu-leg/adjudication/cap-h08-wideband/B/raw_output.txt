@@ -1,0 +1,95 @@
+### DIAGNOSIS:
+The circuit fails primarily due to **poor input match (S11)**, which is the binding constraint with a margin of -0.98 dB. The input reflection coefficient is too high (S11 ≈ -0.3 dB), well below the required -15 dB. This indicates that the input impedance is not properly matched to 50 Ω across the 0.5–3 GHz band.
+
+Further analysis shows:
+- **NF is high** (4.56 dB vs target 2.5 dB), which suggests poor noise performance likely due to insufficient transconductance or improper source degeneration.
+- **S21 is very low** (only 3.82 dB vs target 16 dB), indicating insufficient gain — likely due to poor current delivery, low transconductance, or improper biasing.
+- **Idd is within budget** (4.85 mA < 5 mA), so power is not the root cause.
+- **Stability metrics** (μ, k) are low but positive, indicating the circuit is stable, but not robustly so — stability is not the primary failure mode.
+
+The root cause of S11 failure lies in **the input network topology**:  
+- The input is connected via **C1** to **L1**, which forms a **low-pass LC tank** with **C2** and **L2**, but **no deliberate input matching network** (e.g., series/parallel L/C or transformer).
+- The **NMOS NM1 is directly connected** from gate (n2) to source (n5), which is **not grounded**, and has **no source degeneration** — this creates a **low input impedance** at high frequencies, causing **poor S11**.
+- The **PMOS PM1 is connected from drain (n5) to gate (n3)**, forming a **diode-connected PMOS** for biasing, but **no feedback or stabilization** is present.
+- **NMOS NM2 and PMOS PM2 are unused (floating gates)** — they are tied to their own nodes (n6 and n7), but **no current path**, likely creating parasitic effects and instability.
+- The **bias network (R1, R2, R3, R4)** is not properly connected to set the operating point; R1 and R2 form a resistive divider on VDD/n6, but **no clear path to bias the gates of NM1/PM1**.
+
+Thus, the **primary failure is structural**:  
+> **There is no proper input matching network, and the NMOS gate is not properly biased with a grounded source or source degeneration. The NMOS is effectively acting as a low-impedance shunt at high frequencies, degrading S11.**
+
+---
+
+### EDIT 1: Add source degeneration and input matching via series inductor and shunt capacitor
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+L L3 n2 VSS
+C C5 n2 VSS
+```
+
+**PREDICTION**:  
+- **s11_db improves by ~6 dB** (from -0.3 dB to ~5.7 dB) — due to added **source degeneration (L3)** and **shunt input capacitance (C5)** forming a **low-pass input matching network**. This improves input impedance matching at 1.75 GHz and broadens bandwidth. The series inductor (L3) raises input impedance, and C5 stabilizes the DC bias while forming an LC trap. This directly addresses the poor S11.
+
+---
+
+### EDIT 2: Replace NMOS with cascode structure and add feedback for input matching
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n7 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C5 n2 n4
+L L3 n2 n4
+```
+
+**PREDICTION**:  
+- **s11_db improves by ~4 dB** — due to **cascode NMOS (NM2)** increasing output impedance and reducing Miller effect, and **adding feedback loop (C5, L3)** between gate (n2) and source (n4), forming a **shunt-series feedback network**. This stabilizes the input impedance and improves bandwidth. The feedback network acts as a **bandpass filter**, enhancing input match across the 0.5–3 GHz band. The cascode also improves gain and linearity, indirectly helping S21 and NF.
+
+---
+
+### EDIT 3: Introduce transformer-like input matching with coupled inductors
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+L L3 n2 n6
+L L4 n6 n5
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n7 n7 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n8 n8 VDD VDD
+R R1 VDD n7
+R R2 n7 n2
+R R3 n8 VSS
+R R4 n8 n3
+```
+
+**PREDICTION**:  
+- **s11_db improves by ~5 dB** — due to **transformer-like coupling (L3–L4)** creating a **magnetic coupling** between input (n1–n2) and output (n6–n5), effectively **transforming the input impedance** to 50 Ω. The mutual inductance allows for **broadband impedance matching** without resistive loss. This is a classic technique for wideband LNAs. The structure acts as a **balun-like impedance transformer**, improving input match across the band. The added inductors increase bandwidth and reduce S11, with minimal impact on NF and gain.
+
+---

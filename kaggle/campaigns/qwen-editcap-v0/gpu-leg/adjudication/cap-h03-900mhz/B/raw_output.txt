@@ -1,0 +1,73 @@
+### 1. DIAGNOSIS (failure in words):
+
+The binding constraint is **S11_db = -0.236 dB**, which fails the target of ≤ -13 dB (i.e., too much reflected power at input). The circuit's input impedance is not properly matched to 50 Ω. The primary issue lies in the **input topology**: the gate of NM1 is connected directly to the source of NM2 via node `n5`, which is driven by a resistive bias network (R1, R2) but lacks any intentional input matching structure. The inductor L1 is connected from VIN1 to n1, but n1 is not properly terminated to provide impedance transformation. The NM2 (source follower-like) stage is pulling down the gate node `n5` without proper feedback or matching, leading to a poor input match. The high S11 (poor return loss) is caused by **mismatched input impedance** due to an absence of a deliberate input matching network or transformer-like structure, combined with the parasitic effects of the floating gate node `n5` being pulled down through R1/R2 and NM2.
+
+Additionally, the presence of NM3 (a current source) at `n6` with a floating source (n6–n6) is invalid (shorted), but likely a typo—this may not be physically realizable and could introduce instability. However, since the task is structural editing and the device is defined as NM3 n6 n6 VSS VSS, it is a shorted device (possibly intended as a current source), but this has no effect on matching.
+
+The core failure is **lack of input impedance transformation and matching**. The circuit behaves like a simple common-source amplifier with a resistive gate bias, but without any deliberate input network (e.g., series inductor or shunt capacitor) to tune the input impedance.
+
+---
+
+### Edit 1: **Add input series inductor with shunt capacitor to form an LC matching network**
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L4 VIN1 n1
+C C3 n1 VSS
+```
+
+**Prediction**:  
+`s11_db improves by ~6 dB`  
+**Reason**: The series inductor L4 and shunt capacitor C3 form a low-pass L-match network that transforms the source impedance (50 Ω) to a higher impedance at the input node, properly matching the gate of NM1. This is a standard input matching technique for LNA design. The improved match should significantly reduce S11.
+
+---
+
+### Edit 2: **Replace NM2 with a PMOS to create a cascode input stage with feedback, enabling input impedance control**
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+PMOS PM1 n2 VDD n5 VDD
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+
+**Prediction**:  
+`s11_db improves by ~4 dB`  
+**Reason**: Replacing NM2 with PMOS PM1 creates a cascode configuration with the gate of PM1 connected to VDD (fixed bias). This stabilizes the gate node `n5` and reduces the input capacitance of the stage. The PMOS acts as a current sink with high output impedance, reducing Miller effect and improving input match. The fixed gate bias (via VDD) eliminates the resistive pull-down on `n5`, reducing loading and improving S11. This structural shift enhances input impedance control and matching.
+
+---
+
+### Edit 3: **Add a shunt feedback inductor from gate to source of NM1 to form a grounded-gate topology with feedback**
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L4 n5 n3
+```
+
+**Prediction**:  
+`s11_db improves by ~5 dB`  
+**Reason**: The inductor L4 connected between gate `n5` and source `n3` of NM1 creates a **shunt feedback path**, effectively grounding the gate at RF via the inductor (if tuned). This forces the gate to be at AC ground, creating a **grounded-gate amplifier** configuration. This topology inherently has a very low input impedance (≈50 Ω) and excellent input match, especially when tuned properly. The feedback inductor allows the input to be matched to 50 Ω via the inductance value. This is a known technique to achieve excellent S11 performance in LNAs.

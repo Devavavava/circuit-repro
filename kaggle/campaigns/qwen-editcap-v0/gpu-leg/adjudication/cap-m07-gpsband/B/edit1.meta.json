@@ -1,0 +1,93 @@
+{
+  "index": 1,
+  "predicted_delta_text": "**PREDICTION:**  \n- **S11_db improves by ~6 dB**.  \n- **Why**: NM2\u2019s gate is now tied to n3 (from C2), and PM2\u2019s gate is tied to n6 (from R1/R2). This establishes **proper gate biasing** via R1/R2/R3/R4. NM2 and PM2 are now active: NM2 provides **source degeneration** and **source follower feedback**, improving input match. PM2 provides **active load** and **increases output impedance**, improving gain and matching. The input node n2 is now properly biased, not shorted to VSS. The LC tank is now properly loaded.\n\n---",
+  "wl_hash": "84c0ca02831f1d9f",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "sized": {
+    "feasible": false,
+    "best_obj": 3.20304,
+    "metrics": {
+      "s11_db": -3.65039,
+      "s11_max_db": -3.55617,
+      "s21_db": 7.17558,
+      "s21_min_db": 7.1144,
+      "idd_ma": 3.391243,
+      "nf_db": 3.971221,
+      "s22_db": -1.86617,
+      "s22_max_db": -1.84532,
+      "s12_db": -22.8132,
+      "k_f0": 0.952218,
+      "k_min": 0.949762,
+      "mu_f0": 0.981051,
+      "mu_min": 0.980005,
+      "mu_src_f0": 0.960356,
+      "mu_src_min": 0.956294,
+      "delta_f0": 0.629982,
+      "delta_max": 0.6305,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.12197999999999976,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.971221,
+        "required_min": null,
+        "required_max": 2.0,
+        "scale": 2.0,
+        "margin": -0.9856105,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -3.65039,
+        "required_min": null,
+        "required_max": -12,
+        "scale": 12,
+        "margin": -0.6958008333333333,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 7.17558,
+        "required_min": 15,
+        "required_max": null,
+        "scale": 15,
+        "margin": -0.521628,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 3.391243,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": 0.15218925000000005,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -6,
+        "required_max": null,
+        "scale": 6,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -0.9856105
+    ],
+    "seed": 2,
+    "seconds": 63.58,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 10.17351
+}

@@ -1,0 +1,93 @@
+{
+  "index": 0,
+  "predicted_delta_text": "### DIAGNOSIS:\nThe circuit fails primarily due to **poor input matching (S11)**, which is the binding constraint with a margin of -0.977 dB. The S11 is only -0.23 dB, far from the -10 dB target. The root cause lies in the **unbalanced and poorly terminated input network**:  \n- The input is driven through a series inductor L1 from VIN1 to n1, but the gate of NM1 (n2) is connected directly to n2 with no DC path or biasing structure.  \n- NM2 and PM2 are floating (both gates tied to their own drains), forming **non-functional dummy devices** \u2014 they do not contribute to biasing or signal path.  \n- The gate of NM1 (n2) is connected to R2 and R1, but R1 connects VDD to n6 (a floating node), and R2 connects n6 to n2 \u2014 this creates an undefined DC operating point and no proper gate bias.  \n- The input impedance is dominated by L1 and C1, but there is **no feedback or resonant tuning** to cancel the inductive reactance at 915 MHz.  \n- The circuit lacks any **source degeneration or impedance transformation** to match 50 \u03a9, and the active device (NM1) is not properly biased, leading to poor input match and gain.\n\nThe floating PM2 and NM2 act as parasitic capacitors and disrupt the AC behavior. The lack of a proper DC bias network prevents the NMOS from operating in the desired region, and the input impedance remains mismatched.\n\n---\n\n### EDIT 1: **Add a source degeneration inductor and feedback path to improve input match**",
+  "wl_hash": "630e43cbe26afc38",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "sized": {
+    "feasible": false,
+    "best_obj": 16.10078,
+    "metrics": {
+      "s11_db": -0.192418,
+      "s11_max_db": -0.189094,
+      "s21_db": -25.2688,
+      "s21_min_db": -25.4335,
+      "idd_ma": 0.3110256,
+      "nf_db": 30.78777,
+      "s22_db": -1.61277,
+      "s22_max_db": -1.61193,
+      "s12_db": -26.5499,
+      "k_f0": 3.43076,
+      "k_min": 3.3799,
+      "mu_f0": 1.20176,
+      "mu_min": 1.20168,
+      "mu_src_f0": 1.02091,
+      "mu_src_min": 1.02057,
+      "delta_f0": 0.814898,
+      "delta_max": 0.815192,
+      "stab_band": [
+        902000000.0,
+        928000000.0
+      ],
+      "s21_ripple_db": 0.3249999999999993,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 30.78777,
+        "required_min": null,
+        "required_max": 2.5,
+        "scale": 2.5,
+        "margin": -11.315107999999999,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.192418,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.9807582,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -25.2688,
+        "required_min": 14,
+        "required_max": null,
+        "scale": 14,
+        "margin": -2.8049142857142857,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 0.3110256,
+        "required_min": null,
+        "required_max": 6,
+        "scale": 6,
+        "margin": 0.9481624000000001,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -5,
+        "required_max": null,
+        "scale": 5,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -11.315107999999999
+    ],
+    "seed": 2,
+    "seconds": 63.721,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 0.4349207
+}

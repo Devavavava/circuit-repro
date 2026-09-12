@@ -1,0 +1,74 @@
+### DIAGNOSIS:
+The circuit fails primarily due to excessive noise figure (NF = 1.888 dB, target ≤1.5 dB), with a margin of **-0.259 dB** — the binding constraint. The high NF indicates that the input stage is not efficiently converting signal power into output while minimizing added noise. The topology uses a single NMOS transistor (NM1) as the input device, which is common in LNA designs, but it is loaded by a parallel LC tank (L1, C2, C1) that is not properly tuned or isolated. The presence of two unconnected, floating PMOS devices (PM2, PM2) with their gates tied to their drains and source/drain shorted to VDD/VSS suggests they are inactive or misconfigured — possibly acting as dummy devices or parasitic elements. The NMOS NM2 is similarly floating (gate and drain tied to same node, source/drain to VSS), effectively a resistor or diode-connected, but its purpose is unclear. This creates an uncontrolled DC path and noise contribution. The lack of proper cascoding or source degeneration reduces input impedance matching and increases noise. The primary issue is **poor noise performance due to unoptimized input stage topology**: no cascode to reduce gate-to-drain feedback (Miller effect), no source degeneration to stabilize gain and reduce noise, and floating devices contributing parasitic noise and DC loading. The circuit is not leveraging the trade-off between gain, noise, and stability effectively.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+NMOS NM3 n6 n1 VSS VSS
+PMOS PM3 n6 n1 VDD VDD
+```
+
+**Predicted effect**:  
+**NF_db improves by ~0.6 dB** — the addition of a **source-degenerated NMOS (NM3)** in series with the input and a **cascode PMOS (PM3)** provides source degeneration and cascode gain, reducing input noise and gate-to-drain feedback. This improves transconductance efficiency and lowers NF. The cascode also enhances output isolation and stabilizes gain.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+PMOS PM3 n5 n2 VDD VDD
+NMOS NM3 n2 n1 VSS VSS
+```
+
+**Predicted effect**:  
+**NF_db improves by ~0.5 dB** — replacing the floating PM2 with a **cascode PMOS (PM3)** connected from drain (n5) to gate (n2), and adding a **source follower NMOS (NM3)** from gate (n1) to source (n2), creates a **cascode configuration with source degeneration**. This reduces Miller feedback, increases output impedance, improves noise figure by reducing input noise contribution from the cascode device, and increases bandwidth. The structure now has better input-output isolation and noise performance.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+NMOS NM3 n1 n2 VSS VSS
+PMOS PM3 n1 n2 VDD VDD
+```
+
+**Predicted effect**:  
+**NF_db improves by ~0.7 dB** — introducing a **cross-coupled NMOS/PMOS pair (NM3, PM3)** between VIN1 (n1) and n2 (gate of NM1) forms a **differential input pair with degeneration**, effectively creating a **differential LNA with balanced input**. This enhances noise performance by improving signal-to-noise ratio and reducing common-mode noise. The cross-coupled pair provides a form of negative feedback that stabilizes gain and reduces input noise. The topology now has better symmetry and noise immunity compared to the single-ended input, directly targeting NF improvement.

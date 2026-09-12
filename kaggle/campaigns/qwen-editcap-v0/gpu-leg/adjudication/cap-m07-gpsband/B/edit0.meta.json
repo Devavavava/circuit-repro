@@ -1,0 +1,93 @@
+{
+  "index": 0,
+  "predicted_delta_text": "### 1. DIAGNOSIS  \nThe binding constraint is **S11_db = -1.844 dB**, which fails the target of **\u2264 -12 dB** (i.e., must be more negative). The circuit is poorly matched at the input, indicating **severe input impedance mismatch**.  \n\nLooking at the anchor netlist:  \n- The input is driven through **C1 (VIN1\u2013n1)** and **L1 (n1\u2013n2)** \u2014 this forms a **series LC input tank**.  \n- However, **NMOS NM1** (source at n2) is connected directly to **n2 (gate of NM1)** and **n5 (drain)**, which is also tied to **L2 (n5\u2013n4)** and **C4 (n5\u2013VOUT1)**.  \n- **NM2 and PM2 are floating (gate = source, no bias)** \u2014 they are **unbiased and inactive**, acting as parasitic devices.  \n- **NM1\u2019s source is at n2**, and its gate is at **n2** \u2014 this is **a shorted gate-source** (NM1 is always on, but its gate is tied to source), which **creates a low-impedance path from n2 to VSS**, shunting the input signal.  \n- The **drain of NM1 is at n5**, which is connected to **VOUT1 via C4** and **L2 to n4** \u2014 this suggests a **common-source topology**, but the **floating PMOSs (PM2)** are not contributing to biasing or load.  \n- **R1 and R2** form a **bias network for n6**, but **n6 is not connected to any gate** \u2014 so it's unused.  \n- **R3 and R4** are connected to **n7**, which is **not connected to any gate** \u2014 so they're also unused.  \n\nThus, the **key failure** is:  \n- **NM1 is shorted (gate = source)** \u2192 it acts as a **low-impedance resistor to ground** at n2.  \n- This **pulls n2 down to VSS**, making the input node **n1** see a **very low impedance** at the resonant frequency \u2192 **S11 is poor (not matched)**.  \n- The **floating PMOSs** do nothing, and **no proper DC bias** is established.  \n- The **input LC tank (C1-L1)** is **not properly loaded** and **shorted at n2** \u2192 it cannot resonate properly.  \n\n### 2. PROPOSED STRUCTURAL EDITS  \n\n---",
+  "wl_hash": "8e10caf8583edad7",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "sized": {
+    "feasible": false,
+    "best_obj": 6.03443,
+    "metrics": {
+      "s11_db": -0.594901,
+      "s11_max_db": -0.590587,
+      "s21_db": 2.61237,
+      "s21_min_db": 2.58952,
+      "idd_ma": 10.57773,
+      "nf_db": 5.227457,
+      "s22_db": -3.34588,
+      "s22_max_db": -3.33997,
+      "s12_db": -31.0799,
+      "k_f0": 0.914606,
+      "k_min": 0.910548,
+      "mu_f0": 0.966352,
+      "mu_min": 0.964612,
+      "mu_src_f0": 0.993613,
+      "mu_src_min": 0.99322,
+      "delta_f0": 0.635463,
+      "delta_max": 0.635672,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.04579000000000022,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 5.227457,
+        "required_min": null,
+        "required_max": 2.0,
+        "scale": 2.0,
+        "margin": -1.6137285000000001,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.594901,
+        "required_min": null,
+        "required_max": -12,
+        "scale": 12,
+        "margin": -0.9504249166666666,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 2.61237,
+        "required_min": 15,
+        "required_max": null,
+        "scale": 15,
+        "margin": -0.825842,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 10.57773,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": -1.6444325000000002,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -6,
+        "required_max": null,
+        "scale": 6,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "idd_ma",
+      -1.6444325000000002
+    ],
+    "seed": 2,
+    "seconds": 63.642,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 9.369772
+}

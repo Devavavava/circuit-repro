@@ -1,0 +1,177 @@
+{
+  "index": 2,
+  "predicted_delta_text": "**Prediction:** S11_db improves by ~3.8 dB.  \n*Reason:* Added **a direct shunt capacitor C5 from VIN1 to ground**, creating a deliberate low-impedance RF ground path at the input. This reduces the input impedance mismatch caused by the floating gate nodes and the series L1. The added C5 provides **a controlled input termination**, improving input match by damping the high input reactance. This is a **classic input matching technique** in LNAs: shunt capacitance improves S11 at the expense of some gain, but here the gain is still sufficient (S21 was already above 12 dB).\n\n---",
+  "wl_hash": "b5684083886c8841",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.69614,
+    "metrics": {
+      "s11_db": -1.95656,
+      "s11_max_db": -1.92558,
+      "s21_db": 7.36799,
+      "s21_min_db": 7.32178,
+      "idd_ma": 12.21458,
+      "nf_db": 3.852997,
+      "s22_db": -1.0196,
+      "s22_max_db": -1.01031,
+      "s12_db": -28.8638,
+      "k_f0": 0.700693,
+      "k_min": 0.69861,
+      "mu_f0": 0.92108,
+      "mu_min": 0.920194,
+      "mu_src_f0": 0.850597,
+      "mu_src_min": 0.845192,
+      "delta_f0": 0.738931,
+      "delta_max": 0.739749,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.09254999999999924,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.852997,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": -0.28433233333333324,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -1.95656,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.8043440000000001,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 7.36799,
+        "required_min": 12,
+        "required_max": null,
+        "scale": 12,
+        "margin": -0.38600083333333335,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 12.21458,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": -0.221458,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -8,
+        "required_max": null,
+        "scale": 8,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.8043440000000001
+    ],
+    "seed": 2,
+    "seconds": 70.832,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 2.7916809999999996,
+  "escalated": true,
+  "sized_escalated": {
+    "feasible": false,
+    "best_obj": 2.10967,
+    "metrics": {
+      "s11_db": -8.33193,
+      "s11_max_db": -8.03022,
+      "s21_db": 5.99844,
+      "s21_min_db": 5.99111,
+      "idd_ma": 11.469389999999999,
+      "nf_db": 3.887383,
+      "s22_db": -2.89922,
+      "s22_max_db": -2.87546,
+      "s12_db": -28.2683,
+      "k_f0": 2.75822,
+      "k_min": 2.74283,
+      "mu_f0": 1.24288,
+      "mu_min": 1.24181,
+      "mu_src_f0": 1.82132,
+      "mu_src_min": 1.79667,
+      "delta_f0": 0.290793,
+      "delta_max": 0.304088,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.007530000000000037,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.887383,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": -0.29579433333333327,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -8.33193,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.166807,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 5.99844,
+        "required_min": 12,
+        "required_max": null,
+        "scale": 12,
+        "margin": -0.50013,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 11.469389999999999,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": -0.14693899999999988,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -8,
+        "required_max": null,
+        "scale": 8,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s21_db",
+      -0.50013
+    ],
+    "seed": 1,
+    "seconds": 199.922,
+    "evals": 1800,
+    "sim_health": {
+      "n_evals": 1800,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  }
+}

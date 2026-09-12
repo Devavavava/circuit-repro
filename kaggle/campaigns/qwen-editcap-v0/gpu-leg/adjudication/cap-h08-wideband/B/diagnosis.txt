@@ -1,0 +1,22 @@
+### DIAGNOSIS:
+The circuit fails primarily due to **poor input match (S11)**, which is the binding constraint with a margin of -0.98 dB. The input reflection coefficient is too high (S11 ≈ -0.3 dB), well below the required -15 dB. This indicates that the input impedance is not properly matched to 50 Ω across the 0.5–3 GHz band.
+
+Further analysis shows:
+- **NF is high** (4.56 dB vs target 2.5 dB), which suggests poor noise performance likely due to insufficient transconductance or improper source degeneration.
+- **S21 is very low** (only 3.82 dB vs target 16 dB), indicating insufficient gain — likely due to poor current delivery, low transconductance, or improper biasing.
+- **Idd is within budget** (4.85 mA < 5 mA), so power is not the root cause.
+- **Stability metrics** (μ, k) are low but positive, indicating the circuit is stable, but not robustly so — stability is not the primary failure mode.
+
+The root cause of S11 failure lies in **the input network topology**:  
+- The input is connected via **C1** to **L1**, which forms a **low-pass LC tank** with **C2** and **L2**, but **no deliberate input matching network** (e.g., series/parallel L/C or transformer).
+- The **NMOS NM1 is directly connected** from gate (n2) to source (n5), which is **not grounded**, and has **no source degeneration** — this creates a **low input impedance** at high frequencies, causing **poor S11**.
+- The **PMOS PM1 is connected from drain (n5) to gate (n3)**, forming a **diode-connected PMOS** for biasing, but **no feedback or stabilization** is present.
+- **NMOS NM2 and PMOS PM2 are unused (floating gates)** — they are tied to their own nodes (n6 and n7), but **no current path**, likely creating parasitic effects and instability.
+- The **bias network (R1, R2, R3, R4)** is not properly connected to set the operating point; R1 and R2 form a resistive divider on VDD/n6, but **no clear path to bias the gates of NM1/PM1**.
+
+Thus, the **primary failure is structural**:  
+> **There is no proper input matching network, and the NMOS gate is not properly biased with a grounded source or source degeneration. The NMOS is effectively acting as a low-impedance shunt at high frequencies, degrading S11.**
+
+---
+
+### EDIT 1: Add source degeneration and input matching via series inductor and shunt capacitor

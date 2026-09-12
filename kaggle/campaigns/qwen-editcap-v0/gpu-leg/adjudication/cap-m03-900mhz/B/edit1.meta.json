@@ -1,0 +1,93 @@
+{
+  "index": 1,
+  "predicted_delta_text": "**Prediction**: `s11_db improves by ~4 dB`.  \n*Reasoning*: The addition of L3 from source (n2) to a new node n6, and re-routing NM1\u2019s gate to n6 (via L1), creates a **source degeneration inductor**. This forms a resonant L-C tank with C1 and L1, enabling **input impedance matching** at 915 MHz. The new structure supports a balanced input network with feedback and improved matching.\n\n---\n\n### EDIT 2: **Replace floating PM2/NM2 with a resistive feedback network for input matching**",
+  "wl_hash": "d68d92ca3a121075",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "sized": {
+    "feasible": false,
+    "best_obj": 4.12515,
+    "metrics": {
+      "s11_db": -5.34101,
+      "s11_max_db": -5.31038,
+      "s21_db": 0.408287,
+      "s21_min_db": 0.403406,
+      "idd_ma": 5.9566539999999994,
+      "nf_db": 6.721031,
+      "s22_db": -7.37739,
+      "s22_max_db": -7.00826,
+      "s12_db": -25.7682,
+      "k_f0": 5.18431,
+      "k_min": 5.12995,
+      "mu_f0": 1.851,
+      "mu_min": 1.80147,
+      "mu_src_f0": 1.58361,
+      "mu_src_min": 1.57936,
+      "delta_f0": 0.186206,
+      "delta_max": 0.196613,
+      "stab_band": [
+        902000000.0,
+        928000000.0
+      ],
+      "s21_ripple_db": 0.004964999999999997,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 6.721031,
+        "required_min": null,
+        "required_max": 2.5,
+        "scale": 2.5,
+        "margin": -1.6884124,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -5.34101,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.465899,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 0.408287,
+        "required_min": 14,
+        "required_max": null,
+        "scale": 14,
+        "margin": -0.9708366428571429,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 5.9566539999999994,
+        "required_min": null,
+        "required_max": 6,
+        "scale": 6,
+        "margin": 0.007224333333333425,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -5,
+        "required_max": null,
+        "scale": 5,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -1.6884124
+    ],
+    "seed": 2,
+    "seconds": 61.74,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 0.6234194
+}

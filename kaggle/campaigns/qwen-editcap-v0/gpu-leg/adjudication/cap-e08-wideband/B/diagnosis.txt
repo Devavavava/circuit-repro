@@ -1,0 +1,6 @@
+### DIAGNOSIS:
+The binding constraint is **S11_max_db = -3.22284 dB**, which fails by **-0.597 dB**. The circuit is poorly matched at the input, indicating a significant impedance mismatch between the source (50Ω) and the input impedance of the amplifier. The input network (C1, L1, and the gate of NM1) forms an LC tank with insufficient damping and poor bandwidth control. The gate of NM1 is tied directly to n2 via L1, and the source is grounded (VSS), making the input impedance highly reactive and narrowband. The PMOS PM1 is connected from VDD to n5, but it's not properly biasing the gate of NM1 — instead, it's floating with no DC path. The presence of a floating gate node (n7) on PM2 and PM1, with only resistors to VDD/VSS, suggests no stable DC bias for the PMOS, leading to unpredictable and likely high input impedance. The NMOS NM2 and PM2 are floating (gate tied to source), acting as diodes, which can degrade matching and introduce nonlinearity. The overall topology lacks a proper **input impedance matching network** and has **uncontrolled DC biasing**, leading to a mismatched, narrowband input that fails S11.
+
+---
+
+### EDIT 1: Add a series input inductor and shunt capacitor to form a broadband LC matching network at the input.

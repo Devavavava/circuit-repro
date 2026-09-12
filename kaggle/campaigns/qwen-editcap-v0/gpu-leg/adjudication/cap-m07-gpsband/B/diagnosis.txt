@@ -1,0 +1,21 @@
+### 1. DIAGNOSIS  
+The binding constraint is **S11_db = -1.844 dB**, which fails the target of **≤ -12 dB** (i.e., must be more negative). The circuit is poorly matched at the input, indicating **severe input impedance mismatch**.  
+
+Looking at the anchor netlist:  
+- The input is driven through **C1 (VIN1–n1)** and **L1 (n1–n2)** — this forms a **series LC input tank**.  
+- However, **NMOS NM1** (source at n2) is connected directly to **n2 (gate of NM1)** and **n5 (drain)**, which is also tied to **L2 (n5–n4)** and **C4 (n5–VOUT1)**.  
+- **NM2 and PM2 are floating (gate = source, no bias)** — they are **unbiased and inactive**, acting as parasitic devices.  
+- **NM1’s source is at n2**, and its gate is at **n2** — this is **a shorted gate-source** (NM1 is always on, but its gate is tied to source), which **creates a low-impedance path from n2 to VSS**, shunting the input signal.  
+- The **drain of NM1 is at n5**, which is connected to **VOUT1 via C4** and **L2 to n4** — this suggests a **common-source topology**, but the **floating PMOSs (PM2)** are not contributing to biasing or load.  
+- **R1 and R2** form a **bias network for n6**, but **n6 is not connected to any gate** — so it's unused.  
+- **R3 and R4** are connected to **n7**, which is **not connected to any gate** — so they're also unused.  
+
+Thus, the **key failure** is:  
+- **NM1 is shorted (gate = source)** → it acts as a **low-impedance resistor to ground** at n2.  
+- This **pulls n2 down to VSS**, making the input node **n1** see a **very low impedance** at the resonant frequency → **S11 is poor (not matched)**.  
+- The **floating PMOSs** do nothing, and **no proper DC bias** is established.  
+- The **input LC tank (C1-L1)** is **not properly loaded** and **shorted at n2** → it cannot resonate properly.  
+
+### 2. PROPOSED STRUCTURAL EDITS  
+
+---

@@ -1,0 +1,18 @@
+### DIAGNOSIS (failure cause):
+
+The binding constraint is **S11_db = -1.59 dB**, which is **0.84 dB below** the required -10 dB (i.e., margin = -0.84). This indicates poor input matching — the LNA is not effectively transferring signal from the 50Ω source into the amplifier, leading to significant reflection at the input.
+
+The root cause lies in the **input impedance mismatch** due to:
+- The input is driven through **C1** and **L1**, forming a series LC tank with **no intentional shunt path** for impedance tuning.
+- The gate of NM1 is tied directly to **n2**, which is the **common node** between L1 (input inductor) and C2 (a "shunt" capacitor to the gate of NM2).
+- NM2 is **floating** (its gate and drain are tied together to n6), making it **non-functional** in the signal path — it's essentially a **diode-connected PMOS** with no DC path, acting as a **parasitic load**.
+- PM2 is similarly **floating** (gate and drain tied to n7), so it's not contributing to biasing or signal flow.
+- The **input impedance** is dominated by **L1 and C1** forming a series resonant circuit at f0, but without a proper shunt path to ground (e.g., a gate degeneration or source degeneration resistor), the input impedance remains high and reactive, leading to poor S11.
+
+Additionally, **NM2 and PM2** are not connected correctly — they are **not part of the active amplification path** and may cause **unintended loading** or **bias instability**.
+
+Thus, the core issue is **structural**: the input network lacks a **controlled shunt path** to ground (via gate or source degeneration), and **non-functional transistors** are present, creating parasitic loading and degrading input match.
+
+---
+
+### EDIT 1: Add a gate-degeneration path using PMOS as a shunt to ground at input

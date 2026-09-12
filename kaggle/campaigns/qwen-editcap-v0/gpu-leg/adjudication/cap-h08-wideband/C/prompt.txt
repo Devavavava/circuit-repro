@@ -1,0 +1,40 @@
+You are an analog IC designer repairing a low-noise amplifier (LNA) that FAILED its specification after full SPICE sizing. You reason about the failure and propose STRUCTURAL (topology) changes. You output TOPOLOGY ONLY as a small line-oriented netlist; a downstream deterministic tool inserts biasing and sizes every device with a SPICE optimizer. Never invent device values, DC sources, or bias networks -- only the connectivity.
+
+=== SPEC (cap-h08-wideband) ===
+description: capability-v0 H tier: wideband 0.5-3 GHz LNA (NF<=2.5 S11_max<=-15 S21>=16 Idd<=5)
+band: wideband, f0=1750000000.0 Hz
+gated constraints:
+  nf_db      max 2.5
+  s11_max_db max -15
+  s21_db     min 16
+  s21_ripple_db max 1.5
+  idd_ma     max 5
+
+=== ANCHOR NETLIST (starting circuit, dialect form) ===
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+
+YOUR TASK:
+Propose EXACTLY 3 STRUCTURAL variants of the circuit above as FULL netlists in the dialect below. Each variant is a complete netlist (not a diff), each structurally DIFFERENT from the starting circuit and from the other variants.
+
+Emit each variant in its OWN fenced ```netlist block.
+
+NETLIST DIALECT (obey exactly, one device per line):
+  TYPE name node1 node2 [node3 node4]
+  TYPE in {NMOS, PMOS, R, C, L}.
+  NMOS/PMOS take 4 nodes in order D G S B; R/C/L take 2 nodes P N.
+  Nets: VIN1 (input), VOUT1 (output), VDD, VSS (ground); any internal node name otherwise. NO device values. NO V sources. NO bias networks.

@@ -1,0 +1,74 @@
+### DIAGNOSIS:
+The binding constraint is **S11_max_db = -3.22284 dB**, which fails by **-0.597 dB**. The circuit is poorly matched at the input, indicating a significant impedance mismatch between the source (50Ω) and the input impedance of the amplifier. The input network (C1, L1, and the gate of NM1) forms an LC tank with insufficient damping and poor bandwidth control. The gate of NM1 is tied directly to n2 via L1, and the source is grounded (VSS), making the input impedance highly reactive and narrowband. The PMOS PM1 is connected from VDD to n5, but it's not properly biasing the gate of NM1 — instead, it's floating with no DC path. The presence of a floating gate node (n7) on PM2 and PM1, with only resistors to VDD/VSS, suggests no stable DC bias for the PMOS, leading to unpredictable and likely high input impedance. The NMOS NM2 and PM2 are floating (gate tied to source), acting as diodes, which can degrade matching and introduce nonlinearity. The overall topology lacks a proper **input impedance matching network** and has **uncontrolled DC biasing**, leading to a mismatched, narrowband input that fails S11.
+
+---
+
+### EDIT 1: Add a series input inductor and shunt capacitor to form a broadband LC matching network at the input.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C3 n1 VSS
+L L3 VIN1 n1
+```
+
+**Prediction:** `s11_db improves by ~3 dB` — the added series inductor (L3) and shunt capacitor (C3) form a low-pass matching network that improves input return loss over a wideband, especially around 1.75 GHz. The series L3 boosts input impedance at mid-band, while C3 provides a low-impedance path to ground for harmonics, improving broadband matching.
+
+---
+
+### EDIT 2: Reconfigure the input stage with a source-degenerated common-source amplifier with a grounded-source input network.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C3 VSS n1
+L L3 n1 n2
+```
+
+**Prediction:** `s11_db improves by ~2.5 dB` — replacing the series inductor with a shunt capacitor (C3) at the input and using a series inductor (L3) between VIN1 and n1 creates a π-matching network. This improves broadband input matching by better controlling the input impedance across 0.5–3 GHz, especially at higher frequencies where the original L1-C1 tank was too resonant and narrowband.
+
+---
+
+### EDIT 3: Replace the floating PMOS gates with a cascode-style input buffer using a gate-connected PMOS as a current source.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C3 VIN1 VSS
+L L3 n1 n2
+```
+
+**Prediction:** `s11_db improves by ~4 dB` — the addition of C3 from VIN1 to VSS creates a low-impedance shunt at the input, reducing the Q of the input LC network and broadening bandwidth. The series inductor L3 provides inductive peaking to boost input impedance at mid-band. This topology enhances broadband matching by stabilizing the input impedance and reducing high-frequency reflections, directly attacking the S11 failure. The floating PMOS gates are still present but the added C3 provides a DC path and improves input stability.

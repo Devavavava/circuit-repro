@@ -1,0 +1,8 @@
+### DIAGNOSIS:
+The binding constraint is **S11_db = -0.69 dB** (margin = -0.95 dB), which is significantly below the required **-14 dB**. This indicates poor input matching — the amplifier is reflecting too much power back to the source. The root cause lies in the **input impedance mismatch** due to the **inherent input capacitance of NMOS transistors** (especially NM1 and NM2) combined with **no deliberate input matching network**. The gate of NM1 is directly connected to the input through C1 and L1, forming a low-pass LC tank that is not tuned to the desired 1.575 GHz center frequency. The parasitic gate capacitance of NM1 (and NM2) further detunes the input network. Additionally, the presence of NM3 (a diode-connected NMOS) and R1/R2 forming a current mirror with a resistive load at the output suggests that the input is loaded by a high-impedance node (n6) that is not properly terminated. The lack of a **proper input impedance matching network (e.g., series inductor or shunt capacitor)** prevents achieving low S11.
+
+Moreover, the **current consumption (IDD = 3.25 mA)** exceeds the 3 mA cap, which is secondary but still problematic. The **NF = 1.85 dB** also exceeds the 1.5 dB target, indicating suboptimal noise performance — likely due to improper transconductance-to-current ratio and noise contribution from the input stage.
+
+---
+
+### EDIT 1: Add Input Series Inductor (Improved Input Matching)

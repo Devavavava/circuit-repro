@@ -1,0 +1,11 @@
+### 1. DIAGNOSIS (failure in words):
+
+The binding constraint is **S11_db = -0.236 dB**, which fails the target of ≤ -13 dB (i.e., too much reflected power at input). The circuit's input impedance is not properly matched to 50 Ω. The primary issue lies in the **input topology**: the gate of NM1 is connected directly to the source of NM2 via node `n5`, which is driven by a resistive bias network (R1, R2) but lacks any intentional input matching structure. The inductor L1 is connected from VIN1 to n1, but n1 is not properly terminated to provide impedance transformation. The NM2 (source follower-like) stage is pulling down the gate node `n5` without proper feedback or matching, leading to a poor input match. The high S11 (poor return loss) is caused by **mismatched input impedance** due to an absence of a deliberate input matching network or transformer-like structure, combined with the parasitic effects of the floating gate node `n5` being pulled down through R1/R2 and NM2.
+
+Additionally, the presence of NM3 (a current source) at `n6` with a floating source (n6–n6) is invalid (shorted), but likely a typo—this may not be physically realizable and could introduce instability. However, since the task is structural editing and the device is defined as NM3 n6 n6 VSS VSS, it is a shorted device (possibly intended as a current source), but this has no effect on matching.
+
+The core failure is **lack of input impedance transformation and matching**. The circuit behaves like a simple common-source amplifier with a resistive gate bias, but without any deliberate input network (e.g., series inductor or shunt capacitor) to tune the input impedance.
+
+---
+
+### Edit 1: **Add input series inductor with shunt capacitor to form an LC matching network**

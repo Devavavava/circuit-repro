@@ -1,0 +1,70 @@
+### DIAGNOSIS:
+The binding constraint is **S11_db = -2.589 dB**, which fails the required **≤ -10 dB** (i.e., margin of -0.74 dB). The circuit exhibits poor input match due to excessive input impedance mismatch at 1.575 GHz. The primary cause lies in the **input network topology**: the series inductor L1 (between VIN1 and n1) and shunt capacitor C1 (from n1 to ground) form a low-pass LC tank, but the shunt path to ground is dominated by the gate of NMOS NM1 at node n2 (connected via R2 and R1), which presents a high impedance at RF. This creates a **high input impedance at the input port**, severely degrading S11. Additionally, the NMOS NM2 and PMOS PM2 are floating-gate (source and gate tied), acting as **diodes or biasing elements with no active function**, effectively creating parasitic paths and poor DC/RF isolation. These floating devices contribute to **unwanted loading and phase shift**, worsening input match. The main issue is **lack of intentional input impedance transformation** and **uncontrolled RF grounding** via the NMOS/PMOS gate nodes.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n7 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n6 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+
+**Prediction:** S11_db improves by ~4.5 dB.  
+*Reason:* Replaced floating-gate NM2/PM2 (which acted as uncontrolled diodes) with a **cross-coupled pair** (NM2: G=n7, D=n6; PM2: G=n6, D=n7), forming a **balanced differential pair with feedback**. This improves DC stability and provides **controlled RF grounding through the cross-coupled nodes**, reducing input impedance mismatch. The added symmetry enhances input match by better stabilizing the gate nodes at RF, improving S11.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C5 n1 VSS
+```
+
+**Prediction:** S11_db improves by ~3.8 dB.  
+*Reason:* Added **a direct shunt capacitor C5 from VIN1 to ground**, creating a deliberate low-impedance RF ground path at the input. This reduces the input impedance mismatch caused by the floating gate nodes and the series L1. The added C5 provides **a controlled input termination**, improving input match by damping the high input reactance. This is a **classic input matching technique** in LNAs: shunt capacitance improves S11 at the expense of some gain, but here the gain is still sufficient (S21 was already above 12 dB).
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n7 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n6 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C5 n2 VSS
+```
+
+**Prediction:** S11_db improves by ~5.0 dB.  
+*Reason:* Removed floating-gate devices entirely and replaced them with a **cross-coupled pair (NM2/PM2)**, then **added a shunt capacitor C5 from the input node n2 to ground**. This provides a **controlled RF ground path at the gate of NM1**, which is critical for input matching. The cross-coupled pair enhances gain and stability, while C5 actively lowers the input impedance at RF, directly addressing the S11 failure. The combination of **controlled feedback and intentional shunt grounding** is highly effective in narrowband LNAs. This topology is structurally distinct, with a **shunt capacitor on the gate node**, a known technique to improve S11.

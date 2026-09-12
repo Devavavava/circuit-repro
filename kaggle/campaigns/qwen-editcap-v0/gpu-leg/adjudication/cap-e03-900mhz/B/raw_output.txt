@@ -1,0 +1,51 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n3 n2 n6 VSS
+```
+
+**Prediction**: s21_db improves by ~1.2 dB. The added NMOS (NM4) from gate of NM2 to source of NM1 (via n3–n2) creates a current-steering path that enhances forward gain by reducing the effective output impedance of the main amplifier stage and improving transconductance utilization. This structural change increases signal transfer efficiency without increasing Idd.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+PMOS PM1 n3 n2 VSS VSS
+```
+
+**Prediction**: s21_db improves by ~1.5 dB. The addition of a PMOS (PM1) between the output node (n2) and the drain node (n3) creates a source-degenerated cascode-like structure, which increases output impedance and enhances gain. This also improves linearity and gain bandwidth product. The PMOS acts as a current buffer and provides inductive-like impedance boosting at the output, directly enhancing S21.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n2 n1 n6 VSS
+```
+
+**Prediction**: s21_db improves by ~1.0 dB. The new NMOS (NM4) connected from input (VIN1) to the source of NM2 (n6) creates a feedback-like path that increases the effective transconductance of the input stage. This boosts the forward gain by increasing the effective input signal drive to the main amplifier. The structure introduces a form of source degeneration with input feedback, enhancing gain at the expense of some noise, but net gain improvement is predicted due to improved signal transfer efficiency.

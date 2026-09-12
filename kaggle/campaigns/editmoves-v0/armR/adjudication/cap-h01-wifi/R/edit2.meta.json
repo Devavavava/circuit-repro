@@ -1,0 +1,41 @@
+{
+  "move_name": "add_second_stage_CS",
+  "site": {
+    "out_node": "n2"
+  },
+  "menu_desc": "add_second_stage_CS: cap-couple current output node n2 into a new mirror-biased NMOS common-source stage with an L load; VOUT1 moves to the new stage output.",
+  "wl_hash": "bd3e6eea25d466c9",
+  "valid": true,
+  "dup": false,
+  "invariants_ok": true,
+  "invariant_detail": {
+    "I1_round_trip": true,
+    "I1_wl_distinct": true,
+    "I2_port_gate": true,
+    "I3_new_gate_bias": true,
+    "I4_budget": true,
+    "wl_in": "dcda50191d7c5e73",
+    "wl_out": "bd3e6eea25d466c9",
+    "error": null,
+    "I3_detail": {
+      "g21": true
+    }
+  },
+  "fence_outcome": "fence_fail",
+  "fence_detail": {
+    "passed": false,
+    "idd_ma": 5.525248,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -34.7603,
+    "s21_ok": false,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "smoke_idd_ma": 5.525248,
+  "sized": null,
+  "netlist": "C C1 VIN1 n1\nC C2 d21 VOUT1\nL L1 n1 n3\nL L2 n4 VSS\nL L3 VDD n2\nNMOS NM1 n5 n3 n4 VSS\nNMOS NM2 n2 VDD n5 VSS\nNMOS NM3 n6 n6 VSS VSS\nR R1 VDD n6\nR R2 n6 n3\nC Ccpl1 n2 g21\nR RbS21 VDD mbS21\nNMOS NMbS21 mbS21 mbS21 VSS VSS\nR RgS21 mbS21 g21\nNMOS NMs21 d21 g21 VSS VSS\nL Lld21 VDD d21",
+  "error": null,
+  "index": 2
+}

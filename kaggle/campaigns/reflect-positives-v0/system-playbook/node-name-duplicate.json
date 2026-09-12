@@ -1,0 +1,38 @@
+{
+  "applicability": {
+    "applies": "when generating or modifying netlists in any circuit design task",
+    "not": "when using a simulation framework that automatically deduplicates device names"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-09-12",
+  "evidence": [
+    {
+      "quote": "ParseError: line 8: duplicate device name 'Cin'; line: 'C Cin VOUT1 n2'",
+      "source": "[cap-e03-900mhz/roundtrip] ParseError: line 8: duplicate device name 'Cin'; line: 'C Cin VOUT1 n2'"
+    }
+  ],
+  "id": "node-name-duplicate",
+  "rule": "Ensure that all device names in the netlist are unique to prevent parse errors during roundtrip simulation.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-09-12)"
+  ],
+  "trigger": {
+    "analysis": [
+      "parse-error"
+    ],
+    "failure_signature": [
+      "node-name-drift",
+      "duplicate device name"
+    ],
+    "family": [
+      "cap-e03-900mhz"
+    ],
+    "keywords": [
+      "duplicate device name",
+      "ParseError",
+      "Cin"
+    ]
+  },
+  "type": "anti-pattern"
+}

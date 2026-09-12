@@ -1,0 +1,49 @@
+{
+  "applicability": {
+    "applies": "when predicting quiescent current (IDD_MA) in analog or mixed-signal circuits",
+    "not": "when predicting IDD_MA for well-converged, stable designs with known bias points"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-09-12",
+  "evidence": [
+    {
+      "quote": "idd_ma(predicted=12.3,measured=1.355011e-08,error=-12.3)",
+      "source": "spec=cap-e01-wifi wl=19a31d75dcb1f9be: idd_ma(predicted=12.3,measured=1.355011e-08,error=-12.3)"
+    },
+    {
+      "quote": "idd_ma(predicted=7.3,measured=9.852661000000001e-08,error=-7.3)",
+      "source": "spec=cap-e02-gpsband wl=c231ac11552a9404: idd_ma(predicted=7.3,measured=9.852661000000001e-08,error=-7.3)"
+    },
+    {
+      "quote": "idd_ma(predicted=0.0,measured=1.379549e-08,error=0.0)",
+      "source": "spec=cap-e03-900mhz wl=a5476a67ca49011f: idd_ma(predicted=0.0,measured=1.379549e-08,error=0.0)"
+    }
+  ],
+  "id": "prediction-ignores-idd-ma-zero",
+  "rule": "Never assume that a predicted IDD_MA above zero will be realized; simulations often fail to converge or report near-zero current due to biasing instability or model artifacts.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-09-12)"
+  ],
+  "trigger": {
+    "analysis": [
+      "prediction-vs-outcome",
+      "margin-analysis"
+    ],
+    "failure_signature": [
+      "bias-regulation",
+      "numerical-artefact"
+    ],
+    "family": [
+      "cap-e01-wifi",
+      "cap-e02-gpsband",
+      "cap-e03-900mhz"
+    ],
+    "keywords": [
+      "idd_ma",
+      "predicted=12.3",
+      "measured=1.355011e-08"
+    ]
+  },
+  "type": "diagnosis"
+}

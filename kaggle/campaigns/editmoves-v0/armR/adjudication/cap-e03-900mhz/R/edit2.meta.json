@@ -1,0 +1,120 @@
+{
+  "move_name": "add_source_degen_L",
+  "site": {
+    "mos": "NM3"
+  },
+  "menu_desc": "add_source_degen_L at NM3: insert a degeneration L between NM3 source and VSS.",
+  "wl_hash": "6afd78ff4d377447",
+  "valid": true,
+  "dup": false,
+  "invariants_ok": true,
+  "invariant_detail": {
+    "I1_round_trip": true,
+    "I1_wl_distinct": true,
+    "I2_port_gate": true,
+    "I3_new_gate_bias": true,
+    "I4_budget": true,
+    "wl_in": "dcda50191d7c5e73",
+    "wl_out": "6afd78ff4d377447",
+    "error": null
+  },
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 17.475640000000002,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -11.2957,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "smoke_idd_ma": 17.475640000000002,
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.18104,
+    "metrics": {
+      "s11_db": -0.0912823,
+      "s11_max_db": -0.0881345,
+      "s21_db": 8.07545,
+      "s21_min_db": 7.94629,
+      "idd_ma": 11.527940000000001,
+      "nf_db": 1.90977,
+      "s22_db": -8.55093,
+      "s22_max_db": -8.47617,
+      "s12_db": -57.1884,
+      "k_f0": 2.7667,
+      "k_min": 2.72641,
+      "mu_f0": 2.08679,
+      "mu_min": 2.022,
+      "mu_src_f0": 1.0073,
+      "mu_src_min": 1.00717,
+      "delta_f0": 0.371735,
+      "delta_max": 0.375194,
+      "stab_band": [
+        902000000.0,
+        928000000.0
+      ],
+      "s21_ripple_db": 0.23531999999999886,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 1.90977,
+        "required_min": null,
+        "required_max": 3.5,
+        "scale": 3.5,
+        "margin": 0.4543514285714286,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.0912823,
+        "required_min": null,
+        "required_max": -8,
+        "scale": 8,
+        "margin": -0.9885897125,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 8.07545,
+        "required_min": 10,
+        "required_max": null,
+        "scale": 10,
+        "margin": -0.192455,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 11.527940000000001,
+        "required_min": null,
+        "required_max": 15,
+        "scale": 15,
+        "margin": 0.2314706666666666,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.9885897125
+    ],
+    "seed": 2,
+    "seconds": 22.239,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "netlist": "C C1 VIN1 n1\nC C2 n2 VOUT1\nL L1 n1 n3\nL L2 n4 VSS\nL L3 VDD n2\nNMOS NM1 n5 n3 n4 VSS\nNMOS NM2 n2 VDD n5 VSS\nNMOS NM3 n6 n6 sd1 VSS\nR R1 VDD n6\nR R2 n6 n3\nL Ldg1 sd1 VSS",
+  "error": null,
+  "index": 2
+}

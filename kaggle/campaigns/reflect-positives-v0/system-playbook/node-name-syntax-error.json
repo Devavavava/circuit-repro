@@ -1,0 +1,37 @@
+{
+  "applicability": {
+    "applies": "during netlist generation and roundtrip validation",
+    "not": "when using non-standard netlist formats"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-09-12",
+  "evidence": [
+    {
+      "quote": "[cap-e04-35ghz/roundtrip] ParseError: line 4: C needs a name and 2 nodes (P N), got 3 node(s); line: 'C Cg Cg n1 n3'",
+      "source": "verbatim candidate errors"
+    }
+  ],
+  "id": "node-name-syntax-error",
+  "rule": "Ensure all component definitions follow the required syntax: <type> <name> <node1> <node2> with exactly two node references.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-09-12)"
+  ],
+  "trigger": {
+    "analysis": [
+      "roundtrip-failure"
+    ],
+    "failure_signature": [
+      "node-name-drift"
+    ],
+    "family": [
+      "cap-e04-35ghz"
+    ],
+    "keywords": [
+      "node",
+      "name",
+      "ParseError"
+    ]
+  },
+  "type": "harness-rule"
+}

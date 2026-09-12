@@ -1,0 +1,36 @@
+{
+  "applicability": {
+    "applies": "when topology matching requires plausible device placement",
+    "not": "when match_plausible is not enforced"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-09-12",
+  "evidence": [
+    {
+      "quote": "[cap-e08-wideband/screen] L0 screen rejected: failed match_plausible",
+      "source": "verbatim candidate errors"
+    }
+  ],
+  "id": "match-plausible-failure",
+  "rule": "Verify match_plausible conditions during initial screening to prevent invalid topologies from advancing.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-09-12)"
+  ],
+  "trigger": {
+    "analysis": [
+      "screen-rejection"
+    ],
+    "failure_signature": [
+      "match_plausible"
+    ],
+    "family": [
+      "cap-e08-wideband"
+    ],
+    "keywords": [
+      "match_plausible",
+      "screen rejected"
+    ]
+  },
+  "type": "anti-pattern"
+}

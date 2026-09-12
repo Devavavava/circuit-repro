@@ -12,6 +12,15 @@ Validation runs (real ngspice): arm R on cap-e02 (3/3 valid, 3/3 smoke,
 best wm s11 −0.14) and cap-m07 (3/3, 3/3, binding delta +0.015). Arm R
 seed fixed at 1. No spec-level R/M campaign rows existed at freeze.
 
+**Post-freeze materialization notes (logged, mechanical):** (1) per-cell
+RNG seed derives from --seed + cell NAME (sha256), not cell index —
+invariant under --only subsetting, strictly more reproducible; (2) driver
+DEFAULT seed is 12345 (builder's validation seed); the campaign passes
+--seed 1 explicitly per this freeze; (3) site inventories: c1 11
+(move,site) pairs, c3 13; add_second_stage_CS correctly self-excludes on
+c3 (device budget); (4) builder's negative tests confirm each invariant
+rejects its intended violation class.
+
 User GO 2026-09-13 ("setup and run move library test"). Rationale from the
 editcap adjudication: the LLM cannot author valid netlists reliably but
 names techniques correctly — so make edits VALID BY CONSTRUCTION (generic

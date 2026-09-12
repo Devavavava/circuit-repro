@@ -1,0 +1,59 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+NMOS NM3 n6 n7 VSS VSS
+```
+
+**Prediction**: The addition of NM3 (source-coupled diode-connected NMOS between n6 and n7) creates a current mirror-like feedback path that stabilizes the bias point of the input pair. This reduces thermal noise and improves transconductance efficiency. **nf_db is predicted to improve by ~0.7 dB** due to better gate voltage control and reduced flicker noise.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+PMOS PM3 n6 n2 VDD VDD
+```
+
+**Prediction**: Replacing the diode-connected PM2 with a PMOS (PM3) tied from n6 to n2 creates a current-steering path that actively pulls current into the gate of NM1. This increases transconductance gain and improves input matching. **nf_db is predicted to improve by ~0.6 dB** due to enhanced gain and reduced gate noise contribution.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C5 n2 n3
+```
+
+**Prediction**: Adding a capacitor C5 between gate nodes n2 and n3 introduces a local feedback path that stabilizes the gate voltage difference between NM1 and PM1, improving input impedance matching and reducing phase noise. This enhances noise figure by reducing gate leakage and improving common-mode rejection. **nf_db is predicted to improve by ~0.5 dB**.

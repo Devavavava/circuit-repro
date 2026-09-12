@@ -1,0 +1,189 @@
+{
+  "index": 1,
+  "round": 1,
+  "predicted_delta_text": "**Prediction**: s11_db improves by ~3 dB.  \n*Reasoning*: Replacing the diode-connected NMOS (NM3) with a diode-connected PMOS (PM1) at the gate node (n3) changes the DC biasing behavior. The PMOS provides a higher impedance path from VDD to the gate node (n3), reducing the effective loading on the input and improving input return loss. This structural change enhances input impedance matching.\n\n---",
+  "wl_hash": "26e0d9ff05abd365",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 6.2485170000000005,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -21.9041,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 3.12564,
+    "metrics": {
+      "s11_db": -0.35529,
+      "s11_max_db": -0.352484,
+      "s21_db": 6.59457,
+      "s21_min_db": 6.53509,
+      "idd_ma": 3.748799,
+      "nf_db": 2.465421,
+      "s22_db": -7.66442,
+      "s22_max_db": -7.32056,
+      "s12_db": -58.6734,
+      "k_f0": 13.2053,
+      "k_min": 12.7621,
+      "mu_f0": 2.28956,
+      "mu_min": 2.19651,
+      "mu_src_f0": 1.03893,
+      "mu_src_min": 1.03877,
+      "delta_f0": 0.398009,
+      "delta_max": 0.41382,
+      "stab_band": [
+        902000000.0,
+        928000000.0
+      ],
+      "s21_ripple_db": 0.1019799999999993,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.465421,
+        "required_min": null,
+        "required_max": 1.6,
+        "scale": 1.6,
+        "margin": -0.5408881249999999,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.35529,
+        "required_min": null,
+        "required_max": -13,
+        "scale": 13,
+        "margin": -0.97267,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 6.59457,
+        "required_min": 17,
+        "required_max": null,
+        "scale": 17,
+        "margin": -0.6120841176470587,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 3.748799,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": 0.06280025,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.97267
+    ],
+    "seed": 1,
+    "seconds": 62.149,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 6.2485170000000005,
+  "escalated": true,
+  "sized_escalated": {
+    "feasible": false,
+    "best_obj": 3.00239,
+    "metrics": {
+      "s11_db": -0.181033,
+      "s11_max_db": -0.178454,
+      "s21_db": 6.97624,
+      "s21_min_db": 6.83876,
+      "idd_ma": 4.350632,
+      "nf_db": 2.142434,
+      "s22_db": -8.66728,
+      "s22_max_db": -8.53801,
+      "s12_db": -58.5336,
+      "k_f0": 6.88841,
+      "k_min": 6.69178,
+      "mu_f0": 2.50121,
+      "mu_min": 2.46634,
+      "mu_src_f0": 1.01857,
+      "mu_src_min": 1.01846,
+      "delta_f0": 0.362635,
+      "delta_max": 0.368249,
+      "stab_band": [
+        902000000.0,
+        928000000.0
+      ],
+      "s21_ripple_db": 0.25088000000000044,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.142434,
+        "required_min": null,
+        "required_max": 1.6,
+        "scale": 1.6,
+        "margin": -0.33902125000000005,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.181033,
+        "required_min": null,
+        "required_max": -13,
+        "scale": 13,
+        "margin": -0.9860743846153847,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 6.97624,
+        "required_min": 17,
+        "required_max": null,
+        "scale": 17,
+        "margin": -0.5896329411764706,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 4.350632,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": -0.08765800000000001,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.9860743846153847
+    ],
+    "seed": 3,
+    "seconds": 188.328,
+    "evals": 1800,
+    "sim_health": {
+      "n_evals": 1800,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  }
+}

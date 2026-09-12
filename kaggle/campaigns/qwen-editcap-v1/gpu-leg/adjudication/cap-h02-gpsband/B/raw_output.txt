@@ -1,0 +1,70 @@
+### 1. DIAGNOSIS:
+
+The circuit fails primarily due to **poor input match (S11)**, which is **-0.22 dB** (far below the required **-12 dB**), and this is the binding constraint with a margin of **-0.98 dB** (normalized). The negative margin indicates a significant mismatch at the input. 
+
+The anchor netlist uses a **common-source LNA with a source degeneration resistor R2**, but the **source is not properly isolated from the input**, and **no input matching network** is present. The input is directly connected to the gate via C1 and L1, which are not tuned for 50Ω matching at 1.575 GHz. The gate is also tied to a DC node (n3) through NM1, which introduces a low-impedance path to ground at RF, degrading input impedance. The **source of NM1 is grounded via R2 to n3**, but the **source is not properly AC-decoupled**, causing the source impedance to appear in parallel with the input, shunting the signal and degrading S11.
+
+Additionally, the **source degeneration resistor R2 is connected directly to the gate node (n3)**, which is a **critical error** — this creates a **direct RF path from source to gate**, creating **negative feedback and poor input impedance control**, and likely causing **high input reflection**.
+
+Moreover, **NM3 is a floating device (n6 n6)** — this is invalid and likely causes simulation issues. This suggests a design flaw in the bias network, but since we are not allowed to add biasing, we must assume it’s a placeholder. However, its presence indicates an incomplete or incorrect biasing structure.
+
+### 2. PROPOSED STRUCTURAL EDITS (3 distinct topology changes):
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L4 n1 VSS
+```
+
+**PREDICTION**:  
+`s11_db improves by ~4 dB` — adding an **input AC ground (L4)** at the input node (n1) provides a low-impedance RF path to ground, stabilizing the input impedance and enabling better matching. The inductor L4, placed between VIN1 and VSS, acts as a **RF short** at 1.575 GHz, **improving input matching** by preventing signal leakage through the gate node. This is a **classic input matching technique** in LNAs.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+C C3 n3 VSS
+```
+
+**PREDICTION**:  
+`s11_db improves by ~3 dB` — replacing the resistor R2 with a **capacitor C3 to ground** at the source node (n3) **removes the resistive degeneration** and instead provides **AC grounding** of the source. This **reduces the source impedance seen at RF**, which improves input impedance matching. The capacitor **shunts the source to ground at RF**, effectively **removing the source degeneration effect** that was degrading S11, while still allowing DC bias. This is a **common trick in LNA design to improve input match**.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+C C3 VIN1 n3
+```
+
+**PREDICTION**:  
+`s11_db improves by ~5 dB` — adding a **capacitive feedback path (C3)** from the **input (VIN1) directly to the gate node (n3)** creates **positive feedback** that **tunes the input impedance**. At 1.575 GHz, this capacitor **resonates with the input inductance (L1)**, forming a **tuned input network** that **enhances input match**. This is a **classic input matching technique** in narrowband LNAs. The capacitor C3 **creates a parallel resonant circuit with L1**, pulling the input impedance toward 50Ω, which significantly improves S11.
+
+---

@@ -1,0 +1,23 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**Prediction**: s11_db improves by ~4 dB.  \n*Reasoning*: Adding a low-impedance path from the gate node (n3) to VSS via L4 (a short at DC) stabilizes the gate DC bias and reduces the effective input impedance mismatch. The inductor provides a low-impedance DC path to ground while being open at RF, thus improving the input match (S11) without affecting RF gain. This structural edit directly addresses the S11 failure by grounding the gate node at DC, which reduces reflection.",
+  "wl_hash": "60a45e918b908cb5",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "fence_fail",
+  "fence_detail": {
+    "passed": false,
+    "idd_ma": 1.477597,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -100.477,
+    "s21_ok": false,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": null,
+  "error": null,
+  "smoke_idd_ma": 1.477597
+}

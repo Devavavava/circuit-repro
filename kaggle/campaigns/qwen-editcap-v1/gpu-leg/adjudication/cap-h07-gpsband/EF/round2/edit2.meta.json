@@ -1,0 +1,23 @@
+{
+  "index": 2,
+  "round": 2,
+  "predicted_delta_text": "**Prediction:** s11_db improves by ~4.0 dB.  \n*Reasoning:* Replacing the resistive path R2 (n6\u2013n3) with an inductor L4 (n3\u2013VSS) creates a low-impedance AC path to ground at the gate node, significantly lowering the effective input impedance. This dramatically improves input matching by providing a stable AC ground for the gate, reducing reflections. The inductor resonates with input capacitance, enhancing the input match at 1.575 GHz.",
+  "wl_hash": "60a45e918b908cb5",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "fence_fail",
+  "fence_detail": {
+    "passed": false,
+    "idd_ma": 5.811243,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -86.1122,
+    "s21_ok": false,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": null,
+  "error": null,
+  "smoke_idd_ma": 5.811243
+}

@@ -1,0 +1,105 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**PREDICTION:**  \n\u2192 **s11_db improves by ~6 dB**. The addition of **NM4** (source follower) with gate tied to **n6**, source to **n3**, and bulk to VSS creates a **buffering effect**. Since **n6** is a stable bias node (via R1 and NM3), NM4 **drives the gate of NM1** with a low-impedance output. This effectively **lowers the gate impedance** at RF, improving input match. The source follower provides **AC grounding** at the gate node via its low output impedance. This structural change is more aggressive than a simple capacitor and provides better control of gate impedance.\n\n---",
+  "wl_hash": "ad74c717a273a516",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 2.4427670000000004,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -3.72348,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.69701,
+    "metrics": {
+      "s11_db": -0.203522,
+      "s11_max_db": -0.199301,
+      "s21_db": 9.31424,
+      "s21_min_db": 9.27383,
+      "idd_ma": 1.940154,
+      "nf_db": 2.333007,
+      "s22_db": -8.06621,
+      "s22_max_db": -7.58106,
+      "s12_db": -49.9814,
+      "k_f0": 2.15757,
+      "k_min": 2.15063,
+      "mu_f0": 1.63339,
+      "mu_min": 1.58348,
+      "mu_src_f0": 1.0131,
+      "mu_src_min": 1.01292,
+      "delta_f0": 0.387648,
+      "delta_max": 0.409378,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.07052999999999976,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.333007,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -0.29611499999999985,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.203522,
+        "required_min": null,
+        "required_max": -12,
+        "scale": 12,
+        "margin": -0.9830398333333333,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 9.31424,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": -0.41786,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 1.940154,
+        "required_min": null,
+        "required_max": 3,
+        "scale": 3,
+        "margin": 0.35328200000000004,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -6,
+        "required_max": null,
+        "scale": 6,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.9830398333333333
+    ],
+    "seed": 2,
+    "seconds": 65.17,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 2.4427670000000004
+}

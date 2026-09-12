@@ -1,0 +1,105 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "**Prediction**: `nf_db` improves by **~0.6 dB** (predicted: 1.58 dB).  \n*Justification*: The cascode NM4 increases output impedance of NM1 and reduces noise contribution from the input transistor by lowering its effective transconductance and shielding it from gate-to-drain feedback (Miller effect). This improves noise figure significantly.\n\n---\n\n### EDIT 2: **Replace resistive load with a current source (improves NF and gain via higher output impedance)**",
+  "wl_hash": "2a87ef4cb544f638",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 3.362387,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -5.75273,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.33309,
+    "metrics": {
+      "s11_db": -0.58953,
+      "s11_max_db": -0.569668,
+      "s21_db": 10.932,
+      "s21_min_db": 10.7589,
+      "idd_ma": 4.2467690000000005,
+      "nf_db": 1.576922,
+      "s22_db": -4.50683,
+      "s22_max_db": -4.02816,
+      "s12_db": -45.4937,
+      "k_f0": 2.43814,
+      "k_min": 2.40496,
+      "mu_f0": 1.43268,
+      "mu_min": 1.37292,
+      "mu_src_f0": 1.0459,
+      "mu_src_min": 1.04488,
+      "delta_f0": 0.564379,
+      "delta_max": 0.594058,
+      "stab_band": [
+        2400000000.0,
+        2483500000.0
+      ],
+      "s21_ripple_db": 0.29249999999999865,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 1.576922,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": 0.12393222222222228,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.58953,
+        "required_min": null,
+        "required_max": -13,
+        "scale": 13,
+        "margin": -0.9546515384615385,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 10.932,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": -0.31675,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 4.2467690000000005,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": -0.061692250000000115,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.9546515384615385
+    ],
+    "seed": 1,
+    "seconds": 62.668,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 3.362387
+}

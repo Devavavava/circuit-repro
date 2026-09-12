@@ -1,0 +1,16 @@
+### DIAGNOSIS:
+The circuit fails primarily due to **poor input match (S11)**, which is **-0.69 dB** (well below the required **-14 dB**). The failure is exacerbated by **excessive Idd (3.25 mA)** and **elevated NF (1.85 dB)**. However, the binding constraint is S11, with a margin of **-0.95 dB**, meaning it's the most violated.
+
+The root cause of poor S11 lies in the **input impedance mismatch** at 1.58 GHz. The input is dominated by:
+- **C1** (input series capacitor) and **L1** (input inductor) forming a **resonant LC tank** at the design frequency.
+- But the **gate of NM1 is tied to VDD via a diode-connected NMOS (NM3)** and a resistor chain (R1–R2), creating a **high-impedance DC path** that is **not properly terminated** at RF.
+
+The gate of NM1 (node n3) is biased via **R1–R2** from VDD, but there's **no low-impedance RF ground path** to VSS for the gate node. This makes the **gate node have high RF impedance**, effectively **opening the input port** and causing **high reflection (S11)**.
+
+Additionally, **NM2’s gate is directly tied to VDD**, which is a **DC source but not a RF ground** — this creates an **unintended RF path** that adds to input mismatch. The lack of a **proper RF bypass at the gate node (n3)** and the **missing low-Z termination** at the input node (n1) due to high impedance at the gate are the primary physical limitations.
+
+Thus, the **main issue is lack of RF grounding at the gate node (n3)**, resulting in **high input impedance** and **poor S11**.
+
+---
+
+### EDIT 1: Add a grounded RF bypass capacitor at the gate node (n3) to improve input match

@@ -1,0 +1,105 @@
+{
+  "index": 0,
+  "round": 2,
+  "predicted_delta_text": "Predicted: s21_db improves by ~1.5 dB (due to reduced parasitic loading from repositioning L1 to directly connect VIN1 to n3, improving input matching and gain).",
+  "wl_hash": "b80fce0d3e6dc6ad",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 4.308061,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -3.51827,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.10058,
+    "metrics": {
+      "s11_db": -0.0429336,
+      "s11_max_db": -0.0416136,
+      "s21_db": 8.94058,
+      "s21_min_db": 8.87293,
+      "idd_ma": 13.55791,
+      "nf_db": 1.828806,
+      "s22_db": -8.4096,
+      "s22_max_db": -8.04746,
+      "s12_db": -56.4326,
+      "k_f0": 1.08429,
+      "k_min": 1.05354,
+      "mu_f0": 1.07218,
+      "mu_min": 1.04323,
+      "mu_src_f0": 1.00042,
+      "mu_src_min": 1.00028,
+      "delta_f0": 0.378868,
+      "delta_max": 0.39466,
+      "stab_band": [
+        902000000.0,
+        928000000.0
+      ],
+      "s21_ripple_db": 0.11663000000000068,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 1.828806,
+        "required_min": null,
+        "required_max": 3.5,
+        "scale": 3.5,
+        "margin": 0.477484,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.0429336,
+        "required_min": null,
+        "required_max": -8,
+        "scale": 8,
+        "margin": -0.9946333,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 8.94058,
+        "required_min": 10,
+        "required_max": null,
+        "scale": 10,
+        "margin": -0.10594199999999994,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 13.55791,
+        "required_min": null,
+        "required_max": 15,
+        "scale": 15,
+        "margin": 0.09613933333333335,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.9946333
+    ],
+    "seed": 2,
+    "seconds": 60.215,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 4.308061
+}

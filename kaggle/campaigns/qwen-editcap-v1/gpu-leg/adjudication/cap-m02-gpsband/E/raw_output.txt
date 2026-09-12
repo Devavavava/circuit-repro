@@ -1,0 +1,62 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C5 n2 n5
+```
+
+Predicted: s11_db improves by ~2.5 dB.  
+Reason: Adding a shunt capacitor (C5) between gate (n2) and drain (n5) of NM1 creates a feedback path that stabilizes the input impedance, reducing reflection at the input (improving S11) by counteracting the inductive reactance of L1 and reducing the input VSWR. This is a classic input matching enhancement in LNA topologies.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+L L3 n2 n5
+```
+
+Predicted: s11_db improves by ~3.0 dB.  
+Reason: Inserting an inductor (L3) between gate (n2) and drain (n5) of NM1 introduces a feedback inductor that creates a resonant network at f0, enhancing input matching. This forms a series-LC path that cancels out the input reactance from L1 and C1, directly improving S11. The topology resembles a feedback LNA with improved input impedance matching.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C6 n1 n2
+```
+
+Predicted: s11_db improves by ~2.0 dB.  
+Reason: Adding a shunt capacitor (C6) between input node (n1) and gate (n2) creates a low-pass filter that reduces high-frequency reflections and tunes the input impedance toward 50 Ω. This is a common technique in narrowband LNAs to improve input match by damping input reactance and enabling better series resonance with L1, directly addressing the S11 failure.

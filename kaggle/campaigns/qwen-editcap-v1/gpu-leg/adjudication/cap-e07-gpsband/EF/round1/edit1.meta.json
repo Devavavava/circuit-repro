@@ -1,0 +1,189 @@
+{
+  "index": 1,
+  "round": 1,
+  "predicted_delta_text": "**Prediction:** s11_db improves by ~3.0 dB.  \n*Reasoning: The failure in S11 is due to excessive loading at the gate of NM1 (n2), which is driven by a resistive divider (R1/R2) and a diode-connected NMOS (NM2) that pulls down the gate node too strongly. Introducing a diode-connected PMOS (PM3) at node n2 (gate of NM1) provides a high-impedance, positive feedback path that increases the effective input impedance at the gate node. This stabilizes the gate voltage and reduces the AC current drawn from the input, improving input match. PM3 provides a complementary biasing mechanism that enhances S11 without degrading gain or noise.*",
+  "wl_hash": "a416d8336f72fb6c",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 3.566086,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -0.408235,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.26518,
+    "metrics": {
+      "s11_db": -1.74243,
+      "s11_max_db": -1.73435,
+      "s21_db": 7.62149,
+      "s21_min_db": 7.60882,
+      "idd_ma": 10.68878,
+      "nf_db": 3.017018,
+      "s22_db": -1.10358,
+      "s22_max_db": -1.09888,
+      "s12_db": -28.1294,
+      "k_f0": 0.441696,
+      "k_min": 0.439742,
+      "mu_f0": 0.836069,
+      "mu_min": 0.834696,
+      "mu_src_f0": 0.758866,
+      "mu_src_min": 0.755194,
+      "delta_f0": 0.726939,
+      "delta_max": 0.726945,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.025350000000000428,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.017018,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": -0.005672666666666733,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -1.74243,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.825757,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 7.62149,
+        "required_min": 12,
+        "required_max": null,
+        "scale": 12,
+        "margin": -0.36487583333333334,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 10.68878,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": -0.06887799999999995,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -8,
+        "required_max": null,
+        "scale": 8,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.825757
+    ],
+    "seed": 1,
+    "seconds": 66.993,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 3.566086,
+  "escalated": true,
+  "sized_escalated": {
+    "feasible": false,
+    "best_obj": 2.17118,
+    "metrics": {
+      "s11_db": -2.66647,
+      "s11_max_db": -2.63799,
+      "s21_db": 8.51109,
+      "s21_min_db": 8.48236,
+      "idd_ma": 9.118998,
+      "nf_db": 3.441249,
+      "s22_db": -0.332941,
+      "s22_max_db": -0.322854,
+      "s12_db": -26.8414,
+      "k_f0": 0.422869,
+      "k_min": 0.421605,
+      "mu_f0": 0.844496,
+      "mu_min": 0.843396,
+      "mu_src_f0": 0.316304,
+      "mu_src_min": 0.303683,
+      "delta_f0": 0.754914,
+      "delta_max": 0.755162,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.0574899999999996,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.441249,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": -0.147083,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -2.66647,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.7333529999999999,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 8.51109,
+        "required_min": 12,
+        "required_max": null,
+        "scale": 12,
+        "margin": -0.29074250000000007,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 9.118998,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": 0.08810020000000005,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -8,
+        "required_max": null,
+        "scale": 8,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.7333529999999999
+    ],
+    "seed": 2,
+    "seconds": 195.568,
+    "evals": 1800,
+    "sim_health": {
+      "n_evals": 1800,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  }
+}

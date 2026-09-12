@@ -1,0 +1,47 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n3 n6
+```
+
+**Prediction**: s21_db improves by ~1.2 dB.  
+*Reasoning*: The original circuit has a poorly placed feedback path through R2 from n3 to n6, which creates a resistive degeneration at the source of NM2 (n5), reducing gain. By repositioning R2 from n6 to n3 (connecting to the drain of NM1), we reduce the feedback degeneration on the input stage, increasing forward gain (S21) while preserving stability and noise performance. This structural change directly targets the S21 deficit.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n3 n5
+```
+
+**Prediction**: s21_db improves by ~1.5 dB.  
+*Reasoning*: Moving R2 from n6 to connect between n3 (drain of NM1) and n5 (source of NM2) introduces a controlled source degeneration at the input transistor’s source, enhancing linearity and improving gain via feedback stabilization. This topology shift improves voltage gain by reducing the effective transconductance loss from the source resistor, while maintaining low noise. It also improves IIP3 (though not in the constraint list), indirectly supporting S21 performance.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n5 n3
+```
+
+**Prediction**: s21_db improves by ~1.8 dB.  
+*Reasoning*: Placing R2 directly between the source (n5) and drain (n3) of NM1 creates a resistive feedback path that stabilizes the input stage and increases effective gain by reducing the Miller effect and improving transconductance utilization. This configuration enhances the forward gain (S21) significantly while keeping the biasing and noise performance intact. It is structurally distinct from the others due to the internal feedback within the first stage.

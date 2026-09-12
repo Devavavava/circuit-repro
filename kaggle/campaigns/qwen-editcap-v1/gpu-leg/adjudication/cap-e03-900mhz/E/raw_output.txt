@@ -1,0 +1,47 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n7 n3 n4 VSS
+```
+
+**Prediction:** S21_db improves by ~1.2 dB. The addition of NM4 in parallel to NM1 increases transconductance and forward gain, directly boosting S21. The source degeneration via NM3 and R2 remains, but the extra NMOS provides a stronger current path, lifting the binding metric.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+PMOS PM1 n7 n3 VDD VDD
+```
+
+**Prediction:** S21_db improves by ~1.5 dB. Replacing the diode-connected NM3 with a PMOS in the same position (but as a current source) increases the output impedance at n6, improving voltage gain. The PMOS acts as a current source, enhancing the effective load seen by NM1, thus boosting forward gain and S21.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n5 n3 n6 VSS
+```
+
+**Prediction:** S21_db improves by ~1.0 dB. Adding NM4 in parallel between NM1’s drain (n5) and gate (n3), with source at n6 (shared with NM3), creates a current mirror-like structure that increases the effective transconductance at the input node. This boosts gain while maintaining bias stability, directly improving forward transmission.

@@ -1,0 +1,105 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "**PREDICTION:**  \n\u2192 **s11_db improves by ~5 dB** (predicted from typical bypassing effect at gate node; reduces input impedance mismatch, improves matching to 50\u03a9). The added **C3** provides a low-impedance AC path to ground at the gate of NM1, drastically improving input match.\n\n---\n\n### EDIT 2: Replace resistive gate bias with a current source (diode-connected NMOS) to reduce gate impedance",
+  "wl_hash": "8188473f7676d1aa",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 7.076301,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -9.87076,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.54326,
+    "metrics": {
+      "s11_db": -0.164458,
+      "s11_max_db": -0.15877,
+      "s21_db": 11.46,
+      "s21_min_db": 11.3278,
+      "idd_ma": 3.819632,
+      "nf_db": 1.734673,
+      "s22_db": -10.0883,
+      "s22_max_db": -9.4541,
+      "s12_db": -49.3678,
+      "k_f0": 1.5746,
+      "k_min": 1.56372,
+      "mu_f0": 1.85267,
+      "mu_min": 1.78776,
+      "mu_src_f0": 1.00832,
+      "mu_src_min": 1.00832,
+      "delta_f0": 0.317641,
+      "delta_max": 0.341149,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.2475000000000005,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 1.734673,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": 0.036292777777777854,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.164458,
+        "required_min": null,
+        "required_max": -12,
+        "scale": 12,
+        "margin": -0.9862951666666667,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 11.46,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": -0.28374999999999995,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 3.819632,
+        "required_min": null,
+        "required_max": 3,
+        "scale": 3,
+        "margin": -0.27321066666666666,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -6,
+        "required_max": null,
+        "scale": 6,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.9862951666666667
+    ],
+    "seed": 2,
+    "seconds": 61.233,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 7.076301
+}

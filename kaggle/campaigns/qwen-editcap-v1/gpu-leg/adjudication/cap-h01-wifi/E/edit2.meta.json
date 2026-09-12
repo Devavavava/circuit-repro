@@ -1,0 +1,105 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**Prediction**: NF_db improves by ~0.4 dB.  \n*Reasoning*: Adding a source-degenerated NMOS (NM4) between n3 and n5 (the common source node) introduces local feedback, reducing transconductance variation and increasing linearity. This reduces noise figure by improving the input stage's stability and suppressing noise from the gain stage, particularly critical at high gain where noise is amplified. The degeneration improves NF without significantly degrading gain.",
+  "wl_hash": "f243340971336f7a",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 6.412725999999999,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -26.9442,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.36649,
+    "metrics": {
+      "s11_db": -1.69773,
+      "s11_max_db": -1.6279,
+      "s21_db": 11.9517,
+      "s21_min_db": 11.1108,
+      "idd_ma": 3.962757,
+      "nf_db": 2.239316,
+      "s22_db": -3.62927,
+      "s22_max_db": -2.88351,
+      "s12_db": -44.5407,
+      "k_f0": 4.43291,
+      "k_min": 4.31627,
+      "mu_f0": 1.48302,
+      "mu_min": 1.36801,
+      "mu_src_f0": 1.19349,
+      "mu_src_min": 1.18789,
+      "delta_f0": 0.564021,
+      "delta_max": 0.612837,
+      "stab_band": [
+        2400000000.0,
+        2483500000.0
+      ],
+      "s21_ripple_db": 1.6120999999999999,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.239316,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -0.24406444444444447,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -1.69773,
+        "required_min": null,
+        "required_max": -13,
+        "scale": 13,
+        "margin": -0.8694053846153846,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 11.9517,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": -0.25301874999999996,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 3.962757,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": 0.009310750000000034,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.8694053846153846
+    ],
+    "seed": 1,
+    "seconds": 63.284,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 6.412725999999999
+}

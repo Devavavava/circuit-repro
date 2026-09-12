@@ -1,0 +1,8 @@
+### DIAGNOSIS:
+The binding constraint is **S11_max_db = -3.22284 dB** (margin = -0.597 dB), which fails the specification of ≤ -8 dB. This indicates **poor input matching** at the 1.75 GHz center frequency. The circuit's input impedance is poorly matched to 50 Ω, likely due to the **high input reactance** caused by the series inductor L1 and the shunt capacitance C1, combined with **lack of a proper input impedance transformation path**. The NMOS transistor NM1 is directly connected between input (via L1) and output (via L2), forming a **common-source topology with no input matching network**. Additionally, the presence of two unused, floating-gate MOS transistors (NM2 and PM2) with gates tied to source (i.e., diode-connected) introduces parasitic capacitance and possibly degrades input matching without providing benefit.
+
+The dominant issue is **no intentional input matching network** (e.g., source degeneration, series/parallel tuning) to transform the input impedance to 50 Ω across the 0.5–3 GHz band. The current topology relies on L1–C1 for matching, but without proper sizing or feedback, it cannot achieve acceptable S11 across the band.
+
+---
+
+### EDIT 1: Add a series input inductor and shunt capacitor for input matching (L-C input matching network)

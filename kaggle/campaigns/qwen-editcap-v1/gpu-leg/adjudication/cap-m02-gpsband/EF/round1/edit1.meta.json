@@ -1,0 +1,105 @@
+{
+  "index": 1,
+  "round": 1,
+  "predicted_delta_text": "Predicted: s11_db improves by ~2.8 dB.  \nReason: Replacing NM2 with a PMOS (PM3) in a cascode-like configuration between gate (n2) and drain (n6) provides a higher impedance at the gate node, reducing the loading effect and increasing input impedance. The PM3 acts as a current source with higher output impedance than NM2, improving input matching and reducing signal reflection.",
+  "wl_hash": "268d625b0bc46095",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 6.877743000000001,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -3.27104,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 3.13039,
+    "metrics": {
+      "s11_db": -0.951718,
+      "s11_max_db": -0.940016,
+      "s21_db": 5.45225,
+      "s21_min_db": 5.41919,
+      "idd_ma": 5.743774,
+      "nf_db": 3.225753,
+      "s22_db": -4.45687,
+      "s22_max_db": -4.43939,
+      "s12_db": -24.5062,
+      "k_f0": 0.527071,
+      "k_min": 0.525888,
+      "mu_f0": 0.705535,
+      "mu_min": 0.704231,
+      "mu_src_f0": 0.913982,
+      "mu_src_min": 0.91231,
+      "delta_f0": 0.528306,
+      "delta_max": 0.52893,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.0662199999999995,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.225753,
+        "required_min": null,
+        "required_max": 2.2,
+        "scale": 2.2,
+        "margin": -0.46625136363636355,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.951718,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.9048282000000001,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 5.45225,
+        "required_min": 14,
+        "required_max": null,
+        "scale": 14,
+        "margin": -0.6105535714285715,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 5.743774,
+        "required_min": null,
+        "required_max": 5,
+        "scale": 5,
+        "margin": -0.14875480000000002,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -8,
+        "required_max": null,
+        "scale": 8,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.9048282000000001
+    ],
+    "seed": 2,
+    "seconds": 64.262,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 6.877743000000001
+}

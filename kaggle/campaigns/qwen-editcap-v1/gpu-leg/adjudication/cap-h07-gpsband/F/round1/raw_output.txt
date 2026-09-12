@@ -1,0 +1,60 @@
+### DIAGNOSIS:
+The binding constraint is **S11_db = -0.69 dB**, which fails by **0.95 dB** below the required **-14 dB**. The circuit is poorly matched at the input, indicating a significant impedance mismatch between the source (50 Ω) and the input of the LNA. The current topology uses a **common-source amplifier with a single NMOS (NM1)** and a **shunt inductor (L1)** from gate to ground (via n3), but the input is not properly tuned. The input network lacks a **series inductor (or shunt capacitor)** to resonate out the gate capacitance and provide proper impedance matching at 1.58 GHz. Additionally, the gate biasing via NM2 and NM3 is non-standard (NM3 is a diode-connected NMOS with gate tied to source, but not properly connected to provide stable DC bias). The gate of NM1 is tied directly to node n3, which is also connected to L1 and R2 — this creates a weak and uncontrolled gate bias, contributing to poor input match. The dominant issue is **lack of a proper input matching network** and **unstable or incorrect DC biasing** at the gate, leading to degraded S11.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n3 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L4 n3 VIN1
+```
+
+**Prediction**: S11_db improves by **~4 dB** (predicted achieved: ~3.3 dB).  
+*Reasoning*: Adding **L4 in series from VIN1 to the gate (n3)** creates a **series inductor** for input matching. At 1.58 GHz, this resonates with the gate-source capacitance (Cgs) of NM1, forming a low-pass LC matching network. This improves input impedance matching toward 50 Ω, directly improving S11.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+C C3 n3 VSS
+```
+
+**Prediction**: S11_db improves by **~5 dB** (predicted achieved: ~4.3 dB).  
+*Reasoning*: Adding **C3 from gate (n3) to VSS** creates a **shunt capacitive path** to ground, forming a **shunt-series LC network** with L1. This resonates with the input capacitance at 1.58 GHz, improving the input return loss. The shunt capacitance helps tune out the inductive reactance of L1, pulling the input impedance toward 50 Ω. This is a standard technique for input matching in LNA design.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L4 VIN1 n3
+C C3 n3 VSS
+```
+
+**Prediction**: S11_db improves by **~6 dB** (predicted achieved: ~5.3 dB).  
+*Reasoning*: This topology combines both **series inductance (L4 from VIN1 to n3)** and **shunt capacitance (C3 from n3 to VSS)**, forming a **complete LC matching network** at the input. The series inductor (L4) and shunt capacitor (C3) form a **series-LC resonator** that matches the input impedance to 50 Ω at 1.58 GHz. This is a standard, effective method for narrowband LNA input matching. The combination of series inductance and shunt capacitance provides strong, tunable matching, directly addressing the input mismatch that caused the S11 failure.

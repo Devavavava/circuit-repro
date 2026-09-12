@@ -1,0 +1,14 @@
+### DIAGNOSIS:
+The circuit fails primarily due to **poor input matching (S11)**, which is **-1.84 dB** (margin = -0.85 dB), falling short of the required **≤ -12 dB**. This is the binding constraint. The root cause lies in the **input impedance mismatch** at 1.58 GHz, exacerbated by the **lack of deliberate input impedance transformation** and **unbalanced parasitic loading** from the NMOS gate (NM1) and the inductor L1.
+
+Specifically:
+- The input is driven via C1 and L1, forming a simple LC tank, but the **gate of NM1 (node n2)** is connected directly to the inductor L1 and grounded via R2 to VSS — this creates a **shunt path to ground at high frequency**, severely degrading input reflection (S11).
+- The **PMOS PM1** (gate at n3, connected to R4 to VSS) forms a **weak, non-optimized bias** that doesn't help stabilize the input impedance.
+- **NMOS NM2 and PMOS PM2** are unused (floating gate, source tied to gate), acting as **parasitic diodes** or **uncontrolled switches**, introducing **nonlinearities and instability**.
+- The **lack of a proper input matching network** (e.g., series inductor or shunt capacitor) prevents tuning of the input impedance to 50 Ω.
+
+Thus, the **input is under-damped and mismatched**, and the **parasitic effects from unconnected transistors** further degrade performance.
+
+---
+
+### EDIT 1: Add series input inductor to improve input impedance matching

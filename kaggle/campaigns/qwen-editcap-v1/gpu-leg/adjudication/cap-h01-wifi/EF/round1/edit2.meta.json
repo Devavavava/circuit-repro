@@ -1,0 +1,105 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**Prediction:** nf_db improves by ~0.6 dB.  \n*Reasoning:* Adding an inductor (L4) from the drain of NM1 (n5) to VSS creates a tuned inductive degeneration path. This increases the input impedance at the gate (n3) and reduces the noise contribution from the transconductance of NM1 by increasing the effective source impedance. This improves the noise figure by reducing noise gain, especially at the design frequency, and enhances stability without increasing power.",
+  "wl_hash": "ecad38f280421ecd",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 6.359077,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -23.4839,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 5.36478,
+    "metrics": {
+      "s11_db": -2.58429,
+      "s11_max_db": -2.316,
+      "s21_db": 9.58633,
+      "s21_min_db": 8.54253,
+      "idd_ma": 11.778739999999999,
+      "nf_db": 3.992466,
+      "s22_db": -5.29543,
+      "s22_max_db": -4.07243,
+      "s12_db": -37.8366,
+      "k_f0": 4.47623,
+      "k_min": 4.32123,
+      "mu_f0": 1.75032,
+      "mu_min": 1.54097,
+      "mu_src_f0": 1.29851,
+      "mu_src_min": 1.26956,
+      "delta_f0": 0.439596,
+      "delta_max": 0.506254,
+      "stab_band": [
+        2400000000.0,
+        2483500000.0
+      ],
+      "s21_ripple_db": 1.9505700000000008,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.992466,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -1.2180366666666664,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -2.58429,
+        "required_min": null,
+        "required_max": -13,
+        "scale": 13,
+        "margin": -0.8012084615384616,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 9.58633,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": -0.400854375,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 11.778739999999999,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": -1.9446849999999998,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "idd_ma",
+      -1.9446849999999998
+    ],
+    "seed": 1,
+    "seconds": 59.797,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 6.359077
+}

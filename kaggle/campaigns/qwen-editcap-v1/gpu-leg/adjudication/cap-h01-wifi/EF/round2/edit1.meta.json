@@ -1,0 +1,105 @@
+{
+  "index": 1,
+  "round": 2,
+  "predicted_delta_text": "**Prediction:** The binding constraint `nf_db` will improve by ~0.4 dB. Replacing NM3 with a PMOS (PM1) in diode connection reduces the gate-induced noise contribution due to lower gate capacitance and higher output impedance compared to NMOS, while maintaining the same bias current. The PMOS\u2019s lower flicker noise and higher impedance improve the noise figure, especially at 2.44 GHz.",
+  "wl_hash": "5ee5ac3db4ce39d5",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 6.07504,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -26.1277,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 7.38591,
+    "metrics": {
+      "s11_db": -1.49542,
+      "s11_max_db": -1.45141,
+      "s21_db": -3.62789,
+      "s21_min_db": -3.97193,
+      "idd_ma": 9.659979000000002,
+      "nf_db": 6.946561,
+      "s22_db": -6.52178,
+      "s22_max_db": -6.2091,
+      "s12_db": -30.3354,
+      "k_f0": 6.05698,
+      "k_min": 5.79636,
+      "mu_f0": 2.07082,
+      "mu_min": 1.99545,
+      "mu_src_f0": 1.16896,
+      "mu_src_min": 1.16467,
+      "delta_f0": 0.417341,
+      "delta_max": 0.43101,
+      "stab_band": [
+        2400000000.0,
+        2483500000.0
+      ],
+      "s21_ripple_db": 0.5428099999999998,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 6.946561,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -2.8592005555555557,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -1.49542,
+        "required_min": null,
+        "required_max": -13,
+        "scale": 13,
+        "margin": -0.8849676923076923,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -3.62789,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": -1.226743125,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 9.659979000000002,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": -1.4149947500000004,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -2.8592005555555557
+    ],
+    "seed": 2,
+    "seconds": 62.929,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 6.07504
+}

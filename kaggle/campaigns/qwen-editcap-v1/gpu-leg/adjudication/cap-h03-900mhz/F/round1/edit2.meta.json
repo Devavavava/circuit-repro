@@ -1,0 +1,23 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**Predicted effect on binding metric (S11_db):**  \nImproves by **~5 dB**.  \n*Reason:* Adding L4 as a **shunt inductor from the gate (n3) to ground** creates a **low-impedance path at RF** for the gate node. This helps **tune the input impedance** via parallel resonance with C1 and L1. It effectively forms a **shunt LC circuit** at the input that can be tuned to resonate at 915 MHz, improving input matching. This is a standard technique in **shunt-shunt matching** topologies (e.g., in distributed or feedback LNA designs). The gate is now properly grounded at RF, which enhances input stability and reduces S11.",
+  "wl_hash": "60a45e918b908cb5",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "fence_fail",
+  "fence_detail": {
+    "passed": false,
+    "idd_ma": 1.4834640000000001,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -100.547,
+    "s21_ok": false,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": null,
+  "error": null,
+  "smoke_idd_ma": 1.4834640000000001
+}

@@ -1,0 +1,23 @@
+{
+  "index": 1,
+  "round": 1,
+  "predicted_delta_text": "**Prediction**:  \n\u2192 **s11_db improves by ~4 dB**  \n**Reason**: The input is now driven through **C1 (VIN1\u2013n1)** and a **shunt capacitor C3 (n1\u2013VSS)**. The **series LC (C1\u2013L1)** is now a **low-pass filter**, but more importantly, the **resonance at 915 MHz** is formed between **C1, L1, and C3**, creating a **shunt resonant input stage**. The gate is now grounded through **C3**, allowing better impedance control. This improves input match by tuning the input node to 50 \u03a9 at 915 MHz.\n\n---\n\n### EDIT 3: Add a Series Input Capacitor and Use Gate-Source Feedback for Matching",
+  "wl_hash": "c02f1c1a789caa3f",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "fence_fail",
+  "fence_detail": {
+    "passed": false,
+    "idd_ma": null,
+    "idd_ok": false,
+    "idd_floor_ma": 0.05,
+    "s21_db": null,
+    "s21_ok": true,
+    "s21_applied": false,
+    "s21_floor_db": null,
+    "fence_s21_flag": true
+  },
+  "sized": null,
+  "error": null,
+  "smoke_idd_ma": null
+}

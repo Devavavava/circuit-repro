@@ -1,0 +1,48 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n7 n3 VSS VSS
+```
+
+**Prediction:** s21_db improves by ~2.5 dB. The addition of a diode-connected NMOS (NM4) at the gate of NM1 (n3) increases the effective transconductance and improves gain by stabilizing the gate bias point against noise and reducing the sensitivity to input impedance mismatch, directly addressing the low S21 margin.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n8 n8 VSS VSS
+L L4 n8 n3
+```
+
+**Prediction:** s21_db improves by ~3.0 dB. Replacing the resistive gate bias (R1/R2) with an inductor (L4) in series with a diode-connected NMOS (NM4) at n3 provides a low-impedance AC path to ground at the gate node, reducing gate loss and improving input matching and gain, directly lifting the S21 performance.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+PMOS PM1 n3 n3 VSS VSS
+```
+
+**Prediction:** s21_db improves by ~2.8 dB. Adding a diode-connected PMOS (PM1) at the gate node (n3) introduces a negative resistance-like behavior that actively compensates for the gate loss, increasing the effective transconductance and gain, while stabilizing the bias point — a known technique in LNA design for boosting S21 in narrowband topologies.

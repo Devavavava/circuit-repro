@@ -1,0 +1,47 @@
+```netlist
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L1 n1 n3
+L L2 n4 VSS
+C C1 VIN1 n1
+C C2 n2 VOUT1
+```
+
+**Prediction**: s11_db improves by ~2.5 dB (target: from -0.22 to ~-2.7). The added series inductor L2 at the source of NM1 improves input matching by isolating the source from the input node, reducing the effective input impedance mismatch caused by the source degeneration.
+
+---
+
+```netlist
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+C C1 VIN1 n1
+C C2 n2 VOUT1
+```
+
+**Prediction**: s11_db improves by ~4 dB (target: from -0.22 to ~-4.2). Replacing the shunt C2 with a series L3 (at the output) improves output impedance matching and reduces the loading effect on the output node, which in turn improves input reflection by reducing the overall feedback influence from the output back to input via parasitic capacitance.
+
+---
+
+```netlist
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+C C1 VIN1 n1
+R R3 n2 VOUT1
+```
+
+**Prediction**: s11_db improves by ~5 dB (target: from -0.22 to ~-5.2). Replacing the output capacitor C2 with a resistor R3 at the output node reduces the output loading and increases output impedance, improving output matching and reducing feedback from output to input. This breaks the loop gain that degrades input match, especially in narrowband LNA designs with high gain. The resistor also helps stabilize the output node, which indirectly improves input reflection.

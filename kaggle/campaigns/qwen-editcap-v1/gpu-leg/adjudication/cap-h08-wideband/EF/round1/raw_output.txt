@@ -1,0 +1,59 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+NMOS NM3 n6 n3 VSS VSS
+```
+
+**Prediction:** s11_max_db improves by ~2.5 dB. The addition of NM3 creates a degeneration path from n6 (source of NM2) to n3 (gate of PM1), enabling better input matching by stabilizing the gate voltage of PM1 and reducing the input reflection due to mismatched impedance. This improves input return loss (S11) significantly without affecting other metrics substantially.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+PMOS PM3 n3 n2 VDD VDD
+```
+
+**Prediction:** s11_max_db improves by ~3 dB. The addition of PM3 between n3 and n2 introduces a positive feedback path that increases the input impedance seen at n2, effectively increasing the input resistance and improving input matching. This counteracts the low input impedance caused by the diode-connected PM2 and NM2, directly improving S11.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+L L3 n6 n3
+```
+
+**Prediction:** s11_max_db improves by ~4 dB. The addition of L3 between n6 and n3 forms a resonant path that stabilizes the gate voltage of PM1 (n3) against high-frequency variations. This reduces the effective input impedance mismatch caused by the bias network’s AC loading, improving input return loss. The inductor acts as a low-impedance AC path for signal feedback, enhancing matching at the input node.

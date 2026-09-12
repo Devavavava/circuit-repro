@@ -1,0 +1,83 @@
+### 1. DIAGNOSE the failure in words:
+
+The binding constraint is **S11_db = -0.236 dB**, which fails by **~0.98 dB** below the required **-13 dB**. This indicates **poor input matching** — the input impedance is not well matched to 50 Ω at 915 MHz. 
+
+Looking at the anchor netlist:
+- The input is a series LC tank (L1, C1) feeding into NM1's gate via node n3.
+- NM1 is a common-source amplifier with source degeneration (via R2 and R1?).
+- NM2 is a current mirror (with gate tied to VDD), but its source is connected to VSS — this implies it's a diode-connected NMOS acting as a current source, but its drain is tied to VDD, so it’s floating (not useful).
+- NM3 is a diode-connected NMOS (D=S=VSS) — it's just a resistor-like device, but not properly biasing anything.
+
+The key issue: **no proper input impedance transformation or matching network**. The input LC tank (L1–C1) is not tuned to 50 Ω at 915 MHz — it's likely resonating but not properly terminated. Moreover, the gate of NM1 is directly connected to the tank output (n3), but the source is grounded through NM3 (which is not a proper bias device) and R2, which is floating (R2 connects n6 to n3 — but n6 is tied to VDD via R1). Thus, the **source degeneration is not properly stabilized**, and **the input impedance is heavily loaded and mismatched**.
+
+Additionally, **NM2** is incorrectly configured: its gate is connected to VDD, and its drain to VDD — this means it’s off. It’s not serving any useful purpose. The current mirror is broken.
+
+Thus, the failure stems from:
+- **Incorrect biasing and lack of stable DC operating point**.
+- **No intentional input matching** — the LC tank is not properly terminated, and there’s no isolation or impedance transformation.
+- **Uncontrolled source degeneration** due to floating R2 and uncontrolled NM3.
+
+---
+
+### EDIT 1: Add input series inductor + gate inductor for impedance transformation (common-source with gate inductance)
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L4 VIN1 n1
+```
+
+**Predicted effect on binding metric (S11_db):**  
+Improves by **~4 dB**.  
+*Reason:* Adding L4 in series at the input creates a **low-pass input filter** and increases input inductance, which helps tune the input impedance toward 50 Ω via resonance with C1. The series inductor pushes the input impedance higher and allows better tuning of the LC tank to match 50 Ω at 915 MHz. This is a standard technique in LNA input matching.
+
+---
+
+### EDIT 2: Replace NM3 with a grounded gate NMOS to stabilize source bias (source degeneration with gate tied to VSS)
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n4 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+
+**Predicted effect on binding metric (S11_db):**  
+Improves by **~3 dB**.  
+*Reason:* NM3 was diode-connected and floating. Now, NM3 is a **source-degenerated NMOS with gate tied to VSS**, which makes it act as a **fixed current source** (like a resistor). This stabilizes the source node (n4) and provides a **controlled DC bias** for NM1. This improves gate-source voltage stability and reduces input impedance variation. The source degeneration is now properly implemented, which reduces gain variation and improves input matching via controlled impedance. This is a standard fix for unstable LNA biasing.
+
+---
+
+### EDIT 3: Add a shunt inductor from gate to ground (gate inductor for input matching)
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L4 n3 VSS
+```
+
+**Predicted effect on binding metric (S11_db):**  
+Improves by **~5 dB**.  
+*Reason:* Adding L4 as a **shunt inductor from the gate (n3) to ground** creates a **low-impedance path at RF** for the gate node. This helps **tune the input impedance** via parallel resonance with C1 and L1. It effectively forms a **shunt LC circuit** at the input that can be tuned to resonate at 915 MHz, improving input matching. This is a standard technique in **shunt-shunt matching** topologies (e.g., in distributed or feedback LNA designs). The gate is now properly grounded at RF, which enhances input stability and reduces S11.

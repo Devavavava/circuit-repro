@@ -1,0 +1,189 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**PREDICTION**:  \n`s11_db improves by ~3.5 dB` \u2014 adding a gate-to-drain feedback capacitor (C3) and a gate-to-gate inductor (L4) creates a **folded cascode with feedback**. The feedback stabilizes gain and reduces input impedance through negative feedback, while the inductor L4 provides AC grounding to VDD at the gate node. This topology enhances input match by reducing the effective input impedance seen at VIN1, improving S11 significantly.",
+  "wl_hash": "c6aed49b63b436e5",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 1.807523,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -6.52215,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.90607,
+    "metrics": {
+      "s11_db": -11.6818,
+      "s11_max_db": -11.6014,
+      "s21_db": 0.764819,
+      "s21_min_db": 0.731912,
+      "idd_ma": 2.518177,
+      "nf_db": 3.469247,
+      "s22_db": -5.03653,
+      "s22_max_db": -5.0169,
+      "s12_db": -25.579,
+      "k_f0": 5.52728,
+      "k_min": 5.47068,
+      "mu_f0": 1.5886,
+      "mu_min": 1.58385,
+      "mu_src_f0": 2.70499,
+      "mu_src_min": 2.68034,
+      "delta_f0": 0.128675,
+      "delta_max": 0.130263,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.06195200000000001,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.469247,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -0.9273594444444445,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -11.6818,
+        "required_min": null,
+        "required_max": -12,
+        "scale": 12,
+        "margin": -0.026516666666666595,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 0.764819,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": -0.9521988125,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 2.518177,
+        "required_min": null,
+        "required_max": 3,
+        "scale": 3,
+        "margin": 0.16060766666666662,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -6,
+        "required_max": null,
+        "scale": 6,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s21_db",
+      -0.9521988125
+    ],
+    "seed": 2,
+    "seconds": 60.891,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 1.807523,
+  "escalated": true,
+  "sized_escalated": {
+    "feasible": false,
+    "best_obj": 2.51672,
+    "metrics": {
+      "s11_db": -13.6671,
+      "s11_max_db": -13.6411,
+      "s21_db": 3.84397,
+      "s21_min_db": 3.79141,
+      "idd_ma": 3.219868,
+      "nf_db": 3.030619,
+      "s22_db": -11.3714,
+      "s22_max_db": -11.1794,
+      "s12_db": -22.5568,
+      "k_f0": 3.83268,
+      "k_min": 3.79901,
+      "mu_f0": 2.41504,
+      "mu_min": 2.39482,
+      "mu_src_f0": 2.75242,
+      "mu_src_min": 2.73495,
+      "delta_f0": 0.0698478,
+      "delta_max": 0.0705145,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.0974400000000002,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.030619,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -0.6836772222222223,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -13.6671,
+        "required_min": null,
+        "required_max": -12,
+        "scale": 12,
+        "margin": 0.13892499999999997,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 3.84397,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": -0.759751875,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 3.219868,
+        "required_min": null,
+        "required_max": 3,
+        "scale": 3,
+        "margin": -0.07328933333333332,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -6,
+        "required_max": null,
+        "scale": 6,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s21_db",
+      -0.759751875
+    ],
+    "seed": 2,
+    "seconds": 180.594,
+    "evals": 1800,
+    "sim_health": {
+      "n_evals": 1800,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  }
+}

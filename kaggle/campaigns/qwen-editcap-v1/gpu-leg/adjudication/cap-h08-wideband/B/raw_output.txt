@@ -1,0 +1,84 @@
+### DIAGNOSIS:
+The circuit fails primarily due to **poor input matching (S11)**, which is the binding constraint with a margin of -0.98 dB. The S11_max_db is -0.306 dB, far below the required -15 dB. This indicates severe input reflection, likely caused by the **input impedance being too mismatched to 50 Ω**, especially at the target frequency (1.75 GHz). The structure uses a single NMOS transistor (NM1) with its source connected to a low-impedance node (n2), which is driven by an inductor (L1) from VIN1. This topology forms a **series inductor input matching network**, but the lack of a proper **source degeneration or impedance transformation element** prevents effective impedance transformation from the transistor’s low input impedance to 50 Ω.
+
+Additionally, the presence of a **floating NMOS (NM2)** and **floating PMOS (PM2)** with both gate and source tied to the same node (n6 and n7 respectively) is problematic: they are essentially **unbiased and non-functional**, acting as parasitic devices or uncontrolled switches. These floating transistors likely introduce **unpredictable parasitic capacitances and noise**, degrading both S11 and NF. The current biasing network (R1, R2, R3, R4) is also non-standard and likely fails to properly set the DC operating points for the active devices.
+
+The excessive current (4.85 mA) and high noise figure (4.56 dB) further suggest poor biasing and no deliberate feedback or stability mechanisms.
+
+---
+
+### EDIT 1: **Replace floating PMOS/PMOS with active cascode PMOS and add source degeneration**
+This edit adds source degeneration to NM1 and introduces a cascode PMOS to stabilize gain and improve input matching.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+NMOS NM3 n8 n2 VSS VSS
+PMOS PM3 n8 n3 VDD VDD
+```
+
+**Prediction:**  
+- **s11_db improves by ~5 dB** — The addition of source degeneration (NM3) increases input impedance and improves matching. The cascode (PM3) isolates the input from output, reducing feedback and improving S11. The floating PM2 is removed and replaced with a functional cascode, enhancing stability and matching.
+
+---
+
+### EDIT 2: **Replace series inductor input with shunt inductor input (L1 shunt to ground) and add source degeneration**
+This edit re-architects the input matching network from a series L to a shunt L, which is more effective at creating a low-impedance path to ground at high frequency, improving input match.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 VSS
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+NMOS NM3 n8 n2 VSS VSS
+PMOS PM3 n8 n3 VDD VDD
+```
+
+**Prediction:**  
+- **s11_db improves by ~6 dB** — Shunt inductors at the input are more effective for wideband matching than series inductors. The shunt L1 creates a low-impedance path to ground at 1.75 GHz, significantly improving input match. Source degeneration (NM3) further increases input impedance and stabilizes DC bias.
+
+---
+
+### EDIT 3: **Replace the floating PMOS and NMOS with a current mirror bias and add a feedback capacitor for stability and matching**
+This edit removes all floating transistors and replaces them with a **current mirror** to provide proper biasing, and adds **feedback capacitance** to improve input matching and gain flatness.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n3 n3 VDD VDD
+PMOS PM3 n3 n3 VDD VDD
+R R1 VDD n3
+R R2 n3 n2
+C C5 n2 n3
+```
+
+**Prediction:**  
+- **s11_db improves by ~4 dB** — The removal of floating transistors eliminates parasitic effects. The feedback capacitor (C5) between gate and source of PM1 forms a **source degeneration feedback path**, improving input impedance and matching. The current mirror (PM2/PM3) ensures stable biasing and reduces gain sensitivity, improving S11 and reducing ripple. The structure is now fully functional with no floating nodes.

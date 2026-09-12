@@ -1,0 +1,101 @@
+### 1. DIAGNOSIS OF FAILURE
+
+The binding constraint is **S11_db = -0.69 dB**, which fails the target of **≤ -14 dB** by **~13.3 dB** (margin = -0.95). This indicates **poor input match** — the LNA is reflecting too much signal at the input. The root cause lies in the **input impedance mismatch** due to the **high input inductance (L1)** and **lack of proper input impedance shaping**.
+
+In the anchor netlist:
+- The input is driven through **C1 (VIN1 → n1)** and **L1 (n1 → n3)**.
+- The gate of NM1 is at **n3**, and the source is connected to **n4 (VSS)** via **NM1**, with the drain at **n5**.
+- The gate of NM2 is tied to **VDD** via **R1** and **R2**, forming a **diode-connected PMOS-like biasing** — but the **gate of NM2 is connected to VDD**, making it **always on**, which acts as a **current sink** from **n6 → VSS**.
+- The **input impedance** is dominated by **L1** in series with **C1**, and the **gate of NM1 is floating** in terms of bias control — but **NM2 is connected between VDD and n6**, and **R1/R2** form a **voltage divider**, so **n6 is at a fixed voltage**, and **NM3** (a diode-connected NMOS) is used to **bias NM2**.
+
+However, **NM2 is not properly configured** — it is **diode-connected (gate to drain)** but **drain is at VDD**, so it's not functioning as a biasing device. Instead, **R1 and R2** form a **voltage divider**, and **NM3** is **diode-connected (D=S=VSS)**, which **shorts VDD to VSS**, **violating the power supply**.
+
+This is a **critical error**: **NM3 has D=S=VSS**, so it acts as a **short between VDD and VSS** — **this is a fatal structural flaw**.
+
+The **real cause** of the failure:
+- **NM3 is connected as D=S=VSS**, so it shorts VDD to VSS → **VDD is shorted to ground**, meaning **no DC bias can be established**.
+- This **breaks the entire circuit**: VDD is not floating; it's tied to VSS → **no gain, no bias, no operation**.
+- This explains why **S11 is poor**: the circuit is **not functional**, so all S-parameters are meaningless.
+- The **SPICE optimizer likely failed to converge** or ran on an **invalid circuit**, but it still reported metrics — suggesting **the simulator assumed NM3 was not a short** (which is not true in reality).
+
+Thus, the **primary structural flaw** is **NM3 creating a VDD-VSS short** → **circuit is broken**.
+
+---
+
+### 2. STRUCTURAL EDITS
+
+#### Edit 1: Fix NM3 — Replace with a proper biasing NMOS in diode configuration (no short)
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 n7 VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+
+**Prediction**:  
+- **S11_db improves by ~12 dB** (from -0.69 dB to ~11.3 dB), **not 14 dB** because we still lack input matching, but the **circuit is now functional** and **biasing is restored**.  
+- The **VDD-VSS short is removed**; NM3 now acts as a **diode-connected NMOS** with gate and drain at **n6**, source at **n7**, which can be used to **set a gate voltage** (with R1/R2).  
+- **S11 improves dramatically** because the circuit now operates correctly and the input network can be matched via SPICE optimization.
+
+---
+
+#### Edit 2: Add input matching network (series L + shunt C) at input
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 n7 VSS
+R R1 VDD n6
+R R2 n6 n3
+C C3 n1 VSS
+```
+
+**Prediction**:  
+- **S11_db improves by ~8 dB** (from -0.69 dB to ~7.3 dB).  
+- Adding **C3 from n1 to VSS** creates a **shunt capacitor** at the input, enabling **input impedance matching** via **series L1 and shunt C3**.  
+- This forms a **low-pass matching network** (LC low-pass) that can **tune the input impedance** to 50Ω at 1.58 GHz.  
+- SPICE optimizer can now tune **L1 and C3** to improve **S11**, and **NM3 fixes the short**.
+
+---
+
+#### Edit 3: Replace NM3 with a PMOS diode-connected biasing device (better for stability)
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+PMOS PM1 n6 n6 n7 VDD
+R R1 VDD n6
+R R2 n6 n3
+```
+
+**Prediction**:  
+- **S11_db improves by ~10 dB** (from -0.69 dB to ~9.3 dB).  
+- Replacing **NM3 (short)** with **PMOS PM1 (diode-connected)** removes the **VDD-VSS short**, and creates a **stable biasing path**.  
+- PMOS in diode mode (gate-drain at n6) **draws current from VDD to n7**, which is **not grounded** → avoids short.  
+- The **biasing voltage at n6** is now set by **R1/R2** and **PM1**, which is more stable than NMOS.  
+- This enables **proper DC operating point**, allowing **SPICE optimizer to tune input network** and improve **S11**.
+
+---
+
+### Summary of Predictions:
+| Edit | Structural Change | Predicted S11_db Improvement |
+|------|-------------------|-------------------------------|
+| 1    | Fix NM3 (diode PMOS or NMOS) | +12 dB (from -0.69 → ~11.3 dB) |
+| 2    | Add shunt C3 at input | +8 dB (from -0.69 → ~7.3 dB) |
+| 3    | Replace NM3 with PMOS | +10 dB (from -0.69 → ~9.3 dB) |
+
+All edits **fix the fatal VDD-VSS short** caused by NM3 and **enable a functional LNA** with **potential for good S11**.

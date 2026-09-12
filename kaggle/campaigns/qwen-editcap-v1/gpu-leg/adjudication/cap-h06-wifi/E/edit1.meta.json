@@ -1,0 +1,105 @@
+{
+  "index": 1,
+  "round": 1,
+  "predicted_delta_text": "**Prediction**: NF_db improves by ~0.5 dB.  \n*Rationale*: The current topology has a floating gate node (n2) for NM1 biased through a resistive chain that is sensitive to process and temperature variations, leading to suboptimal biasing and degraded noise figure. Introducing PM3 (a PMOS from n6 to n2) creates a feedback path that actively pulls the gate of NM1 toward a stable voltage, reducing the gate voltage drift. This stabilizes the transconductance and reduces thermal noise. The PM3 acts as a current source in the feedback loop, improving the input stage\u2019s noise performance without adding DC power consumption.\n\n---",
+  "wl_hash": "8ad10f0ea27c7ffd",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 18.934639999999998,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": 1.35029,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 3.31225,
+    "metrics": {
+      "s11_db": -0.378363,
+      "s11_max_db": -0.325799,
+      "s21_db": 8.95085,
+      "s21_min_db": 8.85542,
+      "idd_ma": 9.173737,
+      "nf_db": 1.364273,
+      "s22_db": -9.62728,
+      "s22_max_db": -9.4442,
+      "s12_db": -23.5623,
+      "k_f0": 0.360951,
+      "k_min": 0.35224,
+      "mu_f0": 0.231662,
+      "mu_min": 0.209496,
+      "mu_src_f0": 0.866826,
+      "mu_src_min": 0.861029,
+      "delta_f0": 0.399718,
+      "delta_max": 0.416984,
+      "stab_band": [
+        2400000000.0,
+        2483500000.0
+      ],
+      "s21_ripple_db": 0.16488000000000014,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 1.364273,
+        "required_min": null,
+        "required_max": 1.5,
+        "scale": 1.5,
+        "margin": 0.09048466666666662,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.378363,
+        "required_min": null,
+        "required_max": -15,
+        "scale": 15,
+        "margin": -0.9747758,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 8.95085,
+        "required_min": 18,
+        "required_max": null,
+        "scale": 18,
+        "margin": -0.5027305555555555,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 9.173737,
+        "required_min": null,
+        "required_max": 5,
+        "scale": 5,
+        "margin": -0.8347473999999998,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 0,
+        "required_max": null,
+        "scale": 1.0,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.9747758
+    ],
+    "seed": 1,
+    "seconds": 63.985,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 18.934639999999998
+}

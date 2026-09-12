@@ -1,0 +1,4 @@
+### DIAGNOSIS:
+The circuit fails primarily due to **excessive noise figure (NF)** — the binding constraint, with a margin of -0.2586 dB. The NF is dominated by the **source degeneration and low transconductance efficiency** in the current mirror-based biasing and the absence of a proper noise-canceling or noise-reduction topology. The NMOS transistor NM1 (the input device) is operating in a configuration with strong source degeneration (via C3 and L2), but the current mirror pair (PM1/NM1) is not properly stabilized or optimized for low noise. Additionally, the dummy transistors (NM2 and PM2) are floating (gate connected to source), which introduces instability and parasitic gain paths, increasing noise. The current mirror (PM1/NM1) is not properly mirrored due to mismatched biasing, leading to poor transconductance and low gain — both contributing to poor NF. The high Idd (slightly over budget) suggests inefficient biasing, but the NF is the dominant issue.
+
+---

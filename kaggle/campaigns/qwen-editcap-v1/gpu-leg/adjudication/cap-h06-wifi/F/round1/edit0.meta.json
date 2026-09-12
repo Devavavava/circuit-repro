@@ -1,0 +1,105 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "**Predicted change:**  \n**nf_db improves by ~0.6 dB** \u2014 removing the floating dummy transistors (NM2, PM2) eliminates parasitic noise sources and improves mirror symmetry, reducing noise gain and improving transconductance efficiency.\n\n---",
+  "wl_hash": "7cfb47f2a859ce18",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 24.581780000000002,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -5.53387,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 5.3963,
+    "metrics": {
+      "s11_db": -8.27061,
+      "s11_max_db": -6.54842,
+      "s21_db": 4.11147,
+      "s21_min_db": 3.81117,
+      "idd_ma": 12.79683,
+      "nf_db": 3.925092,
+      "s22_db": -5.6912,
+      "s22_max_db": -5.56894,
+      "s12_db": -14.247,
+      "k_f0": 1.11344,
+      "k_min": 1.10636,
+      "mu_f0": 1.07435,
+      "mu_min": 1.06947,
+      "mu_src_f0": 1.10084,
+      "mu_src_min": 1.07606,
+      "delta_f0": 0.33453,
+      "delta_max": 0.334704,
+      "stab_band": [
+        2400000000.0,
+        2483500000.0
+      ],
+      "s21_ripple_db": 0.5250499999999998,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.925092,
+        "required_min": null,
+        "required_max": 1.5,
+        "scale": 1.5,
+        "margin": -1.616728,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -8.27061,
+        "required_min": null,
+        "required_max": -15,
+        "scale": 15,
+        "margin": -0.448626,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 4.11147,
+        "required_min": 18,
+        "required_max": null,
+        "scale": 18,
+        "margin": -0.771585,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 12.79683,
+        "required_min": null,
+        "required_max": 5,
+        "scale": 5,
+        "margin": -1.559366,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 0,
+        "required_max": null,
+        "scale": 1.0,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -1.616728
+    ],
+    "seed": 1,
+    "seconds": 61.071,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 24.581780000000002
+}

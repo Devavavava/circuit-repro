@@ -1,0 +1,27 @@
+### 1. DIAGNOSIS OF FAILURE
+
+The binding constraint is **S11_db = -0.69 dB**, which fails the target of **≤ -14 dB** by **~13.3 dB** (margin = -0.95). This indicates **poor input match** — the LNA is reflecting too much signal at the input. The root cause lies in the **input impedance mismatch** due to the **high input inductance (L1)** and **lack of proper input impedance shaping**.
+
+In the anchor netlist:
+- The input is driven through **C1 (VIN1 → n1)** and **L1 (n1 → n3)**.
+- The gate of NM1 is at **n3**, and the source is connected to **n4 (VSS)** via **NM1**, with the drain at **n5**.
+- The gate of NM2 is tied to **VDD** via **R1** and **R2**, forming a **diode-connected PMOS-like biasing** — but the **gate of NM2 is connected to VDD**, making it **always on**, which acts as a **current sink** from **n6 → VSS**.
+- The **input impedance** is dominated by **L1** in series with **C1**, and the **gate of NM1 is floating** in terms of bias control — but **NM2 is connected between VDD and n6**, and **R1/R2** form a **voltage divider**, so **n6 is at a fixed voltage**, and **NM3** (a diode-connected NMOS) is used to **bias NM2**.
+
+However, **NM2 is not properly configured** — it is **diode-connected (gate to drain)** but **drain is at VDD**, so it's not functioning as a biasing device. Instead, **R1 and R2** form a **voltage divider**, and **NM3** is **diode-connected (D=S=VSS)**, which **shorts VDD to VSS**, **violating the power supply**.
+
+This is a **critical error**: **NM3 has D=S=VSS**, so it acts as a **short between VDD and VSS** — **this is a fatal structural flaw**.
+
+The **real cause** of the failure:
+- **NM3 is connected as D=S=VSS**, so it shorts VDD to VSS → **VDD is shorted to ground**, meaning **no DC bias can be established**.
+- This **breaks the entire circuit**: VDD is not floating; it's tied to VSS → **no gain, no bias, no operation**.
+- This explains why **S11 is poor**: the circuit is **not functional**, so all S-parameters are meaningless.
+- The **SPICE optimizer likely failed to converge** or ran on an **invalid circuit**, but it still reported metrics — suggesting **the simulator assumed NM3 was not a short** (which is not true in reality).
+
+Thus, the **primary structural flaw** is **NM3 creating a VDD-VSS short** → **circuit is broken**.
+
+---
+
+### 2. STRUCTURAL EDITS
+
+#### Edit 1: Fix NM3 — Replace with a proper biasing NMOS in diode configuration (no short)

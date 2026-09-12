@@ -1,0 +1,56 @@
+```netlist
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C1 VIN1 n1
+C C2 n1 n2
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+```
+
+Predicted: **nf_db improves by ~0.8 dB** — the addition of C2 directly between VIN1 and the gate of NM1 improves input matching and reduces noise by better isolating the input from the source resistance, directly addressing the high NF due to poor input conjugate match.
+
+```netlist
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C1 VIN1 n1
+C C2 n1 n2
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+```
+
+Predicted: **nf_db improves by ~0.6 dB** — re-routing NM2's gate to n2 (same as NM1's gate) enables shared gate biasing and reduces gate capacitance mismatch, improving noise figure by reducing input-referred noise from the current mirror and enhancing gain linearity.
+
+```netlist
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n3 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C1 VIN1 n1
+C C2 n1 n2
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+```
+
+Predicted: **nf_db improves by ~0.5 dB** — connecting PM2's gate to n3 (same node as PM1's gate) stabilizes the bias point and reduces channel-length modulation effects, improving transconductance linearity and reducing noise at the input stage.

@@ -1,0 +1,59 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+NMOS NM3 n6 n2 VSS VSS
+```
+
+**Prediction:** s11_db improves by ~2.5 dB. The addition of NM3 (source follower-like degeneration on the NM1 gate path) reduces input impedance mismatch by stabilizing the gate drive and increasing input reflection tolerance, directly improving S11.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+PMOS PM3 n3 n2 VDD VDD
+```
+
+**Prediction:** s11_db improves by ~3.0 dB. The addition of PM3 (a PMOS source follower from gate n3 to gate n2) creates a bootstrap-like input impedance enhancement, reducing the effective input resistance seen at n2 and improving matching to 50Ω, directly attacking the S11 failure.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+L L3 n2 n3
+```
+
+**Prediction:** s11_db improves by ~1.8 dB. Inserting L3 (an inductor between the two gate bias nodes n2 and n3) creates a resonant path that enhances the input impedance matching at 1.575 GHz, improving input reflection by tuning the gate bias network’s AC impedance to better match 50Ω.

@@ -1,0 +1,105 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "**Prediction**:  \n- **S11_db improves by ~12 dB** (from -0.69 dB to ~11.3 dB), **not 14 dB** because we still lack input matching, but the **circuit is now functional** and **biasing is restored**.  \n- The **VDD-VSS short is removed**; NM3 now acts as a **diode-connected NMOS** with gate and drain at **n6**, source at **n7**, which can be used to **set a gate voltage** (with R1/R2).  \n- **S11 improves dramatically** because the circuit now operates correctly and the input network can be matched via SPICE optimization.\n\n---\n\n#### Edit 2: Add input matching network (series L + shunt C) at input",
+  "wl_hash": "4819f1a4793cf348",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 8.865127000000001,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -9.14974,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 10.4802,
+    "metrics": {
+      "s11_db": -0.0593212,
+      "s11_max_db": -0.058961,
+      "s21_db": -2.64817,
+      "s21_min_db": -2.69645,
+      "idd_ma": 11.52639,
+      "nf_db": 8.264848,
+      "s22_db": -4.68777,
+      "s22_max_db": -4.66771,
+      "s12_db": -61.7919,
+      "k_f0": 7.70034,
+      "k_min": 7.5961,
+      "mu_f0": 1.63709,
+      "mu_min": 1.63081,
+      "mu_src_f0": 1.00615,
+      "mu_src_min": 1.00613,
+      "delta_f0": 0.579198,
+      "delta_max": 0.580507,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.0910700000000002,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 8.264848,
+        "required_min": null,
+        "required_max": 1.5,
+        "scale": 1.5,
+        "margin": -4.509898666666667,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.0593212,
+        "required_min": null,
+        "required_max": -14,
+        "scale": 14,
+        "margin": -0.9957627714285715,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -2.64817,
+        "required_min": 20,
+        "required_max": null,
+        "scale": 20,
+        "margin": -1.1324085,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 11.52639,
+        "required_min": null,
+        "required_max": 3,
+        "scale": 3,
+        "margin": -2.8421299999999996,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -4.509898666666667
+    ],
+    "seed": 2,
+    "seconds": 63.132,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 8.865127000000001
+}

@@ -1,0 +1,66 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+NMOS NM3 n3 n2 VSS VSS
+```
+
+**Prediction**: s11_db improves by ~2.5 dB.  
+*Reasoning*: The failure is dominated by poor input match (s11_db = -0.23 dB), indicating high input reflection due to mismatch between source impedance and LNA input impedance. The current topology lacks an input matching network. Adding NM3 (source-degenerated NMOS from gate n2 to source n3) introduces a resistive loading path that can be used to tune input impedance toward 50Ω. The NM3 is diode-connected (gate tied to drain) and placed between n2 and n3 — effectively adding a degeneration resistance in series with the input node. This structural change provides an additional degree of freedom for impedance shaping without adding bias complexity. The diode-connected NMOS provides a small-signal resistance (≈ 1/gm) that can be optimized to improve input match.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+PMOS PM3 n2 n1 VDD VDD
+```
+
+**Prediction**: s11_db improves by ~3.5 dB.  
+*Reasoning*: The input node (n1) is connected directly to L1 and C1, forming a resonant input structure. However, the gate of NM1 (n2) is biased via R1-R2, making the input impedance sensitive to bias point and parasitics. Introducing PM3 (PMOS) with drain tied to n1 (input), gate to n2, source to VDD, creates a feedback path from output to input via the gate. This is a **source-degenerated PMOS feedback** that actively stabilizes the input impedance. The PM3 acts as a voltage-controlled current source pulling current from the input node, effectively increasing the input resistance and enabling better matching to 50Ω. The structure is similar to a common-gate amplifier with feedback, enhancing input match at the cost of some gain — but the binding metric s11_db is improved significantly due to better impedance scaling.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+L L3 n2 n3
+```
+
+**Prediction**: s11_db improves by ~4.0 dB.  
+*Reasoning*: The input node (n2) is currently connected to NM1 gate via R2 and to PM1 gate via R4. The lack of a proper input matching network causes the input impedance to be poorly matched. Introducing L3 (inductor) between n2 and n3 (which are both gate nodes) forms a **series resonant loop** with C2 (between n2 and n3). This creates a tuned input network: L3 + C2 resonates at 915 MHz, creating a low-impedance path at f0 that effectively shunts the input to ground at resonance, improving input match. The inductor L3 is placed between the two gate nodes, forming a loop that enhances the real part of the input impedance toward 50Ω. This is a classic technique in narrowband LNAs — using a resonant gate loop to achieve impedance matching. The structure is fully passive and adds no biasing complexity, making it a clean structural fix. The improvement is expected to be significant due to resonant input tuning.

@@ -1,0 +1,79 @@
+### DIAGNOSIS:
+The binding constraint is **S11_max_db = -3.22284 dB** (margin = -0.597 dB), which fails the specification of ≤ -8 dB. This indicates **poor input matching** at the 1.75 GHz center frequency. The circuit's input impedance is poorly matched to 50 Ω, likely due to the **high input reactance** caused by the series inductor L1 and the shunt capacitance C1, combined with **lack of a proper input impedance transformation path**. The NMOS transistor NM1 is directly connected between input (via L1) and output (via L2), forming a **common-source topology with no input matching network**. Additionally, the presence of two unused, floating-gate MOS transistors (NM2 and PM2) with gates tied to source (i.e., diode-connected) introduces parasitic capacitance and possibly degrades input matching without providing benefit.
+
+The dominant issue is **no intentional input matching network** (e.g., source degeneration, series/parallel tuning) to transform the input impedance to 50 Ω across the 0.5–3 GHz band. The current topology relies on L1–C1 for matching, but without proper sizing or feedback, it cannot achieve acceptable S11 across the band.
+
+---
+
+### EDIT 1: Add a series input inductor and shunt capacitor for input matching (L-C input matching network)
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+L L3 n1 VIN1
+C C5 n1 VSS
+```
+
+**Prediction**:  
+`s11_max_db improves by ~2.5 dB` — the added series inductor (L3) and shunt capacitor (C5) form a **low-pass L-C matching network** that better transforms the input impedance toward 50 Ω over the band, especially improving low-frequency input match. The L3–C5 pair reduces input reactance and improves matching at the input, directly targeting the S11 failure.
+
+---
+
+### EDIT 2: Replace NM1 with a cascode configuration with NMOS source degeneration (improves input match and gain)
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+NMOS NM3 n2 n8 VSS VSS
+L L3 n8 VSS
+```
+
+**Prediction**:  
+`s11_max_db improves by ~3.0 dB` — the addition of **source-degenerated NM3** (with inductor L3) creates a **resistive input impedance** at the gate of NM1, which improves input match by reducing the gate capacitance’s impact and increasing input resistance. The inductor L3 provides high impedance at signal frequencies, effectively isolating the degeneration from DC but allowing AC feedback. This structure reduces input reflection by stabilizing the input impedance across frequency.
+
+---
+
+### EDIT 3: Add a source follower buffer stage at the input (isolates input from internal node reactance)
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+NMOS NM3 n1 n9 VSS VSS
+R R5 VDD n9
+```
+
+**Prediction**:  
+`s11_max_db improves by ~4.0 dB` — inserting a **source follower (NM3)** at the input creates a high-input-impedance, low-output-impedance buffer. This isolates the input (VIN1) from the reactive input of the main amplifier (NM1), dramatically improving **input matching** by presenting a stable 50 Ω load. The source follower’s gate is directly connected to VIN1, and its output (source) is tied to a resistor R5 to VDD, forming a simple biasing network. The buffer reduces the impact of parasitic capacitances and inductive reactance, leading to a significant improvement in S11 across the band.

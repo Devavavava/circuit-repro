@@ -1,0 +1,105 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "**Prediction:**  \n`s11_db improves by ~4.5 dB`  \n*Reason:* Adding a capacitor C3 from gate node (n3) to VSS provides a low-impedance RF ground path, significantly reducing input impedance and improving input match. This directly addresses the high-impedance gate node issue.\n\n---\n\n### EDIT 2: Replace diode-connected NMOS (NM3) with a direct resistor from VDD to n3, to better control gate bias and provide RF grounding",
+  "wl_hash": "8188473f7676d1aa",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 7.090152,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -9.86724,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.7337,
+    "metrics": {
+      "s11_db": -0.265189,
+      "s11_max_db": -0.259354,
+      "s21_db": 10.6061,
+      "s21_min_db": 10.4764,
+      "idd_ma": 3.10361,
+      "nf_db": 1.872613,
+      "s22_db": -9.68644,
+      "s22_max_db": -9.09663,
+      "s12_db": -49.5501,
+      "k_f0": 2.61612,
+      "k_min": 2.59438,
+      "mu_f0": 2.57888,
+      "mu_min": 2.51284,
+      "mu_src_f0": 1.02138,
+      "mu_src_min": 1.02126,
+      "delta_f0": 0.327625,
+      "delta_max": 0.350153,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.24300000000000033,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 1.872613,
+        "required_min": null,
+        "required_max": 1.5,
+        "scale": 1.5,
+        "margin": -0.24840866666666672,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.265189,
+        "required_min": null,
+        "required_max": -14,
+        "scale": 14,
+        "margin": -0.9810579285714286,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 10.6061,
+        "required_min": 20,
+        "required_max": null,
+        "scale": 20,
+        "margin": -0.46969500000000003,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 3.10361,
+        "required_min": null,
+        "required_max": 3,
+        "scale": 3,
+        "margin": -0.034536666666666736,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.9810579285714286
+    ],
+    "seed": 2,
+    "seconds": 60.17,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 7.090152
+}

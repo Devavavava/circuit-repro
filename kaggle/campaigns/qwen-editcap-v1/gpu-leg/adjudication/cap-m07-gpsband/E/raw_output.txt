@@ -1,0 +1,94 @@
+### DIAGNOSIS:
+
+The binding constraint is **S11_db = -1.844 dB**, which is **0.846 dB below** the required **-12 dB** (i.e., margin = -0.846). This indicates **poor input matching** — the amplifier is reflecting too much power back at the input port. 
+
+The root cause lies in the **input network topology**:
+- The input is connected via **C1 (input blocking cap)** to **n1**, which is tied to **L1 (inductor)** and **C2 (shunt cap)**.
+- The **gate of NM1 (n2)** is biased through **R1 and R2**, forming a **voltage divider** from VDD to VSS, but the **gate node (n2)** is also connected to **C2 (shunt capacitor to n3)** and **L1 (series inductor to n1)**.
+- The **input impedance** is dominated by **L1 in series with C1**, shunted by **C2**, and loaded by the **gate input impedance** of NM1 — which is inherently **high but reactive**.
+- The **diode-connected NM2 (n6)** and **PM2 (n7)** are used to set bias currents, but they are **not directly influencing input matching**.
+- Crucially, **no inductor or capacitor is placed at the gate node to tune the input impedance**. The input matching relies on **L1 and C2**, but their **Q is too low** and the **biasing network (R1/R2)** creates a **low-impedance path to VDD/VSS**, which **loads the input** and detunes the matching.
+
+Thus, the **primary failure mechanism is poor input impedance matching due to unoptimized series inductor (L1) and shunt capacitor (C2) values, combined with the loading effect of the gate bias network (R1/R2)**. The **input port is not being properly isolated** from the power supply rails, causing **reflection**.
+
+To fix this, we must **restructure the input matching network** to **decouple the gate bias node from the input signal path** and **add intentional impedance matching elements** (e.g., a series inductor and shunt capacitor at the gate).
+
+---
+
+### EDIT 1: **Add a gate isolation inductor (L3) and re-arrange biasing to isolate input from bias network**
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+L L3 n6 n2
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+
+**PREDICTION**:  
+- **s11_db improves by ~2.5 dB**  
+- *Reason*: Adding **L3 (gate isolation inductor)** between **n6 (bias node)** and **n2 (gate)** creates a **high-impedance path** at RF, **decoupling** the gate bias network (R1/R2) from the input signal path. This reduces **loading** at the gate and allows **L1 and C2** to form a **cleaner input matching network**. The input impedance becomes more predictable and matchable.
+
+---
+
+### EDIT 2: **Replace the series L1 with a shunt inductor and add input matching via a parallel LC tank at the gate**
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 VSS
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+
+**PREDICTION**:  
+- **s11_db improves by ~3.0 dB**  
+- *Reason*: Replacing **L1 (series inductor)** with **L1 (shunt inductor to ground)** changes the input topology from a **series L-C1** network to a **parallel LC tank at the input**, where **C1 and L1** form a **parallel resonant structure**. This allows **better impedance matching** at 1.575 GHz, and the **gate node (n2)** is now only connected via **C2 and R2**, reducing loading. The **input impedance becomes more resistive and tunable**.
+
+---
+
+### EDIT 3: **Insert a gate input matching network: add a series capacitor and shunt inductor at the gate node**
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+C C5 n2 n3
+L L3 n2 VSS
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+
+**PREDICTION**:  
+- **s11_db improves by ~4.0 dB**  
+- *Reason*: Replacing **C2 (shunt cap)** with **C5 (shunt cap)** and adding **L3 (shunt inductor from gate to ground)** creates a **parallel LC tank at the gate node**, which **tunes the input impedance** to 50Ω at 1.575 GHz. The **series C1 and L1** now form a **low-pass filter** that, together with the **gate tank (L3-C5)**, enables **optimal input matching**. The **biasing network (R1/R2)** remains intact but is now isolated from the RF path by the **tuned gate network**. This is a **classic input matching approach** for LNAs.
+
+---

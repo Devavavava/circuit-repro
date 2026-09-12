@@ -1,0 +1,74 @@
+### DIAGNOSIS:
+The circuit fails primarily due to **poor input match (S11)**, which is **-0.69 dB** (well below the required **-14 dB**). The failure is exacerbated by **excessive Idd (3.25 mA)** and **elevated NF (1.85 dB)**. However, the binding constraint is S11, with a margin of **-0.95 dB**, meaning it's the most violated.
+
+The root cause of poor S11 lies in the **input impedance mismatch** at 1.58 GHz. The input is dominated by:
+- **C1** (input series capacitor) and **L1** (input inductor) forming a **resonant LC tank** at the design frequency.
+- But the **gate of NM1 is tied to VDD via a diode-connected NMOS (NM3)** and a resistor chain (R1–R2), creating a **high-impedance DC path** that is **not properly terminated** at RF.
+
+The gate of NM1 (node n3) is biased via **R1–R2** from VDD, but there's **no low-impedance RF ground path** to VSS for the gate node. This makes the **gate node have high RF impedance**, effectively **opening the input port** and causing **high reflection (S11)**.
+
+Additionally, **NM2’s gate is directly tied to VDD**, which is a **DC source but not a RF ground** — this creates an **unintended RF path** that adds to input mismatch. The lack of a **proper RF bypass at the gate node (n3)** and the **missing low-Z termination** at the input node (n1) due to high impedance at the gate are the primary physical limitations.
+
+Thus, the **main issue is lack of RF grounding at the gate node (n3)**, resulting in **high input impedance** and **poor S11**.
+
+---
+
+### EDIT 1: Add a grounded RF bypass capacitor at the gate node (n3) to improve input match
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+C C3 n3 VSS
+```
+
+**Prediction:**  
+`s11_db improves by ~4.5 dB`  
+*Reason:* Adding a capacitor C3 from gate node (n3) to VSS provides a low-impedance RF ground path, significantly reducing input impedance and improving input match. This directly addresses the high-impedance gate node issue.
+
+---
+
+### EDIT 2: Replace diode-connected NMOS (NM3) with a direct resistor from VDD to n3, to better control gate bias and provide RF grounding
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+R R1 VDD n3
+R R2 n3 n4
+```
+
+**Prediction:**  
+`s11_db improves by ~3.2 dB`  
+*Reason:* Replacing NM3 (diode-connected) with a resistor R1 from VDD to n3 provides a **low-impedance RF path to VDD** (which is a strong RF ground via L3 and C2), while R2 provides current limiting. This reduces gate node impedance and improves input match. The new R1–R2 divider provides more predictable biasing and better RF grounding than the diode-connected NMOS.
+
+---
+
+### EDIT 3: Reconfigure input node to use a series LC matching network with shunt bypass at gate, removing direct VDD connection to gate
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+R R1 VDD n3
+C C3 n3 VSS
+```
+
+**Prediction:**  
+`s11_db improves by ~5.0 dB`  
+*Reason:* The gate node (n3) is now driven via **R1 (VDD → n3)** and **C3 (n3 → VSS)**, forming a **shunt RC low-pass filter** at RF. This provides a **low-impedance path to ground at 1.58 GHz**, while R1 sets DC bias. The direct VDD-to-gate path is removed (no NM2 gate tied to VDD), reducing RF coupling to VDD. The improved RF grounding at n3 drastically improves input match. This topology is more robust and commonly used in LNAs.

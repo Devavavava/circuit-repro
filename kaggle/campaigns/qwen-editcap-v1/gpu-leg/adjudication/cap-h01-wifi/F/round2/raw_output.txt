@@ -1,0 +1,46 @@
+```netlist
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+C C1 VIN1 n1
+C C2 n2 VOUT1
+```
+
+Predicted: **nf_db improves by ~1.5 dB** — The original anchor had poor noise performance due to a weak input matching and lack of input inductor isolation; this edit repositions the input inductor (L1) to directly drive the gate of NM1 with minimal parasitic capacitance, improving noise figure by enhancing input impedance matching and reducing gate resistance. The symmetry in the layout also stabilizes the input stage.
+
+```netlist
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+C C1 VIN1 n1
+C C2 n2 VOUT1
+C C3 n1 n5
+```
+
+Predicted: **nf_db improves by ~2.0 dB** — Adding a **gate-to-gate capacitor (C3)** between VIN1 and the gate of NM2 introduces a feedback path that enhances input noise cancellation and improves input impedance matching. This structural change directly targets the binding NF constraint by reducing effective input noise power through parasitic cancellation and improved RF grounding of the input node. The added capacitance stabilizes the high-frequency noise transfer.
+
+```netlist
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L4 n5 n3
+```
+
+Predicted: **nf_db improves by ~1.8 dB** — Inserting a **source-to-gate inductor (L4)** between the gate and source of NM1 creates a **source degeneration inductor**, which improves noise figure by reducing the effective transconductance seen at the input while maintaining gain. This is a well-known technique in LNA design for noise optimization. The added inductor increases input impedance and reduces noise contribution from the input transistor, directly targeting the binding NF metric.

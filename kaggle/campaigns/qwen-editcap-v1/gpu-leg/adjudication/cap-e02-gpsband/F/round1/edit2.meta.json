@@ -1,0 +1,105 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**Prediction:** s21_db improves by ~0.9 dB.  \n*Reason:* Adding a degenerating NMOS (NM4) in the source of NM1 (common-source path) improves input impedance matching and reduces noise, while increasing effective transconductance via improved current control. This structural change enhances gain and linearity without increasing Idd or degrading S11.",
+  "wl_hash": "061daee657e4caf0",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 3.7872980000000003,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -21.4971,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.18225,
+    "metrics": {
+      "s11_db": -0.287358,
+      "s11_max_db": -0.284684,
+      "s21_db": 7.8183,
+      "s21_min_db": 7.60004,
+      "idd_ma": 5.122639,
+      "nf_db": 2.962901,
+      "s22_db": -5.24123,
+      "s22_max_db": -4.8762,
+      "s12_db": -51.6802,
+      "k_f0": 3.82367,
+      "k_min": 3.78358,
+      "mu_f0": 1.68234,
+      "mu_min": 1.62456,
+      "mu_src_f0": 1.02714,
+      "mu_src_min": 1.02705,
+      "delta_f0": 0.533049,
+      "delta_max": 0.555694,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.42660000000000053,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.962901,
+        "required_min": null,
+        "required_max": 3.5,
+        "scale": 3.5,
+        "margin": 0.15345685714285714,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.287358,
+        "required_min": null,
+        "required_max": -8,
+        "scale": 8,
+        "margin": -0.96408025,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 7.8183,
+        "required_min": 10,
+        "required_max": null,
+        "scale": 10,
+        "margin": -0.21817000000000003,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 5.122639,
+        "required_min": null,
+        "required_max": 15,
+        "scale": 15,
+        "margin": 0.6584907333333334,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.96408025
+    ],
+    "seed": 1,
+    "seconds": 62.218,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 3.7872980000000003
+}

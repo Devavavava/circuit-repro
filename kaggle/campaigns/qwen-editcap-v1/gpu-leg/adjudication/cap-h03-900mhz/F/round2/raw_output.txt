@@ -1,0 +1,43 @@
+```netlist
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L1 n1 n3
+L L2 n4 VSS
+C C1 VIN1 n1
+C C2 n2 VOUT1
+```
+
+Predicted: s11_db improves by ~2.5 dB (due to repositioning of L1 closer to input and improved input matching via shunt C1 and series L1).
+
+```netlist
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L1 n1 n3
+L L2 VSS n4
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L3 n4 VDD
+```
+
+Predicted: s11_db improves by ~3.0 dB (introducing a series inductor L3 from VSS to n4, enhancing source degeneration and input impedance matching at 915 MHz).
+
+```netlist
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L1 n1 n3
+L L2 VSS n4
+C C1 VIN1 n1
+C C2 n2 VOUT1
+C C3 n3 VSS
+```
+
+Predicted: s11_db improves by ~4.0 dB (adding a shunt capacitor C3 from node n3 to VSS, which lowers input impedance at resonance and improves input match, especially with tuned L1-C1 at 915 MHz).

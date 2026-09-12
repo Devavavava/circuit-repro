@@ -1,0 +1,49 @@
+```netlist
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+```
+
+**Predicted effect on binding metric (s21_db):** Improves by ~4 dB. The original failure shows poor S21 due to excessive loss and poor gain matching; moving the input inductor (L1) from between VIN1 and n1 to between n1 and n3 repositions the input matching network to better align with the transconductance node, improving forward gain and reducing insertion loss. This structural shift enhances RF signal flow through the active device, directly targeting the binding S21 constraint.
+
+---
+
+```netlist
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 VDD n4
+L L3 n2 VSS
+```
+
+**Predicted effect on binding metric (s21_db):** Improves by ~5 dB. Replacing the source inductor (L2) from connecting NM1 source (n4) to VSS with a connection from VDD to n4 reconfigures the DC bias path and increases the effective source degeneration impedance at RF. This improves output impedance matching and enhances gain by reducing source loading, directly boosting S21. The topology now enables a higher effective transconductance gain and better output matching, addressing the primary S21 deficit.
+
+---
+
+```netlist
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+PMOS PM1 n2 n3 VDD VDD
+```
+
+**Predicted effect on binding metric (s21_db):** Improves by ~6 dB. Adding a PMOS (PM1) from the output node (n2) to the gate of NM1 (n3) introduces a passive feedback path that stabilizes the gain and increases output impedance. This creates a current buffer effect at RF, reducing output loading and improving forward gain. The PMOS acts as a passive gain booster, enhancing S21 without introducing active feedback complexity. This structural change targets the core gain limitation while preserving stability and power efficiency.

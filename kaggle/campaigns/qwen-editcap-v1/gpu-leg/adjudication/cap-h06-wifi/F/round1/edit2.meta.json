@@ -1,0 +1,105 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**Predicted change:**  \n**nf_db improves by ~0.8 dB** \u2014 replacing the floating dummy transistors with a **current mirror pair (NM2/PM2)** that actively mirrors and stabilizes the bias current introduces better current control, reduces thermal noise from uncontrolled leakage, and improves transconductance-to-current ratio, directly lowering noise figure. The structure now has a more robust and symmetric current mirror with active feedback, enhancing noise performance.",
+  "wl_hash": "1deeb3cdaf9ce654",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 13.68302,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -1.19935,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 4.98357,
+    "metrics": {
+      "s11_db": -21.6851,
+      "s11_max_db": -15.2654,
+      "s21_db": 5.92792,
+      "s21_min_db": 5.74118,
+      "idd_ma": 15.1363,
+      "nf_db": 3.428459,
+      "s22_db": -5.29212,
+      "s22_max_db": -5.10109,
+      "s12_db": -14.4925,
+      "k_f0": 1.0836,
+      "k_min": 1.07682,
+      "mu_f0": 1.0554,
+      "mu_min": 1.05074,
+      "mu_src_f0": 1.1187,
+      "mu_src_min": 1.11335,
+      "delta_f0": 0.333046,
+      "delta_max": 0.348664,
+      "stab_band": [
+        2400000000.0,
+        2483500000.0
+      ],
+      "s21_ripple_db": 0.2703100000000003,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.428459,
+        "required_min": null,
+        "required_max": 1.5,
+        "scale": 1.5,
+        "margin": -1.2856393333333334,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -21.6851,
+        "required_min": null,
+        "required_max": -15,
+        "scale": 15,
+        "margin": 0.44567333333333325,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 5.92792,
+        "required_min": 18,
+        "required_max": null,
+        "scale": 18,
+        "margin": -0.6706711111111111,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 15.1363,
+        "required_min": null,
+        "required_max": 5,
+        "scale": 5,
+        "margin": -2.02726,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 0,
+        "required_max": null,
+        "scale": 1.0,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "idd_ma",
+      -2.02726
+    ],
+    "seed": 1,
+    "seconds": 63.605,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 13.68302
+}

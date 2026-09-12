@@ -1,0 +1,105 @@
+{
+  "index": 1,
+  "round": 2,
+  "predicted_delta_text": "**Prediction**: Replacing the diode-connected PM2 with a PMOS (PM3) tied from n6 to n2 creates a current-steering path that actively pulls current into the gate of NM1. This increases transconductance gain and improves input matching. **nf_db is predicted to improve by ~0.6 dB** due to enhanced gain and reduced gate noise contribution.",
+  "wl_hash": "8ad10f0ea27c7ffd",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 18.92932,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": 1.30778,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 1.87413,
+    "metrics": {
+      "s11_db": -26.4811,
+      "s11_max_db": -16.8087,
+      "s21_db": 14.2109,
+      "s21_min_db": 14.1077,
+      "idd_ma": 3.832568,
+      "nf_db": 2.495441,
+      "s22_db": 1.16595,
+      "s22_max_db": 1.53779,
+      "s12_db": -15.6595,
+      "k_f0": 0.23386,
+      "k_min": 0.230545,
+      "mu_f0": 0.500392,
+      "mu_min": 0.499044,
+      "mu_src_f0": -0.169923,
+      "mu_src_min": -0.229587,
+      "delta_f0": 0.840285,
+      "delta_max": 0.910816,
+      "stab_band": [
+        2400000000.0,
+        2483500000.0
+      ],
+      "s21_ripple_db": 0.11739999999999995,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.495441,
+        "required_min": null,
+        "required_max": 1.5,
+        "scale": 1.5,
+        "margin": -0.6636273333333333,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -26.4811,
+        "required_min": null,
+        "required_max": -15,
+        "scale": 15,
+        "margin": 0.7654066666666668,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 14.2109,
+        "required_min": 18,
+        "required_max": null,
+        "scale": 18,
+        "margin": -0.21050555555555553,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 3.832568,
+        "required_min": null,
+        "required_max": 5,
+        "scale": 5,
+        "margin": 0.23348639999999996,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 0,
+        "required_max": null,
+        "scale": 1.0,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -0.6636273333333333
+    ],
+    "seed": 1,
+    "seconds": 64.094,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 18.92932
+}

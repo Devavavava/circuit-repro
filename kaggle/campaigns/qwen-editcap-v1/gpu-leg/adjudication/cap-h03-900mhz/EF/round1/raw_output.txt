@@ -1,0 +1,50 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n5 n3 VSS VSS
+```
+
+**Prediction:** s11_db improves by ~2.5 dB.  
+*Reasoning:* Adding a diode-connected NMOS (NM4) from n5 to VSS (source/drain tied to n5, gate tied to n5) increases the effective input capacitance seen at n3, which can improve input matching (s11) by better tuning the input impedance to 50Ω. This structural change enhances the input termination without altering biasing, directly attacking the binding constraint (s11_db) by increasing the shunt path at the input node (n3), improving input match.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+PMOS PM1 n3 VDD n5 VDD
+```
+
+**Prediction:** s11_db improves by ~3.0 dB.  
+*Reasoning:* Replacing the R2 resistor with a PMOS (PM1) in a current mirror-like configuration (gate tied to VDD, source to n3, drain to n5) creates a dynamic load at the gate of NM1. This improves input impedance matching by introducing a voltage-controlled current source that stabilizes and tunes the gate voltage of NM1, reducing the reflection at the input (n1). The PMOS provides better impedance transformation than R2, especially at 915 MHz, directly improving s11_db.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n3 n3 VSS VSS
+```
+
+**Prediction:** s11_db improves by ~2.8 dB.  
+*Reasoning:* Adding a diode-connected NMOS (NM4) with gate and drain tied to n3 (input node) creates a nonlinear but effective shunt termination at the gate of NM1. This provides a dynamic impedance that enhances input matching by adjusting the effective input resistance and capacitance at 915 MHz. The diode-connected NM4 acts as a voltage-dependent resistor that stabilizes the gate node (n3), reducing reflections and improving s11_db significantly. This structural change is distinct from the others as it directly modifies the gate node's loading, enhancing input match without altering the bias chain.

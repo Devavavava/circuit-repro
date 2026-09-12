@@ -1,0 +1,54 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n3 n3 VSS VSS
+```
+
+**Prediction:** s11_db improves by ~2.5 dB.  
+*Rationale:* Adding a diode-connected NMOS (NM4) at the gate of NM1 (n3) increases the effective gate resistance and stabilizes the gate node, reducing input reflection by improving impedance matching at the input. The added transistor acts as a parasitic load that dampens high-frequency oscillations and improves S11.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+PMOS PM1 n3 n1 VSS VSS
+```
+
+**Prediction:** s11_db improves by ~3.2 dB.  
+*Rationale:* Replacing the resistor R2 (from n6 to n3) with a PMOS (PM1) connected between n3 and n1 (with gate tied to VSS) introduces a gate-controlled, non-linear load that dynamically adjusts the gate bias of NM1. The PMOS acts as a voltage-dependent current source that enhances input impedance matching at the input port (n1), directly improving S11. The structure resembles a self-biased cascode-like input stage, which is known to improve input matching in LNAs.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n3 n5 VSS VSS
+```
+
+**Prediction:** s11_db improves by ~2.8 dB.  
+*Rationale:* Adding NM4 as a source follower from n3 to n5 (with gate tied to n3, source to n5, bulk to VSS) provides a low-impedance path from the gate node (n3) to the source node (n5), effectively shunting high-frequency signals and reducing input reflection. This improves input matching by reducing the effective impedance seen at the input port (n1), especially around f0. The structure increases the effective input capacitance but in a way that is beneficial for matching in narrowband designs.

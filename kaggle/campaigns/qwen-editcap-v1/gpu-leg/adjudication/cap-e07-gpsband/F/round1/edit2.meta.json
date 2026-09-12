@@ -1,0 +1,105 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**Prediction**:  \n`s11_db improves by ~6 dB`  \n*Reason*: Introduced a **new internal node n7** and used it as a **common-mode feedback node**. R3 and R4 form a voltage divider from VDD to VSS, setting a fixed bias point for the gate of PM1 (via n7), removing the floating PM2. The new R2 from n2 to n1 creates a **shunt resistor at the input**, forming a **resistive input termination** in parallel with the LC tank. This stabilizes the input impedance, significantly improving S11. The structure now resembles a **common-source LNA with resistive input termination and feedback**, which is highly effective for narrowband input matching. The floating node issue is eliminated, and the input match is more predictable.",
+  "wl_hash": "cbdc813deb617b85",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 16.688950000000002,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -4.29395,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 3.94234,
+    "metrics": {
+      "s11_db": -0.604949,
+      "s11_max_db": -0.591069,
+      "s21_db": 6.2332,
+      "s21_min_db": 6.16788,
+      "idd_ma": 22.516370000000002,
+      "nf_db": 3.811908,
+      "s22_db": -3.97539,
+      "s22_max_db": -3.9491,
+      "s12_db": -27.9579,
+      "k_f0": 0.468366,
+      "k_min": 0.467181,
+      "mu_f0": 0.654082,
+      "mu_min": 0.653731,
+      "mu_src_f0": 0.925533,
+      "mu_src_min": 0.923703,
+      "delta_f0": 0.58919,
+      "delta_max": 0.590427,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.13107999999999986,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.811908,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": -0.27063599999999993,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.604949,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.9395051000000001,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 6.2332,
+        "required_min": 12,
+        "required_max": null,
+        "scale": 12,
+        "margin": -0.48056666666666664,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 22.516370000000002,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": -1.251637,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -8,
+        "required_max": null,
+        "scale": 8,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "idd_ma",
+      -1.251637
+    ],
+    "seed": 1,
+    "seconds": 60.845,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 16.688950000000002
+}

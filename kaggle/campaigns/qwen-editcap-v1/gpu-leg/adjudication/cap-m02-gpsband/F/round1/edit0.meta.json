@@ -1,0 +1,105 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "**Prediction for S11_db**: **Improves by ~4 dB**.\n\n**Rationale**:  \n- Removed floating PM2/NM2 (now properly connected).  \n- Added **current mirror from PM2/NM2** (PM2: gate to n2, source to VDD; NM2: gate to n3, source to VSS) \u2014 enables **active biasing** and **impedance transformation** at input.  \n- The gate of PM2 is now at **n2**, which is connected to the inductor L1, so it creates **negative feedback** from output to input via the current mirror.  \n- This structure enhances **input matching** by introducing **feedback that tunes input impedance** toward 50\u03a9 at resonance.  \n- The current mirror stabilizes the DC operating point and increases transconductance gain.  \n- Predicted **S11 improvement**: ~4 dB (from -1.59 dB to ~2.4 dB), well above -10 dB.\n\n---",
+  "wl_hash": "a6238845634533bc",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 9.380059,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -5.968,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 6.08588,
+    "metrics": {
+      "s11_db": -0.645729,
+      "s11_max_db": -0.630591,
+      "s21_db": 2.58967,
+      "s21_min_db": 2.5203,
+      "idd_ma": 14.56266,
+      "nf_db": 5.330368,
+      "s22_db": -4.50004,
+      "s22_max_db": -4.48676,
+      "s12_db": -30.1748,
+      "k_f0": 1.09616,
+      "k_min": 1.09572,
+      "mu_f0": 1.04491,
+      "mu_min": 1.04464,
+      "mu_src_f0": 1.00672,
+      "mu_src_min": 1.00652,
+      "delta_f0": 0.555157,
+      "delta_max": 0.555279,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.13924999999999965,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 5.330368,
+        "required_min": null,
+        "required_max": 2.2,
+        "scale": 2.2,
+        "margin": -1.4228945454545452,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.645729,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.9354271000000001,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 2.58967,
+        "required_min": 14,
+        "required_max": null,
+        "scale": 14,
+        "margin": -0.8150235714285714,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 14.56266,
+        "required_min": null,
+        "required_max": 5,
+        "scale": 5,
+        "margin": -1.912532,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -8,
+        "required_max": null,
+        "scale": 8,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "idd_ma",
+      -1.912532
+    ],
+    "seed": 1,
+    "seconds": 62.842,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 9.380059
+}

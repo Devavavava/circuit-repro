@@ -1,0 +1,72 @@
+### DIAGNOSIS:
+The circuit fails primarily due to **excessive noise figure (NF = 2.18 dB)**, which exceeds the 1.8 dB target by 0.38 dB. The normalized margin is -0.212, confirming it as the binding constraint. The primary physical cause is the **poor noise performance of the input stage**, dominated by the **high input-referred noise of the NMOS transistors NM1 and NM2**. Specifically:
+
+- NM1 is the input transistor (source follower-like behavior), but it’s **not properly isolated** from the supply via a current source or cascode, leading to **high flicker noise and low output impedance**.
+- NM2 is a **pull-up transistor** (drain to VDD, gate to input node n5), forming a **common-source stage with a resistive load** (R1, R2). This configuration has **low transconductance and high output impedance**, which degrades noise performance.
+- The **current through the input transistor NM1 is too low** relative to the required gain and matching, reducing the signal-to-noise ratio at the input.
+- The **lack of a cascode or current source** in the input path results in **high output impedance and poor noise immunity**.
+- The **high power consumption (2.65 mA)** is acceptable, but **not enough to justify the noise penalty** — hence, the circuit is not efficiently using power to reduce noise.
+
+Thus, the root issue is **insufficient transconductance-to-current ratio in the input stage**, exacerbated by **poor noise shaping and lack of feedback or cascoding**.
+
+---
+
+### EDIT 1: **Add cascode NMOS to input stage (improves NF by reducing noise gain and increasing output impedance)**  
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+NMOS NM4 n7 n5 n6 VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+
+**Prediction**: `nf_db` improves by **~0.6 dB** (predicted: 1.58 dB).  
+*Justification*: The cascode NM4 increases output impedance of NM1 and reduces noise contribution from the input transistor by lowering its effective transconductance and shielding it from gate-to-drain feedback (Miller effect). This improves noise figure significantly.
+
+---
+
+### EDIT 2: **Replace resistive load with a current source (improves NF and gain via higher output impedance)**  
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+NMOS NM4 n7 n6 VDD VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+
+**Prediction**: `nf_db` improves by **~0.5 dB** (predicted: 1.68 dB).  
+*Justification*: Replacing the resistive load R1/R2 with a current source (NM4) increases output impedance and thus gain. Higher output impedance reduces noise contribution from the output node and improves transconductance-to-current ratio. The input stage now behaves more like a standard low-noise amplifier with active load.
+
+---
+
+### EDIT 3: **Insert source degeneration and feedback resistor to stabilize noise and improve input matching**  
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+R R3 n3 n1
+```
+
+**Prediction**: `nf_db` improves by **~0.4 dB** (predicted: 1.78 dB).  
+*Justification*: Adding R3 from source (n3) to input (VIN1) introduces **source degeneration**, which reduces gain but improves linearity and **lowers noise** by reducing the effective transconductance and increasing input impedance. This improves the noise figure by reducing the noise contribution from the input transistor and enhancing stability. The feedback helps in matching and reduces noise gain.
+
+---

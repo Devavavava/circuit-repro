@@ -1,0 +1,66 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+NMOS NM3 n6 n3 VSS VSS
+```
+
+**Prediction**: NF_db improves by ~0.4 dB.  
+*Rationale*: The failure is dominated by excessive noise figure due to high input-referred noise from the NMOS input transistor (NM1) and poor noise matching. The current gate biasing of NM1 via R1–R2 is unstable and results in suboptimal transconductance and noise performance. Adding NM3 (diode-connected NMOS) between n6 and n3 creates a current mirror-like feedback path that stabilizes the gate voltage of NM1, reducing noise by improving bias point stability and increasing effective transconductance. This is a classic technique for improving noise performance in LNA topologies.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+PMOS PM3 n6 n2 VDD VDD
+```
+
+**Prediction**: NF_db improves by ~0.5 dB.  
+*Rationale*: The current topology has a floating gate node (n2) for NM1 biased through a resistive chain that is sensitive to process and temperature variations, leading to suboptimal biasing and degraded noise figure. Introducing PM3 (a PMOS from n6 to n2) creates a feedback path that actively pulls the gate of NM1 toward a stable voltage, reducing the gate voltage drift. This stabilizes the transconductance and reduces thermal noise. The PM3 acts as a current source in the feedback loop, improving the input stage’s noise performance without adding DC power consumption.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C5 n2 VSS
+```
+
+**Prediction**: NF_db improves by ~0.6 dB.  
+*Rationale*: The primary failure is due to poor noise matching and high input-referred noise. The gate of NM1 (n2) is floating except through resistors, leading to a high impedance node that is sensitive to noise and instability. Adding C5 (a capacitor from n2 to VSS) creates a low-impedance AC ground at the gate, which stabilizes the gate voltage and reduces gate noise. This is a standard technique in LNA design: bypassing the gate to ground at RF reduces the effective noise contribution from the input transistor. This directly improves the noise figure by reducing the input-referred thermal noise and improving matching.

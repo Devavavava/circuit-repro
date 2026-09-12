@@ -1,0 +1,23 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**Prediction**: `s11_db improves by ~4.5 dB`  \n*Reasoning*: Adding an **inductor L3 from the gate node (n2) to VSS** introduces **source degeneration inductance**. This creates a **series inductor at the gate**, which increases the input impedance and helps **tune out the gate capacitance**. This is a well-known method in LNA design to improve input match and stability. The inductor resonates with the input capacitance to create a higher impedance at the input node, reducing reflection. This is especially effective in common-source topologies where gate capacitance dominates input impedance.",
+  "wl_hash": "bf4aa70390ea8351",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "fence_fail",
+  "fence_detail": {
+    "passed": false,
+    "idd_ma": 0.9148025,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -36.1227,
+    "s21_ok": false,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": null,
+  "error": null,
+  "smoke_idd_ma": 0.9148025
+}

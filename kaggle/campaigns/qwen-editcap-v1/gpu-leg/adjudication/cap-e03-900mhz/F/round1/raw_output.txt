@@ -1,0 +1,54 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n3 n2 n5 VSS
+```
+
+**Prediction**: s21_db improves by ~1.2 dB.  
+*Reasoning*: Adding a cross-coupled NMOS (NM4) between gate of NM2 (n2) and source of NM1 (n3) increases forward gain via feedback-enhanced transconductance and improves current steering. This structural change strengthens the signal path from input to output, directly boosting S21 without increasing Idd significantly, addressing the binding S21 failure.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+PMOS PM1 n1 n3 n5 VDD
+```
+
+**Prediction**: s21_db improves by ~1.0 dB.  
+*Reasoning*: Inserting a PMOS (PM1) with gate at input (n1), drain at n3 (NM1's gate), and source at n5 (common node) creates a current mirror-like feedback that enhances effective transconductance gain. This improves the input-to-output signal transfer by stabilizing the bias point and increasing gain at the expense of only minor Idd increase, directly targeting the S21 shortfall.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L4 n3 n5
+```
+
+**Prediction**: s21_db improves by ~1.1 dB.  
+*Reasoning*: Adding an inductor (L4) between n3 (NM1's gate) and n5 (common source node) creates a resonant network that enhances gain at 915 MHz via inductive peaking. This structural change improves signal amplification at the target frequency by shaping the input impedance and increasing gain bandwidth product, directly addressing the S21 deficit while maintaining low noise and stability.

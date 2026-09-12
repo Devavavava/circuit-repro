@@ -1,0 +1,105 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "**Prediction**:  \n`s11_db improves by ~4.5 dB`  \n*Reason*: Removed floating NM2 and PM2 (which caused parasitic input impedance shifts). Replaced R2 and R3 with direct connection to VSS to stabilize gate biasing and eliminate floating nodes. The input LC tank (C1, L1) is now better defined, improving input match. The shunt path from n2 to VSS via R3 and R4 allows better control of input impedance, enabling better tuning to 50 \u03a9.\n\n---",
+  "wl_hash": "fd188e9cd3944b87",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 13.99643,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -10.5028,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.20248,
+    "metrics": {
+      "s11_db": -0.553074,
+      "s11_max_db": -0.543516,
+      "s21_db": 8.90658,
+      "s21_min_db": 8.85753,
+      "idd_ma": 8.737091000000001,
+      "nf_db": 2.932327,
+      "s22_db": -0.588956,
+      "s22_max_db": -0.568199,
+      "s12_db": -26.3123,
+      "k_f0": 0.159277,
+      "k_min": 0.158668,
+      "mu_f0": 0.398391,
+      "mu_min": 0.398012,
+      "mu_src_f0": 0.416424,
+      "mu_src_min": 0.400713,
+      "delta_f0": 0.892497,
+      "delta_max": 0.894259,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.0983799999999988,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.932327,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": 0.022557666666666698,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.553074,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.9446926,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 8.90658,
+        "required_min": 12,
+        "required_max": null,
+        "scale": 12,
+        "margin": -0.257785,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 8.737091000000001,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": 0.12629089999999987,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -8,
+        "required_max": null,
+        "scale": 8,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.9446926
+    ],
+    "seed": 1,
+    "seconds": 60.987,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 13.99643
+}

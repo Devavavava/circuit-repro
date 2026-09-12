@@ -1,0 +1,50 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n3 n3 VSS VSS
+```
+
+**Prediction:** s21_db improves by ~0.8 dB.  
+*Reasoning:* Adding a diode-connected NMOS (NM4) at the gate of NM1 (n3) increases the effective transconductance and stabilizes the gate bias point, enhancing gain by improving the DC operating point of NM1 and reducing gate-source voltage swing sensitivity. This directly targets the S21 shortfall.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+NMOS NM4 n2 n3 VSS VSS
+```
+
+**Prediction:** s21_db improves by ~1.2 dB.  
+*Reasoning:* Adding a source-degenerated NMOS (NM4) from n2 (drain of NM2) to n3 (gate of NM1) creates a feedback path that increases input impedance and improves gain by stabilizing the gate voltage and reducing signal loss. This structural change enhances voltage gain while maintaining stability.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+PMOS PM1 n3 n2 VSS VSS
+```
+
+**Prediction:** s21_db improves by ~1.5 dB.  
+*Reasoning:* Replacing the resistive gate bias chain (R1-R2) with a PMOS current mirror (PM1) between n3 and n2 provides a more stable, higher-impedance gate bias, improving the DC bias point and increasing transconductance. The PMOS acts as a dynamic load, enhancing gain without increasing quiescent current, directly addressing the S21 deficit.

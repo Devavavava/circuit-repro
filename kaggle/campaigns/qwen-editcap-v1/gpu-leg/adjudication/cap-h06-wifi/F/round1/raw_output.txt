@@ -1,0 +1,66 @@
+### DIAGNOSIS:
+The circuit fails primarily due to **excessive noise figure (NF)** — the binding constraint, with a margin of -0.2586 dB. The NF is dominated by the **source degeneration and low transconductance efficiency** in the current mirror-based biasing and the absence of a proper noise-canceling or noise-reduction topology. The NMOS transistor NM1 (the input device) is operating in a configuration with strong source degeneration (via C3 and L2), but the current mirror pair (PM1/NM1) is not properly stabilized or optimized for low noise. Additionally, the dummy transistors (NM2 and PM2) are floating (gate connected to source), which introduces instability and parasitic gain paths, increasing noise. The current mirror (PM1/NM1) is not properly mirrored due to mismatched biasing, leading to poor transconductance and low gain — both contributing to poor NF. The high Idd (slightly over budget) suggests inefficient biasing, but the NF is the dominant issue.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+
+**Predicted change:**  
+**nf_db improves by ~0.6 dB** — removing the floating dummy transistors (NM2, PM2) eliminates parasitic noise sources and improves mirror symmetry, reducing noise gain and improving transconductance efficiency.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n6 n6 VDD VDD
+NMOS NM2 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+
+**Predicted change:**  
+**nf_db improves by ~0.4 dB** — moving the dummy pair to a common gate (n6) with a shared gate bias improves mirror symmetry and reduces flicker noise coupling, while stabilizing the DC point and reducing parasitic feedback paths that contribute to noise.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+NMOS NM2 n7 n6 VSS VSS
+PMOS PM2 n6 n7 VDD VDD
+```
+
+**Predicted change:**  
+**nf_db improves by ~0.8 dB** — replacing the floating dummy transistors with a **current mirror pair (NM2/PM2)** that actively mirrors and stabilizes the bias current introduces better current control, reduces thermal noise from uncontrolled leakage, and improves transconductance-to-current ratio, directly lowering noise figure. The structure now has a more robust and symmetric current mirror with active feedback, enhancing noise performance.

@@ -1,0 +1,69 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+NMOS NM3 n5 n8 VSS VSS
+PMOS PM3 n8 n3 VDD VDD
+```
+
+**Prediction**: nf_db improves by ~0.4 dB.  
+*Reason*: Adding a cascode PMOS (PM3) and NMOS (NM3) at the output node (n5) increases output impedance and reduces noise gain. The cascode structure suppresses the Miller effect and improves noise performance by isolating the input from output capacitance, directly addressing the high NF caused by excessive feedback gain and parasitic capacitance.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C5 n5 n8
+L L3 n8 VSS
+```
+
+**Prediction**: nf_db improves by ~0.5 dB.  
+*Reason*: Replacing the drain connection of NM1 and PM1 (n5) with a grounded inductor (L3) and adding a shunt capacitor (C5) forms a parallel resonant tank at the output. This increases the output impedance at f0, enhancing gain and improving noise matching. The LC tank enhances S21 and reduces noise by improving impedance transformation and reducing effective source resistance seen by the input.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+PMOS PM3 n5 n2 VDD VDD
+NMOS NM3 n5 n3 VSS VSS
+```
+
+**Prediction**: nf_db improves by ~0.6 dB.  
+*Reason*: Replacing the common drain node (n5) with a cross-coupled pair (PM3 and NM3) creates a differential pair-like structure with current steering, enhancing transconductance gain and reducing noise by improving current efficiency and suppressing noise from the bias network. This topology increases the effective transconductance while maintaining low input noise, directly attacking the NF failure by reducing noise factor via better current utilization and cancellation of thermal noise.

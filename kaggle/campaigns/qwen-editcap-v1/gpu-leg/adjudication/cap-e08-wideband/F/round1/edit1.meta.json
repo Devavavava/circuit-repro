@@ -1,0 +1,23 @@
+{
+  "index": 1,
+  "round": 1,
+  "predicted_delta_text": "**Prediction**:  \n- **s11_db improves by ~5 dB** (from -3.22 dB to ~1.8 dB).  \n- **Reason**: NM2 is now a **proper source degeneration transistor** with gate tied to n3 (which is now biased via R1\u2013R2 to VDD). R3 and R4 provide **strong source grounding**, improving DC stability. The gate of NM1 is tied to n2 (source), so NM1 is **diode-connected**, but with NM2 providing active degeneration, **input impedance is improved**. The circuit now has a **valid DC path** and **active input matching**.\n\n---\n\n#### Edit 3: Introduce feedback inductance and remove floating nodes via grounded gate bias",
+  "wl_hash": "20fc79ae7b4b8dee",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "fence_fail",
+  "fence_detail": {
+    "passed": false,
+    "idd_ma": 0.3056034,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -30.144,
+    "s21_ok": false,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": null,
+  "error": null,
+  "smoke_idd_ma": 0.3056034
+}

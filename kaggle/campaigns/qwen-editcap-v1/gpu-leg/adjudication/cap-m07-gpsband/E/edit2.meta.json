@@ -1,0 +1,105 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**PREDICTION**:  \n- **s11_db improves by ~4.0 dB**  \n- *Reason*: Replacing **C2 (shunt cap)** with **C5 (shunt cap)** and adding **L3 (shunt inductor from gate to ground)** creates a **parallel LC tank at the gate node**, which **tunes the input impedance** to 50\u03a9 at 1.575 GHz. The **series C1 and L1** now form a **low-pass filter** that, together with the **gate tank (L3-C5)**, enables **optimal input matching**. The **biasing network (R1/R2)** remains intact but is now isolated from the RF path by the **tuned gate network**. This is a **classic input matching approach** for LNAs.\n\n---",
+  "wl_hash": "a29500c3aac8584a",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 0.5150013999999999,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -27.0794,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 13.19043,
+    "metrics": {
+      "s11_db": -8.26183,
+      "s11_max_db": -7.26833,
+      "s21_db": -19.982,
+      "s21_min_db": -20.2905,
+      "idd_ma": 1.132247,
+      "nf_db": 21.09357,
+      "s22_db": -10.8239,
+      "s22_max_db": -10.7776,
+      "s12_db": -21.4334,
+      "k_f0": 46.0401,
+      "k_min": 44.9569,
+      "mu_f0": 3.40392,
+      "mu_min": 3.39216,
+      "mu_src_f0": 2.5451,
+      "mu_src_min": 2.2763,
+      "delta_f0": 0.119515,
+      "delta_max": 0.132918,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.5897000000000006,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 21.09357,
+        "required_min": null,
+        "required_max": 2.0,
+        "scale": 2.0,
+        "margin": -9.546785,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -8.26183,
+        "required_min": null,
+        "required_max": -12,
+        "scale": 12,
+        "margin": -0.3115141666666667,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -19.982,
+        "required_min": 15,
+        "required_max": null,
+        "scale": 15,
+        "margin": -2.332133333333333,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 1.132247,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": 0.71693825,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -6,
+        "required_max": null,
+        "scale": 6,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -9.546785
+    ],
+    "seed": 2,
+    "seconds": 62.644,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 0.5150013999999999
+}

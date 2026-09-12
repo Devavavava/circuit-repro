@@ -1,0 +1,18 @@
+### DIAGNOSIS:
+
+The binding constraint is **S11_db = -1.844 dB**, which is **0.846 dB below** the required **-12 dB** (i.e., margin = -0.846). This indicates **poor input matching** — the amplifier is reflecting too much power back at the input port. 
+
+The root cause lies in the **input network topology**:
+- The input is connected via **C1 (input blocking cap)** to **n1**, which is tied to **L1 (inductor)** and **C2 (shunt cap)**.
+- The **gate of NM1 (n2)** is biased through **R1 and R2**, forming a **voltage divider** from VDD to VSS, but the **gate node (n2)** is also connected to **C2 (shunt capacitor to n3)** and **L1 (series inductor to n1)**.
+- The **input impedance** is dominated by **L1 in series with C1**, shunted by **C2**, and loaded by the **gate input impedance** of NM1 — which is inherently **high but reactive**.
+- The **diode-connected NM2 (n6)** and **PM2 (n7)** are used to set bias currents, but they are **not directly influencing input matching**.
+- Crucially, **no inductor or capacitor is placed at the gate node to tune the input impedance**. The input matching relies on **L1 and C2**, but their **Q is too low** and the **biasing network (R1/R2)** creates a **low-impedance path to VDD/VSS**, which **loads the input** and detunes the matching.
+
+Thus, the **primary failure mechanism is poor input impedance matching due to unoptimized series inductor (L1) and shunt capacitor (C2) values, combined with the loading effect of the gate bias network (R1/R2)**. The **input port is not being properly isolated** from the power supply rails, causing **reflection**.
+
+To fix this, we must **restructure the input matching network** to **decouple the gate bias node from the input signal path** and **add intentional impedance matching elements** (e.g., a series inductor and shunt capacitor at the gate).
+
+---
+
+### EDIT 1: **Add a gate isolation inductor (L3) and re-arrange biasing to isolate input from bias network**

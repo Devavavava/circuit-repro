@@ -1,0 +1,105 @@
+{
+  "index": 1,
+  "round": 1,
+  "predicted_delta_text": "**Prediction**: s11_db improves by ~3.5 dB.  \n*Reasoning*: The input node (n1) is connected directly to L1 and C1, forming a resonant input structure. However, the gate of NM1 (n2) is biased via R1-R2, making the input impedance sensitive to bias point and parasitics. Introducing PM3 (PMOS) with drain tied to n1 (input), gate to n2, source to VDD, creates a feedback path from output to input via the gate. This is a **source-degenerated PMOS feedback** that actively stabilizes the input impedance. The PM3 acts as a voltage-controlled current source pulling current from the input node, effectively increasing the input resistance and enabling better matching to 50\u03a9. The structure is similar to a common-gate amplifier with feedback, enhancing input match at the cost of some gain \u2014 but the binding metric s11_db is improved significantly due to better impedance scaling.\n\n---",
+  "wl_hash": "4194459e9cbcb518",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 10.45569,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": 3.30649,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 3.01703,
+    "metrics": {
+      "s11_db": -0.393553,
+      "s11_max_db": -0.393108,
+      "s21_db": 5.99972,
+      "s21_min_db": 5.99857,
+      "idd_ma": 6.574749000000001,
+      "nf_db": 3.47287,
+      "s22_db": -1.65233,
+      "s22_max_db": -1.65226,
+      "s12_db": -34.6018,
+      "k_f0": 0.258389,
+      "k_min": 0.255517,
+      "mu_f0": 0.709371,
+      "mu_min": 0.705431,
+      "mu_src_f0": 0.914365,
+      "mu_src_min": 0.912885,
+      "delta_f0": 0.784924,
+      "delta_max": 0.784955,
+      "stab_band": [
+        902000000.0,
+        928000000.0
+      ],
+      "s21_ripple_db": 0.0022700000000002163,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.47287,
+        "required_min": null,
+        "required_max": 2.5,
+        "scale": 2.5,
+        "margin": -0.38914799999999994,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.393553,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.9606446999999999,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 5.99972,
+        "required_min": 14,
+        "required_max": null,
+        "scale": 14,
+        "margin": -0.5714485714285714,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 6.574749000000001,
+        "required_min": null,
+        "required_max": 6,
+        "scale": 6,
+        "margin": -0.0957915000000001,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -5,
+        "required_max": null,
+        "scale": 5,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.9606446999999999
+    ],
+    "seed": 1,
+    "seconds": 64.117,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 10.45569
+}

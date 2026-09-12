@@ -1,0 +1,18 @@
+### DIAGNOSIS (failure analysis):
+
+The circuit fails primarily on **S11_db** (input return loss), with a margin of **-0.98 dB**, which is the worst-case constraint. The achieved S11_db is **-0.22 dB**, far from the required **≤ -12 dB**. This indicates **poor input impedance matching** at 1.575 GHz. 
+
+Looking at the structure:
+- The input is fed through **C1** (series capacitor), which isolates DC.
+- The gate of **NM1** (the main LNA transistor) is tied to **n3**, which is connected via **R2** to **n6**, and **R1** from **VDD** to **n6** — forming a **resistive divider** to set the gate bias.
+- However, **NM3** is diode-connected (gate-drain tied to n6), and **R1** and **R2** form a **biasing resistor chain** that sets the gate voltage of NM1.
+- The gate of **NM2** is directly tied to **VDD**, so it is permanently on — this is a **fixed bias** transistor.
+- The **source of NM1** is connected to **VSS** via **L2**, which is a **series inductor** — this is intended to provide AC grounding at VSS while blocking DC, but in this case, it may be **detuning** the input matching.
+- The **gate of NM1 is not directly connected** to a low-impedance AC ground. Instead, it’s connected through **R1 and R2** (a resistive divider), which **increases the input impedance** and **degrades input match**.
+- The **bias network (R1/R2)** is **not decoupled**, and with **no AC grounding** at node n3, the gate of NM1 sees a **high impedance at RF**, leading to **poor input reflection**.
+
+Thus, the **primary issue** is **lack of AC grounding at the gate of NM1**. The resistive divider (R1/R2) presents a high impedance at RF, and the lack of a **shunt path to ground** at the gate causes **S11 to be poor**. This is a classic **input matching failure** due to **unshunted gate biasing**.
+
+---
+
+### EDIT 1: Add a shunt AC ground at the gate of NM1 via a bypass capacitor

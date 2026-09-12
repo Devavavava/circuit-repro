@@ -1,0 +1,62 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+NMOS NM3 n6 n2 VSS VSS
+```
+
+**Prediction:** s11_db improves by ~2.0 dB.  
+*Reasoning:* The addition of NM3 (source follower-like degeneration) injects a low-impedance path from n6 to n2, reducing the input reflection by stabilizing the gate drive and lowering the effective input impedance mismatch. This directly targets the S11 failure (currently -2.59 dB), which is 0.74 dB below target.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+PMOS PM3 n3 n2 VDD VDD
+```
+
+**Prediction:** s11_db improves by ~1.8 dB.  
+*Reasoning:* Adding PM3 (source follower-like topology from n3 to n2) creates a positive feedback path that increases the gate impedance and pulls the gate node (n2) toward VDD, reducing its sensitivity to input reflection. This counteracts the low input impedance caused by the diode-connected NM2 and helps match the input to 50Ω.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+L L3 n3 n2
+```
+
+**Prediction:** s11_db improves by ~2.5 dB.  
+*Reasoning:* Inserting L3 (a series inductor between gate nodes n3 and n2) introduces a resonant path that tunes the gate impedance of PM1 and NM1. This creates a broadband impedance matching effect at 1.575 GHz, directly improving input return loss (S11) by reshaping the input admittance toward 50Ω. The inductor acts as a series impedance matching element, directly addressing the input mismatch that causes S11 to fail.

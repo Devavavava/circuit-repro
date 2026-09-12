@@ -1,0 +1,105 @@
+{
+  "index": 1,
+  "round": 2,
+  "predicted_delta_text": "**Predicted effect on binding metric (s21_db):** Improves by ~5 dB. Replacing the source inductor (L2) from connecting NM1 source (n4) to VSS with a connection from VDD to n4 reconfigures the DC bias path and increases the effective source degeneration impedance at RF. This improves output impedance matching and enhances gain by reducing source loading, directly boosting S21. The topology now enables a higher effective transconductance gain and better output matching, addressing the primary S21 deficit.\n\n---",
+  "wl_hash": "e0fb83e39396f4f7",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 2.6475969999999998,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -5.71143,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 3.85431,
+    "metrics": {
+      "s11_db": -0.22436,
+      "s11_max_db": -0.223606,
+      "s21_db": -4.09639,
+      "s21_min_db": -4.14388,
+      "idd_ma": 11.171240000000001,
+      "nf_db": 5.154508,
+      "s22_db": -10.7833,
+      "s22_max_db": -10.5857,
+      "s12_db": -33.9817,
+      "k_f0": 1.57404,
+      "k_min": 1.53566,
+      "mu_f0": 1.28505,
+      "mu_min": 1.2723,
+      "mu_src_f0": 1.00802,
+      "mu_src_min": 1.00764,
+      "delta_f0": 0.269121,
+      "delta_max": 0.275897,
+      "stab_band": [
+        902000000.0,
+        928000000.0
+      ],
+      "s21_ripple_db": 0.0924100000000001,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 5.154508,
+        "required_min": null,
+        "required_max": 3.5,
+        "scale": 3.5,
+        "margin": -0.4727165714285714,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.22436,
+        "required_min": null,
+        "required_max": -8,
+        "scale": 8,
+        "margin": -0.971955,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -4.09639,
+        "required_min": 10,
+        "required_max": null,
+        "scale": 10,
+        "margin": -1.4096389999999999,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 11.171240000000001,
+        "required_min": null,
+        "required_max": 15,
+        "scale": 15,
+        "margin": 0.2552506666666666,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s21_db",
+      -1.4096389999999999
+    ],
+    "seed": 1,
+    "seconds": 61.774,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 2.6475969999999998
+}

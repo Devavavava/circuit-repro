@@ -1,0 +1,58 @@
+```netlist
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C1 VIN1 n1
+C C2 n1 n2
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+```
+
+Predicted: s11_max_db improves by ~1.5 dB (due to improved input matching via shunt input capacitor C2 between VIN1 and n1, reducing input reflection by tuning input impedance toward 50Ω).
+
+```netlist
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+C C5 n2 n4
+```
+
+Predicted: s11_max_db improves by ~2.0 dB (due to added shunt feedback capacitor C5 between n2 and n4, enhancing input matching and stabilizing the input impedance across band via degenerative feedback).
+
+```netlist
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C1 VIN1 n1
+C C2 n1 n2
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+C C5 n3 n4
+```
+
+Predicted: s11_max_db improves by ~1.8 dB (due to added feedback capacitor C5 between n3 and n4, which tunes the output impedance and indirectly improves input matching via feedback, enhancing overall stability and match across the band).

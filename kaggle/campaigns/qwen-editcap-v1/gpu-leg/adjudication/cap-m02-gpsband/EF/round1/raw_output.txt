@@ -1,0 +1,62 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+NMOS NM3 n6 n2 VSS VSS
+```
+
+Predicted: s11_db improves by ~2.5 dB.  
+Reason: Adding NM3 (source-follower buffer) between R2 and NM1's gate increases input impedance at the gate node (n2), reducing reflection at the input. The diode-connected NM2 already provides some current steering, but NM3 enhances gate drive stability and reduces input VSWR via improved impedance matching.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+PMOS PM3 n2 n6 VDD VDD
+```
+
+Predicted: s11_db improves by ~2.8 dB.  
+Reason: Replacing NM2 with a PMOS (PM3) in a cascode-like configuration between gate (n2) and drain (n6) provides a higher impedance at the gate node, reducing the loading effect and increasing input impedance. The PM3 acts as a current source with higher output impedance than NM2, improving input matching and reducing signal reflection.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C5 n2 n3
+```
+
+Predicted: s11_db improves by ~3.2 dB.  
+Reason: Adding a shunt capacitor C5 between gate (n2) and PM1's gate (n3) forms a low-pass filter that reduces high-frequency signal reflection at the input node. This improves impedance matching at the input by introducing a controlled phase shift and reducing VSWR, particularly around the center frequency. The added capacitance provides a path to ground for high-frequency components, enhancing input return loss.

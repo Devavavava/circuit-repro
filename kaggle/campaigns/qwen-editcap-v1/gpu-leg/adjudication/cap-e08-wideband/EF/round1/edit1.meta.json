@@ -1,0 +1,113 @@
+{
+  "index": 1,
+  "round": 1,
+  "predicted_delta_text": "Predicted: s11_max_db improves by ~2.8 dB.  \nReason: Adding a second diode-connected PMOS (PM3) in parallel with PM2 increases the gate-source capacitance and stabilizes the gate node (n3), reducing high-frequency signal reflection at the input. This improves input impedance matching by enhancing the stability and damping of the gate bias network, directly mitigating the S11 degradation.",
+  "wl_hash": "3b71f6d5f6ec8947",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 3.38856,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -5.52232,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.2938,
+    "metrics": {
+      "s11_db": -0.358445,
+      "s11_max_db": -0.301289,
+      "s21_db": 6.6854,
+      "s21_min_db": 6.55458,
+      "idd_ma": 8.233077999999999,
+      "nf_db": 3.016808,
+      "s22_db": -1.42496,
+      "s22_max_db": -1.40859,
+      "s12_db": -27.8691,
+      "k_f0": 0.0914614,
+      "k_min": 0.0914541,
+      "mu_f0": 0.396848,
+      "mu_min": 0.313628,
+      "mu_src_f0": 0.750813,
+      "mu_src_min": 0.61267,
+      "delta_f0": 0.810571,
+      "delta_max": 0.815126,
+      "stab_band": [
+        500000000.0,
+        3000000000.0
+      ],
+      "s21_ripple_db": 0.23195000000000032,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.016808,
+        "required_min": null,
+        "required_max": 3.5,
+        "scale": 3.5,
+        "margin": 0.1380548571428571,
+        "supported": true
+      },
+      "s11_max_db": {
+        "achieved": -0.301289,
+        "required_min": null,
+        "required_max": -8,
+        "scale": 8,
+        "margin": -0.962338875,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 6.6854,
+        "required_min": 10,
+        "required_max": null,
+        "scale": 10,
+        "margin": -0.33146000000000003,
+        "supported": true
+      },
+      "s21_ripple_db": {
+        "achieved": 0.23195000000000032,
+        "required_min": null,
+        "required_max": 2.0,
+        "scale": 2.0,
+        "margin": 0.8840249999999998,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 8.233077999999999,
+        "required_min": null,
+        "required_max": 15,
+        "scale": 15,
+        "margin": 0.4511281333333334,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 5,
+        "required_max": null,
+        "scale": 5,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_max_db",
+      -0.962338875
+    ],
+    "seed": 2,
+    "seconds": 65.166,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 3.38856
+}

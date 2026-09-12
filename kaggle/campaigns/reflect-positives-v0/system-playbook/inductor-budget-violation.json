@@ -1,0 +1,43 @@
+{
+  "applicability": {
+    "applies": "when screening candidates with inductor constraints",
+    "not": "when inductor count is not a gated constraint"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-09-12",
+  "evidence": [
+    {
+      "quote": "[cap-e04-35ghz/screen] L0 screen rejected: failed max_inductors",
+      "source": "verbatim candidate errors"
+    },
+    {
+      "quote": "[cap-e05-ism58/screen] L0 screen rejected: failed max_inductors",
+      "source": "verbatim candidate errors"
+    }
+  ],
+  "id": "inductor-budget-violation",
+  "rule": "Ensure inductor count never exceeds the device budget during initial screening to prevent early rejection.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-09-12)"
+  ],
+  "trigger": {
+    "analysis": [
+      "screen-failure",
+      "simulation-health"
+    ],
+    "failure_signature": [
+      "device-budget"
+    ],
+    "family": [
+      "cap-e04-35ghz",
+      "cap-e05-ism58"
+    ],
+    "keywords": [
+      "max_inductors",
+      "inductor",
+      "budget"
+    ]
+  },
+  "type": "anti-pattern"
+}

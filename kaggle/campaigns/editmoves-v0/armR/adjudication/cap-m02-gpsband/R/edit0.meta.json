@@ -1,0 +1,121 @@
+{
+  "move_name": "add_cascode_NMOS",
+  "site": {
+    "mos": "PM1",
+    "load": "n5"
+  },
+  "menu_desc": "add_cascode_NMOS at PM1: insert an NMOS between PM1 drain (n5) and its load net; cascode gate tied to VDD.",
+  "wl_hash": "070da1e76415aac2",
+  "valid": true,
+  "dup": false,
+  "invariants_ok": true,
+  "invariant_detail": {
+    "I1_round_trip": true,
+    "I1_wl_distinct": true,
+    "I2_port_gate": true,
+    "I3_new_gate_bias": true,
+    "I4_budget": true,
+    "wl_in": "226544590d47717b",
+    "wl_out": "070da1e76415aac2",
+    "error": null
+  },
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 1.232372,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -17.8322,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "smoke_idd_ma": 1.232372,
+  "sized": {
+    "feasible": false,
+    "best_obj": 3.8834,
+    "metrics": {
+      "s11_db": -1.03359,
+      "s11_max_db": -1.02976,
+      "s21_db": 3.59954,
+      "s21_min_db": 3.58935,
+      "idd_ma": 3.7478149999999997,
+      "nf_db": 4.936507,
+      "s22_db": -0.434914,
+      "s22_max_db": -0.432985,
+      "s12_db": -30.0904,
+      "k_f0": 0.266069,
+      "k_min": 0.26572,
+      "mu_f0": 0.841378,
+      "mu_min": 0.840468,
+      "mu_src_f0": 0.671912,
+      "mu_src_min": 0.668186,
+      "delta_f0": 0.847421,
+      "delta_max": 0.847481,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.020399999999999974,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 4.936507,
+        "required_min": null,
+        "required_max": 2.2,
+        "scale": 2.2,
+        "margin": -1.243866818181818,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -1.03359,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.896641,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 3.59954,
+        "required_min": 14,
+        "required_max": null,
+        "scale": 14,
+        "margin": -0.7428899999999999,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 3.7478149999999997,
+        "required_min": null,
+        "required_max": 5,
+        "scale": 5,
+        "margin": 0.2504370000000001,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -8,
+        "required_max": null,
+        "scale": 8,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -1.243866818181818
+    ],
+    "seed": 2,
+    "seconds": 23.986,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "netlist": "C C1 VIN1 n1\nC C2 n2 n3\nC C3 n4 VSS\nC C4 n5 VOUT1\nL L1 n1 n2\nL L2 n5 n4\nNMOS NM1 n5 n2 VSS VSS\nNMOS NM2 n6 n6 VSS VSS\nPMOS PM1 csc1 n3 VDD VDD\nPMOS PM2 n7 n7 VDD VDD\nR R1 VDD n6\nR R2 n6 n2\nR R3 n7 VSS\nR R4 n7 n3\nNMOS NMc1 n5 VDD csc1 VSS",
+  "error": null,
+  "index": 0
+}

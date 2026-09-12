@@ -1,0 +1,128 @@
+{
+  "move_name": "add_series_L_output",
+  "site": {
+    "inner": "n5"
+  },
+  "menu_desc": "add_series_L_output at output: insert a series L in the output chain on the internal side of DC-block cap C4 (node n5).",
+  "wl_hash": "c17bc9c339841c4e",
+  "valid": true,
+  "dup": false,
+  "invariants_ok": true,
+  "invariant_detail": {
+    "I1_round_trip": true,
+    "I1_wl_distinct": true,
+    "I2_port_gate": true,
+    "I3_new_gate_bias": true,
+    "I4_budget": true,
+    "wl_in": "226544590d47717b",
+    "wl_out": "c17bc9c339841c4e",
+    "error": null
+  },
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 3.541916,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -1.17736,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "smoke_idd_ma": 3.541916,
+  "sized": {
+    "feasible": false,
+    "best_obj": 3.52193,
+    "metrics": {
+      "s11_db": -0.647929,
+      "s11_max_db": -0.474159,
+      "s21_db": 3.90716,
+      "s21_min_db": 3.64222,
+      "idd_ma": 5.144328,
+      "nf_db": 4.422183,
+      "s22_db": -1.38895,
+      "s22_max_db": -1.29111,
+      "s12_db": -30.3573,
+      "k_f0": 0.437995,
+      "k_min": 0.30784,
+      "mu_f0": 0.801731,
+      "mu_min": 0.5005,
+      "mu_src_f0": 0.900223,
+      "mu_src_min": 0.801955,
+      "delta_f0": 0.79333,
+      "delta_max": 0.801907,
+      "stab_band": [
+        500000000.0,
+        3000000000.0
+      ],
+      "s21_ripple_db": 0.7719100000000001,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 4.422183,
+        "required_min": null,
+        "required_max": 2.5,
+        "scale": 2.5,
+        "margin": -0.7688732000000001,
+        "supported": true
+      },
+      "s11_max_db": {
+        "achieved": -0.474159,
+        "required_min": null,
+        "required_max": -15,
+        "scale": 15,
+        "margin": -0.9683894,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 3.90716,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": -0.7558024999999999,
+        "supported": true
+      },
+      "s21_ripple_db": {
+        "achieved": 0.7719100000000001,
+        "required_min": null,
+        "required_max": 1.5,
+        "scale": 1.5,
+        "margin": 0.4853933333333333,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 5.144328,
+        "required_min": null,
+        "required_max": 5,
+        "scale": 5,
+        "margin": -0.028865599999999957,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_max_db",
+      -0.9683894
+    ],
+    "seed": 2,
+    "seconds": 23.492,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "netlist": "C C1 VIN1 n1\nC C2 n2 n3\nC C3 n4 VSS\nC C4 lo1 VOUT1\nL L1 n1 n2\nL L2 n5 n4\nNMOS NM1 n5 n2 VSS VSS\nNMOS NM2 n6 n6 VSS VSS\nPMOS PM1 n5 n3 VDD VDD\nPMOS PM2 n7 n7 VDD VDD\nR R1 VDD n6\nR R2 n6 n2\nR R3 n7 VSS\nR R4 n7 n3\nL Lout1 n5 lo1",
+  "error": null,
+  "index": 0
+}

@@ -1,0 +1,18 @@
+=== ARM R (RANDOM null) selection ===
+base_seed=1  cell_seed=11122381340040976250  k=3  n_applicable=11
+chose: add_second_stage_CS  site={'out_node': 'n2'}
+chose: add_series_L_input  site={'inner': 'n1'}
+chose: add_L_match_section_input  site={'inner': 'n1'}
+
+=== MENU: applicable structural edits (SELECT by number) ===
+ 1. add_series_L_input at input: insert a series L in the input chain on the internal side of DC-block cap C1 (node n1).
+ 2. add_shunt_C_input at input: add a shunt C from input internal node n1 to VSS (after the DC-block cap).
+ 3. add_L_match_section_input at input: add a series-L + shunt-C L-section on the internal side of DC-block cap C1 (node n1).
+ 4. add_cascode_NMOS at NM1: insert an NMOS between NM1 drain (n5) and its load net; cascode gate tied to VDD.
+ 5. add_cascode_NMOS at NM2: insert an NMOS between NM2 drain (n2) and its load net; cascode gate tied to VDD.
+ 6. add_cascode_NMOS at NM3: insert an NMOS between NM3 drain (n6) and its load net; cascode gate tied to VDD.
+ 7. add_source_degen_L at NM3: insert a degeneration L between NM3 source and VSS.
+ 8. add_shunt_feedback_RC at NM1: add a series R+C from NM1 drain (n5) to gate (n3); the C blocks DC so the gate bias is unchanged.
+ 9. add_second_stage_CS: cap-couple current output node n2 into a new mirror-biased NMOS common-source stage with an L load; VOUT1 moves to the new stage output.
+10. add_output_shunt_C at output: add a shunt C from output internal node n2 to VSS (circuit side of the DC-block cap).
+11. add_series_L_output at output: insert a series L in the output chain on the internal side of DC-block cap C2 (node n2).

@@ -1,0 +1,49 @@
+{
+  "applicability": {
+    "applies": "when predicting NF_db for low-noise amplifier or sensitive RF front-end designs",
+    "not": "when predicting NF_db for designs with large margin above the specification"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-09-12",
+  "evidence": [
+    {
+      "quote": "nf_db(predicted=3.2,measured=41.40143,error=38.20143)",
+      "source": "spec=cap-e01-wifi wl=19a31d75dcb1f9be: nf_db(predicted=3.2,measured=41.40143,error=38.20143)"
+    },
+    {
+      "quote": "nf_db(predicted=2.9,measured=24.21449,error=21.31449)",
+      "source": "spec=cap-e02-gpsband wl=c231ac11552a9404: nf_db(predicted=2.9,measured=24.21449,error=21.31449)"
+    },
+    {
+      "quote": "nf_db(predicted=3.2,measured=38.34081,error=35.14081)",
+      "source": "spec=cap-e03-900mhz wl=c231ac11552a9404: nf_db(predicted=3.2,measured=38.34081,error=35.14081)"
+    }
+  ],
+  "id": "prediction-ignores-nf-wall",
+  "rule": "Do not trust predicted noise figure (NF) values near or below the target; real simulations frequently show catastrophic degradation due to model mismatch or biasing instability.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-09-12)"
+  ],
+  "trigger": {
+    "analysis": [
+      "prediction-vs-outcome",
+      "margin-analysis"
+    ],
+    "failure_signature": [
+      "nf-wall",
+      "attribution-error"
+    ],
+    "family": [
+      "cap-e01-wifi",
+      "cap-e02-gpsband",
+      "cap-e03-900mhz"
+    ],
+    "keywords": [
+      "nf_db",
+      "predicted=3.2",
+      "measured=41.40143"
+    ]
+  },
+  "type": "diagnosis"
+}

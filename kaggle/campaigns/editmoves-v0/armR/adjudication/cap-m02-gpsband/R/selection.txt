@@ -1,0 +1,20 @@
+=== ARM R (RANDOM null) selection ===
+base_seed=1  cell_seed=14253852195961896486  k=3  n_applicable=13
+chose: add_cascode_NMOS  site={'mos': 'PM1', 'load': 'n5'}
+chose: add_cascode_NMOS  site={'mos': 'PM2', 'load': 'n7'}
+chose: add_source_degen_L  site={'mos': 'NM2'}
+
+=== MENU: applicable structural edits (SELECT by number) ===
+ 1. add_series_L_input at input: insert a series L in the input chain on the internal side of DC-block cap C1 (node n1).
+ 2. add_shunt_C_input at input: add a shunt C from input internal node n1 to VSS (after the DC-block cap).
+ 3. add_L_match_section_input at input: add a series-L + shunt-C L-section on the internal side of DC-block cap C1 (node n1).
+ 4. add_cascode_NMOS at NM1: insert an NMOS between NM1 drain (n5) and its load net; cascode gate tied to VDD.
+ 5. add_cascode_NMOS at NM2: insert an NMOS between NM2 drain (n6) and its load net; cascode gate tied to VDD.
+ 6. add_cascode_NMOS at PM1: insert an NMOS between PM1 drain (n5) and its load net; cascode gate tied to VDD.
+ 7. add_cascode_NMOS at PM2: insert an NMOS between PM2 drain (n7) and its load net; cascode gate tied to VDD.
+ 8. add_source_degen_L at NM1: insert a degeneration L between NM1 source and VSS.
+ 9. add_source_degen_L at NM2: insert a degeneration L between NM2 source and VSS.
+10. add_shunt_feedback_RC at NM1: add a series R+C from NM1 drain (n5) to gate (n2); the C blocks DC so the gate bias is unchanged.
+11. add_shunt_feedback_RC at PM1: add a series R+C from PM1 drain (n5) to gate (n3); the C blocks DC so the gate bias is unchanged.
+12. add_output_shunt_C at output: add a shunt C from output internal node n5 to VSS (circuit side of the DC-block cap).
+13. add_series_L_output at output: insert a series L in the output chain on the internal side of DC-block cap C4 (node n5).

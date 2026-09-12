@@ -1,0 +1,204 @@
+{
+  "move_name": "add_source_degen_L",
+  "site": {
+    "mos": "NM2"
+  },
+  "menu_desc": "add_source_degen_L at NM2: insert a degeneration L between NM2 source and VSS.",
+  "wl_hash": "942841237d2a1b40",
+  "valid": true,
+  "dup": false,
+  "invariants_ok": true,
+  "invariant_detail": {
+    "I1_round_trip": true,
+    "I1_wl_distinct": true,
+    "I2_port_gate": true,
+    "I3_new_gate_bias": true,
+    "I4_budget": true,
+    "wl_in": "226544590d47717b",
+    "wl_out": "942841237d2a1b40",
+    "error": null
+  },
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 0.2674542,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -22.4516,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "smoke_idd_ma": 0.2674542,
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.99802,
+    "metrics": {
+      "s11_db": 0.0731429,
+      "s11_max_db": 0.0732802,
+      "s21_db": 2.6904,
+      "s21_min_db": 2.63987,
+      "idd_ma": 4.652014,
+      "nf_db": 2.602328,
+      "s22_db": -2.26299,
+      "s22_max_db": -2.25644,
+      "s12_db": -31.7647,
+      "k_f0": 0.111758,
+      "k_min": 0.111104,
+      "mu_f0": -0.223724,
+      "mu_min": -0.226892,
+      "mu_src_f0": 0.925347,
+      "mu_src_min": 0.92383,
+      "delta_f0": 0.786594,
+      "delta_max": 0.787245,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.09979999999999967,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.602328,
+        "required_min": null,
+        "required_max": 2.2,
+        "scale": 2.2,
+        "margin": -0.18287636363636353,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": 0.0731429,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -1.00731429,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 2.6904,
+        "required_min": 14,
+        "required_max": null,
+        "scale": 14,
+        "margin": -0.8078285714285715,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 4.652014,
+        "required_min": null,
+        "required_max": 5,
+        "scale": 5,
+        "margin": 0.06959719999999994,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -8,
+        "required_max": null,
+        "scale": 8,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -1.00731429
+    ],
+    "seed": 2,
+    "seconds": 23.509,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "netlist": "C C1 VIN1 n1\nC C2 n2 n3\nC C3 n4 VSS\nC C4 n5 VOUT1\nL L1 n1 n2\nL L2 n5 n4\nNMOS NM1 n5 n2 VSS VSS\nNMOS NM2 n6 n6 sd1 VSS\nPMOS PM1 n5 n3 VDD VDD\nPMOS PM2 n7 n7 VDD VDD\nR R1 VDD n6\nR R2 n6 n2\nR R3 n7 VSS\nR R4 n7 n3\nL Ldg1 sd1 VSS",
+  "error": null,
+  "index": 2,
+  "escalated": true,
+  "sized_escalated": {
+    "feasible": false,
+    "best_obj": 2.47556,
+    "metrics": {
+      "s11_db": -2.03446,
+      "s11_max_db": -1.97898,
+      "s21_db": 9.84202,
+      "s21_min_db": 9.765,
+      "idd_ma": 3.295967,
+      "nf_db": 3.040427,
+      "s22_db": 0.723016,
+      "s22_max_db": 0.744862,
+      "s12_db": -24.5165,
+      "k_f0": 0.192016,
+      "k_min": 0.190986,
+      "mu_f0": 0.657774,
+      "mu_min": 0.657286,
+      "mu_src_f0": -0.387881,
+      "mu_src_min": -0.389968,
+      "delta_f0": 0.937022,
+      "delta_max": 0.937039,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.15424999999999933,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.040427,
+        "required_min": null,
+        "required_max": 2.2,
+        "scale": 2.2,
+        "margin": -0.38201227272727273,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -2.03446,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.796554,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 9.84202,
+        "required_min": 14,
+        "required_max": null,
+        "scale": 14,
+        "margin": -0.29699857142857145,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 3.295967,
+        "required_min": null,
+        "required_max": 5,
+        "scale": 5,
+        "margin": 0.34080659999999996,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -8,
+        "required_max": null,
+        "scale": 8,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.796554
+    ],
+    "seed": 3,
+    "seconds": 69.915,
+    "evals": 1800,
+    "sim_health": {
+      "n_evals": 1800,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  }
+}

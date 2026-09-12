@@ -1,0 +1,38 @@
+[{"stream_name":"stdout","time":2.075170484,"data":"[loop-gpu] preflight OK: 4 inputs present (pdk=bptm45)\n"}
+,{"stream_name":"stdout","time":2.185751209,"data":"[loop-gpu] GH token from /kaggle/input/datasets/devavratpatni/circuit-repro-ghtoken/gh_token\n"}
+,{"stream_name":"stdout","time":2.192664986,"data":"[loop-gpu] $ git clone --depth 1 --branch main https://REDACTED@github.com/Devavavava/circuit-repro.git /tmp/circuit-repro\n"}
+,{"stream_name":"stderr","time":2.228969282,"data":"Cloning into '/tmp/circuit-repro'...\n"}
+,{"stream_name":"stdout","time":4.818224256,"data":"[loop-gpu] $ bash /tmp/circuit-repro/kaggle/bootstrap.sh\n"}
+,{"stream_name":"stderr","time":4.834474555,"data":"[bootstrap] pip: numpy scipy pyyaml\n"}
+,{"stream_name":"stderr","time":9.829541046,"data":"[bootstrap] pip: pandas (WITH_PANDAS=1)\n"}
+,{"stream_name":"stderr","time":13.204791422,"data":"[bootstrap] copying extracted ngspice tree from /kaggle/input/datasets/devavratpatni/circuit-repro-ngspice47/ngspice47/ngspice47 -\u003e /kaggle/working/ngspice47\n"}
+,{"stream_name":"stderr","time":13.560719199,"data":"[bootstrap] clone already present at /tmp/circuit-repro -- skipping\n"}
+,{"stream_name":"stderr","time":13.730585041,"data":"[bootstrap] no checkpoints found in /kaggle/input/* (ok: LLM loop is torch-free)\n"}
+,{"stream_name":"stderr","time":13.813838587,"data":"[bootstrap] pdk sky130 -\u003e /kaggle/input/datasets/devavratpatni/circuit-repro-pdk-sky130/sky130\n"}
+,{"stream_name":"stderr","time":13.893942109,"data":"[bootstrap] pdk gf180mcu -\u003e /kaggle/input/datasets/devavratpatni/circuit-repro-pdk-gf180mcu/gf180mcu\n"}
+,{"stream_name":"stderr","time":13.983575169,"data":"[bootstrap] pdk ihp_sg13g2 -\u003e /kaggle/input/datasets/devavratpatni/circuit-repro-pdk-ihp-sg13g2/circuit-repro-pdk-ihp-sg13g2/ihp_sg13g2\n"}
+,{"stream_name":"stderr","time":13.983597078,"data":"[bootstrap] LNA_PDK_ROOT=/kaggle/working/pdks (3 PDK(s) linked)\n"}
+,{"stream_name":"stderr","time":13.989029726,"data":"[bootstrap] wrote /kaggle/working/env-kaggle.sh\n"}
+,{"stream_name":"stderr","time":13.991091638,"data":"[bootstrap] gate: python lna/extract.py --selftest\n"}
+,{"stream_name":"stderr","time":14.116495852,"data":"[bootstrap] gate: python lna/ref/check_ref.py\n"}
+,{"stream_name":"stderr","time":14.252261934,"data":"[bootstrap] gate: python lna/ref/check_bjt.py\n"}
+,{"stream_name":"stderr","time":14.429618847,"data":"[bootstrap] gate: python lna/spec.py --all\n"}
+,{"stream_name":"stderr","time":14.627227569,"data":"[bootstrap] gate: python lna/solve_spec.py wifi24 --corpus --budget 100 --seeds 1\n"}
+,{"stream_name":"stderr","time":32.454294345,"data":"[bootstrap] wrote /kaggle/working/report/bootstrap.json (ok=true)\n"}
+,{"stream_name":"stderr","time":32.454327087,"data":"[bootstrap] BOOTSTRAP OK\n"}
+,{"stream_name":"stdout","time":32.568094627,"data":"[loop-gpu] $ cp -r /kaggle/input/datasets/devavratpatni/circuit-repro-llamacpp-cuda/llamacpp/llamacpp /kaggle/working\n"}
+,{"stream_name":"stdout","time":33.927286717,"data":"[loop-gpu] $ bash -c chmod +x /kaggle/working/llamacpp/bin/* || true\n"}
+,{"stream_name":"stdout","time":34.020560631,"data":"[loop-gpu] launching: /kaggle/working/llamacpp/bin/llama-server -m /kaggle/input/datasets/devavratpatni/circuit-repro-gguf-qwen30/weights/Qwen3-30B-A3B-Instruct-2507-Q4_K_M.gguf --host 127.0.0.1 --port 8080 --n-gpu-layers 999 --split-mode layer -c 16384 --parallel 1\n"}
+,{"stream_name":"stdout","time":253.092509462,"data":"[loop-gpu] llama-server healthy after 219.1s\n"}
+,{"stream_name":"stdout","time":253.092661987,"data":"[loop-gpu] RUN_MODE=reflect cap=12 dirs=kaggle/campaigns/externals-gf180-v0/era-ext-9167fd46/leg-c1-v02:kaggle/campaigns/externals-gf180-v0/era-ext-9167fd46/leg-c3-v02:kaggle/campaigns/externals-gf180-v0/era-ext-9167fd46/leg-c4:kaggle/campaigns/selflearn-gf180-v0/era-5a87ee18/leg1-arch\n"}
+,{"stream_name":"stdout","time":253.092838409,"data":"[loop-gpu] $ bash -c source /kaggle/working/env-kaggle.sh \u0026\u0026 exec /usr/bin/python3 /tmp/circuit-repro/kaggle/loop/reflect.py --v0-dir /tmp/circuit-repro/kaggle/campaigns/externals-gf180-v0/era-ext-9167fd46/leg-c1-v02 --v0-dir /tmp/circuit-repro/kaggle/campaigns/externals-gf180-v0/era-ext-9167fd46/leg-c3-v02 --v0-dir /tmp/circuit-repro/kaggle/campaigns/externals-gf180-v0/era-ext-9167fd46/leg-c4 --v0-dir /tmp/circuit-repro/kaggle/campaigns/selflearn-gf180-v0/era-5a87ee18/leg1-arch --cap 12 --base-url http://127.0.0.1:8080/v1 --model qwen3-30b-a3b-instruct-2507-q4km --overlay-dir /kaggle/working/system-playbook --traj /kaggle/working/reflect.jsonl\n"}
+,{"stream_name":"stdout","time":1302.861286559,"data":"[reflect] accepted=12 rejected=156 -\u003e /kaggle/working/system-playbook\n"}
+,{"stream_name":"stdout","time":1302.861360058,"data":"[reflect] entries: device-budget-violation, node-name-duplicate, prediction-ignores-s21-wall, prediction-ignores-nf-wall, prediction-ignores-idd-ma-zero, inductor-budget-violation, inductor-missing-in-topology, node-name-syntax-error, prediction-ignores-actual-metric-scale, over-reliance-on-predicted-iddma, inductor-limit-violation, match-plausible-failure\n"}
+,{"stream_name":"stdout","time":1302.879688823,"data":"[loop-gpu] trajectory dir has 0 jsonl file(s): /kaggle/working/trajectory\n"}
+,{"stream_name":"stderr","time":1306.690104689,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":1306.690139146,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":1307.027633396,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":1307.027667739,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":1307.996612329,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":1309.333061875,"data":"[NbConvertApp] Writing 330508 bytes to __results__.html\n"}
+]

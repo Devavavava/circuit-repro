@@ -1,0 +1,37 @@
+{
+  "applicability": {
+    "applies": "when the design spec mandates inductor presence",
+    "not": "when inductors are optional or not required"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-09-12",
+  "evidence": [
+    {
+      "quote": "[cap-e04-35ghz/screen] L0 screen rejected: failed has_inductor",
+      "source": "verbatim candidate errors"
+    }
+  ],
+  "id": "inductor-missing-in-topology",
+  "rule": "Validate that every candidate topology includes at least one inductor when required by the specification.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-09-12)"
+  ],
+  "trigger": {
+    "analysis": [
+      "screen-failure"
+    ],
+    "failure_signature": [
+      "device-budget"
+    ],
+    "family": [
+      "cap-e04-35ghz"
+    ],
+    "keywords": [
+      "has_inductor",
+      "inductor",
+      "missing"
+    ]
+  },
+  "type": "anti-pattern"
+}

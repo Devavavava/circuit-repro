@@ -1,0 +1,48 @@
+{
+  "applicability": {
+    "applies": "when predicting S21_db performance for RF passband or gain-critical designs",
+    "not": "when predicting S21_db for designs with large margin above the specification"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-09-12",
+  "evidence": [
+    {
+      "quote": "s21_db(predicted=11.8,measured=-23.5402,error=-35.3402)",
+      "source": "spec=cap-e02-gpsband wl=c231ac11552a9404: s21_db(predicted=11.8,measured=-23.5402,error=-35.3402)"
+    },
+    {
+      "quote": "s21_db(predicted=15.0,measured=-13.0188,error=-28.0188)",
+      "source": "spec=cap-e01-wifi wl=2fb256005b846217: s21_db(predicted=15.0,measured=-13.0188,error=-28.0188)"
+    },
+    {
+      "quote": "s21_db(predicted=8.0,measured=-29.1988,error=-37.1988)",
+      "source": "spec=cap-e03-900mhz wl=ec6fe34db6f9c825: s21_db(predicted=8.0,measured=-29.1988,error=-37.1988)"
+    }
+  ],
+  "id": "prediction-ignores-s21-wall",
+  "rule": "Never assume that a predicted S21 gain above the target will be achieved; simulations often show large negative deviations due to parasitic losses or model inaccuracies.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-09-12)"
+  ],
+  "trigger": {
+    "analysis": [
+      "prediction-vs-outcome",
+      "margin-analysis"
+    ],
+    "failure_signature": [
+      "s21-wall",
+      "attribution-error"
+    ],
+    "family": [
+      "cap-e02-gpsband",
+      "cap-e03-900mhz"
+    ],
+    "keywords": [
+      "s21_db",
+      "predicted=11.8",
+      "measured=-23.5402"
+    ]
+  },
+  "type": "diagnosis"
+}

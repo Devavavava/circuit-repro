@@ -1,0 +1,49 @@
+{
+  "applicability": {
+    "applies": "when screening candidates in any RF or power management design task with inductor budget constraints",
+    "not": "when the design task has no device budget or inductor limit"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-09-12",
+  "evidence": [
+    {
+      "quote": "L0 screen rejected: failed device_budget, max_inductors",
+      "source": "[cap-e01-wifi/screen] L0 screen rejected: failed device_budget, max_inductors"
+    },
+    {
+      "quote": "L0 screen rejected: failed max_inductors",
+      "source": "[cap-e01-wifi/screen] L0 screen rejected: failed max_inductors"
+    },
+    {
+      "quote": "L0 screen rejected: failed max_inductors",
+      "source": "[cap-e02-gpsband/screen] L0 screen rejected: failed max_inductors"
+    }
+  ],
+  "id": "device-budget-violation",
+  "rule": "Always verify that candidate designs do not exceed the maximum allowed inductors before proceeding to simulation, as exceeding this limit causes immediate rejection during screening.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-09-12)"
+  ],
+  "trigger": {
+    "analysis": [
+      "screen-rejection",
+      "feasibility"
+    ],
+    "failure_signature": [
+      "device-budget",
+      "max_inductors"
+    ],
+    "family": [
+      "cap-e01-wifi",
+      "cap-e02-gpsband",
+      "cap-e03-900mhz"
+    ],
+    "keywords": [
+      "inductor",
+      "budget",
+      "screen rejected"
+    ]
+  },
+  "type": "anti-pattern"
+}

@@ -1,0 +1,46 @@
+{
+  "applicability": {
+    "applies": "when IDD_MA is a critical objective and prediction shows high error",
+    "not": "when IDD_MA is not a constraint or objective"
+  },
+  "author": "system",
+  "confidence": "unverified",
+  "created": "2026-09-12",
+  "evidence": [
+    {
+      "quote": "idd_ma(predicted=11.7,measured=1.354036e-08,error=-11.7)",
+      "source": "prediction-vs-outcome records"
+    },
+    {
+      "quote": "idd_ma(predicted=12.4,measured=2.860702e-08,error=-12.4)",
+      "source": "prediction-vs-outcome records"
+    },
+    {
+      "quote": "idd_ma(predicted=0.001,measured=1.337364e-08,error=-0.001)",
+      "source": "prediction-vs-outcome records"
+    }
+  ],
+  "id": "over-reliance-on-predicted-iddma",
+  "rule": "Treat predicted IDD_MA values with extreme caution; if measured value is near zero, the prediction is likely invalid and should not drive decisions.",
+  "sources": [
+    "system reflect on capability-v0 arm-B (2026-09-12)"
+  ],
+  "trigger": {
+    "analysis": [
+      "prediction-vs-outcome"
+    ],
+    "failure_signature": [
+      "objective-omission"
+    ],
+    "family": [
+      "cap-e04-35ghz",
+      "cap-e05-ism58"
+    ],
+    "keywords": [
+      "idd_ma",
+      "predicted",
+      "measured"
+    ]
+  },
+  "type": "anti-pattern"
+}

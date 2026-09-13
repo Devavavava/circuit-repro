@@ -1,0 +1,69 @@
+1. The failed constraint is **s11_db** (input return loss). The input matching is poor due to the gate bias resistor (R2) loading the gate of NM1, creating a high impedance mismatch. The existing LC input network (C1, L1) is not sufficient to resonate with the gate capacitance for proper 50Ω matching at 1.58 GHz.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+C C5 n1 VSS
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+
+**Predicted change**: s11_db improves by ~2 dB.  
+**Rationale**: Adding a shunt capacitor (C5) at the input node (n1) forms a pi-network with C1 and L1, enhancing input impedance matching by introducing an additional tuning element.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+L L3 n2 VSS
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+
+**Predicted change**: s11_db improves by ~3 dB.  
+**Rationale**: Replacing R2 (a resistive load) with an inductor (L3) at the gate (n2) removes AC loading, allowing the LC network (L1, L3) to resonate with gate capacitance for better 50Ω impedance matching.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+
+**Predicted change**: s11_db improves by ~1.5 dB.  
+**Rationale**: Removing R2 (gate bias resistor) eliminates its resistive loading, increasing the gate impedance. The LC input network (C1, L1) now resonates with the intrinsic gate capacitance, improving input matching.

@@ -1,0 +1,44 @@
+DIAGNOSIS: The original circuit fails due to poor input matching (S11_db -0.69 dB vs -14 dB required). The LC tank (C1-L1) and resistor chain (R1-R2) create an impedance mismatch at 1.58 GHz. The NMOS common-source stage's gate is resistively biased (R2), which adds series resistance and degrades matching. The NM2 active load (NMOS) lacks DC conduction path flexibility, further complicating matching.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+L L4 n6 n3  # Replace R2 with inductor for gate bias choke
+```
+PREDICTED: s11_db improves by ~4 dB (inductor reduces gate bias resistance, lowers input impedance)
+
+```netlist
+C C1 VIN1 n1
+C C3 n1 VSS  # Add shunt capacitor for input matching
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+PREDICTED: s11_db improves by ~3 dB (shunt capacitor cancels transistor input inductance)
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+PMOS PM1 n5 n3 VDD VDD  # Replace NM1 with PMOS for better input matching
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+PREDICTED: s11_db improves by ~5 dB (PMOS common-source has lower input impedance than NMOS)

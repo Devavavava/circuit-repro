@@ -1,0 +1,4 @@
+=== DIAGNOSIS ===
+The binding constraint (s21_db) fails due to insufficient transconductance gain in the cascode structure. NMOS NM1 and NM2 form a cascode with a high output impedance but reduced voltage gain due to the shared node (n5) between NM1's drain and NM2's gate. This topology inherently limits the transconductance (gₘ) of the first stage, compounded by the inductive load (L3) which may not optimally resonate with the output capacitance at 915 MHz.
+
+---

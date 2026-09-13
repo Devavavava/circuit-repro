@@ -1,0 +1,5 @@
+DIAGNOSIS: The primary failure is due to excessive noise figure (NF = 2.182 dB, exceeding the 1.8 dB cap) caused by insufficient transconductance-to-current ratio and poor input matching, exacerbated by the lack of cascoding and insufficient input impedance matching. The high NF margin violation (-0.212) indicates the input stage is not efficiently transducing signal while minimizing added noise, likely due to low effective transconductance and lack of isolation from the output.
+
+PICK 4: adds a cascode to raise output impedance and isolate the input from output capacitance | predicted nf_db down ~0.3 dB  
+PICK 3: adds an L-section matching network at input to improve input match and impedance transformation | predicted s11_db up ~1.5 dB  
+PICK 9: adds a second stage to improve gain and output impedance, enabling better noise and gain trade-off | predicted s21_db up ~1.5 dB

@@ -1,0 +1,53 @@
+1. **Diagnosis**: The input impedance is poorly matched to the 50Ω source, causing high S11. The existing C1 and L1 form a series LC network, but lack shunt elements to create a resonant tank at 1.58 GHz. This results in insufficient impedance transformation, leading to S11 ≈ -0.69 dB (failing -14 dB spec).
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+L L4 n1 VSS
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+**Prediction**: s11_db improves by ~4 dB (adds a shunt inductor at input for parallel LC resonance).
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+L L4 n3 VSS
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+**Prediction**: s11_db improves by ~3 dB (adds a shunt inductor at gate for resonant gate biasing).
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+L L4 VIN1 n8
+L L5 n8 n1
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+**Prediction**: s11_db improves by ~5 dB (adds a series inductor in input path for enhanced impedance matching).

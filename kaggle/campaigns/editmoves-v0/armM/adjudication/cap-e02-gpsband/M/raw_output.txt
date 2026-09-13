@@ -1,0 +1,5 @@
+DIAGNOSIS: The circuit's S21 is marginally below target (9.792 dB vs 10 dB required), with a negative margin of -0.021 dB, indicating insufficient forward gain. The primary bottleneck is the output impedance mismatch and insufficient gain from the current stage, likely due to the NM2 device being directly connected to the output without proper impedance transformation or cascoding. The lack of output matching and low output resistance from NM2 limits the power transfer to the load, causing S21 to fall short despite adequate NF and Idd. The circuit is otherwise well-behaved (stable, low noise, good input match), so the issue is gain-limited at the output.
+
+PICK 11: inserts a series inductor at the output to resonate with the output capacitance and enhance gain at f0 | predicted s21_db up ~0.5 dB  
+PICK 10: adds a shunt capacitor at the output to improve impedance matching and tune the resonant frequency | predicted s21_db up ~0.3 dB  
+PICK 9: adds a second stage with a current mirror bias and L load to increase gain and improve output impedance | predicted s21_db up ~1.0 dB

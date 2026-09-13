@@ -1,0 +1,12 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "**Predicted improvement**: `s11_db` improves by ~3 dB (parallel LC resonance better cancels input reactance).\n\n```netlist\n# Edit 2: Replace series LC with a pi-network (series inductor + shunt capacitor)\nL L4 VIN1 n1  # Series inductor replaces C1\nC C1 n1 VSS   # Shunt capacitor for input matching\nC C2 n2 VOUT1\nL L1 n1 n3\nL L2",
+  "wl_hash": null,
+  "valid": false,
+  "dup": false,
+  "fence_outcome": "parse_fail",
+  "fence_detail": null,
+  "sized": null,
+  "error": "ParseError: line 7: L needs a name and 2 nodes (P N), got 9 node(s); line: 'L L4 n1 VSS  # Shunt inductor for improved input matching'"
+}

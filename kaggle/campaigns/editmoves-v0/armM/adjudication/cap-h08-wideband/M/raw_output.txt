@@ -1,0 +1,5 @@
+DIAGNOSIS: The circuit fails primarily due to poor input match (S11_max_db = -0.306 dB, margin = -0.98 dB), indicating significant input reflection. The input is dominated by the low impedance of the NMOS gate (n2) and the series inductance L1, which together form a resonant structure that is not properly tuned. The lack of input impedance matching network and the unbalanced loading of the input node n1 (connected only to C1 and L1) result in poor S11 performance, which is the most violated constraint. The NMOS transistors are also operating in a suboptimal bias regime, but the primary physical limitation is the input impedance mismatch.
+
+PICK 3: adds a shunt C at input to tune the input impedance at the resonant frequency | predicted s11_max_db up ~1.2 dB  
+PICK 2: adds a shunt C at input to improve input matching by creating a low-pass filter effect and damping the resonant peak | predicted s11_max_db up ~1.0 dB  
+PICK 13: inserts a series L at output to improve output matching and impedance transformation, indirectly helping input match through feedback effects | predicted s21_db up ~0.8 dB

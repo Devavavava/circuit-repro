@@ -1,0 +1,40 @@
+DIAGNOSIS: The binding constraint is noise figure (nf_db=2.18 vs target 1.8). The primary physical limitation is the suboptimal gate biasing network for NM1, which introduces excess thermal noise via R2. The resistor chain (R1-R2) degrades NF by adding Johnson-Nyquist noise to the gate node (n3). Additionally, the cascode structure (NM1-NM2) inherently increases noise due to the second transistor's thermal contribution, while the diode-connected NM3 current source is inefficient in reducing gate noise.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+```
+
+nf_db improves by ~0.3 dB (eliminates R2's thermal noise contribution)
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 VDD n2
+NMOS NM1 n2 n3 n4 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n4 n6
+```
+
+nf_db improves by ~0.4 dB (simplifies cascode to common-source with resistor-degenerated source)
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n3 n4
+NMOS NM1 n5 n4 n6 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n7 n7 VSS VSS
+R R1 VDD n7
+R R2 n7 n6
+```
+
+nf_db improves by ~0.3 dB (adds series inductor R2 for source degeneration while maintaining cascode structure)

@@ -1,0 +1,189 @@
+{
+  "index": 1,
+  "round": 1,
+  "predicted_delta_text": "**Diagnosis**: NM1 operates in a low-gm regime due to resistor-based biasing. Adding a cascode transistor (NM4) increases output impedance and isolates the gain stage from load effects.\n\n**Prediction**: s21_db improves by ~2.5 dB.\n\n---",
+  "wl_hash": "57a77dfdae31e1ff",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 26.395680000000002,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -0.297578,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 1.95068,
+    "metrics": {
+      "s11_db": -3.35437,
+      "s11_max_db": -3.34786,
+      "s21_db": 6.30024,
+      "s21_min_db": 6.1568,
+      "idd_ma": 10.34766,
+      "nf_db": 3.016747,
+      "s22_db": -8.46966,
+      "s22_max_db": -8.32172,
+      "s12_db": -58.5007,
+      "k_f0": 94.1107,
+      "k_min": 90.501,
+      "mu_f0": 2.62735,
+      "mu_min": 2.58576,
+      "mu_src_f0": 1.46602,
+      "mu_src_min": 1.46531,
+      "delta_f0": 0.257221,
+      "delta_max": 0.261935,
+      "stab_band": [
+        902000000.0,
+        928000000.0
+      ],
+      "s21_ripple_db": 0.2632400000000006,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.016747,
+        "required_min": null,
+        "required_max": 3.5,
+        "scale": 3.5,
+        "margin": 0.1380722857142857,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -3.35437,
+        "required_min": null,
+        "required_max": -8,
+        "scale": 8,
+        "margin": -0.5807037500000001,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 6.30024,
+        "required_min": 10,
+        "required_max": null,
+        "scale": 10,
+        "margin": -0.369976,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 10.34766,
+        "required_min": null,
+        "required_max": 15,
+        "scale": 15,
+        "margin": 0.31015600000000004,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.5807037500000001
+    ],
+    "seed": 2,
+    "seconds": 58.644,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 26.395680000000002,
+  "escalated": true,
+  "sized_escalated": {
+    "feasible": false,
+    "best_obj": 2.04498,
+    "metrics": {
+      "s11_db": -0.0634268,
+      "s11_max_db": -0.0606311,
+      "s21_db": 9.47091,
+      "s21_min_db": 9.34497,
+      "idd_ma": 13.02892,
+      "nf_db": 1.943029,
+      "s22_db": -9.07875,
+      "s22_max_db": -8.95942,
+      "s12_db": -55.9456,
+      "k_f0": 1.5116,
+      "k_min": 1.48832,
+      "mu_f0": 1.49192,
+      "mu_min": 1.43782,
+      "mu_src_f0": 1.0028,
+      "mu_src_min": 1.00278,
+      "delta_f0": 0.351394,
+      "delta_max": 0.355821,
+      "stab_band": [
+        902000000.0,
+        928000000.0
+      ],
+      "s21_ripple_db": 0.22851,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 1.943029,
+        "required_min": null,
+        "required_max": 3.5,
+        "scale": 3.5,
+        "margin": 0.44484885714285716,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.0634268,
+        "required_min": null,
+        "required_max": -8,
+        "scale": 8,
+        "margin": -0.99207165,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 9.47091,
+        "required_min": 10,
+        "required_max": null,
+        "scale": 10,
+        "margin": -0.052909000000000005,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 13.02892,
+        "required_min": null,
+        "required_max": 15,
+        "scale": 15,
+        "margin": 0.13140533333333337,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.99207165
+    ],
+    "seed": 3,
+    "seconds": 175.814,
+    "evals": 1800,
+    "sim_health": {
+      "n_evals": 1800,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  }
+}

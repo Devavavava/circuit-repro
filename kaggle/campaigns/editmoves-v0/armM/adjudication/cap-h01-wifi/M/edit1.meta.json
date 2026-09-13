@@ -1,0 +1,204 @@
+{
+  "move_name": "add_L_match_section_input",
+  "site": {
+    "inner": "n1"
+  },
+  "menu_desc": "add_L_match_section_input at input: add a series-L + shunt-C L-section on the internal side of DC-block cap C1 (node n1).",
+  "wl_hash": "b539590beed254a3",
+  "valid": true,
+  "dup": false,
+  "invariants_ok": true,
+  "invariant_detail": {
+    "I1_round_trip": true,
+    "I1_wl_distinct": true,
+    "I2_port_gate": true,
+    "I3_new_gate_bias": true,
+    "I4_budget": true,
+    "wl_in": "dcda50191d7c5e73",
+    "wl_out": "b539590beed254a3",
+    "error": null
+  },
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 3.554798,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -2.33877,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "smoke_idd_ma": 3.554798,
+  "sized": {
+    "feasible": false,
+    "best_obj": 1.79183,
+    "metrics": {
+      "s11_db": -4.89103,
+      "s11_max_db": -4.4066,
+      "s21_db": 20.2257,
+      "s21_min_db": 19.8678,
+      "idd_ma": 4.230817,
+      "nf_db": 1.998646,
+      "s22_db": -13.3479,
+      "s22_max_db": -7.84928,
+      "s12_db": -35.7798,
+      "k_f0": 2.03297,
+      "k_min": 2.0273,
+      "mu_f0": 2.05834,
+      "mu_min": 1.70581,
+      "mu_src_f0": 1.35129,
+      "mu_src_min": 1.30598,
+      "delta_f0": 0.221092,
+      "delta_max": 0.333868,
+      "stab_band": [
+        2400000000.0,
+        2483500000.0
+      ],
+      "s21_ripple_db": 0.39860000000000184,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 1.998646,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -0.11035888888888881,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -4.89103,
+        "required_min": null,
+        "required_max": -13,
+        "scale": 13,
+        "margin": -0.623766923076923,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 20.2257,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": 0.26410625,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 4.230817,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": -0.05770425000000001,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.623766923076923
+    ],
+    "seed": 1,
+    "seconds": 57.849,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "netlist": "C C1 VIN1 lm1\nC C2 n2 VOUT1\nL L1 n1 n3\nL L2 n4 VSS\nL L3 VDD n2\nNMOS NM1 n5 n3 n4 VSS\nNMOS NM2 n2 VDD n5 VSS\nNMOS NM3 n6 n6 VSS VSS\nR R1 VDD n6\nR R2 n6 n3\nL Lin1 lm1 n1\nC Cin1 lm1 VSS",
+  "error": null,
+  "index": 1,
+  "escalated": true,
+  "sized_escalated": {
+    "feasible": false,
+    "best_obj": 1.1437,
+    "metrics": {
+      "s11_db": -12.7999,
+      "s11_max_db": -11.1048,
+      "s21_db": 18.6074,
+      "s21_min_db": 18.3396,
+      "idd_ma": 3.840019,
+      "nf_db": 2.030958,
+      "s22_db": -5.91605,
+      "s22_max_db": -5.23441,
+      "s12_db": -37.2987,
+      "k_f0": 3.11358,
+      "k_min": 3.09061,
+      "mu_f0": 1.6034,
+      "mu_min": 1.54337,
+      "mu_src_f0": 2.61374,
+      "mu_src_min": 2.50277,
+      "delta_f0": 0.180422,
+      "delta_max": 0.227137,
+      "stab_band": [
+        2400000000.0,
+        2483500000.0
+      ],
+      "s21_ripple_db": 0.38179999999999836,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.030958,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -0.12831,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -12.7999,
+        "required_min": null,
+        "required_max": -13,
+        "scale": 13,
+        "margin": -0.015392307692307757,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 18.6074,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": 0.1629624999999999,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 3.840019,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": 0.03999525000000004,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -0.12831
+    ],
+    "seed": 2,
+    "seconds": 174.695,
+    "evals": 1800,
+    "sim_health": {
+      "n_evals": 1800,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  }
+}

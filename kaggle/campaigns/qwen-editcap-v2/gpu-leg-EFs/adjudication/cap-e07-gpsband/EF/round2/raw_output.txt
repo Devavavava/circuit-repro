@@ -1,0 +1,53 @@
+DIAGNOSIS: The primary failure is input mismatch (S11_db -2.59 dB vs -10 dB target), caused by the series L-C matching network (C1-L1) not achieving sufficient impedance transformation at 1.58 GHz. The existing topology lacks a shunt element to cancel the inductive reactance of L1 at f0, leading to high input VSWR. The gate bias resistor chain (R1-R2) also introduces series resistance that degrades input matching.
+
+```netlist
+C C1 VIN1 n1
+L L1 n1 n2
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+C C5 n2 VSS
+```
+s11_db improves by ~2.5 dB via shunt C5 cancelling L1's reactance at f0
+
+```netlist
+C C1 VIN1 n1
+L L1 n1 n2
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L2 n5 n4
+NMOS NM1 n2 n5 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+s11_db improves by ~1.8 dB via common-gate topology (swap NM1's gate/drain)
+
+```netlist
+C C1 VIN1 n1
+L L1 n1 n2
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+L L3 n2 VSS
+```
+s11_db improves by ~2 dB via shunt L3 forming parallel L-C resonance with C1-L1

@@ -1,0 +1,40 @@
+DIAGNOSIS: The circuit fails to meet the minimum S21 gain requirement (6.12 dB vs required 10 dB) due to a suboptimal gain topology. The cascode structure (NM2) limits transconductance efficiency while the series resistor R2 at the gate of NM1 introduces unnecessary signal attenuation. The current shunt inductors (L3) and capacitors form an impedance-matched but low-gain configuration.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+L L4 n3 VSS
+```
+s21_db improves by ~2 dB (gate inductor reduces R2's signal loss, enhancing transconductance)
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+L L4 n4 VSS
+```
+s21_db improves by ~3 dB (source shunt inductor L4 increases effective transconductance through resonance cancellation)
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+NMOS NM1 n2 n3 n4 VSS
+NMOS NM3 n5 n5 VSS VSS
+R R1 VDD n5
+R R2 n5 n3
+```
+s21_db improves by ~4 dB (cascode removed, NM1 now common-source with direct inductor load (C2) and improved current path)

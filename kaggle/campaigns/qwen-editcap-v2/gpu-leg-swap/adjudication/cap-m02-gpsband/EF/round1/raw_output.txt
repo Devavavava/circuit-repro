@@ -1,0 +1,62 @@
+1. **Diagnosis**: The input matching is poor (S11 fails by -0.84 dB). The existing series LC (C1 + L1) and gate resistor (R2) likely create a mismatch at 1.58 GHz. The NMOS gate biasing network (R1/R2) adds resistive loading, degrading S11. A shunt inductor at the input node (n1) would resonate with C1, improving impedance matching.
+
+2. **Structural Edits**:
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n1 VSS  ; Shunt inductor at input for resonance
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+**Predicted**: S11_db improves by ~2 dB via shunt L2 resonating with C1.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n2 VSS  ; Replace series L1 with shunt inductor at gate node
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+**Predicted**: S11_db improves by ~1.5 dB via gate shunt L1 creating LC tank with C2.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+C C5 n1 VSS  ; Add shunt capacitor at input to lower Z
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+**Predicted**: S11_db improves by ~1 dB via parallel C5 reducing input impedance.

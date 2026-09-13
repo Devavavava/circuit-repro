@@ -1,0 +1,113 @@
+{
+  "index": 0,
+  "round": 2,
+  "predicted_delta_text": "PREDICTION: s11_max_db improves by ~1 dB (achieved: -0.51 dB \u2192 target: -15 dB). The added shunt capacitor C5 at n2 reduces gate loading and creates a common-gate configuration, improving input matching.",
+  "wl_hash": "178717a5c1d75a00",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 0.5984836,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -25.8835,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 3.18177,
+    "metrics": {
+      "s11_db": -0.383902,
+      "s11_max_db": -0.317111,
+      "s21_db": 5.20266,
+      "s21_min_db": 4.88916,
+      "idd_ma": 4.510318,
+      "nf_db": 3.820182,
+      "s22_db": -0.924469,
+      "s22_max_db": -0.814964,
+      "s12_db": -28.9425,
+      "k_f0": 0.117608,
+      "k_min": 0.117563,
+      "mu_f0": 0.511296,
+      "mu_min": 0.410314,
+      "mu_src_f0": 0.73717,
+      "mu_src_min": 0.523387,
+      "delta_f0": 0.859624,
+      "delta_max": 0.86248,
+      "stab_band": [
+        500000000.0,
+        3000000000.0
+      ],
+      "s21_ripple_db": 0.9087799999999993,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.820182,
+        "required_min": null,
+        "required_max": 2.5,
+        "scale": 2.5,
+        "margin": -0.5280728,
+        "supported": true
+      },
+      "s11_max_db": {
+        "achieved": -0.317111,
+        "required_min": null,
+        "required_max": -15,
+        "scale": 15,
+        "margin": -0.9788592666666667,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 5.20266,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": -0.67483375,
+        "supported": true
+      },
+      "s21_ripple_db": {
+        "achieved": 0.9087799999999993,
+        "required_min": null,
+        "required_max": 1.5,
+        "scale": 1.5,
+        "margin": 0.39414666666666714,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 4.510318,
+        "required_min": null,
+        "required_max": 5,
+        "scale": 5,
+        "margin": 0.09793640000000003,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_max_db",
+      -0.9788592666666667
+    ],
+    "seed": 2,
+    "seconds": 67.131,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 0.5984836
+}

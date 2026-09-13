@@ -1,0 +1,56 @@
+1. **Diagnosis**: The s21_db failure (9.79 dB < 10 dB) is primarily due to insufficient voltage gain in the cascode topology. The NMOS cascode (NM2) limits the output impedance and transconductance efficiency of NM1, reducing overall gain. Additionally, the series inductor L1 at the input may introduce parasitic losses or impedance mismatches at 1.58 GHz.
+
+---
+
+2. **Structural Edits**:
+
+```netlist
+# Edit 1: Replace NMOS cascode with PMOS current mirror load for higher gain
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+PMOS PM1 n2 n5 VDD VDD  # Active load (current mirror)
+NMOS NM1 n5 n3 VSS VSS   # Common-source stage
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+
+**Prediction**: s21_db improves by ~0.5 dB (increased gain from PMOS active load).
+
+---
+
+```netlist
+# Edit 2: Add parallel NMOS to NM1 for higher transconductance
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n2 VDD n3 VSS  # Reversed as common-source
+NMOS NM2 n2 VDD n4 VSS  # Parallel transistor
+NMOS NM3 n5 n5 VSS VSS
+R R1 VDD n5
+R R2 n5 n3
+```
+
+**Prediction**: s21_db improves by ~1 dB (doubled gm from parallel NMOS).
+
+---
+
+```netlist
+# Edit 3: Replace L1 with shunt inductor for better input matching
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 VSS n3  # Shunt inductor (bypass)
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n2 VDD n3 VSS
+NMOS NM2 n2 VDD n4 VSS
+NMOS NM3 n5 n5 VSS VSS
+R R1 VDD n5
+R R2 n5 n3
+```
+
+**Prediction**: s21_db improves by ~0.3 dB (improved impedance matching at input).

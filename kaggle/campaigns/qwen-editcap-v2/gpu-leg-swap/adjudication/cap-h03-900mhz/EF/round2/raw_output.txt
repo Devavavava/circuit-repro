@@ -1,0 +1,47 @@
+```netlist
+# Edit 0: Add shunt inductor at gate node (n3) to ground for improved input matching
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+L L4 n3 VSS
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+Predicted improvement: s11_db improves by ~1-2 dB (from -0.2 dB to ~-1.2 dB)
+
+```netlist
+# Edit 1: Add shunt resistor across existing input inductor (L1) to enhance matching
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+R R3 n1 n3
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+Predicted improvement: s11_db improves by ~1 dB (from -0.2 dB to ~-1.0 dB)
+
+```netlist
+# Edit 2: Add shunt resistor from input capacitor node (n1) to ground for resistive matching
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+R R3 n1 VSS
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+Predicted improvement: s11_db improves by ~0.8 dB (from -0.2 dB to ~-0.8 dB)

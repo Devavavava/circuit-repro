@@ -1,0 +1,50 @@
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+L L4 n6 n3
+```
+
+### Edit 1: Replace R2 (gate bias resistor) with inductor L4. This eliminates resistive gate loading, improving input impedance match. Predicted s11_db improves by ~2 dB.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L4 n3 VSS
+```
+
+### Edit 2: Add shunt inductor L4 at gate node n3 to VSS. This improves input matching by canceling gate capacitance reactance. Predicted s11_db improves by ~3 dB.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+C C3 n3 VSS
+```
+
+### Edit 3: Add shunt capacitor C3 from gate node n3 to VSS to bypass high-frequency gate biasing. This reduces resistive gate path impedance. Predicted s11_db improves by ~1.5 dB.

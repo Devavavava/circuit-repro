@@ -1,0 +1,5 @@
+DIAGNOSIS: The circuit fails on S11 due to poor input matching, specifically at the input port (VIN1) where the impedance is mismatched to 50Ω. The input is dominated by the series capacitor C1 and the inductor L1, but the lack of proper impedance transformation and the diode-connected NM2/PM2 devices create excessive reactance at the input node n1. The S11 margin is the worst (−0.74 dB), indicating a significant reflection, and the input matching is not being driven by a proper matching network. The negative S11_db value (−2.59 dB) shows that the input is not properly terminated, and the failure is rooted in the input impedance structure.
+
+PICK 3: adds a shunt C from input node n1 to VSS to provide a DC path and tune input reactance toward 50Ω | predicted s11_db up ~1.5 dB  
+PICK 1: inserts a series L on the input side of C1 (after n1) to form a low-pass L-section that improves impedance matching at f0 | predicted s11_db up ~1.0 dB  
+PICK 10: adds a shunt feedback RC from NM1 drain (n5) to gate (n2), improving input impedance by reducing gain and stabilizing the input reflection | predicted s11_db up ~0.5 dB

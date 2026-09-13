@@ -1,0 +1,5 @@
+DIAGNOSIS: The circuit fails primarily due to poor input matching (S11_max_db = -3.22 dB, margin = -0.597), indicating excessive input reflection. The input network (C1-L1) is resonant at the center frequency but lacks proper impedance transformation to 50 Ω, especially given the low input impedance of the amplifier stage. The NM1 gate is biased via a resistive divider (R1-R2) from VDD, which creates a high impedance at the gate node and contributes to poor input match. Additionally, the absence of any input matching network (e.g., L-section or shunt capacitance) exacerbates the mismatch.
+
+PICK 3: adds a series-L + shunt-C L-section at input to transform input impedance and improve matching | predicted s11_max_db up ~1.5 dB  
+PICK 1: inserts a series inductor on the input side to resonate with C1 and form a low-pass LC match, enhancing input impedance transform | predicted s11_max_db up ~1.0 dB  
+PICK 2: adds a shunt capacitor at node n1 to lower input impedance and improve low-frequency matching, reducing reflection | predicted s11_max_db up ~0.8 dB

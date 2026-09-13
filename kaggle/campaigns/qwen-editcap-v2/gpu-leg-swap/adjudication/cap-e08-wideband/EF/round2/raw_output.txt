@@ -1,0 +1,60 @@
+```netlist
+C C1 VIN1 n1
+L L1 n1 n2
+L L3 n1 VSS
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+
+```netlist
+C C1 VIN1 n1
+L L1 n1 n2
+C C5 n2 VSS
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+
+```netlist
+C C1 VIN1 n1
+L L1 n1 n2
+C C5 n1 VSS
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+
+---
+
+**Predicted Outcomes**:
+
+1. **Shunt inductor at input (L3 n1 VSS)**: Adds a parallel inductive path to ground, lowering input impedance at high frequencies. **s11_max_db improves by ~1.5 dB**.
+
+2. **Shunt capacitor at gate (C5 n2 VSS)**: Shortens gate AC impedance, reducing input reflection. **s11_max_db improves by ~2 dB**.
+
+3. **Shunt capacitor at input node (C5 n1 VSS)**: Adds reactive load to VIN1, enhancing broadband matching. **s11_max_db improves by ~1 dB**.

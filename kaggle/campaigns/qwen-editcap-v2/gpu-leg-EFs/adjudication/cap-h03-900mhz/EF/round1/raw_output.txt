@@ -1,0 +1,46 @@
+DIAGNOSIS: The binding constraint s11_db is failing by -0.98 dB due to inadequate input impedance matching. The current input network (C1-L1) lacks sufficient degrees of freedom to achieve the required -13 dB input return loss at 915 MHz. The gate bias network (R1-R2) introduces high series resistance that degrades matching, while the inductive source degeneration (L2) doesn't provide conjugate matching. The topology's limited reactive components and high-impedance gate biasing prevent proper impedance transformation.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L4 n1 VSS
+```
+Predicted improvement: s11_db improves by ~3 dB through added shunt inductor L4 for parallel LC input matching.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+C C3 n3 VSS
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+Predicted improvement: s11_db improves by ~2 dB via gate shunt capacitor C3 to lower gate impedance.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L4 n3 n6
+```
+Predicted improvement: s11_db improves by ~1.5 dB using inductor L4 in parallel with R2 to reduce gate bias resistance.

@@ -1,0 +1,65 @@
+DIAGNOSIS:  
+The primary failure is **input impedance mismatch**, indicated by the S11 margin of -0.84 dB (-1.59 dB achieved vs -10 dB target). The input matching network (C1 + L1) lacks sufficient tuning to resonate at 1.58 GHz, resulting in poor impedance transformation. Additionally, the gate bias resistor chain (R1+R2) introduces series resistance that degrades both input matching and noise figure. The original topology's inductive peaking (L1) is insufficient to cancel the capacitive reactance of the transistor's input, leading to high return loss.
+
+---
+
+```netlist
+C C1 VIN1 n1  
+C C2 n2 n3  
+C C3 n4 VSS  
+C C4 n5 VOUT1  
+L L1 n1 n2  
+L L2 n5 n4  
+NMOS NM1 n5 n2 VSS VSS  
+NMOS NM2 n6 n6 VSS VSS  
+PMOS PM1 n5 n3 VDD VDD  
+PMOS PM2 n7 n7 VDD VDD  
+R R1 VDD n6  
+R R2 n6 n2  
+R R3 n7 VSS  
+R R4 n7 n3  
+L L_input n1 VSS  
+```  
+**PREDICTION**: Adding a shunt inductor (L_input) at the input node n1 improves S11_db by ~1.5 dB by forming an LC tank with C1, resonating at f0 to lower input impedance.
+
+---
+
+```netlist
+C C1 VIN1 n1  
+C C2 n2 n3  
+C C3 n4 VSS  
+C C4 n5 VOUT1  
+L L1 n1 n2  
+L L2 n5 n4  
+NMOS NM1 n5 n2 VSS VSS  
+NMOS NM2 n6 n6 VSS VSS  
+PMOS PM1 n5 n3 VDD VDD  
+PMOS PM2 n7 n7 VDD VDD  
+R R1 VDD n6  
+R R2 n6 n2  
+R R3 n7 VSS  
+R R4 n7 n3  
+R R_input n2 VSS  
+```  
+**PREDICTION**: Adding a shunt resistor (R_input) at the gate node n2 improves S11_db by ~0.8 dB by reducing gate impedance, though noise figure may degrade slightly.
+
+---
+
+```netlist
+C C1 VIN1 n1  
+C C2 n2 n3  
+C C3 n4 VSS  
+C C4 n5 VOUT1  
+L L1 n1 n2  
+L L2 n5 n4  
+NMOS NM1 n5 n2 VSS VSS  
+NMOS NM2 n6 n6 VSS VSS  
+PMOS PM1 n5 n3 VDD VDD  
+PMOS PM2 n7 n7 VDD VDD  
+R R1 VDD n6  
+R R2 n6 n2  
+R R3 n7 VSS  
+R R4 n7 n3  
+L L_gate n2 VSS  
+```  
+**PREDICTION**: Adding a shunt inductor (L_gate) at the gate node n2 improves S11_db by ~1.2 dB by resonating with C2 to cancel gate capacitance and lower impedance.

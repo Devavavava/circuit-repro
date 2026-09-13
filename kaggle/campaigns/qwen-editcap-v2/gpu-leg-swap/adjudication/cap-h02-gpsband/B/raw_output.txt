@@ -1,0 +1,49 @@
+1. **DIAGNOSIS**: The binding constraint `s11_db` is failing due to poor input impedance matching. The existing LC network (C1, L1) is not resonant or insufficient at 1.58 GHz, leading to high input reflection. The gate of NM1 is not properly matched to the source impedance (50 Ω typical), causing high VSWR.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+L L4 VIN1 VSS
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+
+**PREDICTION**: s11_db improves by ~2.5 dB (adds a shunt inductor at input to form an LC tank with C1, improving resonance at 1.58 GHz).
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+L L4 n1 VSS
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+
+**PREDICTION**: s11_db improves by ~3 dB (adds a shunt inductor at the LC node to adjust the input Q and impedance).
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+R R3 VIN1 n1
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5

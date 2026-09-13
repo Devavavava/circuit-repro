@@ -1,0 +1,16 @@
+# Edit 1: Replace R2 (gate bias resistor) with an active current mirror to eliminate thermal noise
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+NMOS NM3 n2 n6 VSS VSS
+R R2 VDD n6
+R R3 n7 VSS
+R R4 n7 n3
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4

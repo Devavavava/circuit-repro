@@ -1,0 +1,30 @@
+1. **DIAGNOSIS**: The circuit's S11_db is -0.69 dB, far below the -14 dB requirement. The input matching is poorly designed. The current input path (C1-L1) likely does not resonate at 1.58 GHz, resulting in high reflection. The LC network's configuration fails to present 50 Ω impedance at the target frequency.
+
+---
+
+2. **TOPOLOGY EDITS**:
+
+```netlist
+# Edit 1: Replace series C with L, add shunt L for parallel LC tank
+L L1 VIN1 n1
+L L2 n1 VSS
+L L3 n1 n3
+C C2 n2 VOUT1
+L L4 n4 VSS
+L L5 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+**Prediction**: s11_db improves by ~4 dB (better input resonance).
+
+---
+
+```netlist
+# Edit 2: Add shunt L to ground at input node n1 (parallel LC with C1)
+C C1 VIN1 n1
+L L1 n1 VSS
+L L2 n1 n3
+C C2 n

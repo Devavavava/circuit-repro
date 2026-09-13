@@ -1,0 +1,5 @@
+DIAGNOSIS: The circuit fails primarily due to poor input match (S11_db = -0.236 dB, margin -0.98 dB) caused by high input impedance at 915 MHz, exacerbated by the lack of input impedance transformation and the high source impedance seen at the gate of NM1 due to the resistive biasing network (R1/R2) and the diode-connected NM3. The series R1/R2 forms a high-impedance path that degrades input return loss, and the absence of input matching elements prevents proper impedance conjugate matching to 50 Ω.
+
+PICK 3: adds a shunt C at input to resonate out the input inductive reactance and lower input impedance | predicted s11_db up ~1.2 dB  
+PICK 1: adds a series L at input to tune the input impedance toward 50 Ω and improve input match | predicted s11_db up ~1.0 dB  
+PICK 4: adds a cascode to NM1 to increase output impedance and improve gain and input match via reduced Miller effect | predicted s21_db up ~2.5 dB

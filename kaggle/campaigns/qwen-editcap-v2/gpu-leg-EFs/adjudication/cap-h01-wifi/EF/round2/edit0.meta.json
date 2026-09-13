@@ -1,0 +1,105 @@
+{
+  "index": 0,
+  "round": 2,
+  "predicted_delta_text": "nf_db improves by ~0.3 dB (eliminates R2's thermal noise contribution)",
+  "wl_hash": "28f689740b69a4bc",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 0.05009785,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -26.3651,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 19.06633,
+    "metrics": {
+      "s11_db": -0.115399,
+      "s11_max_db": -0.107341,
+      "s21_db": -22.3909,
+      "s21_min_db": -22.6978,
+      "idd_ma": 0.10261110000000001,
+      "nf_db": 28.21639,
+      "s22_db": -0.228441,
+      "s22_max_db": -0.218615,
+      "s12_db": -22.224,
+      "k_f0": 1.04051,
+      "k_min": 1.03913,
+      "mu_f0": 1.01194,
+      "mu_min": 1.01153,
+      "mu_src_f0": 1.00529,
+      "mu_src_min": 1.00495,
+      "delta_f0": 0.966835,
+      "delta_max": 0.968441,
+      "stab_band": [
+        2400000000.0,
+        2483500000.0
+      ],
+      "s21_ripple_db": 0.6130999999999993,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 28.21639,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -14.675772222222221,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.115399,
+        "required_min": null,
+        "required_max": -13,
+        "scale": 13,
+        "margin": -0.9911231538461538,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -22.3909,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": -2.39943125,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 0.10261110000000001,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": 0.974347225,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -14.675772222222221
+    ],
+    "seed": 2,
+    "seconds": 66.226,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 0.05009785
+}

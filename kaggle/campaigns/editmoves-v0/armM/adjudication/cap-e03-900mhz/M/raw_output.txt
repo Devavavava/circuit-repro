@@ -1,0 +1,5 @@
+DIAGNOSIS: The circuit fails primarily due to insufficient gain (S21_db = 6.126 dB, target ≥10 dB) and excessive Idd (15.199 mA, target ≤15 mA), with S21 being the binding constraint (margin = -0.387 dB). The low S21 stems from inadequate output impedance and poor impedance matching at the output, compounded by the NM2 transistor operating in a suboptimal bias regime with low effective transconductance. The high Idd arises from excessive DC current through the bias network (R1/R2) and NM3, which is diode-connected and conducts significant current due to the high gate voltage at n6.
+
+PICK 4: adds a cascode to raise output impedance and improve gain | predicted s21_db up ~2.5 dB  
+PICK 10: adds a shunt C at output to tune matching and enhance gain bandwidth | predicted s21_db up ~1.5 dB  
+PICK 9: adds a second stage to increase overall gain and isolate output load | predicted s21_db up ~3 dB

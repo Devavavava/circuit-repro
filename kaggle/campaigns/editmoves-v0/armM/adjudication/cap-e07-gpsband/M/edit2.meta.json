@@ -1,0 +1,122 @@
+{
+  "move_name": "add_shunt_feedback_RC",
+  "site": {
+    "mos": "NM1",
+    "drain": "n5",
+    "gate": "n2"
+  },
+  "menu_desc": "add_shunt_feedback_RC at NM1: add a series R+C from NM1 drain (n5) to gate (n2); the C blocks DC so the gate bias is unchanged.",
+  "wl_hash": "738d02d89bb4d6f2",
+  "valid": true,
+  "dup": false,
+  "invariants_ok": true,
+  "invariant_detail": {
+    "I1_round_trip": true,
+    "I1_wl_distinct": true,
+    "I2_port_gate": true,
+    "I3_new_gate_bias": true,
+    "I4_budget": true,
+    "wl_in": "226544590d47717b",
+    "wl_out": "738d02d89bb4d6f2",
+    "error": null
+  },
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 0.4149467,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -7.4945,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "smoke_idd_ma": 0.4149467,
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.92451,
+    "metrics": {
+      "s11_db": -2.51212,
+      "s11_max_db": -2.50139,
+      "s21_db": 4.6104,
+      "s21_min_db": 4.60431,
+      "idd_ma": 13.38284,
+      "nf_db": 3.664925,
+      "s22_db": -2.24875,
+      "s22_max_db": -2.24841,
+      "s12_db": -20.0497,
+      "k_f0": 0.296268,
+      "k_min": 0.296112,
+      "mu_f0": 0.743987,
+      "mu_min": 0.742912,
+      "mu_src_f0": 0.724031,
+      "mu_src_min": 0.722078,
+      "delta_f0": 0.506736,
+      "delta_max": 0.507223,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.012109999999999843,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.664925,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": -0.22164166666666674,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -2.51212,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.748788,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 4.6104,
+        "required_min": 12,
+        "required_max": null,
+        "scale": 12,
+        "margin": -0.6158,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 13.38284,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": -0.338284,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -8,
+        "required_max": null,
+        "scale": 8,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.748788
+    ],
+    "seed": 2,
+    "seconds": 62.488,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "netlist": "C C1 VIN1 n1\nC C2 n2 n3\nC C3 n4 VSS\nC C4 n5 VOUT1\nL L1 n1 n2\nL L2 n5 n4\nNMOS NM1 n5 n2 VSS VSS\nNMOS NM2 n6 n6 VSS VSS\nPMOS PM1 n5 n3 VDD VDD\nPMOS PM2 n7 n7 VDD VDD\nR R1 VDD n6\nR R2 n6 n2\nR R3 n7 VSS\nR R4 n7 n3\nR Rfb1 n5 fb1\nC Cfb1 fb1 n2",
+  "error": null,
+  "index": 2
+}

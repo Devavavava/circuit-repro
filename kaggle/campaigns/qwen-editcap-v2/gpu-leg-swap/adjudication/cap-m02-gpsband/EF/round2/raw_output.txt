@@ -1,0 +1,59 @@
+```netlist
+C C1 VIN1 n1
+L L3 VIN1 VSS
+C C2 n2 n3
+L L1 n1 n2
+NMOS NM1 n5 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM2 n7 n7 VDD VDD
+C C4 n5 VOUT1
+L L2 n5 n4
+C C3 n4 VSS
+```
+
+**Predicted impact:** s11_db improves by ~3 dB (shunt inductor at input resonates with C1 to lower input impedance).
+
+```netlist
+C C1 VIN1 n1
+L L1 n1 n2
+C C2 n2 n3
+C C5 n2 VSS
+NMOS NM1 n5 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM2 n7 n7 VDD VDD
+C C4 n5 VOUT1
+L L2 n5 n4
+C C3 n4 VSS
+```
+
+**Predicted impact:** s11_db improves by ~2.5 dB (shunt capacitor at gate node n2 improves resonance with L1).
+
+```netlist
+C C1 VIN1 n1
+L L1 n1 n2
+C C2 n2 n3
+NMOS NM1 n5 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM2 n7 n7 VDD VDD
+C C4 n5 VOUT1
+L L2 n5 n4
+C C3 n4 VSS
+L L4 n3 VSS
+```
+
+**Predicted impact:** s11_db improves by ~2 dB (shunt inductor at gate node n3 enhances resonance with C2).

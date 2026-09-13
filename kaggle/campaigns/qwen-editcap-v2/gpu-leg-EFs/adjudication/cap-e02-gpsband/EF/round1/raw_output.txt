@@ -1,0 +1,43 @@
+DIAGNOSIS: The binding constraint s21_db (gain) is insufficient by 0.2 dB due to suboptimal load impedance matching and cascode configuration. The inductive load L3 introduces frequency-dependent impedance that may not maximize transconductance conversion at 1.58 GHz. The cascode topology (NM1/NM2) trades some gain for stability but underdelivers marginally for the spec. Structural changes to load impedance, gain stages, or transistor configuration can address this.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+R R3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+(Predicted: s21_db improves by ~0.3 dB through resistive load optimization)
+
+```netlist
+C C1 VIN1 n1
+C C2 n3 VOUT1
+L L1 n1 n2
+L L2 n4 VSS
+L L3 VDD n5
+NMOS NM1 n2 n3 n4 VSS
+PMOS PM1 n3 VDD n5 VDD
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+(Predicted: s21_db improves by ~0.5 dB through second-stage PMOS common-source gain)
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+PMOS PM1 n2 n5 VDD VDD
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+(Predicted: s21_db improves by ~0.4 dB through PMOS cascode output stage)

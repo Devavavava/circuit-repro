@@ -1,0 +1,46 @@
+DIAGNOSIS: The primary failure in S11 (-0.24 dB vs. -13 dB requirement) stems from inadequate input impedance matching at 915 MHz. The existing input network (C1 series, L1 shunt) fails to resonate with the gate's input capacitance to present a 50 Ω load. The gate bias resistor chain (R1-R2-NM3) introduces parallel resistance degrading matching. The cascode topology (NM2) further complicates impedance transformation, but the root issue is the LC input network's inability to cancel reactive components at f0.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+L L4 n3 VSS
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+PREDICTION: s11_db improves by ~2 dB (adds shunt inductor L4 to cancel gate capacitance)
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+L L4 VIN1 VSS
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+PREDICTION: s11_db improves by ~1.5 dB (adds shunt inductor L4 directly at input for parallel resonance)
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+R R3 n3 VSS
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+PREDICTION: s11_db improves by ~2.5 dB (adds shunt resistor R3 to control real part of input impedance)

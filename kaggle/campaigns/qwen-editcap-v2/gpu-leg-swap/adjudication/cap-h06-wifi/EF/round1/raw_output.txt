@@ -1,0 +1,14 @@
+1. **Diagnosis**: The primary limitation is excessive noise from the gate bias resistor (R2) and poor transconductance-to-noise ratio in the NMOS input stage. The resistor chain (R1-R2) adds thermal noise while the source-degenerated PMOS load (PM1) fails to optimize noise matching.
+
+2. **Structural Edits**:
+
+```netlist
+# Edit 1: Replace resistor bias with PMOS current mirror to eliminate R1/R2 noise
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS

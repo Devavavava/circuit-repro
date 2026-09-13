@@ -1,0 +1,78 @@
+You are an analog IC designer repairing a low-noise amplifier (LNA) that FAILED its specification after full SPICE sizing. You reason about the failure and propose STRUCTURAL (topology) changes. You output TOPOLOGY ONLY as a small line-oriented netlist; a downstream deterministic tool inserts biasing and sizes every device with a SPICE optimizer. Never invent device values, DC sources, or bias networks -- only the connectivity.
+
+=== SPEC (cap-h02-gpsband) ===
+description: capability-v0 H tier: 1.58 GHz LNA (NF<=1.8 S11<=-12 S21>=16 Idd<=3)
+band: narrowband, f0=1575420000.0 Hz
+gated constraints:
+  nf_db      max 1.8
+  s11_db     max -12
+  s21_db     min 16
+  idd_ma     max 3
+
+=== ANCHOR NETLIST (the failed circuit, dialect form) ===
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+
+=== FAILURE EVIDENCE (this circuit was sized and MISSED) ===
+binding (worst) constraint: s11_db  margin=-0.981693 (normalized; negative == failing)
+feasible: False   total sizing evals spent: 1800
+
+per-constraint margins (achieved vs gate, normalized margin):
+  metric     achieved       margin         supported
+  nf_db      1.8204         -0.0113317     True
+  s11_db     -0.21968       -0.981693      True
+  s21_db     11.0519        -0.309256      True
+  idd_ma     3.03265        -0.0108817     True
+  iip3_dbm   -              -              False
+
+Idd: achieved 3.03265 mA (normalized margin -0.010881666666666678 vs the idd_ma cap; negative == over budget).
+
+full sized-best metrics (verbatim):
+{
+  "s11_db": -0.21968,
+  "s11_max_db": -0.214171,
+  "s21_db": 11.0519,
+  "s21_min_db": 11.0358,
+  "idd_ma": 3.032645,
+  "nf_db": 1.820397,
+  "s22_db": -9.13042,
+  "s22_max_db": -8.76142,
+  "s12_db": -49.0148,
+  "k_f0": 1.82641,
+  "k_min": 1.81843,
+  "mu_f0": 1.62327,
+  "mu_min": 1.57549,
+  "mu_src_f0": 1.0123,
+  "mu_src_min": 1.01217,
+  "delta_f0": 0.345002,
+  "delta_max": 0.358924,
+  "stab_band": [
+    1565000000.0,
+    1586000000.0
+  ],
+  "s21_ripple_db": 0.02009999999999934,
+  "nf_method": "series_rs"
+}
+
+YOUR TASK (arm B):
+1. DIAGNOSE the failure in words: what is physically limiting the binding constraint in the circuit above?
+2. Propose EXACTLY 3 STRUCTURAL edits as FULL netlists in the dialect below. Each edit is a complete netlist (not a diff), each structurally DIFFERENT from the anchor and from the other edits.
+3. After EACH edit, state a PREDICTED direction AND magnitude for the binding metric (e.g. 's11_db improves by ~3 dB').
+
+Emit each edit in its OWN fenced ```netlist block.
+
+NETLIST DIALECT (obey exactly, one device per line):
+  TYPE name node1 node2 [node3 node4]
+  TYPE in {NMOS, PMOS, R, C, L}.
+  NMOS/PMOS take 4 nodes in order D G S B; R/C/L take 2 nodes P N.
+  Nets: VIN1 (input), VOUT1 (output), VDD, VSS (ground); any internal node name otherwise. NO device values. NO V sources. NO bias networks.

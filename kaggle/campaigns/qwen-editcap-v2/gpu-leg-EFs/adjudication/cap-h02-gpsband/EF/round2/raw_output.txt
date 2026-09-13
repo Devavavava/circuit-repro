@@ -1,0 +1,46 @@
+DIAGNOSIS: The circuit's S11 failure stems from poor input impedance matching caused by the high gate resistance (R2) creating a resistive load at the gate of NM1. The series inductor L1 and capacitor C1 form a high-pass filter, but the resistive gate bias path (R2) dominates at the design frequency, leading to a high input VSWR. The gate bias network (R1+R2) introduces a high AC impedance at the gate, preventing proper matching to the 50Ω source.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+L L4 n3 VSS
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+// Adding shunt inductor L4 at gate (n3) to ground creates parallel LC resonance with gate capacitance. Predicted: s11_db improves by ~3 dB.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+L L4 n6 n3
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+// Replaces R2 with inductor L4 in parallel (n6-n3) to provide AC low-impedance gate path while retaining DC bias. Predicted: s11_db improves by ~2 dB.
+
+```netlist
+C C1 VIN1 n1
+R R3 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+// Adds series resistor R3 at input to form tunable series RC with C1. Predicted: s11_db improves by ~1 dB.

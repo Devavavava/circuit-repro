@@ -1,0 +1,37 @@
+DIAGNOSIS: The primary failure is due to poor input impedance matching (S11_db = -0.22 dB vs required -12 dB). The gate bias network (R1-R2) creates a high-impedance path that fails to resonate with C1/L1 at 1.58 GHz, leading to severe mismatch. The LC network (C1-L1) is improperly configured to achieve 50Ω matching at the gate of NM1. Additionally, the diode-connected NM3 resistor (R1-R2) introduces series resistance that degrades input matching.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+R R1 n3 VSS
+```
+PREDICTED: s11_db improves by ~6 dB (replaces R1-R2 diode chain with direct shunt resistor)
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 VIN1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+R R1 VDD n3
+```
+PREDICTED: s11_db improves by ~8 dB (replaces LC series with direct inductive coupling at gate)
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM4 n3 n3 VSS VSS
+```
+PREDICTED: s11_db improves by ~4 dB (adds source degeneration via NM4 diode instead of R1-R2)

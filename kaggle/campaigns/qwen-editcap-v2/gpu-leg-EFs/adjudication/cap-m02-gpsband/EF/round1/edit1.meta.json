@@ -1,0 +1,23 @@
+{
+  "index": 1,
+  "round": 1,
+  "predicted_delta_text": "PREDICTION: s11_db improves by ~5 dB (adds series inductor L1 + shunt inductor L3 to form a pi-match network at the gate, transforming the 50\u03a9 input to the NMOS's high-impedance gate node while isolating the bias resistors).\n\n```netlist\nC C1 VIN1 n1\nL L1 n1 n2\nC C2 n2 n3\nC C4 n5 VOUT1\nL L2 n5 n4\nNMOS NM1 n5 n2 VSS VSS\nPMOS PM1 n5 n3 VDD VDD\nC C3 VIN1 n2\n``\n\nPREDICTION: s11_db improves by ~3 dB (adds a direct feedback capacitor C3 between VIN1 and gate node n2, creating a Miller-like degeneration path that lowers the input impedance and enhances matching at the expense of gain).",
+  "wl_hash": "71375a1cc6e78a97",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "fence_fail",
+  "fence_detail": {
+    "passed": false,
+    "idd_ma": null,
+    "idd_ok": false,
+    "idd_floor_ma": 0.05,
+    "s21_db": null,
+    "s21_ok": true,
+    "s21_applied": false,
+    "s21_floor_db": null,
+    "fence_s21_flag": true
+  },
+  "sized": null,
+  "error": null,
+  "smoke_idd_ma": null
+}

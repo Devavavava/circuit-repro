@@ -1,0 +1,44 @@
+=== DIAGNOSIS ===
+The binding constraint (s21_db) fails due to insufficient transconductance gain in the cascode structure. NMOS NM1 and NM2 form a cascode with a high output impedance but reduced voltage gain due to the shared node (n5) between NM1's drain and NM2's gate. This topology inherently limits the transconductance (gₘ) of the first stage, compounded by the inductive load (L3) which may not optimally resonate with the output capacitance at 915 MHz.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n5 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+PREDICTED: s21_db improves by ~2 dB (simplified cascode retains some gain while reducing parasitic loading).
+
+---
+
+```netlist
+C C1 VIN1 n1
+L L1 n1 n3
+L L2 n3 VSS
+NMOS NM1 VOUT1 n3 n4 VSS
+NMOS NM2 n4 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n5
+```
+PREDICTED: s21_db improves by ~4 dB (common-source configuration with inductive source degeneration enhances gₘ).
+
+---
+
+```netlist
+C C1 VIN1 n1
+L L1 n1 n3
+NMOS NM1 n4 n3 n5 VSS
+NMOS NM2 n4 VDD n6 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n5
+C C2 n4 VOUT1
+```
+PREDICTED: s21_db improves by ~3 dB (feedback via C2 and R1 creates a cascode with enhanced gain-bandwidth product).

@@ -1,0 +1,46 @@
+DIAGNOSIS: The LNA is failing due to poor input impedance matching (S11 -1.84 dB vs -12 dB spec), caused by a suboptimal LC tank configuration and gate resistor loading. The series L1-C1 input network is misaligned for resonance at 1.58 GHz, while R2 (180kΩ typical) creates a high-impedance gate bias node that degrades return loss. The diode-connected NM2/PM2 biasing networks add unnecessary complexity and impedance mismatch.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C4 n5 VOUT1
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+R R2 n6 n2
+R R4 n7 n3
+L L1 n1 VSS
+```
+s11_db improves by ~4 dB (parallel L1 replaces series inductor for resonant input matching)
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C5 n6 n2
+```
+s11_db improves by ~3 dB (adds AC bypass capacitor to gate bias network)
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+R R1 VDD n3
+R R2 n3 n2
+```
+s11_db improves by ~5 dB (simplifies to common-source with shunt resistor biasing for better input match)

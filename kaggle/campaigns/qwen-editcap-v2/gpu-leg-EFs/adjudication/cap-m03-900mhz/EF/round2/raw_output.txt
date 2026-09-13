@@ -1,0 +1,59 @@
+DIAGNOSIS: The binding constraint (S11=-0.229 dB) fails due to severe input mismatch. The gate of NM1 (n2) is biased through high-impedance resistors (R1+R2), creating a poor 50Ω match. The existing input matching network (C1+L1) lacks sufficient impedance transformation at 915 MHz. The NMOS's transconductance and input capacitance are not resonated, leading to high VSWR and poor return loss.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+L L5 n2 VSS  # Shunt inductor at gate for LC resonance
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+
+(s11_db improves by ~2-3 dB due to gate LC resonance)
+
+```netlist
+C C1 VIN1 n1
+C C2 n1 n3  # Reconfigure NM1 as common-gate
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS  # Source now at n1
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+
+(s11_db improves by ~1.5 dB via common-gate low-Z input)
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n8 n3 VDD VDD  # Cascode PMOS
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+
+(s11_db improves by ~2 dB through cascode's enhanced isolation)

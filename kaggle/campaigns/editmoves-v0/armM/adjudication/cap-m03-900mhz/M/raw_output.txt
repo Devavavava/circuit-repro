@@ -1,0 +1,5 @@
+DIAGNOSIS: The circuit fails primarily due to poor input match (S11_db = -0.229 dB, margin = -0.977), indicating excessive input reflection. The input is driven through a series capacitor C1 and inductor L1, forming a resonant structure that is not properly tuned to 915 MHz. The lack of impedance matching at the input port results in a high reflection coefficient. Additionally, the diode-connected NM2 and PM2 provide no active gain or feedback, and the biasing resistors R1/R2 and R3/R4 are not optimized for low input reflection. The dominant failure is input matching, not noise or gain.
+
+PICK 3: adds a shunt C from input internal node n1 to VSS to tune the input impedance toward 50 ohms | predicted s11_db up ~2 dB  
+PICK 1: adds a series inductor L in the input path after C1 (at n1) to resonate with C1 and form a low-pass filter that improves input match at 915 MHz | predicted s11_db up ~1.5 dB  
+PICK 10: adds a shunt feedback RC from NM1 drain (n5) to gate (n2), providing negative feedback to reduce input reflection and stabilize gain | predicted s11_db up ~1.2 dB

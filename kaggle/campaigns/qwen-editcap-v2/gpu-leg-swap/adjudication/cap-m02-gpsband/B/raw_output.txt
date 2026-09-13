@@ -1,0 +1,50 @@
+```netlist
+C C1 VIN1 n1
+R R5 VIN1 n1
+L L1 n1 n2
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+Adding a series resistor (R5) at the input improves impedance matching by directly adjusting the real part of the input impedance, predicted to improve S11_db by ~1.5 dB. The resistor dampens reflections while maintaining signal coupling via L1 and C1.
+
+```netlist
+C C1 VIN1 n1
+L L1 VIN1 n1
+NMOS NM1 n1 n2 VSS VSS
+L L2 n2 n3
+C C2 n3 VOUT1
+C C3 n2 VSS
+PMOS PM1 n2 n4 VDD VDD
+R R1 VDD n5
+R R2 n5 n4
+```
+Switching to a common-source topology with inductive source degeneration (L2) and shunt capacitor (C3) creates a more controllable input impedance. This structure increases conjugate matching at f0, predicted to improve S11_db by ~3 dB by canceling transistor input reactance.
+
+```netlist
+C C1 VIN1 n1
+L L1 n1 n2
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+L L3 VIN1 VSS
+```
+Adding a shunt inductor (L3) from VIN1 to ground introduces a resonant path that enhances input matching at f0. This creates an LC tank with C1 that better cancels NMOS input capacitance, predicted to improve S11_db by ~2 dB by lowering the input impedance's imaginary component.

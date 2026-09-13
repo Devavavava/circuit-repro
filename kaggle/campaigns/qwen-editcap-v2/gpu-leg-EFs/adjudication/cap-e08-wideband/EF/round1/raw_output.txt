@@ -1,0 +1,58 @@
+DIAGNOSIS: The circuit fails the S11_max_db constraint (-3.22 dB vs -8 dB requirement) due to poor input impedance matching. The existing input network (C1-L1 series) lacks sufficient resonance tuning at the 0.5-3 GHz band. The gate bias resistor R2 (n2→VSS via R2/R1) introduces resistive losses that degrade input VSWR. The LC matching network is under-optimized for wideband performance, leading to high return loss across the band.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+L L3 n1 VSS
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+PREDICTION: Adding shunt inductor L3 at n1 improves input LC resonance; S11_max_db improves by ~3 dB
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+R R5 n2 VSS
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+PREDICTION: Shunt resistor R5 reduces input Q-factor for wider bandwidth; S11_max_db improves by ~2 dB
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+L L3 n2 VSS
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+PREDICTION: Shunt inductor L3 at n2 enhances gate AC grounding; S11_max_db improves by ~3.5 dB

@@ -1,0 +1,105 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "Predicted improvement: s11_db improves by ~1.5 dB using inductor L4 in parallel with R2 to reduce gate bias resistance.",
+  "wl_hash": "b224cf6f725c940c",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 22.34228,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -15.2309,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 3.56703,
+    "metrics": {
+      "s11_db": -0.196498,
+      "s11_max_db": -0.193222,
+      "s21_db": 7.48542,
+      "s21_min_db": 7.35609,
+      "idd_ma": 6.528618,
+      "nf_db": 2.2245,
+      "s22_db": -8.94307,
+      "s22_max_db": -8.8482,
+      "s12_db": -58.6004,
+      "k_f0": 7.15269,
+      "k_min": 6.9654,
+      "mu_f0": 2.58944,
+      "mu_min": 2.54129,
+      "mu_src_f0": 1.02028,
+      "mu_src_min": 1.02008,
+      "delta_f0": 0.350862,
+      "delta_max": 0.354933,
+      "stab_band": [
+        902000000.0,
+        928000000.0
+      ],
+      "s21_ripple_db": 0.23446999999999996,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.2245,
+        "required_min": null,
+        "required_max": 1.6,
+        "scale": 1.6,
+        "margin": -0.3903124999999999,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.196498,
+        "required_min": null,
+        "required_max": -13,
+        "scale": 13,
+        "margin": -0.9848847692307692,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 7.48542,
+        "required_min": 17,
+        "required_max": null,
+        "scale": 17,
+        "margin": -0.5596811764705881,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 6.528618,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": -0.6321545,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.9848847692307692
+    ],
+    "seed": 2,
+    "seconds": 63.728,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 22.34228
+}

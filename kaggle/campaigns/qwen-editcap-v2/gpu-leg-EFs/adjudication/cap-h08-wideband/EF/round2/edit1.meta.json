@@ -1,0 +1,113 @@
+{
+  "index": 1,
+  "round": 2,
+  "predicted_delta_text": "PREDICTION: s11_max_db improves by ~0.8 dB (achieved: -0.41 dB \u2192 target: -15 dB). The added capacitor C5 in parallel with L1 creates a parallel LC resonant network, enhancing impedance matching at the operating frequency.",
+  "wl_hash": "8fcbb533a5f9c146",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 0.6004657,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -23.6557,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 3.22469,
+    "metrics": {
+      "s11_db": -0.415405,
+      "s11_max_db": -0.337311,
+      "s21_db": 4.98886,
+      "s21_min_db": 4.57758,
+      "idd_ma": 5.0299760000000004,
+      "nf_db": 3.882476,
+      "s22_db": -0.968458,
+      "s22_max_db": -0.82931,
+      "s12_db": -28.6494,
+      "k_f0": 0.0847464,
+      "k_min": 0.0807693,
+      "mu_f0": 0.526162,
+      "mu_min": 0.425841,
+      "mu_src_f0": 0.738568,
+      "mu_src_min": 0.520422,
+      "delta_f0": 0.84854,
+      "delta_max": 0.852654,
+      "stab_band": [
+        500000000.0,
+        3000000000.0
+      ],
+      "s21_ripple_db": 1.02529,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.882476,
+        "required_min": null,
+        "required_max": 2.5,
+        "scale": 2.5,
+        "margin": -0.5529904,
+        "supported": true
+      },
+      "s11_max_db": {
+        "achieved": -0.337311,
+        "required_min": null,
+        "required_max": -15,
+        "scale": 15,
+        "margin": -0.9775126000000001,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 4.98886,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": -0.6881962500000001,
+        "supported": true
+      },
+      "s21_ripple_db": {
+        "achieved": 1.02529,
+        "required_min": null,
+        "required_max": 1.5,
+        "scale": 1.5,
+        "margin": 0.31647333333333333,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 5.0299760000000004,
+        "required_min": null,
+        "required_max": 5,
+        "scale": 5,
+        "margin": -0.005995200000000089,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_max_db",
+      -0.9775126000000001
+    ],
+    "seed": 1,
+    "seconds": 67.323,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 0.6004657
+}

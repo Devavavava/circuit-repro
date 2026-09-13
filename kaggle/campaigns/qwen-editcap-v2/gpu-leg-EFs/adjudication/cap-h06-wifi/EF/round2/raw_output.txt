@@ -1,0 +1,53 @@
+DIAGNOSIS:  
+The binding constraint (NF) fails due to the input transistor's gate biasing network (R1-R2-NM2) introducing excessive thermal noise and poor noise matching. The common-source topology with series inductor (L1) at the gate is inherently noisier compared to alternatives like common-gate or cascode with noise-optimized biasing. The resistor-based biasing chain (R1-R2) and diode-connected NM2/PM2 add thermal noise and degrade noise figure, while the PMOS load (PM1) contributes additional noise due to its lower transconductance efficiency.
+
+```netlist
+C C1 VIN1 n1
+L L1 n1 n4
+NMOS NM1 n5 n8 VSS VSS
+R R1 VDD n6
+R R2 n6 n8
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L2 n5 n4
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R3 n7 VSS
+R R4 n7 n3
+```
+PREDICTED: nf_db improves by ~1.5 dB (common-gate stage reduces gate resistor noise).
+
+```netlist
+C C1 VIN1 n1
+L L1 n1 n2
+NMOS NM1 n5 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+C C2 n3 n4
+L L2 n4 VOUT1
+NMOS NM2 n4 n4 VSS VSS
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+PMOS PM2 n7 n7 VDD VDD
+```
+PREDICTED: nf_db improves by ~1 dB (shunt inductor at output load for noise shaping).
+
+```netlist
+C C1 VIN1 n1
+L L1 n1 n2
+NMOS NM1 n5 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+NMOS NM2 n3 n3 VSS VSS
+C C2 n2 n4
+L L2 n4 VOUT1
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+PMOS PM2 n7 n7 VDD VDD
+C C3 n4 VSS
+```
+PREDICTED: nf_db improves by ~1.2 dB (NMOS source-follower load reduces noise contribution of PMOS).

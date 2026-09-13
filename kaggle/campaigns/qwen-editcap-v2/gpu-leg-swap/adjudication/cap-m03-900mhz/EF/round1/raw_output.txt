@@ -1,0 +1,60 @@
+1. **Diagnosis**: The binding constraint (S11_db) fails due to poor input impedance matching. The existing series LC (C1-L1) forms a resonant circuit, but it likely doesn't present a low enough impedance at 915 MHz, causing high reflection. The NMOS gate's high reactance worsens the mismatch.
+
+2. **Edits**:
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+C C5 n1 VSS
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+**Prediction**: Adding a shunt capacitor (C5) at the input node (n1) improves S11_db by ~3 dB by lowering the input impedance at resonance.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+L L3 n2 VSS
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+**Prediction**: Adding a shunt inductor (L3) at the gate (n2) improves S11_db by ~5 dB by forming a parallel LC tank to tune the input impedance.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+R R5 n2 VSS
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+**Prediction**: Adding a shunt resistor (R5) at the gate (n2) improves S11_db by ~2 dB by damping resonance and adjusting input impedance.

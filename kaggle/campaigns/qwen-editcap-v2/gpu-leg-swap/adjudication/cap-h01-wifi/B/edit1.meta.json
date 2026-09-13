@@ -1,0 +1,105 @@
+{
+  "index": 1,
+  "round": 1,
+  "predicted_delta_text": "**Predicted change**: nf_db improves by ~0.5 dB  \n*Adds PMOS current mirror (PM1) as active load instead of inductive load (L3), reducing parasitic noise and improving linearity.*\n\n---",
+  "wl_hash": "4e92fe6558820ecc",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 0.4774064,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -0.175159,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.86173,
+    "metrics": {
+      "s11_db": -14.3318,
+      "s11_max_db": -14.187,
+      "s21_db": -0.163208,
+      "s21_min_db": -0.168851,
+      "idd_ma": 0.2120549,
+      "nf_db": 3.332757,
+      "s22_db": -14.3318,
+      "s22_max_db": -14.187,
+      "s12_db": -0.163208,
+      "k_f0": 1.0,
+      "k_min": 1.0,
+      "mu_f0": 1.0,
+      "mu_min": 1.0,
+      "mu_src_f0": 1.0,
+      "mu_src_min": 1.0,
+      "delta_f0": 1.0,
+      "delta_max": 1.0,
+      "stab_band": [
+        2400000000.0,
+        2483500000.0
+      ],
+      "s21_ripple_db": 0.010946000000000011,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.332757,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -0.8515316666666666,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -14.3318,
+        "required_min": null,
+        "required_max": -13,
+        "scale": 13,
+        "margin": 0.1024461538461538,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -0.163208,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": -1.0102005,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 0.2120549,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": 0.946986275,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s21_db",
+      -1.0102005
+    ],
+    "seed": 1,
+    "seconds": 63.782,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 0.4774064
+}

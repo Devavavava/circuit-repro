@@ -1,0 +1,45 @@
+DIAGNOSIS: The failure stems from insufficient transconductance (gm) and load impedance (RL) in the common-source stage (NM1), limiting voltage gain (s21_db). The diode-connected NM2 load (R1/R2 gate bias) provides low output impedance, while the shunt inductor L1 reduces gate-source impedance at f0. Structural edits must decouple biasing from AC impedance, increase RL, or add gain stages.
+
+```netlist
+C C1 VIN1 n1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n5 VDD n6 VSS
+R R1 VDD n6
+```
+
+```netlist
+C C1 VIN1 n1
+L L1 n1 n3
+L L2 n4 VSS
+PMOS PM1 n2 n6 VDD VDD
+NMOS NM1 n5 n3 n4 VSS
+R R1 VDD n6
+C C2 n2 VOUT1
+```
+
+```netlist
+C C1 VIN1 n1
+L L1 n1 n3
+L L2 n4 VSS
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 n5 VSS VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+L L4 n2 n5
+```
+
+```netlist
+C C1 VIN1 n1
+L L1 n1 n3
+L L2 n4 VSS
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n5 n6 n7 VSS
+NMOS NM3 n2 n6 VDD VSS
+R R1 VDD n6
+C C2 n2 VOUT1
+```

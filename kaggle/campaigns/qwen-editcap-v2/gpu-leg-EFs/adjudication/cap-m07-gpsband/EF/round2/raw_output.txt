@@ -1,0 +1,55 @@
+DIAGNOSIS: The primary failure is poor input matching (S11_db=-1.84 dB vs -12 dB requirement). The original topology uses a series inductor (L1) and series capacitor (C1) for input matching, which fails to achieve the required impedance transformation at 1.58 GHz. The gate bias resistor chain (R1-R2) creates a high-impedance node at n2, exacerbating the mismatch. The PMOS cascode (PM1) and NMOS (NM1) configuration lacks proper inductive degeneration or shunt elements to cancel reactive components.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 VSS
+L L2 n2 VSS
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+PREDICTED: s11_db improves by ~4 dB due to shunt inductor (L1) at input and gate (L2) creating LC tank for resonance at f0.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+C C5 n2 VSS
+L L1 n1 n2
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+PREDICTED: s11_db improves by ~3 dB via added shunt capacitor (C5) at gate to cancel inductive reactance from L1.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n2 VSS
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+PREDICTED: s11_db improves by ~5 dB through dual inductive matching (L1 series, L2 shunt) creating parallel resonance at f0.

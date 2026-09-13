@@ -1,0 +1,64 @@
+### Round 2 Edits: Targeting Input Matching (S11) via Structural Reconfiguration
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+C C5 n1 VSS
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+**Edit 1 Prediction**: Adds a shunt capacitor (C5) at VIN1 to cancel inductive reactance. **S11_db improves by ~1.5 dB** (from -0.77 dB to ~-2.27 dB).
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+L L3 VIN1 n2
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+**Edit 2 Prediction**: Adds a series inductor (L3) directly from VIN1 to n2 (gate node), enhancing LC tank tuning. **S11_db improves by ~2 dB** (from -0.77 dB to ~-2.77 dB).
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+PMOS PM3 n2 n3 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+**Edit 3 Prediction**: Adds a PMOS (PM3) in series between n2 and n3 to create a feedback path, improving input impedance. **S11_db improves by ~1 dB** (from -0.77 dB to ~-1.77 dB).

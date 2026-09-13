@@ -1,0 +1,105 @@
+{
+  "index": 1,
+  "round": 2,
+  "predicted_delta_text": "**Edit 2 Prediction**: Adds a series inductor (L3) directly from VIN1 to n2 (gate node), enhancing LC tank tuning. **S11_db improves by ~2 dB** (from -0.77 dB to ~-2.77 dB).\n\n---",
+  "wl_hash": "8693e613c7bee50f",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 0.7113572,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -7.28071,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 3.15375,
+    "metrics": {
+      "s11_db": -0.513825,
+      "s11_max_db": -0.513449,
+      "s21_db": 5.22164,
+      "s21_min_db": 5.2193,
+      "idd_ma": 6.8414649999999995,
+      "nf_db": 3.59465,
+      "s22_db": -1.49362,
+      "s22_max_db": -1.49262,
+      "s12_db": -35.5186,
+      "k_f0": 0.302926,
+      "k_min": 0.299354,
+      "mu_f0": 0.814772,
+      "mu_min": 0.811665,
+      "mu_src_f0": 0.927334,
+      "mu_src_min": 0.925999,
+      "delta_f0": 0.784806,
+      "delta_max": 0.784929,
+      "stab_band": [
+        902000000.0,
+        928000000.0
+      ],
+      "s21_ripple_db": 0.004550000000000054,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.59465,
+        "required_min": null,
+        "required_max": 2.5,
+        "scale": 2.5,
+        "margin": -0.43786,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.513825,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.9486174999999999,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 5.22164,
+        "required_min": 14,
+        "required_max": null,
+        "scale": 14,
+        "margin": -0.6270257142857142,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 6.8414649999999995,
+        "required_min": null,
+        "required_max": 6,
+        "scale": 6,
+        "margin": -0.1402441666666666,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -5,
+        "required_max": null,
+        "scale": 5,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.9486174999999999
+    ],
+    "seed": 2,
+    "seconds": 61.573,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 0.7113572
+}

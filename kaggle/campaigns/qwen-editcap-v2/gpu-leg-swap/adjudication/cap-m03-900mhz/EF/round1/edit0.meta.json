@@ -1,0 +1,105 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "**Prediction**: Adding a shunt capacitor (C5) at the input node (n1) improves S11_db by ~3 dB by lowering the input impedance at resonance.",
+  "wl_hash": "a5747f25680be768",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 1.513745,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -17.9276,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 3.37652,
+    "metrics": {
+      "s11_db": -0.329229,
+      "s11_max_db": -0.328797,
+      "s21_db": 4.15006,
+      "s21_min_db": 4.14742,
+      "idd_ma": 5.990101999999999,
+      "nf_db": 4.264691,
+      "s22_db": -1.51647,
+      "s22_max_db": -1.51601,
+      "s12_db": -36.1145,
+      "k_f0": 0.328988,
+      "k_min": 0.325175,
+      "mu_f0": 0.775219,
+      "mu_min": 0.771581,
+      "mu_src_f0": 0.942706,
+      "mu_src_min": 0.941561,
+      "delta_f0": 0.805515,
+      "delta_max": 0.805534,
+      "stab_band": [
+        902000000.0,
+        928000000.0
+      ],
+      "s21_ripple_db": 0.005249999999999311,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 4.264691,
+        "required_min": null,
+        "required_max": 2.5,
+        "scale": 2.5,
+        "margin": -0.7058764,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.329229,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.9670771,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 4.15006,
+        "required_min": 14,
+        "required_max": null,
+        "scale": 14,
+        "margin": -0.7035671428571428,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 5.990101999999999,
+        "required_min": null,
+        "required_max": 6,
+        "scale": 6,
+        "margin": 0.0016496666666667714,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -5,
+        "required_max": null,
+        "scale": 5,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.9670771
+    ],
+    "seed": 2,
+    "seconds": 61.687,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 1.513745
+}

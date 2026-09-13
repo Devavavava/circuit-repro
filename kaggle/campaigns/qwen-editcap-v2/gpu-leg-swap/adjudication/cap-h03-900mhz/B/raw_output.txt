@@ -1,0 +1,27 @@
+1. **DIAGNOSIS**: The binding constraint (`s11_db`) fails due to poor input matching. The existing series LC network (C1+L1) fails to present a 50Ω impedance at 915 MHz, likely because its resonance is mismatched or the topology lacks sufficient degrees of freedom to cancel reactance. The high `s11_db` (-0.236 dB) indicates the input is effectively unterminated.
+
+2. **STRUCTURAL EDITS**:
+
+```netlist
+# Edit 1: Add a shunt inductor at the input to create a parallel LC resonance
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 n4 VSS
+L L3 VDD n2
+L L4 n1 VSS  # Shunt inductor for improved input matching
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n2 VDD n5 VSS
+NMOS NM3 n6 n6 VSS VSS
+R R1 VDD n6
+R R2 n6 n3
+```
+**Predicted improvement**: `s11_db` improves by ~3 dB (parallel LC resonance better cancels input reactance).
+
+```netlist
+# Edit 2: Replace series LC with a pi-network (series inductor + shunt capacitor)
+L L4 VIN1 n1  # Series inductor replaces C1
+C C1 n1 VSS   # Shunt capacitor for input matching
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2

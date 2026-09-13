@@ -1,0 +1,58 @@
+DIAGNOSIS: The binding constraint (s11_max_db) is failing due to poor input impedance matching. The original topology uses a series inductor (L1) and capacitor (C1) to match the input, but this LC network is not achieving sufficient impedance transformation to meet the -15 dB S11 requirement. The gate node (n2) is loaded by the resistor chain (R1-R2) and capacitor (C2), degrading the matching at the input. The NMOS input stage's transconductance and the LC network's Q factor are insufficient to achieve the required reflection coefficient.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+C C5 n2 VSS
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+PREDICTION: s11_max_db improves by ~1 dB (achieved: -0.51 dB → target: -15 dB). The added shunt capacitor C5 at n2 reduces gate loading and creates a common-gate configuration, improving input matching.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+C C5 n1 n2
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+PREDICTION: s11_max_db improves by ~0.8 dB (achieved: -0.41 dB → target: -15 dB). The added capacitor C5 in parallel with L1 creates a parallel LC resonant network, enhancing impedance matching at the operating frequency.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+C C5 VIN1 n2
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+PREDICTION: s11_max_db improves by ~1 dB (achieved: -0.41 dB → target: -15 dB). The added capacitor C5 provides a direct AC coupling path from VIN1 to the gate, bypassing the L1 inductor to reduce phase mismatch in the input network.

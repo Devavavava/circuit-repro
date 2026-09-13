@@ -1,0 +1,62 @@
+1. **Diagnosis**: The binding constraint `s11_max_db` fails due to poor input impedance matching. The existing LC (C1-L1) and resistor (R2) biasing at the gate of NM1 create an impedance mismatch at 0.5-3 GHz. The resistor chain (R1-R2) adds resistive loading, degrading S11.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+L L3 n1 VSS  # Shunt inductor at input for impedance tuning
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+**Prediction**: `s11_max_db` improves by ~2.5 dB due to enhanced input resonance via L3.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+C C5 n2 VSS  # Replace R2 with shunt capacitor for gate AC bypass
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2  # (R2 remains, but C5 shunts high-Z gate bias)
+R R3 n7 VSS
+R R4 n7 n3
+```
+**Prediction**: `s11_max_db` improves by ~3 dB by reducing gate resistive loading with C5.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+C C5 n1 VSS  # Shunt capacitor at input for broadband matching
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+**Prediction**: `s11_max_db` improves by ~2 dB via parallel LC resonance (C5-L1) at input.

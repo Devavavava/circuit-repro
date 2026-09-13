@@ -1,0 +1,40 @@
+DIAGNOSIS: The primary failure is input impedance mismatch (S11_db = -1.59 dB vs required -10 dB), caused by the gate biasing network loading the input. The NMOS gate is biased through a high-impedance resistor chain (R1+R2) that dominates at RF, presenting a resistive load to the input matching network (L1+C1). The series L1+C1 combination fails to resonate with the gate's input capacitance (C2 + NMOS Cgs) at 1.58 GHz, resulting in poor impedance transformation. The diode-connected PMOS/NMOS pairs (PM2/NM2) contribute no RF function and are likely parasitic.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+L L1 n1 VSS
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+```
+
+PREDICTION: s11_db improves by ~4 dB (replaces L1 from gate node n2 to VSS, forming a shunt inductor that resonates with C1's input capacitance at 1.58 GHz, decoupling the gate bias resistors from RF loading).
+
+```netlist
+C C1 VIN1 n1
+L L1 n1 n2
+C C2 n2 n3
+L L3 n2 VSS
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+```
+
+PREDICTION: s11_db improves by ~5 dB (adds series inductor L1 + shunt inductor L3 to form a pi-match network at the gate, transforming the 50Ω input to the NMOS's high-impedance gate node while isolating the bias resistors).
+
+```netlist
+C C1 VIN1 n1
+L L1 n1 n2
+C C2 n2 n3
+C C4 n5 VOUT1
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+C C3 VIN1 n2
+``
+
+PREDICTION: s11_db improves by ~3 dB (adds a direct feedback capacitor C3 between VIN1 and gate node n2, creating a Miller-like degeneration path that lowers the input impedance and enhances matching at the expense of gain).

@@ -1,0 +1,58 @@
+DIAGNOSIS: The circuit fails to meet the S11_max_db requirement (-3.22 dB vs. -8 dB) due to poor input impedance matching. The existing series inductor L1 and resistor-based gate biasing for NM1 create a high input impedance mismatch at 1.75 GHz. The diode-connected NM2/PM2 biasing topology lacks sufficient AC impedance control to shape the input match. The input capacitor C1 and inductor L1 form a series LC but are insufficient to cancel the transistor's input reactance over the wideband.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+L L3 VIN1 VSS
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+s11_max_db improves by ~2.5 dB (predicted from shunt inductor L3 forming parallel LC with C1 at 1.75 GHz)
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+C C5 n2 VSS
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+s11_max_db improves by ~1.8 dB (predicted from shunt capacitor C5 directly canceling NM1's gate input capacitance)
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+L L3 n6 n2
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 VSS
+R R3 n7 VSS
+R R4 n7 n3
+```
+s11_max_db improves by ~2.2 dB (predicted from inductor L3 replacing R2 to lower gate bias network impedance at 1.75 GHz)

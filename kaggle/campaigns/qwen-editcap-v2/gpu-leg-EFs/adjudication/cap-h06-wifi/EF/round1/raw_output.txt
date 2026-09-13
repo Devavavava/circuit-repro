@@ -1,0 +1,60 @@
+DIAGNOSIS: The primary limitation is the resistor R2 (n6-n2) in the gate path of NM1, which contributes thermal noise degrading the noise figure. The NM1 gate is biased through a resistive divider (R1-R2), which inherently adds noise. The PMOS PM1 operates in a common-source configuration without cascode isolation, allowing noise from the output to couple back. The diode-connected NM2/PM2 bias networks are passive but do not mitigate noise. Reducing resistive elements in the signal path and improving transistor-level noise matching are critical.
+
+```netlist
+# Edit 1: Replace R2 (gate bias resistor) with an active current mirror to eliminate thermal noise
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+NMOS NM3 n2 n6 VSS VSS
+R R2 VDD n6
+R R3 n7 VSS
+R R4 n7 n3
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+```
+NF improves by ~0.5 dB (eliminating R2's thermal noise).
+
+```netlist
+# Edit 2: Add cascode NMOS in common-gate configuration to isolate NM1's gate and reduce noise coupling
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+NMOS NM3 n8 n5 VSS VSS
+PMOS PM1 n8 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n8 n4
+```
+NF improves by ~0.3 dB (cascode isolates gate from output noise).
+
+```netlist
+# Edit 3: Convert PM1 to common-gate configuration for lower noise figure and higher isolation
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 VDD VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+```
+NF improves by ~0.4 dB (common-gate PM1 reduces gate noise contribution).

@@ -1,0 +1,64 @@
+=== DIAGNOSIS ===
+The binding constraint is S11_db (-1.84 dB vs. -12 dB requirement). The input matching network (C1+L1 in series) fails to achieve sufficient impedance transformation. The NMOS gate (n2) sees a high-resistance path via R1-R2, degrading input VSWR. The LC tank lacks a shunt element to cancel gate capacitance, leading to impedance mismatch at 1.58 GHz.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+C C5 n2 VSS
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+**Edit 1**: Adds shunt capacitor C5 at the gate (n2→VSS) to bypass R2 for AC, reducing gate resistance's impact on input impedance. Predicted S11_db improves by ~3 dB.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+L L3 n1 VSS
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+**Edit 2**: Adds shunt inductor L3 at n1 (input node) to form a parallel LC tank with C1. This creates a resonant matching network, improving impedance transformation. Predicted S11_db improves by ~4 dB.
+
+---
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 VSS
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n1 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+**Edit 3**: Reconfigures input matching to L1 (shunt at n1) and R2 (direct gate coupling n1→n2). This replaces the series LC with a shunt inductor and direct gate coupling, simplifying the matching path. Predicted S11_db improves by ~5 dB.

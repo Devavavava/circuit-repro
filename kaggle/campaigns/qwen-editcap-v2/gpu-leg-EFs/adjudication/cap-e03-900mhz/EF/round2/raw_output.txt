@@ -1,0 +1,33 @@
+DIAGNOSIS:
+The binding constraint (s21_db) is limited by insufficient transconductance (gm) in the original cascode configuration. NMOS1's gate is over-biased by the R1-R2 resistor chain, which starves current and reduces gm. The cascode structure (NMOS1/NMOS2) also adds a voltage drop that further limits headroom, reducing the available transconductance. The inductor L1 in series with the gate acts as a high-impedance choke at 915 MHz, attenuating the input signal before it reaches the transistor. This structural limitation creates a fundamental gain bottleneck.
+
+```netlist
+C C1 VIN1 n1
+L L1 n1 n3
+NMOS NM1 n5 n3 VSS VSS
+PMOS PM1 n5 n6 VDD VDD
+PMOS PM2 n6 VDD VDD VDD
+```
+Predicted: s21_db improves by ~7 dB (common-source with inductive source degeneration and cascode gain cell)
+
+```netlist
+C C1 VIN1 n1
+L L1 n1 n3
+NMOS NM1 n5 n3 n4 VSS
+NMOS NM2 n5 VDD n4 VSS
+PMOS PM1 n6 n6 VDD VDD
+R R1 VDD n6
+```
+Predicted: s21_db improves by ~5 dB (common-source with PMOS current mirror bias)
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 VOUT1
+L L1 n1 n3
+L L2 VDD n4
+NMOS NM1 n5 n3 VSS VSS
+NMOS NM2 n5 n4 VSS VSS
+NMOS NM3 n2 n6 VSS VSS
+R R1 VDD n6
+```
+Predicted: s21_db improves by ~9 dB (three-stage cascode with common-source and common-gate output)

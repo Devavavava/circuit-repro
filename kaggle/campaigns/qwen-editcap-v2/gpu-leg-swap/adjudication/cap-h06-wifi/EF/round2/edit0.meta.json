@@ -1,0 +1,12 @@
+{
+  "index": 0,
+  "round": 2,
+  "predicted_delta_text": "**PREDICTION**: nf_db improves by ~0.3\u20130.5 dB (replaces R2's noise with PM3's lower-noise current mirror).  \n\n---\n\n#### EDIT 2: Add a cascode PMOS (PM4) to PM1's load, improving noise isolation  \n```netlist\nC C1 VIN1 n1\nC C2 n2 n3\nC C3 n4 VSS\nC C4 n5 VOUT1\nL L1 n1 n2\nL L2 n5 n4\nNMOS NM1 n5 n2 VSS VSS\nNMOS NM2 n6 n6 VSS VSS\nPMOS PM1 n8 n3 VDD VDD\nPMOS PM4 n5 n7 V",
+  "wl_hash": null,
+  "valid": false,
+  "dup": false,
+  "fence_outcome": "parse_fail",
+  "fence_detail": null,
+  "sized": null,
+  "error": "ParseError: line 10: PMOS needs a name and 4 nodes (D G S B), got 11 node(s); line: 'PMOS PM3 n2 n3 VDD VDD  # Gate bias current mirror replaces R1/R2'"
+}

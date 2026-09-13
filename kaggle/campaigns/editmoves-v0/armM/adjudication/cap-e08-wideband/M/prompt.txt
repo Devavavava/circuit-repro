@@ -1,0 +1,130 @@
+You are an analog IC designer repairing a low-noise amplifier (LNA) that FAILED its specification after full SPICE sizing. You do NOT write netlists. A library of VALID structural edits is offered as a numbered MENU; you SELECT which edits to apply. A downstream deterministic tool applies the selected edit, inserts biasing, and sizes every device with a SPICE optimizer.
+
+=== SPEC (cap-e08-wideband) ===
+description: capability-v0 E tier: wideband 0.5-3 GHz LNA (NF<=3.5 S11_max<=-8 S21>=10 Idd<=15)
+band: wideband, f0=1750000000.0 Hz
+gated constraints:
+  nf_db      max 3.5
+  s11_max_db max -8
+  s21_db     min 10
+  s21_ripple_db max 2.0
+  idd_ma     max 15
+
+=== ANCHOR NETLIST (the failed circuit, dialect form) ===
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+
+=== STRUCTURAL ANNOTATION (auto-derived from the netlist graph above; facts only) ===
+=== DEVICE PIN BINDINGS ===
+C1: C, p=VIN1, n=n1
+C2: C, p=n2, n=n3
+C3: C, p=n4, n=VSS
+C4: C, p=n5, n=VOUT1
+L1: L, p=n1, n=n2
+L2: L, p=n5, n=n4
+NM1: NMOS, drain=n5, gate=n2, source=VSS, bulk=VSS
+NM2: NMOS, drain=n6, gate=n6, source=VSS, bulk=VSS
+PM1: PMOS, drain=n5, gate=n3, source=VDD, bulk=VDD
+PM2: PMOS, drain=n7, gate=n7, source=VDD, bulk=VDD
+R1: R, p=VDD, n=n6
+R2: R, p=n6, n=n2
+R3: R, p=n7, n=VSS
+R4: R, p=n7, n=n3
+
+=== GRAPH FACTS ===
+NM2 is diode-connected (gate tied to drain: both = n6).
+PM2 is diode-connected (gate tied to drain: both = n7).
+NM1 gate (n2) is biased through a resistor chain: VDD -> n6(R1) -> n2(R2).
+PM1 gate (n3) is biased through a resistor chain: VSS -> n7(R3) -> n3(R4).
+C1 is a DC-blocking series capacitor on the INPUT path (C1 in series between VIN1 and n1).
+C4 is a DC-blocking series capacitor on the OUTPUT path (C4 in series between n5 and VOUT1).
+
+net membership (every net -> the device pins on it):
+  n1: C1.n, L1.p
+  n2: C2.p, L1.n, NM1.gate, R2.n
+  n3: C2.n, PM1.gate, R4.n
+  n4: C3.p, L2.n
+  n5: C4.p, L2.p, NM1.drain, PM1.drain
+  n6: NM2.drain, NM2.gate, R1.n, R2.p
+  n7: PM2.drain, PM2.gate, R3.p, R4.p
+  VDD: PM1.source, PM1.bulk, PM2.source, PM2.bulk, R1.p
+  VIN1: C1.p
+  VOUT1: C4.n
+  VSS: C3.n, NM1.source, NM1.bulk, NM2.source, NM2.bulk, R3.n
+
+=== FAILURE EVIDENCE (this circuit was sized and MISSED) ===
+binding (worst) constraint: s11_max_db  margin=-0.597145 (normalized; negative == failing)
+feasible: False   total sizing evals spent: 1800
+
+per-constraint margins (achieved vs gate, normalized margin):
+  metric     achieved       margin         supported
+  nf_db      3.762          -0.0748557     True
+  s11_max_db -3.22284       -0.597145      True
+  s21_db     6.03541        -0.396459      True
+  s21_ripple_db 1.03568        0.48216        True
+  idd_ma     14.9394        0.00403933     True
+  iip3_dbm   -              -              False
+
+Idd: achieved 14.9394 mA (normalized margin 0.0040393333333332984 vs the idd_ma cap; negative == over budget).
+
+full sized-best metrics (verbatim):
+{
+  "s11_db": -3.8994,
+  "s11_max_db": -3.22284,
+  "s21_db": 6.03541,
+  "s21_min_db": 5.60295,
+  "idd_ma": 14.93941,
+  "nf_db": 3.761995,
+  "s22_db": -1.16455,
+  "s22_max_db": -0.964326,
+  "s12_db": -28.5653,
+  "k_f0": 0.961466,
+  "k_min": 0.629473,
+  "mu_f0": 0.994487,
+  "mu_min": 0.917428,
+  "mu_src_f0": 0.982593,
+  "mu_src_min": 0.656764,
+  "delta_f0": 0.562083,
+  "delta_max": 0.587095,
+  "stab_band": [
+    500000000.0,
+    3000000000.0
+  ],
+  "s21_ripple_db": 1.0356800000000002,
+  "nf_method": "series_rs"
+}
+
+=== MENU: applicable structural edits (SELECT by number) ===
+ 1. add_series_L_input at input: insert a series L in the input chain on the internal side of DC-block cap C1 (node n1).
+ 2. add_shunt_C_input at input: add a shunt C from input internal node n1 to VSS (after the DC-block cap).
+ 3. add_L_match_section_input at input: add a series-L + shunt-C L-section on the internal side of DC-block cap C1 (node n1).
+ 4. add_cascode_NMOS at NM1: insert an NMOS between NM1 drain (n5) and its load net; cascode gate tied to VDD.
+ 5. add_cascode_NMOS at NM2: insert an NMOS between NM2 drain (n6) and its load net; cascode gate tied to VDD.
+ 6. add_cascode_NMOS at PM1: insert an NMOS between PM1 drain (n5) and its load net; cascode gate tied to VDD.
+ 7. add_cascode_NMOS at PM2: insert an NMOS between PM2 drain (n7) and its load net; cascode gate tied to VDD.
+ 8. add_source_degen_L at NM1: insert a degeneration L between NM1 source and VSS.
+ 9. add_source_degen_L at NM2: insert a degeneration L between NM2 source and VSS.
+10. add_shunt_feedback_RC at NM1: add a series R+C from NM1 drain (n5) to gate (n2); the C blocks DC so the gate bias is unchanged.
+11. add_shunt_feedback_RC at PM1: add a series R+C from PM1 drain (n5) to gate (n3); the C blocks DC so the gate bias is unchanged.
+12. add_output_shunt_C at output: add a shunt C from output internal node n5 to VSS (circuit side of the DC-block cap).
+13. add_series_L_output at output: insert a series L in the output chain on the internal side of DC-block cap C4 (node n5).
+
+YOUR TASK:
+1. On the FIRST line, output your diagnosis, starting literally with "DIAGNOSIS:" -- what is physically limiting the binding constraint in the circuit above?
+2. Then output EXACTLY 3 selections from the MENU, one per line, each in this exact format:
+   PICK <number>: <one-line rationale> | predicted <metric> <direction ~magnitude>
+   (e.g. 'PICK 4: adds a cascode to raise output impedance | predicted s21_db up ~2 dB'). Choose 3 DISTINCT menu numbers.

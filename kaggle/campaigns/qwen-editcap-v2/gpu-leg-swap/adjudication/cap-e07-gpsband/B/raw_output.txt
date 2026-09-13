@@ -1,0 +1,65 @@
+1. **Diagnosis**: The binding constraint `s11_db` fails due to poor input impedance matching at 1.58 GHz. The existing series LC (C1, L1) network likely under-cancels reactive components at the gate of NM1 (n2), leading to high return loss. A shunt inductor at n1 could adjust the resonance to improve matching.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+L L3 n1 VSS
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+**Predicted**: `s11_db improves by ~2.5 dB` via enhanced resonance at f0.
+
+---
+
+2. **Diagnosis**: The input LC network (C1, L1) may not provide sufficient tuning to cancel gate capacitance. Replacing the LC with a π-match (series inductor + shunt capacitor) could better shape the input impedance for the NMOS gate.
+
+```netlist
+L L1 VIN1 n2
+C C1 n2 VSS
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+**Predicted**: `s11_db improves by ~3.0 dB` via π-network impedance shaping.
+
+---
+
+3. **Diagnosis**: The gate bias resistor (R2) may load the input network, degrading matching. Adding a series resistor at VIN1 (in parallel with C1) could adjust the input impedance without altering the LC network.
+
+```netlist
+R R5 VIN1 n1
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+**Predicted**: `s11_db improves by ~1.5 dB` via controlled series resistance for matching.

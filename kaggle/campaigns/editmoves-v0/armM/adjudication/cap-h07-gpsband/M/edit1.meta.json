@@ -1,0 +1,121 @@
+{
+  "move_name": "add_cascode_NMOS",
+  "site": {
+    "mos": "NM1",
+    "load": "n5"
+  },
+  "menu_desc": "add_cascode_NMOS at NM1: insert an NMOS between NM1 drain (n5) and its load net; cascode gate tied to VDD.",
+  "wl_hash": "a2932b1d9ba4dc16",
+  "valid": true,
+  "dup": false,
+  "invariants_ok": true,
+  "invariant_detail": {
+    "I1_round_trip": true,
+    "I1_wl_distinct": true,
+    "I2_port_gate": true,
+    "I3_new_gate_bias": true,
+    "I4_budget": true,
+    "wl_in": "dcda50191d7c5e73",
+    "wl_out": "a2932b1d9ba4dc16",
+    "error": null
+  },
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 1.481661,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -14.132,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "smoke_idd_ma": 1.481661,
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.82653,
+    "metrics": {
+      "s11_db": -0.385718,
+      "s11_max_db": -0.380398,
+      "s21_db": 9.81386,
+      "s21_min_db": 9.66855,
+      "idd_ma": 2.8918199999999996,
+      "nf_db": 2.017158,
+      "s22_db": -8.54401,
+      "s22_max_db": -8.00249,
+      "s12_db": -55.6754,
+      "k_f0": 7.52938,
+      "k_min": 7.46943,
+      "mu_f0": 2.64462,
+      "mu_min": 2.49039,
+      "mu_src_f0": 1.04132,
+      "mu_src_min": 1.04092,
+      "delta_f0": 0.36267,
+      "delta_max": 0.385753,
+      "stab_band": [
+        1565000000.0,
+        1586000000.0
+      ],
+      "s21_ripple_db": 0.27531000000000105,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 2.017158,
+        "required_min": null,
+        "required_max": 1.5,
+        "scale": 1.5,
+        "margin": -0.34477199999999986,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.385718,
+        "required_min": null,
+        "required_max": -14,
+        "scale": 14,
+        "margin": -0.9724487142857142,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 9.81386,
+        "required_min": 20,
+        "required_max": null,
+        "scale": 20,
+        "margin": -0.509307,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 2.8918199999999996,
+        "required_min": null,
+        "required_max": 3,
+        "scale": 3,
+        "margin": 0.03606000000000013,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -3,
+        "required_max": null,
+        "scale": 3,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.9724487142857142
+    ],
+    "seed": 1,
+    "seconds": 58.696,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "netlist": "C C1 VIN1 n1\nC C2 n2 VOUT1\nL L1 n1 n3\nL L2 n4 VSS\nL L3 VDD n2\nNMOS NM1 csc1 n3 n4 VSS\nNMOS NM2 n2 VDD n5 VSS\nNMOS NM3 n6 n6 VSS VSS\nR R1 VDD n6\nR R2 n6 n3\nNMOS NMc1 n5 VDD csc1 VSS",
+  "error": null,
+  "index": 1
+}

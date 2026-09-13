@@ -1,0 +1,5 @@
+DIAGNOSIS: The primary failure is poor input matching (S11_db = -0.69 dB, margin -0.95 dB), indicating the input impedance is not properly conjugate-matched to 50 ohms at 1.575 GHz. The input is dominated by the series inductor L1 and shunt path through NM1's gate (biased via R1/R2), resulting in a high input reactance and poor return loss. The diode-connected NM3 and gate biasing network create a stiff, low-impedance path to VDD, which further detunes the input match. Additionally, the current source is too weak (only NM3), leading to insufficient DC bias current and poor gain and matching.
+
+PICK 3: adds a shunt C from input node n1 to VSS to resonate out the input inductive reactance at f0 | predicted s11_db up ~2 dB  
+PICK 4: adds a cascode NMOS at NM1 to increase output impedance and improve input match by reducing Miller effect and increasing isolation | predicted s11_db up ~1.5 dB  
+PICK 7: adds a source degeneration inductor at NM3 to increase the input impedance of the bias network and reduce the effective gate drive, improving input matching | predicted s11_db up ~1.2 dB

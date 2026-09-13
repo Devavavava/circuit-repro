@@ -1,0 +1,58 @@
+DIAGNOSIS: The circuit fails the S11_max_db constraint due to poor input impedance matching. The existing LC input matching network (C1, L1) and gate bias resistor R2 create an impedance mismatch at 1.75 GHz. The high gate resistance (R2) in series with inductor L1 forms a high-Q resonant circuit that narrows the bandwidth and increases return loss. The diode-connected NM2 and PM2 biasing also introduces parasitic resistances that destabilize the input match.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+L L3 VIN1 n2
+```
+PREDICTED: s11_max_db improves by ~2.5 dB (input inductor L3 creates a direct inductive path to ground, lowering input impedance and broadening bandwidth)
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+C C5 VIN1 n1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+PREDICTED: s11_max_db improves by ~1.8 dB (shunt capacitor C5 at input bypasses high-frequency signals, reducing gate impedance and enhancing broadband matching)
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+R R5 n2 VSS
+```
+PREDICTED: s11_max_db improves by ~2.2 dB (shunt resistor R5 at gate node lowers input impedance, creating broadband match at the expense of some gain)

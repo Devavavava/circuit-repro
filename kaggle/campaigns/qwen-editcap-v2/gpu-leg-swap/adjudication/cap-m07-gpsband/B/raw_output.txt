@@ -1,0 +1,58 @@
+1. The binding constraint `s11_db` is failing because the input matching network (C1, L1) is not resonating at 1.58 GHz to present a low-impedance path. The LC series resonator is either under-tuned or the transistor's gate impedance dominates, causing high reflection.
+
+2. 
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+L L3 n1 VSS
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+**Prediction**: s11_db improves by ~2.5 dB. Adding a shunt inductor (L3) at n1 forms a parallel LC tank with C1, increasing impedance cancellation at f0.
+
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+C C5 n2 VSS
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+**Prediction**: s11_db improves by ~1.8 dB. Adding a gate shunt capacitor (C5) reduces gate-node reactance, improving input impedance match.
+
+```netlist
+C C1 n1 n2
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 VIN1 n1
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n5 n3 VDD VDD
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R2 n6 n2
+R R3 n7 VSS
+R R4 n7 n3
+```
+**Prediction**: s11_db improves by ~2.2 dB. Reversing C1/L1 order (series L→C) creates a high-pass filter, better isolating gate from input harmonics.

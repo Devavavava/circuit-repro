@@ -1,0 +1,43 @@
+### DIAGNOSIS  
+The binding constraint (nf_db=1.89 dB vs. 1.5 dB) fails due to:  
+1. **Resistor R2 in NM1's gate bias chain** (VDD→n6(R1)→n2(R2)) introduces thermal noise.  
+2. **PM1 diode-connected load** has poor noise performance compared to a current-source load.  
+3. **Poor input matching**: The inductor L1/C1 series resonance may not optimally match the input impedance for minimum noise.  
+
+---
+
+### ROUND 1 EDITS  
+
+#### EDIT 1: Replace R2 with a PMOS current mirror to reduce gate bias resistor noise  
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n8 VOUT1
+L L1 n1 n2
+L L2 n8 n4
+NMOS NM1 n8 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n8 n3 VDD VDD
+PMOS PM3 n2 n3 VDD VDD  # Gate bias current mirror replaces R1/R2
+PMOS PM2 n7 n7 VDD VDD
+R R1 VDD n6
+R R3 n7 VSS
+R R4 n7 n3
+```
+**PREDICTION**: nf_db improves by ~0.3–0.5 dB (replaces R2's noise with PM3's lower-noise current mirror).  
+
+---
+
+#### EDIT 2: Add a cascode PMOS (PM4) to PM1's load, improving noise isolation  
+```netlist
+C C1 VIN1 n1
+C C2 n2 n3
+C C3 n4 VSS
+C C4 n5 VOUT1
+L L1 n1 n2
+L L2 n5 n4
+NMOS NM1 n5 n2 VSS VSS
+NMOS NM2 n6 n6 VSS VSS
+PMOS PM1 n8 n3 VDD VDD
+PMOS PM4 n5 n7 V

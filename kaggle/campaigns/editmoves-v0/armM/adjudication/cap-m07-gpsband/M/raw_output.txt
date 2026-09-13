@@ -1,0 +1,5 @@
+DIAGNOSIS: The primary failure is poor input match (S11_db = -1.84 dB, margin -0.85 dB), which is worse than the required -12 dB. The input network (C1-L1) is a simple series LC with no matching optimization; the inductor L1 is likely too small or mismatched to resonate properly at 1.575 GHz with C1, leading to high reflection. The NM1 gate is biased via R1-R2, but the input impedance is dominated by the non-optimized LC network, and the diode-connected NM2 and PM2 provide no input matching benefit. The circuit lacks any intentional matching structure at the input.
+
+PICK 3: adds a series L to the input to improve input match by tuning the input impedance to 50 ohms | predicted s11_db up ~5 dB  
+PICK 10: adds shunt feedback RC from NM1 drain to gate to reduce gain and improve input match via negative feedback | predicted s11_db up ~2 dB  
+PICK 12: adds a shunt C at output node n5 to improve output match and reduce reflection, indirectly improving input match via stability and interaction | predicted s21_db up ~1 dB

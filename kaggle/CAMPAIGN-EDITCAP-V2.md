@@ -1,4 +1,15 @@
-# CAMPAIGN qwen-editcap-v2 — pure capacity swap: dense 32B on the frozen benchmark (DRAFT — freezes when the weights dataset exists)
+# CAMPAIGN qwen-editcap-v2 — pure capacity swap: dense 32B on the frozen benchmark (FROZEN 2026-09-13, pre-run)
+
+**FREEZE MATERIALIZATION:** dataset circuit-repro-gguf-qwen32 created by
+user (import kernel COMPLETE, Q4_K_S size-verified, sha256 in its log).
+EF32-s driver support landed: additive `--diagnosis-first` flag (strict
+DIAGNOSIS-first output schema forcing; flags-off prompts byte-identical —
+mock-validated) + kernel `EDITCAP_SCHEMA` env; EF32-s also runs
+EDITCAP_MAX_TOKENS=4096 (existing plumbing). Model discovery via
+GGUF_GLOB=Qwen3-32B*.gguf + swapped weights dataset in the push-dir copy.
+Execution = three sequential kernel legs sharing one era: editmoves arm M
+(separate campaign, same push), then v2 arms B32+EF32 (pure swap), then
+EF32-s (schema fix isolated). No results existed at freeze.
 
 User rulings 2026-09-13: pure swap + one fix arm; fine-tuning follows this
 experiment; literature RAG skipped.

@@ -234,6 +234,8 @@ def main():
             extra += " --annotate"
         if EDITCAP_ROUNDS:
             extra += " --rounds %s" % EDITCAP_ROUNDS
+        if os.environ.get("EDITCAP_SCHEMA"):
+            extra += " --diagnosis-first"
         print("[editcap-gpu] arm=%s k=%s pdk=%s annotate=%s rounds=%s -> editcap "
               "over library %s"
               % (EDITCAP_ARM, EDITCAP_K, PDK, EDITCAP_ANNOTATE,

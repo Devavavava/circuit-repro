@@ -300,8 +300,14 @@ def _evidence_block(ev):
     return "\n".join(lines)
 
 
-def _instructions_B(k):
-    return (
+def _instructions_B(k, diagnosis_first=False):
+    forcing = (
+        "OUTPUT SCHEMA (STRICT): your reply MUST begin with the literal line "
+        "'DIAGNOSIS:' followed by the diagnosis paragraph. A reply whose first "
+        "line is anything else (including a netlist fence) is INVALID and "
+        "will be discarded. Only after the diagnosis do the edits follow.\n\n"
+        if diagnosis_first else "")
+    return forcing + (
         "YOUR TASK (arm B):\n"
         "1. DIAGNOSE the failure in words: what is physically limiting the "
         "binding constraint in the circuit above?\n"
@@ -354,7 +360,8 @@ def _annotation_block(anchor_net):
             "above; facts only) ===\n" + body)
 
 
-def build_prompt_B(spec, anchor_net, ev, k=K_EDITS, annotate=False):
+def build_prompt_B(spec, anchor_net, ev, k=K_EDITS, annotate=False,
+                   diagnosis_first=False):
     """Arm B (and E/F/EF) prompt: spec constraints + anchor netlist VERBATIM +
     (optional) structural annotation + failure evidence + diagnose-then-k-edits
     instructions. Returns (messages, prompt_text).
@@ -371,7 +378,8 @@ def build_prompt_B(spec, anchor_net, ev, k=K_EDITS, annotate=False):
         "%s\n\n"
         "%s"
     ) % (_spec_constraint_block(spec), anchor_net.rstrip("\n") + "\n",
-         anno, _evidence_block(ev), _instructions_B(k))
+         anno, _evidence_block(ev),
+         _instructions_B(k, diagnosis_first=diagnosis_first))
     messages = [{"role": "system", "content": SYSTEM},
                 {"role": "user", "content": user}]
     return messages, SYSTEM + "\n\n" + user
@@ -617,7 +625,7 @@ def _process_round(adj_round, edit_texts, raw_output, seen_wl, spec_ref, pdk,
 
 
 def run_cell(cell_name, cell_dir, arm, llm, out_dir, pdk, rounds=1,
-             fence_s21=True, annotate=None):
+             fence_s21=True, annotate=None, diagnosis_first=False):
     """Run ONE cell for ONE arm end to end. Returns (row_dict, n_valid_edits).
 
     Control flow (pre-reg, v1):
@@ -665,7 +673,8 @@ def run_cell(cell_name, cell_dir, arm, llm, out_dir, pdk, rounds=1,
     # ---- round 1 prompt (v0 path when annotate off) --------------------------
     if has_evidence:
         messages, prompt_text = build_prompt_B(spec, anchor_net, ev, K_EDITS,
-                                               annotate=annotate)
+                                               annotate=annotate,
+                                               diagnosis_first=diagnosis_first)
     else:
         messages, prompt_text = build_prompt_C(spec, anchor_net, K_EDITS)
 
@@ -941,6 +950,8 @@ def main(argv=None):
                     help="structural edits per cell (pre-reg k=3)")
     ap.add_argument("--temperature", type=float, default=0.7)
     ap.add_argument("--max-tokens", type=int, default=3072)
+    ap.add_argument("--diagnosis-first", action="store_true",
+                    help="EF32-s fix arm: strict DIAGNOSIS-first output schema")
     args = ap.parse_args(argv)
 
     lib_dir = os.path.abspath(args.lib)
@@ -1010,7 +1021,8 @@ def main(argv=None):
             t0 = time.time()
             row, n_valid = run_cell(name, cell_dir, arm, llm, out_dir, args.pdk,
                                     rounds=eff_rounds, fence_s21=args.fence_s21,
-                                    annotate=eff_annotate)
+                                    annotate=eff_annotate,
+                                    diagnosis_first=args.diagnosis_first)
             total_valid += n_valid
             rows.append(row)
             _checkpoint(out_dir, arm, rows)          # durable after EVERY cell

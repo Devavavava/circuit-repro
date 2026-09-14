@@ -54,6 +54,16 @@ Box: nulls ~200 cells × ~2.5–4 min ≈ 8–13 h sequential, run ×6 parallel
 GPU arm ≈ 8–12 h (32B) → future campaigns budget ~2 arms/quota-week and
 must justify every arm.
 
+**POST-WIRING COST TABLE (class-objective-v0 landed 5cf012cb; supersedes
+the pre-wiring artifact numbers):** lna ~40 ms/eval · balun ~60 ms · pa /
+mixer ~1 s EFFECTIVE under elite gating (harness on ~22% of evals; ungated
+would be ~100×/~16-98×). Null-filter campaign remains box-feasible (~1 day
+at ×6 parallel; PA/mixer ≈ 1 h/cell at 3600 evals). CONSEQUENCE FLAGGED:
+future GPU arms over pa/mixer cells need per-class eval-budget rebalancing
+(exact numbers set at library freeze) or quota blows; the 5× rule is
+satisfied via elite gating per the class-objective pre-reg, not by raw
+per-eval cost.
+
 ## Governance
 
 Spec grids are a NEW instrument (the 24-ladder stays frozen and untouched);

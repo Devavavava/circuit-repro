@@ -52,7 +52,11 @@ the conduction + s21 smoke fence before any campaign use.
 
 ## Round approval record
 
-- Bench round 1 approved families: ____ (user, date)
+- Bench round 1 approved families: **ALL LISTED** (user "approve all",
+  2026-09-14) — LNA A1–A5, PA A1–A3, mixer A1–A3 (A3 still scout-gated on
+  the LO convention), balun A1–A2. User re-confirmed the no-hints rule at
+  approval; the prompt-content inventory is recorded in the bench pre-reg
+  governance and each arm's own pre-reg.
 - Notes: mixer/balun port conventions confirmed against harness before
   transcription; any family that cannot meet the harness convention is
   dropped and logged, not adapted beyond its published form.

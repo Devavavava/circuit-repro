@@ -27,38 +27,35 @@ explicit `pdk: bptm45` field (the schema default) for clarity and to prove every
 file loads with a valid pdk; the run-time override is what selects gf180mcu.
 
 ------------------------------------------------------------------------------
-OBJECTIVE-GAP (LOUD, per the brief) -- scout verdict wired into the manifest
+OBJECTIVE-GAP CLOSED (class-objective-v0) -- grid bumped to GRID_VERSION v2
 ------------------------------------------------------------------------------
-The sizing objective (lna/size.py make_objective -> eval_metrics ->
-extract.run_and_extract, + optional measure_nf) computes ONLY the LNA-family
-metrics INSIDE the ZOAF/CMA-ES loop:
-    s11_db, s11_max_db, s21_db, s21_min/max/ripple, idd_ma, (nf_db when gated)
-It NEVER invokes lna/pa_harness.py, lna/mixer_harness.py, or lna/balun_harness.py.
-Those class harnesses EXIST and are golden-checked, but they are standalone
-post-hoc measurement facades -- NOT wired into make_objective (verified: no
-`circuit_class` dispatch and no `*_harness` import anywhere in size.py /
-solve_spec.py / extract.py). Consequence:
+As of class-objective-v0 the sizing objective (lna/size.py make_objective ->
+eval_metrics) MEASURES the class harness metrics IN-LOOP: eval_metrics dispatches
+on spec.circuit_class and merges the pa/mixer/balun harness metrics into the dict
+the objective and spec.feasible() consume. The v1 objective-gap is CLOSED, so
+this grid emits every class metric as status:MEASURED (CLASS_METRIC_STATUS):
 
-  * pa metrics  p1db_dbm / psat_dbm / pae_pct              -> NOT computed in-loop
-  * mixer metrics conv_gain_db / lo_rf_iso_db / lo_if_iso_db / iip3_dbm -> NOT in-loop
-  * balun metrics sds21_db / cmrr_db / imbalance_amp_db / imbalance_phase_deg -> NOT in-loop
+  * pa metrics  p1db_dbm / psat_dbm / pae_pct              -> MEASURED in-loop
+  * mixer metrics conv_gain_db / lo_rf_iso_db / lo_if_iso_db / iip3_dbm -> MEASURED in-loop
+  * balun metrics sds21_db / cmrr_db / imbalance_amp_db / imbalance_phase_deg -> MEASURED in-loop
 
-Because the example class specs declare these as `status: measured`,
-spec.feasible() counts each MISSING metric as a full violation (viol=1.0), so a
-class cell can never be driven feasible by the current sizing objective on its
-class gates -- the sizer only sees the LNA metrics that co-occur (s21_db /
-s11_db / nf_db / idd_ma). We therefore emit each class metric with
-`status: unsupported` (loaded + reported UNMEASURED, IGNORED by the objective --
-spec.py D5) rather than `measured`, so a bench cell is not vacuously infeasible
-in the sizing loop; the gap is flagged LOUDLY here, per-cell in the manifest
-("objective_gap"), and in the class headers. Wiring the harnesses into
-make_objective is the named lever to CLOSE this gap (future work; not this task).
+Because these are now status:measured AND actually measured, spec.feasible() binds
+on them: a mixer cell whose conv_gain the sizer cannot reach is INFEASIBLE (no
+longer vacuously feasible), and its objective improves conv_gain. The cost of the
+PA and mixer harnesses (>>5x the LNA baseline) is held under the benchmark's cap
+by ELITE GATING in lna/size.py (a free in-loop s21_db proxy gates the expensive
+harness); the balun harness is cheap (~1.5x) and runs every eval. See the
+re-measured CLASS_EVAL_COST_MS table above.
 
-  lna       : NO gap  -- all four gates (s21/nf/s11/idd) computed in-loop.
-  pa        : GAP     -- p1db/psat/pae need pa_harness in make_objective.
-  mixer     : GAP     -- conv_gain/iso/iip3 need mixer_harness in make_objective.
-  balun-lna : PARTIAL -- nf/s11/idd computed in-loop (real LNA front), but
-                         sds21/cmrr/imbalance need balun_harness (diff3) in-loop.
+  lna       : all four gates (s21/nf/s11/idd) computed in-loop (unchanged).
+  pa        : p1db/psat/pae MEASURED in make_objective (pa_harness, elite-gated).
+  mixer     : conv_gain/iso/iip3 MEASURED in make_objective (mixer_harness, elite-gated).
+  balun-lna : sds21/cmrr/imbalance MEASURED in make_objective (balun_harness/diff3),
+              PLUS nf/s11/idd from the real LNA front -- all gates bind.
+
+Mixer NF stays OUT OF SCOPE (no PSS/pnoise in ngspice) and is not gated; LNA
+iip3_dbm stays status:unsupported (advisory; the tier-3 two-tone harness is a
+post-sizing enrichment for lna, not an in-loop gate).
 
 ------------------------------------------------------------------------------
 PORT / TOPOLOGY CONVENTIONS (scout, from the harness headers)
@@ -84,6 +81,47 @@ import os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUTDIR = os.path.join(HERE, "bench-specs")
+
+# ============================================================================
+# GRID VERSION -- flips class metrics unsupported -> measured (class-objective-v0)
+# ============================================================================
+# v1: class metrics emitted status:unsupported (the objective-gap era -- the
+#     harnesses existed but were NOT wired into make_objective, so a class cell
+#     was vacuously feasible on its class gates).
+# v2 (this file, class-objective-v0): lna/size.py::eval_metrics now MEASURES the
+#     class harness metrics IN-LOOP (pa_harness / mixer_harness / balun_harness),
+#     so the objective and feasibility BIND on the class gates. We therefore emit
+#     every class metric as status:MEASURED. A mixer cell is no longer vacuously
+#     feasible -- its objective binds on conv_gain (and the isolation/iip3 gates).
+#
+# The flip is a single constant so the whole grid moves together and the version
+# is greppable. `bench_grid.py` is a NEW instrument; the 24-ladder stays frozen.
+GRID_VERSION = "v2-class-measured"
+CLASS_METRIC_STATUS = "measured"          # v1 was "unsupported"
+
+# Re-measured per-class eval cost AFTER wiring (class-objective-v0 cost rule).
+# Method: single lna/size.py::eval_metrics call per class on a minimal conducting
+# behavioral DUT (the check_classgate reference decks), bptm45, this box; the LNA
+# baseline is the sp-only run the class harness rides on top of. ms/eval and the
+# multiplier vs the ~40 ms real-device LNA baseline the bench uses:
+#
+#   class        harness cost   eval_metrics   x LNA (~40 ms)   elite-gated?
+#   ----------   ------------   ------------   --------------   ------------
+#   lna              -           ~40 ms            1x            no (baseline)
+#   pa           ~4000 ms/eval   ~4040 ms         ~100x          YES
+#   mixer        ~610 ms (cg)    ~650 ms          ~16x           YES
+#   mixer+iip3   ~3870 ms        ~3910 ms         ~98x           YES
+#   balun-lna    ~20 ms (1 sp)   ~60 ms           ~1.5x          no (< 5x)
+#
+# PA and mixer BLOW the benchmark's ~5x affordability cap, so ELITE GATING is
+# built (lna/size.py EliteGate): a free in-loop proxy (small-signal s21_db, from
+# the sp run that already happens) gates the expensive harness -- it runs only on
+# proxy-competitive candidates (within 3 dB of the best proxy so far). The
+# winning point is always measured in full (the endpoint re-eval is ungated).
+# Balun is under 5x and is NEVER gated. See lna/ref/check_classgate.py.
+CLASS_EVAL_COST_MS = {
+    "lna": 40, "pa": 4040, "mixer": 650, "mixer_iip3": 3910, "balun-lna": 60}
+CLASS_ELITE_GATED = ("pa", "mixer")
 
 # ---- shared process block (bptm45 default; gf180 via --pdk at run time) ------
 MODELS = "AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt"
@@ -451,11 +489,12 @@ def gen_pa():
             cons = [
                 ("s21_db", {"min": 10}),
                 ("s11_db", {"max": -8}),
-                ("p1db_dbm", {"min": p1db, "status": "unsupported"}),
-                ("psat_dbm", {"min": psat, "status": "unsupported"}),
-                ("pae_pct", {"min": pae, "status": "unsupported"}),
+                ("p1db_dbm", {"min": p1db, "status": CLASS_METRIC_STATUS}),
+                ("psat_dbm", {"min": psat, "status": CLASS_METRIC_STATUS}),
+                ("pae_pct", {"min": pae, "status": CLASS_METRIC_STATUS}),
             ]
-            objs = [("s21_db", "max", 1.0)]
+            objs = [("pae_pct", "max", 1.0), ("p1db_dbm", "max", 0.5),
+                    ("s21_db", "max", 0.5)]
             topo = {"device_budget": [1, 24], "allow_inductorless": True,
                     "reject_floating": True}
             sizing = {"w_um": [1, 400], "l_fixed": 45e-9, "r_ohm": [10, 20e3],
@@ -467,9 +506,9 @@ def gen_pa():
                         psat_dbm=psat, pae_pct=pae, idd_ma=idd)
             specs.append(dict(
                 cls="pa", name=name, file="pa/%s.yaml" % name, axes=axes,
-                objective_gap="p1db_dbm/psat_dbm/pae_pct not computed in "
-                "make_objective (pa_harness not wired in); gated in-loop only on "
-                "s21_db/s11_db",
+                objective_gap=None,   # CLOSED: p1db/psat/pae measured in-loop
+                gap_note="p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective "
+                "(pa_harness, elite-gated on s21_db proxy)",
                 yaml=render(name, desc, "pa", band,
                             {"z0": 50, "input": "VIN1", "output": "VOUT1"},
                             cons, objs, topo, sizing, hdr)))
@@ -534,10 +573,10 @@ def _mixer_cell(band_key, b, band, cg, iip3, iso, tag=""):
             "(ConvGain>=%s dB IIP3>=%s dBm LO-RF iso>=%s dB)"
             % (b["hint"], b["f0"] / 1e9, cg, iip3, iso))
     cons = [
-        ("conv_gain_db", {"min": cg, "status": "unsupported"}),
-        ("lo_rf_iso_db", {"min": iso, "status": "unsupported"}),
-        ("lo_if_iso_db", {"min": lo_if_iso, "status": "unsupported"}),
-        ("iip3_dbm", {"min": iip3, "status": "unsupported"}),
+        ("conv_gain_db", {"min": cg, "status": CLASS_METRIC_STATUS}),
+        ("lo_rf_iso_db", {"min": iso, "status": CLASS_METRIC_STATUS}),
+        ("lo_if_iso_db", {"min": lo_if_iso, "status": CLASS_METRIC_STATUS}),
+        ("iip3_dbm", {"min": iip3, "status": CLASS_METRIC_STATUS}),
     ]
     objs = [("conv_gain_db", "max", 1.0), ("iip3_dbm", "max", 0.5)]
     topo = {"device_budget": [3, 24], "allow_inductorless": True,
@@ -547,9 +586,10 @@ def _mixer_cell(band_key, b, band, cg, iip3, iso, tag=""):
     axes = dict(band=band_key, f0_ghz=b["f0"] / 1e9, conv_gain_db=cg,
                 iip3_dbm=iip3, lo_rf_iso_db=iso, lo_if_iso_db=lo_if_iso)
     return dict(cls="mixer", name=name, file="mixer/%s.yaml" % name, axes=axes,
-                objective_gap="conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not "
-                "computed in make_objective (mixer_harness not wired in); NO mixer "
-                "metric is gated in-loop",
+                objective_gap=None,   # CLOSED: conv_gain/iso/iip3 measured in-loop
+                gap_note="conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED "
+                "in make_objective (mixer_harness, elite-gated); objective binds "
+                "on conv_gain",
                 yaml=render(name, desc, "mixer", band,
                             {"z0": 50, "input": "VIN1", "output": "VOUT1"},
                             cons, objs, topo, SIZING_LNA, hdr))
@@ -626,13 +666,13 @@ def _balun_cell(band_key, b, band, sds21, cmrr, imb_a, imb_p, tag=""):
             "(Sds21>=%s CMRR>=%s imbAmp<=%s imbPh<=%s)"
             % (b["hint"], b["f0"] / 1e9, sds21, cmrr, imb_a, imb_p))
     cons = [
-        ("sds21_db", {"min": sds21, "status": "unsupported"}),
+        ("sds21_db", {"min": sds21, "status": CLASS_METRIC_STATUS}),
         ("nf_db", {"max": 3.0}),
         ("s11_db", {"max": -10}),
         ("idd_ma", {"max": 8}),
-        ("imbalance_amp_db", {"max": imb_a, "status": "unsupported"}),
-        ("imbalance_phase_deg", {"max": imb_p, "status": "unsupported"}),
-        ("cmrr_db", {"min": cmrr, "status": "unsupported"}),
+        ("imbalance_amp_db", {"max": imb_a, "status": CLASS_METRIC_STATUS}),
+        ("imbalance_phase_deg", {"max": imb_p, "status": CLASS_METRIC_STATUS}),
+        ("cmrr_db", {"min": cmrr, "status": CLASS_METRIC_STATUS}),
     ]
     objs = [("sds21_db", "max", 1.0), ("nf_db", "min", 0.5), ("idd_ma", "min", 0.5)]
     topo = {"differential": False, "reject_floating": True,
@@ -643,9 +683,10 @@ def _balun_cell(band_key, b, band, sds21, cmrr, imb_a, imb_p, tag=""):
     axes = dict(band=band_key, f0_ghz=b["f0"] / 1e9, sds21_db=sds21, cmrr_db=cmrr,
                 imbalance_amp_db=imb_a, imbalance_phase_deg=imb_p)
     return dict(cls="balun-lna", name=name, file="balun/%s.yaml" % name, axes=axes,
-                objective_gap="sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg "
-                "not computed in make_objective (balun_harness not wired in); "
-                "nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)",
+                objective_gap=None,   # CLOSED: sds21/cmrr/imbalance measured in-loop
+                gap_note="sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg "
+                "MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not "
+                "elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front",
                 yaml=render(name, desc, "balun-lna", band,
                             {"z0": 50, "input": "VIN1", "output": "VOUT1"},
                             cons, objs, topo, SIZING_LNA, hdr))
@@ -672,20 +713,26 @@ def build():
     manifest = {
         "benchmark": "editcap-bench-v1",
         "generator": "kaggle/bench_grid.py",
+        "grid_version": GRID_VERSION,
+        "class_metric_status": CLASS_METRIC_STATUS,
         "deterministic": True,
         "pdk_note": "specs default pdk=bptm45; RUN on gf180 via --pdk gf180mcu "
                     "(run-time override, same as the 24-cell capability ladder)",
+        # class-objective-v0: the class harnesses are now measured in-loop, so the
+        # objective-gap is CLOSED; every class metric is status:measured and binds.
         "objective_gap_summary": {
             "lna": "none -- s21/nf/s11/idd all computed in make_objective",
-            "pa": "p1db_dbm/psat_dbm/pae_pct NOT in make_objective (pa_harness not "
-                  "wired in); gated in-loop only on s21_db/s11_db",
-            "mixer": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm NOT in "
-                     "make_objective (mixer_harness not wired in); NO mixer metric "
-                     "gated in-loop",
-            "balun-lna": "sds21_db/cmrr_db/imbalance_* NOT in make_objective "
-                         "(balun_harness not wired in); nf_db/s11_db/idd_ma ARE "
-                         "gated in-loop (PARTIAL)",
+            "pa": "CLOSED -- p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective "
+                  "(pa_harness, elite-gated); all class gates bind",
+            "mixer": "CLOSED -- conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm "
+                     "MEASURED in make_objective (mixer_harness, elite-gated); "
+                     "objective binds on conv_gain (no longer vacuously feasible)",
+            "balun-lna": "CLOSED -- sds21_db/cmrr_db/imbalance_* MEASURED in "
+                         "make_objective (balun_harness/diff3); nf_db/s11_db/idd_ma "
+                         "also gated in-loop (real LNA front)",
         },
+        "class_eval_cost_ms": CLASS_EVAL_COST_MS,
+        "elite_gated_classes": list(CLASS_ELITE_GATED),
         "counts": {},
         "cells": [],
     }
@@ -697,7 +744,11 @@ def build():
             "name": s["name"],
             "file": "bench-specs/" + s["file"],
             "axes": s["axes"],
-            "objective_gap": s["objective_gap"],
+            # class-objective-v0: objective_gap is now None for every class (the
+            # gap is CLOSED). gap_note records HOW it is closed (which harness /
+            # elite-gated) for the classes; lna cells carry neither field.
+            "objective_gap": s.get("objective_gap"),
+            "gap_note": s.get("gap_note"),
         })
     manifest["counts"] = counts
     with open(os.path.join(OUTDIR, "manifest.json"), "w", encoding="utf-8") as fh:

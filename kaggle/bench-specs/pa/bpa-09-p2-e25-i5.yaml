@@ -34,12 +34,14 @@ ports:
 constraints:
   s21_db:              {min: 10}
   s11_db:              {max: -8}
-  p1db_dbm:            {min: 2, status: unsupported}
-  psat_dbm:            {min: 5, status: unsupported}
-  pae_pct:             {min: 25, status: unsupported}
+  p1db_dbm:            {min: 2, status: measured}
+  psat_dbm:            {min: 5, status: measured}
+  pae_pct:             {min: 25, status: measured}
 
 objectives:
-  - {metric: s21_db, direction: max, weight: 1}
+  - {metric: pae_pct, direction: max, weight: 1}
+  - {metric: p1db_dbm, direction: max, weight: 0.5}
+  - {metric: s21_db, direction: max, weight: 0.5}
 
 topology:
   device_budget: [1, 24]

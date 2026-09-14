@@ -32,10 +32,10 @@ ports:
   output: VOUT1
 
 constraints:
-  conv_gain_db:        {min: 9, status: unsupported}
-  lo_rf_iso_db:        {min: 30, status: unsupported}
-  lo_if_iso_db:        {min: 25, status: unsupported}
-  iip3_dbm:            {min: 5, status: unsupported}
+  conv_gain_db:        {min: 9, status: measured}
+  lo_rf_iso_db:        {min: 30, status: measured}
+  lo_if_iso_db:        {min: 25, status: measured}
+  iip3_dbm:            {min: 5, status: measured}
 
 objectives:
   - {metric: conv_gain_db, direction: max, weight: 1}

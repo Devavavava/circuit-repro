@@ -86,6 +86,95 @@ class SimHealth(object):
                 "sim_error": self.first_error}
 
 
+class EliteGate(object):
+    """Elite gating for expensive class harnesses (class-objective-v0 cost rule).
+
+    Measured post-wiring (see kaggle/bench_grid.py CLASS_EVAL_COST_MS), the PA
+    (~4 s) and mixer (~0.6 s conv-gain, ~3.9 s with IIP3) harnesses cost >> 5x the
+    LNA sp baseline (~40 ms) PER EVAL, which would blow the benchmark's ~5x
+    affordability cap if run on every ZOAF candidate. The balun harness (~20 ms,
+    one sp sweep) is UNDER 5x and is never gated.
+
+    TRIGGER RULE (documented, deterministic): a cheap in-loop PROXY is available
+    for free on every eval -- the small-signal forward gain `s21_db`, computed by
+    the sp run that already happens. A higher-gain stage compresses at higher power
+    (P1dB/psat/PAE) and up-converts/down-converts more (conv_gain), so s21_db is a
+    monotone proxy for the class figure the objective wants to MAXIMISE. The gate
+    runs the expensive harness ONLY when a candidate's proxy is within `margin` dB
+    of the best proxy seen so far in this objective's lifetime (i.e. it is a
+    proxy-improving / proxy-competitive candidate). The FIRST eval always runs it
+    (best proxy is seeded from it), so the incumbent is always measured, and the
+    endpoint re-eval (make_objective.evaluate at best_x, outside the loop, with no
+    gate) always measures the winning point in full.
+
+    A gated-OUT eval returns NO class metric; spec.feasible then counts the absent
+    gated class metric as violated -- correct, because a proxy-losing candidate is
+    not the point the optimizer will keep anyway. This trades exactness on
+    known-worse candidates for a ~5-20x wall-clock reduction on PA/mixer.
+
+    `margin` (dB) is a slack so a candidate that ties or slightly trails the best
+    proxy still gets measured (the proxy is monotone, not exact); 3 dB by default.
+    Disabled (proxy None, or gate off) -> the harness runs every eval (the
+    ungated behaviour), so a spec/class the proxy does not apply to is never
+    starved. `LNA_ELITE_GATE=0` forces it off for a session."""
+
+    __slots__ = ("proxy_key", "margin", "best_proxy", "n_seen", "n_ran",
+                 "enabled")
+
+    def __init__(self, proxy_key="s21_db", margin=3.0, enabled=None):
+        self.proxy_key = proxy_key
+        self.margin = float(margin)
+        self.best_proxy = None
+        self.n_seen = 0
+        self.n_ran = 0
+        self.enabled = _elite_gate_on() if enabled is None else bool(enabled)
+
+    def should_run(self, proxy_metrics):
+        """Run the expensive harness for this eval? Updates the running best proxy.
+
+        Always True when disabled or when the proxy is unavailable (defensive: a
+        missing proxy must not starve the harness). Otherwise True iff this is the
+        first eval OR the candidate's proxy is >= best_proxy - margin."""
+        self.n_seen += 1
+        if not self.enabled:
+            self.n_ran += 1
+            return True
+        p = (proxy_metrics or {}).get(self.proxy_key)
+        if p is None:
+            self.n_ran += 1
+            return True                    # no proxy -> never gate (defensive)
+        if self.best_proxy is None:
+            self.best_proxy = p
+            self.n_ran += 1
+            return True                    # seed the incumbent; always measure it
+        if p >= self.best_proxy - self.margin:
+            self.best_proxy = max(self.best_proxy, p)
+            self.n_ran += 1
+            return True
+        return False                       # proxy-losing candidate: skip harness
+
+    def as_dict(self):
+        return {"proxy_key": self.proxy_key, "margin_db": self.margin,
+                "n_seen": self.n_seen, "n_ran": self.n_ran,
+                "enabled": self.enabled}
+
+
+def _elite_gate_on():
+    """Elite-gating master switch (class-objective-v0). Default ON so PA/mixer
+    class sizing stays within the benchmark's ~5x affordability cap; set
+    LNA_ELITE_GATE=0 to run every candidate through the class harness (the exact,
+    un-gated behaviour) for a session."""
+    return os.environ.get("LNA_ELITE_GATE", "1").strip().lower() not in (
+        "0", "false", "no")
+
+
+# Classes whose harness is expensive enough (>5x LNA) to warrant elite gating.
+# Measured ms/eval (bench box): pa ~4000, mixer ~610 (conv-gain) / ~3870 (+IIP3)
+# vs lna ~40; balun ~20 (UNDER 5x -> never gated). Keep in sync with the cost
+# table in kaggle/bench_grid.py.
+_ELITE_GATED_CLASSES = ("pa", "mixer")
+
+
 def _pdk_name(spec):
     """The pdk id a spec/driver selected (default 'bptm45'). A spec loaded before
     the pdk field existed, or a bare object, has no attribute -> bptm45."""
@@ -179,9 +268,220 @@ def nf_is_gated(spec):
     return bool(c) and c.get("status") != "unsupported"
 
 
+# --------------------------------------------- class-metric dispatch (A4 wiring)
+# class-objective-v0 (kaggle/CAMPAIGN-CLASS-OBJECTIVE.md). The three RF class
+# harnesses (pa/mixer/balun) are wired into eval_metrics so that when a spec's
+# circuit_class is pa/mixer/balun-lna, the class-gated metrics are MEASURED
+# in-loop and merged into the metrics dict that spec.objective / spec.feasible
+# consume. This is the ONE junction both the CMA objective (make_objective ->
+# evaluate -> eval_metrics) and the polish/constrained_descent searches flow
+# through, so BOTH the optimiser and the feasibility check see the class metrics.
+#
+# BYTE-IDENTICAL lna path: `_class_metrics` returns {} for circuit_class lna
+# (or a spec with no circuit_class attribute), so the default path never calls a
+# harness and eval_metrics is byte-identical to before for every existing spec.
+#
+# GRACEFUL FAILURE: a harness that fails (sim error, no ports, exception) yields
+# NO class metric for that key; spec.feasible then counts the absent gated metric
+# as a full violation (viol=1.0) -- an infeasible point, never a crash. The class
+# harness is a physics measurement, not the sizing sp run, so a class-harness
+# failure does NOT null the LNA metrics (s21/s11/idd stay), which is why it counts
+# as a bounded violation rather than SIM_FAIL_PENALTY.
+
+# The metric names each class harness contributes (spec.py CLASS_METRICS). Only
+# these keys are merged from a class harness; everything else in the metrics dict
+# is the LNA-family run_and_extract already produced.
+_CLASS_METRIC_KEYS = {
+    "pa": ("p1db_dbm", "psat_dbm", "pae_pct"),
+    "mixer": ("conv_gain_db", "lo_rf_iso_db", "lo_if_iso_db", "iip3_dbm"),
+    "balun-lna": ("sds21_db", "cmrr_db", "imbalance_amp_db",
+                  "imbalance_phase_deg"),
+}
+
+
+def _spec_vdd(spec):
+    """Supply rail for a class harness's Pdc / large-signal drive. The rail is a
+    property of the chosen PDK adapter (spec.py: adapter.vdd), so a gf180 run gets
+    3.3 V and a bptm45 run 1.1 V; falls back to the spec's process.vdd, then 1.1."""
+    name = _pdk_name(spec)
+    if name != "bptm45":
+        try:
+            from pdk import get_pdk
+            v = getattr(get_pdk(name), "vdd", None)
+            if v:
+                return float(v)
+        except Exception:                                          # noqa: BLE001
+            pass
+    try:
+        return float((getattr(spec, "process", None) or {}).get("vdd", 1.1))
+    except (TypeError, ValueError):
+        return 1.1
+
+
+def _param_baked_body(body, params):
+    """A standalone harness body: the sizing body with `params` frozen in as a
+    `.param` line. The pa/mixer harnesses take a bare body (they append their own
+    .control), so the sized device values must already be resolved in the body.
+    The balun harness takes (body, params) directly and does NOT need this."""
+    if not params:
+        return body
+    pline = ".param " + " ".join(f"{k}={v}" for k, v in params.items())
+    return body.rstrip() + "\n" + pline
+
+
+def _class_metrics(body, params, spec, proxy_metrics=None, elite=None,
+                   err_sink=None):
+    """Measure the circuit_class-gated metrics for a sized point, or {} for lna.
+
+    Returns a dict of ONLY the class metric keys the harness produced (a subset of
+    _CLASS_METRIC_KEYS[class]); a failed / partial harness contributes the keys it
+    could measure and omits the rest. NEVER raises: any harness exception is
+    swallowed to {} (the byte-identical-failure discipline the enrich_* hooks use)
+    so a per-eval physics failure becomes an infeasible point, not a crash. When
+    `err_sink` is a dict and the class harness produced nothing, a one-line reason
+    is stored under `class_error` (additive, failure path only).
+
+    ELITE GATING (cost rule): for an expensive-harness class (pa/mixer), an
+    `elite` EliteGate decides -- from the cheap in-loop proxy in `proxy_metrics`
+    (the LNA sp metrics already computed this eval) -- whether to pay the harness
+    on this candidate. A gated-OUT eval returns {} (no class metric), so the
+    optimizer scores it as infeasible on its class gates, which is correct for a
+    proxy-losing candidate. The balun class is cheap and is never gated."""
+    cls = getattr(spec, "circuit_class", "lna")
+    if cls not in _CLASS_METRIC_KEYS:
+        return {}                                    # lna (or unknown): old path
+    if cls in _ELITE_GATED_CLASSES and elite is not None:
+        if not elite.should_run(proxy_metrics):
+            if err_sink is not None and "class_error" not in err_sink:
+                err_sink["class_error"] = f"{cls} harness skipped (elite gate)"
+            return {}
+    band = getattr(spec, "band", None) or {}
+    try:
+        f0 = float(band.get("f0", 2.442e9))
+    except (TypeError, ValueError):
+        f0 = 2.442e9
+    try:
+        if cls == "pa":
+            return _pa_class_metrics(body, params, spec, f0, err_sink)
+        if cls == "mixer":
+            return _mixer_class_metrics(body, params, spec, band, f0, err_sink)
+        if cls == "balun-lna":
+            return _balun_class_metrics(body, params, spec, band, f0, err_sink)
+    except Exception as e:                                         # noqa: BLE001
+        if err_sink is not None and "class_error" not in err_sink:
+            err_sink["class_error"] = f"{cls} harness: {e}"[:200]
+    return {}
+
+
+def _pa_class_metrics(body, params, spec, f0, err_sink):
+    """p1db_dbm (output-referred P1dB), psat_dbm, pae_pct from pa_harness."""
+    import pa_harness as PA
+    vdd = _spec_vdd(spec)
+    res = PA.measure_pa(_param_baked_body(body, params), f0, vdd, verbose=False)
+    out = {}
+    if not res or not res.get("ok"):
+        if err_sink is not None and "class_error" not in err_sink:
+            err_sink["class_error"] = "pa: " + str((res or {}).get("why",
+                                                                    "no sweep"))
+        return out
+    # p1db_dbm is the OUTPUT-referred 1 dB compression (delivered power), the
+    # standard "P1dB" a PA spec gates; the harness key is p1db_out.
+    if res.get("p1db_out") is not None:
+        out["p1db_dbm"] = res["p1db_out"]
+    if res.get("psat_dbm") is not None:
+        out["psat_dbm"] = res["psat_dbm"]
+    if res.get("pae_pct") is not None:
+        out["pae_pct"] = res["pae_pct"]
+    return out
+
+
+def _mixer_class_metrics(body, params, spec, band, f0, err_sink):
+    """conv_gain_db, lo_rf_iso_db, lo_if_iso_db (+ iip3_dbm) from mixer_harness.
+
+    The LO is a harness-injected large-signal drive on a NAMED LO node: a body
+    `portnum 3` line if present, else the conventional net name `LO`/`VLO` if the
+    body carries one. RF=portnum1, IF=portnum2. IIP3 is the two-tone sweep and is
+    the dominant cost, so it runs only when the spec actually gates iip3_dbm."""
+    import mixer_harness as MX
+    import iip3 as I3
+    hbody = _param_baked_body(body, params)
+    lo_node = _mixer_lo_node(hbody)
+    f_lo = _mixer_f_lo(band, f0)
+    vlo = _spec_vdd(spec)                       # large-signal LO amplitude ~ rail
+    out = {}
+    m, err = MX.measure_conv_gain(hbody, lo_node, vlo, f0, f_lo, p_rf_dbm=-30.0)
+    if m is None:
+        if err_sink is not None and "class_error" not in err_sink:
+            err_sink["class_error"] = "mixer conv_gain: " + str(err)[:120]
+        return out
+    for k in ("conv_gain_db", "lo_rf_iso_db", "lo_if_iso_db"):
+        if m.get(k) is not None:
+            out[k] = m[k]
+    # IIP3 only when gated (a supported-and-gated constraint that is absent counts
+    # as violated, so it must be measured; when not gated we skip its N transients).
+    c = (getattr(spec, "constraints", None) or {}).get("iip3_dbm")
+    if c and c.get("status") != "unsupported":
+        res = MX.measure_mixer_iip3(hbody, lo_node, vlo, f0, f_lo,
+                                    list(I3.DEFAULT_PINS), verbose=False)
+        if res and res.get("ok") and res.get("iip3_dbm") is not None:
+            out["iip3_dbm"] = res["iip3_dbm"]
+    return out
+
+
+def _mixer_lo_node(body):
+    """The LO node the mixer harness drives: a `portnum 3` port node if the body
+    has one, else a conventional LO net (LO/VLO/xLO) present in the body, else
+    'LO' (the harness will append the drive on that node)."""
+    import re as _re
+    for ln in body.splitlines():
+        low = ln.lower()
+        if "portnum" in low and _re.search(r"portnum\s+3\b", low):
+            return None            # let build_mixer_body use the port-3 node
+    for cand in ("VLO", "LO", "vlo", "lo"):
+        if _re.search(rf"\b{_re.escape(cand)}\b", body):
+            return cand
+    return "LO"
+
+
+def _mixer_f_lo(band, f0):
+    """LO frequency for the down-conversion. Use the spec band's f_lo when it is a
+    genuine LO (well below the RF so the IF is a real down-converted band); the
+    24-ladder band block uses f_lo as the band EDGE (~2 % below f0), which is too
+    close, so default to an offset that lands the IF safely inside a DFT bin."""
+    try:
+        flo = float(band.get("f_lo", 0.0))
+    except (TypeError, ValueError):
+        flo = 0.0
+    # a real LO is far below f0; a band-edge f_lo (>90 % of f0) is NOT an LO.
+    if flo and flo < 0.9 * f0:
+        return flo
+    return f0 * 0.84            # IF ~= 16 % of RF, comfortably on the coherent grid
+
+
+def _balun_class_metrics(body, params, spec, band, f0, err_sink):
+    """sds21_db, cmrr_db, imbalance_amp_db, imbalance_phase_deg from balun_harness
+    (which reuses diff3's mixed-mode sp run). One sp sweep; band-wide f_lo/f_hi
+    come from the spec band (defaulting around f0)."""
+    import balun_harness as BAL
+    try:
+        f_lo = float(band.get("f_lo", f0 * 0.98))
+        f_hi = float(band.get("f_hi", f0 * 1.02))
+    except (TypeError, ValueError):
+        f_lo, f_hi = f0 * 0.98, f0 * 1.02
+    res = BAL.measure_balun(body, params, [f0], f_lo, f_hi)
+    if res is None:
+        if err_sink is not None and "class_error" not in err_sink:
+            err_sink["class_error"] = "balun: sp run failed"
+        return {}
+    flat = BAL.as_metrics(res)
+    return {k: flat[k] for k in _CLASS_METRIC_KEYS["balun-lna"]
+            if flat.get(k) is not None}
+
+
 def eval_metrics(body, params, spec, nf_gated=None, op_capture=None,
-                 err_sink=None):
-    """One full L2 evaluation: op/sp/stability, plus the series-Rs NF when gated.
+                 err_sink=None, elite=None):
+    """One full L2 evaluation: op/sp/stability, plus the series-Rs NF when gated,
+    plus the circuit_class-gated metrics (pa/mixer/balun) measured in-loop.
 
     `op_capture` (WP-OBSERVE) is a dict filled in place with the operating point
     read out of the op/sp run that happens anyway -- no extra ngspice call, and
@@ -189,11 +489,24 @@ def eval_metrics(body, params, spec, nf_gated=None, op_capture=None,
 
     `err_sink` (SIM-HEALTH, additive): a dict filled in place with the first
     verbatim ngspice error line when the sp/op run fails. Failure path only;
-    return value unchanged. Passed straight through to run_and_extract.
+    return value unchanged. Passed straight through to run_and_extract. When the
+    spec is a class spec and the CLASS harness fails, a `class_error` line is also
+    added (failure path only) -- the LNA metrics are unaffected.
+
+    `elite` (an EliteGate, class-objective-v0): when set, gates the EXPENSIVE
+    class harnesses (pa/mixer) on a cheap in-loop proxy so a full ZOAF run stays
+    within the benchmark's ~5x cost cap; None -> the class harness runs every eval
+    (ungated). The gate reads only the LNA proxy metrics this eval already
+    produced; it never touches the lna path.
 
     Cross-PDK v0: the spec's pdk (default bptm45) is threaded to extract so an
     OSDI process (IHP) gets its .osdi pre-loaded. For every non-OSDI pdk this is
-    a no-op and the deck is byte-identical."""
+    a no-op and the deck is byte-identical.
+
+    class-objective-v0: for circuit_class pa/mixer/balun-lna the class harness is
+    run on the SAME body/params and its metrics are merged in, so the objective
+    and feasibility both bind on the class gates. For the default lna class this
+    is a byte-identical no-op (`_class_metrics` returns {})."""
     pdk = _pdk_name(spec)
     m = E.run_and_extract(body, params, spec, op_capture=op_capture, pdk=pdk,
                           err_sink=err_sink)
@@ -202,6 +515,10 @@ def eval_metrics(body, params, spec, nf_gated=None, op_capture=None,
     if nf_is_gated(spec) if nf_gated is None else nf_gated:
         nf = E.measure_nf(body, params, spec, pdk=pdk)
         m = dict(m, nf_db=nf, nf_method="series_rs" if nf is not None else None)
+    cm = _class_metrics(body, params, spec, proxy_metrics=m, elite=elite,
+                        err_sink=err_sink)
+    if cm:
+        m = dict(m, **cm)
     return m
 
 
@@ -342,10 +659,22 @@ def make_objective(body, spec, sizable, fixed, points=None, op_sink=None,
     keeps the first verbatim ngspice error line. Same invariant -- it only reads
     the pass/fail the objective already decided (and the error line the failing
     eval already surfaced), so the objective value is unchanged whether or not a
-    sink is attached."""
+    sink is attached.
+
+    ELITE GATING (class-objective-v0): for an expensive-harness class (pa/mixer)
+    an `EliteGate` is created here and threaded into the LOOP evaluations only, so
+    a proxy-losing candidate skips the ~4 s class harness. The returned `evaluate`
+    (used at best_x for the final metrics) is UNGATED, so the winning point is
+    always measured in full. For the lna class and the cheap balun class NO gate
+    is made, so eval_metrics is called with elite=None -- byte-identical."""
     names = list(sizable)
     ranges = kind_ranges(spec)
     nf_gated = nf_is_gated(spec)
+    # Elite gate only for expensive-harness classes; None otherwise (byte-
+    # identical lna/balun path). The gate carries the running best proxy across
+    # the loop, so it must be one instance shared by every objective_func call.
+    _elite = (EliteGate() if getattr(spec, "circuit_class", "lna")
+              in _ELITE_GATED_CLASSES else None)
 
     def decode(x):
         params = dict(fixed)
@@ -357,14 +686,17 @@ def make_objective(body, spec, sizable, fixed, points=None, op_sink=None,
             params[name] = f"{v:.6g}"
         return params
 
-    def evaluate(x, op_capture=None, err_sink=None):
+    def evaluate(x, op_capture=None, err_sink=None, elite=None):
+        # `elite` defaults None -> the winning-point re-eval and every external
+        # caller measure the class harness in FULL (ungated). The loop passes the
+        # shared gate explicitly (see objective_func).
         return eval_metrics(body, decode(x), spec, nf_gated=nf_gated,
-                            op_capture=op_capture, err_sink=err_sink)
+                            op_capture=op_capture, err_sink=err_sink, elite=elite)
 
     def objective_func(x):
         cap = {} if (op_sink is not None and op_sink.want()) else None
         esink = {} if sim_health is not None else None
-        m = evaluate(x, op_capture=cap, err_sink=esink)
+        m = evaluate(x, op_capture=cap, err_sink=esink, elite=_elite)
         if points is not None:
             points.append(([float(v) for v in x], m))
         if cap is not None:

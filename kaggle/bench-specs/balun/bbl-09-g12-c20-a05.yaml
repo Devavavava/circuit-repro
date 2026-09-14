@@ -33,13 +33,13 @@ ports:
   output: VOUT1
 
 constraints:
-  sds21_db:            {min: 12, status: unsupported}
+  sds21_db:            {min: 12, status: measured}
   nf_db:               {max: 3}
   s11_db:              {max: -10}
   idd_ma:              {max: 8}
-  imbalance_amp_db:    {max: 0.5, status: unsupported}
-  imbalance_phase_deg: {max: 2, status: unsupported}
-  cmrr_db:             {min: 20, status: unsupported}
+  imbalance_amp_db:    {max: 0.5, status: measured}
+  imbalance_phase_deg: {max: 2, status: measured}
+  cmrr_db:             {min: 20, status: measured}
 
 objectives:
   - {metric: sds21_db, direction: max, weight: 1}

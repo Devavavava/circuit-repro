@@ -1,14 +1,27 @@
 {
   "benchmark": "editcap-bench-v1",
   "generator": "kaggle/bench_grid.py",
+  "grid_version": "v2-class-measured",
+  "class_metric_status": "measured",
   "deterministic": true,
   "pdk_note": "specs default pdk=bptm45; RUN on gf180 via --pdk gf180mcu (run-time override, same as the 24-cell capability ladder)",
   "objective_gap_summary": {
     "lna": "none -- s21/nf/s11/idd all computed in make_objective",
-    "pa": "p1db_dbm/psat_dbm/pae_pct NOT in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db",
-    "mixer": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm NOT in make_objective (mixer_harness not wired in); NO mixer metric gated in-loop",
-    "balun-lna": "sds21_db/cmrr_db/imbalance_* NOT in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    "pa": "CLOSED -- p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated); all class gates bind",
+    "mixer": "CLOSED -- conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain (no longer vacuously feasible)",
+    "balun-lna": "CLOSED -- sds21_db/cmrr_db/imbalance_* MEASURED in make_objective (balun_harness/diff3); nf_db/s11_db/idd_ma also gated in-loop (real LNA front)"
   },
+  "class_eval_cost_ms": {
+    "lna": 40,
+    "pa": 4040,
+    "mixer": 650,
+    "mixer_iip3": 3910,
+    "balun-lna": 60
+  },
+  "elite_gated_classes": [
+    "pa",
+    "mixer"
+  ],
   "counts": {
     "lna": 75,
     "pa": 50,
@@ -30,7 +43,8 @@
         "corner": "diag",
         "tier": "t0"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -46,7 +60,8 @@
         "corner": "diag",
         "tier": "t1"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -62,7 +77,8 @@
         "corner": "diag",
         "tier": "t2"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -78,7 +94,8 @@
         "corner": "diag",
         "tier": "t3"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -94,7 +111,8 @@
         "corner": "diag",
         "tier": "t4"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -110,7 +128,8 @@
         "corner": "gain",
         "tier": "g0"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -126,7 +145,8 @@
         "corner": "gain",
         "tier": "g1"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -142,7 +162,8 @@
         "corner": "power",
         "tier": "p0"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -158,7 +179,8 @@
         "corner": "power",
         "tier": "p1"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -174,7 +196,8 @@
         "corner": "lownoise",
         "tier": "n0"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -190,7 +213,8 @@
         "corner": "diag",
         "tier": "t0"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -206,7 +230,8 @@
         "corner": "diag",
         "tier": "t1"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -222,7 +247,8 @@
         "corner": "diag",
         "tier": "t2"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -238,7 +264,8 @@
         "corner": "diag",
         "tier": "t3"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -254,7 +281,8 @@
         "corner": "diag",
         "tier": "t4"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -270,7 +298,8 @@
         "corner": "gain",
         "tier": "g0"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -286,7 +315,8 @@
         "corner": "gain",
         "tier": "g1"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -302,7 +332,8 @@
         "corner": "power",
         "tier": "p0"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -318,7 +349,8 @@
         "corner": "power",
         "tier": "p1"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -334,7 +366,8 @@
         "corner": "lownoise",
         "tier": "n0"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -350,7 +383,8 @@
         "corner": "diag",
         "tier": "t0"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -366,7 +400,8 @@
         "corner": "diag",
         "tier": "t1"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -382,7 +417,8 @@
         "corner": "diag",
         "tier": "t2"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -398,7 +434,8 @@
         "corner": "diag",
         "tier": "t3"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -414,7 +451,8 @@
         "corner": "diag",
         "tier": "t4"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -430,7 +468,8 @@
         "corner": "gain",
         "tier": "g0"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -446,7 +485,8 @@
         "corner": "gain",
         "tier": "g1"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -462,7 +502,8 @@
         "corner": "power",
         "tier": "p0"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -478,7 +519,8 @@
         "corner": "power",
         "tier": "p1"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -494,7 +536,8 @@
         "corner": "lownoise",
         "tier": "n0"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -510,7 +553,8 @@
         "corner": "diag",
         "tier": "t0"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -526,7 +570,8 @@
         "corner": "diag",
         "tier": "t1"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -542,7 +587,8 @@
         "corner": "diag",
         "tier": "t2"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -558,7 +604,8 @@
         "corner": "diag",
         "tier": "t3"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -574,7 +621,8 @@
         "corner": "diag",
         "tier": "t4"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -590,7 +638,8 @@
         "corner": "gain",
         "tier": "g0"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -606,7 +655,8 @@
         "corner": "gain",
         "tier": "g1"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -622,7 +672,8 @@
         "corner": "power",
         "tier": "p0"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -638,7 +689,8 @@
         "corner": "power",
         "tier": "p1"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -654,7 +706,8 @@
         "corner": "lownoise",
         "tier": "n0"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -670,7 +723,8 @@
         "corner": "diag",
         "tier": "t0"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -686,7 +740,8 @@
         "corner": "diag",
         "tier": "t1"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -702,7 +757,8 @@
         "corner": "diag",
         "tier": "t2"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -718,7 +774,8 @@
         "corner": "diag",
         "tier": "t3"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -734,7 +791,8 @@
         "corner": "diag",
         "tier": "t4"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -750,7 +808,8 @@
         "corner": "gain",
         "tier": "g0"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -766,7 +825,8 @@
         "corner": "gain",
         "tier": "g1"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -782,7 +842,8 @@
         "corner": "power",
         "tier": "p0"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -798,7 +859,8 @@
         "corner": "power",
         "tier": "p1"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -814,7 +876,8 @@
         "corner": "lownoise",
         "tier": "n0"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -831,7 +894,8 @@
         "corner": "wideband",
         "tier": "wb00"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -848,7 +912,8 @@
         "corner": "wideband",
         "tier": "wb01"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -865,7 +930,8 @@
         "corner": "wideband",
         "tier": "wb02"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -882,7 +948,8 @@
         "corner": "wideband",
         "tier": "wb03"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -899,7 +966,8 @@
         "corner": "wideband",
         "tier": "wb04"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -916,7 +984,8 @@
         "corner": "wideband",
         "tier": "wb05"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -933,7 +1002,8 @@
         "corner": "wideband",
         "tier": "wb06"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -950,7 +1020,8 @@
         "corner": "wideband",
         "tier": "wb07"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -967,7 +1038,8 @@
         "corner": "wideband",
         "tier": "wb08"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -984,7 +1056,8 @@
         "corner": "wideband",
         "tier": "wb09"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -1001,7 +1074,8 @@
         "corner": "wideband",
         "tier": "wb10"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -1018,7 +1092,8 @@
         "corner": "wideband",
         "tier": "wb11"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -1035,7 +1110,8 @@
         "corner": "wideband",
         "tier": "wb12"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -1052,7 +1128,8 @@
         "corner": "wideband",
         "tier": "wb13"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -1069,7 +1146,8 @@
         "corner": "wideband",
         "tier": "wb14"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -1086,7 +1164,8 @@
         "corner": "wideband",
         "tier": "wb15"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -1103,7 +1182,8 @@
         "corner": "wideband",
         "tier": "wb16"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -1120,7 +1200,8 @@
         "corner": "wideband",
         "tier": "wb17"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -1137,7 +1218,8 @@
         "corner": "wideband",
         "tier": "wb18"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -1154,7 +1236,8 @@
         "corner": "wideband",
         "tier": "wb19"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -1171,7 +1254,8 @@
         "corner": "wideband",
         "tier": "wb20"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -1188,7 +1272,8 @@
         "corner": "wideband",
         "tier": "wb21"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -1205,7 +1290,8 @@
         "corner": "wideband",
         "tier": "wb22"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -1222,7 +1308,8 @@
         "corner": "wideband",
         "tier": "wb23"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "lna",
@@ -1239,7 +1326,8 @@
         "corner": "wideband",
         "tier": "wb24"
       },
-      "objective_gap": null
+      "objective_gap": null,
+      "gap_note": null
     },
     {
       "circuit_class": "pa",
@@ -1253,7 +1341,8 @@
         "pae_pct": 15,
         "idd_ma": 12
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1267,7 +1356,8 @@
         "pae_pct": 15,
         "idd_ma": 8
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1281,7 +1371,8 @@
         "pae_pct": 15,
         "idd_ma": 5
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1295,7 +1386,8 @@
         "pae_pct": 25,
         "idd_ma": 12
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1309,7 +1401,8 @@
         "pae_pct": 25,
         "idd_ma": 8
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1323,7 +1416,8 @@
         "pae_pct": 25,
         "idd_ma": 5
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1337,7 +1431,8 @@
         "pae_pct": 35,
         "idd_ma": 12
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1351,7 +1446,8 @@
         "pae_pct": 35,
         "idd_ma": 8
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1365,7 +1461,8 @@
         "pae_pct": 35,
         "idd_ma": 5
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1379,7 +1476,8 @@
         "pae_pct": 15,
         "idd_ma": 12
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1393,7 +1491,8 @@
         "pae_pct": 15,
         "idd_ma": 8
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1407,7 +1506,8 @@
         "pae_pct": 15,
         "idd_ma": 5
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1421,7 +1521,8 @@
         "pae_pct": 25,
         "idd_ma": 12
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1435,7 +1536,8 @@
         "pae_pct": 25,
         "idd_ma": 5
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1449,7 +1551,8 @@
         "pae_pct": 35,
         "idd_ma": 12
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1463,7 +1566,8 @@
         "pae_pct": 35,
         "idd_ma": 8
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1477,7 +1581,8 @@
         "pae_pct": 35,
         "idd_ma": 5
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1491,7 +1596,8 @@
         "pae_pct": 15,
         "idd_ma": 12
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1505,7 +1611,8 @@
         "pae_pct": 15,
         "idd_ma": 8
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1519,7 +1626,8 @@
         "pae_pct": 15,
         "idd_ma": 5
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1533,7 +1641,8 @@
         "pae_pct": 25,
         "idd_ma": 12
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1547,7 +1656,8 @@
         "pae_pct": 25,
         "idd_ma": 8
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1561,7 +1671,8 @@
         "pae_pct": 25,
         "idd_ma": 5
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1575,7 +1686,8 @@
         "pae_pct": 35,
         "idd_ma": 12
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1589,7 +1701,8 @@
         "pae_pct": 35,
         "idd_ma": 8
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1603,7 +1716,8 @@
         "pae_pct": 15,
         "idd_ma": 12
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1617,7 +1731,8 @@
         "pae_pct": 15,
         "idd_ma": 8
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1631,7 +1746,8 @@
         "pae_pct": 15,
         "idd_ma": 5
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1645,7 +1761,8 @@
         "pae_pct": 25,
         "idd_ma": 12
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1659,7 +1776,8 @@
         "pae_pct": 25,
         "idd_ma": 8
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1673,7 +1791,8 @@
         "pae_pct": 25,
         "idd_ma": 5
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1687,7 +1806,8 @@
         "pae_pct": 35,
         "idd_ma": 12
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1701,7 +1821,8 @@
         "pae_pct": 35,
         "idd_ma": 8
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1715,7 +1836,8 @@
         "pae_pct": 35,
         "idd_ma": 5
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1729,7 +1851,8 @@
         "pae_pct": 15,
         "idd_ma": 12
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1743,7 +1866,8 @@
         "pae_pct": 15,
         "idd_ma": 8
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1757,7 +1881,8 @@
         "pae_pct": 15,
         "idd_ma": 5
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1771,7 +1896,8 @@
         "pae_pct": 25,
         "idd_ma": 12
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1785,7 +1911,8 @@
         "pae_pct": 25,
         "idd_ma": 5
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1799,7 +1926,8 @@
         "pae_pct": 35,
         "idd_ma": 12
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1813,7 +1941,8 @@
         "pae_pct": 35,
         "idd_ma": 8
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1827,7 +1956,8 @@
         "pae_pct": 35,
         "idd_ma": 5
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1841,7 +1971,8 @@
         "pae_pct": 15,
         "idd_ma": 12
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1855,7 +1986,8 @@
         "pae_pct": 15,
         "idd_ma": 8
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1869,7 +2001,8 @@
         "pae_pct": 15,
         "idd_ma": 5
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1883,7 +2016,8 @@
         "pae_pct": 25,
         "idd_ma": 12
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1897,7 +2031,8 @@
         "pae_pct": 25,
         "idd_ma": 8
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1911,7 +2046,8 @@
         "pae_pct": 25,
         "idd_ma": 5
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1925,7 +2061,8 @@
         "pae_pct": 35,
         "idd_ma": 12
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "pa",
@@ -1939,7 +2076,8 @@
         "pae_pct": 35,
         "idd_ma": 8
       },
-      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+      "objective_gap": null,
+      "gap_note": "p1db_dbm/psat_dbm/pae_pct MEASURED in make_objective (pa_harness, elite-gated on s21_db proxy)"
     },
     {
       "circuit_class": "mixer",
@@ -1953,7 +2091,8 @@
         "lo_rf_iso_db": 20,
         "lo_if_iso_db": 15
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -1967,7 +2106,8 @@
         "lo_rf_iso_db": 20,
         "lo_if_iso_db": 15
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -1981,7 +2121,8 @@
         "lo_rf_iso_db": 30,
         "lo_if_iso_db": 25
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -1995,7 +2136,8 @@
         "lo_rf_iso_db": 30,
         "lo_if_iso_db": 25
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2009,7 +2151,8 @@
         "lo_rf_iso_db": 20,
         "lo_if_iso_db": 15
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2023,7 +2166,8 @@
         "lo_rf_iso_db": 30,
         "lo_if_iso_db": 25
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2037,7 +2181,8 @@
         "lo_rf_iso_db": 30,
         "lo_if_iso_db": 25
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2051,7 +2196,8 @@
         "lo_rf_iso_db": 40,
         "lo_if_iso_db": 35
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2065,7 +2211,8 @@
         "lo_rf_iso_db": 30,
         "lo_if_iso_db": 25
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2079,7 +2226,8 @@
         "lo_rf_iso_db": 30,
         "lo_if_iso_db": 25
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2093,7 +2241,8 @@
         "lo_rf_iso_db": 40,
         "lo_if_iso_db": 35
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2107,7 +2256,8 @@
         "lo_rf_iso_db": 40,
         "lo_if_iso_db": 35
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2121,7 +2271,8 @@
         "lo_rf_iso_db": 30,
         "lo_if_iso_db": 25
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2135,7 +2286,8 @@
         "lo_rf_iso_db": 40,
         "lo_if_iso_db": 35
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2149,7 +2301,8 @@
         "lo_rf_iso_db": 40,
         "lo_if_iso_db": 35
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2163,7 +2316,8 @@
         "lo_rf_iso_db": 40,
         "lo_if_iso_db": 35
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2177,7 +2331,8 @@
         "lo_rf_iso_db": 25,
         "lo_if_iso_db": 20
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2191,7 +2346,8 @@
         "lo_rf_iso_db": 35,
         "lo_if_iso_db": 30
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2205,7 +2361,8 @@
         "lo_rf_iso_db": 40,
         "lo_if_iso_db": 35
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2219,7 +2376,8 @@
         "lo_rf_iso_db": 45,
         "lo_if_iso_db": 40
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2233,7 +2391,8 @@
         "lo_rf_iso_db": 20,
         "lo_if_iso_db": 15
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2247,7 +2406,8 @@
         "lo_rf_iso_db": 20,
         "lo_if_iso_db": 15
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2261,7 +2421,8 @@
         "lo_rf_iso_db": 30,
         "lo_if_iso_db": 25
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2275,7 +2436,8 @@
         "lo_rf_iso_db": 30,
         "lo_if_iso_db": 25
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2289,7 +2451,8 @@
         "lo_rf_iso_db": 20,
         "lo_if_iso_db": 15
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2303,7 +2466,8 @@
         "lo_rf_iso_db": 30,
         "lo_if_iso_db": 25
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2317,7 +2481,8 @@
         "lo_rf_iso_db": 30,
         "lo_if_iso_db": 25
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2331,7 +2496,8 @@
         "lo_rf_iso_db": 40,
         "lo_if_iso_db": 35
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2345,7 +2511,8 @@
         "lo_rf_iso_db": 30,
         "lo_if_iso_db": 25
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2359,7 +2526,8 @@
         "lo_rf_iso_db": 30,
         "lo_if_iso_db": 25
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2373,7 +2541,8 @@
         "lo_rf_iso_db": 40,
         "lo_if_iso_db": 35
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2387,7 +2556,8 @@
         "lo_rf_iso_db": 40,
         "lo_if_iso_db": 35
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2401,7 +2571,8 @@
         "lo_rf_iso_db": 30,
         "lo_if_iso_db": 25
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2415,7 +2586,8 @@
         "lo_rf_iso_db": 40,
         "lo_if_iso_db": 35
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2429,7 +2601,8 @@
         "lo_rf_iso_db": 40,
         "lo_if_iso_db": 35
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2443,7 +2616,8 @@
         "lo_rf_iso_db": 40,
         "lo_if_iso_db": 35
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2457,7 +2631,8 @@
         "lo_rf_iso_db": 25,
         "lo_if_iso_db": 20
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2471,7 +2646,8 @@
         "lo_rf_iso_db": 35,
         "lo_if_iso_db": 30
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2485,7 +2661,8 @@
         "lo_rf_iso_db": 40,
         "lo_if_iso_db": 35
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
@@ -2499,7 +2676,8 @@
         "lo_rf_iso_db": 45,
         "lo_if_iso_db": 40
       },
-      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "balun-lna",
@@ -2513,7 +2691,8 @@
         "imbalance_amp_db": 0.5,
         "imbalance_phase_deg": 2.0
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2527,7 +2706,8 @@
         "imbalance_amp_db": 0.3,
         "imbalance_phase_deg": 1.0
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2541,7 +2721,8 @@
         "imbalance_amp_db": 0.15,
         "imbalance_phase_deg": 0.5
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2555,7 +2736,8 @@
         "imbalance_amp_db": 0.5,
         "imbalance_phase_deg": 2.0
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2569,7 +2751,8 @@
         "imbalance_amp_db": 0.3,
         "imbalance_phase_deg": 1.0
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2583,7 +2766,8 @@
         "imbalance_amp_db": 0.15,
         "imbalance_phase_deg": 0.5
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2597,7 +2781,8 @@
         "imbalance_amp_db": 0.5,
         "imbalance_phase_deg": 2.0
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2611,7 +2796,8 @@
         "imbalance_amp_db": 0.3,
         "imbalance_phase_deg": 1.0
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2625,7 +2811,8 @@
         "imbalance_amp_db": 0.15,
         "imbalance_phase_deg": 0.5
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2639,7 +2826,8 @@
         "imbalance_amp_db": 0.4,
         "imbalance_phase_deg": 1.5
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2653,7 +2841,8 @@
         "imbalance_amp_db": 0.25,
         "imbalance_phase_deg": 0.8
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2667,7 +2856,8 @@
         "imbalance_amp_db": 0.15,
         "imbalance_phase_deg": 0.5
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2681,7 +2871,8 @@
         "imbalance_amp_db": 0.1,
         "imbalance_phase_deg": 0.3
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2695,7 +2886,8 @@
         "imbalance_amp_db": 0.5,
         "imbalance_phase_deg": 2.0
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2709,7 +2901,8 @@
         "imbalance_amp_db": 0.3,
         "imbalance_phase_deg": 1.0
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2723,7 +2916,8 @@
         "imbalance_amp_db": 0.15,
         "imbalance_phase_deg": 0.5
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2737,7 +2931,8 @@
         "imbalance_amp_db": 0.5,
         "imbalance_phase_deg": 2.0
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2751,7 +2946,8 @@
         "imbalance_amp_db": 0.3,
         "imbalance_phase_deg": 1.0
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2765,7 +2961,8 @@
         "imbalance_amp_db": 0.15,
         "imbalance_phase_deg": 0.5
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2779,7 +2976,8 @@
         "imbalance_amp_db": 0.5,
         "imbalance_phase_deg": 2.0
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2793,7 +2991,8 @@
         "imbalance_amp_db": 0.3,
         "imbalance_phase_deg": 1.0
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2807,7 +3006,8 @@
         "imbalance_amp_db": 0.15,
         "imbalance_phase_deg": 0.5
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2821,7 +3021,8 @@
         "imbalance_amp_db": 0.4,
         "imbalance_phase_deg": 1.5
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2835,7 +3036,8 @@
         "imbalance_amp_db": 0.25,
         "imbalance_phase_deg": 0.8
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2849,7 +3051,8 @@
         "imbalance_amp_db": 0.15,
         "imbalance_phase_deg": 0.5
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2863,7 +3066,8 @@
         "imbalance_amp_db": 0.1,
         "imbalance_phase_deg": 0.3
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2877,7 +3081,8 @@
         "imbalance_amp_db": 0.15,
         "imbalance_phase_deg": 0.5
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2891,7 +3096,8 @@
         "imbalance_amp_db": 0.15,
         "imbalance_phase_deg": 0.5
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2905,7 +3111,8 @@
         "imbalance_amp_db": 0.5,
         "imbalance_phase_deg": 2.0
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2919,7 +3126,8 @@
         "imbalance_amp_db": 0.5,
         "imbalance_phase_deg": 2.0
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2933,7 +3141,8 @@
         "imbalance_amp_db": 0.2,
         "imbalance_phase_deg": 0.7
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2947,7 +3156,8 @@
         "imbalance_amp_db": 0.2,
         "imbalance_phase_deg": 0.7
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2961,7 +3171,8 @@
         "imbalance_amp_db": 0.18,
         "imbalance_phase_deg": 0.6
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2975,7 +3186,8 @@
         "imbalance_amp_db": 0.18,
         "imbalance_phase_deg": 0.6
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     },
     {
       "circuit_class": "balun-lna",
@@ -2989,7 +3201,8 @@
         "imbalance_amp_db": 0.22,
         "imbalance_phase_deg": 0.9
       },
-      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+      "objective_gap": null,
+      "gap_note": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg MEASURED in make_objective (balun_harness/diff3, cheap ~1.5x, not elite-gated); nf_db/s11_db/idd_ma also gated from the LNA front"
     }
   ]
 }

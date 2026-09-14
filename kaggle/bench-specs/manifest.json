@@ -1,0 +1,2995 @@
+{
+  "benchmark": "editcap-bench-v1",
+  "generator": "kaggle/bench_grid.py",
+  "deterministic": true,
+  "pdk_note": "specs default pdk=bptm45; RUN on gf180 via --pdk gf180mcu (run-time override, same as the 24-cell capability ladder)",
+  "objective_gap_summary": {
+    "lna": "none -- s21/nf/s11/idd all computed in make_objective",
+    "pa": "p1db_dbm/psat_dbm/pae_pct NOT in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db",
+    "mixer": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm NOT in make_objective (mixer_harness not wired in); NO mixer metric gated in-loop",
+    "balun-lna": "sds21_db/cmrr_db/imbalance_* NOT in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+  },
+  "counts": {
+    "lna": 75,
+    "pa": 50,
+    "mixer": 40,
+    "balun-lna": 35
+  },
+  "cells": [
+    {
+      "circuit_class": "lna",
+      "name": "bnl-09-diag-t0",
+      "file": "bench-specs/lna/bnl-09-diag-t0.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "s21_min": 12,
+        "nf_max": 3.0,
+        "idd_max": 10,
+        "s11_max": -10,
+        "corner": "diag",
+        "tier": "t0"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-09-diag-t1",
+      "file": "bench-specs/lna/bnl-09-diag-t1.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "s21_min": 14,
+        "nf_max": 2.5,
+        "idd_max": 8,
+        "s11_max": -10,
+        "corner": "diag",
+        "tier": "t1"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-09-diag-t2",
+      "file": "bench-specs/lna/bnl-09-diag-t2.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "s21_min": 16,
+        "nf_max": 2.0,
+        "idd_max": 6,
+        "s11_max": -12,
+        "corner": "diag",
+        "tier": "t2"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-09-diag-t3",
+      "file": "bench-specs/lna/bnl-09-diag-t3.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "s21_min": 18,
+        "nf_max": 1.5,
+        "idd_max": 4,
+        "s11_max": -12,
+        "corner": "diag",
+        "tier": "t3"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-09-diag-t4",
+      "file": "bench-specs/lna/bnl-09-diag-t4.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "s21_min": 20,
+        "nf_max": 1.2,
+        "idd_max": 2,
+        "s11_max": -15,
+        "corner": "diag",
+        "tier": "t4"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-09-gain-g0",
+      "file": "bench-specs/lna/bnl-09-gain-g0.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "s21_min": 20,
+        "nf_max": 2.5,
+        "idd_max": 8,
+        "s11_max": -12,
+        "corner": "gain",
+        "tier": "g0"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-09-gain-g1",
+      "file": "bench-specs/lna/bnl-09-gain-g1.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "s21_min": 22,
+        "nf_max": 2.0,
+        "idd_max": 6,
+        "s11_max": -15,
+        "corner": "gain",
+        "tier": "g1"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-09-powe-p0",
+      "file": "bench-specs/lna/bnl-09-powe-p0.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "s21_min": 14,
+        "nf_max": 2.0,
+        "idd_max": 2,
+        "s11_max": -12,
+        "corner": "power",
+        "tier": "p0"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-09-powe-p1",
+      "file": "bench-specs/lna/bnl-09-powe-p1.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "s21_min": 12,
+        "nf_max": 1.8,
+        "idd_max": 2,
+        "s11_max": -10,
+        "corner": "power",
+        "tier": "p1"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-09-lown-n0",
+      "file": "bench-specs/lna/bnl-09-lown-n0.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "s21_min": 16,
+        "nf_max": 1.2,
+        "idd_max": 4,
+        "s11_max": -13,
+        "corner": "lownoise",
+        "tier": "n0"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-1575-diag-t0",
+      "file": "bench-specs/lna/bnl-1575-diag-t0.yaml",
+      "axes": {
+        "band": "1p575",
+        "f0_ghz": 1.57542,
+        "s21_min": 14,
+        "nf_max": 3.0,
+        "idd_max": 10,
+        "s11_max": -10,
+        "corner": "diag",
+        "tier": "t0"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-1575-diag-t1",
+      "file": "bench-specs/lna/bnl-1575-diag-t1.yaml",
+      "axes": {
+        "band": "1p575",
+        "f0_ghz": 1.57542,
+        "s21_min": 14,
+        "nf_max": 2.5,
+        "idd_max": 8,
+        "s11_max": -10,
+        "corner": "diag",
+        "tier": "t1"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-1575-diag-t2",
+      "file": "bench-specs/lna/bnl-1575-diag-t2.yaml",
+      "axes": {
+        "band": "1p575",
+        "f0_ghz": 1.57542,
+        "s21_min": 16,
+        "nf_max": 2.0,
+        "idd_max": 6,
+        "s11_max": -12,
+        "corner": "diag",
+        "tier": "t2"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-1575-diag-t3",
+      "file": "bench-specs/lna/bnl-1575-diag-t3.yaml",
+      "axes": {
+        "band": "1p575",
+        "f0_ghz": 1.57542,
+        "s21_min": 18,
+        "nf_max": 1.5,
+        "idd_max": 4,
+        "s11_max": -12,
+        "corner": "diag",
+        "tier": "t3"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-1575-diag-t4",
+      "file": "bench-specs/lna/bnl-1575-diag-t4.yaml",
+      "axes": {
+        "band": "1p575",
+        "f0_ghz": 1.57542,
+        "s21_min": 20,
+        "nf_max": 1.2,
+        "idd_max": 2,
+        "s11_max": -15,
+        "corner": "diag",
+        "tier": "t4"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-1575-gain-g0",
+      "file": "bench-specs/lna/bnl-1575-gain-g0.yaml",
+      "axes": {
+        "band": "1p575",
+        "f0_ghz": 1.57542,
+        "s21_min": 20,
+        "nf_max": 2.5,
+        "idd_max": 8,
+        "s11_max": -12,
+        "corner": "gain",
+        "tier": "g0"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-1575-gain-g1",
+      "file": "bench-specs/lna/bnl-1575-gain-g1.yaml",
+      "axes": {
+        "band": "1p575",
+        "f0_ghz": 1.57542,
+        "s21_min": 22,
+        "nf_max": 2.0,
+        "idd_max": 6,
+        "s11_max": -15,
+        "corner": "gain",
+        "tier": "g1"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-1575-powe-p0",
+      "file": "bench-specs/lna/bnl-1575-powe-p0.yaml",
+      "axes": {
+        "band": "1p575",
+        "f0_ghz": 1.57542,
+        "s21_min": 14,
+        "nf_max": 2.0,
+        "idd_max": 2,
+        "s11_max": -12,
+        "corner": "power",
+        "tier": "p0"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-1575-powe-p1",
+      "file": "bench-specs/lna/bnl-1575-powe-p1.yaml",
+      "axes": {
+        "band": "1p575",
+        "f0_ghz": 1.57542,
+        "s21_min": 12,
+        "nf_max": 1.8,
+        "idd_max": 2,
+        "s11_max": -10,
+        "corner": "power",
+        "tier": "p1"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-1575-lown-n0",
+      "file": "bench-specs/lna/bnl-1575-lown-n0.yaml",
+      "axes": {
+        "band": "1p575",
+        "f0_ghz": 1.57542,
+        "s21_min": 16,
+        "nf_max": 1.2,
+        "idd_max": 4,
+        "s11_max": -13,
+        "corner": "lownoise",
+        "tier": "n0"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-24-diag-t0",
+      "file": "bench-specs/lna/bnl-24-diag-t0.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "s21_min": 12,
+        "nf_max": 3.0,
+        "idd_max": 10,
+        "s11_max": -10,
+        "corner": "diag",
+        "tier": "t0"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-24-diag-t1",
+      "file": "bench-specs/lna/bnl-24-diag-t1.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "s21_min": 14,
+        "nf_max": 2.5,
+        "idd_max": 8,
+        "s11_max": -10,
+        "corner": "diag",
+        "tier": "t1"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-24-diag-t2",
+      "file": "bench-specs/lna/bnl-24-diag-t2.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "s21_min": 16,
+        "nf_max": 2.0,
+        "idd_max": 6,
+        "s11_max": -12,
+        "corner": "diag",
+        "tier": "t2"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-24-diag-t3",
+      "file": "bench-specs/lna/bnl-24-diag-t3.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "s21_min": 18,
+        "nf_max": 1.5,
+        "idd_max": 4,
+        "s11_max": -12,
+        "corner": "diag",
+        "tier": "t3"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-24-diag-t4",
+      "file": "bench-specs/lna/bnl-24-diag-t4.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "s21_min": 20,
+        "nf_max": 1.2,
+        "idd_max": 2,
+        "s11_max": -15,
+        "corner": "diag",
+        "tier": "t4"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-24-gain-g0",
+      "file": "bench-specs/lna/bnl-24-gain-g0.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "s21_min": 20,
+        "nf_max": 2.5,
+        "idd_max": 8,
+        "s11_max": -12,
+        "corner": "gain",
+        "tier": "g0"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-24-gain-g1",
+      "file": "bench-specs/lna/bnl-24-gain-g1.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "s21_min": 22,
+        "nf_max": 2.0,
+        "idd_max": 6,
+        "s11_max": -15,
+        "corner": "gain",
+        "tier": "g1"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-24-powe-p0",
+      "file": "bench-specs/lna/bnl-24-powe-p0.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "s21_min": 14,
+        "nf_max": 2.0,
+        "idd_max": 2,
+        "s11_max": -12,
+        "corner": "power",
+        "tier": "p0"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-24-powe-p1",
+      "file": "bench-specs/lna/bnl-24-powe-p1.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "s21_min": 12,
+        "nf_max": 1.8,
+        "idd_max": 2,
+        "s11_max": -10,
+        "corner": "power",
+        "tier": "p1"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-24-lown-n0",
+      "file": "bench-specs/lna/bnl-24-lown-n0.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "s21_min": 16,
+        "nf_max": 1.2,
+        "idd_max": 4,
+        "s11_max": -13,
+        "corner": "lownoise",
+        "tier": "n0"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-35-diag-t0",
+      "file": "bench-specs/lna/bnl-35-diag-t0.yaml",
+      "axes": {
+        "band": "3p5",
+        "f0_ghz": 3.5,
+        "s21_min": 12,
+        "nf_max": 3.0,
+        "idd_max": 10,
+        "s11_max": -10,
+        "corner": "diag",
+        "tier": "t0"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-35-diag-t1",
+      "file": "bench-specs/lna/bnl-35-diag-t1.yaml",
+      "axes": {
+        "band": "3p5",
+        "f0_ghz": 3.5,
+        "s21_min": 14,
+        "nf_max": 2.5,
+        "idd_max": 8,
+        "s11_max": -10,
+        "corner": "diag",
+        "tier": "t1"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-35-diag-t2",
+      "file": "bench-specs/lna/bnl-35-diag-t2.yaml",
+      "axes": {
+        "band": "3p5",
+        "f0_ghz": 3.5,
+        "s21_min": 16,
+        "nf_max": 2.0,
+        "idd_max": 6,
+        "s11_max": -12,
+        "corner": "diag",
+        "tier": "t2"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-35-diag-t3",
+      "file": "bench-specs/lna/bnl-35-diag-t3.yaml",
+      "axes": {
+        "band": "3p5",
+        "f0_ghz": 3.5,
+        "s21_min": 18,
+        "nf_max": 1.5,
+        "idd_max": 4,
+        "s11_max": -12,
+        "corner": "diag",
+        "tier": "t3"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-35-diag-t4",
+      "file": "bench-specs/lna/bnl-35-diag-t4.yaml",
+      "axes": {
+        "band": "3p5",
+        "f0_ghz": 3.5,
+        "s21_min": 20,
+        "nf_max": 1.2,
+        "idd_max": 2,
+        "s11_max": -15,
+        "corner": "diag",
+        "tier": "t4"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-35-gain-g0",
+      "file": "bench-specs/lna/bnl-35-gain-g0.yaml",
+      "axes": {
+        "band": "3p5",
+        "f0_ghz": 3.5,
+        "s21_min": 20,
+        "nf_max": 2.5,
+        "idd_max": 8,
+        "s11_max": -12,
+        "corner": "gain",
+        "tier": "g0"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-35-gain-g1",
+      "file": "bench-specs/lna/bnl-35-gain-g1.yaml",
+      "axes": {
+        "band": "3p5",
+        "f0_ghz": 3.5,
+        "s21_min": 22,
+        "nf_max": 2.0,
+        "idd_max": 6,
+        "s11_max": -15,
+        "corner": "gain",
+        "tier": "g1"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-35-powe-p0",
+      "file": "bench-specs/lna/bnl-35-powe-p0.yaml",
+      "axes": {
+        "band": "3p5",
+        "f0_ghz": 3.5,
+        "s21_min": 14,
+        "nf_max": 2.0,
+        "idd_max": 2,
+        "s11_max": -12,
+        "corner": "power",
+        "tier": "p0"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-35-powe-p1",
+      "file": "bench-specs/lna/bnl-35-powe-p1.yaml",
+      "axes": {
+        "band": "3p5",
+        "f0_ghz": 3.5,
+        "s21_min": 12,
+        "nf_max": 1.8,
+        "idd_max": 2,
+        "s11_max": -10,
+        "corner": "power",
+        "tier": "p1"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-35-lown-n0",
+      "file": "bench-specs/lna/bnl-35-lown-n0.yaml",
+      "axes": {
+        "band": "3p5",
+        "f0_ghz": 3.5,
+        "s21_min": 16,
+        "nf_max": 1.2,
+        "idd_max": 4,
+        "s11_max": -13,
+        "corner": "lownoise",
+        "tier": "n0"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-58-diag-t0",
+      "file": "bench-specs/lna/bnl-58-diag-t0.yaml",
+      "axes": {
+        "band": "5p8",
+        "f0_ghz": 5.8,
+        "s21_min": 12,
+        "nf_max": 3.0,
+        "idd_max": 10,
+        "s11_max": -10,
+        "corner": "diag",
+        "tier": "t0"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-58-diag-t1",
+      "file": "bench-specs/lna/bnl-58-diag-t1.yaml",
+      "axes": {
+        "band": "5p8",
+        "f0_ghz": 5.8,
+        "s21_min": 14,
+        "nf_max": 2.5,
+        "idd_max": 8,
+        "s11_max": -10,
+        "corner": "diag",
+        "tier": "t1"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-58-diag-t2",
+      "file": "bench-specs/lna/bnl-58-diag-t2.yaml",
+      "axes": {
+        "band": "5p8",
+        "f0_ghz": 5.8,
+        "s21_min": 16,
+        "nf_max": 2.0,
+        "idd_max": 6,
+        "s11_max": -12,
+        "corner": "diag",
+        "tier": "t2"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-58-diag-t3",
+      "file": "bench-specs/lna/bnl-58-diag-t3.yaml",
+      "axes": {
+        "band": "5p8",
+        "f0_ghz": 5.8,
+        "s21_min": 18,
+        "nf_max": 1.5,
+        "idd_max": 4,
+        "s11_max": -12,
+        "corner": "diag",
+        "tier": "t3"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-58-diag-t4",
+      "file": "bench-specs/lna/bnl-58-diag-t4.yaml",
+      "axes": {
+        "band": "5p8",
+        "f0_ghz": 5.8,
+        "s21_min": 20,
+        "nf_max": 1.2,
+        "idd_max": 2,
+        "s11_max": -15,
+        "corner": "diag",
+        "tier": "t4"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-58-gain-g0",
+      "file": "bench-specs/lna/bnl-58-gain-g0.yaml",
+      "axes": {
+        "band": "5p8",
+        "f0_ghz": 5.8,
+        "s21_min": 20,
+        "nf_max": 2.5,
+        "idd_max": 8,
+        "s11_max": -12,
+        "corner": "gain",
+        "tier": "g0"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-58-gain-g1",
+      "file": "bench-specs/lna/bnl-58-gain-g1.yaml",
+      "axes": {
+        "band": "5p8",
+        "f0_ghz": 5.8,
+        "s21_min": 22,
+        "nf_max": 2.0,
+        "idd_max": 6,
+        "s11_max": -15,
+        "corner": "gain",
+        "tier": "g1"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-58-powe-p0",
+      "file": "bench-specs/lna/bnl-58-powe-p0.yaml",
+      "axes": {
+        "band": "5p8",
+        "f0_ghz": 5.8,
+        "s21_min": 14,
+        "nf_max": 2.0,
+        "idd_max": 2,
+        "s11_max": -12,
+        "corner": "power",
+        "tier": "p0"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-58-powe-p1",
+      "file": "bench-specs/lna/bnl-58-powe-p1.yaml",
+      "axes": {
+        "band": "5p8",
+        "f0_ghz": 5.8,
+        "s21_min": 12,
+        "nf_max": 1.8,
+        "idd_max": 2,
+        "s11_max": -10,
+        "corner": "power",
+        "tier": "p1"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-58-lown-n0",
+      "file": "bench-specs/lna/bnl-58-lown-n0.yaml",
+      "axes": {
+        "band": "5p8",
+        "f0_ghz": 5.8,
+        "s21_min": 16,
+        "nf_max": 1.2,
+        "idd_max": 4,
+        "s11_max": -13,
+        "corner": "lownoise",
+        "tier": "n0"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-wb-r25-s10-00",
+      "file": "bench-specs/lna/bnl-wb-r25-s10-00.yaml",
+      "axes": {
+        "band": "wideband",
+        "f0_ghz": 1.75,
+        "s21_min": 10,
+        "nf_max": 3.5,
+        "idd_max": 12,
+        "s11_max": -8,
+        "ripple_max": 2.5,
+        "corner": "wideband",
+        "tier": "wb00"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-wb-r25-s12-01",
+      "file": "bench-specs/lna/bnl-wb-r25-s12-01.yaml",
+      "axes": {
+        "band": "wideband",
+        "f0_ghz": 1.75,
+        "s21_min": 12,
+        "nf_max": 3.5,
+        "idd_max": 12,
+        "s11_max": -8,
+        "ripple_max": 2.5,
+        "corner": "wideband",
+        "tier": "wb01"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-wb-r25-s14-02",
+      "file": "bench-specs/lna/bnl-wb-r25-s14-02.yaml",
+      "axes": {
+        "band": "wideband",
+        "f0_ghz": 1.75,
+        "s21_min": 14,
+        "nf_max": 3.0,
+        "idd_max": 8,
+        "s11_max": -10,
+        "ripple_max": 2.5,
+        "corner": "wideband",
+        "tier": "wb02"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-wb-r25-s16-03",
+      "file": "bench-specs/lna/bnl-wb-r25-s16-03.yaml",
+      "axes": {
+        "band": "wideband",
+        "f0_ghz": 1.75,
+        "s21_min": 16,
+        "nf_max": 3.0,
+        "idd_max": 8,
+        "s11_max": -10,
+        "ripple_max": 2.5,
+        "corner": "wideband",
+        "tier": "wb03"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-wb-r20-s10-04",
+      "file": "bench-specs/lna/bnl-wb-r20-s10-04.yaml",
+      "axes": {
+        "band": "wideband",
+        "f0_ghz": 1.75,
+        "s21_min": 10,
+        "nf_max": 3.5,
+        "idd_max": 12,
+        "s11_max": -10,
+        "ripple_max": 2.0,
+        "corner": "wideband",
+        "tier": "wb04"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-wb-r20-s12-05",
+      "file": "bench-specs/lna/bnl-wb-r20-s12-05.yaml",
+      "axes": {
+        "band": "wideband",
+        "f0_ghz": 1.75,
+        "s21_min": 12,
+        "nf_max": 3.0,
+        "idd_max": 8,
+        "s11_max": -10,
+        "ripple_max": 2.0,
+        "corner": "wideband",
+        "tier": "wb05"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-wb-r20-s14-06",
+      "file": "bench-specs/lna/bnl-wb-r20-s14-06.yaml",
+      "axes": {
+        "band": "wideband",
+        "f0_ghz": 1.75,
+        "s21_min": 14,
+        "nf_max": 3.0,
+        "idd_max": 8,
+        "s11_max": -12,
+        "ripple_max": 2.0,
+        "corner": "wideband",
+        "tier": "wb06"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-wb-r20-s16-07",
+      "file": "bench-specs/lna/bnl-wb-r20-s16-07.yaml",
+      "axes": {
+        "band": "wideband",
+        "f0_ghz": 1.75,
+        "s21_min": 16,
+        "nf_max": 2.5,
+        "idd_max": 5,
+        "s11_max": -12,
+        "ripple_max": 2.0,
+        "corner": "wideband",
+        "tier": "wb07"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-wb-r15-s10-08",
+      "file": "bench-specs/lna/bnl-wb-r15-s10-08.yaml",
+      "axes": {
+        "band": "wideband",
+        "f0_ghz": 1.75,
+        "s21_min": 10,
+        "nf_max": 3.0,
+        "idd_max": 8,
+        "s11_max": -12,
+        "ripple_max": 1.5,
+        "corner": "wideband",
+        "tier": "wb08"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-wb-r15-s12-09",
+      "file": "bench-specs/lna/bnl-wb-r15-s12-09.yaml",
+      "axes": {
+        "band": "wideband",
+        "f0_ghz": 1.75,
+        "s21_min": 12,
+        "nf_max": 3.0,
+        "idd_max": 8,
+        "s11_max": -12,
+        "ripple_max": 1.5,
+        "corner": "wideband",
+        "tier": "wb09"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-wb-r15-s14-10",
+      "file": "bench-specs/lna/bnl-wb-r15-s14-10.yaml",
+      "axes": {
+        "band": "wideband",
+        "f0_ghz": 1.75,
+        "s21_min": 14,
+        "nf_max": 2.5,
+        "idd_max": 5,
+        "s11_max": -15,
+        "ripple_max": 1.5,
+        "corner": "wideband",
+        "tier": "wb10"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-wb-r10-s10-11",
+      "file": "bench-specs/lna/bnl-wb-r10-s10-11.yaml",
+      "axes": {
+        "band": "wideband",
+        "f0_ghz": 1.75,
+        "s21_min": 10,
+        "nf_max": 3.0,
+        "idd_max": 8,
+        "s11_max": -15,
+        "ripple_max": 1.0,
+        "corner": "wideband",
+        "tier": "wb11"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-wb-r10-s12-12",
+      "file": "bench-specs/lna/bnl-wb-r10-s12-12.yaml",
+      "axes": {
+        "band": "wideband",
+        "f0_ghz": 1.75,
+        "s21_min": 12,
+        "nf_max": 2.5,
+        "idd_max": 5,
+        "s11_max": -15,
+        "ripple_max": 1.0,
+        "corner": "wideband",
+        "tier": "wb12"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-wb-r10-s14-13",
+      "file": "bench-specs/lna/bnl-wb-r10-s14-13.yaml",
+      "axes": {
+        "band": "wideband",
+        "f0_ghz": 1.75,
+        "s21_min": 14,
+        "nf_max": 2.5,
+        "idd_max": 5,
+        "s11_max": -15,
+        "ripple_max": 1.0,
+        "corner": "wideband",
+        "tier": "wb13"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-wb-r10-s16-14",
+      "file": "bench-specs/lna/bnl-wb-r10-s16-14.yaml",
+      "axes": {
+        "band": "wideband",
+        "f0_ghz": 1.75,
+        "s21_min": 16,
+        "nf_max": 2.5,
+        "idd_max": 5,
+        "s11_max": -15,
+        "ripple_max": 1.0,
+        "corner": "wideband",
+        "tier": "wb14"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-wb-r10-s14-15",
+      "file": "bench-specs/lna/bnl-wb-r10-s14-15.yaml",
+      "axes": {
+        "band": "wideband",
+        "f0_ghz": 1.75,
+        "s21_min": 14,
+        "nf_max": 2.5,
+        "idd_max": 5,
+        "s11_max": -12,
+        "ripple_max": 1.0,
+        "corner": "wideband",
+        "tier": "wb15"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-wb-r15-s14-16",
+      "file": "bench-specs/lna/bnl-wb-r15-s14-16.yaml",
+      "axes": {
+        "band": "wideband",
+        "f0_ghz": 1.75,
+        "s21_min": 14,
+        "nf_max": 2.5,
+        "idd_max": 8,
+        "s11_max": -12,
+        "ripple_max": 1.5,
+        "corner": "wideband",
+        "tier": "wb16"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-wb-r15-s12-17",
+      "file": "bench-specs/lna/bnl-wb-r15-s12-17.yaml",
+      "axes": {
+        "band": "wideband",
+        "f0_ghz": 1.75,
+        "s21_min": 12,
+        "nf_max": 3.0,
+        "idd_max": 8,
+        "s11_max": -10,
+        "ripple_max": 1.5,
+        "corner": "wideband",
+        "tier": "wb17"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-wb-r10-s12-18",
+      "file": "bench-specs/lna/bnl-wb-r10-s12-18.yaml",
+      "axes": {
+        "band": "wideband",
+        "f0_ghz": 1.75,
+        "s21_min": 12,
+        "nf_max": 2.5,
+        "idd_max": 5,
+        "s11_max": -12,
+        "ripple_max": 1.0,
+        "corner": "wideband",
+        "tier": "wb18"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-wb-r20-s16-19",
+      "file": "bench-specs/lna/bnl-wb-r20-s16-19.yaml",
+      "axes": {
+        "band": "wideband",
+        "f0_ghz": 1.75,
+        "s21_min": 16,
+        "nf_max": 2.5,
+        "idd_max": 8,
+        "s11_max": -12,
+        "ripple_max": 2.0,
+        "corner": "wideband",
+        "tier": "wb19"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-wb-r10-s10-20",
+      "file": "bench-specs/lna/bnl-wb-r10-s10-20.yaml",
+      "axes": {
+        "band": "wideband",
+        "f0_ghz": 1.75,
+        "s21_min": 10,
+        "nf_max": 3.0,
+        "idd_max": 5,
+        "s11_max": -12,
+        "ripple_max": 1.0,
+        "corner": "wideband",
+        "tier": "wb20"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-wb-r10-s18-21",
+      "file": "bench-specs/lna/bnl-wb-r10-s18-21.yaml",
+      "axes": {
+        "band": "wideband",
+        "f0_ghz": 1.75,
+        "s21_min": 18,
+        "nf_max": 2.2,
+        "idd_max": 4,
+        "s11_max": -15,
+        "ripple_max": 1.0,
+        "corner": "wideband",
+        "tier": "wb21"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-wb-r15-s18-22",
+      "file": "bench-specs/lna/bnl-wb-r15-s18-22.yaml",
+      "axes": {
+        "band": "wideband",
+        "f0_ghz": 1.75,
+        "s21_min": 18,
+        "nf_max": 2.5,
+        "idd_max": 6,
+        "s11_max": -13,
+        "ripple_max": 1.5,
+        "corner": "wideband",
+        "tier": "wb22"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-wb-r20-s14-23",
+      "file": "bench-specs/lna/bnl-wb-r20-s14-23.yaml",
+      "axes": {
+        "band": "wideband",
+        "f0_ghz": 1.75,
+        "s21_min": 14,
+        "nf_max": 3.0,
+        "idd_max": 6,
+        "s11_max": -11,
+        "ripple_max": 2.0,
+        "corner": "wideband",
+        "tier": "wb23"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "lna",
+      "name": "bnl-wb-r15-s16-24",
+      "file": "bench-specs/lna/bnl-wb-r15-s16-24.yaml",
+      "axes": {
+        "band": "wideband",
+        "f0_ghz": 1.75,
+        "s21_min": 16,
+        "nf_max": 2.5,
+        "idd_max": 6,
+        "s11_max": -13,
+        "ripple_max": 1.5,
+        "corner": "wideband",
+        "tier": "wb24"
+      },
+      "objective_gap": null
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-24-p2-e15-i12",
+      "file": "bench-specs/pa/bpa-24-p2-e15-i12.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "p1db_dbm": 2,
+        "psat_dbm": 5,
+        "pae_pct": 15,
+        "idd_ma": 12
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-24-p2-e15-i8",
+      "file": "bench-specs/pa/bpa-24-p2-e15-i8.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "p1db_dbm": 2,
+        "psat_dbm": 5,
+        "pae_pct": 15,
+        "idd_ma": 8
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-24-p2-e15-i5",
+      "file": "bench-specs/pa/bpa-24-p2-e15-i5.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "p1db_dbm": 2,
+        "psat_dbm": 5,
+        "pae_pct": 15,
+        "idd_ma": 5
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-24-p2-e25-i12",
+      "file": "bench-specs/pa/bpa-24-p2-e25-i12.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "p1db_dbm": 2,
+        "psat_dbm": 5,
+        "pae_pct": 25,
+        "idd_ma": 12
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-24-p2-e25-i8",
+      "file": "bench-specs/pa/bpa-24-p2-e25-i8.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "p1db_dbm": 2,
+        "psat_dbm": 5,
+        "pae_pct": 25,
+        "idd_ma": 8
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-24-p2-e25-i5",
+      "file": "bench-specs/pa/bpa-24-p2-e25-i5.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "p1db_dbm": 2,
+        "psat_dbm": 5,
+        "pae_pct": 25,
+        "idd_ma": 5
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-24-p2-e35-i12",
+      "file": "bench-specs/pa/bpa-24-p2-e35-i12.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "p1db_dbm": 2,
+        "psat_dbm": 5,
+        "pae_pct": 35,
+        "idd_ma": 12
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-24-p2-e35-i8",
+      "file": "bench-specs/pa/bpa-24-p2-e35-i8.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "p1db_dbm": 2,
+        "psat_dbm": 5,
+        "pae_pct": 35,
+        "idd_ma": 8
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-24-p2-e35-i5",
+      "file": "bench-specs/pa/bpa-24-p2-e35-i5.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "p1db_dbm": 2,
+        "psat_dbm": 5,
+        "pae_pct": 35,
+        "idd_ma": 5
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-24-p5-e15-i12",
+      "file": "bench-specs/pa/bpa-24-p5-e15-i12.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "p1db_dbm": 5,
+        "psat_dbm": 8,
+        "pae_pct": 15,
+        "idd_ma": 12
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-24-p5-e15-i8",
+      "file": "bench-specs/pa/bpa-24-p5-e15-i8.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "p1db_dbm": 5,
+        "psat_dbm": 8,
+        "pae_pct": 15,
+        "idd_ma": 8
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-24-p5-e15-i5",
+      "file": "bench-specs/pa/bpa-24-p5-e15-i5.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "p1db_dbm": 5,
+        "psat_dbm": 8,
+        "pae_pct": 15,
+        "idd_ma": 5
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-24-p5-e25-i12",
+      "file": "bench-specs/pa/bpa-24-p5-e25-i12.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "p1db_dbm": 5,
+        "psat_dbm": 8,
+        "pae_pct": 25,
+        "idd_ma": 12
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-24-p5-e25-i5",
+      "file": "bench-specs/pa/bpa-24-p5-e25-i5.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "p1db_dbm": 5,
+        "psat_dbm": 8,
+        "pae_pct": 25,
+        "idd_ma": 5
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-24-p5-e35-i12",
+      "file": "bench-specs/pa/bpa-24-p5-e35-i12.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "p1db_dbm": 5,
+        "psat_dbm": 8,
+        "pae_pct": 35,
+        "idd_ma": 12
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-24-p5-e35-i8",
+      "file": "bench-specs/pa/bpa-24-p5-e35-i8.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "p1db_dbm": 5,
+        "psat_dbm": 8,
+        "pae_pct": 35,
+        "idd_ma": 8
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-24-p5-e35-i5",
+      "file": "bench-specs/pa/bpa-24-p5-e35-i5.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "p1db_dbm": 5,
+        "psat_dbm": 8,
+        "pae_pct": 35,
+        "idd_ma": 5
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-24-p8-e15-i12",
+      "file": "bench-specs/pa/bpa-24-p8-e15-i12.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "p1db_dbm": 8,
+        "psat_dbm": 11,
+        "pae_pct": 15,
+        "idd_ma": 12
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-24-p8-e15-i8",
+      "file": "bench-specs/pa/bpa-24-p8-e15-i8.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "p1db_dbm": 8,
+        "psat_dbm": 11,
+        "pae_pct": 15,
+        "idd_ma": 8
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-24-p8-e15-i5",
+      "file": "bench-specs/pa/bpa-24-p8-e15-i5.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "p1db_dbm": 8,
+        "psat_dbm": 11,
+        "pae_pct": 15,
+        "idd_ma": 5
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-24-p8-e25-i12",
+      "file": "bench-specs/pa/bpa-24-p8-e25-i12.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "p1db_dbm": 8,
+        "psat_dbm": 11,
+        "pae_pct": 25,
+        "idd_ma": 12
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-24-p8-e25-i8",
+      "file": "bench-specs/pa/bpa-24-p8-e25-i8.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "p1db_dbm": 8,
+        "psat_dbm": 11,
+        "pae_pct": 25,
+        "idd_ma": 8
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-24-p8-e25-i5",
+      "file": "bench-specs/pa/bpa-24-p8-e25-i5.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "p1db_dbm": 8,
+        "psat_dbm": 11,
+        "pae_pct": 25,
+        "idd_ma": 5
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-24-p8-e35-i12",
+      "file": "bench-specs/pa/bpa-24-p8-e35-i12.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "p1db_dbm": 8,
+        "psat_dbm": 11,
+        "pae_pct": 35,
+        "idd_ma": 12
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-24-p8-e35-i8",
+      "file": "bench-specs/pa/bpa-24-p8-e35-i8.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "p1db_dbm": 8,
+        "psat_dbm": 11,
+        "pae_pct": 35,
+        "idd_ma": 8
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-09-p2-e15-i12",
+      "file": "bench-specs/pa/bpa-09-p2-e15-i12.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "p1db_dbm": 2,
+        "psat_dbm": 5,
+        "pae_pct": 15,
+        "idd_ma": 12
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-09-p2-e15-i8",
+      "file": "bench-specs/pa/bpa-09-p2-e15-i8.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "p1db_dbm": 2,
+        "psat_dbm": 5,
+        "pae_pct": 15,
+        "idd_ma": 8
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-09-p2-e15-i5",
+      "file": "bench-specs/pa/bpa-09-p2-e15-i5.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "p1db_dbm": 2,
+        "psat_dbm": 5,
+        "pae_pct": 15,
+        "idd_ma": 5
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-09-p2-e25-i12",
+      "file": "bench-specs/pa/bpa-09-p2-e25-i12.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "p1db_dbm": 2,
+        "psat_dbm": 5,
+        "pae_pct": 25,
+        "idd_ma": 12
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-09-p2-e25-i8",
+      "file": "bench-specs/pa/bpa-09-p2-e25-i8.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "p1db_dbm": 2,
+        "psat_dbm": 5,
+        "pae_pct": 25,
+        "idd_ma": 8
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-09-p2-e25-i5",
+      "file": "bench-specs/pa/bpa-09-p2-e25-i5.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "p1db_dbm": 2,
+        "psat_dbm": 5,
+        "pae_pct": 25,
+        "idd_ma": 5
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-09-p2-e35-i12",
+      "file": "bench-specs/pa/bpa-09-p2-e35-i12.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "p1db_dbm": 2,
+        "psat_dbm": 5,
+        "pae_pct": 35,
+        "idd_ma": 12
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-09-p2-e35-i8",
+      "file": "bench-specs/pa/bpa-09-p2-e35-i8.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "p1db_dbm": 2,
+        "psat_dbm": 5,
+        "pae_pct": 35,
+        "idd_ma": 8
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-09-p2-e35-i5",
+      "file": "bench-specs/pa/bpa-09-p2-e35-i5.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "p1db_dbm": 2,
+        "psat_dbm": 5,
+        "pae_pct": 35,
+        "idd_ma": 5
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-09-p5-e15-i12",
+      "file": "bench-specs/pa/bpa-09-p5-e15-i12.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "p1db_dbm": 5,
+        "psat_dbm": 8,
+        "pae_pct": 15,
+        "idd_ma": 12
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-09-p5-e15-i8",
+      "file": "bench-specs/pa/bpa-09-p5-e15-i8.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "p1db_dbm": 5,
+        "psat_dbm": 8,
+        "pae_pct": 15,
+        "idd_ma": 8
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-09-p5-e15-i5",
+      "file": "bench-specs/pa/bpa-09-p5-e15-i5.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "p1db_dbm": 5,
+        "psat_dbm": 8,
+        "pae_pct": 15,
+        "idd_ma": 5
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-09-p5-e25-i12",
+      "file": "bench-specs/pa/bpa-09-p5-e25-i12.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "p1db_dbm": 5,
+        "psat_dbm": 8,
+        "pae_pct": 25,
+        "idd_ma": 12
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-09-p5-e25-i5",
+      "file": "bench-specs/pa/bpa-09-p5-e25-i5.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "p1db_dbm": 5,
+        "psat_dbm": 8,
+        "pae_pct": 25,
+        "idd_ma": 5
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-09-p5-e35-i12",
+      "file": "bench-specs/pa/bpa-09-p5-e35-i12.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "p1db_dbm": 5,
+        "psat_dbm": 8,
+        "pae_pct": 35,
+        "idd_ma": 12
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-09-p5-e35-i8",
+      "file": "bench-specs/pa/bpa-09-p5-e35-i8.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "p1db_dbm": 5,
+        "psat_dbm": 8,
+        "pae_pct": 35,
+        "idd_ma": 8
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-09-p5-e35-i5",
+      "file": "bench-specs/pa/bpa-09-p5-e35-i5.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "p1db_dbm": 5,
+        "psat_dbm": 8,
+        "pae_pct": 35,
+        "idd_ma": 5
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-09-p8-e15-i12",
+      "file": "bench-specs/pa/bpa-09-p8-e15-i12.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "p1db_dbm": 8,
+        "psat_dbm": 11,
+        "pae_pct": 15,
+        "idd_ma": 12
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-09-p8-e15-i8",
+      "file": "bench-specs/pa/bpa-09-p8-e15-i8.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "p1db_dbm": 8,
+        "psat_dbm": 11,
+        "pae_pct": 15,
+        "idd_ma": 8
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-09-p8-e15-i5",
+      "file": "bench-specs/pa/bpa-09-p8-e15-i5.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "p1db_dbm": 8,
+        "psat_dbm": 11,
+        "pae_pct": 15,
+        "idd_ma": 5
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-09-p8-e25-i12",
+      "file": "bench-specs/pa/bpa-09-p8-e25-i12.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "p1db_dbm": 8,
+        "psat_dbm": 11,
+        "pae_pct": 25,
+        "idd_ma": 12
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-09-p8-e25-i8",
+      "file": "bench-specs/pa/bpa-09-p8-e25-i8.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "p1db_dbm": 8,
+        "psat_dbm": 11,
+        "pae_pct": 25,
+        "idd_ma": 8
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-09-p8-e25-i5",
+      "file": "bench-specs/pa/bpa-09-p8-e25-i5.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "p1db_dbm": 8,
+        "psat_dbm": 11,
+        "pae_pct": 25,
+        "idd_ma": 5
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-09-p8-e35-i12",
+      "file": "bench-specs/pa/bpa-09-p8-e35-i12.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "p1db_dbm": 8,
+        "psat_dbm": 11,
+        "pae_pct": 35,
+        "idd_ma": 12
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "pa",
+      "name": "bpa-09-p8-e35-i8",
+      "file": "bench-specs/pa/bpa-09-p8-e35-i8.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "p1db_dbm": 8,
+        "psat_dbm": 11,
+        "pae_pct": 35,
+        "idd_ma": 8
+      },
+      "objective_gap": "p1db_dbm/psat_dbm/pae_pct not computed in make_objective (pa_harness not wired in); gated in-loop only on s21_db/s11_db"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-24-cg6-ipn5-iso20",
+      "file": "bench-specs/mixer/bmx-24-cg6-ipn5-iso20.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": 6,
+        "iip3_dbm": -5,
+        "lo_rf_iso_db": 20,
+        "lo_if_iso_db": 15
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-24-cg6-ip0-iso20",
+      "file": "bench-specs/mixer/bmx-24-cg6-ip0-iso20.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": 6,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 20,
+        "lo_if_iso_db": 15
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-24-cg6-ip5-iso30",
+      "file": "bench-specs/mixer/bmx-24-cg6-ip5-iso30.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": 6,
+        "iip3_dbm": 5,
+        "lo_rf_iso_db": 30,
+        "lo_if_iso_db": 25
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-24-cg6-ip10-iso30",
+      "file": "bench-specs/mixer/bmx-24-cg6-ip10-iso30.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": 6,
+        "iip3_dbm": 10,
+        "lo_rf_iso_db": 30,
+        "lo_if_iso_db": 25
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-24-cg9-ipn5-iso20",
+      "file": "bench-specs/mixer/bmx-24-cg9-ipn5-iso20.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": 9,
+        "iip3_dbm": -5,
+        "lo_rf_iso_db": 20,
+        "lo_if_iso_db": 15
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-24-cg9-ip0-iso30",
+      "file": "bench-specs/mixer/bmx-24-cg9-ip0-iso30.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": 9,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 30,
+        "lo_if_iso_db": 25
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-24-cg9-ip5-iso30",
+      "file": "bench-specs/mixer/bmx-24-cg9-ip5-iso30.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": 9,
+        "iip3_dbm": 5,
+        "lo_rf_iso_db": 30,
+        "lo_if_iso_db": 25
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-24-cg9-ip10-iso40",
+      "file": "bench-specs/mixer/bmx-24-cg9-ip10-iso40.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": 9,
+        "iip3_dbm": 10,
+        "lo_rf_iso_db": 40,
+        "lo_if_iso_db": 35
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-24-cg12-ipn5-iso30",
+      "file": "bench-specs/mixer/bmx-24-cg12-ipn5-iso30.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": 12,
+        "iip3_dbm": -5,
+        "lo_rf_iso_db": 30,
+        "lo_if_iso_db": 25
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-24-cg12-ip0-iso30",
+      "file": "bench-specs/mixer/bmx-24-cg12-ip0-iso30.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": 12,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 30,
+        "lo_if_iso_db": 25
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-24-cg12-ip5-iso40",
+      "file": "bench-specs/mixer/bmx-24-cg12-ip5-iso40.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": 12,
+        "iip3_dbm": 5,
+        "lo_rf_iso_db": 40,
+        "lo_if_iso_db": 35
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-24-cg12-ip10-iso40",
+      "file": "bench-specs/mixer/bmx-24-cg12-ip10-iso40.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": 12,
+        "iip3_dbm": 10,
+        "lo_rf_iso_db": 40,
+        "lo_if_iso_db": 35
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-24-cg15-ipn5-iso30",
+      "file": "bench-specs/mixer/bmx-24-cg15-ipn5-iso30.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": 15,
+        "iip3_dbm": -5,
+        "lo_rf_iso_db": 30,
+        "lo_if_iso_db": 25
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-24-cg15-ip0-iso40",
+      "file": "bench-specs/mixer/bmx-24-cg15-ip0-iso40.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": 15,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 40,
+        "lo_if_iso_db": 35
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-24-cg15-ip5-iso40",
+      "file": "bench-specs/mixer/bmx-24-cg15-ip5-iso40.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": 15,
+        "iip3_dbm": 5,
+        "lo_rf_iso_db": 40,
+        "lo_if_iso_db": 35
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-24-cg15-ip10-iso40",
+      "file": "bench-specs/mixer/bmx-24-cg15-ip10-iso40.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": 15,
+        "iip3_dbm": 10,
+        "lo_rf_iso_db": 40,
+        "lo_if_iso_db": 35
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-24-cg9-ip0-iso25-iso",
+      "file": "bench-specs/mixer/bmx-24-cg9-ip0-iso25-iso.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": 9,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 25,
+        "lo_if_iso_db": 20
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-24-cg9-ip0-iso35-iso",
+      "file": "bench-specs/mixer/bmx-24-cg9-ip0-iso35-iso.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": 9,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 35,
+        "lo_if_iso_db": 30
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-24-cg9-ip0-iso40-iso",
+      "file": "bench-specs/mixer/bmx-24-cg9-ip0-iso40-iso.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": 9,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 40,
+        "lo_if_iso_db": 35
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-24-cg9-ip0-iso45-iso",
+      "file": "bench-specs/mixer/bmx-24-cg9-ip0-iso45-iso.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": 9,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 45,
+        "lo_if_iso_db": 40
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cg6-ipn5-iso20",
+      "file": "bench-specs/mixer/bmx-09-cg6-ipn5-iso20.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": 6,
+        "iip3_dbm": -5,
+        "lo_rf_iso_db": 20,
+        "lo_if_iso_db": 15
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cg6-ip0-iso20",
+      "file": "bench-specs/mixer/bmx-09-cg6-ip0-iso20.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": 6,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 20,
+        "lo_if_iso_db": 15
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cg6-ip5-iso30",
+      "file": "bench-specs/mixer/bmx-09-cg6-ip5-iso30.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": 6,
+        "iip3_dbm": 5,
+        "lo_rf_iso_db": 30,
+        "lo_if_iso_db": 25
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cg6-ip10-iso30",
+      "file": "bench-specs/mixer/bmx-09-cg6-ip10-iso30.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": 6,
+        "iip3_dbm": 10,
+        "lo_rf_iso_db": 30,
+        "lo_if_iso_db": 25
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cg9-ipn5-iso20",
+      "file": "bench-specs/mixer/bmx-09-cg9-ipn5-iso20.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": 9,
+        "iip3_dbm": -5,
+        "lo_rf_iso_db": 20,
+        "lo_if_iso_db": 15
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cg9-ip0-iso30",
+      "file": "bench-specs/mixer/bmx-09-cg9-ip0-iso30.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": 9,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 30,
+        "lo_if_iso_db": 25
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cg9-ip5-iso30",
+      "file": "bench-specs/mixer/bmx-09-cg9-ip5-iso30.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": 9,
+        "iip3_dbm": 5,
+        "lo_rf_iso_db": 30,
+        "lo_if_iso_db": 25
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cg9-ip10-iso40",
+      "file": "bench-specs/mixer/bmx-09-cg9-ip10-iso40.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": 9,
+        "iip3_dbm": 10,
+        "lo_rf_iso_db": 40,
+        "lo_if_iso_db": 35
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cg12-ipn5-iso30",
+      "file": "bench-specs/mixer/bmx-09-cg12-ipn5-iso30.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": 12,
+        "iip3_dbm": -5,
+        "lo_rf_iso_db": 30,
+        "lo_if_iso_db": 25
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cg12-ip0-iso30",
+      "file": "bench-specs/mixer/bmx-09-cg12-ip0-iso30.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": 12,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 30,
+        "lo_if_iso_db": 25
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cg12-ip5-iso40",
+      "file": "bench-specs/mixer/bmx-09-cg12-ip5-iso40.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": 12,
+        "iip3_dbm": 5,
+        "lo_rf_iso_db": 40,
+        "lo_if_iso_db": 35
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cg12-ip10-iso40",
+      "file": "bench-specs/mixer/bmx-09-cg12-ip10-iso40.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": 12,
+        "iip3_dbm": 10,
+        "lo_rf_iso_db": 40,
+        "lo_if_iso_db": 35
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cg15-ipn5-iso30",
+      "file": "bench-specs/mixer/bmx-09-cg15-ipn5-iso30.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": 15,
+        "iip3_dbm": -5,
+        "lo_rf_iso_db": 30,
+        "lo_if_iso_db": 25
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cg15-ip0-iso40",
+      "file": "bench-specs/mixer/bmx-09-cg15-ip0-iso40.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": 15,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 40,
+        "lo_if_iso_db": 35
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cg15-ip5-iso40",
+      "file": "bench-specs/mixer/bmx-09-cg15-ip5-iso40.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": 15,
+        "iip3_dbm": 5,
+        "lo_rf_iso_db": 40,
+        "lo_if_iso_db": 35
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cg15-ip10-iso40",
+      "file": "bench-specs/mixer/bmx-09-cg15-ip10-iso40.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": 15,
+        "iip3_dbm": 10,
+        "lo_rf_iso_db": 40,
+        "lo_if_iso_db": 35
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cg9-ip0-iso25-iso",
+      "file": "bench-specs/mixer/bmx-09-cg9-ip0-iso25-iso.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": 9,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 25,
+        "lo_if_iso_db": 20
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cg9-ip0-iso35-iso",
+      "file": "bench-specs/mixer/bmx-09-cg9-ip0-iso35-iso.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": 9,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 35,
+        "lo_if_iso_db": 30
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cg9-ip0-iso40-iso",
+      "file": "bench-specs/mixer/bmx-09-cg9-ip0-iso40-iso.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": 9,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 40,
+        "lo_if_iso_db": 35
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cg9-ip0-iso45-iso",
+      "file": "bench-specs/mixer/bmx-09-cg9-ip0-iso45-iso.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": 9,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 45,
+        "lo_if_iso_db": 40
+      },
+      "objective_gap": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm not computed in make_objective (mixer_harness not wired in); NO mixer metric is gated in-loop"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-24-g12-c20-a05",
+      "file": "bench-specs/balun/bbl-24-g12-c20-a05.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "sds21_db": 12,
+        "cmrr_db": 20,
+        "imbalance_amp_db": 0.5,
+        "imbalance_phase_deg": 2.0
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-24-g12-c30-a03",
+      "file": "bench-specs/balun/bbl-24-g12-c30-a03.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "sds21_db": 12,
+        "cmrr_db": 30,
+        "imbalance_amp_db": 0.3,
+        "imbalance_phase_deg": 1.0
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-24-g12-c40-a015",
+      "file": "bench-specs/balun/bbl-24-g12-c40-a015.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "sds21_db": 12,
+        "cmrr_db": 40,
+        "imbalance_amp_db": 0.15,
+        "imbalance_phase_deg": 0.5
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-24-g15-c20-a05",
+      "file": "bench-specs/balun/bbl-24-g15-c20-a05.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "sds21_db": 15,
+        "cmrr_db": 20,
+        "imbalance_amp_db": 0.5,
+        "imbalance_phase_deg": 2.0
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-24-g15-c30-a03",
+      "file": "bench-specs/balun/bbl-24-g15-c30-a03.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "sds21_db": 15,
+        "cmrr_db": 30,
+        "imbalance_amp_db": 0.3,
+        "imbalance_phase_deg": 1.0
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-24-g15-c40-a015",
+      "file": "bench-specs/balun/bbl-24-g15-c40-a015.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "sds21_db": 15,
+        "cmrr_db": 40,
+        "imbalance_amp_db": 0.15,
+        "imbalance_phase_deg": 0.5
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-24-g18-c20-a05",
+      "file": "bench-specs/balun/bbl-24-g18-c20-a05.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "sds21_db": 18,
+        "cmrr_db": 20,
+        "imbalance_amp_db": 0.5,
+        "imbalance_phase_deg": 2.0
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-24-g18-c30-a03",
+      "file": "bench-specs/balun/bbl-24-g18-c30-a03.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "sds21_db": 18,
+        "cmrr_db": 30,
+        "imbalance_amp_db": 0.3,
+        "imbalance_phase_deg": 1.0
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-24-g18-c40-a015",
+      "file": "bench-specs/balun/bbl-24-g18-c40-a015.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "sds21_db": 18,
+        "cmrr_db": 40,
+        "imbalance_amp_db": 0.15,
+        "imbalance_phase_deg": 0.5
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-24-g15-c30-a04-imb",
+      "file": "bench-specs/balun/bbl-24-g15-c30-a04-imb.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "sds21_db": 15,
+        "cmrr_db": 30,
+        "imbalance_amp_db": 0.4,
+        "imbalance_phase_deg": 1.5
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-24-g15-c30-a025-imb",
+      "file": "bench-specs/balun/bbl-24-g15-c30-a025-imb.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "sds21_db": 15,
+        "cmrr_db": 30,
+        "imbalance_amp_db": 0.25,
+        "imbalance_phase_deg": 0.8
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-24-g15-c30-a015-imb",
+      "file": "bench-specs/balun/bbl-24-g15-c30-a015-imb.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "sds21_db": 15,
+        "cmrr_db": 30,
+        "imbalance_amp_db": 0.15,
+        "imbalance_phase_deg": 0.5
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-24-g15-c30-a01-imb",
+      "file": "bench-specs/balun/bbl-24-g15-c30-a01-imb.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "sds21_db": 15,
+        "cmrr_db": 30,
+        "imbalance_amp_db": 0.1,
+        "imbalance_phase_deg": 0.3
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-09-g12-c20-a05",
+      "file": "bench-specs/balun/bbl-09-g12-c20-a05.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "sds21_db": 12,
+        "cmrr_db": 20,
+        "imbalance_amp_db": 0.5,
+        "imbalance_phase_deg": 2.0
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-09-g12-c30-a03",
+      "file": "bench-specs/balun/bbl-09-g12-c30-a03.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "sds21_db": 12,
+        "cmrr_db": 30,
+        "imbalance_amp_db": 0.3,
+        "imbalance_phase_deg": 1.0
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-09-g12-c40-a015",
+      "file": "bench-specs/balun/bbl-09-g12-c40-a015.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "sds21_db": 12,
+        "cmrr_db": 40,
+        "imbalance_amp_db": 0.15,
+        "imbalance_phase_deg": 0.5
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-09-g15-c20-a05",
+      "file": "bench-specs/balun/bbl-09-g15-c20-a05.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "sds21_db": 15,
+        "cmrr_db": 20,
+        "imbalance_amp_db": 0.5,
+        "imbalance_phase_deg": 2.0
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-09-g15-c30-a03",
+      "file": "bench-specs/balun/bbl-09-g15-c30-a03.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "sds21_db": 15,
+        "cmrr_db": 30,
+        "imbalance_amp_db": 0.3,
+        "imbalance_phase_deg": 1.0
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-09-g15-c40-a015",
+      "file": "bench-specs/balun/bbl-09-g15-c40-a015.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "sds21_db": 15,
+        "cmrr_db": 40,
+        "imbalance_amp_db": 0.15,
+        "imbalance_phase_deg": 0.5
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-09-g18-c20-a05",
+      "file": "bench-specs/balun/bbl-09-g18-c20-a05.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "sds21_db": 18,
+        "cmrr_db": 20,
+        "imbalance_amp_db": 0.5,
+        "imbalance_phase_deg": 2.0
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-09-g18-c30-a03",
+      "file": "bench-specs/balun/bbl-09-g18-c30-a03.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "sds21_db": 18,
+        "cmrr_db": 30,
+        "imbalance_amp_db": 0.3,
+        "imbalance_phase_deg": 1.0
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-09-g18-c40-a015",
+      "file": "bench-specs/balun/bbl-09-g18-c40-a015.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "sds21_db": 18,
+        "cmrr_db": 40,
+        "imbalance_amp_db": 0.15,
+        "imbalance_phase_deg": 0.5
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-09-g15-c30-a04-imb",
+      "file": "bench-specs/balun/bbl-09-g15-c30-a04-imb.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "sds21_db": 15,
+        "cmrr_db": 30,
+        "imbalance_amp_db": 0.4,
+        "imbalance_phase_deg": 1.5
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-09-g15-c30-a025-imb",
+      "file": "bench-specs/balun/bbl-09-g15-c30-a025-imb.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "sds21_db": 15,
+        "cmrr_db": 30,
+        "imbalance_amp_db": 0.25,
+        "imbalance_phase_deg": 0.8
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-09-g15-c30-a015-imb",
+      "file": "bench-specs/balun/bbl-09-g15-c30-a015-imb.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "sds21_db": 15,
+        "cmrr_db": 30,
+        "imbalance_amp_db": 0.15,
+        "imbalance_phase_deg": 0.5
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-09-g15-c30-a01-imb",
+      "file": "bench-specs/balun/bbl-09-g15-c30-a01-imb.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "sds21_db": 15,
+        "cmrr_db": 30,
+        "imbalance_amp_db": 0.1,
+        "imbalance_phase_deg": 0.3
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-24-g18-c40-a015-x",
+      "file": "bench-specs/balun/bbl-24-g18-c40-a015-x.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "sds21_db": 18,
+        "cmrr_db": 40,
+        "imbalance_amp_db": 0.15,
+        "imbalance_phase_deg": 0.5
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-09-g18-c40-a015-x",
+      "file": "bench-specs/balun/bbl-09-g18-c40-a015-x.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "sds21_db": 18,
+        "cmrr_db": 40,
+        "imbalance_amp_db": 0.15,
+        "imbalance_phase_deg": 0.5
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-24-g12-c25-a05-x",
+      "file": "bench-specs/balun/bbl-24-g12-c25-a05-x.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "sds21_db": 12,
+        "cmrr_db": 25,
+        "imbalance_amp_db": 0.5,
+        "imbalance_phase_deg": 2.0
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-09-g12-c25-a05-x",
+      "file": "bench-specs/balun/bbl-09-g12-c25-a05-x.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "sds21_db": 12,
+        "cmrr_db": 25,
+        "imbalance_amp_db": 0.5,
+        "imbalance_phase_deg": 2.0
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-24-g15-c35-a02-x",
+      "file": "bench-specs/balun/bbl-24-g15-c35-a02-x.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "sds21_db": 15,
+        "cmrr_db": 35,
+        "imbalance_amp_db": 0.2,
+        "imbalance_phase_deg": 0.7
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-09-g15-c35-a02-x",
+      "file": "bench-specs/balun/bbl-09-g15-c35-a02-x.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "sds21_db": 15,
+        "cmrr_db": 35,
+        "imbalance_amp_db": 0.2,
+        "imbalance_phase_deg": 0.7
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-24-g16-c38-a018-x",
+      "file": "bench-specs/balun/bbl-24-g16-c38-a018-x.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "sds21_db": 16,
+        "cmrr_db": 38,
+        "imbalance_amp_db": 0.18,
+        "imbalance_phase_deg": 0.6
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-09-g16-c38-a018-x",
+      "file": "bench-specs/balun/bbl-09-g16-c38-a018-x.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "sds21_db": 16,
+        "cmrr_db": 38,
+        "imbalance_amp_db": 0.18,
+        "imbalance_phase_deg": 0.6
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    },
+    {
+      "circuit_class": "balun-lna",
+      "name": "bbl-24-g14-c33-a022-x",
+      "file": "bench-specs/balun/bbl-24-g14-c33-a022-x.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "sds21_db": 14,
+        "cmrr_db": 33,
+        "imbalance_amp_db": 0.22,
+        "imbalance_phase_deg": 0.9
+      },
+      "objective_gap": "sds21_db/cmrr_db/imbalance_amp_db/imbalance_phase_deg not computed in make_objective (balun_harness not wired in); nf_db/s11_db/idd_ma ARE gated in-loop (PARTIAL)"
+    }
+  ]
+}

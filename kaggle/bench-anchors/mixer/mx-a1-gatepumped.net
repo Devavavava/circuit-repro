@@ -1,0 +1,22 @@
+* mx-a1-gatepumped: single-FET gate-pumped square-law active mixer.
+* Lineage: classic single-device active mixer (RF and LO summed at one gate,
+* square-law device mixing). Bench-v1 anchor, simplest baseline.
+* Structure-only, ZERO component values.
+* Harness convention: RF input = VIN1 (portnum 1), IF output = VOUT1
+* (portnum 2), LO net = VLO (harness-injected large-signal SIN drive, size.py
+* _mixer_lo_node). Structure: single CS NM1; RF reaches the gate via input
+* match L1 + DC-block C1 from VIN1; the LO reaches the SAME gate via coupling
+* cap Clo from VLO (so RF and LO sum at the gate -> square-law product); IF
+* taken at the drain through DC-block C2 to VOUT1; resistive drain load R3 to
+* VDD. Published in-topology BIAS NETWORK: current-mirror reference
+* (R1 -> diode NM2) sets the gate DC through feed resistor R2.
+* Approved 2026-09-14 (bench round 1, "approve all").
+C C1 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C Clo VLO n1
+R R3 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM2 n3 n3 VSS VSS
+R R2 n3 n1

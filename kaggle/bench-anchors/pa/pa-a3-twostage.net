@@ -1,0 +1,27 @@
+* pa-a3-twostage: two-stage driver + PA cascade with tuned interstage.
+* Lineage: textbook two-stage (driver + output stage) linear PA with an
+* inter-stage matching network (Cripps / standard multistage PA lineage).
+* Bench-v1 anchor for the higher-gain / higher-Pout tiers. Structure-only,
+* ZERO component values.
+* Structure: driver CS NM1 (RF choke L1 to VDD); tuned interstage match
+* (series L2 + DC-block C2 + shunt-C C3) into the PA-stage CS NM2 gate; PA
+* CS NM2 (RF choke L3 to VDD); output L-match (series L4 + shunt-C C5) to a
+* DC-blocked VOUT1 (C6). Input DC-blocked (C1). Published in-topology BIAS
+* NETWORK: one current-mirror reference (R1 -> diode NM3) biases BOTH gates
+* through series feed resistors (R2 -> NM1 gate, R3 -> NM2 gate).
+* Approved 2026-09-14 (bench round 1, "approve all").
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+L L2 n2 n3
+C C2 n3 n4
+C C3 n4 VSS
+NMOS NM2 n5 n4 VSS VSS
+L L3 VDD n5
+L L4 n5 n6
+C C5 n6 VSS
+C C6 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n4

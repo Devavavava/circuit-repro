@@ -1,0 +1,809 @@
+{
+ "prepared": "2026-09-15 16:11",
+ "pdk": "gf180mcu",
+ "smoke": {
+  "seed": 1,
+  "budget_default": 40,
+  "budget_by_class": {
+   "pa": 240,
+   "mixer": 160,
+   "balun": 160
+  },
+  "winner": "endpoint ungated re-eval (make_objective evaluate)",
+  "idd_fence_ma": 0.05,
+  "s21_fence_db": -30.0,
+  "fence_reads": "best-over-run idd/s21/sds21; winner conv"
+ },
+ "dropped": {
+  "mx-a3-singlebalanced": "single-balanced Gilbert-style mixer produces a DIFFERENTIAL IF (two drain outputs), but lna/mixer_harness.measure_conv_gain reads the IF at ONE single-ended node (portnum 2 = VOUT1) and the harness injects only ONE single-ended LO drive on ONE net (VLO). The published switching-pair form needs a differential IF read + anti-phase LO; the harness supports neither. Per the approval (pre-authorized to drop on convention mismatch, never adapt beyond the published form), mx-a3 is DROPPED."
+ },
+ "classes": {
+  "lna": {
+   "spec": "kaggle/bench-specs/lna/bnl-09-gain-g0.yaml",
+   "circuit_class": "lna",
+   "tokenizer_ports": [
+    "VDD",
+    "VSS",
+    "VIN1",
+    "VOUT1"
+   ],
+   "families": {
+    "lna-a1-inddegen-cascode": {
+     "net_file": "kaggle/bench-anchors/lna/lna-a1-inddegen-cascode.net",
+     "gates": {
+      "parse": true,
+      "round_trip": true,
+      "topology_valid": true,
+      "structural_screen": {
+       "passed": true,
+       "criteria": {
+        "has_transistor": true,
+        "device_budget": true,
+        "has_ports": true,
+        "single_input": true,
+        "not_floating": true,
+        "has_inductor": true,
+        "max_inductors": true
+       }
+      },
+      "smoke": {
+       "budget": 40,
+       "winner_reeval_ungated": true,
+       "feasible": false,
+       "n_evals": 40,
+       "n_sim_fail": 0,
+       "sim_error": null,
+       "winner": {
+        "idd_ma": 5.102,
+        "s21_db": -3.5095,
+        "conv_gain_db": null,
+        "sds21_db": null
+       },
+       "best_over_run": {
+        "idd_ma": 23.8342,
+        "s21_db": -3.5306,
+        "conv_gain_db": null,
+        "sds21_db": null
+       },
+       "fence_checks": {
+        "conducts_idd": true,
+        "s21_above_fence": true
+       },
+       "binding": [
+        "conducts_idd",
+        "s21_above_fence"
+       ],
+       "passed": true
+      }
+     },
+     "n_devices": 10,
+     "n_inductors": 3,
+     "nets": [
+      "VDD",
+      "VIN1",
+      "VOUT1",
+      "VSS"
+     ],
+     "wl_hash": "dcda50191d7c5e73",
+     "novel_vs_ref_v3": true,
+     "tokens_file": "kaggle/bench-anchors/lna/lna-a1-inddegen-cascode.tokens.json",
+     "n_tokens": 103
+    },
+    "lna-a2-current-reuse": {
+     "net_file": "kaggle/bench-anchors/lna/lna-a2-current-reuse.net",
+     "gates": {
+      "parse": true,
+      "round_trip": true,
+      "topology_valid": true,
+      "structural_screen": {
+       "passed": true,
+       "criteria": {
+        "has_transistor": true,
+        "device_budget": true,
+        "has_ports": true,
+        "single_input": true,
+        "not_floating": true,
+        "has_inductor": true,
+        "max_inductors": true
+       }
+      },
+      "smoke": {
+       "budget": 40,
+       "winner_reeval_ungated": true,
+       "feasible": false,
+       "n_evals": 40,
+       "n_sim_fail": 0,
+       "sim_error": null,
+       "winner": {
+        "idd_ma": 7.7111,
+        "s21_db": -1.1151,
+        "conv_gain_db": null,
+        "sds21_db": null
+       },
+       "best_over_run": {
+        "idd_ma": 20.5569,
+        "s21_db": -0.8656,
+        "conv_gain_db": null,
+        "sds21_db": null
+       },
+       "fence_checks": {
+        "conducts_idd": true,
+        "s21_above_fence": true
+       },
+       "binding": [
+        "conducts_idd",
+        "s21_above_fence"
+       ],
+       "passed": true
+      }
+     },
+     "n_devices": 14,
+     "n_inductors": 2,
+     "nets": [
+      "VDD",
+      "VIN1",
+      "VOUT1",
+      "VSS"
+     ],
+     "wl_hash": "226544590d47717b",
+     "novel_vs_ref_v3": true,
+     "tokens_file": "kaggle/bench-anchors/lna/lna-a2-current-reuse.tokens.json",
+     "n_tokens": 157
+    },
+    "lna-a3-shunt-feedback": {
+     "net_file": "kaggle/bench-anchors/lna/lna-a3-shunt-feedback.net",
+     "gates": {
+      "parse": true,
+      "round_trip": true,
+      "topology_valid": true,
+      "structural_screen": {
+       "passed": true,
+       "criteria": {
+        "has_transistor": true,
+        "device_budget": true,
+        "has_ports": true,
+        "single_input": true,
+        "not_floating": true,
+        "has_inductor": true,
+        "max_inductors": true
+       }
+      },
+      "smoke": {
+       "budget": 40,
+       "winner_reeval_ungated": true,
+       "feasible": false,
+       "n_evals": 40,
+       "n_sim_fail": 0,
+       "sim_error": null,
+       "winner": {
+        "idd_ma": 6.6509,
+        "s21_db": 2.4225,
+        "conv_gain_db": null,
+        "sds21_db": null
+       },
+       "best_over_run": {
+        "idd_ma": 24.1617,
+        "s21_db": 2.4163,
+        "conv_gain_db": null,
+        "sds21_db": null
+       },
+       "fence_checks": {
+        "conducts_idd": true,
+        "s21_above_fence": true
+       },
+       "binding": [
+        "conducts_idd",
+        "s21_above_fence"
+       ],
+       "passed": true
+      }
+     },
+     "n_devices": 6,
+     "n_inductors": 1,
+     "nets": [
+      "VDD",
+      "VIN1",
+      "VOUT1",
+      "VSS"
+     ],
+     "wl_hash": "a6122feb26e8d4dc",
+     "novel_vs_ref_v3": true,
+     "tokens_file": "kaggle/bench-anchors/lna/lna-a3-shunt-feedback.tokens.json",
+     "n_tokens": 59
+    },
+    "lna-a4-twostage": {
+     "net_file": "kaggle/bench-anchors/lna/lna-a4-twostage.net",
+     "gates": {
+      "parse": true,
+      "round_trip": true,
+      "topology_valid": true,
+      "structural_screen": {
+       "passed": true,
+       "criteria": {
+        "has_transistor": true,
+        "device_budget": true,
+        "has_ports": true,
+        "single_input": true,
+        "not_floating": true,
+        "has_inductor": true,
+        "max_inductors": true
+       }
+      },
+      "smoke": {
+       "budget": 40,
+       "winner_reeval_ungated": true,
+       "feasible": false,
+       "n_evals": 40,
+       "n_sim_fail": 0,
+       "sim_error": null,
+       "winner": {
+        "idd_ma": 71.7832,
+        "s21_db": -4.3864,
+        "conv_gain_db": null,
+        "sds21_db": null
+       },
+       "best_over_run": {
+        "idd_ma": 99.2218,
+        "s21_db": -4.3875,
+        "conv_gain_db": null,
+        "sds21_db": null
+       },
+       "fence_checks": {
+        "conducts_idd": true,
+        "s21_above_fence": true
+       },
+       "binding": [
+        "conducts_idd",
+        "s21_above_fence"
+       ],
+       "passed": true
+      }
+     },
+     "n_devices": 12,
+     "n_inductors": 3,
+     "nets": [
+      "VDD",
+      "VIN1",
+      "VOUT1",
+      "VSS"
+     ],
+     "wl_hash": "5eb6e6920c5b64ef",
+     "novel_vs_ref_v3": true,
+     "tokens_file": "kaggle/bench-anchors/lna/lna-a4-twostage.tokens.json",
+     "n_tokens": 129
+    },
+    "lna-a5-commongate": {
+     "net_file": "kaggle/bench-anchors/lna/lna-a5-commongate.net",
+     "gates": {
+      "parse": true,
+      "round_trip": true,
+      "topology_valid": true,
+      "structural_screen": {
+       "passed": true,
+       "criteria": {
+        "has_transistor": true,
+        "device_budget": true,
+        "has_ports": true,
+        "single_input": true,
+        "not_floating": true,
+        "has_inductor": true,
+        "max_inductors": true
+       }
+      },
+      "smoke": {
+       "budget": 40,
+       "winner_reeval_ungated": true,
+       "feasible": false,
+       "n_evals": 40,
+       "n_sim_fail": 0,
+       "sim_error": null,
+       "winner": {
+        "idd_ma": 7.7527,
+        "s21_db": -12.589,
+        "conv_gain_db": null,
+        "sds21_db": null
+       },
+       "best_over_run": {
+        "idd_ma": 29.4078,
+        "s21_db": -12.5843,
+        "conv_gain_db": null,
+        "sds21_db": null
+       },
+       "fence_checks": {
+        "conducts_idd": true,
+        "s21_above_fence": true
+       },
+       "binding": [
+        "conducts_idd",
+        "s21_above_fence"
+       ],
+       "passed": true
+      }
+     },
+     "n_devices": 9,
+     "n_inductors": 2,
+     "nets": [
+      "VDD",
+      "VIN1",
+      "VOUT1",
+      "VSS"
+     ],
+     "wl_hash": "b30737f426d46af6",
+     "novel_vs_ref_v3": true,
+     "tokens_file": "kaggle/bench-anchors/lna/lna-a5-commongate.tokens.json",
+     "n_tokens": 93
+    }
+   }
+  },
+  "balun": {
+   "spec": "kaggle/bench-specs/balun/bbl-09-g12-c20-a05.yaml",
+   "circuit_class": "balun-lna",
+   "tokenizer_ports": [
+    "VDD",
+    "VSS",
+    "VIN1",
+    "VOUT1",
+    "VOUT2"
+   ],
+   "families": {
+    "bl-a1-noisecancel": {
+     "net_file": "kaggle/bench-anchors/balun/bl-a1-noisecancel.net",
+     "gates": {
+      "parse": true,
+      "round_trip": true,
+      "topology_valid": true,
+      "out2_net_VOUT2_present": true,
+      "structural_screen": {
+       "passed": true,
+       "criteria": {
+        "has_transistor": true,
+        "device_budget": true,
+        "has_ports": true,
+        "single_input": true,
+        "not_floating": true,
+        "has_inductor": true,
+        "max_inductors": true
+       }
+      },
+      "smoke": {
+       "budget": 160,
+       "winner_reeval_ungated": true,
+       "feasible": false,
+       "n_evals": 160,
+       "n_sim_fail": 0,
+       "sim_error": null,
+       "winner": {
+        "idd_ma": 1.2724,
+        "s21_db": -53.8445,
+        "conv_gain_db": null,
+        "sds21_db": -51.0393
+       },
+       "best_over_run": {
+        "idd_ma": 35.5717,
+        "s21_db": -18.8048,
+        "conv_gain_db": null,
+        "sds21_db": -8.0758
+       },
+       "fence_checks": {
+        "conducts_idd": true,
+        "sds21_measured": true,
+        "sds21_above_fence": true
+       },
+       "binding": [
+        "conducts_idd",
+        "sds21_above_fence"
+       ],
+       "passed": true
+      }
+     },
+     "n_devices": 14,
+     "n_inductors": 2,
+     "nets": [
+      "VDD",
+      "VIN1",
+      "VOUT1",
+      "VOUT2",
+      "VSS"
+     ],
+     "wl_hash": "34ff74b9276a440d",
+     "novel_vs_ref_v3": true,
+     "tokens_file": "kaggle/bench-anchors/balun/bl-a1-noisecancel.tokens.json",
+     "n_tokens": 167
+    },
+    "bl-a2-cs-cg-split": {
+     "net_file": "kaggle/bench-anchors/balun/bl-a2-cs-cg-split.net",
+     "gates": {
+      "parse": true,
+      "round_trip": true,
+      "topology_valid": true,
+      "out2_net_VOUT2_present": true,
+      "structural_screen": {
+       "passed": true,
+       "criteria": {
+        "has_transistor": true,
+        "device_budget": true,
+        "has_ports": true,
+        "single_input": true,
+        "not_floating": true,
+        "has_inductor": true,
+        "max_inductors": true
+       }
+      },
+      "smoke": {
+       "budget": 160,
+       "winner_reeval_ungated": true,
+       "feasible": false,
+       "n_evals": 160,
+       "n_sim_fail": 0,
+       "sim_error": null,
+       "winner": {
+        "idd_ma": 0.2593,
+        "s21_db": -120.634,
+        "conv_gain_db": null,
+        "sds21_db": -119.872
+       },
+       "best_over_run": {
+        "idd_ma": 30.4822,
+        "s21_db": -33.8771,
+        "conv_gain_db": null,
+        "sds21_db": -16.5721
+       },
+       "fence_checks": {
+        "conducts_idd": true,
+        "sds21_measured": true,
+        "sds21_above_fence": true
+       },
+       "binding": [
+        "conducts_idd",
+        "sds21_above_fence"
+       ],
+       "passed": true
+      }
+     },
+     "n_devices": 13,
+     "n_inductors": 2,
+     "nets": [
+      "VDD",
+      "VIN1",
+      "VOUT1",
+      "VOUT2",
+      "VSS"
+     ],
+     "wl_hash": "d3e3ea05749f6c3a",
+     "novel_vs_ref_v3": true,
+     "tokens_file": "kaggle/bench-anchors/balun/bl-a2-cs-cg-split.tokens.json",
+     "n_tokens": 149
+    }
+   }
+  },
+  "pa": {
+   "spec": "kaggle/bench-specs/pa/bpa-09-p5-e25-i5.yaml",
+   "circuit_class": "pa",
+   "tokenizer_ports": [
+    "VDD",
+    "VSS",
+    "VIN1",
+    "VOUT1"
+   ],
+   "families": {
+    "pa-a1-classA-cs": {
+     "net_file": "kaggle/bench-anchors/pa/pa-a1-classA-cs.net",
+     "gates": {
+      "parse": true,
+      "round_trip": true,
+      "topology_valid": true,
+      "structural_screen": {
+       "passed": true,
+       "criteria": {
+        "has_transistor": true,
+        "device_budget": true,
+        "has_ports": true,
+        "not_floating": true,
+        "match_plausible": true
+       }
+      },
+      "smoke": {
+       "budget": 240,
+       "winner_reeval_ungated": true,
+       "feasible": false,
+       "n_evals": 240,
+       "n_sim_fail": 0,
+       "sim_error": null,
+       "winner": {
+        "idd_ma": 38.5634,
+        "s21_db": 6.9111,
+        "conv_gain_db": null,
+        "sds21_db": null
+       },
+       "best_over_run": {
+        "idd_ma": 50.5406,
+        "s21_db": 6.9123,
+        "conv_gain_db": null,
+        "sds21_db": null
+       },
+       "fence_checks": {
+        "conducts_idd": true,
+        "s21_above_fence": true
+       },
+       "binding": [
+        "conducts_idd",
+        "s21_above_fence"
+       ],
+       "passed": true
+      }
+     },
+     "n_devices": 9,
+     "n_inductors": 2,
+     "nets": [
+      "VDD",
+      "VIN1",
+      "VOUT1",
+      "VSS"
+     ],
+     "wl_hash": "cc74537d982cec5f",
+     "novel_vs_ref_v3": true,
+     "tokens_file": "kaggle/bench-anchors/pa/pa-a1-classA-cs.tokens.json",
+     "n_tokens": 93
+    },
+    "pa-a2-cascode": {
+     "net_file": "kaggle/bench-anchors/pa/pa-a2-cascode.net",
+     "gates": {
+      "parse": true,
+      "round_trip": true,
+      "topology_valid": true,
+      "structural_screen": {
+       "passed": true,
+       "criteria": {
+        "has_transistor": true,
+        "device_budget": true,
+        "has_ports": true,
+        "not_floating": true,
+        "match_plausible": true
+       }
+      },
+      "smoke": {
+       "budget": 240,
+       "winner_reeval_ungated": true,
+       "feasible": false,
+       "n_evals": 240,
+       "n_sim_fail": 0,
+       "sim_error": null,
+       "winner": {
+        "idd_ma": 32.8472,
+        "s21_db": 1.2057,
+        "conv_gain_db": null,
+        "sds21_db": null
+       },
+       "best_over_run": {
+        "idd_ma": 46.9688,
+        "s21_db": 4.7598,
+        "conv_gain_db": null,
+        "sds21_db": null
+       },
+       "fence_checks": {
+        "conducts_idd": true,
+        "s21_above_fence": true
+       },
+       "binding": [
+        "conducts_idd",
+        "s21_above_fence"
+       ],
+       "passed": true
+      }
+     },
+     "n_devices": 13,
+     "n_inductors": 2,
+     "nets": [
+      "VDD",
+      "VIN1",
+      "VOUT1",
+      "VSS"
+     ],
+     "wl_hash": "66f430134a2c4a5b",
+     "novel_vs_ref_v3": true,
+     "tokens_file": "kaggle/bench-anchors/pa/pa-a2-cascode.tokens.json",
+     "n_tokens": 135
+    },
+    "pa-a3-twostage": {
+     "net_file": "kaggle/bench-anchors/pa/pa-a3-twostage.net",
+     "gates": {
+      "parse": true,
+      "round_trip": true,
+      "topology_valid": true,
+      "structural_screen": {
+       "passed": true,
+       "criteria": {
+        "has_transistor": true,
+        "device_budget": true,
+        "has_ports": true,
+        "not_floating": true,
+        "match_plausible": true
+       }
+      },
+      "smoke": {
+       "budget": 240,
+       "winner_reeval_ungated": true,
+       "feasible": false,
+       "n_evals": 240,
+       "n_sim_fail": 0,
+       "sim_error": null,
+       "winner": {
+        "idd_ma": 30.3607,
+        "s21_db": 10.4027,
+        "conv_gain_db": null,
+        "sds21_db": null
+       },
+       "best_over_run": {
+        "idd_ma": 99.3365,
+        "s21_db": 10.4017,
+        "conv_gain_db": null,
+        "sds21_db": null
+       },
+       "fence_checks": {
+        "conducts_idd": true,
+        "s21_above_fence": true
+       },
+       "binding": [
+        "conducts_idd",
+        "s21_above_fence"
+       ],
+       "passed": true
+      }
+     },
+     "n_devices": 15,
+     "n_inductors": 4,
+     "nets": [
+      "VDD",
+      "VIN1",
+      "VOUT1",
+      "VSS"
+     ],
+     "wl_hash": "2c91131d12da532f",
+     "novel_vs_ref_v3": true,
+     "tokens_file": "kaggle/bench-anchors/pa/pa-a3-twostage.tokens.json",
+     "n_tokens": 157
+    }
+   }
+  },
+  "mixer": {
+   "spec": "kaggle/bench-specs/mixer/bmx-09-cg12-ip0-iso30.yaml",
+   "circuit_class": "mixer",
+   "tokenizer_ports": [
+    "VDD",
+    "VSS",
+    "VIN1",
+    "VOUT1",
+    "VLO"
+   ],
+   "families": {
+    "mx-a1-gatepumped": {
+     "net_file": "kaggle/bench-anchors/mixer/mx-a1-gatepumped.net",
+     "gates": {
+      "parse": true,
+      "round_trip": true,
+      "topology_valid": true,
+      "lo_net_VLO_present": true,
+      "structural_screen": {
+       "passed": true,
+       "criteria": {
+        "has_transistor": true,
+        "device_budget": true,
+        "has_ports": true,
+        "not_floating": true,
+        "match_plausible": true
+       }
+      },
+      "smoke": {
+       "budget": 160,
+       "winner_reeval_ungated": true,
+       "feasible": false,
+       "n_evals": 160,
+       "n_sim_fail": 0,
+       "sim_error": null,
+       "winner": {
+        "idd_ma": 5.173,
+        "s21_db": -88.9548,
+        "conv_gain_db": -108.994,
+        "sds21_db": null
+       },
+       "best_over_run": {
+        "idd_ma": 24.4713,
+        "s21_db": -32.0489,
+        "conv_gain_db": -38.0649,
+        "sds21_db": null
+       },
+       "fence_checks": {
+        "conducts_idd": true,
+        "conv_gain_measured": true
+       },
+       "binding": [
+        "conducts_idd",
+        "conv_gain_measured"
+       ],
+       "passed": true
+      }
+     },
+     "n_devices": 9,
+     "n_inductors": 1,
+     "nets": [
+      "VDD",
+      "VIN1",
+      "VLO",
+      "VOUT1",
+      "VSS"
+     ],
+     "wl_hash": "32f961bc4904eceb",
+     "novel_vs_ref_v3": true,
+     "tokens_file": "kaggle/bench-anchors/mixer/mx-a1-gatepumped.tokens.json",
+     "n_tokens": 95
+    },
+    "mx-a2-dualgate": {
+     "net_file": "kaggle/bench-anchors/mixer/mx-a2-dualgate.net",
+     "gates": {
+      "parse": true,
+      "round_trip": true,
+      "topology_valid": true,
+      "lo_net_VLO_present": true,
+      "structural_screen": {
+       "passed": true,
+       "criteria": {
+        "has_transistor": true,
+        "device_budget": true,
+        "has_ports": true,
+        "not_floating": true,
+        "match_plausible": true
+       }
+      },
+      "smoke": {
+       "budget": 160,
+       "winner_reeval_ungated": true,
+       "feasible": false,
+       "n_evals": 160,
+       "n_sim_fail": 0,
+       "sim_error": null,
+       "winner": {
+        "idd_ma": 1.0519,
+        "s21_db": -201.314,
+        "conv_gain_db": -143.7437,
+        "sds21_db": null
+       },
+       "best_over_run": {
+        "idd_ma": 48.3854,
+        "s21_db": -29.7557,
+        "conv_gain_db": -62.3419,
+        "sds21_db": null
+       },
+       "fence_checks": {
+        "conducts_idd": true,
+        "conv_gain_measured": true
+       },
+       "binding": [
+        "conducts_idd",
+        "conv_gain_measured"
+       ],
+       "passed": true
+      }
+     },
+     "n_devices": 12,
+     "n_inductors": 2,
+     "nets": [
+      "VDD",
+      "VIN1",
+      "VLO",
+      "VOUT1",
+      "VSS"
+     ],
+     "wl_hash": "8fcc21581af1a624",
+     "novel_vs_ref_v3": true,
+     "tokens_file": "kaggle/bench-anchors/mixer/mx-a2-dualgate.tokens.json",
+     "n_tokens": 125
+    }
+   }
+  }
+ },
+ "novelty_ref": {
+  "version": "ref-v3",
+  "n_hashes": 159,
+  "digest": "8f25e960cccff34e"
+ }
+}

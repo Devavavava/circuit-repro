@@ -1,0 +1,25 @@
+* pa-a2-cascode: cascode (CS+CG) power amplifier for gain/headroom at 3.3 V.
+* Lineage: 0.18 um cascode PA lineage, e.g. Sowlati & Leenaerts, "A 2.4-GHz
+* 0.18-um CMOS self-biased cascode power amplifier", JSSC 2002 family.
+* Bench-v1 anchor. Structure-only, ZERO component values.
+* Structure: CS NM1 (bottom, input device) stacked under CG NM2 (top,
+* cascode) sharing the internal drain node; RF choke L1 feeds the cascode
+* drain from VDD; output L-match (series L2 + shunt-C C3) to a DC-blocked
+* VOUT1 (C4). Input DC-blocked (C1). Published in-topology BIAS NETWORK:
+* current-mirror reference (R1 -> diode NM3) sets the CS gate DC via feed R2;
+* the CASCODE gate is divider-biased (R3 VDD->gate, R4 gate->VSS) and
+* RF-decoupled to VSS by Cc so it is a clean AC-ground cascode.
+* Approved 2026-09-14 (bench round 1, "approve all").
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+NMOS NM2 n3 n5 n2 VSS
+L L1 VDD n3
+L L2 n3 n4
+C C3 n4 VSS
+C C4 n4 VOUT1
+R R1 VDD n6
+NMOS NM3 n6 n6 VSS VSS
+R R2 n6 n1
+R R3 VDD n5
+R R4 n5 VSS
+C Cc n5 VSS

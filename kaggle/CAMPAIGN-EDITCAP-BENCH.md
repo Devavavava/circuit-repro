@@ -64,6 +64,37 @@ future GPU arms over pa/mixer cells need per-class eval-budget rebalancing
 satisfied via elite gating per the class-objective pre-reg, not by raw
 per-eval cost.
 
+## Stage-4 execution pre-reg (FROZEN at this commit; era = era-bnull-<hash>)
+
+Driver: `kaggle/bench_null_filter.py`. Engine = `bench_anchor_prep.smoke_run`
+VERBATIM (the anchor-layer smoke path at null budget: _spec_for_sizing →
+prepared_body → make_objective → _Budget → run_cmaes → UNGATED endpoint
+re-eval); feasibility per seed = `Spec.feasible` on the winner's ungated
+endpoint metrics; per-seed normalized violations recorded (stage-6 worst-
+margin input). pdk=gf180mcu run-time override, same as the ladder.
+
+- **Matrix:** FULL cell × class-anchor matrix — 675 pairs (375 lna / 150 pa /
+  80 mixer / 70 balun) at full per-pair budget 3600 evals = seeds (1,2,3) ×
+  1200, no-escalate. LOUD interpretation note: the 13-cell rule fences on
+  "the cell's BEST anchor"; best is unknowable a priori for new cells and
+  stage-6 needs per-anchor margins, so the strict generalization (all
+  anchors, full budget each) is run. Cost accepted: PA-dominated,
+  ~1–1.5 days at ×6 shards.
+- **Survivor rule:** a cell SURVIVES iff no (anchor, seed) run is feasible.
+  Any feasible run ⇒ NULL-REACHABLE, excluded. Partial/missing pairs render
+  a cell INCOMPLETE, never silently survivor.
+- **Sharding/resume:** deterministic cost-sorted pair order, `--shard k/6`
+  round-robin (balanced legs); one JSON per pair, durable per-seed writes,
+  complete pairs skipped on relaunch (kill-robust). `--collect` builds
+  INDEX.json; exit nonzero while any pair missing/partial.
+- **Validation:** `--validate` (1 lna pair, 40 evals, scratch dir) ran green
+  pre-freeze: 40 evals / 1.6 s / all record fields populated; scratch
+  removed, never collected.
+- **Threads:** OMP_NUM_THREADS=2 per leg, 6 legs (E-13a oversubscription
+  lesson; 28-core box).
+- Zero store writes; lna/ read-only; single era for the whole campaign;
+  results under kaggle/bench-null/ (committed at collect time with INDEX).
+
 ## Governance
 
 Spec grids are a NEW instrument (the 24-ladder stays frozen and untouched);

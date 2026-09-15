@@ -95,6 +95,21 @@ margin input). pdk=gf180mcu run-time override, same as the ladder.
 - Zero store writes; lna/ read-only; single era for the whole campaign;
   results under kaggle/bench-null/ (committed at collect time with INDEX).
 
+**Amendment 1 (USER-APPROVED 2026-09-15, in-session):** measured PA null
+cost is ~4 s/eval — the elite gate fires on nearly every eval in these
+converging null runs (process-turnover sampling, ~3 s ngspice lifetimes on
+all 6 legs), vs the ~1 s "effective" planning number (22% harness rate from
+bring-up). PA block alone ⇒ ~2–4 days, with all cheap-class verdicts queued
+behind it under the frozen cost-desc order. Ruling: OPERATIONAL amendment
+only — driver gains `--classes` (restrict a leg to named classes) and
+`--order=asc` (cheapest first); 3 auxiliary legs launched over
+lna/balun/mixer cost-ascending while the 6 original PA legs run untouched.
+Engine, budgets (3×1200 no-escalate), seeds, and survivor rule UNCHANGED.
+Consequence: campaign results carry two era hashes (era-bnull-dace18ce for
+the original legs, the amendment commit for auxiliary legs) — one campaign,
+one engine, recorded here instead of hidden. Collisions are benign: complete
+pairs are skipped, seeds are deterministic, identical records result.
+
 ## Governance
 
 Spec grids are a NEW instrument (the 24-ladder stays frozen and untouched);

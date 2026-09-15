@@ -192,12 +192,27 @@ def main(argv=None):
               f"{len(rec['seeds'])} feasible={rec.get('any_feasible')} "
               f"wall={rec.get('wall_s')}s")
         return 0 if rec["seeds"] else 1
-    shard_k, shard_n = 0, 1
+    # Amendment 1 (user-approved 2026-09-15): --classes=a,b restricts a leg to
+    # those anchor classes; --order=asc reverses the cost sort (cheapest
+    # first). Operational only -- engine, budgets, seeds, survivor rule
+    # untouched; complete pairs are skipped on collision and seeds are
+    # deterministic, so overlapping legs write identical records.
+    shard_k, shard_n, classes, order = 0, 1, None, "desc"
     for a in argv:
         if a.startswith("--shard"):
             shard_k, shard_n = map(int, a.split("=", 1)[1].split("/"))
-    pairs = [p for i, p in enumerate(_pairs()) if i % shard_n == shard_k]
-    print(f"[shard {shard_k}/{shard_n}] {len(pairs)} pairs  {era['era']}"
+        if a.startswith("--classes="):
+            classes = a.split("=", 1)[1].split(",")
+        if a.startswith("--order="):
+            order = a.split("=", 1)[1]
+    allp = _pairs()
+    if classes:
+        allp = [p for p in allp if p["acls"] in classes]
+    if order == "asc":
+        allp = allp[::-1]
+    pairs = [p for i, p in enumerate(allp) if i % shard_n == shard_k]
+    print(f"[shard {shard_k}/{shard_n}] {len(pairs)} pairs "
+          f"classes={classes or 'ALL'} order={order}  {era['era']}"
           f"{' DIRTY-TREE' if era['dirty_tree'] else ''}", flush=True)
     for i, p in enumerate(pairs):
         rec, how = run_pair(p, era)

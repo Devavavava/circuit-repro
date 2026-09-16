@@ -513,8 +513,30 @@ def eval_metrics(body, params, spec, nf_gated=None, op_capture=None,
     if m is None:
         return None
     if nf_is_gated(spec) if nf_gated is None else nf_gated:
-        nf = E.measure_nf(body, params, spec, pdk=pdk)
-        m = dict(m, nf_db=nf, nf_method="series_rs" if nf is not None else None)
+        if getattr(spec, "circuit_class", "lna") == "balun-lna":
+            # 3-port balun: the generic series-Rs NF (extract.build_noise_deck)
+            # rewrites only ports 1&2 and leaves port 3 as a stray S-param source
+            # -> ngspice "incorrect port ordering" -> nf None -> EVERY balun cell
+            # infeasible (feasible() scores a missing gated metric as a full
+            # violation). The differential path loads port 3 correctly and reads
+            # NF across the two diff legs (diff3.build_diff_noise_deck), same
+            # model-inclusion path as balun_harness.measure_balun.
+            import diff3
+            _band = getattr(spec, "band", None) or {}
+            try:
+                _f0 = float(_band.get("f0", 2.442e9))
+                _flo = float(_band.get("f_lo", _f0 * 0.98))
+                _fhi = float(_band.get("f_hi", _f0 * 1.02))
+            except (TypeError, ValueError):
+                _f0, _flo, _fhi = 2.442e9, 2.442e9 * 0.98, 2.442e9 * 1.02
+            _nfmap = diff3.measure_diff_nf(body, params, [_f0], _flo, _fhi)
+            nf = (_nfmap or {}).get(_f0)
+            m = dict(m, nf_db=nf,
+                     nf_method="diff_series_rs" if nf is not None else None)
+        else:
+            nf = E.measure_nf(body, params, spec, pdk=pdk)
+            m = dict(m, nf_db=nf,
+                     nf_method="series_rs" if nf is not None else None)
     cm = _class_metrics(body, params, spec, proxy_metrics=m, elite=elite,
                         err_sink=err_sink)
     if cm:

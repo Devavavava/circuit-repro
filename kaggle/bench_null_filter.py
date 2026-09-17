@@ -104,11 +104,18 @@ def run_pair(p, era, seeds=SEEDS, budget=EVALS_PER_SEED, outdir=None):
     outdir = outdir or (OUT / p["acls"])
     outdir.mkdir(parents=True, exist_ok=True)
     rpath = outdir / f"{p['cell']}__{p['fam']}.json"
+    done_seeds = {}                     # seed-level resume across reboots
     if rpath.exists():
         try:
             prior = json.loads(rpath.read_text())
             if len(prior.get("seeds", [])) >= len(seeds):
                 return prior, "skipped"
+            # KEEP already-computed seeds (each seed is deterministic and
+            # independent -> resuming is byte-identical to a full run). PA pairs
+            # take 2-9 h and the box reboots every 1-3 h, so without this a
+            # partial pair restarts from seed 1 every reboot and never finishes.
+            done_seeds = {s["seed"]: s for s in prior.get("seeds", [])
+                          if isinstance(s, dict) and "seed" in s}
         except Exception:                                       # noqa: BLE001
             pass                                    # unreadable -> re-run
     tokens = json.loads(Path(p["tokens_file"]).read_text())
@@ -118,6 +125,10 @@ def run_pair(p, era, seeds=SEEDS, budget=EVALS_PER_SEED, outdir=None):
     spec = Spec.load(p["spec"])
     t0 = time.time()
     for seed in seeds:
+        if seed in done_seeds:          # resume: skip completed seed
+            rec["seeds"].append(done_seeds[seed])
+            rpath.write_text(json.dumps(rec, indent=1))
+            continue
         res = PREP.smoke_run(tokens, p["spec"], seed, budget, PDK)
         if res is None:
             rec["seeds"].append({"seed": seed, "not_sizable": True,

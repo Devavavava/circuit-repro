@@ -1,0 +1,25 @@
+* mx-m1-currentreuse: current-reuse ACTIVE-LOAD gate-pumped down-mixer.
+* Lineage: current-reuse / bleeding mixer archetype (single-ended IF), e.g.
+* resistive-feedback current-reuse mixer with active load. Motivation: mx-a1's
+* PASSIVE drain load gives conversion LOSS; a PMOS current-reuse active load
+* (PM1) presents high impedance at the IF and reuses the bias current -> IF
+* voltage GAIN, single-ended IF. Structure-only, ZERO component values.
+* Harness convention: RF in = VIN1 (portnum 1), IF out = VOUT1 (portnum 2),
+* LO net = VLO (harness single-ended large-signal drive). RF+LO sum at the NM1
+* gate (n1); NM1 drain = IF node n2; PM1 (VDD active load) drain = n2; a
+* trans-impedance feedback R (Rfb n2->n1) sets the TIA gain; IF DC-blocked (C2)
+* to VOUT1. Published in-topology BIAS: NMOS mirror ref (R1->diode NM2) feeds
+* the NM1 gate via R2; PMOS load mirror ref (R3->diode PM2 from VDD) sets PM1
+* gate n3. V1.1 achievability candidate (approved 2026-09-17), NOT yet an anchor.
+C C1 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C Clo VLO n1
+PMOS PM1 n2 n3 VDD VDD
+R Rfb n2 n1
+C C2 n2 VOUT1
+R R1 VDD n4
+NMOS NM2 n4 n4 VSS VSS
+R R2 n4 n1
+R R3 VSS n3
+PMOS PM2 n3 n3 VDD VDD

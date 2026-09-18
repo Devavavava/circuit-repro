@@ -19,13 +19,12 @@
     "balun-lna": 60
   },
   "elite_gated_classes": [
-    "pa",
-    "mixer"
+    "pa"
   ],
   "counts": {
     "lna": 75,
     "pa": 50,
-    "mixer": 40,
+    "mixer": 32,
     "balun-lna": 35
   },
   "cells": [
@@ -2081,14 +2080,14 @@
     },
     {
       "circuit_class": "mixer",
-      "name": "bmx-24-cg6-ipn5-iso20",
-      "file": "bench-specs/mixer/bmx-24-cg6-ipn5-iso20.yaml",
+      "name": "bmx-24-cgn8-ip0-iso15",
+      "file": "bench-specs/mixer/bmx-24-cgn8-ip0-iso15.yaml",
       "axes": {
         "band": "2p4",
         "f0_ghz": 2.442,
-        "conv_gain_db": 6,
-        "iip3_dbm": -5,
-        "lo_rf_iso_db": 20,
+        "conv_gain_db": -8,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 15,
         "lo_if_iso_db": 15
       },
       "objective_gap": null,
@@ -2096,14 +2095,14 @@
     },
     {
       "circuit_class": "mixer",
-      "name": "bmx-24-cg6-ip0-iso20",
-      "file": "bench-specs/mixer/bmx-24-cg6-ip0-iso20.yaml",
+      "name": "bmx-24-cgn8-ip0-iso18",
+      "file": "bench-specs/mixer/bmx-24-cgn8-ip0-iso18.yaml",
       "axes": {
         "band": "2p4",
         "f0_ghz": 2.442,
-        "conv_gain_db": 6,
+        "conv_gain_db": -8,
         "iip3_dbm": 0,
-        "lo_rf_iso_db": 20,
+        "lo_rf_iso_db": 18,
         "lo_if_iso_db": 15
       },
       "objective_gap": null,
@@ -2111,297 +2110,12 @@
     },
     {
       "circuit_class": "mixer",
-      "name": "bmx-24-cg6-ip5-iso30",
-      "file": "bench-specs/mixer/bmx-24-cg6-ip5-iso30.yaml",
+      "name": "bmx-24-cgn8-ip0-iso20",
+      "file": "bench-specs/mixer/bmx-24-cgn8-ip0-iso20.yaml",
       "axes": {
         "band": "2p4",
         "f0_ghz": 2.442,
-        "conv_gain_db": 6,
-        "iip3_dbm": 5,
-        "lo_rf_iso_db": 30,
-        "lo_if_iso_db": 25
-      },
-      "objective_gap": null,
-      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
-    },
-    {
-      "circuit_class": "mixer",
-      "name": "bmx-24-cg6-ip10-iso30",
-      "file": "bench-specs/mixer/bmx-24-cg6-ip10-iso30.yaml",
-      "axes": {
-        "band": "2p4",
-        "f0_ghz": 2.442,
-        "conv_gain_db": 6,
-        "iip3_dbm": 10,
-        "lo_rf_iso_db": 30,
-        "lo_if_iso_db": 25
-      },
-      "objective_gap": null,
-      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
-    },
-    {
-      "circuit_class": "mixer",
-      "name": "bmx-24-cg9-ipn5-iso20",
-      "file": "bench-specs/mixer/bmx-24-cg9-ipn5-iso20.yaml",
-      "axes": {
-        "band": "2p4",
-        "f0_ghz": 2.442,
-        "conv_gain_db": 9,
-        "iip3_dbm": -5,
-        "lo_rf_iso_db": 20,
-        "lo_if_iso_db": 15
-      },
-      "objective_gap": null,
-      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
-    },
-    {
-      "circuit_class": "mixer",
-      "name": "bmx-24-cg9-ip0-iso30",
-      "file": "bench-specs/mixer/bmx-24-cg9-ip0-iso30.yaml",
-      "axes": {
-        "band": "2p4",
-        "f0_ghz": 2.442,
-        "conv_gain_db": 9,
-        "iip3_dbm": 0,
-        "lo_rf_iso_db": 30,
-        "lo_if_iso_db": 25
-      },
-      "objective_gap": null,
-      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
-    },
-    {
-      "circuit_class": "mixer",
-      "name": "bmx-24-cg9-ip5-iso30",
-      "file": "bench-specs/mixer/bmx-24-cg9-ip5-iso30.yaml",
-      "axes": {
-        "band": "2p4",
-        "f0_ghz": 2.442,
-        "conv_gain_db": 9,
-        "iip3_dbm": 5,
-        "lo_rf_iso_db": 30,
-        "lo_if_iso_db": 25
-      },
-      "objective_gap": null,
-      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
-    },
-    {
-      "circuit_class": "mixer",
-      "name": "bmx-24-cg9-ip10-iso40",
-      "file": "bench-specs/mixer/bmx-24-cg9-ip10-iso40.yaml",
-      "axes": {
-        "band": "2p4",
-        "f0_ghz": 2.442,
-        "conv_gain_db": 9,
-        "iip3_dbm": 10,
-        "lo_rf_iso_db": 40,
-        "lo_if_iso_db": 35
-      },
-      "objective_gap": null,
-      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
-    },
-    {
-      "circuit_class": "mixer",
-      "name": "bmx-24-cg12-ipn5-iso30",
-      "file": "bench-specs/mixer/bmx-24-cg12-ipn5-iso30.yaml",
-      "axes": {
-        "band": "2p4",
-        "f0_ghz": 2.442,
-        "conv_gain_db": 12,
-        "iip3_dbm": -5,
-        "lo_rf_iso_db": 30,
-        "lo_if_iso_db": 25
-      },
-      "objective_gap": null,
-      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
-    },
-    {
-      "circuit_class": "mixer",
-      "name": "bmx-24-cg12-ip0-iso30",
-      "file": "bench-specs/mixer/bmx-24-cg12-ip0-iso30.yaml",
-      "axes": {
-        "band": "2p4",
-        "f0_ghz": 2.442,
-        "conv_gain_db": 12,
-        "iip3_dbm": 0,
-        "lo_rf_iso_db": 30,
-        "lo_if_iso_db": 25
-      },
-      "objective_gap": null,
-      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
-    },
-    {
-      "circuit_class": "mixer",
-      "name": "bmx-24-cg12-ip5-iso40",
-      "file": "bench-specs/mixer/bmx-24-cg12-ip5-iso40.yaml",
-      "axes": {
-        "band": "2p4",
-        "f0_ghz": 2.442,
-        "conv_gain_db": 12,
-        "iip3_dbm": 5,
-        "lo_rf_iso_db": 40,
-        "lo_if_iso_db": 35
-      },
-      "objective_gap": null,
-      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
-    },
-    {
-      "circuit_class": "mixer",
-      "name": "bmx-24-cg12-ip10-iso40",
-      "file": "bench-specs/mixer/bmx-24-cg12-ip10-iso40.yaml",
-      "axes": {
-        "band": "2p4",
-        "f0_ghz": 2.442,
-        "conv_gain_db": 12,
-        "iip3_dbm": 10,
-        "lo_rf_iso_db": 40,
-        "lo_if_iso_db": 35
-      },
-      "objective_gap": null,
-      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
-    },
-    {
-      "circuit_class": "mixer",
-      "name": "bmx-24-cg15-ipn5-iso30",
-      "file": "bench-specs/mixer/bmx-24-cg15-ipn5-iso30.yaml",
-      "axes": {
-        "band": "2p4",
-        "f0_ghz": 2.442,
-        "conv_gain_db": 15,
-        "iip3_dbm": -5,
-        "lo_rf_iso_db": 30,
-        "lo_if_iso_db": 25
-      },
-      "objective_gap": null,
-      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
-    },
-    {
-      "circuit_class": "mixer",
-      "name": "bmx-24-cg15-ip0-iso40",
-      "file": "bench-specs/mixer/bmx-24-cg15-ip0-iso40.yaml",
-      "axes": {
-        "band": "2p4",
-        "f0_ghz": 2.442,
-        "conv_gain_db": 15,
-        "iip3_dbm": 0,
-        "lo_rf_iso_db": 40,
-        "lo_if_iso_db": 35
-      },
-      "objective_gap": null,
-      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
-    },
-    {
-      "circuit_class": "mixer",
-      "name": "bmx-24-cg15-ip5-iso40",
-      "file": "bench-specs/mixer/bmx-24-cg15-ip5-iso40.yaml",
-      "axes": {
-        "band": "2p4",
-        "f0_ghz": 2.442,
-        "conv_gain_db": 15,
-        "iip3_dbm": 5,
-        "lo_rf_iso_db": 40,
-        "lo_if_iso_db": 35
-      },
-      "objective_gap": null,
-      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
-    },
-    {
-      "circuit_class": "mixer",
-      "name": "bmx-24-cg15-ip10-iso40",
-      "file": "bench-specs/mixer/bmx-24-cg15-ip10-iso40.yaml",
-      "axes": {
-        "band": "2p4",
-        "f0_ghz": 2.442,
-        "conv_gain_db": 15,
-        "iip3_dbm": 10,
-        "lo_rf_iso_db": 40,
-        "lo_if_iso_db": 35
-      },
-      "objective_gap": null,
-      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
-    },
-    {
-      "circuit_class": "mixer",
-      "name": "bmx-24-cg9-ip0-iso25-iso",
-      "file": "bench-specs/mixer/bmx-24-cg9-ip0-iso25-iso.yaml",
-      "axes": {
-        "band": "2p4",
-        "f0_ghz": 2.442,
-        "conv_gain_db": 9,
-        "iip3_dbm": 0,
-        "lo_rf_iso_db": 25,
-        "lo_if_iso_db": 20
-      },
-      "objective_gap": null,
-      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
-    },
-    {
-      "circuit_class": "mixer",
-      "name": "bmx-24-cg9-ip0-iso35-iso",
-      "file": "bench-specs/mixer/bmx-24-cg9-ip0-iso35-iso.yaml",
-      "axes": {
-        "band": "2p4",
-        "f0_ghz": 2.442,
-        "conv_gain_db": 9,
-        "iip3_dbm": 0,
-        "lo_rf_iso_db": 35,
-        "lo_if_iso_db": 30
-      },
-      "objective_gap": null,
-      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
-    },
-    {
-      "circuit_class": "mixer",
-      "name": "bmx-24-cg9-ip0-iso40-iso",
-      "file": "bench-specs/mixer/bmx-24-cg9-ip0-iso40-iso.yaml",
-      "axes": {
-        "band": "2p4",
-        "f0_ghz": 2.442,
-        "conv_gain_db": 9,
-        "iip3_dbm": 0,
-        "lo_rf_iso_db": 40,
-        "lo_if_iso_db": 35
-      },
-      "objective_gap": null,
-      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
-    },
-    {
-      "circuit_class": "mixer",
-      "name": "bmx-24-cg9-ip0-iso45-iso",
-      "file": "bench-specs/mixer/bmx-24-cg9-ip0-iso45-iso.yaml",
-      "axes": {
-        "band": "2p4",
-        "f0_ghz": 2.442,
-        "conv_gain_db": 9,
-        "iip3_dbm": 0,
-        "lo_rf_iso_db": 45,
-        "lo_if_iso_db": 40
-      },
-      "objective_gap": null,
-      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
-    },
-    {
-      "circuit_class": "mixer",
-      "name": "bmx-09-cg6-ipn5-iso20",
-      "file": "bench-specs/mixer/bmx-09-cg6-ipn5-iso20.yaml",
-      "axes": {
-        "band": "0p9",
-        "f0_ghz": 0.915,
-        "conv_gain_db": 6,
-        "iip3_dbm": -5,
-        "lo_rf_iso_db": 20,
-        "lo_if_iso_db": 15
-      },
-      "objective_gap": null,
-      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
-    },
-    {
-      "circuit_class": "mixer",
-      "name": "bmx-09-cg6-ip0-iso20",
-      "file": "bench-specs/mixer/bmx-09-cg6-ip0-iso20.yaml",
-      "axes": {
-        "band": "0p9",
-        "f0_ghz": 0.915,
-        "conv_gain_db": 6,
+        "conv_gain_db": -8,
         "iip3_dbm": 0,
         "lo_rf_iso_db": 20,
         "lo_if_iso_db": 15
@@ -2411,43 +2125,43 @@
     },
     {
       "circuit_class": "mixer",
-      "name": "bmx-09-cg6-ip5-iso30",
-      "file": "bench-specs/mixer/bmx-09-cg6-ip5-iso30.yaml",
+      "name": "bmx-24-cgn5-ip0-iso15",
+      "file": "bench-specs/mixer/bmx-24-cgn5-ip0-iso15.yaml",
       "axes": {
-        "band": "0p9",
-        "f0_ghz": 0.915,
-        "conv_gain_db": 6,
-        "iip3_dbm": 5,
-        "lo_rf_iso_db": 30,
-        "lo_if_iso_db": 25
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": -5,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 15,
+        "lo_if_iso_db": 15
       },
       "objective_gap": null,
       "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
-      "name": "bmx-09-cg6-ip10-iso30",
-      "file": "bench-specs/mixer/bmx-09-cg6-ip10-iso30.yaml",
+      "name": "bmx-24-cgn5-ip0-iso18",
+      "file": "bench-specs/mixer/bmx-24-cgn5-ip0-iso18.yaml",
       "axes": {
-        "band": "0p9",
-        "f0_ghz": 0.915,
-        "conv_gain_db": 6,
-        "iip3_dbm": 10,
-        "lo_rf_iso_db": 30,
-        "lo_if_iso_db": 25
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": -5,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 18,
+        "lo_if_iso_db": 15
       },
       "objective_gap": null,
       "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
-      "name": "bmx-09-cg9-ipn5-iso20",
-      "file": "bench-specs/mixer/bmx-09-cg9-ipn5-iso20.yaml",
+      "name": "bmx-24-cgn5-ip0-iso20",
+      "file": "bench-specs/mixer/bmx-24-cgn5-ip0-iso20.yaml",
       "axes": {
-        "band": "0p9",
-        "f0_ghz": 0.915,
-        "conv_gain_db": 9,
-        "iip3_dbm": -5,
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": -5,
+        "iip3_dbm": 0,
         "lo_rf_iso_db": 20,
         "lo_if_iso_db": 15
       },
@@ -2456,225 +2170,390 @@
     },
     {
       "circuit_class": "mixer",
-      "name": "bmx-09-cg9-ip0-iso30",
-      "file": "bench-specs/mixer/bmx-09-cg9-ip0-iso30.yaml",
+      "name": "bmx-24-cgn2-ip0-iso15",
+      "file": "bench-specs/mixer/bmx-24-cgn2-ip0-iso15.yaml",
       "axes": {
-        "band": "0p9",
-        "f0_ghz": 0.915,
-        "conv_gain_db": 9,
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": -2,
         "iip3_dbm": 0,
-        "lo_rf_iso_db": 30,
-        "lo_if_iso_db": 25
+        "lo_rf_iso_db": 15,
+        "lo_if_iso_db": 15
       },
       "objective_gap": null,
       "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
-      "name": "bmx-09-cg9-ip5-iso30",
-      "file": "bench-specs/mixer/bmx-09-cg9-ip5-iso30.yaml",
+      "name": "bmx-24-cgn2-ip0-iso18",
+      "file": "bench-specs/mixer/bmx-24-cgn2-ip0-iso18.yaml",
       "axes": {
-        "band": "0p9",
-        "f0_ghz": 0.915,
-        "conv_gain_db": 9,
-        "iip3_dbm": 5,
-        "lo_rf_iso_db": 30,
-        "lo_if_iso_db": 25
-      },
-      "objective_gap": null,
-      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
-    },
-    {
-      "circuit_class": "mixer",
-      "name": "bmx-09-cg9-ip10-iso40",
-      "file": "bench-specs/mixer/bmx-09-cg9-ip10-iso40.yaml",
-      "axes": {
-        "band": "0p9",
-        "f0_ghz": 0.915,
-        "conv_gain_db": 9,
-        "iip3_dbm": 10,
-        "lo_rf_iso_db": 40,
-        "lo_if_iso_db": 35
-      },
-      "objective_gap": null,
-      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
-    },
-    {
-      "circuit_class": "mixer",
-      "name": "bmx-09-cg12-ipn5-iso30",
-      "file": "bench-specs/mixer/bmx-09-cg12-ipn5-iso30.yaml",
-      "axes": {
-        "band": "0p9",
-        "f0_ghz": 0.915,
-        "conv_gain_db": 12,
-        "iip3_dbm": -5,
-        "lo_rf_iso_db": 30,
-        "lo_if_iso_db": 25
-      },
-      "objective_gap": null,
-      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
-    },
-    {
-      "circuit_class": "mixer",
-      "name": "bmx-09-cg12-ip0-iso30",
-      "file": "bench-specs/mixer/bmx-09-cg12-ip0-iso30.yaml",
-      "axes": {
-        "band": "0p9",
-        "f0_ghz": 0.915,
-        "conv_gain_db": 12,
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": -2,
         "iip3_dbm": 0,
-        "lo_rf_iso_db": 30,
-        "lo_if_iso_db": 25
+        "lo_rf_iso_db": 18,
+        "lo_if_iso_db": 15
       },
       "objective_gap": null,
       "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
-      "name": "bmx-09-cg12-ip5-iso40",
-      "file": "bench-specs/mixer/bmx-09-cg12-ip5-iso40.yaml",
+      "name": "bmx-24-cgn2-ip0-iso20",
+      "file": "bench-specs/mixer/bmx-24-cgn2-ip0-iso20.yaml",
       "axes": {
-        "band": "0p9",
-        "f0_ghz": 0.915,
-        "conv_gain_db": 12,
-        "iip3_dbm": 5,
-        "lo_rf_iso_db": 40,
-        "lo_if_iso_db": 35
-      },
-      "objective_gap": null,
-      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
-    },
-    {
-      "circuit_class": "mixer",
-      "name": "bmx-09-cg12-ip10-iso40",
-      "file": "bench-specs/mixer/bmx-09-cg12-ip10-iso40.yaml",
-      "axes": {
-        "band": "0p9",
-        "f0_ghz": 0.915,
-        "conv_gain_db": 12,
-        "iip3_dbm": 10,
-        "lo_rf_iso_db": 40,
-        "lo_if_iso_db": 35
-      },
-      "objective_gap": null,
-      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
-    },
-    {
-      "circuit_class": "mixer",
-      "name": "bmx-09-cg15-ipn5-iso30",
-      "file": "bench-specs/mixer/bmx-09-cg15-ipn5-iso30.yaml",
-      "axes": {
-        "band": "0p9",
-        "f0_ghz": 0.915,
-        "conv_gain_db": 15,
-        "iip3_dbm": -5,
-        "lo_rf_iso_db": 30,
-        "lo_if_iso_db": 25
-      },
-      "objective_gap": null,
-      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
-    },
-    {
-      "circuit_class": "mixer",
-      "name": "bmx-09-cg15-ip0-iso40",
-      "file": "bench-specs/mixer/bmx-09-cg15-ip0-iso40.yaml",
-      "axes": {
-        "band": "0p9",
-        "f0_ghz": 0.915,
-        "conv_gain_db": 15,
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": -2,
         "iip3_dbm": 0,
-        "lo_rf_iso_db": 40,
-        "lo_if_iso_db": 35
+        "lo_rf_iso_db": 20,
+        "lo_if_iso_db": 15
       },
       "objective_gap": null,
       "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
-      "name": "bmx-09-cg15-ip5-iso40",
-      "file": "bench-specs/mixer/bmx-09-cg15-ip5-iso40.yaml",
+      "name": "bmx-24-cg0-ip0-iso15",
+      "file": "bench-specs/mixer/bmx-24-cg0-ip0-iso15.yaml",
       "axes": {
-        "band": "0p9",
-        "f0_ghz": 0.915,
-        "conv_gain_db": 15,
-        "iip3_dbm": 5,
-        "lo_rf_iso_db": 40,
-        "lo_if_iso_db": 35
-      },
-      "objective_gap": null,
-      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
-    },
-    {
-      "circuit_class": "mixer",
-      "name": "bmx-09-cg15-ip10-iso40",
-      "file": "bench-specs/mixer/bmx-09-cg15-ip10-iso40.yaml",
-      "axes": {
-        "band": "0p9",
-        "f0_ghz": 0.915,
-        "conv_gain_db": 15,
-        "iip3_dbm": 10,
-        "lo_rf_iso_db": 40,
-        "lo_if_iso_db": 35
-      },
-      "objective_gap": null,
-      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
-    },
-    {
-      "circuit_class": "mixer",
-      "name": "bmx-09-cg9-ip0-iso25-iso",
-      "file": "bench-specs/mixer/bmx-09-cg9-ip0-iso25-iso.yaml",
-      "axes": {
-        "band": "0p9",
-        "f0_ghz": 0.915,
-        "conv_gain_db": 9,
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": 0,
         "iip3_dbm": 0,
-        "lo_rf_iso_db": 25,
-        "lo_if_iso_db": 20
+        "lo_rf_iso_db": 15,
+        "lo_if_iso_db": 15
       },
       "objective_gap": null,
       "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
-      "name": "bmx-09-cg9-ip0-iso35-iso",
-      "file": "bench-specs/mixer/bmx-09-cg9-ip0-iso35-iso.yaml",
+      "name": "bmx-24-cg0-ip0-iso18",
+      "file": "bench-specs/mixer/bmx-24-cg0-ip0-iso18.yaml",
       "axes": {
-        "band": "0p9",
-        "f0_ghz": 0.915,
-        "conv_gain_db": 9,
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": 0,
         "iip3_dbm": 0,
-        "lo_rf_iso_db": 35,
-        "lo_if_iso_db": 30
+        "lo_rf_iso_db": 18,
+        "lo_if_iso_db": 15
       },
       "objective_gap": null,
       "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
-      "name": "bmx-09-cg9-ip0-iso40-iso",
-      "file": "bench-specs/mixer/bmx-09-cg9-ip0-iso40-iso.yaml",
+      "name": "bmx-24-cg0-ip0-iso20",
+      "file": "bench-specs/mixer/bmx-24-cg0-ip0-iso20.yaml",
       "axes": {
-        "band": "0p9",
-        "f0_ghz": 0.915,
-        "conv_gain_db": 9,
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": 0,
         "iip3_dbm": 0,
-        "lo_rf_iso_db": 40,
-        "lo_if_iso_db": 35
+        "lo_rf_iso_db": 20,
+        "lo_if_iso_db": 15
       },
       "objective_gap": null,
       "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
     },
     {
       "circuit_class": "mixer",
-      "name": "bmx-09-cg9-ip0-iso45-iso",
-      "file": "bench-specs/mixer/bmx-09-cg9-ip0-iso45-iso.yaml",
+      "name": "bmx-24-cgn6-ip0-iso20-cg",
+      "file": "bench-specs/mixer/bmx-24-cgn6-ip0-iso20-cg.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": -6,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 20,
+        "lo_if_iso_db": 15
+      },
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-24-cgn3-ip0-iso20-cg",
+      "file": "bench-specs/mixer/bmx-24-cgn3-ip0-iso20-cg.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": -3,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 20,
+        "lo_if_iso_db": 15
+      },
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-24-cgn1-ip0-iso20-cg",
+      "file": "bench-specs/mixer/bmx-24-cgn1-ip0-iso20-cg.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": -1,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 20,
+        "lo_if_iso_db": 15
+      },
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-24-cg1-ip0-iso20-cg",
+      "file": "bench-specs/mixer/bmx-24-cg1-ip0-iso20-cg.yaml",
+      "axes": {
+        "band": "2p4",
+        "f0_ghz": 2.442,
+        "conv_gain_db": 1,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 20,
+        "lo_if_iso_db": 15
+      },
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cgn8-ip0-iso15",
+      "file": "bench-specs/mixer/bmx-09-cgn8-ip0-iso15.yaml",
       "axes": {
         "band": "0p9",
         "f0_ghz": 0.915,
-        "conv_gain_db": 9,
+        "conv_gain_db": -8,
         "iip3_dbm": 0,
-        "lo_rf_iso_db": 45,
-        "lo_if_iso_db": 40
+        "lo_rf_iso_db": 15,
+        "lo_if_iso_db": 15
+      },
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cgn8-ip0-iso18",
+      "file": "bench-specs/mixer/bmx-09-cgn8-ip0-iso18.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": -8,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 18,
+        "lo_if_iso_db": 15
+      },
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cgn8-ip0-iso20",
+      "file": "bench-specs/mixer/bmx-09-cgn8-ip0-iso20.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": -8,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 20,
+        "lo_if_iso_db": 15
+      },
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cgn5-ip0-iso15",
+      "file": "bench-specs/mixer/bmx-09-cgn5-ip0-iso15.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": -5,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 15,
+        "lo_if_iso_db": 15
+      },
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cgn5-ip0-iso18",
+      "file": "bench-specs/mixer/bmx-09-cgn5-ip0-iso18.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": -5,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 18,
+        "lo_if_iso_db": 15
+      },
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cgn5-ip0-iso20",
+      "file": "bench-specs/mixer/bmx-09-cgn5-ip0-iso20.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": -5,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 20,
+        "lo_if_iso_db": 15
+      },
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cgn2-ip0-iso15",
+      "file": "bench-specs/mixer/bmx-09-cgn2-ip0-iso15.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": -2,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 15,
+        "lo_if_iso_db": 15
+      },
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cgn2-ip0-iso18",
+      "file": "bench-specs/mixer/bmx-09-cgn2-ip0-iso18.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": -2,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 18,
+        "lo_if_iso_db": 15
+      },
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cgn2-ip0-iso20",
+      "file": "bench-specs/mixer/bmx-09-cgn2-ip0-iso20.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": -2,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 20,
+        "lo_if_iso_db": 15
+      },
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cg0-ip0-iso15",
+      "file": "bench-specs/mixer/bmx-09-cg0-ip0-iso15.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": 0,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 15,
+        "lo_if_iso_db": 15
+      },
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cg0-ip0-iso18",
+      "file": "bench-specs/mixer/bmx-09-cg0-ip0-iso18.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": 0,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 18,
+        "lo_if_iso_db": 15
+      },
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cg0-ip0-iso20",
+      "file": "bench-specs/mixer/bmx-09-cg0-ip0-iso20.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": 0,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 20,
+        "lo_if_iso_db": 15
+      },
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cgn6-ip0-iso20-cg",
+      "file": "bench-specs/mixer/bmx-09-cgn6-ip0-iso20-cg.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": -6,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 20,
+        "lo_if_iso_db": 15
+      },
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cgn3-ip0-iso20-cg",
+      "file": "bench-specs/mixer/bmx-09-cgn3-ip0-iso20-cg.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": -3,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 20,
+        "lo_if_iso_db": 15
+      },
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cgn1-ip0-iso20-cg",
+      "file": "bench-specs/mixer/bmx-09-cgn1-ip0-iso20-cg.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": -1,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 20,
+        "lo_if_iso_db": 15
+      },
+      "objective_gap": null,
+      "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"
+    },
+    {
+      "circuit_class": "mixer",
+      "name": "bmx-09-cg1-ip0-iso20-cg",
+      "file": "bench-specs/mixer/bmx-09-cg1-ip0-iso20-cg.yaml",
+      "axes": {
+        "band": "0p9",
+        "f0_ghz": 0.915,
+        "conv_gain_db": 1,
+        "iip3_dbm": 0,
+        "lo_rf_iso_db": 20,
+        "lo_if_iso_db": 15
       },
       "objective_gap": null,
       "gap_note": "conv_gain_db/lo_rf_iso_db/lo_if_iso_db/iip3_dbm MEASURED in make_objective (mixer_harness, elite-gated); objective binds on conv_gain"

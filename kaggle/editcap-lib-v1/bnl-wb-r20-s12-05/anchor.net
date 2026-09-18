@@ -1,0 +1,18 @@
+* lna-a1-inddegen-cascode: inductively-degenerated cascode CS LNA.
+* Lineage: Shaeffer & Lee, "A 1.5-V, 1.5-GHz CMOS Low Noise Amplifier",
+* JSSC 1997. Bench-v1 anchor; verbatim of the proven v0.2 external c1
+* (round-1 external, wl dcda50191d7c5e73, 10/24 gf180 topology credit).
+* Structure-only, ZERO component values. Published BIAS NETWORK in-topology:
+* current-mirror reference (R1 -> diode NM3) feeds the input gate through R2;
+* input DC-blocked (C1); cascode gate at VDD (AC ground).
+* Approved 2026-09-14 (bench round 1, "approve all").
+C C1 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n3 VSS
+L L2 n3 VSS
+NMOS NM2 n4 VDD n2 VSS
+L L3 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1

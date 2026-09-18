@@ -644,7 +644,11 @@ def run_cell(cell_name, cell_dir, arm, llm, out_dir, pdk, rounds=1,
     anchor_net = open(os.path.join(cell_dir, "anchor.net"), encoding="utf-8").read()
     ev = json.load(open(os.path.join(cell_dir, "evidence.json"), encoding="utf-8"))
 
-    spec_path = os.path.join(LADDER_DIR, cell_name + ".yaml")
+    # prefer a spec bundled in the cell dir (self-contained lib, e.g.
+    # editcap-lib-v1); fall back to the shared ladder dir (v0 13-cell lib).
+    _local_spec = os.path.join(cell_dir, "spec.yaml")
+    spec_path = (_local_spec if os.path.exists(_local_spec)
+                 else os.path.join(LADDER_DIR, cell_name + ".yaml"))
     spec = Spec.load(spec_path)
     spec_ref = spec_path
 

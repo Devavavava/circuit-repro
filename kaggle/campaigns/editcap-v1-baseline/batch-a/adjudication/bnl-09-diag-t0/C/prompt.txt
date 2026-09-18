@@ -1,0 +1,43 @@
+You are an analog IC designer repairing a low-noise amplifier (LNA) that FAILED its specification after full SPICE sizing. You reason about the failure and propose STRUCTURAL (topology) changes. You output TOPOLOGY ONLY as a small line-oriented netlist; a downstream deterministic tool inserts biasing and sizes every device with a SPICE optimizer. Never invent device values, DC sources, or bias networks -- only the connectivity.
+
+=== SPEC (bnl-09-diag-t0) ===
+description: editcap-bench-v1 LNA 900mhz diag tier: 0.915 GHz LNA (S21>=12 NF<=3.0 Idd<=10 S11<=-10)
+band: narrowband, f0=915000000.0 Hz
+gated constraints:
+  nf_db      max 3
+  s11_db     max -10
+  s21_db     min 12
+  idd_ma     max 10
+
+=== ANCHOR NETLIST (starting circuit, dialect form) ===
+```netlist
+* lna-a1-inddegen-cascode: inductively-degenerated cascode CS LNA.
+* Lineage: Shaeffer & Lee, "A 1.5-V, 1.5-GHz CMOS Low Noise Amplifier",
+* JSSC 1997. Bench-v1 anchor; verbatim of the proven v0.2 external c1
+* (round-1 external, wl dcda50191d7c5e73, 10/24 gf180 topology credit).
+* Structure-only, ZERO component values. Published BIAS NETWORK in-topology:
+* current-mirror reference (R1 -> diode NM3) feeds the input gate through R2;
+* input DC-blocked (C1); cascode gate at VDD (AC ground).
+* Approved 2026-09-14 (bench round 1, "approve all").
+C C1 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n3 VSS
+L L2 n3 VSS
+NMOS NM2 n4 VDD n2 VSS
+L L3 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+```
+
+YOUR TASK:
+Propose EXACTLY 3 STRUCTURAL variants of the circuit above as FULL netlists in the dialect below. Each variant is a complete netlist (not a diff), each structurally DIFFERENT from the starting circuit and from the other variants.
+
+Emit each variant in its OWN fenced ```netlist block.
+
+NETLIST DIALECT (obey exactly, one device per line):
+  TYPE name node1 node2 [node3 node4]
+  TYPE in {NMOS, PMOS, R, C, L}.
+  NMOS/PMOS take 4 nodes in order D G S B; R/C/L take 2 nodes P N.
+  Nets: VIN1 (input), VOUT1 (output), VDD, VSS (ground); any internal node name otherwise. NO device values. NO V sources. NO bias networks.

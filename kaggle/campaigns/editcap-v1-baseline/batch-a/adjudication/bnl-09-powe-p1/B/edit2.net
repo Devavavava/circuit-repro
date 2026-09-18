@@ -1,0 +1,13 @@
+* lna-a5-commongate -> differential pair with common-mode choke
+* Structural change: Replace single-ended input with a differential pair (NM1, NM2), choke L1 for CM return
+C C1 VIN1 n0
+C C2 VIN2 n1
+L L1 n0 n1
+NMOS NM1 n2 VIN1 n0 VSS
+NMOS NM2 n2 VIN2 n1 VSS
+L L2 VDD n2
+C C3 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n0
+C Cbyp VIN1 VSS

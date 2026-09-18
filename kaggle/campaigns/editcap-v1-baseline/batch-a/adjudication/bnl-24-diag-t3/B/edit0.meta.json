@@ -1,0 +1,105 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "**PREDICTION**: NF improves by ~0.2\u20130.3 dB due to reduced noise from NM1\u2019s degeneration and better transconductance control.\n\n---\n\n3. **EDIT 2**: Add a shunt capacitor at the second stage\u2019s drain (L3) to absorb high-frequency noise.",
+  "wl_hash": "89ed813a428766d7",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 2.701495,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": 5.49901,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 4.42283,
+    "metrics": {
+      "s11_db": -1.92238,
+      "s11_max_db": -1.48018,
+      "s21_db": 21.9137,
+      "s21_min_db": 20.0913,
+      "idd_ma": 4.2165479999999995,
+      "nf_db": 5.293342,
+      "s22_db": 2.6348,
+      "s22_max_db": 3.99505,
+      "s12_db": -34.0082,
+      "k_f0": 0.438084,
+      "k_min": 0.367797,
+      "mu_f0": 0.613665,
+      "mu_min": 0.34704,
+      "mu_src_f0": -0.685149,
+      "mu_src_min": -0.70912,
+      "delta_f0": 1.30168,
+      "delta_max": 1.59023,
+      "stab_band": [
+        2400000000.0,
+        2483500000.0
+      ],
+      "s21_ripple_db": 4.243500000000001,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 5.293342,
+        "required_min": null,
+        "required_max": 1.5,
+        "scale": 1.5,
+        "margin": -2.5288946666666665,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -1.92238,
+        "required_min": null,
+        "required_max": -12,
+        "scale": 12,
+        "margin": -0.8398016666666667,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 21.9137,
+        "required_min": 18,
+        "required_max": null,
+        "scale": 18,
+        "margin": 0.2174277777777777,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 4.2165479999999995,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": -0.05413699999999988,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -2.5288946666666665
+    ],
+    "seed": 1,
+    "seconds": 66.162,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 2.701495
+}

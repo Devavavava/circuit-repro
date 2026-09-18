@@ -1,0 +1,189 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "**PREDICTION**: NF improves by ~0.1 dB by shorting R2's high-frequency noise to ground.\n\n3. **EDIT 2 (Add series resistor with L1 to control degeneration Q)**",
+  "wl_hash": "8188473f7676d1aa",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 0.7389378,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -6.15881,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 1.68716,
+    "metrics": {
+      "s11_db": -9.73182,
+      "s11_max_db": -7.12217,
+      "s21_db": 14.2343,
+      "s21_min_db": 13.9937,
+      "idd_ma": 2.570929,
+      "nf_db": 1.590482,
+      "s22_db": -2.33226,
+      "s22_max_db": -2.29219,
+      "s12_db": -38.8647,
+      "k_f0": 3.41887,
+      "k_min": 3.37833,
+      "mu_f0": 1.23325,
+      "mu_min": 1.21588,
+      "mu_src_f0": 2.67175,
+      "mu_src_min": 2.11063,
+      "delta_f0": 0.303456,
+      "delta_max": 0.38946,
+      "stab_band": [
+        3400000000.0,
+        3600000000.0
+      ],
+      "s21_ripple_db": 0.27590000000000003,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 1.590482,
+        "required_min": null,
+        "required_max": 1.2,
+        "scale": 1.2,
+        "margin": -0.3254016666666667,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -9.73182,
+        "required_min": null,
+        "required_max": -13,
+        "scale": 13,
+        "margin": -0.25139846153846146,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 14.2343,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": -0.11035625000000004,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 2.570929,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": 0.35726775,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -0.3254016666666667
+    ],
+    "seed": 2,
+    "seconds": 64.627,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 0.7389378,
+  "escalated": true,
+  "sized_escalated": {
+    "feasible": false,
+    "best_obj": 1.09471,
+    "metrics": {
+      "s11_db": -17.2034,
+      "s11_max_db": -12.0707,
+      "s21_db": 16.1727,
+      "s21_min_db": 15.9314,
+      "idd_ma": 3.50016,
+      "nf_db": 1.313648,
+      "s22_db": -3.17391,
+      "s22_max_db": -3.11454,
+      "s12_db": -37.3709,
+      "k_f0": 3.01729,
+      "k_min": 2.99147,
+      "mu_f0": 1.28896,
+      "mu_min": 1.26693,
+      "mu_src_f0": 3.47584,
+      "mu_src_min": 2.7863,
+      "delta_f0": 0.162017,
+      "delta_max": 0.251765,
+      "stab_band": [
+        3400000000.0,
+        3600000000.0
+      ],
+      "s21_ripple_db": 0.2657999999999987,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 1.313648,
+        "required_min": null,
+        "required_max": 1.2,
+        "scale": 1.2,
+        "margin": -0.09470666666666665,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -17.2034,
+        "required_min": null,
+        "required_max": -13,
+        "scale": 13,
+        "margin": 0.3233384615384614,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 16.1727,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": 0.010793749999999935,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 3.50016,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": 0.12495999999999996,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -0.09470666666666665
+    ],
+    "seed": 2,
+    "seconds": 189.9,
+    "evals": 1800,
+    "sim_health": {
+      "n_evals": 1800,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  }
+}

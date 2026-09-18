@@ -221,7 +221,7 @@ def main():
                 pass
             sys.exit("[editcap-gpu] llama-server never became healthy")
         editcap = os.path.join(CLONE, "kaggle", "editcap_run.py")
-        lib = os.path.join(CLONE, "kaggle", os.environ.get("EDITCAP_LIB", "editcap-lib-v1a"))
+        lib = os.path.join(CLONE, "kaggle", os.environ.get("EDITCAP_LIB", "editcap-lib-v1b"))
         out = os.path.join(WORK, "editcap")
         model_id = os.environ.get("MODEL_ID", "qwen3-32b-q4ks")
         # NO --grammar: the netlist-only GBNF would constrain the WHOLE

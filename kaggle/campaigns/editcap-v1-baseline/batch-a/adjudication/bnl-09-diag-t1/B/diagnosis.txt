@@ -1,0 +1,7 @@
+### Diagnosis  
+The binding constraint (`s21_db`) is critically undershoot by ~10.3 dB, indicating insufficient voltage gain. The common-gate topology inherently limits gain due to its low transconductance (1/gm) matching strategy and output loading. The inductive load (L2) likely fails to resonate properly at 915 MHz, and the single-stage configuration lacks sufficient amplification. The noise figure is marginally over budget, but gain is the primary bottleneck.
+
+---
+
+### Edit 1: Cascode Stacked Common-Source  
+Replace the common-gate with a cascode common-source stage to increase gain and output impedance.

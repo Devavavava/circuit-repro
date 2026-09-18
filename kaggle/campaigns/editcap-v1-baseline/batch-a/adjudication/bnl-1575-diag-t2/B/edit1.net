@@ -1,0 +1,11 @@
+* Edit 2: Replace inductive load L2 with a high-impedance resistor (R2) to boost gain.
+* Common-gate with resistive load and inductive source-match (L1).
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+R R2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2bias n3 n1
+C Cbyp n1 VSS

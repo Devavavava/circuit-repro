@@ -1,0 +1,17 @@
+* Variant 3: Feedback-biased differential topology
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n3 VDD VDD
+C C1 n3 n4
+L L2 n4 n5
+C C2 n5 VSS
+C C3 n4 VOUT1
+R Rf VOUT1 n6
+C Cf n6 VSS
+NMOS NM2 n6 n7 VSS VSS
+PMOS PM2 n7 n8 VDD VDD
+R R1 VDD n9
+NMOS NM3 n9 n9 VSS VSS
+R R2 n9 n1
+R R4 n8 VSS

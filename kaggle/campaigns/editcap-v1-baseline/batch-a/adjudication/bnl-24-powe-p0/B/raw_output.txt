@@ -1,0 +1,33 @@
+1. **DIAGNOSIS**: The binding constraint (NF=2.05 dB) fails due to the push-pull topology’s inherent noise coupling between the NMOS and PMOS transistors. The current-reuse biasing (via NM3/R1 and PM2/R4) forces suboptimal gate voltages, increasing noise contributions. The LC input matching (C4/L1) lacks sufficient noise optimization.
+
+---
+
+2. **EDIT 1: Replace push-pull with single-ended common-source + cascode**  
+```netlist
+* Common-source cascode LNA with simplified bias
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+L L2 n2 VDD
+NMOS NM2 n2 n3 VSS VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+```
+**PREDICTION**: NF improves by ~0.3 dB due to reduced noise coupling from PMOS removal and cascode isolation.
+
+---
+
+3. **EDIT 2: Replace input C-L with L-C series-shunt matching**  
+```netlist
+* Series inductor + shunt capacitor input matching
+L L1 VIN1 n0
+C C4 n0 VSS
+NMOS NM1 n2 n0 VSS VSS
+C C1 n2 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD

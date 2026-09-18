@@ -1,0 +1,33 @@
+```netlist
+* Variant 1: Common-source with inductive gate matching and LC load
+C Cg VIN1 n4
+L Lg n4 n5
+NMOS NM1 n6 n5 VSS VSS
+L Ls VDD n6
+C Cd n6 VOUT1
+L Ld VDD n7
+```
+
+```netlist
+* Variant 2: Common-gate with cascode and source inductor
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+NMOS NM2 n3 n3b n2 VSS
+L L2 VDD n3
+C C2 n3 VOUT1
+R R1 VDD n3b
+NMOS NM3 n3b n3b VSS VSS
+C Cbyp n1 VSS
+```
+
+```netlist
+* Variant 3: Common-source with inductive source degeneration and shunt peaking
+C Cg VIN1 n4
+L Lg n4 n5
+NMOS NM1 n6 n5 n7 VSS
+L Ls n7 VSS
+C Cs n7 VSS
+L Ld VDD n6
+C Cd n6 VOUT1
+```

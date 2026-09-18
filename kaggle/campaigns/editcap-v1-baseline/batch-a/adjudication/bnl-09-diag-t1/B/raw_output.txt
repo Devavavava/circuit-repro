@@ -1,0 +1,60 @@
+### Diagnosis  
+The binding constraint (`s21_db`) is critically undershoot by ~10.3 dB, indicating insufficient voltage gain. The common-gate topology inherently limits gain due to its low transconductance (1/gm) matching strategy and output loading. The inductive load (L2) likely fails to resonate properly at 915 MHz, and the single-stage configuration lacks sufficient amplification. The noise figure is marginally over budget, but gain is the primary bottleneck.
+
+---
+
+### Edit 1: Cascode Stacked Common-Source  
+Replace the common-gate with a cascode common-source stage to increase gain and output impedance.  
+```netlist
+* lna-a5-cascode: cascode CS for higher gain, inductive load
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n0 VSS VSS
+NMOS NM2 n3 n4 n2 VSS
+L L2 n3 VDD
+C C2 n3 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n4
+C Cbyp n4 VSS
+```
+**Prediction**: `s21_db` improves by ~8 dB (cascode increases gain via higher output impedance and gm multiplication).
+
+---
+
+### Edit 2: Two-Stage Common-Source with Source Follower  
+Add a second stage (source follower) to buffer and multiply gain.  
+```netlist
+* lna-a5-two-stage: two-stage CS + source-follower
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n0 VSS VSS
+L L2 n2 n3
+C C2 n3 VOUT1
+NMOS NM2 n3 n4 VSS VSS
+C C3 n4 VSS
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n0
+```
+**Prediction**: `s21_db` improves by ~6 dB (two-stage gain multiplication).
+
+---
+
+### Edit 3: Inductive Peaking in Output Load  
+Replace the single inductive load (L2) with a series inductor-capacitor (LC) peaking network to enhance resonance at 915 MHz.  
+```netlist
+* lna-a5-lcpeaking: LC peaking for tuned output load
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 n2 n3
+C C2 n3 VOUT1
+C C3 n3 n4
+L L3 n4 VDD
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+C Cbyp n1 VSS
+```
+**Prediction**: `s21_db` improves by ~4 dB (resonant LC load maximizes output impedance at f0).

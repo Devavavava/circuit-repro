@@ -1,0 +1,48 @@
+You are an analog IC designer repairing a low-noise amplifier (LNA) that FAILED its specification after full SPICE sizing. You reason about the failure and propose STRUCTURAL (topology) changes. You output TOPOLOGY ONLY as a small line-oriented netlist; a downstream deterministic tool inserts biasing and sizes every device with a SPICE optimizer. Never invent device values, DC sources, or bias networks -- only the connectivity.
+
+=== SPEC (bnl-24-powe-p0) ===
+description: editcap-bench-v1 LNA wifi power tier: 2.44 GHz LNA (S21>=14 NF<=2.0 Idd<=2 S11<=-12)
+band: narrowband, f0=2442000000.0 Hz
+gated constraints:
+  nf_db      max 2
+  s11_db     max -12
+  s21_db     min 14
+  idd_ma     max 2
+
+=== ANCHOR NETLIST (starting circuit, dialect form) ===
+```netlist
+* lna-a2-current-reuse: current-reuse NMOS/PMOS push-pull CS LNA.
+* Lineage: Karanicolas, "A 2.7-V 900-MHz CMOS LNA and Mixer", JSSC 1996 /
+* inverter-LNA (current-reuse) lineage. Bench-v1 anchor; verbatim of the
+* proven v0.2 external c3 (round-1 external, wl 226544590d47717b, 6/24 gf180
+* topology credit). Structure-only, ZERO component values. Published BIAS
+* NETWORKS in-topology: NMOS gate via mirror ref R1 -> diode NM3 through R2;
+* PMOS gate via diode PM2 (current set by R4) through R5; tuned load L2+C2
+* off the shared DC path; input DC-blocked (C4).
+* Approved 2026-09-14 (bench round 1, "approve all").
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+YOUR TASK:
+Propose EXACTLY 3 STRUCTURAL variants of the circuit above as FULL netlists in the dialect below. Each variant is a complete netlist (not a diff), each structurally DIFFERENT from the starting circuit and from the other variants.
+
+Emit each variant in its OWN fenced ```netlist block.
+
+NETLIST DIALECT (obey exactly, one device per line):
+  TYPE name node1 node2 [node3 node4]
+  TYPE in {NMOS, PMOS, R, C, L}.
+  NMOS/PMOS take 4 nodes in order D G S B; R/C/L take 2 nodes P N.
+  Nets: VIN1 (input), VOUT1 (output), VDD, VSS (ground); any internal node name otherwise. NO device values. NO V sources. NO bias networks.

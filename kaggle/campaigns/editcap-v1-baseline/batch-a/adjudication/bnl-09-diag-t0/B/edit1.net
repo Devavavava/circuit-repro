@@ -1,0 +1,9 @@
+* Edit 2: Replace cascode with common-source and add shunt inductor
+C C1 VIN1 n0
+L L1 n0 n1
+L L4 VIN1 VSS
+NMOS NM1 n2 n1 VSS VSS
+C C2 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1

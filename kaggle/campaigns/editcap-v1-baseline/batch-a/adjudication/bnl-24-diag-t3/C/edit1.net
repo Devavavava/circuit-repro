@@ -1,0 +1,16 @@
+* Variant 2: Cascode second stage with shunt resistor
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n3
+L L2 n3 n4
+NMOS NM2 n5 n4 VSS VSS
+PMOS PM2 n5 n6 VDD VDD
+NMOS NM3 n6 n6 VSS VSS
+L L3 VDD n5
+R R4 VDD n5
+C C3 n5 VOUT1
+R R1 VDD n7
+NMOS NM4 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n4

@@ -1,0 +1,12 @@
+* lna-a5-commongate -> cascode topology (common-source + common-gate)
+* Structural change: Add cascode transistor NM2 to form a cascode gain stage
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n1 VIN1 n0 VSS
+NMOS NM2 n2 VSS n1 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n0
+C Cbyp VIN1 VSS

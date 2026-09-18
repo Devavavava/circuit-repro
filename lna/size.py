@@ -172,7 +172,14 @@ def _elite_gate_on():
 # Measured ms/eval (bench box): pa ~4000, mixer ~610 (conv-gain) / ~3870 (+IIP3)
 # vs lna ~40; balun ~20 (UNDER 5x -> never gated). Keep in sync with the cost
 # table in kaggle/bench_grid.py.
-_ELITE_GATED_CLASSES = ("pa", "mixer")
+# MIXER UN-GATED (v1.1, 2026-09-18): the elite gate's proxy is the LNA sp s21,
+# which does NOT track conversion gain (a mixer converts across frequency), so
+# gating starved conv_gain -> the sizer never optimized it -> the null was
+# invalid (cells "survived" spuriously). Un-gate mixer so conv_gain is measured
+# and optimized every eval. Cost: ~610ms-2s/eval (mixer null must run low-
+# concurrency, off the 5x rule -- one-time classification, not an LLM arm).
+# PA stays gated (its p1db/psat proxy is valid enough and 4s/eval is too costly).
+_ELITE_GATED_CLASSES = ("pa",)
 
 
 def _pdk_name(spec):

@@ -1,0 +1,19 @@
+* Variant 3: Differential cascode with shared bias and series peaking
+* Introduces differential structure with shared bias network and peaking inductor
+C C1 VIN1 n20
+L L1 n20 n21
+NMOS NM1 n22 n21 n23 VSS
+L L2 n23 VSS
+NMOS NM4 n24 n25 n23 VSS
+L L7 n24 VSS
+NMOS NM2 n26 VDD n22 VSS
+L L3 VDD n26
+NMOS NM5 n27 VDD n24 VSS
+L L8 VDD n27
+C C2 n26 n28
+C C3 n27 n28
+C C4 n28 VOUT1
+R R1 VDD n29
+NMOS NM3 n29 n29 VSS VSS
+R R2 n29 n21
+R R2 n29 n25

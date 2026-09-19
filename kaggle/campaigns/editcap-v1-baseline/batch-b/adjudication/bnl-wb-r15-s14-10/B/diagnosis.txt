@@ -1,0 +1,8 @@
+1. **DIAGNOSIS**  
+The binding constraint `s11_max_db` fails due to poor input impedance matching. The inductively-degenerated cascode structure (L1 in series with NM1's gate) fails to cancel the transistor’s gate capacitance and cascode parasitics at 1.75 GHz. The input impedance is too high, causing excessive reflection. Structural changes are needed to improve impedance transformation at the input.
+
+---
+
+2. **STRUCTURAL EDITS**  
+
+**Edit 1: Shunt inductor at input node (parallel LC tank with C1)**

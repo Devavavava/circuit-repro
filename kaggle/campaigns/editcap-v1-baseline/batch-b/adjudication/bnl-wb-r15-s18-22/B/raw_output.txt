@@ -1,0 +1,8 @@
+1. **DIAGNOSIS**: The binding constraint (S11_max_db) fails because the input impedance is poorly matched over the wideband (0.5-3 GHz). The existing series inductor L1 + capacitor C4 form a narrowband LC tank, which cannot maintain a low input impedance across the entire band. This results in high reflection (S11) at the input, particularly at the band edges.
+
+---
+
+2. **STRUCTURAL EDITS**:
+
+```netlist
+* Edit 1

@@ -1,0 +1,56 @@
+```netlist
+* Variant 1: Cascode in PMOS branch for higher output impedance and gain
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n5 n3 VDD VDD  # Original PM1 modified to drive new node n5
+PMOS PM2 n2 n3 VDD VDD  # Cascode transistor between PM1 and L2
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+```netlist
+* Variant 2: Series inductor at output for impedance matching and ripple control
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+L L3 n2 n5  # Series inductor added between active load and output
+C C3 n5 VOUT1  # Output capacitor relocated after series inductor
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+```netlist
+* Variant 3: Parallel inductor at input for wideband matching enhancement
+L L4 VIN1 n0  # Parallel inductor added to input coupling capacitor
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```

@@ -1,0 +1,11 @@
+* Variant 2: Differential pair with current mirror load
+C C4 VIN1 n0
+R R1 n0 n1
+NMOS NM1 n2 n1 n3 VSS
+NMOS NM2 n4 n5 n3 VSS
+PMOS PM1 n2 VDD VDD VDD
+PMOS PM2 n4 VDD VDD VDD
+C C1 n2 n6
+C C2 n4 n7
+C C3 n6 VOUT1
+L L1 n7 VOUT1

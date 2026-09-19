@@ -1,0 +1,49 @@
+```netlist
+* Edit 1: Replace series inductor with shunt inductor for input matching
+* Shunt L (L4) across VIN1 and ground, replacing C1+L1 series with L4||C1
+C C1 VIN1 n0
+L L4 VIN1 VSS
+NMOS NM1 n2 VSS n3 VSS
+L L2 n3 VSS
+NMOS NM2 n4 VDD n2 VSS
+L L3 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n3
+```
+Predicted effect: s11_max_db improves by ~2-3 dB (shunt inductor creates parallel resonance, better impedance matching)
+
+```netlist
+* Edit 2: Add shunt inductor to form π-matching network
+* L4 in parallel with existing L1+C1 series to create complex matching
+C C1 VIN1 n0
+L L1 n0 n1
+L L4 VIN1 n1
+NMOS NM1 n2 n1 n3 VSS
+L L2 n3 VSS
+NMOS NM2 n4 VDD n2 VSS
+L L3 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+```
+Predicted effect: s11_max_db improves by ~1.5-2.5 dB (π-network offers more degrees of freedom for matching)
+
+```netlist
+* Edit 3: Transformer-coupled input with center-tapped inductor
+* Replace L1+C1 with transformer primary (L4-L5) connected to VIN1
+L L4 VIN1 n20
+L L5 n20 n1
+L L6 n20 VSS  ; Center tap for AC ground
+NMOS NM1 n2 n1 n3 VSS
+L L2 n3 VSS
+NMOS NM2 n4 VDD n2 VSS
+L L3 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+```
+Predicted effect: s11_max_db improves by ~2-3 dB (transformer provides inherent 50Ω matching and DC isolation)

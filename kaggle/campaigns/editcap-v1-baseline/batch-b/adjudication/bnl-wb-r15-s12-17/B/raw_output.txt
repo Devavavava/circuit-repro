@@ -1,0 +1,70 @@
+1. **DIAGNOSIS**: The binding constraint (S11_max_db) is failing due to poor input impedance matching. The current topology's input network (C4 + L1) fails to present a conjugate match to the source at all frequencies in the 0.5–3 GHz band. The LC resonance is misaligned, leading to high reflection (S11 near -0.6 dB). Adding a shunt capacitor at the gate node (n1) will adjust reactance for improved match.
+
+---
+
+2. **EDIT 1: Add shunt capacitor at gate node**  
+```netlist
+* lna-a2-current-reuse: current-reuse NMOS/PMOS push-pull CS LNA with shunt C at gate.
+C C4 VIN1 n0
+L L1 n0 n1
+C C5 n1 VSS
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+**PREDICTION**: S11_max_db improves by ~2 dB (reaches ~-8 dB).  
+
+---
+
+3. **EDIT 2: Add input series resistor for damping**  
+```netlist
+* lna-a2-current-reuse: current-reuse NMOS/PMOS push-pull CS LNA with input R for damping.
+R R6 VIN1 n0
+C C4 n0 n1
+L L1 n1 n2
+NMOS NM1 n3 n2 VSS VSS
+C C1 n2 n4
+PMOS PM1 n3 n4 VDD VDD
+L L2 n3 n5
+C C2 n5 VSS
+C C3 n3 VOUT1
+R R1 VDD n6
+NMOS NM3 n6 n6 VSS VSS
+R R2 n6 n2
+PMOS PM2 n7 n7 VDD VDD
+R R4 n7 VSS
+R R5 n7 n4
+```
+**PREDICTION**: S11_max_db improves by ~1.5 dB (reaches ~-8.5 dB).  
+
+---
+
+4. **EDIT 3: Add LC parallel resonance at input**  
+```netlist
+* lna-a2-current-reuse: current-reuse NMOS/PMOS push-pull CS LNA with LC input tank.
+C C4 VIN1 n0
+L L1 n0 n1
+L L3 n0 VSS
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+**PREDICTION**: S11_max_db improves by ~2 dB (reaches ~-8 dB).

@@ -1,0 +1,113 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**Predicted change**: s11_max_db improves by ~2.0 dB (common-gate topology inherently matches source)",
+  "wl_hash": "fdd3a78e12891b66",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 9.174907,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -6.74879,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 5.54648,
+    "metrics": {
+      "s11_db": -8.66833,
+      "s11_max_db": -5.30662,
+      "s21_db": -4.89452,
+      "s21_min_db": -5.7934,
+      "idd_ma": 0.4889941,
+      "nf_db": 8.773241,
+      "s22_db": -11.0393,
+      "s22_max_db": -5.83447,
+      "s12_db": -4.83429,
+      "k_f0": 1.3146,
+      "k_min": 1.31448,
+      "mu_f0": 1.30772,
+      "mu_min": 1.26823,
+      "mu_src_f0": 1.25794,
+      "mu_src_min": 1.20009,
+      "delta_f0": 0.269068,
+      "delta_max": 0.469704,
+      "stab_band": [
+        500000000.0,
+        3000000000.0
+      ],
+      "s21_ripple_db": 1.0413500000000004,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 8.773241,
+        "required_min": null,
+        "required_max": 2.5,
+        "scale": 2.5,
+        "margin": -2.5092964,
+        "supported": true
+      },
+      "s11_max_db": {
+        "achieved": -5.30662,
+        "required_min": null,
+        "required_max": -15,
+        "scale": 15,
+        "margin": -0.6462253333333334,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -4.89452,
+        "required_min": 14,
+        "required_max": null,
+        "scale": 14,
+        "margin": -1.3496085714285715,
+        "supported": true
+      },
+      "s21_ripple_db": {
+        "achieved": 1.0413500000000004,
+        "required_min": null,
+        "required_max": 1,
+        "scale": 1,
+        "margin": -0.04135000000000044,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 0.4889941,
+        "required_min": null,
+        "required_max": 5,
+        "scale": 5,
+        "margin": 0.9022011799999999,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 5,
+        "required_max": null,
+        "scale": 5,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -2.5092964
+    ],
+    "seed": 2,
+    "seconds": 82.977,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 9.174907
+}

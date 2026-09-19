@@ -1,0 +1,15 @@
+* Edit 3: Convert to common-gate topology for better input impedance control
+L L0 VIN1 n0
+C C4 n0 VSS  ; DC block
+NMOS NM1 n0 n1 VSS VSS  ; common-gate configuration
+C C1 n1 n2
+PMOS PM1 n3 n2 VDD VDD
+L L2 n3 n4
+C C2 n4 VSS
+C C3 n3 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n2

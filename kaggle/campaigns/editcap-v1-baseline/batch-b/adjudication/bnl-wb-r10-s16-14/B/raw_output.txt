@@ -1,0 +1,52 @@
+1. **Diagnosis**: The input matching (S11) is severely degraded due to the inductive degeneration (L1 + L2) creating an impedance mismatch at the input. The series inductor (L1) and shunt inductor (L2) fail to cancel the transistor's input capacitance effectively, resulting in poor impedance transformation.
+
+---
+
+```netlist
+* Edit 1: Replace series inductor with shunt inductor at gate for better input matching
+C C1 VIN1 n0
+L L1 n1 VSS
+NMOS NM1 n2 n1 n3 VSS
+L L2 n3 VSS
+NMOS NM2 n4 VDD n2 VSS
+L L3 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+```
+**Predicted improvement**: S11_max_db improves by ~5 dB due to a parallel LC resonance at the gate, better canceling input capacitance.
+
+---
+
+```netlist
+* Edit 2: Common-gate topology for lower input impedance and better matching
+C C1 VIN1 n0
+NMOS NM1 n0 n1 VSS VSS
+L L1 n1 VSS
+NMOS NM2 n2 VDD n1 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+```
+**Predicted improvement**: S11_max_db improves by ~6 dB via common-gate's intrinsic low input impedance and reduced gate capacitance.
+
+---
+
+```netlist
+* Edit 3: Add shunt capacitor at input for wideband impedance matching
+C C1 VIN1 n0
+C C2 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n3 VSS
+L L2 n3 VSS
+NMOS NM2 n4 VDD n2 VSS
+L L3 VDD n4
+C C3 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+```
+**Predicted improvement**: S11_max_db improves by ~4 dB from a parallel LC (C2 + L1) at the input, enhancing impedance bandwidth.

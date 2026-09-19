@@ -1,0 +1,15 @@
+* Variant 3: Feedback-Enhanced Current-Reuse with Miller compensation
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n1 n2 VSS VSS
+PMOS PM1 n3 n4 VDD VDD
+L L2 n2 n5
+C C2 n5 VSS
+C C3 n3 VOUT1
+R R1 VDD n6
+NMOS NM3 n6 n6 VSS VSS
+R R2 n6 n1
+PMOS PM2 n7 n8 VDD VDD
+R R4 n7 VSS
+R R5 n8 n4
+C C5 n4 n2

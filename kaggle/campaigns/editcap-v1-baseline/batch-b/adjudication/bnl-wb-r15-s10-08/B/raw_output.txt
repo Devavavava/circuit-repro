@@ -1,0 +1,59 @@
+```netlist
+* Edit 1: Add shunt inductor at input to improve impedance matching
+C C4 VIN1 n0
+L L1 n0 n1
+L L_input VIN1 VSS
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+s11_db improves by ~2 dB
+
+```netlist
+* Edit 2: Add shunt capacitor at input node n0 to adjust reactive load
+C C4 VIN1 n0
+L L1 n0 n1
+C C_input n0 VSS
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+s11_db improves by ~1.5 dB
+
+```netlist
+* Edit 3: Add series inductor and shunt inductor at input for dual matching
+L L_series VIN1 n0
+C C4 n0 n1
+L L_shunt n0 VSS
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+s11_db improves by ~2.5 dB

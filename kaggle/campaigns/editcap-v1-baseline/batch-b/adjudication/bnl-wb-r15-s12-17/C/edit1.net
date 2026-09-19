@@ -1,0 +1,17 @@
+* Variant 2: Differential pair with shunt peaking inductors for bandwidth extension
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n3 VDD VDD
+L L2 n3 n4       # Shunt peaking inductor
+C C2 n4 VSS
+C C3 n2 VOUT1
+NMOS NM2 n5 n3 VSS VSS  # Differential pair
+PMOS PM2 n5 n6 VDD VDD
+C C5 n6 VSS
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+PMOS PM3 n8 n8 VDD VDD
+R R4 n8 VSS
+R R5 n8 n6

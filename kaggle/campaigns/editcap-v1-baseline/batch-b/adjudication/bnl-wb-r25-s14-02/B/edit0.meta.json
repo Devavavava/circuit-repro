@@ -1,0 +1,12 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "**Predicted Effect**: S11_max_db improves by ~3 dB due to enhanced input matching via L3's parallel resonance with C4.\n\n---\n\n```netlist\n* Edit 2: Replace the shunt inductor with a shunt capacitor to adjust input impedance reactance.\nC C4 VIN1 n0\nL L1 n0 n1\nC C5 n0 VSS  # Shunt capacitor for input matching\nNMOS NM1 n2 n1 VSS VSS\nC C1 n1 n3\nPMOS PM1 n2 n3 VDD VDD\nL L2 n2 n4\nC C2 n4 VSS",
+  "wl_hash": null,
+  "valid": false,
+  "dup": false,
+  "fence_outcome": "parse_fail",
+  "fence_detail": null,
+  "sized": null,
+  "error": "ParseError: line 4: L needs a name and 2 nodes (P N), got 8 node(s); line: 'L L3 n0 VSS  # Shunt inductor for input matching'"
+}

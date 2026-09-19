@@ -1,0 +1,38 @@
+1. **Diagnosis**: The circuit fails due to poor input matching (S11_max_db = -0.78 dB) caused by an insufficient impedance transformation at the input stage. The existing C4-L1 series resonator lacks proper tuning to match 50 Ω over the wideband, resulting in high reflections.
+
+---
+
+2. **Edits**:
+
+```netlist
+* Edit 1: Add a shunt inductor at the input node to create a parallel LC resonator for improved impedance matching.
+C C4 VIN1 n0
+L L1 n0 n1
+L L3 n0 VSS  # Shunt inductor for input matching
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+**Predicted Effect**: S11_max_db improves by ~3 dB due to enhanced input matching via L3's parallel resonance with C4.
+
+---
+
+```netlist
+* Edit 2: Replace the shunt inductor with a shunt capacitor to adjust input impedance reactance.
+C C4 VIN1 n0
+L L1 n0 n1
+C C5 n0 VSS  # Shunt capacitor for input matching
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS

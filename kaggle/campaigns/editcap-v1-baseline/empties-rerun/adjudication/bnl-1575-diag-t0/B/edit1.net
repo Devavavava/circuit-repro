@@ -1,0 +1,7 @@
+* Edit 2: Cascode common-source with PMOS load (increased output impedance)
+C C1 VIN1 n1
+R Rbias n1 VSS
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n3 n4 VDD VDD
+L L2 n3 VDD
+C C2 n3 VOUT1

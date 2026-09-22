@@ -1,0 +1,105 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "**Prediction**: S21_db improves by ~12 dB. Replacing the common-gate with a common-source stage directly utilizes gm1, and the inductive source degeneration (L1) increases effective transconductance while improving input matching.\n\n---",
+  "wl_hash": "27cdb6f6f230cde9",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 1.0552730000000001,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -24.4351,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 17.44537,
+    "metrics": {
+      "s11_db": -0.356553,
+      "s11_max_db": -0.326022,
+      "s21_db": -15.1089,
+      "s21_min_db": -15.7678,
+      "idd_ma": 0.7706647,
+      "nf_db": 17.65643,
+      "s22_db": -17.1797,
+      "s22_max_db": -10.0408,
+      "s12_db": -15.0988,
+      "k_f0": 1.36408,
+      "k_min": 1.34363,
+      "mu_f0": 1.46444,
+      "mu_min": 1.40976,
+      "mu_src_f0": 1.01205,
+      "mu_src_min": 1.01194,
+      "delta_f0": 0.156717,
+      "delta_max": 0.316718,
+      "stab_band": [
+        2400000000.0,
+        2483500000.0
+      ],
+      "s21_ripple_db": 0.9102999999999994,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 17.65643,
+        "required_min": null,
+        "required_max": 1.2,
+        "scale": 1.2,
+        "margin": -13.713691666666668,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.356553,
+        "required_min": null,
+        "required_max": -15,
+        "scale": 15,
+        "margin": -0.9762298,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -15.1089,
+        "required_min": 20,
+        "required_max": null,
+        "scale": 20,
+        "margin": -1.755445,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 0.7706647,
+        "required_min": null,
+        "required_max": 2,
+        "scale": 2,
+        "margin": 0.61466765,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -13.713691666666668
+    ],
+    "seed": 1,
+    "seconds": 58.334,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 1.0552730000000001
+}

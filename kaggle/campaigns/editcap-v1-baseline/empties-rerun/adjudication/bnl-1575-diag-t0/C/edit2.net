@@ -1,0 +1,11 @@
+* Variant 3: Common-gate with cascode output and shunt inductive peaking
+C Cin VIN1 n_source
+L L1 n_source VSS
+NMOS NM1 n_drain1 n_gate n_source VSS
+PMOS PM1 n_drain2 n_cas VDD VDD
+L L2 n_drain1 n_drain2
+C Cbyp n_gate VSS
+C Cout n_drain2 VOUT1
+R Rbias VDD n_gate
+NMOS NM3 n_b n_b VSS VSS
+R Rbias2 VDD n_b

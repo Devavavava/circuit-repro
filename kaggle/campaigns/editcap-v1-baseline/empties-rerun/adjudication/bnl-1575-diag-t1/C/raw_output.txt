@@ -1,0 +1,44 @@
+```netlist
+* Variant 1: Two-stage LNA with common-gate (NM1) followed by common-source (NM2) for higher gain
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+NMOS NM2 n4 n2 VSS VSS
+L L3 VDD n4
+C C3 n4 VOUT1
+```
+
+```netlist
+* Variant 2: Cascode structure added to the common-gate stage (NM1) with PMOS (PM2) for improved output impedance
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+PMOS PM2 VDD n3 n2 VDD
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+
+```netlist
+* Variant 3: Modified output matching with shunt inductor (L3) and series capacitor (C3) for resonance tuning
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 n4
+L L3 n4 VOUT1
+C C3 n4 VSS
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```

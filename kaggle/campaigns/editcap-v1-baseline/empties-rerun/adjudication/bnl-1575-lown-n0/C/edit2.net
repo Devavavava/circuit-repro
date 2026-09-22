@@ -1,0 +1,13 @@
+* Variant 3: Resonant drain load with parallel LC tank
+* Replaces simple drain inductor L2 with parallel LC tank (L2+C2tank)
+* Adds capacitor C2tank in parallel with L2 for frequency-specific loading
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 n2 n4
+C C2tank n4 VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS

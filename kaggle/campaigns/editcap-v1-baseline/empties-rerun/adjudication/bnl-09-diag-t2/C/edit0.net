@@ -1,0 +1,9 @@
+* Variant 1: Common-source with gate inductor and cascode PMOS
+C C1 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n3 VSS
+PMOS PM1 n2 n4 n3 VDD
+L L2 n2 VDD
+C C2 n2 VOUT1
+R R1 VDD n4
+C Cbyp n4 VSS

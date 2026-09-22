@@ -1,0 +1,11 @@
+* Variant 2: Reconfigure input matching to series inductor + shunt capacitor
+L L1 VIN1 n1
+C C1 n1 VSS
+NMOS NM1 n2 n1 n3 VSS
+L L2 n3 VSS
+NMOS NM2 n4 VDD n2 VSS
+L L3 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n3

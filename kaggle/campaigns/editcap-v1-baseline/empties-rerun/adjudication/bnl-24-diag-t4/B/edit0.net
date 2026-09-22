@@ -1,0 +1,10 @@
+* Common-source with inductive source degeneration for higher transconductance.
+C C1 VIN1 n1
+L L1 n1 n2
+NMOS NM1 n3 n1 n2 VSS
+L L2 n3 VDD
+C C2 n3 VOUT1
+R R1 VDD n4
+NMOS NM3 n4 n4 VSS VSS
+R R2 n4 n2
+C Cbyp n1 VSS

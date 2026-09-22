@@ -1,0 +1,55 @@
+1. The binding constraint is **s21_db (gain)**, which is critically underperforming at 3.44 dB vs. the required 22 dB. The root cause is the **common-gate topology's inherent gain limitation** due to its low transconductance-to-output-impedance ratio (1/gm * R_L). The source inductor (L1) is broadband-matching but not boosting gain, and the drain inductor (L2) lacks resonance to maximize impedance at 915 MHz. The structure fails to leverage resonant loading or cascode gain multiplication.
+
+---
+
+```netlist
+* Edit 1: Add parallel LC resonator at drain for high-impedance load (replaces L2)
+* Resonant LC at 915 MHz increases R_L, boosting gain.
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C3 VDD n2
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+C C2 n2 VOUT1
+```
+**Prediction**: s21_db improves by ~10 dB (from 3.44 dB → ~13.44 dB).
+
+---
+
+```netlist
+* Edit 2: Add cascode PMOS on drain of NM1 for gain multiplication
+* Cascode adds a common-source stage, increasing gain via higher output impedance.
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n4
+PMOS PM1 n4 n3 n2 VDD
+C C2 n4 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Prediction**: s21_db improves by ~8 dB (from 3.44 dB → ~11.44 dB).
+
+---
+
+```netlist
+* Edit 3: Add series inductor at output for resonant matching
+* LC series resonator at 915 MHz increases output impedance, enhancing gain.
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+L L3 n2 n5
+C C2 n5 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Prediction**: s21_db improves by ~6 dB (from 3.44 dB → ~9.44 dB).

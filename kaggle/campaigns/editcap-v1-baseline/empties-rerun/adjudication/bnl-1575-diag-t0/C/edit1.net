@@ -1,0 +1,11 @@
+* Variant 2: Cascode LNA with common-source driver and PMOS cascode stage
+C Cin VIN1 n_gate
+L Ls n_gate n_source
+NMOS NM1 n_drain1 n_gate n_source VSS
+PMOS PM1 n_drain2 n_cas VDD VDD
+R Rbias1 VDD n_gate
+NMOS NM3 n_b n_b VSS VSS
+R Rbias2 VDD n_b
+C Cbyp n_b VSS
+R Rbias3 VDD n_cas
+C Cout n_drain2 VOUT1

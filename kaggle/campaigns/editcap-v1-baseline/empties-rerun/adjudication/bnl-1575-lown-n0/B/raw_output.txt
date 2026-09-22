@@ -1,0 +1,56 @@
+1. **Diagnosis**: The binding constraint `s21_db` is limited by insufficient transconductance (gm) in the common-gate stage and a non-optimal inductive load (L2). The single common-gate stage fails to achieve the required gain due to low gm and load impedance mismatches at 1.58 GHz.
+
+---
+
+```netlist
+* Add a common-source stage (NM2) after the common-gate (NM1) for cascaded gain
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+NMOS NM2 n3 n2 VSS VSS
+L L3 VDD n3
+C C3 n3 VOUT1
+R R1 VDD n3
+L L2 VDD n2
+C C2 n2 VOUT1
+C Cbyp n1 VSS
+```
+
+**Prediction**: `s21_db` improves by ~9 dB (from 6.7 dB to ~15.6 dB). Cascoding two stages amplifies the gain multiplicatively.
+
+---
+
+```netlist
+* Replace L2 with an LC tank (L2 + C3) for resonant load impedance at 1.58 GHz
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C3 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+
+**Prediction**: `s21_db` improves by ~6 dB (from 6.7 dB to ~12.7 dB). The LC tank resonance increases the effective load impedance at f0, boosting gain.
+
+---
+
+```netlist
+* Add a cascode PMOS (PM1) to NM1's drain for higher output impedance
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n4 n1 n0 VSS
+PMOS PM1 n2 n3 n4 VDD
+R R3 VDD n3
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+
+**Prediction**: `s21_db` improves by ~8 dB (from 6.7 dB to ~14.7 dB). The cascode topology raises the output impedance, increasing voltage gain.

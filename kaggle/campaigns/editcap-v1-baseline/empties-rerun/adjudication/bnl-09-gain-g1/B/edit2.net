@@ -1,0 +1,12 @@
+* Edit 3: Add series inductor at output for resonant matching
+* LC series resonator at 915 MHz increases output impedance, enhancing gain.
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+L L3 n2 n5
+C C2 n5 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS

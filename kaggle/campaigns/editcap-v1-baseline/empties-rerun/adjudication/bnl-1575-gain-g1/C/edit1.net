@@ -1,0 +1,10 @@
+* Variant 2: Cascode structure with NMOS and PMOS stages for improved gain and linearity.
+C C1 VIN1 n1
+NMOS NM1 n2 n1 n0 VSS
+L L1 n0 VSS
+PMOS PM1 n4 n3 n2 VDD
+L L2 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1

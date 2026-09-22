@@ -1,0 +1,13 @@
+* Variant 1: Common-source topology with source inductor and gate bias
+* Replaces common-gate with common-source, adds source inductor for input match
+* Gate bias through resistor Rg, source inductor Ls for inductive degeneration
+C C1 VIN1 g1
+R Rg g1 n1
+NMOS NM1 n2 n1 s1 VSS
+L Ls s1 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 s1
+C Cbyp n1 VSS

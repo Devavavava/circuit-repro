@@ -1,0 +1,39 @@
+1. **Diagnosis**: The binding constraint (s21_db) is failing due to the common-gate topology's inherently low voltage gain. The transconductance (gm) of NM1 is insufficient to overcome the loading effects of L2 and the input matching inductor L1, which reduces the available gain. The common-gate stage’s gain is approximately $ |g_{m1} \cdot Z_{L2}| $, but the inductor load (L2) and source inductor (L1) do not synergistically maximize this product. The sizing process hit physical limits of gm/Id trade-offs, failing to meet the 14 dB target.
+
+---
+
+```netlist
+* Edit 1: Common-source topology with inductive load (higher gain potential)
+C C1 VIN1 n1
+R Rbias n1 VSS
+NMOS NM1 n2 n1 VSS VSS
+L L2 n2 VDD
+C C2 n2 VOUT1
+```
+**Predicted s21_db change**: +8 dB (~15.4 dB), exceeding the 14 dB requirement. The common-source configuration leverages higher gm and inductive load reactance for improved voltage gain.
+
+---
+
+```netlist
+* Edit 2: Cascode common-source with PMOS load (increased output impedance)
+C C1 VIN1 n1
+R Rbias n1 VSS
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n3 n4 VDD VDD
+L L2 n3 VDD
+C C2 n3 VOUT1
+```
+**Predicted s21_db change**: +6 dB (~13.4 dB). The cascode PMOS (PM1) raises output impedance, enhancing $ g_{m1} \cdot Z_{out} $. The inductive load (L2) and cascode topology synergistically improve gain.
+
+---
+
+```netlist
+* Edit 3: Two-stage common-source with active PMOS load (high transimpedance)
+C C1 VIN1 n1
+R Rbias n1 VSS
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n3 VDD VDD
+NMOS NM2 n3 VSS VSS VSS
+C C2 n3 VOUT1
+```
+**Predicted s21_db change**: +10 dB (~17.4 dB). The two-stage amplifier (NM1 with PM1 as active load, followed by NM2 buffer) multiplies gains and isolates stages, enabling higher overall transimpedance and voltage gain.

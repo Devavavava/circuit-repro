@@ -1,0 +1,10 @@
+* Edit 1: Add cascode PMOS to increase output impedance and gain
+C C1 VIN1 n1
+L L1 n1 VSS
+NMOS NM1 n2 n0 n1 VSS
+PMOS PM1 VDD n3 n2 VDD
+L L2 n3 VOUT1
+R R1 VDD n4
+NMOS NM3 n4 n4 VSS VSS
+R R2 n4 n0
+C Cbyp n0 VSS

@@ -207,7 +207,30 @@ class _LiveLLM(object):
         resp = self.client.complete(prompt_messages, temperature=self.temperature,
                                     max_tokens=self.max_tokens, n=1)
         ch = (resp.get("choices") or [{}])[0]
-        content = (ch.get("message") or {}).get("content", "") or ""
+        msg = ch.get("message") or {}
+        content = msg.get("content", "") or ""
+        # Reasoning models (Qwen3) route the <think> trace to reasoning_content;
+        # when the completion cap is hit mid-think, `content` comes back EMPTY
+        # (the v1 baseline's 15 blank cells). Capture per-completion telemetry so
+        # an empty answer is DIAGNOSABLE (finish_reason=="length" + big usage +
+        # empty content == ran out mid-think) rather than silently lost. Purely
+        # additive: the caller archives this to completion.meta.json.
+        reasoning = msg.get("reasoning_content") or ""
+        self.last_meta = {
+            "finish_reason": ch.get("finish_reason"),
+            "usage": resp.get("usage"),
+            "content_chars": len(content),
+            "reasoning_chars": len(reasoning),
+            "max_tokens": self.max_tokens,
+            "recovered_from_reasoning": False,
+        }
+        # OPTIONAL recovery (OFF by default -> flags-off byte-identical): if the
+        # visible answer is empty but a reasoning trace exists, parse the edits
+        # from the trace instead of dropping the cell.
+        if (not content.strip()) and reasoning.strip() and \
+                os.environ.get("EDITCAP_RECOVER_REASONING"):
+            content = reasoning
+            self.last_meta["recovered_from_reasoning"] = True
         edits = _parse_edits_from_raw(content)[:self.k]
         # diagnosis (evidence arms B/E/F/EF) = everything before the first fence,
         # trimmed. The blind control C requests no diagnosis, so none is parsed.
@@ -712,6 +735,12 @@ def run_cell(cell_name, cell_dir, arm, llm, out_dir, pdk, rounds=1,
             raw_output = "LLM ERROR: %s" % llm_error
 
         _write_verbatim(os.path.join(rdir, "raw_output.txt"), raw_output)
+        # per-completion LLM telemetry (finish_reason / token usage / reasoning
+        # length) -- additive; makes an empty `content` diagnosable after the run.
+        _llm_meta = getattr(llm, "last_meta", None)
+        if _llm_meta is not None:
+            _write_verbatim(os.path.join(rdir, "completion.meta.json"),
+                            json.dumps(_llm_meta, indent=2, default=float))
         if has_evidence:
             _write_verbatim(os.path.join(rdir, "diagnosis.txt"), diagnosis or "")
         if r == 1:

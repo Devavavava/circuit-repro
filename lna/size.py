@@ -515,6 +515,17 @@ def eval_metrics(body, params, spec, nf_gated=None, op_capture=None,
     and feasibility both bind on the class gates. For the default lna class this
     is a byte-identical no-op (`_class_metrics` returns {})."""
     pdk = _pdk_name(spec)
+    # gf180 determinism: design.ngspice defaults the statistical models to
+    # Monte-Carlo ON (sw_stat_global=1, sw_stat_mismatch=1), so every ngspice run
+    # redraws random Vth/mismatch -> the DC op (hence every metric) varies ~2-3%
+    # run-to-run on byte-identical input, which randomised every sizing eval. The
+    # adapter's model_includes() also emits these switches, but extract.body_of()
+    # strips .param lines from the body -- so pin the typical corner HERE, on the
+    # params dict that IS stamped verbatim into every analysis deck. Typical-corner
+    # is the intended deterministic design point (benchmark choice, not a spec
+    # change); no-op for every non-gf180 pdk.
+    if pdk == "gf180mcu":
+        params = {**params, "sw_stat_global": "0", "sw_stat_mismatch": "0"}
     m = E.run_and_extract(body, params, spec, op_capture=op_capture, pdk=pdk,
                           err_sink=err_sink)
     if m is None:

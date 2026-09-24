@@ -51,10 +51,10 @@ sys.path.insert(0, str(REPO / "kaggle" / "loop"))
 import bench_anchor_prep as PREP                   # noqa: E402  (engine host)
 from spec import Spec                              # noqa: E402
 
-PDK = "gf180mcu"
+PDK = os.environ.get("BENCH_NULL_PDK", "gf180mcu")   # bptm45 = native re-base
 SEEDS = (1, 2, 3)
 EVALS_PER_SEED = 1200
-OUT = REPO / "kaggle" / "bench-null"
+OUT = REPO / "kaggle" / os.environ.get("BENCH_NULL_OUT", "bench-null")
 SPECMAN = REPO / "kaggle" / "bench-specs" / "manifest.json"
 ANCHMAN = REPO / "kaggle" / "bench-anchors" / "MANIFEST.json"
 

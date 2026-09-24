@@ -18,7 +18,7 @@ import proposal as P
 import bench_anchor_prep as PREP
 from spec import Spec
 
-PDK = "gf180mcu"
+PDK = os.environ.get("MYSOLVE_PDK", "gf180mcu")
 
 
 def _spec_path(cell):

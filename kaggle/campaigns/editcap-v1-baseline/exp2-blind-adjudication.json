@@ -1,0 +1,323 @@
+{
+ "rubric": "Blind grade of AI diagnoses+topology-fixes for 53 failed LNAs: diagnosis_verdict (GROUNDED/PARTIAL/CONFABULATED/NO_DIAGNOSIS), contradicted_claims (count of netlist-refuted structural claims), fix_soundness (SOUND/PLAUSIBLE/WRONG/NA); judged from anchor.net + evidence.json only, outcome files never opened.",
+ "cells": {
+  "bnl-09-diag-t0": {
+   "diagnosis_verdict": "PARTIAL",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "No prose diagnosis, but edit captions correctly target the binding s11 (ach -3.32 dB) via input-match resonance (shunt L4 with C1); a reasonable reactive tweak to the already-present C1/L1 network."
+  },
+  "bnl-09-diag-t1": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "SOUND",
+   "justification": "Correctly names s21 as binding and attributes the shortfall to the common-gate 1/gm gain limit with L2 load; cascode-CS conversion is a textbook gain boost."
+  },
+  "bnl-09-diag-t2": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "SOUND",
+   "justification": "Right binding metric (s21) and correct CG-gain mechanism; CG->CS-with-inductive-load edit is a sound gain direction."
+  },
+  "bnl-09-diag-t3": {
+   "diagnosis_verdict": "PARTIAL",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Reasoning only in edit captions but correctly targets nf via CG->inductively-degenerated-CS (lower NF than 1/gm match); edits contain gate-source shorts (NM1 n2 n1 n1) that break execution."
+  },
+  "bnl-09-diag-t4": {
+   "diagnosis_verdict": "PARTIAL",
+   "contradicted_claims": 0,
+   "fix_soundness": "WRONG",
+   "justification": "Names nf (ach 2.61) but misattributes it mainly to cascode NM2 noise; fixes add a source resistor (R_source) and strip the L3 load, both counterproductive for noise figure."
+  },
+  "bnl-09-gain-g0": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "SOUND",
+   "justification": "Correct s21/CG-gain diagnosis; adding a parallel LC tank (C3 with L2) to raise load impedance is a sound gain fix."
+  },
+  "bnl-09-gain-g1": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "SOUND",
+   "justification": "Correctly identifies the s21 limit and reads L1 as source match / L2 as drain load; LC-tank load edit is sound."
+  },
+  "bnl-09-lown-n0": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Correctly names s11 (ach -0.26 dB, essentially unmatched) and the C1/L1 input LC as mistuned; series input inductor for match is plausible, though edit3's source resistor risks the also-failing nf."
+  },
+  "bnl-09-powe-p0": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Right s21 diagnosis for a low-power CG (idd~2 mA); LC-tank load raises gain without extra current but the edit collides the tank node with mirror node n3."
+  },
+  "bnl-09-powe-p1": {
+   "diagnosis_verdict": "PARTIAL",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Names s21 but slips by calling CG gain '1/gm' (CG still gives gm*RL); CS-conversion edit is reasonable but the differential-pair edit invents a nonexistent VIN2."
+  },
+  "bnl-1575-diag-t0": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Correct CG-gain diagnosis (s21 ach 7.44); CS conversion boosts gain but discards the passing input match (replaces L1 with a bare Rbias)."
+  },
+  "bnl-1575-diag-t1": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "SOUND",
+   "justification": "Correct s21/CG-gain read; PMOS-cascode/active-load edit is a sound gain direction."
+  },
+  "bnl-1575-diag-t2": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "SOUND",
+   "justification": "Correct s21 diagnosis; PMOS cascode over the L2 load is a sound gain boost."
+  },
+  "bnl-1575-diag-t3": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "SOUND",
+   "justification": "Correct s21 read; parallel LC tank (C3 with L2) load is a clean, sound gain fix."
+  },
+  "bnl-1575-diag-t4": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "SOUND",
+   "justification": "Correct s21/CG-gain diagnosis; cascode-CS stacking is a sound gain direction."
+  },
+  "bnl-1575-gain-g0": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "SOUND",
+   "justification": "Correct s21 read; cascode / LC-tank / CS-stage edits are all sound for gain."
+  },
+  "bnl-1575-gain-g1": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Correct s21 diagnosis; cascode/CS edits are the right direction but all wire the drain load L2 to VOUT1 instead of VDD (no DC path)."
+  },
+  "bnl-1575-lown-n0": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "SOUND",
+   "justification": "Correctly names s21 as binding (matches evidence worst_margin) though nf also fails; LC-tank load edit is sound for gain."
+  },
+  "bnl-1575-powe-p0": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Correct s21/CG diagnosis; cascode/CS edits are the right direction but the PMOS wiring (drain tied to VDD) is questionable."
+  },
+  "bnl-1575-powe-p1": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "SOUND",
+   "justification": "Correct s21 read with L1=match and L2=load; clean LC-tank load plus cascode/cascade edits are sound."
+  },
+  "bnl-24-diag-t3": {
+   "diagnosis_verdict": "PARTIAL",
+   "contradicted_claims": 0,
+   "fix_soundness": "WRONG",
+   "justification": "Names nf but blames 2nd-stage NM2 (against Friis, since stage-1 dominates); primary fix adds a source resistor R4 to NM1, counterproductive for noise."
+  },
+  "bnl-24-diag-t4": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "SOUND",
+   "justification": "Correct s21/CG-gain diagnosis; the CG+PMOS-cascode edit is a clean, sound gain fix."
+  },
+  "bnl-24-lown-n0": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "SOUND",
+   "justification": "Correctly identifies NM1's grounded source (no degeneration) as the NF driver via Friis; inductive/LC source-degeneration edit is the textbook NF fix."
+  },
+  "bnl-24-powe-p0": {
+   "diagnosis_verdict": "PARTIAL",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Near-zero nf margin (-0.026) blamed vaguely on push-pull 'noise coupling'; removing the current-reuse PMOS for a single-ended cascode may lower NF but risks the also-tight power/gain of this power-spec cell."
+  },
+  "bnl-24-powe-p1": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Correctly attributes NF to NM1 lacking source degeneration plus bias-resistor noise; the inductive-degeneration idea is sound but the only edit is truncated with no saved file."
+  },
+  "bnl-35-diag-t4": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "WRONG",
+   "justification": "Correctly flags gate-bias resistor R2 as an NF contributor, but edit1 swaps NM3->PMOS mirror leaving no DC path to VSS (dead bias) and edits 2-3 add noisy source resistors."
+  },
+  "bnl-35-lown-n0": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Correctly cites R2 gate-noise and notes the cascode adds little noise; cap-bypass of R2 (edit1) is the right mechanism though placed at signal node n1, while edits 2-3 add noisy resistors."
+  },
+  "bnl-58-diag-t4": {
+   "diagnosis_verdict": "PARTIAL",
+   "contradicted_claims": 1,
+   "fix_soundness": "WRONG",
+   "justification": "Names s21 but mislabels L1 (the gate series inductor) as the degeneration inductor (degeneration is L2 at the source); fixes add a source shunt resistor R3 that reduces gain and adds noise."
+  },
+  "bnl-wb-r10-s10-11": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Correctly names s11_max and the narrowband L1/C1 match as inadequate; edits mix a reactive shunt-L tweak, a risky gate series-R (nf also fails), and a sound common-gate input option."
+  },
+  "bnl-wb-r10-s10-20": {
+   "diagnosis_verdict": "PARTIAL",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "No prose diagnosis; edit captions target s11 via reactive input LC and a Q-damping shunt resistor, reasonable but reactive-only for a true wideband match."
+  },
+  "bnl-wb-r10-s12-12": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Correct wideband-match diagnosis (limited DOF in the L1/C1 network); reactive tweaks plus a common-gate option, all resistor-free (good since nf also fails badly)."
+  },
+  "bnl-wb-r10-s12-18": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Correctly reads C4/L1 as insufficient for a wideband conjugate match; adds reactive shunt/series inductors (plausible but uncertain for true broadband match)."
+  },
+  "bnl-wb-r10-s14-13": {
+   "diagnosis_verdict": "PARTIAL",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Caption-only reasoning targets s11 matching; reactive edits are plausible but edit3's 'common-gate' netlist diode-connects NM1 (n2 n2)."
+  },
+  "bnl-wb-r10-s14-15": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Correctly identifies the series C4/L1 network as low-DOF for wideband; edit3 shunt-L is plausible, though edit1 duplicates R1 and adds an input resistor."
+  },
+  "bnl-wb-r10-s16-14": {
+   "diagnosis_verdict": "PARTIAL",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Right binding metric but loosely conflates L1(gate)+L2(source-degen) roles as the matching network; a common-gate edit is a sound direction among reactive tweaks."
+  },
+  "bnl-wb-r10-s18-21": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Correct single-LC-inadequate diagnosis; edit1 shunt-L is fine, but two edits add input resistors while nf fails badly (-0.80)."
+  },
+  "bnl-wb-r15-s10-08": {
+   "diagnosis_verdict": "PARTIAL",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Caption-only reasoning targets s11 via reactive shunt-L/shunt-C/dual-L matching; resistor-free and plausible but reactive-only."
+  },
+  "bnl-wb-r15-s12-09": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Correctly attributes s11 to Cgs-dominated mismatch of the L1/C1 network; reactive shunt-L plus a sound common-gate input option."
+  },
+  "bnl-wb-r15-s12-17": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Correct wideband-match diagnosis reading C4/L1; reactive shunt-C / LC-tank edits are plausible, with one input-R damping edit."
+  },
+  "bnl-wb-r15-s14-10": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Correctly names L1-gate/Cgs mismatch as the s11 cause; shunt-L input tweak is plausible and resistor-free (good as nf also fails)."
+  },
+  "bnl-wb-r15-s14-16": {
+   "diagnosis_verdict": "PARTIAL",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Caption-only reasoning; reactive LC plus a sound common-gate conversion option for s11."
+  },
+  "bnl-wb-r15-s16-24": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Correctly reads C4-L1 as a narrowband low-pass unable to match across 0.5-3 GHz; pi/reactive-network edits are plausible."
+  },
+  "bnl-wb-r15-s18-22": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "NA",
+   "justification": "Correct wideband-match diagnosis (L1+C4 narrowband LC, band-edge reflections), but output truncated after the 'Edit 1' header with no netlist produced."
+  },
+  "bnl-wb-r20-s10-04": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Correctly names s11 (ach -3.13) and current-reuse's lack of reactance control; edits mix reactive shunt-L, a Miller feedback cap, and a series input R."
+  },
+  "bnl-wb-r20-s12-05": {
+   "diagnosis_verdict": "PARTIAL",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Caption-only; edit1 is broken (NM1 gate tied to VSS, n0 dangling) but edit2 shunt-L and edit3 transformer-coupled input are plausible wideband ideas."
+  },
+  "bnl-wb-r20-s14-06": {
+   "diagnosis_verdict": "PARTIAL",
+   "contradicted_claims": 1,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Correct wideband-match story but mislabels series cap C4 (VIN1-n0) as a 'shunt-capacitor'; pi-network and common-gate edits are plausible."
+  },
+  "bnl-wb-r20-s14-23": {
+   "diagnosis_verdict": "PARTIAL",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Caption-only reasoning; reactive edits plus a sound common-gate conversion (NM1 n0 n1, source-input)."
+  },
+  "bnl-wb-r20-s16-07": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Correct single-LC-inadequate diagnosis; reactive series/shunt-L edits plus a Q-damping shunt R (risky since nf fails)."
+  },
+  "bnl-wb-r20-s16-19": {
+   "diagnosis_verdict": "PARTIAL",
+   "contradicted_claims": 1,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Correct DOF-limited match story but mislabels series C4 as a 'shunt capacitor'; edit2 shunt-L is plausible, two edits add input resistors."
+  },
+  "bnl-wb-r25-s10-00": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Correctly reads C4+L1 as too narrowband relative to the L2/C2 tank; shunt-L and parallel-LC-tank edits are plausible, with one series-R."
+  },
+  "bnl-wb-r25-s12-01": {
+   "diagnosis_verdict": "PARTIAL",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Caption-only reasoning targets s11; mix of shunt/series-R and reactive inductor matching (nf ~passing so resistor risk is low)."
+  },
+  "bnl-wb-r25-s14-02": {
+   "diagnosis_verdict": "GROUNDED",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Correctly calls C4-L1 a series resonator lacking tuning for 50 ohm across the band; reactive shunt-L/shunt-C edits are plausible."
+  },
+  "bnl-wb-r25-s16-03": {
+   "diagnosis_verdict": "PARTIAL",
+   "contradicted_claims": 0,
+   "fix_soundness": "PLAUSIBLE",
+   "justification": "Caption-only reasoning; reactive series-L/series-C plus a Q-damping shunt R for wideband match."
+  }
+ }
+}

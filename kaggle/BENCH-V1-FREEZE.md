@@ -1,3 +1,9 @@
+> **⚠️ SUPERSEDED (2026-09-25).** This describes the OLD bench-v1 (gf180, 53
+> survivors, LNA-only). It was re-based to native 45 nm (bptm45); the live
+> benchmark is now **bench-v1.2** (`editcap-lib-v12-45nm/`, 16 achievable cells).
+> See `CURRENT-STATE.md` and `PLAN-topology-selfimprovement.md`. Kept for history
+> (the PA/mixer/balun-deferral reasoning below is still valid).
+
 # editcap-bench-v1 — FROZEN 2026-09-18: LNA class only
 
 **bench-v1 = the LNA topological-challenge set: 53 survivor cells / 22 excluded

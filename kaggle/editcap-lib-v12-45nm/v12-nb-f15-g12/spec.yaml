@@ -1,0 +1,62 @@
+band:
+  f0: 1580000000.0
+  f_hi: 1611600000.0
+  f_lo: 1548400000.0
+  type: narrowband
+constraints:
+  idd_ma:
+    max: 4
+  iip3_dbm:
+    min: -10
+    status: unsupported
+  nf_db:
+    max: 1.8
+  s11_db:
+    max: -10
+  s21_db:
+    min: 12
+description: bench-v1.2 achievable-survivor narrowband 1.6GHz S21>=12 NF<=1.8
+name: v12-nb-f15-g12
+objectives:
+- direction: max
+  metric: s21_db
+  weight: 1
+- direction: min
+  metric: nf_db
+  weight: 0.5
+- direction: min
+  metric: idd_ma
+  weight: 0.5
+pdk: bptm45
+ports:
+  input: VIN1
+  output: VOUT1
+  z0: 50
+process:
+  models: AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt
+  temp: 27
+  vdd: 1.1
+sizing:
+  c_f:
+  - 5e-14
+  - 1e-11
+  l_fixed: 4.5e-08
+  r_ohm:
+  - 50
+  - 20000.0
+  vb_v:
+  - 0.2
+  - 0.9
+  w_um:
+  - 1
+  - 200
+topology:
+  allow_inductorless: false
+  device_budget:
+  - 3
+  - 16
+  differential: false
+  l_max: 1.5e-08
+  l_min: 3e-10
+  max_inductors: 4
+  reject_floating: true

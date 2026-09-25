@@ -260,6 +260,32 @@ DIALECT = (
     "name otherwise. NO device values. NO V sources. NO bias networks."
 )
 
+# Capability-gap diagnostic (EDITCAP_FEWSHOT): a worked demonstration of the
+# RESISTIVE SHUNT-FEEDBACK broadband-match technique -- the topology class the
+# model never emits on wideband cells (0/64). It teaches the METHOD on a generic
+# example, NOT any benchmark cell's answer, so it probes knowledge vs capability.
+FEWSHOT_BLOCK = (
+    "=== WORKED EXAMPLE: repairing a wideband (multi-octave) LNA ===\n"
+    "A wideband LNA that relies only on reactive (L/C) input matching cannot hold "
+    "a low S11 across a decade of frequency: a series/shunt L-C network is "
+    "inherently narrowband. The standard fix is RESISTIVE SHUNT FEEDBACK -- add a "
+    "feedback resistor from the amplifier's output/drain node back to the input "
+    "gate node. This makes the input impedance broadband and largely real "
+    "(Zin ~ Rf/(1+gm*Rd)), flattening the return loss across the whole band, at "
+    "the cost of a little gain/NF. Example fix (topology only, generic device):\n"
+    "```netlist\n"
+    "C C1 VIN1 g\n"
+    "NMOS M1 d g VSS VSS\n"
+    "NMOS M2 o VDD d VSS\n"
+    "R Rd VDD o\n"
+    "R Rf o g\n"
+    "C C2 o VOUT1\n"
+    "```\n"
+    "Here `R Rf o g` is the feedback resistor from output `o` to input gate `g` -- "
+    "the broadband-matching element a purely reactive network lacks. Apply the "
+    "technique that FITS the failure below; do not copy this example verbatim.\n\n"
+)
+
 
 def _spec_constraint_block(spec):
     """Render the spec's gated constraints (min/max) from the lna Spec object --
@@ -393,14 +419,19 @@ def build_prompt_B(spec, anchor_net, ev, k=K_EDITS, annotate=False,
     inserts the auto-derived GRAPH FACTS block between the anchor and the
     evidence (targets the measured comprehension failures)."""
     anno = ("%s\n\n" % _annotation_block(anchor_net)) if annotate else ""
+    # EDITCAP_FEWSHOT (capability-gap diagnostic, additive; off => byte-identical):
+    # prepend a worked demonstration of the topology class the model is missing,
+    # to test whether the gap is knowledge (few-shot fixes it) or capability.
+    fewshot = FEWSHOT_BLOCK if os.environ.get("EDITCAP_FEWSHOT") else ""
     user = (
+        "%s"
         "%s\n\n"
         "=== ANCHOR NETLIST (the failed circuit, dialect form) ===\n"
         "```netlist\n%s```\n\n"
         "%s"
         "%s\n\n"
         "%s"
-    ) % (_spec_constraint_block(spec), anchor_net.rstrip("\n") + "\n",
+    ) % (fewshot, _spec_constraint_block(spec), anchor_net.rstrip("\n") + "\n",
          anno, _evidence_block(ev),
          _instructions_B(k, diagnosis_first=diagnosis_first))
     messages = [{"role": "system", "content": SYSTEM},

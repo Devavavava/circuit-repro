@@ -1,0 +1,113 @@
+{
+  "index": 1,
+  "round": 1,
+  "predicted_delta_text": "**Predicted effect**: s11_max_db improves by ~1.5 dB (from -9.14 dB \u2192 -10.64 dB), achieved by adding a resistor in parallel with input capacitor C4, introducing a resistive path to improve input impedance broadband matching.\n\n---",
+  "wl_hash": "30bf1f245e16e1c7",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 10.72308,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": 0.943827,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 1.69684,
+    "metrics": {
+      "s11_db": -5.4418,
+      "s11_max_db": -3.33474,
+      "s21_db": 12.8611,
+      "s21_min_db": 11.5831,
+      "idd_ma": 9.77473,
+      "nf_db": 1.764903,
+      "s22_db": -3.67017,
+      "s22_max_db": -1.57095,
+      "s12_db": -24.156,
+      "k_f0": 0.53935,
+      "k_min": 0.362053,
+      "mu_f0": 0.807659,
+      "mu_min": 0.673808,
+      "mu_src_f0": 0.756479,
+      "mu_src_min": 0.305665,
+      "delta_f0": 0.0950506,
+      "delta_max": 0.344213,
+      "stab_band": [
+        800000000.0,
+        2400000000.0
+      ],
+      "s21_ripple_db": 1.7942,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 9.77473,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": 0.02252700000000001,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 5,
+        "required_max": null,
+        "scale": 5,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 1.764903,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": 0.411699,
+        "supported": true
+      },
+      "s11_max_db": {
+        "achieved": -3.33474,
+        "required_min": null,
+        "required_max": -11,
+        "scale": 11,
+        "margin": -0.6968418181818182,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 12.8611,
+        "required_min": 12,
+        "required_max": null,
+        "scale": 12,
+        "margin": 0.07175833333333337,
+        "supported": true
+      },
+      "s21_ripple_db": {
+        "achieved": 1.7942,
+        "required_min": null,
+        "required_max": 2.0,
+        "scale": 2.0,
+        "margin": 0.10289999999999999,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "s11_max_db",
+      -0.6968418181818182
+    ],
+    "seed": 2,
+    "seconds": 15.76,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 10.72308
+}

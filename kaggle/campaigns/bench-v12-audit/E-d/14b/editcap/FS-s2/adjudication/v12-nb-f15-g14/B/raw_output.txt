@@ -1,0 +1,25 @@
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+C Cgnd s VSS
+L L2 VDD d
+C C2 d VOUT1
+```
+**Predicted change:** s21_db improves by ~5 dB. Converting to a common-source topology increases gain by leveraging higher transconductance and impedance transformation.
+
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+NMOS M2 VDD d s VSS
+L L2 VDD d
+C C2 d VOUT1
+```
+**Predicted change:** s21_db improves by ~3 dB. Adding a cascode transistor boosts output impedance, enhancing gain through reduced Miller effect and higher load impedance.
+
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+R R2 VDD d
+C C2 d VOUT1
+```
+**Predicted change:** s21_db improves by ~2 dB. Replacing the inductive load with a resistor provides a stable real impedance, avoiding reactive losses that limited gain in the original design.

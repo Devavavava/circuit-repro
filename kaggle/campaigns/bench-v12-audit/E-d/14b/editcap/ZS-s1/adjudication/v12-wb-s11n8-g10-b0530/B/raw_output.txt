@@ -1,0 +1,55 @@
+```netlist
+* lna-a2-1: common-gate input with series inductor and shunt capacitor.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+R R2 n2 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R4 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R5 n6 VSS
+R R6 n6 n3
+```
+**Predicted change:** s11_db improves by ~1.5 dB. The common-gate topology with a series inductor and shunt capacitor provides a more predictable input impedance across the wideband.
+
+```netlist
+* lna-a2-2: dual NMOS push-pull with series capacitor input matching.
+C C4 VIN1 n0
+R R1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1a VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+**Predicted change:** s11_db improves by ~2.0 dB. Replacing the inductor with a resistor in the input network reduces parasitic reactance, enabling better broadband matching.
+
+```netlist
+* lna-a2-3: single-ended NMOS with resonant output load.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+**Predicted change:** s11_db improves by ~1.2 dB. Simplifying the output network to a resonant LC load reduces phase mismatches that degrade input return loss.

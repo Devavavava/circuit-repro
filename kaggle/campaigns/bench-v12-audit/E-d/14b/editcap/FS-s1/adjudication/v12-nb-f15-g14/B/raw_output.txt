@@ -1,0 +1,45 @@
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS M1 d g s VSS
+R R_source s VSS
+R R_load d VDD
+C C2 d VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 g
+C Cbyp g VSS
+```
+**Predicted change**: s21_db improves by ~6 dB. Converting to a common-source topology with source degeneration and resistive load significantly boosts gain by leveraging higher transconductance and stable output impedance.
+
+---
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS M1 d g s VSS
+NMOS M2 VDD d n3 VSS
+R R_bias VDD n3
+C C2 d VOUT1
+R R1 VDD n4
+NMOS NM3 n4 n4 VSS VSS
+R R2 n4 g
+C Cbyp g VSS
+```
+**Predicted change**: s21_db improves by ~4 dB. Adding a cascode transistor (M2) increases output impedance, enhancing gain by reducing Miller effect and improving voltage swing.
+
+---
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS M1 d g s VSS
+L L2 VDD d
+C C2 d VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 g
+C Cbyp g VSS
+R Rf d g
+```
+**Predicted change**: s21_db improves by ~3 dB. Introducing a resistive feedback path (Rf) from output to gate stabilizes gain and improves bandwidth by compensating for phase shifts in the inductive load.

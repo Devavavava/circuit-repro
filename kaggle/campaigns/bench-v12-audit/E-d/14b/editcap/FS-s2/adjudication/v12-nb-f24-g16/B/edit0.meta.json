@@ -1,0 +1,105 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "Predicted: s21_db improves by ~5-7 dB (replacing inductive load with resistor increases effective Rd, boosting gain).",
+  "wl_hash": "84b62ff0722fa060",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 0.3220277,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -0.918072,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.59193,
+    "metrics": {
+      "s11_db": -11.3421,
+      "s11_max_db": -11.0115,
+      "s21_db": -1.0786,
+      "s21_min_db": -1.12582,
+      "idd_ma": 1.1287829999999999,
+      "nf_db": 2.744132,
+      "s22_db": -12.6633,
+      "s22_max_db": -12.2766,
+      "s12_db": -1.07899,
+      "k_f0": 1.00897,
+      "k_min": 1.00869,
+      "mu_f0": 1.0623,
+      "mu_min": 1.06223,
+      "mu_src_f0": 1.05163,
+      "mu_src_min": 1.05151,
+      "delta_f0": 0.837656,
+      "delta_max": 0.840918,
+      "stab_band": [
+        2352000000.0,
+        2448000000.0
+      ],
+      "s21_ripple_db": 0.09111000000000002,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 1.1287829999999999,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": 0.71780425,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 2.744132,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -0.5245177777777777,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -11.3421,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": 0.13421000000000002,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -1.0786,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": -1.0674125,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "s21_db",
+      -1.0674125
+    ],
+    "seed": 2,
+    "seconds": 14.551,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 0.3220277
+}

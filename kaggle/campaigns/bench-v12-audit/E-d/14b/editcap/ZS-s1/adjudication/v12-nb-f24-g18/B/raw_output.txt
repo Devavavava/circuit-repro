@@ -1,0 +1,46 @@
+```netlist
+* lna-a5-commongate-mod1: common-source input LNA (gate input, source resistor)
+C C1 VIN1 n1
+R R1 n1 VSS
+NMOS NM1 n2 n1 VSS VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1_vdd VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+
+**Predicted change:** s21_db improves by ~8-10 dB due to higher transconductance gain in common-source topology.
+
+```netlist
+* lna-a5-commongate-mod2: common-gate with parallel LC load (resonant load)
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+C C2 n2 VDD
+L L2 VDD n2
+C C3 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+
+**Predicted change:** s21_db improves by ~5-7 dB through resonant load impedance boosting at f0=2.4GHz.
+
+```netlist
+* lna-a5-commongate-mod3: common-source with cascode (two-stage gain boost)
+C C1 VIN1 n1
+R R1 n1 VSS
+NMOS NM1 n2 n1 VSS VSS
+NMOS NM2 n2 n3 VSS VSS
+L L2 VDD n3
+C C2 n3 VOUT1
+R R1_vdd VDD n4
+NMOS NM3 n4 n4 VSS VSS
+R R2 n4 n1
+C Cbyp n1 VSS
+```
+
+**Predicted change:** s21_db improves by ~12-15 dB through cascode output impedance enhancement and dual-stage gain.

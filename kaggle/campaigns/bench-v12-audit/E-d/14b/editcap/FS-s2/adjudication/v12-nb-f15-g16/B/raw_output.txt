@@ -1,0 +1,34 @@
+The failure is due to the common-gate LNA's inherent low gain and poor load impedance matching at 1.6 GHz. The inductive load (L2) and capacitive output (C2) fail to provide sufficient transconductance amplification and impedance transformation, resulting in a 8.4 dB gain (s21_db) far below the 16 dB target. The topology lacks a resistive load or cascode structure to enhance gain.
+
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+R Rload d VDD
+C C2 d VOUT1
+R Rbias VDD bias
+NMOS M2 bias bias VSS VSS
+C Cbyp g VSS
+```
+**Predicted change:** s21_db improves by ~6 dB via common-source topology with resistive load (Rload) and explicit biasing.
+
+```netlist
+C C1 VIN1 s
+NMOS M1 d s g VSS
+L Lload d VDD
+C C2 d VOUT1
+R Rbias VDD bias
+NMOS M2 bias bias VSS VSS
+C Cbyp g VSS
+```
+**Predicted change:** s21_db improves by ~5 dB via common-gate with inductive load (Lload) and explicit biasing.
+
+```netlist
+C C1 VIN1 s
+NMOS M1 d s g VSS
+NMOS M2 d2 d VSS VSS
+C C2 d2 VOUT1
+R Rbias VDD bias
+NMOS M3 bias bias VSS VSS
+C Cbyp g VSS
+```
+**Predicted change:** s21_db improves by ~7 dB via cascode structure (M2) to increase output impedance.

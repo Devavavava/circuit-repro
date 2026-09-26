@@ -1,0 +1,42 @@
+```netlist
+* lna-a5-commongate-to-commonsource: input at gate (common-source), source grounded via C1+L1
+C C1 n1 VSS
+L L1 n1 VSS
+NMOS NM1 n2 VIN1 n1 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Predicted improvement**: s21_db improves by ~3.5 dB. Converting to common-source configuration increases transistor gain (g_m * R_load) by eliminating the common-gate's inherent voltage gain inversion and reducing source impedance losses.
+
+```netlist
+* lna-a5-cascode: common-gate with PMOS cascode transistor to increase output impedance
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+PMOS PM1 n2 VDD n2 VDD
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Predicted improvement**: s21_db improves by ~2.8 dB. Adding a PMOS cascode transistor increases the effective output impedance seen by NM1, boosting transconductance gain and reducing Miller effect degradation at 2.4 GHz.
+
+```netlist
+* lna-a5-resistive-load: common-gate with resistive drain load instead of inductor
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+R Rload n2 VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Predicted improvement**: s21_db improves by ~2.1 dB. Replacing inductive load with a resistor simplifies impedance matching at 2.4 GHz and avoids inductor Q-factor losses that degraded gain in the original design.

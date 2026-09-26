@@ -1,0 +1,8 @@
+* lna-a5-cascode: cascode LNA with common-source input and resistive load
+C C1 VIN1 n0
+R R1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+NMOS NM2 n2 n3 VDD VDD
+R R2 n3 VDD
+C C2 n2 VOUT1
+C Cbyp n1 VSS

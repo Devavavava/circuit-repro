@@ -1,0 +1,7 @@
+### Diagnosis:
+The failure in the S11 constraint (input return loss) stems from **poor input impedance matching** over the wideband (0.8–2.4 GHz). The original design uses a **series LC network** (C4 + L1) at the input to drive the gate of NM1, but this configuration struggles to maintain a consistent low-impedance match across the entire band. The high-impedance nature of the common-source input stage (NM1) combined with the LC network's resonant behavior at a single frequency exacerbates the mismatch, resulting in a suboptimal S11 of -7.79 dB (vs. required -11 dB). The tuned load (L2 + C2) and current-reuse topology also contribute to parasitic effects that degrade the input match.
+
+---
+
+### Edit 1: **Common-Gate Input Stage with Shunt Inductor**
+Replace the common-source input configuration with a **common-gate** stage (lower input impedance) and add a **shunt inductor** to improve wideband matching.

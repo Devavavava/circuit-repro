@@ -1,0 +1,40 @@
+```netlist
+* lna-b5-commonsource: common-source input LNA with gate input (higher gain)
+C C1 VIN1 n0
+NMOS NM1 n0 VSS VSS VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+```
+
+Predicted direction: s21_db improves by ~6 dB (from 9.5 dB to ~15.5 dB), still below target but significant improvement.
+
+```netlist
+* lna-c5-cascode: cascode structure for higher gain and stability
+C C1 VIN1 n0
+NMOS NM1 n0 VSS VSS VSS
+NMOS NM2 VDD n1 VSS VSS
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C C2 VDD VOUT1
+```
+
+Predicted direction: s21_db improves by ~8 dB (from 9.5 dB to ~17.5 dB), likely meeting the 18 dB target with margin.
+
+```netlist
+* lna-d5-commongate-resistor: common-gate with resistor load instead of inductor
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+R R2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+
+Predicted direction: s21_db improves by ~3 dB (from 9.5 dB to ~12.5 dB), better than original but still below target.

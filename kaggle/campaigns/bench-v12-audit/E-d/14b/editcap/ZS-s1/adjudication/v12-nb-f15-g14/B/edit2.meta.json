@@ -1,0 +1,105 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "Predicted direction: s21_db improves by ~6 dB. The common-source topology with gate inductor provides higher transconductance gain while source resistor improves linearity and stability.",
+  "wl_hash": "7971abf5ccfce553",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 2.3504720000000003,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -4.64035,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 4.84166,
+    "metrics": {
+      "s11_db": -9.9669,
+      "s11_max_db": -9.89494,
+      "s21_db": -0.717393,
+      "s21_min_db": -0.729646,
+      "idd_ma": 1.7003000000000001,
+      "nf_db": 6.816797,
+      "s22_db": -4.36624,
+      "s22_max_db": -4.36498,
+      "s12_db": -24.8097,
+      "k_f0": 5.60478,
+      "k_min": 5.5996,
+      "mu_f0": 1.55003,
+      "mu_min": 1.54981,
+      "mu_src_f0": 2.852,
+      "mu_src_min": 2.83095,
+      "delta_f0": 0.244789,
+      "delta_max": 0.246223,
+      "stab_band": [
+        1548400000.0,
+        1611600000.0
+      ],
+      "s21_ripple_db": 0.023617,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 1.7003000000000001,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": 0.5749249999999999,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 6.816797,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -2.7871094444444444,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -9.9669,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.003309999999999924,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -0.717393,
+        "required_min": 14,
+        "required_max": null,
+        "scale": 14,
+        "margin": -1.051242357142857,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -2.7871094444444444
+    ],
+    "seed": 2,
+    "seconds": 14.429,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 2.3504720000000003
+}

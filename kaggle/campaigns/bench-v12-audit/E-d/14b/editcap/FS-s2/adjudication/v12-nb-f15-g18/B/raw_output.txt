@@ -1,0 +1,35 @@
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+R Rload d VDD
+C C2 d VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 s
+C Cbyp s VSS
+```
+**Predicted effect**: s21_db improves by ~10 dB (common-source topology provides higher intrinsic gain than common-gate).
+
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+NMOS M2 VDD g d VSS
+C C2 d VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 s
+C Cbyp s VSS
+```
+**Predicted effect**: s21_db improves by ~6 dB (cascode stage increases output impedance, enhancing gain).
+
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+R Rload VDD d
+C C2 d VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 s
+C Cbyp s VSS
+```
+**Predicted effect**: s21_db improves by ~4 dB (resistive load replaces inductive load, providing more consistent impedance for gain).

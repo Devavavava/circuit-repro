@@ -1,0 +1,59 @@
+1. The failure is due to insufficient input impedance matching, causing the S11 constraint to fail. The current-reuse push-pull topology has poor input matching, exacerbated by the lack of a dedicated input matching network and the high input impedance of the NMOS gate.
+
+```netlist
+* lna-a2-input-series-lc: series LC input matching + single-stage CS LNA.
+C C4 VIN1 n0
+L L1 n0 n1
+C C1 n1 n2
+NMOS NM1 n2 n3 VSS VSS
+L L2 n3 n4
+C C2 n4 VSS
+C C3 n3 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+Predicted improvement: s11_max_db improves by ~2.5 dB.
+
+2. The push-pull topology creates a high-impedance node at the NMOS gate, degrading input matching. Replacing it with a common-gate stage provides a low-impedance input path with better broadband matching.
+
+```netlist
+* lna-a2-common-gate: common-gate input stage with inductive source degeneration.
+C C4 VIN1 n0
+NMOS NM1 n0 n1 VSS VSS
+L L1 n1 VSS
+C C1 n1 n2
+PMOS PM1 n2 n3 VDD VDD
+L L2 n3 n4
+C C2 n4 VSS
+C C3 n3 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n2
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n4
+```
+Predicted improvement: s11_max_db improves by ~3.0 dB.
+
+3. The shared DC path between the push-pull stages creates parasitic capacitance that degrades input matching. Isolating the input path with a dedicated inductor-capacitor network improves impedance control.
+
+```netlist
+* lna-a2-isolated-input: input inductor with shunt capacitor + isolated CS stage.
+L L1 VIN1 n0
+C C1 n0 VSS
+NMOS NM1 n0 n1 VSS VSS
+L L2 n1 n2
+C C2 n2 VSS
+C C3 n1 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n2
+PMOS PM2 n4 n4 VDD VDD
+R R4 n4 VSS
+R R5 n4 n2
+```
+Predicted improvement: s11_max_db improves by ~2.8 dB.

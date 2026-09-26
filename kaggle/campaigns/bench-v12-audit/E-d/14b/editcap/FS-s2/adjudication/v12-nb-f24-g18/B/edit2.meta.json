@@ -1,0 +1,189 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**Diagnosis**: The original inductive load (L2) may not resonate optimally at 2.4 GHz, leading to suboptimal voltage gain. Replacing the load with a simple inductor and bypass capacitor provides a more stable and efficient impedance match.\n\n**Predicted change**: s21_db improves by ~4\u20136 dB via optimized inductive load and bypass capacitor, improving impedance matching and signal amplification.",
+  "wl_hash": "c05af22fa2cd8364",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 0.07179458999999999,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -25.8329,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 6.97741,
+    "metrics": {
+      "s11_db": -2.28563,
+      "s11_max_db": -2.14463,
+      "s21_db": -5.99465,
+      "s21_min_db": -6.38383,
+      "idd_ma": 0.01577579,
+      "nf_db": 8.771285,
+      "s22_db": -15.8714,
+      "s22_max_db": -12.3009,
+      "s12_db": -5.99454,
+      "k_f0": 1.03221,
+      "k_min": 1.02993,
+      "mu_f0": 1.05858,
+      "mu_min": 1.05648,
+      "mu_src_f0": 1.01142,
+      "mu_src_min": 1.01141,
+      "delta_f0": 0.368609,
+      "delta_max": 0.406668,
+      "stab_band": [
+        2352000000.0,
+        2448000000.0
+      ],
+      "s21_ripple_db": 0.5682399999999994,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 0.01577579,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": 0.9960560525,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 8.771285,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -3.8729361111111116,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -2.28563,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.771437,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -5.99465,
+        "required_min": 18,
+        "required_max": null,
+        "scale": 18,
+        "margin": -1.333036111111111,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -3.8729361111111116
+    ],
+    "seed": 1,
+    "seconds": 14.649,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 0.07179458999999999,
+  "escalated": true,
+  "sized_escalated": {
+    "feasible": false,
+    "best_obj": 6.92872,
+    "metrics": {
+      "s11_db": -2.0756,
+      "s11_max_db": -1.93384,
+      "s21_db": -6.19829,
+      "s21_min_db": -6.61045,
+      "idd_ma": 0.01577603,
+      "nf_db": 8.625469,
+      "s22_db": -12.8301,
+      "s22_max_db": -10.5266,
+      "s12_db": -6.19819,
+      "k_f0": 1.03404,
+      "k_min": 1.03163,
+      "mu_f0": 1.06829,
+      "mu_min": 1.06566,
+      "mu_src_f0": 1.01177,
+      "mu_src_min": 1.01175,
+      "delta_f0": 0.410473,
+      "delta_max": 0.433717,
+      "stab_band": [
+        2352000000.0,
+        2448000000.0
+      ],
+      "s21_ripple_db": 0.6380800000000004,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 0.01577603,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": 0.9960559925,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 8.625469,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -3.7919272222222227,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -2.0756,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.79244,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -6.19829,
+        "required_min": 18,
+        "required_max": null,
+        "scale": 18,
+        "margin": -1.3443494444444444,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -3.7919272222222227
+    ],
+    "seed": 3,
+    "seconds": 43.879,
+    "evals": 1800,
+    "sim_health": {
+      "n_evals": 1800,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  }
+}

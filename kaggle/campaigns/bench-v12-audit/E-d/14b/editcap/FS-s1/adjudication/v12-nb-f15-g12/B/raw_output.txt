@@ -1,0 +1,33 @@
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+R Rload d VDD
+C C2 d VOUT1
+R Rbias VDD s
+```
+
+**Prediction:** s21_db improves by ~4.5 dB (common-source topology with resistive load increases gain by leveraging higher transconductance and improved output impedance).
+
+---
+
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+NMOS M2 d VDD s VSS
+C C2 d VOUT1
+R Rbias VDD s
+```
+
+**Prediction:** s21_db improves by ~3.2 dB (current-source load via cascode transistor M2 boosts output impedance and gain compared to inductive load).
+
+---
+
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+NMOS M2 d VDD d VSS
+C C2 d VOUT1
+R Rbias VDD s
+```
+
+**Prediction:** s21_db improves by ~3.8 dB (doubly cascode structure with M2 as current mirror enhances gain and stabilizes output impedance).

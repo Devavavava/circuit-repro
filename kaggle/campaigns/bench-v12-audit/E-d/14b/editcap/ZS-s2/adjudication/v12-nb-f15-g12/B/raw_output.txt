@@ -1,0 +1,46 @@
+```netlist
+* lna-cs-source-degen: common-source with source inductor for broadband match
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 VIN1 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n0
+C Cbyp n0 VSS
+```
+
+Predicted direction: s21_db improves by ~4 dB (CS gain is higher than CG, source inductor improves matching)
+
+```netlist
+* lna-cascode-cg: common-gate with cascode transistor for higher output impedance
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+NMOS NM2 n2 n3 n2 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+
+Predicted direction: s21_db improves by ~3 dB (cascode increases output impedance, boosting gain)
+
+```netlist
+* lna-2stage-cs-cg: two-stage amplifier (CS source-degen followed by CG)
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 VIN1 n0 VSS
+NMOS NM2 n2 n1 n2 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n0
+C Cbyp n0 VSS
+```
+
+Predicted direction: s21_db improves by ~6 dB (two-stage amplifier provides compounded gain)

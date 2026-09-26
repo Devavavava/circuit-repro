@@ -1,0 +1,105 @@
+{
+  "index": 1,
+  "round": 1,
+  "predicted_delta_text": "**Predicted change**: `s21_db` improves by ~10\u201312 dB. The common-source topology provides higher gain (gm\u00b7Rload) and better impedance matching for narrowband operation, while the resistive load ensures stability and gain.\n\n---\n\n### Structural Edit 3: Add shunt resistor to gate for feedback (common-gate with shunt feedback)",
+  "wl_hash": "f0af1c5f25208c8d",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 1.087491,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -7.83048,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 7.28313,
+    "metrics": {
+      "s11_db": -0.203845,
+      "s11_max_db": -0.201045,
+      "s21_db": -3.17591,
+      "s21_min_db": -3.17683,
+      "idd_ma": 4.081752,
+      "nf_db": 9.191948,
+      "s22_db": -6.05154,
+      "s22_max_db": -6.0418,
+      "s12_db": -21.3925,
+      "k_f0": 0.132727,
+      "k_min": 0.130295,
+      "mu_f0": 0.355652,
+      "mu_min": 0.354265,
+      "mu_src_f0": 0.933497,
+      "mu_src_min": 0.932454,
+      "delta_f0": 0.46697,
+      "delta_max": 0.467595,
+      "stab_band": [
+        1548400000.0,
+        1611600000.0
+      ],
+      "s21_ripple_db": 0.0016099999999998893,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 4.081752,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": -0.020437999999999956,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 9.191948,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -4.106637777777777,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.203845,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.9796155000000001,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -3.17591,
+        "required_min": 18,
+        "required_max": null,
+        "scale": 18,
+        "margin": -1.1764394444444446,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -4.106637777777777
+    ],
+    "seed": 1,
+    "seconds": 14.518,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 1.087491
+}

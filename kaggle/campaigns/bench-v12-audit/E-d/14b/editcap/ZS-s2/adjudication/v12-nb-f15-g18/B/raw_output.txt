@@ -1,0 +1,34 @@
+```netlist
+* lna-a5-commongate-to-commonsource: common-source input LNA (higher gain)
+C C1 VIN1 n1
+L L1 n1 n2
+NMOS NM1 n3 n2 n1 VSS
+L L2 n3 VDD
+C C2 n3 VOUT1
+```
+
+Predicted direction and magnitude: s21_db improves by ~10 dB (common-source topology inherently provides higher gain than common-gate).
+
+```netlist
+* lna-a5-parallel-lc-load: parallel LC resonant load for high impedance at f0
+C C1 VIN1 n1
+L L1 n1 n2
+NMOS NM1 n3 n2 n1 VSS
+C Cload n3 VDD
+L Lload n3 VDD
+C C2 n3 VOUT1
+```
+
+Predicted direction and magnitude: s21_db improves by ~6 dB (resonant load increases transconductance gain at f0).
+
+```netlist
+* lna-a5-cascode-stage: cascode configuration for improved gain and stability
+C C1 VIN1 n1
+L L1 n1 n2
+NMOS NM1 n3 n2 n1 VSS
+NMOS NM2 n4 n3 n5 VSS
+L L2 n4 VDD
+C C2 n4 VOUT1
+```
+
+Predicted direction and magnitude: s21_db improves by ~8 dB (cascode structure increases output impedance and gain).

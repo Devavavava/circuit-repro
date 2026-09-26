@@ -1,0 +1,56 @@
+```netlist
+* lna-a5-cascode: cascode common-source LNA with inductive source degeneration
+C C1 VIN1 G
+R R1 VDD G
+NMOS NM1 D G S VSS
+L L1 S VSS
+L L2 D D2
+NMOS NM2 D2 G2 S2 VSS
+L L3 S2 VSS
+C C2 D2 VOUT1
+R R2 D2 n3
+NMOS NM3 n3 n3 VSS VSS
+R R1a VDD n3
+C Cbyp G VSS
+```
+
+Predicted direction: s21_db improves by ~2.5 dB. The cascode configuration increases transconductance and output impedance, boosting gain while maintaining stability.
+
+---
+
+```netlist
+* lna-a5-dualstage: dual-stage common-source LNA with inductive source degeneration
+C C1 VIN1 G1
+R R1 VDD G1
+NMOS NM1 D1 G1 S1 VSS
+L L1 S1 VSS
+L L2 D1 D2
+C C2 D2 VOUT1
+R R2 D2 n3
+NMOS NM3 n3 n3 VSS VSS
+R R1a VDD n3
+C Cbyp G1 VSS
+NMOS NM4 D2 G2 S2 VSS
+L L3 S2 VSS
+```
+
+Predicted direction: s21_db improves by ~3.2 dB. The dual-stage configuration doubles the gain of a single-stage common-source LNA, significantly boosting S21 while maintaining narrowband matching.
+
+---
+
+```netlist
+* lna-a5-boosted: common-source with inductive source degeneration and series inductor
+C C1 VIN1 G
+R R1 VDD G
+NMOS NM1 D G S VSS
+L L1 S VSS
+L L2 D VDD
+L L3 G G2
+C C2 D VOUT1
+R R2 D n3
+NMOS NM3 n3 n3 VSS VSS
+R R1a VDD n3
+C Cbyp G2 VSS
+```
+
+Predicted direction: s21_db improves by ~2.8 dB. The series inductor L3 at the gate enhances impedance transformation and reduces parasitic capacitance, improving gain and frequency response at 2.4 GHz.

@@ -1,0 +1,59 @@
+```netlist
+* lna-a2-common-gate: common-gate LNA with input at source and gate AC-grounded via inductor.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+L L3 n1 VSS
+```
+Predicted effect: s11_db improves by ~2.5 dB via inductor L3 grounding gate AC-impedance.
+
+```netlist
+* lna-a2-common-source: common-source LNA with input at gate and source AC-grounded via capacitor.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n1 n2 VSS VSS
+C C1 n2 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+C C4b n1 VSS
+```
+Predicted effect: s11_db improves by ~3.2 dB via capacitor C4b providing source AC-ground.
+
+```netlist
+* lna-a2-cascode: cascode LNA with input at gate of upper transistor and lower transistor AC-grounded.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n1 n2 VSS VSS
+NMOS NM2 n2 n3 VSS VSS
+C C1 n3 n4
+PMOS PM1 n3 n4 VDD VDD
+L L2 n3 n5
+C C2 n5 VSS
+C C3 n3 VOUT1
+R R1 VDD n6
+NMOS NM3 n6 n6 VSS VSS
+R R2 n6 n1
+PMOS PM2 n7 n7 VDD VDD
+R R4 n7 VSS
+R R5 n7 n4
+```
+Predicted effect: s11_db improves by ~2.8 dB via cascode structure enhancing input impedance control.

@@ -1,0 +1,15 @@
+* lna-a2-cascode-shunt: cascode topology with shunt peaking inductor for bandwidth extension.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n1 n2 VSS VSS
+C C1 n2 n3
+PMOS PM1 n3 n4 VDD VDD
+L L2 n4 n5
+C C2 n5 VSS
+C C3 n3 VOUT1
+R R1 VDD n6
+NMOS NM3 n6 n7 VSS VSS
+R R2 n7 n1
+PMOS PM2 n8 n9 VDD VDD
+R R4 n8 VSS
+R R5 n9 n4

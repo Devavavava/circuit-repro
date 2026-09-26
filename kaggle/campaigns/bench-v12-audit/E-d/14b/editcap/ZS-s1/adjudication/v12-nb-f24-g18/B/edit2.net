@@ -1,0 +1,11 @@
+* lna-a5-commongate-mod3: common-source with cascode (two-stage gain boost)
+C C1 VIN1 n1
+R R1 n1 VSS
+NMOS NM1 n2 n1 VSS VSS
+NMOS NM2 n2 n3 VSS VSS
+L L2 VDD n3
+C C2 n3 VOUT1
+R R1_vdd VDD n4
+NMOS NM3 n4 n4 VSS VSS
+R R2 n4 n1
+C Cbyp n1 VSS

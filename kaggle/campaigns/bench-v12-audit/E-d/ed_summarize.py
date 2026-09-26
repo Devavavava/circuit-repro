@@ -81,6 +81,7 @@ def main():
             if L["worst"] is not None:
                 best_worst[e["cell"]] = max(best_worst.get(e["cell"], -9e9), L["worst"])
         ink = {c["cell"] for c in Cm if c["inkernel_feasible"]}
+        stable = sorted({e["cell"] for e in E if any((m or 0) >= 1 for m in e["local"].get("mu_min_feas") or [])})
         valid = [e for e in E if e["valid"]]
         wb = [e for e in valid if "-wb-" in e["cell"]]
         nb = [e for e in valid if "-nb-" in e["cell"]]
@@ -126,6 +127,10 @@ def main():
             "per_sample_solved": {s: sorted(v) for s, v in per_sample.items()},
             "s1_s2_agreement": agree,
             "inkernel_solved": sorted(ink),
+            "solved_with_mu_min_ge_1": stable,
+            "feasible_edits": [{"cell": e["cell"], "sample": e["sample"], "edit": e["edit"],
+                                "seeds": e["local"]["n_feas"], "path": e["path"],
+                                "wide_fb": e["topo"]["wide_fb"]} for e in E if e["local"]["feas"]],
             "best_worst_margin": best_worst,
             "topo": topo}
     # ZS vs FS per model (pre-reg: no claim unless >= 3 cells differ)
@@ -165,6 +170,33 @@ def main():
                           "cell": c["cell"], "gpu_min": c["timing"]["total_ms"] / 60000,
                           "spice_min_seed1_to_first": spice, "first_feasible_edit_seed1": first})
         out["llm_cost"] = costs
+        # sequential cost per (model, cond, cell): s1 then s2; each completion = its
+        # GPU time + seed-1 sizing calls of its valid edits in index order (a token
+        # sequence already sized earlier in the sequence is free), stopping at the
+        # first seed-1-feasible edit. Comparable to E-c's seed-1 screen "calls to 1st".
+        seq = []
+        for g in sorted({(c["model"], c["cond"]) for c in comps}):
+            for cell in CELLS:
+                calls, gpu, smin, done, sized = 0, 0.0, 0.0, None, set()
+                for c in sorted([c for c in comps if (c["model"], c["cond"], c["cell"]) == (g[0], g[1], cell)],
+                                key=lambda c: c["sample"]):
+                    gpu += (c.get("timing") or {}).get("total_ms", 0) / 60000
+                    EE = sorted([e for e in edits if (e["model"], e["cond"], e["sample"], e["cell"]) ==
+                                 (c["model"], c["cond"], c["sample"], cell) and e["valid"]], key=lambda e: e["edit"])
+                    for e in EE:
+                        s1 = sc.get((cell, e["key"]), {}).get(1) or {}
+                        if e["key"] not in sized:
+                            sized.add(e["key"])
+                            calls += 1
+                            smin += (s1.get("secs") or 0) / 60
+                        if s1.get("feasible"):
+                            done = c["sample"]
+                            break
+                    if done is not None:
+                        break
+                seq.append({"model": g[0], "cond": g[1], "cell": cell, "solved_seed1_at_sample": done,
+                            "calls": calls, "gpu_min": gpu, "spice_min": smin})
+        out["llm_seq_cost"] = seq
     json.dump(out, open(ED + "/summary.json", "w"), indent=1, default=list)
     write_tables(out)
 
@@ -225,6 +257,21 @@ def write_tables(out):
             lab = ("SYN" if c in out["synthesis"] else "RET") + (" EDGE" if c in out["edge"] else "")
             L.append(f"| {c} | {lab} | {e.get('search_trivial')} | {e.get('confirmed')} | "
                      f"{'-' if f1 is None else f'{f1:.1f}'} / {'-' if fr is None else f'{fr:.1f}'} | {hs} |")
+        L.append("\n### Sequential LLM cost vs E-c (seed-1 sizing calls; load-independent)\n")
+        L.append("Per cell: sample 1 then sample 2, each = GPU-min + seed-1 sizing calls of its valid edits in order, "
+                 "stop at first seed-1-feasible. `N@sK` = solved (seed 1) after N calls within K completions; `x (N)` = unsolved "
+                 "after 2 completions (N calls spent). E-c calls to 1st (fixed / E[random]) are in E-c/README.md.\n")
+        gs = sorted({(x["model"], x["cond"]) for x in out["llm_seq_cost"]})
+        L.append("| cell | label | " + " | ".join(f"{m.split('-')[1]} {c}" for m, c in gs) + " |")
+        L.append("|---|---|" + "---|" * len(gs))
+        for cell in S.cells():
+            lab = ("SYN" if cell in out["synthesis"] else "RET") + (" EDGE" if cell in out["edge"] else "")
+            row = []
+            for g in gs:
+                x = [y for y in out["llm_seq_cost"] if (y["model"], y["cond"], y["cell"]) == (g[0], g[1], cell)][0]
+                row.append((f"{x['calls']}@s{x['solved_seed1_at_sample']}" if x["solved_seed1_at_sample"] else f"x ({x['calls']})")
+                           + f" +{x['gpu_min']:.1f} GPU-min")
+            L.append(f"| {cell} | {lab} | " + " | ".join(row) + " |")
         allc = out.get("llm_cost", [])
         for g in sorted({(x["model"], x["cond"]) for x in allc}):
             xs = [x for x in allc if (x["model"], x["cond"]) == g]

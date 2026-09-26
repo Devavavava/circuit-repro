@@ -1,0 +1,10 @@
+* Edit 2: Replace push-pull with common-gate input stage (series inductor + grounded gate)
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R Rf n4 VIN1

@@ -1,0 +1,12 @@
+* lna-a5-boosted: common-source with inductive source degeneration and series inductor
+C C1 VIN1 G
+R R1 VDD G
+NMOS NM1 D G S VSS
+L L1 S VSS
+L L2 D VDD
+L L3 G G2
+C C2 D VOUT1
+R R2 D n3
+NMOS NM3 n3 n3 VSS VSS
+R R1a VDD n3
+C Cbyp G2 VSS

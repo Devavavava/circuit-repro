@@ -1,0 +1,113 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**Prediction:** s11_max_db improves by ~2.2 dB (input shunt resistor makes Zin more resistive).",
+  "wl_hash": "30bf1f245e16e1c7",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 6.901175,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": 8.78432,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 1.57424,
+    "metrics": {
+      "s11_db": -6.49449,
+      "s11_max_db": -4.39921,
+      "s21_db": 9.85837,
+      "s21_min_db": 8.40518,
+      "idd_ma": 5.419632,
+      "nf_db": 2.364766,
+      "s22_db": -4.64441,
+      "s22_max_db": -2.82468,
+      "s12_db": -27.2051,
+      "k_f0": 1.67055,
+      "k_min": 0.817643,
+      "mu_f0": 1.18644,
+      "mu_min": 0.941426,
+      "mu_src_f0": 1.24973,
+      "mu_src_min": 0.864894,
+      "delta_f0": 0.144359,
+      "delta_max": 0.377886,
+      "stab_band": [
+        500000000.0,
+        3000000000.0
+      ],
+      "s21_ripple_db": 1.4554299999999998,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 5.419632,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": 0.4580368,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 5,
+        "required_max": null,
+        "scale": 5,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 2.364766,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": 0.2117446666666667,
+        "supported": true
+      },
+      "s11_max_db": {
+        "achieved": -4.39921,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.560079,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 9.85837,
+        "required_min": 10,
+        "required_max": null,
+        "scale": 10,
+        "margin": -0.014162999999999926,
+        "supported": true
+      },
+      "s21_ripple_db": {
+        "achieved": 1.4554299999999998,
+        "required_min": null,
+        "required_max": 2.0,
+        "scale": 2.0,
+        "margin": 0.2722850000000001,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "s11_max_db",
+      -0.560079
+    ],
+    "seed": 2,
+    "seconds": 15.799,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 6.901175
+}

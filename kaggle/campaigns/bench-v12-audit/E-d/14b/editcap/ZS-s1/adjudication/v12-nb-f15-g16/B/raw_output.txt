@@ -1,0 +1,41 @@
+```netlist
+* lna-a5-commongate-mod1: common-source input LNA (higher gain via source grounding)
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 VIN1 n0 VSS
+L L2 n2 VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+Predicted improvement: s21_db improves by ~7 dB (common-source gain is higher than common-gate)
+
+```netlist
+* lna-a5-commongate-mod2: cascode-enhanced CG LNA (increased output impedance)
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+NMOS NM2 VDD n1 n2 VSS
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+Predicted improvement: s21_db improves by ~4 dB (cascode increases output impedance)
+
+```netlist
+* lna-a5-commongate-mod3: CG LNA with resistive load (direct resistive gain)
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+R R2 n2 VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2a n3 n1
+C Cbyp n1 VSS
+```
+Predicted improvement: s21_db improves by ~2 dB (resistive load avoids inductive phase shift)

@@ -1,0 +1,42 @@
+```netlist
+C C1 VIN1 n0
+R R1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+R R2 VDD n2
+C C2 n2 VOUT1
+R R1b VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2b n3 n1
+C Cbyp n1 VSS
+```
+
+s21_db improves by ~2.5 dB through replacing the inductive drain load with a resistor, increasing the effective transconductance load.
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+NMOS NM2 VDD n2 n2 VSS
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+
+s21_db improves by ~1.8 dB through adding a cascode transistor (NM2) to increase output impedance and stabilize gain.
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 n2 VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+R Rf n2 n0
+```
+
+s21_db improves by ~1.5 dB through adding a resistive feedback path (Rf) from output to input, modifying the input impedance characteristics.

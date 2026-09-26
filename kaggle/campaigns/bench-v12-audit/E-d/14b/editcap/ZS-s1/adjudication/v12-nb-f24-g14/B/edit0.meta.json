@@ -1,0 +1,105 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "**Predicted improvement**: s21_db improves by ~3.5 dB. Converting to common-source configuration increases transistor gain (g_m * R_load) by eliminating the common-gate's inherent voltage gain inversion and reducing source impedance losses.",
+  "wl_hash": "08258cb11bbd507c",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 6.920506,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": 2.68928,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.5964,
+    "metrics": {
+      "s11_db": 0.224379,
+      "s11_max_db": 0.274668,
+      "s21_db": 11.8494,
+      "s21_min_db": 11.8264,
+      "idd_ma": 5.653347,
+      "nf_db": 1.812623,
+      "s22_db": -18.342,
+      "s22_max_db": -15.6337,
+      "s12_db": -29.1768,
+      "k_f0": -0.243628,
+      "k_min": -0.249595,
+      "mu_f0": -0.196783,
+      "mu_min": -0.24454,
+      "mu_src_f0": 0.847228,
+      "mu_src_min": 0.844215,
+      "delta_f0": 0.037296,
+      "delta_max": 0.0630095,
+      "stab_band": [
+        2352000000.0,
+        2448000000.0
+      ],
+      "s21_ripple_db": 0.02880000000000038,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 5.653347,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": -0.41333675000000003,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 1.812623,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -0.007012777777777806,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": 0.224379,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -1.0224379000000001,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 11.8494,
+        "required_min": 14,
+        "required_max": null,
+        "scale": 14,
+        "margin": -0.15361428571428576,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -1.0224379000000001
+    ],
+    "seed": 1,
+    "seconds": 14.59,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 6.920506
+}

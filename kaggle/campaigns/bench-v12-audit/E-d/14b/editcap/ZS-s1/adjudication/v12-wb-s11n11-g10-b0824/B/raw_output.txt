@@ -1,0 +1,85 @@
+### Diagnosis:
+The failure in the S11 constraint (input return loss) stems from **poor input impedance matching** over the wideband (0.8–2.4 GHz). The original design uses a **series LC network** (C4 + L1) at the input to drive the gate of NM1, but this configuration struggles to maintain a consistent low-impedance match across the entire band. The high-impedance nature of the common-source input stage (NM1) combined with the LC network's resonant behavior at a single frequency exacerbates the mismatch, resulting in a suboptimal S11 of -7.79 dB (vs. required -11 dB). The tuned load (L2 + C2) and current-reuse topology also contribute to parasitic effects that degrade the input match.
+
+---
+
+### Edit 1: **Common-Gate Input Stage with Shunt Inductor**
+Replace the common-source input configuration with a **common-gate** stage (lower input impedance) and add a **shunt inductor** to improve wideband matching.
+
+```netlist
+* lna-a2-common-gate: common-gate input with shunt inductor.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n1 n2 VSS VSS
+C C1 n2 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+L L6 VIN1 VSS
+```
+
+**Predicted improvement:**  
+**S11_max_db improves by ~3 dB** (e.g., -10.8 dB) via the common-gate stage’s lower input impedance and the shunt inductor (L6) bypassing high-frequency components, enhancing wideband matching.
+
+---
+
+### Edit 2: **Series Inductor at Input with Tuned Load**
+Replace the input capacitor (C4) with a **series inductor** and reconfigure the LC network to resonate across the band. Add a **tuned load** to the output to improve impedance transformation.
+
+```netlist
+* lna-a2-series-inductor: series inductor at input with tuned load.
+L L4 VIN1 n0
+C C4 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+L L7 VOUT1 VSS
+C C7 VOUT1 VSS
+```
+
+**Predicted improvement:**  
+**S11_max_db improves by ~2.5 dB** (e.g., -10.3 dB) by replacing the capacitor with an inductor for lower input impedance and adding a tuned load (L7 + C7) to stabilize the output impedance and reduce reflections.
+
+---
+
+### Edit 3: **Double-Tuned Input Network with Feedback**
+Introduce a **double-tuned input network** (parallel LC) and a **feedback capacitor** to enhance wideband matching and suppress parasitic effects.
+
+```netlist
+* lna-a2-double-tuned: double-tuned input with feedback capacitor.
+C C4 VIN1 n0
+L L1 n0 n1
+C C5 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+C C6 VOUT1 n1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted improvement:**  
+**S11_max_db improves by ~3.5 dB** (e.g., -11.3 dB) via the double-tuned input network (C5 + L1) and feedback capacitor (C6) reducing parasitic effects and enhancing impedance matching across the wideband.

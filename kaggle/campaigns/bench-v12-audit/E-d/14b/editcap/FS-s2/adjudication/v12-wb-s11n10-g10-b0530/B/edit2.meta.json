@@ -1,0 +1,113 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**Predicted change:** s11_max_db improves by ~2 dB. Replacing the output capacitor with an inductor-capacitor parallel network improves the output impedance match, indirectly enhancing input return loss by stabilizing the transistor's load.",
+  "wl_hash": "5e11efac0ef80df8",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 4.226799,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": 7.11812,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 1.76233,
+    "metrics": {
+      "s11_db": -2.84212,
+      "s11_max_db": -2.37667,
+      "s21_db": 12.6964,
+      "s21_min_db": 12.2064,
+      "idd_ma": 6.577435,
+      "nf_db": 1.735489,
+      "s22_db": -7.48636,
+      "s22_max_db": -6.52035,
+      "s12_db": -26.7906,
+      "k_f0": 0.842354,
+      "k_min": 0.386239,
+      "mu_f0": 0.90803,
+      "mu_min": 0.545465,
+      "mu_src_f0": 0.953916,
+      "mu_src_min": 0.669624,
+      "delta_f0": 0.175058,
+      "delta_max": 0.273358,
+      "stab_band": [
+        500000000.0,
+        3000000000.0
+      ],
+      "s21_ripple_db": 0.4900000000000002,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 6.577435,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": 0.34225649999999996,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 5,
+        "required_max": null,
+        "scale": 5,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 1.735489,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": 0.42150366666666667,
+        "supported": true
+      },
+      "s11_max_db": {
+        "achieved": -2.37667,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.762333,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 12.6964,
+        "required_min": 10,
+        "required_max": null,
+        "scale": 10,
+        "margin": 0.26964000000000005,
+        "supported": true
+      },
+      "s21_ripple_db": {
+        "achieved": 0.4900000000000002,
+        "required_min": null,
+        "required_max": 2.0,
+        "scale": 2.0,
+        "margin": 0.7549999999999999,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "s11_max_db",
+      -0.762333
+    ],
+    "seed": 2,
+    "seconds": 16.388,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 4.226799
+}

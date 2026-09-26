@@ -1,0 +1,80 @@
+{
+  "kernel": "ed-14b",
+  "prereg": "kaggle/PREREG-BENCH-V12-AUDIT.md#E-d",
+  "model_id": "qwen3-14b-q4km",
+  "lib": "editcap-lib-v12-45nm",
+  "pdk": "bptm45",
+  "arm": "B",
+  "k": "3",
+  "max_tokens": "8192",
+  "temperature": "0.7",
+  "recover_reasoning": true,
+  "repo_branch": "worktree-externals-gf180",
+  "repo_sha_pinned": "cc5a836bb26fbfef4f128777945ebdae39c3fb66",
+  "runs": [
+    {
+      "cond": "ZS",
+      "sample": 1,
+      "out": "/kaggle/working/editcap/ZS-s1",
+      "rc": 0,
+      "minutes": 61.9,
+      "n_cells_done": 16,
+      "n_proposed": 48,
+      "n_valid": 47,
+      "n_inkernel_feasible_cells": 1
+    },
+    {
+      "cond": "FS",
+      "sample": 1,
+      "out": "/kaggle/working/editcap/FS-s1",
+      "rc": 0,
+      "minutes": 48.9,
+      "n_cells_done": 16,
+      "n_proposed": 48,
+      "n_valid": 48,
+      "n_inkernel_feasible_cells": 2
+    },
+    {
+      "cond": "ZS",
+      "sample": 2,
+      "out": "/kaggle/working/editcap/ZS-s2",
+      "rc": 0,
+      "minutes": 52.4,
+      "n_cells_done": 16,
+      "n_proposed": 48,
+      "n_valid": 42,
+      "n_inkernel_feasible_cells": 0
+    },
+    {
+      "cond": "FS",
+      "sample": 2,
+      "out": "/kaggle/working/editcap/FS-s2",
+      "rc": 0,
+      "minutes": 51.0,
+      "n_cells_done": 16,
+      "n_proposed": 48,
+      "n_valid": 48,
+      "n_inkernel_feasible_cells": 2
+    }
+  ],
+  "clone_head": "cc5a836bb26fbfef4f128777945ebdae39c3fb66",
+  "gguf": {
+    "source": "download",
+    "url": "https://huggingface.co/Qwen/Qwen3-14B-GGUF/resolve/main/Qwen3-14B-Q4_K_M.gguf",
+    "path": "/tmp/Qwen3-14B-Q4_K_M.gguf",
+    "bytes": 9001752960,
+    "sha256": "500a8806e85ee9c83f3ae08420295592451379b4f8cf2d0f41c15dffeb6b81f0",
+    "verified": true
+  },
+  "identical_raw_s1_s2": {
+    "FS": [
+      0,
+      16
+    ],
+    "ZS": [
+      0,
+      16
+    ]
+  },
+  "wall_minutes": 217.4
+}

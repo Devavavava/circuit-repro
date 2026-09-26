@@ -1,0 +1,64 @@
+```netlist
+* lna-a2-current-reuse: current-reuse NMOS/PMOS push-pull CS LNA.
+* Lineage: Karanicolas, "A 2.7-V 900-MHz CMOS LNA and Mixer", JSSC 1996 /
+* inverter-LNA (current-reuse) lineage. Bench-v1 anchor; verbatim of the
+* proven v0.2 external c3 (round-1 external, wl 226544590d47717b, 6/24 gf180
+* topology credit). Structure-only, ZERO component values. Published BIAS
+* NETWORKS in-topology: NMOS gate via mirror ref R1 -> diode NM3 through R2;
+* PMOS gate via diode PM2 (current set by R4) through R5; tuned load L2+C2
+* off the shared DC path; input DC-blocked (C4).
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+```netlist
+* lna-a3-common-gate: common-gate LNA with input inductor and resistor.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+```netlist
+* lna-a4-series-inductor: series inductor input matching with common-source.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Edit 1 Predicted Change:** s11_db improves by ~1.5 dB.  
+**Edit 2 Predicted Change:** s11_db improves by ~1.0 dB.  
+**Edit 3 Predicted Change:** s11_db improves by ~0.8 dB.

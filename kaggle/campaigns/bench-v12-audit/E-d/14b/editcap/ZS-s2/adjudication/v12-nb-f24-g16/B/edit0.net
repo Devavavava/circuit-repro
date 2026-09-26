@@ -1,0 +1,10 @@
+* lna-a5-commonsource: common-source input LNA with source resistor for gain
+C C1 VIN1 g1
+R R1 g1 VSS
+NMOS NM1 d1 g1 s1 VSS
+L L2 d1 VDD
+C C2 d1 VOUT1
+R R1a VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 s1
+C Cbyp g1 VSS

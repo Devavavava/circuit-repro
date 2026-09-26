@@ -1,0 +1,47 @@
+```netlist
+* Edit 1: Single-ended common-source with source inductor and shunt capacitor
+C C4 VIN1 n0
+NMOS NM1 n0 n1 VSS VSS
+L L1 n1 VSS
+C C2 n1 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted change**: S11_db improves by ~2.5 dB by reducing input impedance mismatch through source inductor and shunt capacitor.
+
+```netlist
+* Edit 2: Cascode topology with input degeneration inductor
+C C4 VIN1 n0
+NMOS NM1 n0 n1 VSS VSS
+L L1 n1 n2
+NMOS NM2 n2 n3 VSS VSS
+C C2 n3 VOUT1
+R R1 VDD n4
+NMOS NM3 n4 n4 VSS VSS
+R R2 n4 n1
+PMOS PM2 n5 n5 VDD VDD
+R R4 n5 VSS
+R R5 n5 n3
+```
+
+**Predicted change**: S11_db improves by ~1.8 dB via cascode structure's improved impedance transformation and reduced Miller effect.
+
+```netlist
+* Edit 3: Common-gate topology with series input inductor
+L L1 VIN1 n0
+NMOS NM1 n0 VSS n1 VSS
+C C1 n1 VOUT1
+R R1 VDD n2
+NMOS NM3 n2 n2 VSS VSS
+R R2 n2 n0
+PMOS PM2 n3 n3 VDD VDD
+R R4 n3 VSS
+R R5 n3 n1
+```
+
+**Predicted change**: S11_db improves by ~3.2 dB through common-gate configuration's inherent low input impedance and series inductor matching.

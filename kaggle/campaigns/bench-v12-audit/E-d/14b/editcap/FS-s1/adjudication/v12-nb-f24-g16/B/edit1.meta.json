@@ -1,0 +1,189 @@
+{
+  "index": 1,
+  "round": 1,
+  "predicted_delta_text": "**Predicted change:** s21_db improves by ~2.5 dB as the feedback resistor stabilizes the output impedance and enhances gain through negative feedback compensation.\n\n---",
+  "wl_hash": "a0ad499bebb32032",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 3.034036,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -9.6,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 1.4938,
+    "metrics": {
+      "s11_db": -11.5499,
+      "s11_max_db": -11.4697,
+      "s21_db": 8.09917,
+      "s21_min_db": 7.84788,
+      "idd_ma": 2.731348,
+      "nf_db": 1.723101,
+      "s22_db": -10.3277,
+      "s22_max_db": -8.76886,
+      "s12_db": -16.4976,
+      "k_f0": 1.37879,
+      "k_min": 1.36503,
+      "mu_f0": 1.64455,
+      "mu_min": 1.52546,
+      "mu_src_f0": 1.78511,
+      "mu_src_min": 1.74847,
+      "delta_f0": 0.459681,
+      "delta_max": 0.464152,
+      "stab_band": [
+        2352000000.0,
+        2448000000.0
+      ],
+      "s21_ripple_db": 0.3937500000000007,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 2.731348,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": 0.317163,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 1.723101,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": 0.04272166666666669,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -11.5499,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": 0.1549899999999999,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 8.09917,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": -0.49380187499999995,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "s21_db",
+      -0.49380187499999995
+    ],
+    "seed": 2,
+    "seconds": 14.81,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 3.034036,
+  "escalated": true,
+  "sized_escalated": {
+    "feasible": false,
+    "best_obj": 1.42614,
+    "metrics": {
+      "s11_db": -18.0615,
+      "s11_max_db": -16.1532,
+      "s21_db": 9.18181,
+      "s21_min_db": 9.06986,
+      "idd_ma": 3.82369,
+      "nf_db": 1.26016,
+      "s22_db": -13.9768,
+      "s22_max_db": -11.161,
+      "s12_db": -16.3175,
+      "k_f0": 1.31869,
+      "k_min": 1.30696,
+      "mu_f0": 1.68675,
+      "mu_min": 1.5362,
+      "mu_src_f0": 2.00377,
+      "mu_src_min": 1.95349,
+      "delta_f0": 0.464185,
+      "delta_max": 0.470141,
+      "stab_band": [
+        2352000000.0,
+        2448000000.0
+      ],
+      "s21_ripple_db": 0.15073999999999899,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 3.82369,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": 0.04407749999999999,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 1.26016,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": 0.2999111111111112,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -18.0615,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": 0.8061499999999999,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 9.18181,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": -0.42613687499999997,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "s21_db",
+      -0.42613687499999997
+    ],
+    "seed": 2,
+    "seconds": 43.431,
+    "evals": 1800,
+    "sim_health": {
+      "n_evals": 1800,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  }
+}

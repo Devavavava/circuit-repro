@@ -1,0 +1,65 @@
+1. **DIAGNOSIS**: The LNA's noise figure (NF) fails due to insufficient source degeneration in the first stage. The direct gate-input configuration without source inductance/capacitance leads to poor noise matching and amplified thermal noise from the first transistor (NM1). The two-stage gain structure (31.94 dB) amplifies the second stage's noise, but the binding constraint suggests the first stage's noise is dominant.
+
+---
+
+2. **STRUCTURAL EDITS**:
+
+```netlist
+* Edit 1: Add source-degeneration LC tank to stage-1 (NM1) for noise suppression.
+C C1 VIN1 n1
+NMOS NM1 n2 n1 n3 VSS
+L L1 VDD n2
+L L4 n3 n4
+C C4 n4 VSS
+C C2 n2 n5
+L L2 n5 n6
+NMOS NM2 n7 n6 VSS VSS
+L L3 VDD n7
+C C3 n7 VOUT1
+R R1 VDD n8
+NMOS NM3 n8 n8 VSS VSS
+R R2 n8 n1
+R R3 n8 n6
+```
+**PREDICTION**: nf_db improves by ~0.3–0.5 dB (reduces gate-source thermal noise via source inductance).
+
+---
+
+```netlist
+* Edit 2: Add input-match inductor (L4) in series with C1 for better impedance/noise matching.
+L L4 VIN1 n8
+C C1 n8 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n3
+L L2 n3 n4
+NMOS NM2 n5 n4 VSS VSS
+L L3 VDD n5
+C C3 n5 VOUT1
+R R1 VDD n6
+NMOS NM3 n6 n6 VSS VSS
+R R2 n6 n1
+R R3 n6 n4
+```
+**PREDICTION**: nf_db improves by ~0.2–0.4 dB (enhances input matching, reduces gate noise coupling).
+
+---
+
+```netlist
+* Edit 3: Add source-degeneration LC tank to stage-2 (NM2) to suppress second-stage noise.
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n3
+L L2 n3 n4
+NMOS NM2 n5 n4 n6 VSS
+L L4 n6 n7
+C C4 n7 VSS
+L L3 VDD n5
+C C3 n5 VOUT1
+R R1 VDD n8
+NMOS NM3 n8 n8 VSS VSS
+R R2 n8 n1
+R R3 n8 n4
+```
+**PREDICTION**: nf_db improves by ~0.1–0.3 dB (reduces second-stage noise contribution, less impactful than first-stage edits).

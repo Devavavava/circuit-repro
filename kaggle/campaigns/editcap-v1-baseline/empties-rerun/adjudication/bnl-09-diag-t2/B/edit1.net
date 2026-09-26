@@ -1,0 +1,12 @@
+* Edit 2: Cascode structure (common-gate NMOS + PMOS cascode) for higher output impedance.
+* NM1 (common-gate input) drives PMOS cascode (PM1), loaded by L2. Output at PM1 drain.
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n3 n1 n2 VDD
+L L2 n3 VDD
+C C2 n3 VOUT1
+R R1 VDD n4
+NMOS NM3 n4 n4 VSS VSS
+R R2 n4 n1
+C Cbyp n1 VSS

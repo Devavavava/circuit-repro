@@ -1,0 +1,12 @@
+{
+  "index": 1,
+  "round": 1,
+  "predicted_delta_text": "**PREDICTION:** s11_max_db improves by ~2.5 dB (reaches -3 dB) via T-network impedance shaping.\n\n---\n\n```netlist\n* Edit 3: Add common-gate NMOS stage at input for impedance inversion and enhanced matching\nNMOS NM4 VIN1 n5 VSS VSS\nC C4 n5 n0\nL L1 n0 n1\nNMOS NM1 n2 n1 VSS VSS\nC C1 n1 n3\nPMOS PM1 n2 n3 VDD VDD\nL L2 n2 n4\nC C2 n4 VSS\nC C3 n2 VOUT1\nR R1 VDD n5\nNMOS NM3 n5 n5 VSS VSS\nR R2 n5 n1\nPMOS PM2 n6 n6 VDD VDD\nR R",
+  "wl_hash": null,
+  "valid": false,
+  "dup": false,
+  "fence_outcome": "parse_fail",
+  "fence_detail": null,
+  "sized": null,
+  "error": "ParseError: line 8: duplicate device name 'L2'; line: 'L L2 n2 n4'"
+}

@@ -1,0 +1,28 @@
+* bl-a2-cs-cg-split: CS + CG split-pair balun (single-in / diff-out).
+* Lineage: textbook single-ended-to-differential CS/CG split (the class
+* baseline / contrast family to the noise-cancelling balun). Bench-v1 anchor.
+* Structure-only, ZERO component values.
+* Harness convention (diff3 3-port): port1 = single-ended RF in = VIN1;
+* port2 = INVERTING output leg = VOUT1; port3 = NON-INVERTING output leg =
+* VOUT2 (harness/diff3 net-name convention). Structure: input DC-blocked (C1)
+* to split node n1. CS branch -- NM1 GATE at n1, drain is the INVERTING leg
+* (anti-phase): tuned load L1 to VDD, DC-blocked (C2) to VOUT1. CG branch --
+* NM2 SOURCE at n1 (1/gm), drain is the NON-INVERTING leg (in-phase): tuned
+* load L2 to VDD, DC-blocked (C3) to VOUT2; NM2 gate AC-grounded (Cg) and
+* mirror-biased; NM2 source DC-returned to VSS through R4. Published
+* in-topology BIAS NETWORK: current-mirror reference (R1 -> diode NM3) biases
+* the CS gate (feed R2) and the CG gate (feed R3).
+* Approved 2026-09-14 (bench round 1, "approve all").
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 VOUT1
+NMOS NM2 n3 n4 n1 VSS
+R R4 n1 VSS
+L L2 VDD n3
+C C3 n3 VOUT2
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+R R3 n5 n4
+C Cg n4 VSS

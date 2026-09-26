@@ -1,0 +1,56 @@
+1. **DIAGNOSIS**: The binding constraint (S11_max_db) fails due to inadequate input impedance matching at the gate of NM1. The existing inductor L1 and C1 form a series LC tank, but the transistor's gate capacitance (Cgs) and layout parasitics likely dominate, causing a mismatch. Adding a shunt inductor at the gate of NM1 (n1) creates an additional path for RF current, lowering the input impedance and improving S11.
+
+2. **EDIT 1**: Add a shunt inductor at NM1's gate (n1) to ground. This forms a parallel LC tank with C1, enhancing input matching at resonance.
+```netlist
+* lna-a1-inddegen-cascode + shunt inductor at NM1's gate
+C C1 VIN1 n0
+L L1 n0 n1
+L L4 n1 VSS
+NMOS NM1 n2 n1 n3 VSS
+L L2 n3 VSS
+NMOS NM2 n4 VDD n2 VSS
+L L3 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+```
+**PREDICTION**: S11_max_db improves by ~1.5 dB.
+
+---
+
+3. **EDIT 2**: Introduce a common-gate (CG) stage in parallel with the existing common-source (CS) stage. A CG transistor (NM4) at VIN1 provides a low-impedance RF path to n0, reducing the overall input impedance and improving S11.
+```netlist
+* lna-a1-inddegen-cascode + common-gate input stage
+C C1 VIN1 n0
+L L1 n0 n1
+NMOS NM4 VIN1 VDD n0 VSS
+NMOS NM1 n2 n1 n3 VSS
+L L2 n3 VSS
+NMOS NM2 n4 VDD n2 VSS
+L L3 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+```
+**PREDICTION**: S11_max_db improves by ~2 dB.
+
+---
+
+4. **EDIT 3**: Add a shunt inductor at the input node (n0) to ground, forming an LC tank with C1. This lowers the input impedance at the target frequency, improving S11.
+```netlist
+* lna-a1-inddegen-cascode + shunt inductor at input node (n0)
+C C1 VIN1 n0
+L L1 n0 n1
+L L4 n0 VSS
+NMOS NM1 n2 n1 n3 VSS
+L L2 n3 VSS
+NMOS NM2 n4 VDD n2 VSS
+L L3 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+```
+**PREDICTION**: S11_max_db improves by ~1.2 dB.

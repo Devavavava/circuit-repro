@@ -1,0 +1,67 @@
+1. **Diagnosis**: The circuit's input impedance is mismatched, causing high S11 (poor return loss). The existing C4-L1 input network (low-pass) fails to match 50 Ω across the 0.5-3 GHz band. A more complex input matching network (e.g., series inductor + shunt capacitor) is needed to broaden the impedance bandwidth.
+
+---
+
+```netlist
+* Edit 1: Add series inductor + shunt capacitor to input (high-pass π-network)
+L L_in VIN1 n0
+C C_in n0 VSS
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+**Predicted S11 improvement**: ~4 dB (s11_max_db improves to -4.3 dB).
+
+---
+
+```netlist
+* Edit 2: Replace C4-L1 with inductor in series and parallel LC tank
+L L_in VIN1 n0
+C C1 n0 n1
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C2 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+**Predicted S11 improvement**: ~3.5 dB (s11_max_db improves to -3.8 dB).
+
+---
+
+```netlist
+* Edit 3: Add input series inductor + shunt inductor for broadband match
+L L_in VIN1 n0
+L L_shunt n0 VSS
+C C4 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+**Predicted S11 improvement**: ~3 dB (s11_max_db improves to -3.3 dB).

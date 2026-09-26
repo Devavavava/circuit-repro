@@ -1,0 +1,3 @@
+1. The binding constraint is **s21_db (gain)**, which is critically underperforming at 3.44 dB vs. the required 22 dB. The root cause is the **common-gate topology's inherent gain limitation** due to its low transconductance-to-output-impedance ratio (1/gm * R_L). The source inductor (L1) is broadband-matching but not boosting gain, and the drain inductor (L2) lacks resonance to maximize impedance at 915 MHz. The structure fails to leverage resonant loading or cascode gain multiplication.
+
+---

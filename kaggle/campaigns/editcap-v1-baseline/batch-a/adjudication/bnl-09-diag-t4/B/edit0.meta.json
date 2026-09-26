@@ -1,0 +1,105 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "**PREDICTION**: nf_db improves by ~1.5 dB (from 2.6 dB to ~1.1 dB).\n\n---",
+  "wl_hash": "35529b66a12bf55b",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 0.1670844,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -21.1482,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 20.00848,
+    "metrics": {
+      "s11_db": -0.293952,
+      "s11_max_db": -0.287755,
+      "s21_db": -18.2886,
+      "s21_min_db": -18.5771,
+      "idd_ma": 0.1369124,
+      "nf_db": 20.53638,
+      "s22_db": -23.1773,
+      "s22_max_db": -18.9136,
+      "s12_db": -18.6399,
+      "k_f0": 2.24144,
+      "k_min": 2.17583,
+      "mu_f0": 2.05941,
+      "mu_min": 2.02675,
+      "mu_src_f0": 1.01853,
+      "mu_src_min": 1.01847,
+      "delta_f0": 0.0566709,
+      "delta_max": 0.101913,
+      "stab_band": [
+        902000000.0,
+        928000000.0
+      ],
+      "s21_ripple_db": 0.5493000000000023,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 20.53638,
+        "required_min": null,
+        "required_max": 1.2,
+        "scale": 1.2,
+        "margin": -16.113650000000003,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.293952,
+        "required_min": null,
+        "required_max": -15,
+        "scale": 15,
+        "margin": -0.9804031999999999,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -18.2886,
+        "required_min": 20,
+        "required_max": null,
+        "scale": 20,
+        "margin": -1.91443,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 0.1369124,
+        "required_min": null,
+        "required_max": 2,
+        "scale": 2,
+        "margin": 0.9315438,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -16.113650000000003
+    ],
+    "seed": 1,
+    "seconds": 62.96,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 0.1670844
+}

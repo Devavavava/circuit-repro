@@ -1,0 +1,55 @@
+1. **Diagnosis**: The binding constraint `s21_db` (gain) is critically underperforming because the common-gate topology inherently provides transimpedance gain (~1/gm) rather than voltage gain. The inductive load `L2` cannot overcome the low transconductance limitation of the single transistor `NM1`, leading to insufficient voltage amplification. Structural changes are needed to enable higher voltage gain via cascading, cascoding, or alternative topologies.
+
+---
+
+```netlist
+* lna-a5-commongate -> common-source with source inductor for broadband match
+* Structural change: Replace common-gate with common-source (input at gate), source inductor for matching
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 VIN1 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n0
+C Cbyp VIN1 VSS
+```
+**Predicted effect**: `s21_db` improves by ~6–8 dB (common-source provides voltage gain `gm * RL` vs. common-gate's 1/gm).
+
+---
+
+```netlist
+* lna-a5-commongate -> cascode topology (common-source + common-gate)
+* Structural change: Add cascode transistor NM2 to form a cascode gain stage
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n1 VIN1 n0 VSS
+NMOS NM2 n2 VSS n1 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n0
+C Cbyp VIN1 VSS
+```
+**Predicted effect**: `s21_db` improves by ~4–6 dB (cascode increases output impedance and gain).
+
+---
+
+```netlist
+* lna-a5-commongate -> differential pair with common-mode choke
+* Structural change: Replace single-ended input with a differential pair (NM1, NM2), choke L1 for CM return
+C C1 VIN1 n0
+C C2 VIN2 n1
+L L1 n0 n1
+NMOS NM1 n2 VIN1 n0 VSS
+NMOS NM2 n2 VIN2 n1 VSS
+L L2 VDD n2
+C C3 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n0
+C Cbyp VIN1 VSS
+```
+**Predicted effect**: `s21_db` improves by ~5–7 dB (differential pair doubles voltage gain and rejects noise).

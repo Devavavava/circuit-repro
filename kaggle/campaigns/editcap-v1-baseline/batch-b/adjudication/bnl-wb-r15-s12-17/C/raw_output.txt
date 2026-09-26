@@ -1,0 +1,58 @@
+```netlist
+* Variant 1: Common-gate input stage with NMOS cascode for wideband matching
+C C4 VIN1 n0
+NMOS NM0 n0 n5 VSS VSS  # Common-gate input
+R R0 VDD n5              # Gate bias
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n6
+NMOS NM3 n6 n6 VSS VSS
+R R2 n6 n1
+PMOS PM2 n7 n7 VDD VDD
+R R4 n7 VSS
+R R5 n7 n3
+```
+
+```netlist
+* Variant 2: Differential pair with shunt peaking inductors for bandwidth extension
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n3 VDD VDD
+L L2 n3 n4       # Shunt peaking inductor
+C C2 n4 VSS
+C C3 n2 VOUT1
+NMOS NM2 n5 n3 VSS VSS  # Differential pair
+PMOS PM2 n5 n6 VDD VDD
+C C5 n6 VSS
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+PMOS PM3 n8 n8 VDD VDD
+R R4 n8 VSS
+R R5 n8 n6
+```
+
+```netlist
+* Variant 3: Inductive source degeneration with feedback for ripple suppression
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n3 VSS  # Source degeneration
+L L3 n3 VSS
+PMOS PM1 n2 n4 VDD VDD
+C C1 n4 n5
+L L2 n5 n6
+C C2 n6 VSS
+C C3 n2 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+PMOS PM2 n8 n9 VDD VDD  # Feedback path
+C C4 VOUT1 n9
+R R5 n9 VSS
+```

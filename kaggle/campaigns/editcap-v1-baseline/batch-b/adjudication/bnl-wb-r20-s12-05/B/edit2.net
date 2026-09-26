@@ -1,0 +1,13 @@
+* Edit 3: Transformer-coupled input with center-tapped inductor
+* Replace L1+C1 with transformer primary (L4-L5) connected to VIN1
+L L4 VIN1 n20
+L L5 n20 n1
+L L6 n20 VSS  ; Center tap for AC ground
+NMOS NM1 n2 n1 n3 VSS
+L L2 n3 VSS
+NMOS NM2 n4 VDD n2 VSS
+L L3 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1

@@ -1,0 +1,12 @@
+* Edit 2: Add cascode PMOS on drain of NM1 for gain multiplication
+* Cascode adds a common-source stage, increasing gain via higher output impedance.
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n4
+PMOS PM1 n4 n3 n2 VDD
+C C2 n4 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS

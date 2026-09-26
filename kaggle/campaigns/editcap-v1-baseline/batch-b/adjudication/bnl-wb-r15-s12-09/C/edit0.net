@@ -1,0 +1,13 @@
+* Variant 1: Common-gate with shunt resistor degeneration and cascode
+* Replaces inductive degeneration with resistor, uses common-gate input stage
+R R3 VIN1 n6
+NMOS NM1 n6 n7 n8 VSS
+C C3 n7 n9
+R R4 n8 n10
+L L4 n10 VSS
+NMOS NM2 n11 VDD n8 VSS
+L L5 VDD n11
+C C4 n11 VOUT1
+R R1 VDD n12
+NMOS NM3 n12 n12 VSS VSS
+R R5 n12 n7

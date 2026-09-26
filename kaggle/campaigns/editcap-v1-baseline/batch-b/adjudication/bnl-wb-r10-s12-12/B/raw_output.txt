@@ -1,0 +1,55 @@
+1. **Diagnosis**: The binding constraint (S11_max_db) fails due to poor input impedance matching. The inductively degenerated cascode structure struggles to achieve sufficient impedance transformation across the wideband (0.5–3 GHz) due to the limited degrees of freedom in the existing LC network. The input return loss is dominated by the mismatch between the source impedance and the LNA's input impedance, likely exacerbated by the fixed inductor values and lack of additional reactive components to tune the matching network.
+
+---
+
+```netlist
+* Edit 1: Add shunt inductor at input to ground for improved impedance matching
+C C1 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n3 VSS
+L L2 n3 VSS
+NMOS NM2 n4 VDD n2 VSS
+L L3 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+L L4 VIN1 VSS
+```
+**Predicted effect**: S11_max_db improves by ~1.5 dB (from -0.35 dB to ~-1.8 dB), due to the added inductor (L4) forming a parallel LC resonance with C1 to lower the input impedance at 1.75 GHz.
+
+---
+
+```netlist
+* Edit 2: Replace inductive degeneration with series inductor + shunt capacitor at gate
+C C1 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n3 VSS
+C C3 n1 VSS
+L L2 n3 VSS
+NMOS NM2 n4 VDD n2 VSS
+L L3 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+```
+**Predicted effect**: S11_max_db improves by ~2 dB (from -0.35 dB to ~-2.3 dB), as the shunt capacitor (C3) resonates with L1 to create a series LC matching network at the gate, enhancing broadband impedance matching.
+
+---
+
+```netlist
+* Edit 3: Add common-gate stage for low input impedance and improved matching
+C C1 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n3 VSS
+L L2 n3 VSS
+NMOS NM2 n4 VDD n2 VSS
+L L3 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+NMOS NM4 VIN1 VDD n0 VSS
+```
+**Predicted effect**: S11_max_db improves by ~3 dB (from -0.35 dB to ~-3.3 dB), as the common-gate NMOS (NM4) inherently lowers the input impedance and provides an active matching mechanism, complementing the passive LC network.

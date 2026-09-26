@@ -50,8 +50,15 @@ _PIN_ORDER = {
     "NMOS": ("D", "G", "S", "B"), "PMOS": ("D", "G", "S", "B"),
     "R": ("P", "N"), "C": ("P", "N"), "L": ("P", "N"),
 }
-RESERVED_NETS = ("VDD", "VSS", "VIN1", "VOUT1", "0")
-PORTS = ["VDD", "VSS", "VIN1", "VOUT1"]      # AnalogGenie port order (templates.PORTS)
+# VOUT2 is the non-inverting differential output leg (balun class; VOUT1 is the
+# inverting leg -- the diff3/balun_harness convention). It is a reserved OUTPUT
+# net so a balun proposal/anchor that declares a second output parses and
+# round-trips as a boundary port rather than an internal node. ADDITIVE: any
+# netlist that never names VOUT2 is unaffected (parse() keeps only the ports
+# actually present, in PORTS order, so the emitted token sequence and matrix are
+# byte-identical for every VOUT2-free netlist).
+RESERVED_NETS = ("VDD", "VSS", "VIN1", "VOUT1", "VOUT2", "0")
+PORTS = ["VDD", "VSS", "VIN1", "VOUT1", "VOUT2"]  # AnalogGenie port order (+balun VOUT2)
 
 _NAME_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_]*$")
 _NET_RE = re.compile(r"^(0|[A-Za-z][A-Za-z0-9_]*)$")

@@ -1,0 +1,18 @@
+1. **DIAGNOSIS**: The binding constraint (NF=2.27 dB > 1.8 dB) is caused by insufficient noise suppression in the first stage. The first-stage CS amplifier (NM1) has a resistive gate input impedance and lacks source degeneration, which increases gate thermal noise and degrades the overall NF. The current mirror biasing resistors (R2, R3) also contribute additional noise.
+
+---
+
+```netlist
+* Add inductive source degeneration to first stage (NM1) to reduce gate noise and improve transconductance.
+C C1 VIN1 n1
+NMOS NM1 n2 n1 n1s VSS
+L L4 n1s VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1

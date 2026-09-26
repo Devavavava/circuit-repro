@@ -1,0 +1,57 @@
+1. **Diagnosis**: The binding constraint is the noise figure (NF), which is 0.15 dB over the target. The primary contributors are the gate resistor (R2) and the transistors' intrinsic noise. The current mirror (R1 + NM3) sets R2's value, and reducing R2's resistance could lower thermal noise. Replacing the NMOS current mirror with a PMOS current mirror allows for a lower gate resistance (R2), reducing R2's thermal noise contribution.
+
+2. **Structural Edits**:
+
+```netlist
+* lna-pmos-bias-cascode: PMOS current mirror to lower R2's noise
+C C1 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n3 VSS
+L L2 n3 VSS
+NMOS NM2 n4 VDD n2 VSS
+L L3 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n5
+PMOS PM3 n5 n5 VDD VDD
+R R2 n5 n1
+```
+
+**Predicted Effect**: NF decreases by ~0.1–0.2 dB due to reduced R2 thermal noise.
+
+---
+
+```netlist
+* lna-source-parallel-r-cascode: Add resistor in parallel with L2 to adjust source impedance
+C C1 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n3 VSS
+L L2 n3 n6
+R R4 n6 VSS
+NMOS NM2 n4 VDD n2 VSS
+L L3 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+```
+
+**Predicted Effect**: NF improves by ~0.1–0.15 dB via optimized source impedance and noise cancellation.
+
+---
+
+```netlist
+* lna-cascode-source-r-cascode: Add resistor in series with NM2's source to adjust its noise
+C C1 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n3 VSS
+L L2 n3 VSS
+NMOS NM2 n4 VDD n5 VSS
+R R3 n5 VSS
+L L3 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n6
+NMOS NM3 n6 n6 VSS VSS
+R R2 n6 n1
+```
+
+**Predicted Effect**: NF improves by ~0.1 dB by balancing NM2's source impedance and reducing its noise contribution.

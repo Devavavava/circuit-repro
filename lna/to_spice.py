@@ -334,6 +334,14 @@ class Netlist(object):
         has_in = "VIN1" in used
         has_out = "VOUT1" in used
         self.two_port = has_in and has_out
+        # A differential/balun output declares a SECOND output net VOUT2 (the
+        # non-inverting leg; VOUT1 is the inverting leg -- the diff3/balun_harness
+        # convention). When present alongside a working two-port, we emit a THIRD
+        # contiguous S-parameter port so the 3-port balun harness (Sds21/CMRR/
+        # imbalance) can measure the token topology in-loop. Port 3 rides on the
+        # SAME DC-block + z0 pattern as port 2. This branch is entered ONLY when
+        # VOUT2 is in the topology, so every topology without VOUT2 is unchanged.
+        self.three_port = self.two_port and "VOUT2" in used
         if self.two_port:
             A("* port 1: RF input, DC-blocked so bias is not shorted to 50 ohm")
             A("Vp1 p1 0 dc 0 ac 1 portnum 1 z0 50")
@@ -341,6 +349,11 @@ class Netlist(object):
             A("* port 2: RF output")
             A("Cp2 VOUT1 p2 10p")
             A("Vp2 p2 0 dc 0 ac 0 portnum 2 z0 50")
+            if self.three_port:
+                # port 3: non-inverting differential output leg (balun class).
+                A("* port 3: non-inverting differential output (balun VOUT2)")
+                A("Cp3 VOUT2 p3 10p")
+                A("Vp3 p3 0 dc 0 ac 0 portnum 3 z0 50")
         else:
             missing = "VIN1" if not has_in else "VOUT1"
             A(f"* no two-port setup: {missing} absent, so S-parameters are skipped.")

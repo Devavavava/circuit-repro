@@ -1,0 +1,44 @@
+```netlist
+* Edit 1: Add shunt inductor at input for enhanced impedance matching
+C C1 VIN1 n0
+L L1 n0 n1
+L L4 VIN1 VSS
+NMOS NM1 n2 n1 n3 VSS
+L L2 n3 VSS
+NMOS NM2 n4 VDD n2 VSS
+L L3 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+```
+**Predicted S11 improvement**: ~3 dB (shunt inductor L4 creates parallel resonance with C1 to better cancel input capacitance at f0)
+
+```netlist
+* Edit 2: Replace cascode with common-source and add shunt inductor
+C C1 VIN1 n0
+L L1 n0 n1
+L L4 VIN1 VSS
+NMOS NM1 n2 n1 VSS VSS
+C C2 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+```
+**Predicted S11 improvement**: ~4 dB (cascode removal reduces parasitic capacitance and shunt inductor L4 improves input match)
+
+```netlist
+* Edit 3: Add series inductor at gate node for dynamic bias tuning
+C C1 VIN1 n0
+L L1 n0 n1
+L L4 n1 VSS
+NMOS NM1 n2 n1 n3 VSS
+L L2 n3 VSS
+NMOS NM2 n4 VDD n2 VSS
+L L3 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+```
+**Predicted S11 improvement**: ~2.5 dB (series inductor L4 at gate node adjusts dynamic impedance while maintaining cascode benefits)

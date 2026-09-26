@@ -1,0 +1,9 @@
+* Variant 1: Common-Gate Cascode with Source Inductor
+C C1 VIN1 n1
+L L1 n1 n2
+NMOS NM1 n3 n4 n2 VSS
+R R2 VDD n4
+L L2 n3 VOUT1
+NMOS NM2 n5 VDD n3 VSS
+L L3 VDD n5
+C C2 n5 VOUT1

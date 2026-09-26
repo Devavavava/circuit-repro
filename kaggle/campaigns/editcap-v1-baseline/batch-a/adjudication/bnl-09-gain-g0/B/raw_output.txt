@@ -1,0 +1,58 @@
+1. **Diagnosis**: The binding constraint (s21_db) is failing due to insufficient transimpedance gain in the common-gate topology. The single inductor L2 provides a load impedance that is too low at 915 MHz, and the common-gate configuration inherently limits voltage gain compared to common-source. The gm of NM1 is likely insufficient to meet the gain target even with an optimized load.
+
+---
+
+2. **Structural Edits**:
+
+---
+
+**Edit 1: Add a resonant LC tank at the drain load**  
+```netlist
+* lna-a5-commongate + resonant LC tank
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 n2 VDD
+C C3 n2 VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Prediction**: s21_db improves by ~12 dB (LC tank resonance increases load impedance at 915 MHz).
+
+---
+
+**Edit 2: Cascode common-gate with PMOS**  
+```netlist
+* lna-a5-commongate + cascode PMOS
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+PMOS PM1 VDD n4 n2 VDD
+L L2 n4 VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Prediction**: s21_db improves by ~8 dB (cascode increases output impedance and gain).
+
+---
+
+**Edit 3: Convert to common-source with source inductor**  
+```netlist
+* lna-a5-commonsource with source inductor
+C C1 VIN1 n1
+L L1 n1 n0
+NMOS NM1 n2 VDD n0 VSS
+L L2 n2 VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VDD
+```
+**Prediction**: s21_db improves by ~10 dB (common-source topology provides higher gain than common-gate).

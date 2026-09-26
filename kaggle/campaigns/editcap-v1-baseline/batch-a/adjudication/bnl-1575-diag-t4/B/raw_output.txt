@@ -1,0 +1,51 @@
+1. **DIAGNOSIS**: The common-gate topology inherently limits voltage gain (s21_db) due to its transimpedance nature (I→V) and low output impedance. The inductive source match (L1) improves bandwidth but cannot overcome the fundamental gain limitation of a single common-gate stage. The single NMOS (NM1) and inductive load (L2) lack sufficient transconductance (gm) and impedance transformation to meet the 20 dB gain requirement.
+
+---
+
+2. **EDIT 1: Add a cascode common-source stage for gain multiplication**  
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+NMOS NM2 VDD n2 n3 VSS
+L L2 n3 VDD
+C C2 n3 VOUT1
+R R1 VDD n4
+NMOS NM3 n4 n4 VSS VSS
+R R2 n4 n1
+C Cbyp n1 VSS
+```
+**PREDICTION**: s21_db improves by ~12 dB due to cascode gain multiplication (CS stage after CG stage).
+
+---
+
+2. **EDIT 2: Add a shunt inductor for output impedance enhancement**  
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 n2 n3
+L L3 n3 VDD
+C C2 n3 VOUT1
+R R1 VDD n4
+NMOS NM3 n4 n4 VSS VSS
+R R2 n4 n1
+C Cbyp n1 VSS
+```
+**PREDICTION**: s21_db improves by ~8 dB via resonant load (L2+L3) boosting output impedance at f0.
+
+---
+
+2. **EDIT 3: Replace inductive source match with a series resistor for gm improvement**  
+```netlist
+C C1 VIN1 n0
+R R1 n0 n2
+NMOS NM1 n2 n1 VSS VSS
+L L2 VDD n3
+C C2 n3 VOUT1
+R Rbias VDD n4
+NMOS NM3 n4 n4 VSS VSS
+R R2 n4 n1
+C Cbyp n1 VSS
+```
+**PREDICTION**: s21_db improves by ~4 dB via increased gm from reduced source inductance and higher biasing efficiency.

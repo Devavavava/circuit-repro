@@ -1,0 +1,51 @@
+1. **Diagnosis**: The common-gate topology's intrinsic voltage gain is limited by the transconductance (gm) of NM1 and the load impedance (L2). The inductive load (L2) likely under-optimized for resonance at f0=1.58 GHz, leading to insufficient load impedance and low S21. Adding an LC tank at the drain node raises the load impedance at resonance, boosting gain.
+
+2. **Edits**:
+
+```netlist
+* Edit 1: Add LC tank (C3) in parallel with L2 to form a high-impedance resonant load at f0.
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+C C3 VDD n2
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Prediction**: S21_db improves by ~10 dB (from 6.7 dB to ~16.7 dB), driven by the resonant LC tank's high-impedance load at f0.
+
+---
+
+```netlist
+* Edit 2: Add cascode PMOS (PM1) to increase output impedance and gain.
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+PMOS PM1 VDD n4 n2 VDD
+L L2 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Prediction**: S21_db improves by ~8 dB (from 6.7 dB to ~14.7 dB), as the cascode structure raises the output impedance and isolates the load.
+
+---
+
+```netlist
+* Edit 3: Replace L2 inductive load with PMOS active current-source load (PM1).
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+PMOS PM1 VDD n4 n2 VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Prediction**: S21_db improves by ~7 dB (from 6.7 dB to ~13.7 dB), as the PMOS current-source load provides higher impedance than the inductor.

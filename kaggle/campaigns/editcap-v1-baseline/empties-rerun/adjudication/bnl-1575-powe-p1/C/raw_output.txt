@@ -1,0 +1,41 @@
+```netlist
+* Variant 1: Common-source topology with source inductor for input matching
+C C1 VIN1 n0
+L L1 n1 VSS
+NMOS NM1 n2 n0 n1 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n0
+C Cbyp n0 VSS
+```
+
+```netlist
+* Variant 2: Cascode structure (common-source + common-gate) with shared bias
+C C1 VIN1 n0
+L L1 n1 VSS
+NMOS NM1 n2 n0 n1 VSS
+NMOS NM2 n3 n2 n2 VSS
+L L2 VDD n3
+C C2 n3 VOUT1
+R R1 VDD n4
+NMOS NM3 n4 n4 VSS VSS
+R R2 n4 n0
+C Cbyp n0 VSS
+C Cbyp2 n2 VSS
+```
+
+```netlist
+* Variant 3: Common-gate with feedback resistor to improve impedance matching
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+R Rfb n2 n1
+```

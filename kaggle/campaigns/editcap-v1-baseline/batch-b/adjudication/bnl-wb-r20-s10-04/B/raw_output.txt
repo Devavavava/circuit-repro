@@ -1,0 +1,67 @@
+1. **DIAGNOSIS**: The binding constraint `s11_max_db` (-3.13 dB) fails due to poor input impedance matching. The existing LC input network (L1+C4) and transistor input impedance (NM1) form an underdamped or mistuned network, leading to high reflection at the input. The current-reuse push-pull topology lacks sufficient reactance control for wideband impedance matching across 0.5-3 GHz.
+
+---
+
+```netlist
+* Edit 1: Add shunt inductor at input to adjust impedance matching
+C C4 VIN1 n0
+L L1 n0 n1
+L L3 VIN1 VSS  ; Shunt inductor improves input matching by adding parallel reactance
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+**Prediction**: s11_max_db improves by ~2.5 dB (e.g., from -3.13 dB → -5.6 dB).
+
+---
+
+```netlist
+* Edit 2: Add series resistor in input path to increase real part of Zin
+R R6 VIN1 n7  ; Series resistor for impedance matching
+C C4 n7 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+**Prediction**: s11_max_db improves by ~2 dB (e.g., from -3.13 dB → -5.1 dB).
+
+---
+
+```netlist
+* Edit 3: Add Miller feedback capacitor from NM1 gate (n1) to output (VOUT1)
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+C C5 n1 VOUT1  ; Feedback capacitor adjusts input impedance via Miller effect
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+**Prediction**: s11_max_db improves by ~3 dB (e.g., from -3.13 dB → -6.1 dB).

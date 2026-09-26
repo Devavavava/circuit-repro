@@ -1,0 +1,96 @@
+You are an analog IC designer repairing a low-noise amplifier (LNA) that FAILED its specification after full SPICE sizing. You reason about the failure and propose STRUCTURAL (topology) changes. You output TOPOLOGY ONLY as a small line-oriented netlist; a downstream deterministic tool inserts biasing and sizes every device with a SPICE optimizer. Never invent device values, DC sources, or bias networks -- only the connectivity.
+
+=== SPEC (bnl-24-diag-t3) ===
+description: editcap-bench-v1 LNA wifi diag tier: 2.44 GHz LNA (S21>=18 NF<=1.5 Idd<=4 S11<=-12)
+band: narrowband, f0=2442000000.0 Hz
+gated constraints:
+  nf_db      max 1.5
+  s11_db     max -12
+  s21_db     min 18
+  idd_ma     max 4
+
+=== ANCHOR NETLIST (the failed circuit, dialect form) ===
+```netlist
+* lna-a4-twostage: two-stage tuned common-source LNA with LC interstage.
+* Lineage: Cha & Lee, "A CMOS 1.9-GHz two-stage LNA / inter-stage-resonance
+* narrowband LNA" (JSSC 2003 two-stage tuned-CS family). Bench-v1 anchor,
+* NEW transcription for the tightened 17-22 dB gain tiers. Structure-only,
+* ZERO component values. Approved family form: ~3 FETs + 3 L + mirror bias
+* (kaggle/EXTERNALS-BENCH-CANDIDATES.md L-A4).
+* Structure: stage-1 CS NM1 (input DC-blocked C1 straight to the gate);
+* tuned drain load L1 to VDD; LC interstage (DC-block C2 + series L2) to
+* stage-2 CS NM2 gate; stage-2 tuned drain load L3 to VDD; output DC-blocked
+* C3 to VOUT1. Published in-topology BIAS NETWORK: one current-mirror
+* reference (R1 -> diode NM3) biases BOTH gates through series feed
+* resistors (R2 -> NM1 gate, R3 -> NM2 gate).
+* TRANSCRIPTION NOTE (logged): the first draft carried 5 inductors (extra
+* input-match L + source-degeneration L); the LNA bench screen
+* (max_inductors: 4) flagged it, and the approved family form is 3 L -- the
+* draft was trimmed BACK to the approved/published form, not adapted beyond it.
+* Approved 2026-09-14 (bench round 1, "approve all").
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+=== FAILURE EVIDENCE (this circuit was sized and MISSED) ===
+binding (worst) constraint: nf_db  margin=-0.105533 (normalized; negative == failing)
+feasible: False   total sizing evals spent: 1200
+
+per-constraint margins (achieved vs gate, normalized margin):
+  metric     achieved       margin         supported
+  nf_db      1.6583         -0.105533      True
+  s11_db     -17.3526       0.44605        True
+  s21_db     28.925         0.606944       True
+  idd_ma     4.1723         -0.043075      True
+
+Idd: achieved 4.1723 mA (normalized margin -0.043074999999999974 vs the idd_ma cap; negative == over budget).
+
+full sized-best metrics (verbatim):
+{
+  "s11_db": -17.3526,
+  "s11_max_db": -1.7127,
+  "s21_db": 28.925,
+  "s21_min_db": 25.9242,
+  "idd_ma": 4.1723,
+  "nf_db": 1.6583,
+  "s22_db": -9.0476,
+  "s22_max_db": -5.69,
+  "s12_db": -31.8233,
+  "k_f0": 0.9906,
+  "k_min": 0.9707,
+  "mu_f0": 0.9763,
+  "mu_min": 0.0856,
+  "mu_src_f0": 0.9631,
+  "mu_src_min": 0.2997,
+  "delta_f0": 0.7497,
+  "delta_max": 1.9266,
+  "stab_band": [
+    2400000000.0,
+    2483500000.0
+  ],
+  "s21_ripple_db": 7.7395,
+  "nf_method": "series_rs"
+}
+
+YOUR TASK (arm B):
+1. DIAGNOSE the failure in words: what is physically limiting the binding constraint in the circuit above?
+2. Propose EXACTLY 3 STRUCTURAL edits as FULL netlists in the dialect below. Each edit is a complete netlist (not a diff), each structurally DIFFERENT from the anchor and from the other edits.
+3. After EACH edit, state a PREDICTED direction AND magnitude for the binding metric (e.g. 's11_db improves by ~3 dB').
+
+Emit each edit in its OWN fenced ```netlist block.
+
+NETLIST DIALECT (obey exactly, one device per line):
+  TYPE name node1 node2 [node3 node4]
+  TYPE in {NMOS, PMOS, R, C, L}.
+  NMOS/PMOS take 4 nodes in order D G S B; R/C/L take 2 nodes P N.
+  Nets: VIN1 (input), VOUT1 (output), VDD, VSS (ground); any internal node name otherwise. NO device values. NO V sources. NO bias networks.

@@ -1,0 +1,67 @@
+1. **Diagnosis**: The binding constraint `s11_max_db` fails because the input impedance is mismatched across the 0.5-3 GHz band. The existing series capacitor (C4) and inductor (L1) form a simple matching network but cannot achieve the required -12 dB S11 due to insufficient degrees of freedom for wideband impedance transformation.
+
+---
+
+```netlist
+* Edit 1: Add series resistor and shunt inductor for input matching.
+C C4 VIN1 n0
+R R1 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+**Prediction**: `s11_max_db` improves by ~3 dB due to enhanced impedance shaping from the R1-C4-L1 triplet.
+
+---
+
+```netlist
+* Edit 2: Replace push-pull with cascode NMOS and shared inductive load.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n3 VSS
+NMOS NM2 n3 n4 VSS VSS
+C C1 n2 n4
+PMOS PM1 n4 VDD VDD VDD
+L L2 n4 n5
+C C2 n5 VSS
+C C3 n2 VOUT1
+R R1 VDD n6
+NMOS NM3 n6 n6 VSS VSS
+R R2 n6 n1
+PMOS PM2 n7 n7 VDD VDD
+R R4 n7 VSS
+R R5 n7 n4
+```
+**Prediction**: `s11_max_db` improves by ~4 dB via cascode input stage and inductive load decoupling.
+
+---
+
+```netlist
+* Edit 3: Add parallel inductor at input node for wideband resonance.
+C C4 VIN1 n0
+L L1 n0 n1
+L L5 n0 VSS
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+**Prediction**: `s11_max_db` improves by ~2.5 dB from L5-C4 resonance broadening the impedance match.

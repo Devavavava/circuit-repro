@@ -1,0 +1,9 @@
+1. **Diagnosis**: The binding constraint (s21_db) is failing due to insufficient transimpedance gain in the common-gate topology. The single inductor L2 provides a load impedance that is too low at 915 MHz, and the common-gate configuration inherently limits voltage gain compared to common-source. The gm of NM1 is likely insufficient to meet the gain target even with an optimized load.
+
+---
+
+2. **Structural Edits**:
+
+---
+
+**Edit 1: Add a resonant LC tank at the drain load**

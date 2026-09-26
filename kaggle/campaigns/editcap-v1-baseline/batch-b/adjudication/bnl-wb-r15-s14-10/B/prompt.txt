@@ -1,0 +1,87 @@
+You are an analog IC designer repairing a low-noise amplifier (LNA) that FAILED its specification after full SPICE sizing. You reason about the failure and propose STRUCTURAL (topology) changes. You output TOPOLOGY ONLY as a small line-oriented netlist; a downstream deterministic tool inserts biasing and sizes every device with a SPICE optimizer. Never invent device values, DC sources, or bias networks -- only the connectivity.
+
+=== SPEC (bnl-wb-r15-s14-10) ===
+description: editcap-bench-v1 LNA wideband 0.5-3 GHz LNA (NF<=2.5 S11_max<=-15 S21>=14 ripple<=1.5 Idd<=5)
+band: wideband, f0=1750000000.0 Hz
+gated constraints:
+  nf_db      max 2.5
+  s11_max_db max -15
+  s21_db     min 14
+  s21_ripple_db max 1.5
+  idd_ma     max 5
+
+=== ANCHOR NETLIST (the failed circuit, dialect form) ===
+```netlist
+* lna-a1-inddegen-cascode: inductively-degenerated cascode CS LNA.
+* Lineage: Shaeffer & Lee, "A 1.5-V, 1.5-GHz CMOS Low Noise Amplifier",
+* JSSC 1997. Bench-v1 anchor; verbatim of the proven v0.2 external c1
+* (round-1 external, wl dcda50191d7c5e73, 10/24 gf180 topology credit).
+* Structure-only, ZERO component values. Published BIAS NETWORK in-topology:
+* current-mirror reference (R1 -> diode NM3) feeds the input gate through R2;
+* input DC-blocked (C1); cascode gate at VDD (AC ground).
+* Approved 2026-09-14 (bench round 1, "approve all").
+C C1 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n3 VSS
+L L2 n3 VSS
+NMOS NM2 n4 VDD n2 VSS
+L L3 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+```
+
+=== FAILURE EVIDENCE (this circuit was sized and MISSED) ===
+binding (worst) constraint: s11_max_db  margin=-0.98104 (normalized; negative == failing)
+feasible: False   total sizing evals spent: 1200
+
+per-constraint margins (achieved vs gate, normalized margin):
+  metric     achieved       margin         supported
+  nf_db      4.8246         -0.92984       True
+  s11_max_db -0.2844        -0.98104       True
+  s21_db     3.3967         -0.757379      True
+  s21_ripple_db 1.4042         0.0638667      True
+  idd_ma     5.036          -0.0072        True
+
+Idd: achieved 5.036 mA (normalized margin -0.007199999999999917 vs the idd_ma cap; negative == over budget).
+
+full sized-best metrics (verbatim):
+{
+  "s11_db": -0.4183,
+  "s11_max_db": -0.2844,
+  "s21_db": 3.3967,
+  "s21_min_db": 2.5799,
+  "idd_ma": 5.036,
+  "nf_db": 4.8246,
+  "s22_db": -0.4556,
+  "s22_max_db": -0.1877,
+  "s12_db": -57.1065,
+  "k_f0": 2.5149,
+  "k_min": 1.4567,
+  "mu_f0": 1.0368,
+  "mu_min": 1.0106,
+  "mu_src_f0": 1.0337,
+  "mu_src_min": 1.0328,
+  "delta_f0": 0.905,
+  "delta_max": 0.9131,
+  "stab_band": [
+    500000000.0,
+    3000000000.0
+  ],
+  "s21_ripple_db": 1.4042,
+  "nf_method": "series_rs"
+}
+
+YOUR TASK (arm B):
+1. DIAGNOSE the failure in words: what is physically limiting the binding constraint in the circuit above?
+2. Propose EXACTLY 3 STRUCTURAL edits as FULL netlists in the dialect below. Each edit is a complete netlist (not a diff), each structurally DIFFERENT from the anchor and from the other edits.
+3. After EACH edit, state a PREDICTED direction AND magnitude for the binding metric (e.g. 's11_db improves by ~3 dB').
+
+Emit each edit in its OWN fenced ```netlist block.
+
+NETLIST DIALECT (obey exactly, one device per line):
+  TYPE name node1 node2 [node3 node4]
+  TYPE in {NMOS, PMOS, R, C, L}.
+  NMOS/PMOS take 4 nodes in order D G S B; R/C/L take 2 nodes P N.
+  Nets: VIN1 (input), VOUT1 (output), VDD, VSS (ground); any internal node name otherwise. NO device values. NO V sources. NO bias networks.

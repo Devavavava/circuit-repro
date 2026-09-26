@@ -1,0 +1,64 @@
+band:
+  f0: 1224744871.3915892
+  f_hi: 3000000000.0
+  f_lo: 500000000.0
+  type: wideband
+constraints:
+  idd_ma:
+    max: 10
+  iip3_dbm:
+    min: 5
+    status: unsupported
+  nf_db:
+    max: 3.0
+  s11_max_db:
+    max: -8
+  s21_db:
+    min: 10
+  s21_ripple_db:
+    max: 2.0
+description: bench-v1.2 achievable-survivor wideband [0.5-3]GHz S11<=-8 S21>=10
+name: v12-wb-s11n8-g10-b0530
+objectives:
+- direction: min
+  metric: nf_db
+  weight: 1
+- direction: max
+  metric: s21_db
+  weight: 0.5
+- direction: min
+  metric: idd_ma
+  weight: 0.5
+pdk: bptm45
+ports:
+  input: VIN1
+  output: VOUT1
+  z0: 50
+process:
+  models: AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt
+  temp: 27
+  vdd: 1.1
+sizing:
+  c_f:
+  - 5e-14
+  - 1e-11
+  l_fixed: 4.5e-08
+  r_ohm:
+  - 50
+  - 20000.0
+  vb_v:
+  - 0.2
+  - 0.9
+  w_um:
+  - 1
+  - 200
+topology:
+  allow_inductorless: true
+  device_budget:
+  - 3
+  - 16
+  differential: false
+  l_max: 1e-08
+  l_min: 3e-10
+  max_inductors: 1
+  reject_floating: true

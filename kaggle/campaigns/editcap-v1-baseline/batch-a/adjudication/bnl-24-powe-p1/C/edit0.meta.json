@@ -1,0 +1,189 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "```netlist\n* Variant 2: Parallel LC interstage with additional gate resistor for second stage\nC C1 VIN1 n1\nNMOS NM1 n2 n1 VSS VSS\nL L1 VDD n2\nC C2 n2 n4\nL L2 n2 n4\nNMOS NM2 n6 n5 VSS VSS\nL L3 VDD n6",
+  "wl_hash": "d707e6ff968bb96a",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 8.793277999999999,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -13.2427,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 4.16807,
+    "metrics": {
+      "s11_db": 0.804292,
+      "s11_max_db": 0.844185,
+      "s21_db": 14.0044,
+      "s21_min_db": 13.2849,
+      "idd_ma": 2.033221,
+      "nf_db": 5.527855,
+      "s22_db": 0.695371,
+      "s22_max_db": 0.699615,
+      "s12_db": -36.8561,
+      "k_f0": 0.580295,
+      "k_min": 0.485462,
+      "mu_f0": -0.627608,
+      "mu_min": -0.697661,
+      "mu_src_f0": -0.588052,
+      "mu_src_min": -0.645535,
+      "delta_f0": 1.20859,
+      "delta_max": 1.20877,
+      "stab_band": [
+        2400000000.0,
+        2483500000.0
+      ],
+      "s21_ripple_db": 1.3637999999999995,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 5.527855,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -2.0710305555555553,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": 0.804292,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -1.0804292,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 14.0044,
+        "required_min": 12,
+        "required_max": null,
+        "scale": 12,
+        "margin": 0.16703333333333337,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 2.033221,
+        "required_min": null,
+        "required_max": 2,
+        "scale": 2,
+        "margin": -0.016610500000000084,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -2.0710305555555553
+    ],
+    "seed": 1,
+    "seconds": 62.903,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 8.793277999999999,
+  "escalated": true,
+  "sized_escalated": {
+    "feasible": false,
+    "best_obj": 2.82613,
+    "metrics": {
+      "s11_db": -11.3012,
+      "s11_max_db": 30.0118,
+      "s21_db": 30.0571,
+      "s21_min_db": 24.568,
+      "idd_ma": 1.825677,
+      "nf_db": 5.087026,
+      "s22_db": 9.36049,
+      "s22_max_db": 39.7321,
+      "s12_db": -20.3134,
+      "k_f0": 0.631824,
+      "k_min": 0.559432,
+      "mu_f0": 0.163691,
+      "mu_min": -0.144068,
+      "mu_src_f0": -0.590043,
+      "mu_src_min": -0.643227,
+      "delta_f0": 3.40374,
+      "delta_max": 118.019,
+      "stab_band": [
+        2400000000.0,
+        2483500000.0
+      ],
+      "s21_ripple_db": 35.7501,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 5.087026,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -1.8261255555555556,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -11.3012,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": 0.13011999999999996,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 30.0571,
+        "required_min": 12,
+        "required_max": null,
+        "scale": 12,
+        "margin": 1.5047583333333332,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 1.825677,
+        "required_min": null,
+        "required_max": 2,
+        "scale": 2,
+        "margin": 0.0871615,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -1.8261255555555556
+    ],
+    "seed": 1,
+    "seconds": 194.677,
+    "evals": 1800,
+    "sim_health": {
+      "n_evals": 1800,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  }
+}

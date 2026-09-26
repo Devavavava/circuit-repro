@@ -1,0 +1,14 @@
+* Variant 1: Cascode NMOS with shunt feedback and input resistor
+C C4 VIN1 n0
+R Rin n0 n1
+L L1 n1 n2
+NMOS NM1 n2 n3 VSS VSS
+NMOS NM2 n3 n4 n2 VSS  # Cascode
+PMOS PM1 n4 n5 VDD VDD
+C C1 n5 VSS
+L L2 n4 n6
+C C2 n6 VSS
+C C3 n4 VOUT1
+R Rbias1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R Rbias2 n7 n3

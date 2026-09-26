@@ -1,0 +1,61 @@
+1. **DIAGNOSIS**: The binding constraint (NF) fails due to excessive noise from the second stage (NM2) and insufficient noise matching in the first stage (NM1). The two-stage topology amplifies the noise contribution from NM2, exacerbated by the high gain (S21=28.9 dB). The current design lacks source degeneration in NM1 and interstage filtering to suppress out-of-band noise.
+
+---
+
+2. **EDIT 1**: Add source degeneration in the first stage (NM1) with a resistor.  
+```netlist
+C C1 VIN1 n1
+NMOS NM1 n2 n1 n8 VSS
+R R4 n8 VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+**PREDICTION**: NF improves by ~0.2–0.3 dB due to reduced noise from NM1’s degeneration and better transconductance control.
+
+---
+
+3. **EDIT 2**: Add a shunt capacitor at the second stage’s drain (L3) to absorb high-frequency noise.  
+```netlist
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C4 n6 VSS
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+**PREDICTION**: NF improves by ~0.15–0.25 dB by filtering out-of-band noise from NM2’s drain.
+
+---
+
+4. **EDIT 3**: Replace the second stage (NM2) with a cascode configuration to suppress thermal noise.  
+```netlist
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 n7 VSS
+NMOS NM4 n6 VSS VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n8
+NMOS NM3 n8 n8 VSS VSS
+R R2 n8 n1
+R R3 n8 n5
+```
+**PREDICTION**: NF improves by ~0.3–0.4 dB due to cascode’s higher output impedance and reduced noise contribution from NM2.

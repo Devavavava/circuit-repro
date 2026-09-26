@@ -1,0 +1,7 @@
+* Edit 3: Two-stage common-source with active PMOS load (high transimpedance)
+C C1 VIN1 n1
+R Rbias n1 VSS
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n3 VDD VDD
+NMOS NM2 n3 VSS VSS VSS
+C C2 n3 VOUT1

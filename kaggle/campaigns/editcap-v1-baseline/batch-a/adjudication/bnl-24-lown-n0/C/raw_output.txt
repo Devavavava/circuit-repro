@@ -1,0 +1,50 @@
+```netlist
+* Variant 1: Add source inductor + capacitor in stage-1 for noise/impedance shaping
+C C1 VIN1 n1
+NMOS NM1 n2 n1 n1s VSS
+L L1 VDD n2
+L Ls1 n1s VSS
+C Cs1 n1s VSS
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+```netlist
+* Variant 2: Convert first stage to common-gate with LC source match for improved S11
+C C1 VIN1 n1s
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+```netlist
+* Variant 3: Add output-to-input feedback inductor for enhanced resonance tuning
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+L Lfb VOUT1 n1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```

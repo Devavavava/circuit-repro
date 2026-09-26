@@ -1,0 +1,113 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "s11_db improves by ~2.5 dB due to added impedance-shaping at input.",
+  "wl_hash": "db350d553aa711dc",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 3.395121,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -6.28638,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.41259,
+    "metrics": {
+      "s11_db": -0.545755,
+      "s11_max_db": -0.398355,
+      "s21_db": 6.45142,
+      "s21_min_db": 5.77587,
+      "idd_ma": 4.401029,
+      "nf_db": 3.27324,
+      "s22_db": -1.01509,
+      "s22_max_db": -0.680188,
+      "s12_db": -27.4638,
+      "k_f0": 0.16318,
+      "k_min": 0.161753,
+      "mu_f0": 0.525363,
+      "mu_min": 0.43632,
+      "mu_src_f0": 0.690483,
+      "mu_src_min": 0.325336,
+      "delta_f0": 0.83817,
+      "delta_max": 0.847779,
+      "stab_band": [
+        500000000.0,
+        3000000000.0
+      ],
+      "s21_ripple_db": 2.09833,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 3.27324,
+        "required_min": null,
+        "required_max": 3.5,
+        "scale": 3.5,
+        "margin": 0.06478857142857145,
+        "supported": true
+      },
+      "s11_max_db": {
+        "achieved": -0.398355,
+        "required_min": null,
+        "required_max": -8,
+        "scale": 8,
+        "margin": -0.9502056249999999,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 6.45142,
+        "required_min": 12,
+        "required_max": null,
+        "scale": 12,
+        "margin": -0.4623816666666667,
+        "supported": true
+      },
+      "s21_ripple_db": {
+        "achieved": 2.09833,
+        "required_min": null,
+        "required_max": 2.5,
+        "scale": 2.5,
+        "margin": 0.1606680000000001,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 4.401029,
+        "required_min": null,
+        "required_max": 12,
+        "scale": 12,
+        "margin": 0.6332475833333333,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 5,
+        "required_max": null,
+        "scale": 5,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s11_max_db",
+      -0.9502056249999999
+    ],
+    "seed": 2,
+    "seconds": 68.385,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 3.395121
+}

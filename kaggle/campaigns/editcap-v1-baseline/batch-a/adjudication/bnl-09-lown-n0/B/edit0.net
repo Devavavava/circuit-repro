@@ -1,0 +1,11 @@
+* lna-edit1: Add input-series inductor for resonant tuning at 915 MHz
+L L0 VIN1 n0
+C C1 n0 n1
+NMOS NM1 n2 n1 n3 VSS
+L L1 n3 VSS
+NMOS NM2 n4 VDD n2 VSS
+L L2 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1

@@ -1,0 +1,44 @@
+```netlist
+* Variant 1: Adds a common-gate output stage for enhanced isolation and bandwidth.
+C C1 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n3 VSS
+L L2 n3 VSS
+NMOS NM2 n4 VDD n2 VSS
+L L3 VDD n4
+NMOS NM4 n5 VDD n4 VSS
+C C2 n5 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+```
+
+```netlist
+* Variant 2: Adds shunt inductor at input gate to improve high-frequency matching.
+C C1 VIN1 n0
+L L1 n0 n1
+L L4 n1 VSS
+NMOS NM1 n2 n1 n3 VSS
+L L2 n3 VSS
+NMOS NM2 n4 VDD n2 VSS
+L L3 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+```
+
+```netlist
+* Variant 3: Replaces cascode gate inductor with RC to adjust bias and AC coupling.
+C C1 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n3 VSS
+L L2 n3 VSS
+NMOS NM2 n4 VDD n2 VSS
+R R3 VDD n4
+C C3 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+```

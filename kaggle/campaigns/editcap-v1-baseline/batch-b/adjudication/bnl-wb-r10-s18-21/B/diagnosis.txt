@@ -1,0 +1,5 @@
+1. **Diagnosis**: The input impedance matching is insufficient (S11_max_db = -0.5 dB vs. -15 dB requirement). The anchor uses a single LC (C4+L1) input matching network, which is inadequate for wideband (0.5–3 GHz) impedance matching. The LC network fails to flatten the reflection across the band, leading to poor input return loss.
+
+---
+
+2. **Edit 1**: Add a shunt inductor at the input node to form an LCL (pi) matching network.

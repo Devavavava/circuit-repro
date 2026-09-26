@@ -1,0 +1,113 @@
+{
+  "index": 1,
+  "round": 1,
+  "predicted_delta_text": "```netlist\n* Variant 3: Source-follower feedback resistor for improved bandwidth\nC C1 VIN1 n0\nL L1 n0 n1\nNMOS NM1 n2 n1 n3 VSS\nL L2 n3 VSS\nNMOS NM2 n4 VDD n2 VSS\nL L3 VDD n4\nC C2 n4 VOUT1\nR R3 n2 n1  ; Feedback resistor from drain to gate\nR R1 VDD n5\nNMOS NM3 n5 n5 VSS VSS\nR R2 n",
+  "wl_hash": "28fca93eb0876cfe",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 0.5803306,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -19.7622,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 6.4498,
+    "metrics": {
+      "s11_db": -0.448161,
+      "s11_max_db": -0.0784097,
+      "s21_db": 1.08479,
+      "s21_min_db": -3.50314,
+      "idd_ma": 5.278876,
+      "nf_db": 5.776847,
+      "s22_db": -0.835317,
+      "s22_max_db": -0.312942,
+      "s12_db": -57.4663,
+      "k_f0": 6.23376,
+      "k_min": 3.68438,
+      "mu_f0": 1.09409,
+      "mu_min": 1.03462,
+      "mu_src_f0": 1.04918,
+      "mu_src_min": 1.00896,
+      "delta_f0": 0.86365,
+      "delta_max": 0.876906,
+      "stab_band": [
+        500000000.0,
+        3000000000.0
+      ],
+      "s21_ripple_db": 4.7490000000000006,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "nf_db": {
+        "achieved": 5.776847,
+        "required_min": null,
+        "required_max": 2.5,
+        "scale": 2.5,
+        "margin": -1.3107388,
+        "supported": true
+      },
+      "s11_max_db": {
+        "achieved": -0.0784097,
+        "required_min": null,
+        "required_max": -15,
+        "scale": 15,
+        "margin": -0.9947726866666666,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 1.08479,
+        "required_min": 14,
+        "required_max": null,
+        "scale": 14,
+        "margin": -0.922515,
+        "supported": true
+      },
+      "s21_ripple_db": {
+        "achieved": 4.7490000000000006,
+        "required_min": null,
+        "required_max": 1.5,
+        "scale": 1.5,
+        "margin": -2.1660000000000004,
+        "supported": true
+      },
+      "idd_ma": {
+        "achieved": 5.278876,
+        "required_min": null,
+        "required_max": 5,
+        "scale": 5,
+        "margin": -0.055775200000000066,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 5,
+        "required_max": null,
+        "scale": 5,
+        "margin": null,
+        "supported": false
+      }
+    },
+    "worst_margin": [
+      "s21_ripple_db",
+      -2.1660000000000004
+    ],
+    "seed": 2,
+    "seconds": 64.196,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 0.5803306
+}

@@ -1,0 +1,9 @@
+* Variant 2: Common-gate with drain-side PMOS cascode
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+PMOS PM1 n2 n3 n4 VDD
+L L2 n4 VDD
+C C2 n4 VOUT1
+R R1 VDD n3
+C Cbyp n3 VSS

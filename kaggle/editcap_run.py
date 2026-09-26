@@ -207,7 +207,30 @@ class _LiveLLM(object):
         resp = self.client.complete(prompt_messages, temperature=self.temperature,
                                     max_tokens=self.max_tokens, n=1)
         ch = (resp.get("choices") or [{}])[0]
-        content = (ch.get("message") or {}).get("content", "") or ""
+        msg = ch.get("message") or {}
+        content = msg.get("content", "") or ""
+        # Reasoning models (Qwen3) route the <think> trace to reasoning_content;
+        # when the completion cap is hit mid-think, `content` comes back EMPTY
+        # (the v1 baseline's 15 blank cells). Capture per-completion telemetry so
+        # an empty answer is DIAGNOSABLE (finish_reason=="length" + big usage +
+        # empty content == ran out mid-think) rather than silently lost. Purely
+        # additive: the caller archives this to completion.meta.json.
+        reasoning = msg.get("reasoning_content") or ""
+        self.last_meta = {
+            "finish_reason": ch.get("finish_reason"),
+            "usage": resp.get("usage"),
+            "content_chars": len(content),
+            "reasoning_chars": len(reasoning),
+            "max_tokens": self.max_tokens,
+            "recovered_from_reasoning": False,
+        }
+        # OPTIONAL recovery (OFF by default -> flags-off byte-identical): if the
+        # visible answer is empty but a reasoning trace exists, parse the edits
+        # from the trace instead of dropping the cell.
+        if (not content.strip()) and reasoning.strip() and \
+                os.environ.get("EDITCAP_RECOVER_REASONING"):
+            content = reasoning
+            self.last_meta["recovered_from_reasoning"] = True
         edits = _parse_edits_from_raw(content)[:self.k]
         # diagnosis (evidence arms B/E/F/EF) = everything before the first fence,
         # trimmed. The blind control C requests no diagnosis, so none is parsed.
@@ -235,6 +258,32 @@ DIALECT = (
     "  NMOS/PMOS take 4 nodes in order D G S B; R/C/L take 2 nodes P N.\n"
     "  Nets: VIN1 (input), VOUT1 (output), VDD, VSS (ground); any internal node "
     "name otherwise. NO device values. NO V sources. NO bias networks."
+)
+
+# Capability-gap diagnostic (EDITCAP_FEWSHOT): a worked demonstration of the
+# RESISTIVE SHUNT-FEEDBACK broadband-match technique -- the topology class the
+# model never emits on wideband cells (0/64). It teaches the METHOD on a generic
+# example, NOT any benchmark cell's answer, so it probes knowledge vs capability.
+FEWSHOT_BLOCK = (
+    "=== WORKED EXAMPLE: repairing a wideband (multi-octave) LNA ===\n"
+    "A wideband LNA that relies only on reactive (L/C) input matching cannot hold "
+    "a low S11 across a decade of frequency: a series/shunt L-C network is "
+    "inherently narrowband. The standard fix is RESISTIVE SHUNT FEEDBACK -- add a "
+    "feedback resistor from the amplifier's output/drain node back to the input "
+    "gate node. This makes the input impedance broadband and largely real "
+    "(Zin ~ Rf/(1+gm*Rd)), flattening the return loss across the whole band, at "
+    "the cost of a little gain/NF. Example fix (topology only, generic device):\n"
+    "```netlist\n"
+    "C C1 VIN1 g\n"
+    "NMOS M1 d g VSS VSS\n"
+    "NMOS M2 o VDD d VSS\n"
+    "R Rd VDD o\n"
+    "R Rf o g\n"
+    "C C2 o VOUT1\n"
+    "```\n"
+    "Here `R Rf o g` is the feedback resistor from output `o` to input gate `g` -- "
+    "the broadband-matching element a purely reactive network lacks. Apply the "
+    "technique that FITS the failure below; do not copy this example verbatim.\n\n"
 )
 
 
@@ -370,14 +419,19 @@ def build_prompt_B(spec, anchor_net, ev, k=K_EDITS, annotate=False,
     inserts the auto-derived GRAPH FACTS block between the anchor and the
     evidence (targets the measured comprehension failures)."""
     anno = ("%s\n\n" % _annotation_block(anchor_net)) if annotate else ""
+    # EDITCAP_FEWSHOT (capability-gap diagnostic, additive; off => byte-identical):
+    # prepend a worked demonstration of the topology class the model is missing,
+    # to test whether the gap is knowledge (few-shot fixes it) or capability.
+    fewshot = FEWSHOT_BLOCK if os.environ.get("EDITCAP_FEWSHOT") else ""
     user = (
+        "%s"
         "%s\n\n"
         "=== ANCHOR NETLIST (the failed circuit, dialect form) ===\n"
         "```netlist\n%s```\n\n"
         "%s"
         "%s\n\n"
         "%s"
-    ) % (_spec_constraint_block(spec), anchor_net.rstrip("\n") + "\n",
+    ) % (fewshot, _spec_constraint_block(spec), anchor_net.rstrip("\n") + "\n",
          anno, _evidence_block(ev),
          _instructions_B(k, diagnosis_first=diagnosis_first))
     messages = [{"role": "system", "content": SYSTEM},
@@ -644,7 +698,11 @@ def run_cell(cell_name, cell_dir, arm, llm, out_dir, pdk, rounds=1,
     anchor_net = open(os.path.join(cell_dir, "anchor.net"), encoding="utf-8").read()
     ev = json.load(open(os.path.join(cell_dir, "evidence.json"), encoding="utf-8"))
 
-    spec_path = os.path.join(LADDER_DIR, cell_name + ".yaml")
+    # prefer a spec bundled in the cell dir (self-contained lib, e.g.
+    # editcap-lib-v1); fall back to the shared ladder dir (v0 13-cell lib).
+    _local_spec = os.path.join(cell_dir, "spec.yaml")
+    spec_path = (_local_spec if os.path.exists(_local_spec)
+                 else os.path.join(LADDER_DIR, cell_name + ".yaml"))
     spec = Spec.load(spec_path)
     spec_ref = spec_path
 
@@ -708,6 +766,12 @@ def run_cell(cell_name, cell_dir, arm, llm, out_dir, pdk, rounds=1,
             raw_output = "LLM ERROR: %s" % llm_error
 
         _write_verbatim(os.path.join(rdir, "raw_output.txt"), raw_output)
+        # per-completion LLM telemetry (finish_reason / token usage / reasoning
+        # length) -- additive; makes an empty `content` diagnosable after the run.
+        _llm_meta = getattr(llm, "last_meta", None)
+        if _llm_meta is not None:
+            _write_verbatim(os.path.join(rdir, "completion.meta.json"),
+                            json.dumps(_llm_meta, indent=2, default=float))
         if has_evidence:
             _write_verbatim(os.path.join(rdir, "diagnosis.txt"), diagnosis or "")
         if r == 1:

@@ -1,0 +1,48 @@
+1. **Diagnosis**: The binding constraint `s21_db` fails due to insufficient transconductance and a low Q factor in the inductive load (L2), which limits the achievable gain in the common-gate stage. The inductor alone cannot provide sufficient real impedance at 915 MHz without resonance tuning.
+
+2. **Structural Edits**:
+
+```netlist
+* Edit 1: Replace L2 with an LC tank to boost load impedance at f0
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 n2 n3
+C C3 n3 VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Prediction**: s21_db improves by ~10 dB (LC tank maximizes impedance at 915 MHz).
+
+```netlist
+* Edit 2: Add a cascode PMOS to increase output impedance
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+PMOS PM1 n2 n3 VDD VDD
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Prediction**: s21_db improves by ~5 dB (cascode amplifies gain via higher output impedance).
+
+```netlist
+* Edit 3: Replace L2 with a current-mirror active load
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+PMOS PM1 n2 n4 n5 VDD
+PMOS PM2 n5 n4 VDD VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Prediction**: s21_db improves by ~7 dB (active load provides higher impedance than L2).

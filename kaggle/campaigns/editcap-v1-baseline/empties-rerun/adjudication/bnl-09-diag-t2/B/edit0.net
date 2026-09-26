@@ -1,0 +1,11 @@
+* Edit 1: Common-source stage with inductive load (higher gain than common-gate).
+* Gate is input, source is grounded. Inductive load on drain increases output impedance.
+C C1 VIN1 n1
+L L1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+L L2 n2 VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS

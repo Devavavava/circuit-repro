@@ -1,0 +1,14 @@
+* Variant 1: Cascode Push-Pull with stacked NMOS/PMOS
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n1 n2 VSS VSS
+NMOS NM2 n2 n3 VSS VSS
+PMOS PM1 n4 n5 VDD VDD
+PMOS PM2 n5 n6 VDD VDD
+L L2 n6 n7
+C C2 n7 VSS
+C C3 n6 VOUT1
+R R1 VDD n8
+NMOS NM3 n8 n8 VSS VSS
+R R2 n8 n2
+R R6 VDD n3

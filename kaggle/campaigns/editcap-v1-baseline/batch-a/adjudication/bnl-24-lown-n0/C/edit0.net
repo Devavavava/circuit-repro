@@ -1,0 +1,15 @@
+* Variant 1: Add source inductor + capacitor in stage-1 for noise/impedance shaping
+C C1 VIN1 n1
+NMOS NM1 n2 n1 n1s VSS
+L L1 VDD n2
+L Ls1 n1s VSS
+C Cs1 n1s VSS
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5

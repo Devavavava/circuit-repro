@@ -70,7 +70,17 @@ class Gf180McuAdapter(object):
 
     def model_includes(self):
         """`.include design.ngspice` (switches) then `.lib sm141064.ngspice
-        typical` (the 3.3 V typical corner). W/L are in METRES."""
+        typical` (the 3.3 V typical corner), then FORCE the deterministic
+        typical corner. W/L are in METRES.
+
+        design.ngspice defaults the statistical models to Monte-Carlo ON
+        (sw_stat_global=1, sw_stat_mismatch=1), which redraws random
+        Vth/mismatch on EVERY ngspice run -> a nondeterministic DC operating
+        point even for a plain .op, so identical decks give ~2-3% different
+        metrics run-to-run. That randomness silently contaminated every sizing
+        evaluation. We override both switches to 0 (nominal/typical corner) so
+        sizing is bit-reproducible; this is a deterministic-benchmark choice,
+        not a spec change (typical corner is the intended design point)."""
         from . import pdk_root
         root = pdk_root(self.name)
         if root is None:
@@ -78,11 +88,12 @@ class Gf180McuAdapter(object):
                 "gf180mcu model files not fetched -- see lna/pdk/FETCH.md. Once "
                 "fetched this returns ['.include <root>/models/ngspice/"
                 "design.ngspice', '.lib <root>/models/ngspice/sm141064.ngspice "
-                "typical'].")
+                "typical', '.param sw_stat_global=0 sw_stat_mismatch=0'].")
         design = os.path.join(root, self.DESIGN_REL).replace(os.sep, "/")
         corner = os.path.join(root, self.CORNER_REL).replace(os.sep, "/")
         return [f'.include "{design}"',
-                f'.lib "{corner}" {self.CORNER_SECTION}']
+                f'.lib "{corner}" {self.CORNER_SECTION}',
+                '.param sw_stat_global=0 sw_stat_mismatch=0']
 
     def mos_line(self, name, nd, ng, ns, nb, kind, wexpr, lexpr, fingers_expr):
         """gf180 primitive FET = subcircuit => `X` call; ` NF={...}` -> ` nf={...}`."""

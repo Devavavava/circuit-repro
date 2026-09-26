@@ -1,0 +1,11 @@
+* Variant 3: Inductive source degeneration with series inductor
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n3 VSS
+L L2 n3 VSS
+PMOS PM1 n2 VDD VDD VDD
+C C1 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+L L3 n4 n5
+NMOS NM2 n5 n5 VSS VSS

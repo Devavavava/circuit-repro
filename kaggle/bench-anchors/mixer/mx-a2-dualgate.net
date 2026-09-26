@@ -1,0 +1,27 @@
+* mx-a2-dualgate: dual-gate (cascode) single-ended active mixer.
+* Lineage: THE canonical 0.18 um-era single-ended active mixer -- two stacked
+* FETs, RF on the bottom gate, LO on the top (cascode) gate. Bench-v1 anchor.
+* Structure-only, ZERO component values.
+* Harness convention: RF input = VIN1 (portnum 1), IF output = VOUT1
+* (portnum 2), LO net = VLO (harness-injected large-signal SIN drive, size.py
+* _mixer_lo_node). Structure: bottom transconductor NM1 (RF on its gate via
+* input match L1 + DC-block C1 from VIN1) stacked under switching device NM2
+* (LO on its gate via DC-block Clo from VLO) sharing the internal node n2;
+* tuned drain load L2 to VDD; IF taken at NM2 drain through DC-block C2 to
+* VOUT1. Published in-topology BIAS NETWORKS: current-mirror reference
+* (R1 -> diode NM3) sets the RF (bottom) gate DC through feed R2; the LO
+* (top) gate DC is set by divider R3 (VDD->gate) / R4 (gate->VSS) so the LO
+* rides on a defined operating point.
+* Approved 2026-09-14 (bench round 1, "approve all").
+C C1 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+NMOS NM2 n3 n5 n2 VSS
+C Clo VLO n5
+L L2 VDD n3
+C C2 n3 VOUT1
+R R1 VDD n6
+NMOS NM3 n6 n6 VSS VSS
+R R2 n6 n1
+R R3 VDD n5
+R R4 n5 VSS

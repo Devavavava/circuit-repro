@@ -1,0 +1,49 @@
+1. **Diagnosis**: The binding constraint is insufficient gain (S21). The common-gate stage with inductive load (L2) has limited transconductance due to NM1's 1/gm matching and insufficient load impedance at 1.58 GHz. The inductor's Q and resonance mismatch likely reduce the effective load impedance, starving the gain.  
+
+---
+
+```netlist
+* Edit 1: Add cascode transistor PM2 to increase output impedance and gain.
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+PMOS PM2 n2 n3 VDD VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Predicted effect**: S21_db increases by ~4 dB (cascode improves output impedance and transconductance).  
+
+---
+
+```netlist
+* Edit 2: Replace L2 inductive load with shunt resistor Rload for higher Q load.
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+R Rload n2 VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Predicted effect**: S21_db increases by ~2 dB (resistive load avoids inductor losses and resonance mismatches).  
+
+---
+
+```netlist
+* Edit 3: Add second common-source stage NM2 for cascode gain multiplication.
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+NMOS NM2 VDD n4 n2 VSS
+C C2 n4 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Predicted effect**: S21_db increases by ~5 dB (cascode doubles transconductance and isolates input/output).

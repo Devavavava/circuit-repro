@@ -1,0 +1,3 @@
+1. **DIAGNOSIS**: The binding constraint (S11_max_db) fails due to inadequate input impedance matching at the gate of NM1. The existing inductor L1 and C1 form a series LC tank, but the transistor's gate capacitance (Cgs) and layout parasitics likely dominate, causing a mismatch. Adding a shunt inductor at the gate of NM1 (n1) creates an additional path for RF current, lowering the input impedance and improving S11.
+
+2. **EDIT 1**: Add a shunt inductor at NM1's gate (n1) to ground. This forms a parallel LC tank with C1, enhancing input matching at resonance.

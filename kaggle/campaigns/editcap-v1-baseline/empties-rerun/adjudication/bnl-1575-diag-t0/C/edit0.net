@@ -1,0 +1,10 @@
+* Variant 1: Common-source with inductive source degeneration and shunt peaking
+C Cin VIN1 n_gate
+L Ls n_gate n_source
+NMOS NM1 n_drain n_gate n_source VSS
+L Ld n_drain n_load
+C Cout n_load VOUT1
+R Rbias VDD n_gate
+NMOS NM3 n_b n_b VSS VSS
+R Rbias2 VDD n_b
+C Cbyp n_b VSS

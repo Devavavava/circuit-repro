@@ -1,0 +1,66 @@
+```netlist
+* Edit 1: Add series inductor at input to improve impedance matching
+C C4 VIN1 n10
+L L3 VIN1 n10
+L L1 n10 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Prediction**: S11_max_db improves by ~3 dB due to better impedance matching from the added inductor forming a resonant LC tank with C4.
+
+---
+
+```netlist
+* Edit 2: Add shunt capacitor at input node to cancel inductive reactance
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+C C5 n1 VSS
+```
+
+**Prediction**: S11_max_db improves by ~2 dB by canceling the inductive reactance at the input node.
+
+---
+
+```netlist
+* Edit 3: Add damping resistor in parallel with input inductor
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+R R6 n0 VSS
+```
+
+**Prediction**: S11_max_db improves by ~1.5 dB by broadening the bandwidth and reducing Q of the input LC tank.

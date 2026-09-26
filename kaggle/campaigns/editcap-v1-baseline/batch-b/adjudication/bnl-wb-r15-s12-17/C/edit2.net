@@ -1,0 +1,16 @@
+* Variant 3: Inductive source degeneration with feedback for ripple suppression
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n3 VSS  # Source degeneration
+L L3 n3 VSS
+PMOS PM1 n2 n4 VDD VDD
+C C1 n4 n5
+L L2 n5 n6
+C C2 n6 VSS
+C C3 n2 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+PMOS PM2 n8 n9 VDD VDD  # Feedback path
+C C4 VOUT1 n9
+R R5 n9 VSS

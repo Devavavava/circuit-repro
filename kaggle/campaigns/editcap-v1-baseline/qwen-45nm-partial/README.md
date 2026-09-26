@@ -6,3 +6,10 @@ RESULT (arm B, 26/31): 0 FEASIBLE. 78 proposed / 72 valid / 62 smoke_pass,
 0 empty (8192-token fix worked). Effectively ~0/31.
 Pairs with Claude ceiling 3/31 on the same benchmark.
 TO COMPLETE: re-submit in 2 batches (~16 cells each, B+C) to fit the time limit.
+
+## AUDIT NOTE (2026-09-26) — unresolved discrepancy
+This README says the kernel errored on the 12 h runtime limit, but
+`llama-server.log` timestamps put total server uptime for the 26 completions at
+~2.6 h (mean ~5.4 min/completion incl. SPICE gaps; ~11 tok/s; mean 3.4k tok).
+Either the kernel died for another reason or the 12 h figure refers to something
+else. Not resolved; do not use "12 h" as a throughput planning number.

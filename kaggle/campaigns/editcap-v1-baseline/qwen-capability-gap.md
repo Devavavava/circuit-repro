@@ -22,3 +22,11 @@ Qwen's actual arm-B edits (structural scan, analyze_qwen_vs_claude_topo.py).
   the highest-value data to inject.
 Caveat: analyzed Qwen edits from the gf180 baseline (its repertoire is process-
 independent); a direct Qwen-on-bench-v1.2 run would confirm, pending.
+
+## AUDIT CAVEATS (2026-09-26)
+- Every count here comes from the **gf180 3072-token baseline edits**, not bench-v1.2.
+- The shunt-fb detector requires the resistor to land on a MOS drain; an R from a
+  tank node to the input gate (seen in the few-shot n10-g10 solve) is missed, so it
+  can undercount. On the gf180 set a broader scan found only 1 extra R touching a gate.
+- A direct measurement on bench-v1.2 (ZS vs FS, 32B + 14B) = E-d,
+  `kaggle/PREREG-BENCH-V12-AUDIT.md`.

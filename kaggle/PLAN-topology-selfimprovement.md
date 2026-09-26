@@ -5,6 +5,27 @@
 **without** hand-teaching individual topologies. Learn new moves by search against
 the SPICE sizer as a free verifier, at the level of **coherent circuit bundles**.
 
+> **AUDIT 2026-09-26 — read before executing this plan** (details:
+> `CURRENT-STATE.md`, `PREREG-BENCH-V12-AUDIT.md`). Corrections to the text below:
+> 1. bench-v1.2 "Claude 16/16" is **by construction** and covers only **two moves**
+>    (one-resistor shunt-feedback; a1-cascode + 2 caps), with razor-thin margins. It
+>    cannot yet measure *general* topology-fixing. E-a/E-b/E-c decide whether it is
+>    kept, relabelled (RETRIEVAL / SEARCH-TRIVIAL cells) or re-built with more
+>    topology classes and a margin cushion.
+> 2. Qwen's bench-v1.2 baseline was **never measured** (E-d measures it, ZS vs FS,
+>    32B and 14B). The few-shot result below lacked a matched control.
+> 3. **Learner = the largest Qwen3 that QLoRA-trains on Kaggle T4, floor 8B** (user
+>    ruling 2026-09-26), not Qwen-32B (no hardware path). E-e decides the size.
+> 4. Measured Kaggle cost is ~5.4 min/completion (not 14; ~90% of tokens are Qwen3
+>    thinking); the local verifier is ~20× cheaper per candidate → make the data
+>    engine **search-heavy, LLM-light** (mutate-then-repair is a primary generator,
+>    not a Phase-2 add-on).
+> 5. **The reference templates are EVAL-ONLY.** Bootstrapping positives from
+>    `claude-solutions/templates/` (§3, §5) would train on the benchmark's answers —
+>    struck. Positives must come from search on the non-bench training grid.
+> 6. §4.3 "one-time broad vocabulary seed" is in tension with the user's
+>    no-hand-teaching ruling — needs an explicit user ruling before use.
+
 ---
 
 ## 0. Why this plan (findings that led here — with commits)
@@ -92,8 +113,8 @@ manufactures the positives.
 - **Learner:**
   - *Phase A — expert iteration / rejection-sampling SFT:* keep simulator-verified
     solves (+ strong margin-improvers), SFT Qwen on (anchor → verified solving netlist),
-    iterate. Bootstraps from Claude's solutions (`kaggle/claude-solutions/templates/`)
-    as initial positives if needed.
+    iterate. ~~Bootstraps from Claude's solutions (`kaggle/claude-solutions/templates/`)
+    as initial positives if needed.~~ STRUCK (audit 2026-09-26): templates are eval-only.
   - *Phase B — RL (GRPO/PPO), optional:* dense margin-improvement reward for
     sample-efficiency once the policy is off the floor.
 
@@ -119,7 +140,8 @@ under-samples, in order of preference (all **one-time/general**, never per-probl
   some topology solves at equal budget), spanning bands/tiers **and held-out topology
   classes**. Strict train/eval split; **bench-v1.2 stays held-out**.
 - **Phase 1 — expert-iteration baseline.** Sample K netlists/cell from Qwen (Kaggle GPU,
-  batch ≤ ~50 completions/kernel for the 12 h limit; 32B@8192 tok ≈ 14 min/completion) →
+  batch ≤ ~50 completions/kernel for the 12 h limit; measured 32B ≈ 5.4 min/completion,
+  mean 3.4k tok, ~90% thinking — audit 2026-09-26) →
   verify → SFT on verified pairs → re-score bench-v1.2. **Success metric:** solve-rate
   climbs from Qwen's ~0 toward Claude's 16/16, on held-out cells.
 - **Phase 2 — mutate-then-repair for novelty.** Add the perturb+repair operator; feed
@@ -134,8 +156,8 @@ under-samples, in order of preference (all **one-time/general**, never per-probl
 |---|---|
 | Deterministic verifier (engine) | `kaggle/bench_anchor_prep.py::smoke_run` |
 | Single-candidate solve/size harness | `kaggle/mysolve.py` (`MYSOLVE_PDK=bptm45`) |
-| Clean benchmark (held-out eval, 16 cells) | `kaggle/editcap-lib-v12-45nm/`; summary `.../bench-v1.2-45nm-survivors.json` |
-| Claude reference solutions (bootstrap positives) | `kaggle/claude-solutions/templates/*.net` |
+| Clean benchmark (held-out eval, 16 cells) | `kaggle/editcap-lib-v12-45nm/`; summary `kaggle/campaigns/editcap-v1-baseline/bench-v1.2-45nm-survivors.json` (built by `kaggle/build_bench_v12_summary.py`) |
+| Claude reference solutions (**EVAL-ONLY**, not bootstrap positives) | `kaggle/claude-solutions/templates/*.net` |
 | Achievable-spec calibration / mass-gen | `kaggle/calibrate_bench_wb.py`, `_nb.py`, `build_bench_v12.py` |
 | Topology-repertoire analyzer (what moves a model emits) | `kaggle/analyze_qwen_vs_claude_topo.py` |
 | Proposer plumbing / prompts / smoke-fence | `kaggle/editcap_run.py` |

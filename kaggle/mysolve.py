@@ -18,15 +18,26 @@ import proposal as P
 import bench_anchor_prep as PREP
 from spec import Spec
 
-PDK = os.environ.get("MYSOLVE_PDK", "gf180mcu")
+# MYSOLVE_PDK overrides; otherwise the lib decides (see _pdk_for): the 45 nm libs
+# (editcap-lib-*-45nm, incl. bench-v1.2) are bptm45, the older v1 libs gf180mcu.
+PDK_ENV = os.environ.get("MYSOLVE_PDK")
+LIBS = ("editcap-lib-v12-45nm", "editcap-lib-v11-45nm",
+        "editcap-lib-v1a", "editcap-lib-v1b", "editcap-lib-v1")
 
 
 def _spec_path(cell):
-    for L in ("editcap-lib-v1a", "editcap-lib-v1b", "editcap-lib-v1"):
+    for L in LIBS:
         p = os.path.join(REPO, "kaggle", L, cell, "spec.yaml")
         if os.path.exists(p):
             return p
     raise SystemExit("no spec for %s" % cell)
+
+
+def _pdk_for(spec_path):
+    if PDK_ENV:
+        return PDK_ENV
+    lib = os.path.basename(os.path.dirname(os.path.dirname(spec_path)))
+    return "bptm45" if lib.endswith("-45nm") else "gf180mcu"
 
 
 def _margins(spec, m):
@@ -52,6 +63,7 @@ def main():
     budget = int(sys.argv[3]) if len(sys.argv) > 3 else 1500
     seeds = [int(s) for s in (sys.argv[4].split(",") if len(sys.argv) > 4 else ["1", "2", "3"])]
     sp = _spec_path(cell)
+    PDK = _pdk_for(sp)
     spec = Spec.load(sp)
     info = P.round_trip(net)
     if not info.get("ok"):

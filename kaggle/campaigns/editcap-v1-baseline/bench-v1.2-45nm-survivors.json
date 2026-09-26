@@ -1,0 +1,437 @@
+{
+ "benchmark": "bench-v1.2",
+ "pdk": "bptm45",
+ "n_cells": 16,
+ "caveats": [
+  "Cells were KEPT only if anchor fails AND template solves (calibrate_bench_wb.py:41, _nb.py:29): template 16/16 is by construction.",
+  "Two fixed templates cover all 16 cells (one per band type).",
+  "Calibration budget 3x2500 (stop at first feasible seed); evidence re-run 3x1200.",
+  "Template margins were not recorded at calibration; see kaggle/campaigns/bench-v12-audit/E-a (headroom) and E-b (5-anchor null)."
+ ],
+ "cells": [
+  {
+   "cell": "v12-nb-f15-g12",
+   "band": {
+    "f0": 1580000000.0,
+    "f_hi": 1611600000.0,
+    "f_lo": 1548400000.0,
+    "type": "narrowband"
+   },
+   "constraints": {
+    "idd_ma": 4,
+    "nf_db": 1.8,
+    "s11_db": -10,
+    "s21_db": 12
+   },
+   "shown_anchor_family": "common-gate",
+   "anchor_feasible_evidence": false,
+   "anchor_worst_margin_evidence": [
+    "s21_db",
+    -0.29581166666666664
+   ],
+   "evidence_total_evals": 3600,
+   "calibration_row": "nbX-f1.6-g12-nf1.8",
+   "calibration_anchor_solves": false,
+   "calibration_template_solves": true,
+   "reference_template": "kaggle/claude-solutions/templates/narrowband_cascode_tank.net"
+  },
+  {
+   "cell": "v12-nb-f15-g14",
+   "band": {
+    "f0": 1580000000.0,
+    "f_hi": 1611600000.0,
+    "f_lo": 1548400000.0,
+    "type": "narrowband"
+   },
+   "constraints": {
+    "idd_ma": 4,
+    "nf_db": 1.8,
+    "s11_db": -10,
+    "s21_db": 14
+   },
+   "shown_anchor_family": "common-gate",
+   "anchor_feasible_evidence": false,
+   "anchor_worst_margin_evidence": [
+    "s21_db",
+    -0.39606357142857146
+   ],
+   "evidence_total_evals": 3600,
+   "calibration_row": "nbX-f1.6-g14-nf1.8",
+   "calibration_anchor_solves": false,
+   "calibration_template_solves": true,
+   "reference_template": "kaggle/claude-solutions/templates/narrowband_cascode_tank.net"
+  },
+  {
+   "cell": "v12-nb-f15-g16",
+   "band": {
+    "f0": 1580000000.0,
+    "f_hi": 1611600000.0,
+    "f_lo": 1548400000.0,
+    "type": "narrowband"
+   },
+   "constraints": {
+    "idd_ma": 4,
+    "nf_db": 1.8,
+    "s11_db": -10,
+    "s21_db": 16
+   },
+   "shown_anchor_family": "common-gate",
+   "anchor_feasible_evidence": false,
+   "anchor_worst_margin_evidence": [
+    "s21_db",
+    -0.4738025
+   ],
+   "evidence_total_evals": 3600,
+   "calibration_row": "nbX-f1.6-g16-nf1.8",
+   "calibration_anchor_solves": false,
+   "calibration_template_solves": true,
+   "reference_template": "kaggle/claude-solutions/templates/narrowband_cascode_tank.net"
+  },
+  {
+   "cell": "v12-nb-f15-g18",
+   "band": {
+    "f0": 1580000000.0,
+    "f_hi": 1611600000.0,
+    "f_lo": 1548400000.0,
+    "type": "narrowband"
+   },
+   "constraints": {
+    "idd_ma": 4,
+    "nf_db": 1.8,
+    "s11_db": -10,
+    "s21_db": 18
+   },
+   "shown_anchor_family": "common-gate",
+   "anchor_feasible_evidence": false,
+   "anchor_worst_margin_evidence": [
+    "s21_db",
+    -0.5352305555555555
+   ],
+   "evidence_total_evals": 3600,
+   "calibration_row": "nbX-f1.6-g18-nf1.8",
+   "calibration_anchor_solves": false,
+   "calibration_template_solves": true,
+   "reference_template": "kaggle/claude-solutions/templates/narrowband_cascode_tank.net"
+  },
+  {
+   "cell": "v12-nb-f24-g12",
+   "band": {
+    "f0": 2400000000.0,
+    "f_hi": 2448000000.0,
+    "f_lo": 2352000000.0,
+    "type": "narrowband"
+   },
+   "constraints": {
+    "idd_ma": 4,
+    "nf_db": 1.8,
+    "s11_db": -10,
+    "s21_db": 12
+   },
+   "shown_anchor_family": "common-gate",
+   "anchor_feasible_evidence": false,
+   "anchor_worst_margin_evidence": [
+    "s21_db",
+    -0.21288416666666668
+   ],
+   "evidence_total_evals": 3600,
+   "calibration_row": "nbX-f2.4-g12-nf1.8",
+   "calibration_anchor_solves": false,
+   "calibration_template_solves": true,
+   "reference_template": "kaggle/claude-solutions/templates/narrowband_cascode_tank.net"
+  },
+  {
+   "cell": "v12-nb-f24-g14",
+   "band": {
+    "f0": 2400000000.0,
+    "f_hi": 2448000000.0,
+    "f_lo": 2352000000.0,
+    "type": "narrowband"
+   },
+   "constraints": {
+    "idd_ma": 4,
+    "nf_db": 1.8,
+    "s11_db": -10,
+    "s21_db": 14
+   },
+   "shown_anchor_family": "common-gate",
+   "anchor_feasible_evidence": false,
+   "anchor_worst_margin_evidence": [
+    "s21_db",
+    -0.32495
+   ],
+   "evidence_total_evals": 3600,
+   "calibration_row": "nbX-f2.4-g14-nf1.8",
+   "calibration_anchor_solves": false,
+   "calibration_template_solves": true,
+   "reference_template": "kaggle/claude-solutions/templates/narrowband_cascode_tank.net"
+  },
+  {
+   "cell": "v12-nb-f24-g16",
+   "band": {
+    "f0": 2400000000.0,
+    "f_hi": 2448000000.0,
+    "f_lo": 2352000000.0,
+    "type": "narrowband"
+   },
+   "constraints": {
+    "idd_ma": 4,
+    "nf_db": 1.8,
+    "s11_db": -10,
+    "s21_db": 16
+   },
+   "shown_anchor_family": "common-gate",
+   "anchor_feasible_evidence": false,
+   "anchor_worst_margin_evidence": [
+    "s21_db",
+    -0.40942
+   ],
+   "evidence_total_evals": 3600,
+   "calibration_row": "nbX-f2.4-g16-nf1.8",
+   "calibration_anchor_solves": false,
+   "calibration_template_solves": true,
+   "reference_template": "kaggle/claude-solutions/templates/narrowband_cascode_tank.net"
+  },
+  {
+   "cell": "v12-nb-f24-g18",
+   "band": {
+    "f0": 2400000000.0,
+    "f_hi": 2448000000.0,
+    "f_lo": 2352000000.0,
+    "type": "narrowband"
+   },
+   "constraints": {
+    "idd_ma": 4,
+    "nf_db": 1.8,
+    "s11_db": -10,
+    "s21_db": 18
+   },
+   "shown_anchor_family": "common-gate",
+   "anchor_feasible_evidence": false,
+   "anchor_worst_margin_evidence": [
+    "s21_db",
+    -0.47355777777777774
+   ],
+   "evidence_total_evals": 3600,
+   "calibration_row": "nbX-f2.4-g18-nf1.8",
+   "calibration_anchor_solves": false,
+   "calibration_template_solves": true,
+   "reference_template": "kaggle/claude-solutions/templates/narrowband_cascode_tank.net"
+  },
+  {
+   "cell": "v12-wb-s11n10-g10-b0530",
+   "band": {
+    "f0": 1224744871.3915892,
+    "f_hi": 3000000000.0,
+    "f_lo": 500000000.0,
+    "type": "wideband"
+   },
+   "constraints": {
+    "idd_ma": 10,
+    "nf_db": 3.0,
+    "s11_max_db": -10,
+    "s21_db": 10,
+    "s21_ripple_db": 2.0
+   },
+   "shown_anchor_family": "current-reuse",
+   "anchor_feasible_evidence": false,
+   "anchor_worst_margin_evidence": [
+    "s11_max_db",
+    -0.392748
+   ],
+   "evidence_total_evals": 3600,
+   "calibration_row": "wbX-s1110-g10-b530",
+   "calibration_anchor_solves": false,
+   "calibration_template_solves": true,
+   "reference_template": "kaggle/claude-solutions/templates/wideband_shunt_feedback.net"
+  },
+  {
+   "cell": "v12-wb-s11n10-g10-b0824",
+   "band": {
+    "f0": 1385640646.0551019,
+    "f_hi": 2400000000.0,
+    "f_lo": 800000000.0,
+    "type": "wideband"
+   },
+   "constraints": {
+    "idd_ma": 10,
+    "nf_db": 3.0,
+    "s11_max_db": -10,
+    "s21_db": 10,
+    "s21_ripple_db": 2.0
+   },
+   "shown_anchor_family": "current-reuse",
+   "anchor_feasible_evidence": false,
+   "anchor_worst_margin_evidence": [
+    "s11_max_db",
+    -0.28325199999999995
+   ],
+   "evidence_total_evals": 3600,
+   "calibration_row": "wbX-s1110-g10-b824",
+   "calibration_anchor_solves": false,
+   "calibration_template_solves": true,
+   "reference_template": "kaggle/claude-solutions/templates/wideband_shunt_feedback.net"
+  },
+  {
+   "cell": "v12-wb-s11n10-g12-b0824",
+   "band": {
+    "f0": 1385640646.0551019,
+    "f_hi": 2400000000.0,
+    "f_lo": 800000000.0,
+    "type": "wideband"
+   },
+   "constraints": {
+    "idd_ma": 10,
+    "nf_db": 3.0,
+    "s11_max_db": -10,
+    "s21_db": 12,
+    "s21_ripple_db": 2.0
+   },
+   "shown_anchor_family": "current-reuse",
+   "anchor_feasible_evidence": false,
+   "anchor_worst_margin_evidence": [
+    "s11_max_db",
+    -0.05646799999999992
+   ],
+   "evidence_total_evals": 3600,
+   "calibration_row": "wbX-s1110-g12-b824",
+   "calibration_anchor_solves": false,
+   "calibration_template_solves": true,
+   "reference_template": "kaggle/claude-solutions/templates/wideband_shunt_feedback.net"
+  },
+  {
+   "cell": "v12-wb-s11n11-g10-b0824",
+   "band": {
+    "f0": 1385640646.0551019,
+    "f_hi": 2400000000.0,
+    "f_lo": 800000000.0,
+    "type": "wideband"
+   },
+   "constraints": {
+    "idd_ma": 10,
+    "nf_db": 3.0,
+    "s11_max_db": -11,
+    "s21_db": 10,
+    "s21_ripple_db": 2.0
+   },
+   "shown_anchor_family": "current-reuse",
+   "anchor_feasible_evidence": false,
+   "anchor_worst_margin_evidence": [
+    "s11_max_db",
+    -0.29171727272727277
+   ],
+   "evidence_total_evals": 3600,
+   "calibration_row": "wbX-s1111-g10-b824",
+   "calibration_anchor_solves": false,
+   "calibration_template_solves": true,
+   "reference_template": "kaggle/claude-solutions/templates/wideband_shunt_feedback.net"
+  },
+  {
+   "cell": "v12-wb-s11n11-g12-b0824",
+   "band": {
+    "f0": 1385640646.0551019,
+    "f_hi": 2400000000.0,
+    "f_lo": 800000000.0,
+    "type": "wideband"
+   },
+   "constraints": {
+    "idd_ma": 10,
+    "nf_db": 3.0,
+    "s11_max_db": -11,
+    "s21_db": 12,
+    "s21_ripple_db": 2.0
+   },
+   "shown_anchor_family": "current-reuse",
+   "anchor_feasible_evidence": false,
+   "anchor_worst_margin_evidence": [
+    "s11_max_db",
+    -0.16939909090909097
+   ],
+   "evidence_total_evals": 3600,
+   "calibration_row": "wbX-s1111-g12-b824",
+   "calibration_anchor_solves": false,
+   "calibration_template_solves": true,
+   "reference_template": "kaggle/claude-solutions/templates/wideband_shunt_feedback.net"
+  },
+  {
+   "cell": "v12-wb-s11n8-g10-b0530",
+   "band": {
+    "f0": 1224744871.3915892,
+    "f_hi": 3000000000.0,
+    "f_lo": 500000000.0,
+    "type": "wideband"
+   },
+   "constraints": {
+    "idd_ma": 10,
+    "nf_db": 3.0,
+    "s11_max_db": -8,
+    "s21_db": 10,
+    "s21_ripple_db": 2.0
+   },
+   "shown_anchor_family": "current-reuse",
+   "anchor_feasible_evidence": false,
+   "anchor_worst_margin_evidence": [
+    "s11_max_db",
+    -0.24877875000000005
+   ],
+   "evidence_total_evals": 3600,
+   "calibration_row": "wbX-s118-g10-b530",
+   "calibration_anchor_solves": false,
+   "calibration_template_solves": true,
+   "reference_template": "kaggle/claude-solutions/templates/wideband_shunt_feedback.net"
+  },
+  {
+   "cell": "v12-wb-s11n8-g12-b0530",
+   "band": {
+    "f0": 1224744871.3915892,
+    "f_hi": 3000000000.0,
+    "f_lo": 500000000.0,
+    "type": "wideband"
+   },
+   "constraints": {
+    "idd_ma": 10,
+    "nf_db": 3.0,
+    "s11_max_db": -8,
+    "s21_db": 12,
+    "s21_ripple_db": 2.0
+   },
+   "shown_anchor_family": "current-reuse",
+   "anchor_feasible_evidence": false,
+   "anchor_worst_margin_evidence": [
+    "s11_max_db",
+    -0.23812374999999997
+   ],
+   "evidence_total_evals": 3600,
+   "calibration_row": "wbX-s118-g12-b530",
+   "calibration_anchor_solves": false,
+   "calibration_template_solves": true,
+   "reference_template": "kaggle/claude-solutions/templates/wideband_shunt_feedback.net"
+  },
+  {
+   "cell": "v12-wb-s11n9-g10-b0530",
+   "band": {
+    "f0": 1224744871.3915892,
+    "f_hi": 3000000000.0,
+    "f_lo": 500000000.0,
+    "type": "wideband"
+   },
+   "constraints": {
+    "idd_ma": 10,
+    "nf_db": 3.0,
+    "s11_max_db": -9,
+    "s21_db": 10,
+    "s21_ripple_db": 2.0
+   },
+   "shown_anchor_family": "current-reuse",
+   "anchor_feasible_evidence": false,
+   "anchor_worst_margin_evidence": [
+    "s11_max_db",
+    -0.31934555555555555
+   ],
+   "evidence_total_evals": 3600,
+   "calibration_row": "wbX-s119-g10-b530",
+   "calibration_anchor_solves": false,
+   "calibration_template_solves": true,
+   "reference_template": "kaggle/claude-solutions/templates/wideband_shunt_feedback.net"
+  }
+ ]
+}

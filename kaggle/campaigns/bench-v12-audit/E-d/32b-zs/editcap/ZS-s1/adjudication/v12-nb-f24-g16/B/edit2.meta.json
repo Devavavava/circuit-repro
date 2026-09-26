@@ -1,0 +1,105 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**PREDICTION**: S21_db improves by ~6 dB (from 9.4 dB to ~15.4 dB). The CS configuration inherently has higher gain than CG, and inductive source degeneration preserves linearity.",
+  "wl_hash": "ea609a293dc8e7e2",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 4.399674999999999,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -0.66144,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 3.00099,
+    "metrics": {
+      "s11_db": -1.09293,
+      "s11_max_db": -1.03249,
+      "s21_db": 11.3556,
+      "s21_min_db": 11.3015,
+      "idd_ma": 7.0131380000000005,
+      "nf_db": 1.920104,
+      "s22_db": -10.1209,
+      "s22_max_db": -9.63826,
+      "s12_db": -28.6298,
+      "k_f0": 0.528252,
+      "k_min": 0.521117,
+      "mu_f0": 0.680885,
+      "mu_min": 0.667151,
+      "mu_src_f0": 0.925511,
+      "mu_src_min": 0.924595,
+      "delta_f0": 0.139154,
+      "delta_max": 0.157118,
+      "stab_band": [
+        2352000000.0,
+        2448000000.0
+      ],
+      "s21_ripple_db": 0.09830000000000005,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 7.0131380000000005,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": -0.7532845000000001,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 1.920104,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -0.06672444444444443,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -1.09293,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.8907070000000001,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 11.3556,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": -0.29027499999999995,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "s11_db",
+      -0.8907070000000001
+    ],
+    "seed": 2,
+    "seconds": 14.781,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 4.399674999999999
+}

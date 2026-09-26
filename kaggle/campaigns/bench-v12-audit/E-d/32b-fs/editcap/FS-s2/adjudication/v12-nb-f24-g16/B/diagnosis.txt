@@ -1,0 +1,7 @@
+1. **Diagnosis**: The common-gate topology inherently limits gain due to its transconductance-to-source resistance (g_m/R_S) ratio. The inductive load (L2) cannot provide sufficient impedance to achieve S21 >= 16 dB. The binding constraint is insufficient voltage gain from the source-follower (common-gate) configuration.
+
+---
+
+2. **Structural Edits**:
+
+   **Edit 1**: Switch to a common-source cascode for higher gain. The cascode (PMOS P1) increases output impedance, enabling higher g_m * R_L gain.

@@ -1,0 +1,10 @@
+* Edit 3: Replace inductive load with shunt resistor for broadband impedance
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+R Rload VDD n2  ; Replaces L2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS

@@ -1,0 +1,51 @@
+1. **Diagnosis**: The common-gate stage with inductive source matching achieves excellent input match (S11) but suffers from low transconductance (gm) and insufficient load impedance. The narrowband inductive load (L2) cannot provide enough gain (S21) to meet the 14 dB requirement, as the Q of the inductor and the lack of active load elements limit voltage amplification. The gm of NM1 is too low due to the source inductor shorting the source at RF, and the drain load lacks impedance-enhancing elements like resistors or active devices.
+
+---
+
+### Edit 1: Add a shunt resistor in parallel with the drain inductor to enhance load impedance
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+R Rlload VDD n2
+```
+**Prediction**: S21 increases by ~2–3 dB due to the resistor (Rlload) increasing the parallel load impedance at resonance.
+
+---
+
+### Edit 2: Add a series resistor in the source inductor path to increase transconductance gain
+```netlist
+C C1 VIN1 n0
+R Rsrc n0 n1
+L L1 n1 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n0
+C Cbyp n0 VSS
+```
+**Prediction**: S21 improves by ~2.5 dB as the resistor (Rsrc) raises the effective source resistance, enhancing the transconductance gain (Av ≈ -gm·Rsrc·Rload).
+
+---
+
+### Edit 3: Replace the inductive drain load with an active cascode load (PMOS)
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+PMOS PM1 VDD n2 n2 VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Prediction**: S21 increases by ~4–5 dB due to the PMOS cascode load providing high output impedance and better voltage amplification.

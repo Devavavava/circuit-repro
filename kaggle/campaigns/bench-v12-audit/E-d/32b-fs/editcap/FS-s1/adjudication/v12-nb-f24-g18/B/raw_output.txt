@@ -1,0 +1,50 @@
+1. **Diagnosis**: The binding constraint (s21_db) is limited by insufficient transconductance-to-load (gm/RL) ratio in the common-gate stage. The inductive load (L2) alone cannot provide high enough impedance at 2.4 GHz to achieve the required 18 dB gain. The topology lacks a resistive load to boost RL without compromising broadband input matching.
+
+2. **Edit 1: Add a shunt resistor in parallel with the inductive load**  
+   ```netlist
+   C C1 VIN1 n0
+   L L1 n0 VSS
+   NMOS NM1 n2 n1 n0 VSS
+   L L2 VDD n2
+   C C2 n2 VOUT1
+   R R1 VDD n3
+   NMOS NM3 n3 n3 VSS VSS
+   R R2 n3 n1
+   C Cbyp n1 VSS
+   R Rd VDD n2
+   ```
+   **Prediction**: s21_db improves by ~2 dB (from ~9.5 dB to ~11.5 dB). The resistor `Rd` increases the load impedance at 2.4 GHz, directly enhancing gain without degrading input matching.
+
+---
+
+3. **Edit 2: Replace the inductive load with a parallel LC resonator**  
+   ```netlist
+   C C1 VIN1 n0
+   L L1 n0 VSS
+   NMOS NM1 n2 n1 n0 VSS
+   L L2 VDD n2
+   C C2 n2 VOUT1
+   R R1 VDD n3
+   NMOS NM3 n3 n3 VSS VSS
+   R R2 n3 n1
+   C Cbyp n1 VSS
+   C C3 VDD n2
+   ```
+   **Prediction**: s21_db improves by ~3 dB (from ~9.5 dB to ~12.5 dB). The parallel LC circuit (L2 + C3) creates a high-impedance load at resonance, maximizing RL and gain at 2.4 GHz.
+
+---
+
+4. **Edit 3: Add a cascode PMOS transistor at the output**  
+   ```netlist
+   C C1 VIN1 n0
+   L L1 n0 VSS
+   NMOS NM1 n2 n1 n0 VSS
+   L L2 VDD n4
+   C C2 n4 VOUT1
+   R R1 VDD n3
+   NMOS NM3 n3 n3 VSS VSS
+   R R2 n3 n1
+   C Cbyp n1 VSS
+   PMOS M2 n4 n3 VDD VSS
+   ```
+   **Prediction**: s21_db improves by ~2 dB (from ~9.5 dB to ~11.5 dB). The cascode PMOS `M2` increases output impedance, raising RL and gain while maintaining the common-gate input stage’s broadband matching.

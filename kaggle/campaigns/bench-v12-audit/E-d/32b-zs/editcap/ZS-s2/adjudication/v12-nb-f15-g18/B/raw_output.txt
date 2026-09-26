@@ -1,0 +1,51 @@
+1. The binding constraint `s21_db` is failing due to insufficient voltage gain. The common-gate topology (with inductive source matching) inherently limits gain compared to common-source configurations. The load inductor `L2` lacks resonance tuning, reducing effective impedance at 1.6 GHz. Additionally, the source inductor `L1` is not optimized for narrowband matching, and the output network lacks impedance multiplication.
+
+---
+
+```netlist
+* Edit 1: Replace L2 with a series LC resonant tank to maximize load impedance at f0
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2a VDD n3
+C C2a n3 n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Effect**: s21_db improves by ~6 dB (resonant tank increases load impedance at 1.6 GHz).
+
+---
+
+```netlist
+* Edit 2: Convert to common-source with source degeneration inductor and shunt gate bias
+C C1 VIN1 n1
+L L1 n1 n0
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+L Lbias n1 VSS
+```
+**Effect**: s21_db improves by ~10 dB (common-source topology + source degeneration boosts gain).
+
+---
+
+```netlist
+* Edit 3: Add cascode transistor to increase output impedance
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+NMOS NM2 n4 n3 n2 VSS
+L L2 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Effect**: s21_db improves by ~5 dB (cascode reduces Miller effect and raises output impedance).

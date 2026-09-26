@@ -1,0 +1,57 @@
+1. **DIAGNOSIS**: The binding constraint (S21<12 dB) is caused by insufficient transconductance (gm) and load impedance at 2.4 GHz. The common-gate LNA's gain (gm * RL) is limited by the drain inductor's impedance (L2) at resonance, which is insufficient to meet the 12 dB requirement. The low RL reduces S21 despite good noise and input match.
+
+---
+
+**EDIT 1: Add LC tank at drain (parallel LC load)**  
+```netlist
+* lna-a5-commongate with LC tank load
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 n2 VDD
+C C2 n2 VDD
+C C3 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**PREDICTION**: S21 improves by ~3 dB due to higher Q LC tank impedance at 2.4 GHz.
+
+---
+
+**EDIT 2: Add PMOS cascode (increase output impedance)**  
+```netlist
+* lna-a5-commongate with PMOS cascode
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+PMOS PM1 n4 n3 n2 VDD
+L L2 n4 VDD
+C C2 n4 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**PREDICTION**: S21 improves by ~2.5 dB from cascode's higher output impedance and gm stacking.
+
+---
+
+**EDIT 3: Add common-source second stage (two-stage gain)**  
+```netlist
+* lna-a5-commongate with common-source second stage
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 n2 VDD
+C C2 n2 VOUT1
+PMOS PM1 n4 n2 VSS VDD
+L L3 n4 VDD
+C C3 n4 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**PREDICTION**: S21 improves by ~5 dB from cascaded gain of common-gate and common-source stages.

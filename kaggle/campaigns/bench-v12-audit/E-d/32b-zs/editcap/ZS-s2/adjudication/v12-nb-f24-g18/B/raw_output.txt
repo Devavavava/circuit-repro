@@ -1,0 +1,45 @@
+1. **DIAGNOSIS**: The common-gate topology inherently limits voltage gain due to its transconductance (gm) being multiplied by a load impedance (L2) that cannot achieve sufficient reactance at 2.4 GHz. The 1/gm source matching (L1) further reduces effective gain by lowering input impedance instead of maximizing transconductance.
+
+2. **EDIT 1 (Common-source cascode for higher gain)**:
+```netlist
+* lna-a5-cc-cascode: common-source cascode with inductive loads
+C C1 VIN1 gate_in
+L L1 source_in VSS
+NMOS NM1 drain_in gate_in source_in VSS
+PMOS PM1 VDD drain_out drain_in
+C C2 drain_out VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+```
+Predicted: s21_db improves by ~10 dB (common-source cascode gains ~10-15 dB at 2.4 GHz with inductive loads)
+
+3. **EDIT 2 (Add shunt resistor to boost load Q)**:
+```netlist
+* lna-a5-l2-shunt: add R||L for higher load Q
+C C1 VIN1 n1
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+R R3 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+Predicted: s21_db improves by ~3 dB (resistor shunt adjusts load impedance at f0)
+
+4. **EDIT 3 (Common-source inductive load w/ source match)**:
+```netlist
+* lna-a5-cs-source: common-source with inductive source/load
+C C1 VIN1 gate_in
+L L1 source_in VSS
+NMOS NM1 drain_in gate_in source_in VSS
+L L2 VDD drain_in
+C C2 drain_in VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 gate_in
+C Cbyp gate_in VSS
+```
+Predicted: s21_db improves by ~8 dB (common-source topology with source degeneration and inductive load)

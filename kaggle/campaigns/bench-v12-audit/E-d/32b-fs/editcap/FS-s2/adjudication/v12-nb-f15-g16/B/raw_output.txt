@@ -1,0 +1,58 @@
+1. **Diagnosis**: The anchor uses a common-gate (CG) topology, which inherently has low voltage gain due to the transconductance-to-source-impedance ratio (gm * RS). The CG stage’s gain is limited by the inductive source degeneration (L1) and the load inductor (L2). This results in a low S21 (8.4 dB vs. required 16 dB). Switching to a **common-source (CS)** configuration would leverage a higher gm * RL product, boosting gain.
+
+2. **Edits**:
+
+---
+
+```netlist
+* Edit 1: Convert to common-source with inductive source degeneration
+C C1 VIN1 n1
+L L1 n1 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+
+**Prediction**: S21_db improves by **~6–8 dB** (from 8.4 dB to ~14–16 dB). The CS topology increases voltage gain by utilizing a higher transconductance and inductive load.
+
+---
+
+```netlist
+* Edit 2: Add cascode stage to increase output impedance and gain
+C C1 VIN1 n1
+L L1 n1 VSS
+NMOS NM1 n2 n1 n0 VSS
+NMOS NM2 n3 n4 n2 VSS
+PMOS PM1 n3 n4 VDD VDD
+L L2 VDD n3
+C C2 n3 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+C Cbyp n1 VSS
+```
+
+**Prediction**: S21_db improves by **~4–6 dB** (from 8.4 dB to ~12–14 dB). The cascode structure reduces Miller feedback and increases output impedance, enhancing gain.
+
+---
+
+```netlist
+* Edit 3: Add second-stage common-source amplifier for gain multiplication
+C C1 VIN1 n1
+L L1 n1 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+NMOS NM2 n3 n2 n4 VSS
+L L3 VDD n3
+C C2 n3 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+C Cbyp n1 VSS
+```
+
+**Prediction**: S21_db improves by **~10–12 dB** (from 8.4 dB to ~18–20 dB). The two-stage configuration multiplies individual gains, achieving the required 16 dB with margin.

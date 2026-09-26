@@ -1,0 +1,5 @@
+1. **Diagnosis**: The binding constraint `s21_db` (gain) is too low (8.45 dB vs. 12 dB spec). The common-gate configuration's gain is fundamentally limited by the transconductance (g_m) and load impedance. The inductor L2 (tuned load) may not provide sufficient impedance at the design frequency, and the single NMOS transistor's g_m is insufficient. The cascode structure can increase output impedance and gain, while a PMOS current mirror load or resistive load can alter the load characteristics.
+
+2. **Structural Edits**:
+
+   **Edit 1: Cascode Output Stage** (Add cascode transistor to increase output impedance)

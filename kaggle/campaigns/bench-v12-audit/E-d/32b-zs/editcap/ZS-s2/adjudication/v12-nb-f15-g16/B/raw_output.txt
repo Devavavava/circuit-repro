@@ -1,0 +1,52 @@
+=== FAILURE DIAGNOSIS ===
+The binding constraint (s21_db) fails because the common-gate topology's voltage gain is fundamentally limited by its low transconductance-to-source resistance ratio (gm/R_S). The existing inductive source matching (L1) creates a high-impedance input but cannot compensate for the intrinsic gain limitation of the common-gate configuration. The drain load (L2) lacks resonance tuning at 1.6 GHz, resulting in insufficient load impedance to achieve the required 16 dB gain.
+
+---
+
+```netlist
+* Edit 1: Add parallel LC tank at drain to increase load impedance at f0
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+C C3 n2 VDD
+```
+Predicted: s21_db improves by ~4 dB (from 8.4 dB to ~12.4 dB)
+
+---
+
+```netlist
+* Edit 2: Add cascode PMOS to increase output impedance
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+PMOS PM1 VDD n3 n2 VDD
+```
+Predicted: s21_db improves by ~3 dB (from 8.4 dB to ~11.4 dB)
+
+---
+
+```netlist
+* Edit 3: Convert to common-source with source inductor (higher gain topology)
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n0 n1 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n0
+C Cbyp n0 VSS
+```
+Predicted: s21_db improves by ~7 dB (from 8.4 dB to ~15.4 dB)

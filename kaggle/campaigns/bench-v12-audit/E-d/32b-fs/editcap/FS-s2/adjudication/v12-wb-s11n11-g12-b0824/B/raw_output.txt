@@ -1,0 +1,67 @@
+1. **DIAGNOSIS**: The binding constraint is S11_max_db failing by -0.17 dB. The current-reuse push-pull topology uses reactive (L/C) input matching (C4, L1), which is inherently narrowband. Across the 0.8–2.4 GHz band, the input impedance (Zin) becomes mismatched at higher frequencies due to the LC tank's resonant nature, degrading S11. Resistive broadbanding is missing.
+
+---
+
+2. **EDIT 1: Resistor feedback from output to input gate**  
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+R Rf n2 n1
+```
+**PREDICTION**: S11_max_db improves by ~2 dB (reaches ~-11.1 dB) due to resistive broadbanding from output-to-gate feedback (Rf).
+
+---
+
+3. **EDIT 2: Shunt resistor at input gate for resistive damping**  
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+R Rshunt n1 VSS
+```
+**PREDICTION**: S11_max_db improves by ~1 dB (reaches ~-10.1 dB) by adding resistive damping to flatten input impedance (Zin).
+
+---
+
+4. **EDIT 3: Series resistor with input inductor for Q-factor tuning**  
+```netlist
+C C4 VIN1 n0
+R Rseries n0 n10
+L L1 n10 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+**PREDICTION**: S11_max_db improves by ~1.5 dB (reaches ~-10.6 dB) by broadening the LC tank's bandwidth via series resistor (Rseries) reducing Q.

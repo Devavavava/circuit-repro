@@ -1,0 +1,66 @@
+1. **Diagnosis**: The binding constraint (S11) fails due to inadequate input impedance matching. The existing LC network (L1/C1) and current-reuse topology do not sufficiently match the 50Ω source impedance across the 0.8–2.4 GHz band, causing reflections. The LC network's Q is too high for broadband matching, and the push-pull configuration's input impedance lacks a resistive component to absorb mismatch.
+
+2. **Structural Edits**:
+
+```netlist
+* Edit 1: Add shunt inductor at input to form broadband LC matching
+C C4 VIN1 n0
+L L1 n0 n1
+L L3 n1 VSS  ; shunt inductor to adjust input impedance
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+**Prediction**: S11_max_db improves by ~2.5 dB by lowering input impedance via L3's shunt inductance.
+
+---
+
+```netlist
+* Edit 2: Series resistor + LC to dampen input resonance
+R R6 VIN1 n0  ; series resistor to add resistive load
+L L1 n0 n1
+C C4 VIN1 n0  ; input coupling
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+**Prediction**: S11_max_db improves by ~1.5 dB by reducing Q via R6's lossy damping.
+
+---
+
+```netlist
+* Edit 3: Replace series LC with parallel LC input network
+L L3 VIN1 n1  ; series inductor
+C C1 n1 VSS  ; shunt capacitor for broadband matching
+C C4 VIN1 n0  ; original coupling
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+**Prediction**: S11_max_db improves by ~3 dB by using a parallel LC (L3/C1) to adjust real/reactive components for wideband matching.

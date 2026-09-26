@@ -1,0 +1,5 @@
+1. **DIAGNOSIS**: The binding constraint `s21_db` is failing because the inductive load (L2) provides insufficient real impedance at 1.6 GHz. Inductive loads depend on frequency and are limited by parasitic capacitance and core losses, resulting in a low effective load impedance for the common-gate stage. This limits voltage gain despite high transconductance (gm) from the common-gate configuration.
+
+---
+
+2. **STRUCTURAL EDIT 1**: Replace the inductive load with a resistor to increase real load impedance, enhancing gain.

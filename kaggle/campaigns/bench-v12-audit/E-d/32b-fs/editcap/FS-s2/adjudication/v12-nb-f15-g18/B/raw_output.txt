@@ -1,0 +1,59 @@
+1. **DIAGNOSIS**: The circuit's common-gate configuration relies on a single inductor (L2) as the drain load. At resonance, inductors provide high impedance, but their Q and frequency dependence limit achievable load impedance. The transconductance (gm) of the single NM1 stage is insufficient to meet the required S21 gain of 18 dB, even after optimization. The structure lacks a high-impedance load or a cascode stage to amplify the transconductance's output voltage.
+
+---
+
+2. **STRUCTURAL EDITS**:  
+
+   **Edit 1**: Add a **cascode transistor** to increase output impedance. A second NMOS (NM2) is inserted between NM1's drain and the inductor load. This raises the output impedance, enhancing S21.  
+
+   ```netlist
+   C C1 VIN1 n0
+   L L1 n0 VSS
+   NMOS NM1 n2 n1 n0 VSS
+   NMOS NM2 n3 n4 n2 VSS
+   L L2 VDD n3
+   C C2 n3 VOUT1
+   R R1 VDD n5
+   NMOS NM3 n5 n5 VSS VSS
+   R R2 n5 n1
+   C Cbyp n1 VSS
+   ```
+
+   **Predicted effect**: S21 improves by **~5–8 dB** due to higher output impedance from the cascode.  
+
+---
+
+   **Edit 2**: Replace the inductor load with a **parallel LC tank** at the drain. This maximizes impedance at 1.6 GHz, boosting gain.  
+
+   ```netlist
+   C C1 VIN1 n0
+   L L1 n0 VSS
+   NMOS NM1 n2 n1 n0 VSS
+   L L2 n2 n3
+   C C2 n3 VOUT1
+   C C3 n3 n2
+   R R1 VDD n4
+   NMOS NM3 n4 n4 VSS VSS
+   R R2 n4 n1
+   C Cbyp n1 VSS
+   ```
+
+   **Predicted effect**: S21 improves by **~6–10 dB** as the LC tank provides a near-infinite load at resonance.  
+
+---
+
+   **Edit 3**: Replace the inductor with a **PMOS current-source load**. A PMOS (PM1) provides a high-impedance active load, increasing voltage gain.  
+
+   ```netlist
+   C C1 VIN1 n0
+   L L1 n0 VSS
+   NMOS NM1 n2 n1 n0 VSS
+   PMOS PM1 n2 n3 VDD VDD
+   C C2 n2 VOUT1
+   R R1 VDD n4
+   NMOS NM3 n4 n4 VSS VSS
+   R R2 n4 n1
+   C Cbyp n1 VSS
+   ```
+
+   **Predicted effect**: S21 improves by **~4–7 dB** due to the high-impedance PMOS load.

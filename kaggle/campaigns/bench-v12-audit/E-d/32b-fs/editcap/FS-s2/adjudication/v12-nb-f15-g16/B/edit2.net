@@ -1,0 +1,12 @@
+* Edit 3: Add second-stage common-source amplifier for gain multiplication
+C C1 VIN1 n1
+L L1 n1 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+NMOS NM2 n3 n2 n4 VSS
+L L3 VDD n3
+C C2 n3 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+C Cbyp n1 VSS

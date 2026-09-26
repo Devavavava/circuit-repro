@@ -1,0 +1,105 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "**Prediction**: s21_db improves by ~5\u20137 dB due to cascode's higher output impedance and increased transconductance.\n\n---",
+  "wl_hash": "2c2a52c829ea14aa",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 1.3098260000000002,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -1.75856,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.74545,
+    "metrics": {
+      "s11_db": -10.2894,
+      "s11_max_db": -9.97509,
+      "s21_db": -1.48049,
+      "s21_min_db": -1.55129,
+      "idd_ma": 1.488461,
+      "nf_db": 2.993755,
+      "s22_db": -11.8188,
+      "s22_max_db": -11.4204,
+      "s12_db": -1.48053,
+      "k_f0": 1.01647,
+      "k_min": 1.01586,
+      "mu_f0": 1.07757,
+      "mu_min": 1.07694,
+      "mu_src_f0": 1.06389,
+      "mu_src_min": 1.06352,
+      "delta_f0": 0.777831,
+      "delta_max": 0.783504,
+      "stab_band": [
+        1548400000.0,
+        1611600000.0
+      ],
+      "s21_ripple_db": 0.13631000000000015,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 1.488461,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": 0.62788475,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 2.993755,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -0.6631972222222223,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -10.2894,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": 0.028940000000000056,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -1.48049,
+        "required_min": 18,
+        "required_max": null,
+        "scale": 18,
+        "margin": -1.0822494444444444,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "s21_db",
+      -1.0822494444444444
+    ],
+    "seed": 1,
+    "seconds": 16.306,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 1.3098260000000002
+}

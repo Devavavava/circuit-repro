@@ -1,0 +1,46 @@
+1. The circuit fails because the common-gate stage's output impedance is too low at 1.6GHz. The single inductor load (L2) cannot provide sufficient impedance to achieve the required 16dB gain. The LC tank in Edit 1 increases load impedance at resonance, while the cascode in Edit 2 raises output impedance, and the two-stage design in Edit 3 multiplies gains.
+
+2. 
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2a n2 VDD
+C C2a n2 VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+Predicted: s21_db improves by ~5 dB (from 8.4 to ~13.4 dB)
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+NMOS NM2 n3 n3 n2 VSS
+L L2 VDD n3
+C C2 n3 VOUT1
+R R1 VDD n4
+NMOS NM3 n4 n4 VSS VSS
+R R2 n4 n1
+C Cbyp n1 VSS
+```
+Predicted: s21_db improves by ~4 dB (from 8.4 to ~12.4 dB)
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+C C2g n2 n3
+NMOS NM2 n4 n3 VSS VSS
+L L2 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+C Cbyp n1 VSS
+```
+Predicted: s21_db improves by ~8 dB (from 8.4 to ~16.4 dB)

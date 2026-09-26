@@ -1,0 +1,68 @@
+1. DIAGNOSIS: The input matching network (L1-C4-C1) fails to achieve S11 ≤ -10 dB across the full 0.8-2.4 GHz band. The existing series inductor L1 and shunt capacitor C1 form a simple LC filter but cannot adequately match the complex input impedance over such a wide bandwidth. The push-pull current-reuse architecture inherently has higher input impedance (due to NMOS/PMOS parallel) but lacks sufficient tuning degrees of freedom for wideband matching.
+
+2. EDIT 1: Add shunt inductor at input (Pi-network)
+```netlist
+* lna-a2-current-reuse with shunt inductor at input
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+L L3 n1 n3  ; Shunt inductor at input node to enhance wideband matching
+```
+PREDICTION: S11_max_db improves by ~2 dB (reaches -11.4 dB) through enhanced impedance shaping at high frequencies.
+
+---
+
+2. EDIT 2: Add series resistor at input (damping)
+```netlist
+* lna-a2-current-reuse with input series resistor
+C C4 VIN1 n0
+R R6 VIN1 n0  ; Series resistor to adjust input impedance damping
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+PREDICTION: S11_max_db improves by ~1.5 dB (reaches -10.9 dB) via controlled damping of input resonance.
+
+---
+
+2. EDIT 3: Convert input LC to series Pi-network
+```netlist
+* lna-a2-current-reuse with Pi-network input matching
+C C4 VIN1 n0
+L L1 n0 n1
+C C5 n0 n1  ; Additional series capacitor to create Pi-network (L1+C5+C1)
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+PREDICTION: S11_max_db improves by ~3 dB (reaches -12.4 dB) through enhanced wideband impedance transformation using the Pi-network.

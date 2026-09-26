@@ -1,0 +1,68 @@
+### DIAGNOSIS  
+The binding constraint `s11_max_db` fails because the input impedance is poorly matched across the wideband (0.8–2.4 GHz). The existing LC input matching network (C4 + L1 + C1) has insufficient bandwidth or resonance tuning, leading to high reflection (poor S11). The current-reuse push-pull topology inherently has a narrow Q, but the LC network’s high Q exacerbates the issue, causing S11 to peak above -11 dB.  
+
+---
+
+```netlist
+* Edit 1: Add a shunt inductor at the input to broaden LC tank bandwidth.
+C C4 VIN1 n0
+L L1 n0 n1
+L L3 n0 VSS  # Shunt inductor to adjust Q and flatten S11
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+**Predicted Impact**: `s11_max_db` improves by ~1.5 dB (broadens LC tank Q, reduces peak mismatch).  
+
+---
+
+```netlist
+* Edit 2: Replace LC input with a series inductor to create a broadband matching network.
+C C4 VIN1 n5
+L L4 n5 n0  # Series inductor for broadband impedance transformation
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n6
+NMOS NM3 n6 n6 VSS VSS
+R R2 n6 n1
+PMOS PM2 n7 n7 VDD VDD
+R R4 n7 VSS
+R R5 n7 n3
+```
+**Predicted Impact**: `s11_max_db` improves by ~2 dB (series inductor flattens input impedance across wideband).  
+
+---
+
+```netlist
+* Edit 3: Add a common-gate stage at input to lower input impedance and enhance matching.
+C C4 VIN1 n5
+NMOS NM4 n5 n6 VSS VSS  # Common-gate stage to present low input impedance
+L L1 n6 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+PMOS PM2 n8 n8 VDD VDD
+R R4 n8 VSS
+R R5 n8 n3
+```
+**Predicted Impact**: `s11_max_db` improves by ~1 dB (common-gate stage reduces input impedance, easing matching).

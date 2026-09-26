@@ -1,0 +1,52 @@
+{
+  "kernel": "ed-32b-zs",
+  "prereg": "kaggle/PREREG-BENCH-V12-AUDIT.md#E-d",
+  "model_id": "qwen3-32b-q4ks",
+  "lib": "editcap-lib-v12-45nm",
+  "pdk": "bptm45",
+  "arm": "B",
+  "k": "3",
+  "max_tokens": "8192",
+  "temperature": "0.7",
+  "recover_reasoning": true,
+  "repo_branch": "worktree-externals-gf180",
+  "repo_sha_pinned": "cc5a836bb26fbfef4f128777945ebdae39c3fb66",
+  "runs": [
+    {
+      "cond": "ZS",
+      "sample": 1,
+      "out": "/kaggle/working/editcap/ZS-s1",
+      "rc": 0,
+      "minutes": 102.2,
+      "n_cells_done": 16,
+      "n_proposed": 48,
+      "n_valid": 42,
+      "n_inkernel_feasible_cells": 0
+    },
+    {
+      "cond": "ZS",
+      "sample": 2,
+      "out": "/kaggle/working/editcap/ZS-s2",
+      "rc": 0,
+      "minutes": 99.9,
+      "n_cells_done": 16,
+      "n_proposed": 48,
+      "n_valid": 39,
+      "n_inkernel_feasible_cells": 0
+    }
+  ],
+  "clone_head": "cc5a836bb26fbfef4f128777945ebdae39c3fb66",
+  "gguf": {
+    "source": "dataset",
+    "glob": "/kaggle/input/**/Qwen3-32B*.gguf",
+    "path": "/kaggle/input/datasets/devavratpatni/circuit-repro-gguf-qwen32/Qwen3-32B-Q4_K_S.gguf",
+    "bytes": 18771245728
+  },
+  "identical_raw_s1_s2": {
+    "ZS": [
+      0,
+      16
+    ]
+  },
+  "wall_minutes": 204.3
+}

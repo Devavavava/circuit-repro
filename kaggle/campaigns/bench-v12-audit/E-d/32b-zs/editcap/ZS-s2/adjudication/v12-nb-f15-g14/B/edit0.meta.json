@@ -1,0 +1,105 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "**Predicted S21 improvement**: +5\u20137 dB (gain boosted via cascode's higher output impedance and PMOS load).\n\n---",
+  "wl_hash": "d26e96fe1330c11c",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 6.400674,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -20.5081,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 8.61131,
+    "metrics": {
+      "s11_db": -14.0283,
+      "s11_max_db": -11.4796,
+      "s21_db": -11.839,
+      "s21_min_db": -12.1487,
+      "idd_ma": 0.4196453,
+      "nf_db": 12.1782,
+      "s22_db": -6.91796,
+      "s22_max_db": -6.51126,
+      "s12_db": -11.0065,
+      "k_f0": 5.40239,
+      "k_min": 5.09048,
+      "mu_f0": 1.93603,
+      "mu_min": 1.86882,
+      "mu_src_f0": 3.76009,
+      "mu_src_min": 2.9688,
+      "delta_f0": 0.146751,
+      "delta_max": 0.173765,
+      "stab_band": [
+        1548400000.0,
+        1611600000.0
+      ],
+      "s21_ripple_db": 0.5193999999999992,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 0.4196453,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": 0.895088675,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 12.1782,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -5.765666666666666,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -14.0283,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": 0.40282999999999997,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -11.839,
+        "required_min": 14,
+        "required_max": null,
+        "scale": 14,
+        "margin": -1.8456428571428571,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -5.765666666666666
+    ],
+    "seed": 2,
+    "seconds": 16.464,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 6.400674
+}

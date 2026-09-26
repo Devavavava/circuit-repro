@@ -1,0 +1,10 @@
+* Add series inductor at input to create inductive source degeneration
+L L1 VIN1 n0
+C C2 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L3 n2 VDD
+C C3 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS

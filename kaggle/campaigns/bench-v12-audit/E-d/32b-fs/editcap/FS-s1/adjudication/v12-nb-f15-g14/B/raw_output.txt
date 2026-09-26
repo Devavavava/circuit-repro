@@ -1,0 +1,51 @@
+1. **Diagnosis**: The binding constraint (S21 < 14 dB) is due to insufficient voltage gain from the common-gate stage. The inductive load (L2) provides frequency-dependent reactance but fails to deliver the required gm × RL product for 14 dB gain at 1.6 GHz. The topology lacks a second gain stage or a high-Z load to compensate for narrowband limitations.
+
+---
+
+2. **Structural Edit 1: Replace inductive load with resistive load**  
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+R R2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```  
+**Predicted effect**: S21_db improves by ~4–5 dB (resistive load directly increases gain, bypassing inductor’s frequency dependence).
+
+---
+
+3. **Structural Edit 2: Add common-source cascode stage**  
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n0 n0 VSS
+NMOS NM2 n3 n4 n2 VSS
+L L2 VDD n3
+C C2 n3 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n4
+C Cbyp n4 VSS
+```  
+**Predicted effect**: S21_db improves by ~5–6 dB (cascode increases output impedance and effective transconductance).
+
+---
+
+4. **Structural Edit 3: Add shunt feedback resistor for gain stability**  
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+R Rf n2 n1
+C Cbyp n1 VSS
+```  
+**Predicted effect**: S21_db improves by ~3–4 dB (feedback resistor stabilizes gain and broadens impedance matching).

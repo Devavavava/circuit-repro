@@ -1,0 +1,67 @@
+1. **Diagnosis**: The input matching network (C4, L1) fails to achieve S11 ≤ -11 dB, as evidenced by the worst-case S11 of -9.14 dB. The single LC branch (C4-L1) lacks sufficient degrees of freedom for wideband matching. A shunt inductor at the input node can enhance impedance transformation, improving S11.
+
+---
+
+```netlist
+* lna-a2-current-reuse-mod1: Add shunt inductor at input node for enhanced matching.
+C C4 VIN1 n0
+L L1 n0 n1
+L L3 n0 VSS
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+**Predicted S11 improvement**: +1.5 dB (target S11_max_db ≈ -10.6 dB).
+
+---
+
+```netlist
+* lna-a2-current-reuse-mod2: Add cascode in NMOS path to adjust input impedance.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+NMOS NM4 n7 n1 n2 VSS
+```
+**Predicted S11 improvement**: +1.2 dB (target S11_max_db ≈ -10.3 dB).
+
+---
+
+```netlist
+* lna-a2-current-reuse-mod3: Add series inductor in input path for broadband matching.
+L L3 VIN1 n0
+C C4 n0 n1
+L L1 n1 n2
+NMOS NM1 n3 n2 VSS VSS
+C C1 n2 n4
+PMOS PM1 n3 n4 VDD VDD
+L L2 n3 n5
+C C2 n5 VSS
+C C3 n3 VOUT1
+R R1 VDD n6
+NMOS NM3 n6 n6 VSS VSS
+R R2 n6 n2
+PMOS PM2 n7 n7 VDD VDD
+R R4 n7 VSS
+R R5 n7 n4
+```
+**Predicted S11 improvement**: +1.8 dB (target S11_max_db ≈ -10.9 dB).

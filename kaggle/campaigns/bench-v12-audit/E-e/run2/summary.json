@@ -1,0 +1,45 @@
+{
+ "prereg": "kaggle/PREREG-BENCH-V12-AUDIT.md#E-e",
+ "budget_min": 130.0,
+ "trials": [
+  {
+   "tag": "q32split",
+   "model": "unsloth/Qwen3-32B-bnb-4bit",
+   "rc": 0,
+   "passed": [
+    4096,
+    5120
+   ],
+   "load_error": false,
+   "lora": "/tmp/ee/lora-q32split",
+   "load_status": "OK"
+  }
+ ],
+ "roundtrips": [
+  {
+   "route": "adapter",
+   "tag": "q32split",
+   "model": "unsloth/Qwen3-32B-bnb-4bit",
+   "convert_s": 42.4,
+   "lora_gguf_bytes": 268497216,
+   "base_gguf": "Qwen3-32B-Q4_K_S.gguf",
+   "serve": {
+    "status": "LOAD_FAIL",
+    "gguf": "Qwen3-32B-Q4_K_S.gguf",
+    "gguf_bytes": 18771245728,
+    "lora": true,
+    "server_log_tail": "0.00.318.054 I cmn  common_param: common_params_print_info: verbosity = 3 (adjust with the `-lv N` CLI arg)\n0.00.319.162 W srv  llama_server: -----------------\n0.00.319.187 W srv  llama_server: CORS is set to allow all origins ('*') and no API key is set\n0.00.319.188 W srv  llama_server: this can be a security risk (cross-origin attacks)\n0.00.319.189 W srv  llama_server: more info: https://github.com/ggml-org/llama.cpp/pull/25655\n0.00.319.189 W srv  llama_server: -----------------\n0.00.321.077 I srv    load_model: loading model '/kaggle/input/circuit-repro-gguf-qwen32/Qwen3-32B-Q4_K_S.gguf'\n0.02.107.360 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden\n"
+   },
+   "status": "SERVE_FAIL"
+  }
+ ],
+ "verdict": {
+  "largest_trainable": "unsloth/Qwen3-32B-bnb-4bit",
+  "tag": "q32split",
+  "seqs_passed": [
+   4096,
+   5120
+  ]
+ },
+ "elapsed_min": 38.7
+}

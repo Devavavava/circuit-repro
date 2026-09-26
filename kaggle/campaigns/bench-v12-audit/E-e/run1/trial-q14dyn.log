@@ -1,0 +1,69 @@
+🦥 Unsloth: Will patch your computer to enable 2x faster free finetuning.
+🦥 Unsloth Zoo will now patch everything to make training faster!
+==((====))==  Unsloth 2026.9.11: Fast Qwen3 patching. Transformers: 5.5.0.
+   \\   /|    Tesla T4. Num GPUs = 1. Max memory: 14.562 GB. Platform: Linux.
+O^O/ \_/ \    Torch: 2.10.0+cu128. CUDA: 7.5. CUDA Toolkit: 12.8. Triton: 3.6.0
+\        /    Bfloat16 = FALSE. FA [Xformers = 0.0.35. FA2 = False]
+ "-____-"     Free license: http://github.com/unslothai/unsloth
+Unsloth: Fast downloading is enabled - ignore downloading bars which are red colored!
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Loading weights:   0%|          | 0/443 [00:00<?, ?it/s]
+Loading weights:   0%|          | 1/443 [00:02<19:31,  2.65s/it]
+Loading weights:   0%|          | 2/443 [00:03<09:42,  1.32s/it]
+Loading weights:   6%|▌         | 26/443 [00:03<00:27, 14.90it/s]
+Loading weights:  11%|█         | 49/443 [00:03<00:12, 31.39it/s]
+Loading weights:  15%|█▌        | 67/443 [00:03<00:08, 46.15it/s]
+Loading weights:  30%|██▉       | 131/443 [00:03<00:02, 112.90it/s]
+Loading weights:  36%|███▌      | 159/443 [00:03<00:02, 135.09it/s]
+Loading weights:  45%|████▌     | 201/443 [00:03<00:01, 182.95it/s]
+Loading weights:  52%|█████▏    | 232/443 [00:04<00:01, 123.12it/s]
+Loading weights:  58%|█████▊    | 256/443 [00:04<00:01, 130.61it/s]
+Loading weights:  63%|██████▎   | 277/443 [00:04<00:01, 133.62it/s]
+Loading weights:  67%|██████▋   | 298/443 [00:04<00:00, 145.21it/s]
+Loading weights:  73%|███████▎  | 324/443 [00:04<00:00, 165.37it/s]
+Loading weights:  78%|███████▊  | 345/443 [00:04<00:00, 158.11it/s]
+Loading weights:  82%|████████▏ | 365/443 [00:04<00:00, 161.58it/s]
+Loading weights:  87%|████████▋ | 384/443 [00:05<00:00, 154.77it/s]
+Loading weights:  91%|█████████ | 401/443 [00:05<00:00, 153.80it/s]
+Loading weights:  95%|█████████▌| 422/443 [00:05<00:00, 112.35it/s]
+Loading weights: 100%|██████████| 443/443 [00:05<00:00, 80.33it/s] 
+Unsloth 2026.9.11 patched 40 layers with 40 QKV layers, 40 O layers and 40 MLP layers.
+EMIT {"phase": "load", "status": "OK", "load_s": 107.4, "trainable": 64225280, "model_dtype": "torch.float16", "mem_after_load_gib": [10.638], "gpu_total_gib": [14.562], "hf_device_map_devices": [], "tag": "q14dyn", "model": "unsloth/Qwen3-14B-unsloth-bnb-4bit", "backend": "unsloth", "device_map": "single"}
+EMIT {"phase": "tokens", "prompt_tokens_mean": 1374.1, "prompt_tokens_max": 1513, "prompt_tokens_min": 1326, "answer_tokens_mean": 549.8, "n_rows": 27, "tag": "q14dyn", "model": "unsloth/Qwen3-14B-unsloth-bnb-4bit", "backend": "unsloth", "device_map": "single"}
+`use_return_dict` is deprecated! Use `return_dict` instead!
+/usr/local/lib/python3.12/dist-packages/unsloth/import_fixes.py:4091: UserWarning: 'has_cuda' is deprecated, please use 'torch.backends.cuda.is_built()'
+  return original(name)
+/usr/local/lib/python3.12/dist-packages/unsloth/import_fixes.py:4091: UserWarning: 'has_cudnn' is deprecated, please use 'torch.backends.cudnn.is_available()'
+  return original(name)
+/usr/local/lib/python3.12/dist-packages/unsloth/import_fixes.py:4091: UserWarning: 'has_mps' is deprecated, please use 'torch.backends.mps.is_built()'
+  return original(name)
+/usr/local/lib/python3.12/dist-packages/unsloth/import_fixes.py:4091: UserWarning: 'has_mkldnn' is deprecated, please use 'torch.backends.mkldnn.is_available()'
+  return original(name)
+Unsloth: Will smartly offload gradients to save VRAM!
+STEP seq=4096 i=0 dt=30.38s loss=0.1469 peak=[12.09]
+Unsloth: Double buffering enabled (parallel H2D + compute) for backward pass.
+STEP seq=4096 i=1 dt=19.87s loss=0.2140 peak=[12.13]
+STEP seq=4096 i=2 dt=20.42s loss=0.1816 peak=[12.25]
+STEP seq=4096 i=3 dt=20.83s loss=0.1693 peak=[12.25]
+STEP seq=4096 i=4 dt=21.63s loss=0.1354 peak=[12.25]
+STEP seq=4096 i=5 dt=22.44s loss=0.1340 peak=[12.25]
+STEP seq=4096 i=6 dt=22.09s loss=0.1638 peak=[12.25]
+STEP seq=4096 i=7 dt=21.69s loss=0.1430 peak=[12.25]
+STEP seq=4096 i=8 dt=21.86s loss=0.1064 peak=[12.25]
+STEP seq=4096 i=9 dt=22.08s loss=0.1416 peak=[12.25]
+EMIT {"phase": "train", "seq": 4096, "steps_req": 10, "steps_done": 10, "status": "PASS", "error": null, "peak_alloc_gib": [12.247], "peak_alloc_gib_max": 12.247, "peak_reserved_gib": [12.938], "s_per_step": [30.38, 19.87, 20.42, 20.83, 21.63, 22.44, 22.09, 21.69, 21.86, 22.08], "s_per_step_median": 21.69, "first_step_s": 30.38, "losses": [0.1469, 0.214, 0.1816, 0.1693, 0.1354, 0.134, 0.1638, 0.143, 0.1064, 0.1416], "loss_finite": true, "scaler_scale": 32768.0, "tag": "q14dyn", "model": "unsloth/Qwen3-14B-unsloth-bnb-4bit", "backend": "unsloth", "device_map": "single"}
+STEP seq=8192 i=0 dt=50.83s loss=0.0379 peak=[13.16]
+STEP seq=8192 i=1 dt=51.09s loss=0.0489 peak=[13.16]
+STEP seq=8192 i=2 dt=50.67s loss=0.0399 peak=[13.16]
+STEP seq=8192 i=3 dt=50.99s loss=0.0406 peak=[13.16]
+STEP seq=8192 i=4 dt=51.03s loss=0.0290 peak=[13.16]
+STEP seq=8192 i=5 dt=51.01s loss=0.0275 peak=[13.16]
+STEP seq=8192 i=6 dt=51.06s loss=0.0376 peak=[13.16]
+STEP seq=8192 i=7 dt=51.12s loss=0.0374 peak=[13.16]
+STEP seq=8192 i=8 dt=50.92s loss=0.0256 peak=[13.16]
+STEP seq=8192 i=9 dt=50.87s loss=0.0312 peak=[13.16]
+EMIT {"phase": "train", "seq": 8192, "steps_req": 10, "steps_done": 10, "status": "PASS", "error": null, "peak_alloc_gib": [13.163], "peak_alloc_gib_max": 13.163, "peak_reserved_gib": [13.916], "s_per_step": [50.83, 51.09, 50.67, 50.99, 51.03, 51.01, 51.06, 51.12, 50.92, 50.87], "s_per_step_median": 51.01, "first_step_s": 50.83, "losses": [0.0379, 0.0489, 0.0399, 0.0406, 0.029, 0.0275, 0.0376, 0.0374, 0.0256, 0.0312], "loss_finite": true, "scaler_scale": 32768.0, "tag": "q14dyn", "model": "unsloth/Qwen3-14B-unsloth-bnb-4bit", "backend": "unsloth", "device_map": "single"}
+Unsloth: Restored added_tokens_decoder metadata in /tmp/ee/lora-q14dyn/tokenizer_config.json.
+EMIT {"phase": "save_lora", "status": "OK", "dir": "/tmp/ee/lora-q14dyn", "bytes": 268415759, "tag": "q14dyn", "model": "unsloth/Qwen3-14B-unsloth-bnb-4bit", "backend": "unsloth", "device_map": "single"}

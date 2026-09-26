@@ -55,6 +55,16 @@ PY = sys.executable
 BUDGET_MIN = float(os.environ.get("EE_BUDGET_MIN", "130"))
 LLAMACPP_TAG = "b10636"   # == the llama-server in devavratpatni/circuit-repro-llamacpp-cuda
 PORT = 8081
+# "full" = push 1 (all trials + round trips); "q32rt" = push 2 (32B re-train,
+# OOM-boundary probe, fixed runtime-LoRA round trip). A script push uploads
+# only this file (no env vars), so the mode is a constant.
+EE_MODE = "q32rt3"
+# v3 (push 3): v2's llama-server was still reading the 18.8 GB base GGUF from
+# the dataset mount at the 900 s health timeout (E-d saw 99 s and 459 s for the
+# same file). Copy it to local disk in the background during install+training,
+# and allow 30 min for health.
+LOCAL_BASE32 = "/tmp/ee/base32.gguf" if EE_MODE == "q32rt3" else None
+HEALTH_TIMEOUT_S = 1800 if EE_MODE == "q32rt3" else 900
 
 # ---- pinned training stack (PyPI latest mutually-compatible set, 2026-09-26) ----
 PINS = [
@@ -486,7 +496,7 @@ def serve_and_generate(tag, gguf, lora_gguf=None, ngl_split=False):
                gguf_bytes=os.path.getsize(gguf), lora=bool(lora_gguf))
     try:
         t = time.time()
-        if not wait_health(proc):
+        if not wait_health(proc, timeout=HEALTH_TIMEOUT_S):
             res["server_log_tail"] = open(slog).read()[-2500:]
             return res
         res["load_s"] = round(time.time() - t, 1)
@@ -616,6 +626,9 @@ def roundtrip_adapter(tr, bg):
     size = "32B" if "32B" in tr["model"] else ("14B" if "14B" in tr["model"] else "8B")
     if size == "32B":
         base = sorted(glob.glob("/kaggle/input/**/Qwen3-32B*.gguf", recursive=True))
+        if LOCAL_BASE32 and os.path.isfile(LOCAL_BASE32 + ".done"):
+            base = [LOCAL_BASE32]   # v3: local-disk copy (mount reads timed out v2)
+        res["base_gguf_path"] = base[0] if base else None
     else:
         repo, fn = OFFICIAL_GGUF[size]
         rc, tail = sh([PY, "-c", "from huggingface_hub import hf_hub_download as d;"
@@ -630,12 +643,13 @@ def roundtrip_adapter(tr, bg):
     if not ok_conv:
         res["status"] = "NO_CONVERTER"
         return res
-    snap = glob.glob(os.path.expanduser("~/.cache/huggingface/hub/models--%s/snapshots/*"
-                                        % tr["model"].replace("/", "--")))
     lg = os.path.join(TMP, "lora-%s.gguf" % tag)
+    # v2 fix: hparams from the OFFICIAL 16-bit repo config. v1 passed the bnb
+    # snapshot as --base and the converter aborted in dequant_model()
+    # ("Quant method is not yet supported: 'bitsandbytes'") -- the adapter
+    # itself is plain fp32 LoRA and needs only the architecture hparams.
     args = ["/tmp/llama.cpp/convert_lora_to_gguf.py", tr["lora"], "--outtype", "f16",
-            "--outfile", lg]
-    args += (["--base", snap[0]] if snap else ["--base-model-id", tr["model"]])
+            "--outfile", lg, "--base-model-id", "Qwen/Qwen3-%s" % size]
     t = time.time()
     ok = run_convert(args, "rt-convert-lora-%s.log" % tag)
     res["convert_s"] = round(time.time() - t, 1)
@@ -674,6 +688,15 @@ def main():
         env_log()
         disk("start")
         bg = start_llamacpp_tools()
+        cp_proc = None
+        if LOCAL_BASE32:
+            src = sorted(glob.glob("/kaggle/input/**/Qwen3-32B*.gguf", recursive=True))
+            if src:
+                log("background: copy base GGUF to local disk", src[0], "->", LOCAL_BASE32)
+                cp_proc = subprocess.Popen(
+                    ["bash", "-c", "t=$(date +%%s); cp '%s' '%s' && touch '%s.done' && "
+                     "echo COPY_OK $(( $(date +%%s) - t ))s" % (src[0], LOCAL_BASE32, LOCAL_BASE32)],
+                    stdout=open(os.path.join(OUT, "base-copy.log"), "w"), stderr=subprocess.STDOUT)
         if not install():
             summary["verdict"] = "INSTALL_FAILED"
             return
@@ -689,6 +712,38 @@ def main():
             json.dump(summary, open(os.path.join(OUT, "summary.json"), "w"), indent=1)
             return tr
 
+        if EE_MODE == "q32rt":
+            # v2 (push 2): v1 already measured 14B (PASS 4096+8192, merged
+            # Q4_K_M round trip OK) and 32B split (PASS 4096 x5, OOM 8192) but
+            # the 32B LoRA->GGUF conversion failed on the bnb base config.
+            # Re-train 32B (LoRA lived in /tmp), 10 steps @4096 to match 14B,
+            # probe the OOM boundary at 5120/6144 (real prompt+completion mean
+            # ~4.8k tok), then the fixed runtime-LoRA round trip.
+            t32 = run("q32split", M32_PLAIN, [4096, 5120, 6144], [10, 3, 3],
+                      device_map="balanced", timeout_min=50)
+            if ok4096(t32) and t32.get("lora"):
+                summary["roundtrips"].append(roundtrip_adapter(t32, bg))
+                summary["verdict"] = dict(largest_trainable=t32["model"], tag="q32split",
+                                          seqs_passed=t32["passed"])
+            return
+        if EE_MODE == "q32rt3":
+            # v3 (push 3, last): only the round trip is unproven. Short re-train
+            # (3 steps @4096, just to get a non-zero LoRA; the 4096/5120/6144
+            # boundary is already measured in v1+v2), wait for the local copy,
+            # then runtime-LoRA serve with a 30 min health timeout.
+            t32 = run("q32split", M32_PLAIN, [4096], [3], device_map="balanced",
+                      timeout_min=30)
+            if cp_proc is not None:
+                t = time.time()
+                while cp_proc.poll() is None and time.time() - t < 1800:
+                    time.sleep(10)
+                event("base_copy", rc=cp_proc.poll(), waited_s=round(time.time() - t),
+                      done=os.path.isfile(LOCAL_BASE32 + ".done"),
+                      log=open(os.path.join(OUT, "base-copy.log")).read()[-300:])
+            if ok4096(t32) and t32.get("lora"):
+                rm_hf_cache(M32_PLAIN)   # free page cache/RAM pressure before serving
+                summary["roundtrips"].append(roundtrip_adapter(t32, bg))
+            return
         t14 = run("q14dyn", M14_DYN, [4096, 8192], [10, 10])
         best14 = t14 if ok4096(t14) else None
         need = [s for s in (4096, 8192) if not (t14 and s in t14["passed"])]

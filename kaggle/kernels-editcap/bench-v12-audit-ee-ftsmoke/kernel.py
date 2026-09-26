@@ -604,10 +604,25 @@ def roundtrip_merged(tr, bg):
     return res
 
 
+OFFICIAL_GGUF = {"14B": ("Qwen/Qwen3-14B-GGUF", "Qwen3-14B-Q4_K_M.gguf"),
+                 "8B": ("Qwen/Qwen3-8B-GGUF", "Qwen3-8B-Q4_K_M.gguf")}
+
+
 def roundtrip_adapter(tr, bg):
+    """Runtime-LoRA route: base Q4 GGUF + LoRA GGUF in llama-server. 32B uses our
+    attached proposer GGUF; 14B/8B (fallback only) download the official Q4_K_M."""
     tag = tr["tag"]
     res = dict(route="adapter", tag=tag, model=tr["model"])
-    base = sorted(glob.glob("/kaggle/input/**/Qwen3-32B*.gguf", recursive=True))
+    size = "32B" if "32B" in tr["model"] else ("14B" if "14B" in tr["model"] else "8B")
+    if size == "32B":
+        base = sorted(glob.glob("/kaggle/input/**/Qwen3-32B*.gguf", recursive=True))
+    else:
+        repo, fn = OFFICIAL_GGUF[size]
+        rc, tail = sh([PY, "-c", "from huggingface_hub import hf_hub_download as d;"
+                       "print('GGUF_PATH='+d(%r,%r,local_dir=%r))" % (repo, fn, TMP)],
+                      timeout=1800)
+        m = re.search(r"GGUF_PATH=(\S+)", tail)
+        base = [m.group(1)] if m else []
     if not base:
         res["status"] = "NO_BASE_GGUF"
         return res
@@ -629,8 +644,13 @@ def roundtrip_adapter(tr, bg):
         return res
     res["lora_gguf_bytes"] = os.path.getsize(lg)
     res["base_gguf"] = os.path.basename(base[0])
-    res["serve"] = serve_and_generate(tag, base[0], lora_gguf=lg, ngl_split=True)
+    res["serve"] = serve_and_generate(tag, base[0], lora_gguf=lg, ngl_split=(size == "32B"))
     res["status"] = "OK" if res["serve"].get("status") == "OK" else "SERVE_FAIL"
+    if size != "32B":
+        try:
+            os.remove(base[0])
+        except Exception:
+            pass
     return res
 
 
@@ -711,7 +731,17 @@ def main():
             rm_hf_cache(M32_PLAIN)
         if winner is not None and winner.get("lora"):
             if el_min() < BUDGET_MIN - 35:
-                summary["roundtrips"].append(roundtrip_merged(winner, bg))
+                rt = roundtrip_merged(winner, bg)
+                summary["roundtrips"].append(rt)
+                json.dump(summary, open(os.path.join(OUT, "summary.json"), "w"), indent=1)
+                if rt.get("status") not in ("OK", "SERVED_UNQUANTIZED") and big is None \
+                        and el_min() < BUDGET_MIN - 12:
+                    log("merged round trip failed (%s) -> runtime-LoRA fallback" % rt.get("status"))
+                    for c in glob.glob(os.path.expanduser(
+                            "~/.cache/huggingface/hub/models--Qwen--Qwen3-*")):
+                        shutil.rmtree(c, ignore_errors=True)
+                    shutil.rmtree(os.path.join(TMP, "merged-" + winner["tag"]), ignore_errors=True)
+                    summary["roundtrips"].append(roundtrip_adapter(winner, bg))
             else:
                 event("skip_merged_roundtrip", reason="budget", tag=winner["tag"])
         largest = big or winner

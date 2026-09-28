@@ -188,9 +188,29 @@ def smoke_run(tokens, spec_path, seed, budget, pdk):
     STAB_WIDE_INLOOP=1 (and the gate on), every sizing eval also pays the wide
     audit and its mu shortfall enters the objective as a hard-constraint
     violation (_stab_inloop_objective); the result gains `stab_inloop` stats.
-    Unset -> byte-identical to the gate-only behavior."""
+    Unset -> byte-identical to the gate-only behavior.
+
+    OPT-IN R4 LOOPHOLE GUARDS (kaggle/campaigns/rl-readiness/R4; every one
+    unset -> byte-identical): pre-sizing VERIFY_TOPO_LIMITS=1 (spec topology
+    screen) and VERIFY_STRUCT=1 (structural degeneracy) reject with
+    `infeasible_reason` and 0 evals; STAB_WIDE_WINDOW="lo,hi,n" widens the
+    stability window (in-loop + gate); post-hoc on the final winner
+    VERIFY_FINITE / VERIFY_BAND_METRICS / VERIFY_NF_BAND / VERIFY_NO_INERT /
+    VERIFY_ROBUST=N (see _r4_posthoc) can only turn feasible -> infeasible."""
     spec = SZ._spec_for_sizing(spec_path, nf_gate=None, pdk=pdk)
     topo = Topology(list(tokens))
+    topo_chk = None
+    if os.environ.get("VERIFY_TOPO_LIMITS") == "1":            # R4 guard (a), opt-in
+        topo_chk = topo_limits(spec, topo)
+        if not topo_chk["ok"]:
+            return _topo_reject(topo_chk)
+    struct_chk = None
+    if os.environ.get("VERIFY_STRUCT") == "1":                 # R4 guard (b), opt-in
+        struct_chk = structural_degeneracy(topo)
+        if struct_chk:
+            return _topo_reject({"criteria": {"structural": False},
+                                 "failed": [f"{k}={v}" for k, v in struct_chk.items()]},
+                                key="structural_degeneracy", detail=struct_chk)
     prep = SZ.prepared_body(topo, inductor_q=INDUCTOR_Q, pdk=SZ._pdk_name(spec))
     if prep is None:
         return None
@@ -247,7 +267,273 @@ def smoke_run(tokens, spec_path, seed, budget, pdk):
     if inloop is not None:
         res["stab_inloop"] = {k: (round(v, 3) if isinstance(v, float) else v)
                               for k, v in inloop.items()}
+    if topo_chk is not None:
+        res["topo_limits_ok"] = True
+        res["topo_limits"] = topo_chk["criteria"]
+    if struct_chk is not None:
+        res["structural_degeneracy"] = {}
+    if any(os.environ.get(k) for k in _R4_POSTHOC_FLAGS):          # R4 guards, opt-in
+        _r4_posthoc(res, spec, body, sizable, decode, bx, seed)
     return res
+
+
+# ------------------------------------------- post-hoc winner guards (R4, opt-in)
+# kaggle/campaigns/rl-readiness/R4 items (b)(c)(f). Each runs only when its env
+# flag is set; with none set smoke_run never reaches this code (byte-identical).
+# They audit the FINAL winner (the gate's replacement if any, else bx) and can
+# only turn feasible -> infeasible (reasons appended to `infeasible_reason`):
+#   VERIFY_FINITE=1   a constrained metric that is NaN/inf -> infeasible
+#                     (Spec.feasible treats NaN as satisfied: `nan > max` is False)
+#   VERIFY_NF_BAND=1  nf_db max-constraint re-checked at ALL 51 points of the
+#                     series-Rs noise sweep over [f_lo, f_hi] (the spec path
+#                     reads NF at f0 only -- matters for wideband specs)
+#   VERIFY_NO_INERT=1 open each proposal R/C/L of the winner in turn (R 1e12,
+#                     C 1e-20 F, L 1 H); if the design is STILL final-feasible
+#                     that device does nothing -> infeasible (padding/no-op edits)
+#   VERIFY_ROBUST=N   N draws (deterministic, seeded by `seed`) of every sized
+#                     value x (1+U[-p,+p]), p = VERIFY_ROBUST_PCT (default 5 %);
+#                     infeasible if the final-feasible fraction < VERIFY_ROBUST_MIN
+#                     (default 0.5). Result gains robust_frac / robust_n.
+#   VERIFY_BAND_METRICS=1  a point constraint is also held over the whole spec
+#                     band using the band metrics run_and_extract ALREADY
+#                     measures (free): s11_db max -> s11_max_db, s21_db min ->
+#                     s21_min_db (narrowband specs gate s11/s21 at f0 only; R4
+#                     found 61/63 nb winners with in-band s11_max above the limit)
+_R4_POSTHOC_FLAGS = ("VERIFY_FINITE", "VERIFY_NF_BAND", "VERIFY_NO_INERT",
+                     "VERIFY_ROBUST", "VERIFY_BAND_METRICS")
+_BAND_OF = {"s11_db": ("s11_max_db", "max"), "s21_db": ("s21_min_db", "min")}
+_OPEN_VALUE = {"R": "1e12", "C": "1e-20", "L": "1"}
+
+
+def _final_ok(spec, body, params):
+    """Final verdict for (body, params): spec-feasible AND (if gated) wide-stable."""
+    m = SZ.eval_metrics(body, params, spec)
+    if not m or not spec.feasible(m)[0]:
+        return False
+    if stab_gate_on(spec):
+        return bool(wide_stability(spec, body, params)[1])
+    return True
+
+
+def nf_over_band(spec, body, params):
+    """Max NF (dB) over the 51-point series-Rs noise sweep of the spec band, or
+    None (unmeasurable / OSDI pdk). Same deck as extract.measure_nf."""
+    import extract as E
+    import re as _re
+    if E.osdi_lines_for(SZ._pdk_name(spec)):
+        return None
+    b = spec.band or {}
+    f0 = float(b.get("f0", 2.442e9))
+    flo, fhi = float(b.get("f_lo", f0 * 0.98)), float(b.get("f_hi", f0 * 1.02))
+    deck = E.build_noise_deck(body, _stab_params(spec, params), f0, flo, fhi)[0]
+    if deck is None:
+        return None
+    out = E.run_deck(deck.replace("print m_nf_f0", "print m_nf_f0\nprint nfv"),
+                     "nfb_", "nf.cir") or ""
+    vals = []
+    for ln in out.splitlines():
+        t = ln.split()
+        if len(t) == 3 and _re.match(r"^\d+$", t[0]):
+            try:
+                vals.append(float(t[2]))
+            except ValueError:
+                return None
+    return max(vals) if len(vals) >= 2 else None
+
+
+def _r4_posthoc(res, spec, body, sizable, decode, bx, seed):
+    import math
+    import random
+    why = []
+    if os.environ.get("VERIFY_FINITE") == "1":
+        bad = [n for n, c in spec.constraints.items()
+               if c.get("status") != "unsupported"
+               and isinstance((res.get("metrics") or {}).get(n), float)
+               and not math.isfinite(res["metrics"][n])]
+        res["nonfinite_metrics"] = bad
+        if bad:
+            why.append("non-finite metric: " + ", ".join(bad))
+    if os.environ.get("VERIFY_BAND_METRICS") == "1" and res["feasible"]:
+        m = res.get("metrics") or {}
+        bad = []
+        for point, (band_key, side) in _BAND_OF.items():
+            c = spec.constraints.get(point) or {}
+            if side not in c or c.get("status") == "unsupported":
+                continue
+            # a spec that already states band semantics keeps them: wideband
+            # specs gate s11_max_db directly and bound s21 flatness with
+            # s21_ripple_db (s21_db stays a point-at-f0 + ripple contract)
+            if band_key in spec.constraints or (point == "s21_db"
+                                                and "s21_ripple_db" in spec.constraints):
+                continue
+            v = m.get(band_key)
+            if not isinstance(v, (int, float)) or \
+                    (v > c[side] if side == "max" else v < c[side]):
+                bad.append(f"{band_key}={v} vs {point} {side} {c[side]}")
+        res["band_metrics_violations"] = bad
+        if bad:
+            why.append("band: " + ", ".join(bad))
+    rep = res.get("stab_replacement")
+    x = rep["x"] if (res.get("stab_winner_replaced") and rep) else bx
+    if res["feasible"] and x is not None:
+        params = decode(x)
+        if os.environ.get("VERIFY_NF_BAND") == "1" and "max" in spec.constraints.get("nf_db", {}):
+            nfb = nf_over_band(spec, body, params)
+            res["nf_band_max_db"] = nfb
+            if nfb is None or nfb > spec.constraints["nf_db"]["max"]:
+                why.append(f"NF over band {nfb} > {spec.constraints['nf_db']['max']}")
+        if os.environ.get("VERIFY_NO_INERT") == "1":
+            inert = []
+            for name, kind in sizable.items():
+                if kind in _OPEN_VALUE and _final_ok(spec, body,
+                                                     dict(params, **{name: _OPEN_VALUE[kind]})):
+                    inert.append(name)
+            res["inert_devices"] = inert
+            if inert:
+                why.append("inert device(s): " + ", ".join(inert))
+        n = int(os.environ.get("VERIFY_ROBUST") or 0)
+        if n > 0:
+            p = float(os.environ.get("VERIFY_ROBUST_PCT", "5")) / 100.0
+            need = float(os.environ.get("VERIFY_ROBUST_MIN", "0.5"))
+            rng = random.Random(1000003 * int(seed) + 17)
+            ok = 0
+            for _ in range(n):
+                p2 = dict(params)
+                for name in sizable:
+                    p2[name] = f"{float(params[name]) * (1 + rng.uniform(-p, p)):.6g}"
+                ok += _final_ok(spec, body, p2)
+            res["robust_n"], res["robust_frac"] = n, ok / n
+            if ok / n < need:
+                why.append(f"robust fraction {ok}/{n} < {need}")
+    if why:
+        res["feasible"] = False
+        res["infeasible_reason"] = "; ".join(why)
+
+
+# ------------------------------------------ topology-limit guard (R4, opt-in)
+# kaggle/campaigns/rl-readiness/R4 item (a): the sizer/verifier never checked
+# the spec's own `topology:` limits (device_budget, max_inductors, ...), so a
+# design over budget could be scored feasible (E-c found max_inductors
+# unenforced). With env VERIFY_TOPO_LIMITS=1, smoke_run first runs the spec's
+# own L0 screen (Spec.structural_screen -- every criterion it derives from the
+# spec's topology/ports fields: has_transistor, device_budget, has_ports,
+# single_input, not_floating, has_inductor, inductor_ratio, max_inductors,
+# match_plausible) and a failing topology is returned INFEASIBLE with a reason
+# and NO sizing (0 evals). A passing topology is sized exactly as before and
+# the result gains `topo_limits_ok: True` + the criteria. Unset -> this code is
+# never reached (byte-identical results).
+def topo_limits(spec, topo):
+    """{'ok', 'criteria', 'failed'} from the spec's own structural screen."""
+    passed, crit = spec.structural_screen(topo)
+    crit = {k: bool(v) for k, v in crit.items()}
+    return {"ok": bool(passed), "criteria": crit,
+            "failed": [k for k, v in crit.items() if not v]}
+
+
+def _topo_reject(chk, key="topo_limits", detail=None):
+    """smoke_run-shaped INFEASIBLE result for a pre-sizing structural reject."""
+    res = {"feasible": False, "metrics": {}, "winner_reeval_ungated": False,
+           "best_idd_ma": None, "best_s21_db": None, "best_conv_gain_db": None,
+           "best_sds21_db": None, "n_evals": 0, "n_sim_fail": 0,
+           "sim_error": None}
+    if key == "topo_limits":
+        res.update(topo_limits_ok=False, topo_limits=chk["criteria"],
+                   infeasible_reason="topology limits violated: "
+                                     + ", ".join(chk["failed"]))
+    else:
+        res.update({key: detail, "infeasible_reason": "structural degeneracy: "
+                                                      + "; ".join(chk["failed"])})
+    return res
+
+
+# ------------------------------------ structural-degeneracy guard (R4, opt-in)
+# Item (b)/(f): junk the sizer cannot remove and the metrics cannot see. The
+# adversarial run showed a MOS with all four pins on VSS, a dangling R-C chain
+# and a MOS with no DC current path all score verifier-feasible (they are
+# electrically inert). With env VERIFY_STRUCT=1, smoke_run rejects BEFORE
+# sizing a proposal topology that has any of:
+#   shorted_passive  R/C/L with both pins on one node
+#   mos_d_eq_s       MOS drain == source (channel shorted)
+#   mos_g_eq_s       MOS gate == source (permanently off)
+#   dangling_node    a non-port node touched by exactly one device pin
+#   mos_no_dc_path   MOS whose channel cannot carry DC current rail-to-rail
+#                    (DC graph = R, L, MOS channels; caps open)
+#   port_on_rail     VIN1/VOUT1 electrically on VDD/VSS; in_eq_out VIN1==VOUT1
+# Zero hits over every recorded bench-v1.2 solution (R4 static.json).
+# Unset -> never reached (byte-identical).
+def structural_degeneracy(topo):
+    """{flag: [devices/nodes]} of degenerate structures ({} = clean)."""
+    from topology import base_of, PIN_RE
+    from collections import defaultdict, Counter
+    pin2node, node_nets = {}, {}
+    for root, members in topo.nodes.items():
+        nets = sorted(m for m in members if m in topo.nets)
+        name = nets[0] if nets else root
+        node_nets[name] = set(nets)
+        for m in members:
+            if PIN_RE.match(m):
+                pin2node[m] = name
+    devs = {}
+    for p, n in pin2node.items():
+        mm = PIN_RE.match(p)
+        devs.setdefault(mm.group("dev"), {})[mm.group("pin")] = n
+
+    def node_of(net):
+        return next((n for n, s in node_nets.items() if net in s), None)
+    vin, vout, vdd, vss = (node_of(n) for n in ("VIN1", "VOUT1", "VDD", "VSS"))
+    rails = {vdd, vss} - {None}
+    kind = {d: base_of(d) for d in devs}
+    mos = [d for d in devs if kind[d] in ("NM", "PM")]
+    pas = [d for d in devs if kind[d] in ("R", "C", "L")]
+    out = {}
+    v = sorted(d for d in pas if devs[d].get("P") == devs[d].get("N"))
+    if v:
+        out["shorted_passive"] = v
+    v = sorted(d for d in mos if devs[d].get("D") == devs[d].get("S"))
+    if v:
+        out["mos_d_eq_s"] = v
+    v = sorted(d for d in mos if devs[d].get("G") == devs[d].get("S"))
+    if v:
+        out["mos_g_eq_s"] = v
+    cnt = Counter(n for d in devs for n in devs[d].values())
+    v = sorted(n for n, k in cnt.items() if k == 1 and n not in ({vin, vout} | rails))
+    if v:
+        out["dangling_node"] = v
+    adj = defaultdict(set)
+    for d in devs:
+        if kind[d] in ("R", "L"):
+            a, b = devs[d]["P"], devs[d]["N"]
+        elif kind[d] in ("NM", "PM"):
+            a, b = devs[d]["D"], devs[d]["S"]
+        else:
+            continue
+        adj[a].add(b)
+        adj[b].add(a)
+
+    def reach(s, skip):
+        seen, st = {s}, [s]
+        while st:
+            u = st.pop()
+            for w in adj[u]:
+                if (u, w) in skip or w in seen:
+                    continue
+                seen.add(w)
+                st.append(w)
+        return seen
+    v = []
+    for d in mos:
+        a, b = devs[d]["D"], devs[d]["S"]
+        skip = {(a, b), (b, a)}
+        ra, rb = reach(a, skip), reach(b, skip)
+        if not ((vdd in ra and vss in rb) or (vss in ra and vdd in rb)):
+            v.append(d)
+    if v:
+        out["mos_no_dc_path"] = sorted(v)
+    if {vin, vout} & rails:
+        out["port_on_rail"] = sorted(n for n in (vin, vout) if n in rails)
+    if vin is not None and vin == vout:
+        out["in_eq_out"] = [vin]
+    return out
 
 
 # ------------------------------------------------ wide stability gate (opt-in)
@@ -287,6 +573,20 @@ STAB_WIDE_NPTS = 401
 STAB_SCAN_MAX = 30
 
 
+def stab_window():
+    """(f_lo, f_hi, npts) of the wide stability window. R4 guard (d), opt-in:
+    env STAB_WIDE_WINDOW="f_lo,f_hi,npts" (e.g. "1e7,5e10,1001" = 10 MHz-50 GHz
+    at the same ~50 MHz spacing) overrides the 0.1-20 GHz / 401 default, for
+    BOTH the in-loop term and the post-hoc gate (both call wide_stability).
+    R4 found in-loop winners that moved their mu<1 region to just above 20 GHz
+    (window-edge gaming). Unset -> the module constants (byte-identical)."""
+    w = os.environ.get("STAB_WIDE_WINDOW")
+    if not w:
+        return STAB_WIDE_F_LO, STAB_WIDE_F_HI, STAB_WIDE_NPTS
+    lo, hi, n = w.split(",")
+    return float(lo), float(hi), int(n)
+
+
 def stab_gate_on(spec):
     """Does this spec opt into the wide stability gate? (mu_min constrained and
     not status: unsupported.)"""
@@ -308,11 +608,12 @@ def wide_stability(spec, body, params):
     import extract as E
     band = spec.band or {}
     f0 = float(band.get("f0", 2.442e9))
-    f_lo = min(STAB_WIDE_F_LO, float(band.get("f_lo", f0 * 0.98)))
-    f_hi = max(STAB_WIDE_F_HI, float(band.get("f_hi", f0 * 1.02)))
+    w_lo, w_hi, w_n = stab_window()
+    f_lo = min(w_lo, float(band.get("f_lo", f0 * 0.98)))
+    f_hi = max(w_hi, float(band.get("f_hi", f0 * 1.02)))
     try:
         st = E.measure_stability(body, _stab_params(spec, params), f0, f_lo,
-                                 f_hi, npts=STAB_WIDE_NPTS)
+                                 f_hi, npts=w_n)
     except Exception:                                           # noqa: BLE001
         st = None
     mu = (st or {}).get("mu_min")
@@ -364,7 +665,7 @@ def _wide_stability_gate(res, spec, body, decode, evaluate, points, bx, best_i):
                 break
     s = st or {}
     res["spec_feasible"] = spec_feas
-    res["stab_window"] = [STAB_WIDE_F_LO, STAB_WIDE_F_HI, STAB_WIDE_NPTS]
+    res["stab_window"] = list(stab_window())
     res["stab_wide"] = st
     res["mu_min_wide"] = s.get("mu_min")
     res["k_min_wide"] = s.get("k_min")

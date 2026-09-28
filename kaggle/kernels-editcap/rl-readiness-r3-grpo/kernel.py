@@ -676,15 +676,22 @@ def main():
               gpu_memory_utilization=0.92, max_model_len=1536 + L + 64, max_num_seqs=16,
               enable_prefix_caching=True, seed=0)
     llm = None
-    for attempt in ([True, False] if use_lora else [False]):
+    # run5: plain vLLM picked the FLASHINFER backend on T4, whose JIT build needs nvcc +
+    # libcuda stubs the image lacks -> force TRITON_ATTN (what unsloth's vLLM path chose in
+    # run2); env VLLM_ATTENTION_BACKEND is set by the orchestrator as a second route.
+    tri = {"attention_config": {"backend": "TRITON_ATTN"}}
+    plan = ([(True, tri), (True, {}), (False, tri)] if use_lora else [(False, tri), (False, {})])
+    for attempt, extra in plan:
         try:
             k = dict(kw)
+            k.update(extra)
             if attempt:
                 k.update(enable_lora=True, max_lora_rank=16, max_loras=1)
             llm = LLM(**k); use_lora = attempt
+            emit(phase="init_cfg", with_lora=attempt, extra=extra)
             break
         except Exception as e:
-            emit(phase="init", status="ERROR", with_lora=attempt, error=repr(e)[:1500],
+            emit(phase="init", status="ERROR", with_lora=attempt, extra=extra, error=repr(e)[:1500],
                  tb=traceback.format_exc()[-3000:])
             llm = None
             torch.cuda.empty_cache()
@@ -903,7 +910,8 @@ def run_vgen(gpu, tag, G=8, L=1024, n_prompts=2, lora=""):
         ENV_SH, vpy, os.path.join(TMP, "vgen.py"), tfile, MODEL, lora or "none", tag, G, L,
         n_prompts)
     env = dict(os.environ, CUDA_VISIBLE_DEVICES=str(gpu), TOKENIZERS_PARALLELISM="false",
-               R3_CLONE=CLONE, TMPDIR=os.path.join(TMP, "tmp-" + tag))
+               R3_CLONE=CLONE, TMPDIR=os.path.join(TMP, "tmp-" + tag),
+               VLLM_ATTENTION_BACKEND="TRITON_ATTN", VLLM_USE_FLASHINFER_SAMPLER="0")
     os.makedirs(env["TMPDIR"], exist_ok=True)
     key = (str(gpu), tag)
     with _LOCK:

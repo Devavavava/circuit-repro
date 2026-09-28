@@ -56,7 +56,7 @@ MIN_TRIAL_START_MIN = 16      # do not start a trial with less than this left
 
 REPO_SLUG = "Devavavava/circuit-repro"
 REPO_BRANCH = "worktree-externals-gf180"
-REPO_SHA = "519bcf45235fa5c4c3aa5bc93d0c5b9ab28ec3ee"   # PREREG rl-readiness commit
+REPO_SHA = "519bcf452c27cddf9e460b3d4a212ceacaf7e0c5"   # PREREG rl-readiness commit
 CLONE = "/tmp/circuit-repro"
 ENV_SH = os.path.join(WORK, "env-kaggle.sh")
 PDK = "bptm45"

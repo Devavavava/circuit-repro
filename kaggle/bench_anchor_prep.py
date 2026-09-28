@@ -175,7 +175,14 @@ def smoke_run(tokens, spec_path, seed, budget, pdk):
     best-over-run idd/s21/sds21/conv: the fence reads best-over-run for the
     always-measured in-loop metrics, matching the v0 fence wording "40-eval
     smoke, best idd_ma > 0.05" (the CMA winner is picked by the class
-    objective, which does not select for idd/s21)."""
+    objective, which does not select for idd/s21).
+
+    OPT-IN WIDE STABILITY GATE: when the spec constrains `mu_min` (see
+    stab_gate_on / _wide_stability_gate below) the winner is also audited over
+    0.1-20 GHz and "feasible" additionally requires wide stability; extra keys
+    (spec_feasible, mu_min_wide, k_min_wide, delta_max_wide, stab_wide_ok,
+    stab_points_checked, stab_winner_replaced, ...) are added. Specs without
+    mu_min get exactly the historical dict."""
     spec = SZ._spec_for_sizing(spec_path, nf_gate=None, pdk=pdk)
     topo = Topology(list(tokens))
     prep = SZ.prepared_body(topo, inductor_q=INDUCTOR_Q, pdk=SZ._pdk_name(spec))
@@ -216,13 +223,163 @@ def smoke_run(tokens, spec_path, seed, budget, pdk):
         return max(vals) if vals else None
 
     feas = bool(spec.feasible(winner)[0]) if winner else False
-    return {"feasible": feas, "metrics": winner,
-            "winner_reeval_ungated": bool(full),
-            "best_idd_ma": _best("idd_ma"), "best_s21_db": _best("s21_db"),
-            "best_conv_gain_db": _best("conv_gain_db"),
-            "best_sds21_db": _best("sds21_db"),
-            "n_evals": health.n_evals, "n_sim_fail": health.n_sim_fail,
-            "sim_error": health.first_error}
+    res = {"feasible": feas, "metrics": winner,
+           "winner_reeval_ungated": bool(full),
+           "best_idd_ma": _best("idd_ma"), "best_s21_db": _best("s21_db"),
+           "best_conv_gain_db": _best("conv_gain_db"),
+           "best_sds21_db": _best("sds21_db"),
+           "n_evals": health.n_evals, "n_sim_fail": health.n_sim_fail,
+           "sim_error": health.first_error}
+    # WIDE STABILITY GATE (opt-in, 2026-09-28): runs ONLY when the spec itself
+    # constrains mu_min; every other spec returns the dict above untouched.
+    if stab_gate_on(spec):
+        _wide_stability_gate(res, spec, body, decode, evaluate, points, bx,
+                             bud.best_i)
+    return res
+
+
+# ------------------------------------------------ wide stability gate (opt-in)
+# User-approved 2026-09-28. The harness already reports K/mu/|Delta| over the
+# spec's OWN sweep (extract.run_and_extract -> k_min/mu_min/delta_max over
+# f_lo..f_hi), and a spec may already constrain `mu_min` there (spec.py accepts
+# any metric name; spec.objective sums its violation, so the sizer optimizes
+# toward it). But the in-band sweep is narrow (narrowband = f0 +/- 2%) and
+# feedback amplifiers oscillate OUT of band, so a spec that asks for mu_min
+# ALSO gets the repo's documented honest audit (lna/_nf_gate_d3.py precedent):
+# extract.measure_stability over a WIDE window, 0.1-20 GHz, 401 linear points.
+#
+# Trigger: `mu_min` in spec.constraints and not `status: unsupported`. Specs
+# without it never reach this code (byte-identical smoke_run results).
+#
+# Verdict: stab_wide_ok <=> measure_stability returned a dict AND its mu_min
+# satisfies the spec's own mu_min limit (min/max) -- mu > 1 over the window is
+# the single-parameter test for unconditional stability (Edwards-Sinsky).
+# Final "feasible" = spec-feasible (in-band, incl. the in-band mu_min
+# constraint) AND stab_wide_ok. measure_stability -> None counts as NOT ok.
+#
+# False-negative guard: if the winner is spec-feasible but wide-unstable, the
+# other spec-feasible points of the SAME run (`points`, the per-eval hook) are
+# scanned best-objective-first (up to STAB_SCAN_MAX, deduped on x): each gets
+# one wide sim; the first wide-stable one is re-measured through the SAME
+# ungated `evaluate` smoke_run uses for its winner, and replaces the winner if
+# that full re-measure is still spec-feasible. No new sizing evals are spent.
+#
+# LIMITS: measure_stability builds a single deck (no OSDI source-split), so an
+# OSDI pdk (IHP) returns None -> not ok. gf180 gets the same MC-off pins
+# eval_metrics stamps into its params. 401 linear points = ~50 MHz spacing, so
+# a very sharp out-of-band dip can fall between grid points; the in-band dip is
+# covered by the spec's own mu_min constraint on the in-band grid.
+STAB_WIDE_F_LO = 1e8
+STAB_WIDE_F_HI = 2e10
+STAB_WIDE_NPTS = 401
+STAB_SCAN_MAX = 30
+
+
+def stab_gate_on(spec):
+    """Does this spec opt into the wide stability gate? (mu_min constrained and
+    not status: unsupported.)"""
+    c = (getattr(spec, "constraints", None) or {}).get("mu_min")
+    return isinstance(c, dict) and c.get("status") != "unsupported"
+
+
+def _stab_params(spec, params):
+    """The params dict exactly as eval_metrics hands it to the analysis decks
+    (gf180 -> MC-off pins; every other pdk unchanged)."""
+    if SZ._pdk_name(spec) == "gf180mcu":
+        return {**params, "sw_stat_global": "0", "sw_stat_mismatch": "0"}
+    return params
+
+
+def wide_stability(spec, body, params):
+    """extract.measure_stability over the wide window at the spec's f0.
+    Returns (stab_dict_or_None, ok)."""
+    import extract as E
+    band = spec.band or {}
+    f0 = float(band.get("f0", 2.442e9))
+    f_lo = min(STAB_WIDE_F_LO, float(band.get("f_lo", f0 * 0.98)))
+    f_hi = max(STAB_WIDE_F_HI, float(band.get("f_hi", f0 * 1.02)))
+    try:
+        st = E.measure_stability(body, _stab_params(spec, params), f0, f_lo,
+                                 f_hi, npts=STAB_WIDE_NPTS)
+    except Exception:                                           # noqa: BLE001
+        st = None
+    mu = (st or {}).get("mu_min")
+    if not isinstance(mu, (int, float)):
+        return st, False
+    c = spec.constraints["mu_min"]
+    ok = True
+    if "min" in c and mu < c["min"]:
+        ok = False
+    if "max" in c and mu > c["max"]:
+        ok = False
+    return st, ok
+
+
+def _wide_stability_gate(res, spec, body, decode, evaluate, points, bx, best_i):
+    """Mutates smoke_run's result dict in place (see the block comment above)."""
+    spec_feas = bool(res["feasible"])
+    st, ok = wide_stability(spec, body, decode(bx))
+    checked, replaced, rep = 1, False, None
+    if spec_feas and not ok:
+        win_i = (best_i - 1) if best_i else None
+        seen = {tuple(bx)}
+        cands = []
+        for i, (x, m) in enumerate(points):
+            if i == win_i or not m or not spec.feasible(m)[0]:
+                continue
+            if tuple(x) in seen:
+                continue
+            seen.add(tuple(x))
+            cands.append((spec.objective(m), i, x))
+        cands.sort(key=lambda t: (t[0], t[1]))
+        for _obj, i, x in cands[:STAB_SCAN_MAX]:
+            st_i, ok_i = wide_stability(spec, body, decode(x))
+            checked += 1
+            if not ok_i:
+                continue
+            try:
+                full_i = evaluate(x)
+            except Exception:                                   # noqa: BLE001
+                full_i = None
+            if full_i and spec.feasible(full_i)[0]:
+                replaced = True
+                rep = {"point_index": i, "x": [float(v) for v in x],
+                       "objective": spec.objective(full_i),
+                       "spec_winner_metrics": res["metrics"],
+                       "spec_winner_stab_wide": st}
+                res["metrics"] = full_i
+                st, ok = st_i, True
+                break
+    s = st or {}
+    res["spec_feasible"] = spec_feas
+    res["stab_window"] = [STAB_WIDE_F_LO, STAB_WIDE_F_HI, STAB_WIDE_NPTS]
+    res["stab_wide"] = st
+    res["mu_min_wide"] = s.get("mu_min")
+    res["k_min_wide"] = s.get("k_min")
+    res["delta_max_wide"] = s.get("delta_max")
+    res["stab_wide_ok"] = bool(ok)
+    res["stab_points_checked"] = checked
+    res["stab_winner_replaced"] = replaced
+    res["stab_replacement"] = rep
+    res["feasible"] = bool(spec_feas and ok)
+
+
+def stability_spec(src, out_dir=None, mu_min=1.0):
+    """Write a stability-enabled COPY of spec `src` (adds `mu_min: {min: mu_min}`
+    to its constraints; everything else verbatim) and return its path. The
+    source spec is never modified. Default out_dir = $TMPDIR/stab-specs."""
+    import yaml
+    data = yaml.safe_load(Path(src).read_text())
+    data.setdefault("constraints", {})["mu_min"] = {"min": float(mu_min)}
+    d = Path(out_dir or os.path.join(os.environ.get("TMPDIR", "/tmp"),
+                                     "stab-specs"))
+    d.mkdir(parents=True, exist_ok=True)
+    name = data.get("name") or Path(src).stem
+    out = d / f"{name}__mu{mu_min:g}.yaml"
+    with open(out, "w") as fh:
+        yaml.safe_dump(data, fh, sort_keys=False)
+    Spec.load(str(out))                    # validate loudly
+    return str(out)
 
 
 def main(argv=None):

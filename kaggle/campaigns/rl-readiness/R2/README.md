@@ -8,7 +8,7 @@
 ## Status
 
 - The primary scoring (3 × 2500, bptm45, exactly like E-d) is **FINAL**.
-- The stability-gated re-scores are listed in the "Stability-gated re-score" section below.
+- The stability-gated re-scores are **FINAL** in both modes: gate-only and gate + in-loop.
 
 ## Conditions
 
@@ -123,7 +123,22 @@ loaded spec has all of the original constraints plus `mu_min` (`n_constraints` i
 
 Results are in `tables.md` (the last two columns) and in `summary.json` → `conds.<C>.gate` / `.inloop`.
 
-<!-- STAB-RESULTS -->
+**FINAL.** Both modes are complete: 813/813 rows each, 0 crashes, and every spec was loaded complete.
+
+| cond | gate-only: feasible edits, cells solved (SYN/RET) | gate + inloop: feasible edits, cells solved (SYN/RET), ≥ 2/3 seeds | inloop cells |
+|---|---|---|---|
+| BASE | 0, **0** (0/0) | 2, **2** (1/1), 1 | s11n10-g10-b0824, s11n8-g10-b0530 |
+| CAP | 0, **0** (0/0) | 3, **2** (1/1), 1 | s11n10-g10-b0824, s11n9-g10-b0530 |
+| NT | 0, **0** (0/0) | 1, **1** (1/0), 1 | s11n11-g10-b0824 |
+
+- **Gate-only solves nothing in any condition.** 44 of 813 runs were spec-feasible under the stability spec, but none
+  was wide-stable, and no rescan point rescued one.
+- **With the in-loop term (S-1), a few wideband cells come back.** The rank is CAP ≥ BASE > NT: CAP is not worse than
+  thinking-on under the stability-enabled verifier either (2 vs 2 cells, 3 vs 2 feasible edits).
+- The counts are tiny (≤ 3 edits), so they only corroborate the plain-spec decision and do not change it. The
+  pre-registered decision rule is applied to the plain-spec scores.
+- **Implication for RL:** a verifier using gate-only stability gives almost no positive reward on these cells. If the
+  RL reward includes stability, it needs the in-loop term.
 
 ## Files
 

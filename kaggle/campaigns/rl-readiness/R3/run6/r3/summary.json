@@ -1,0 +1,143 @@
+{
+ "prereg": "kaggle/PREREG-RL-READINESS.md#R3",
+ "model": "unsloth/Qwen3-14B-unsloth-bnb-4bit",
+ "pins": [
+  "unsloth==2026.9.11",
+  "unsloth_zoo==2026.9.7",
+  "transformers==5.5.0",
+  "trl==0.24.0",
+  "peft==0.21.0",
+  "bitsandbytes==0.50.2",
+  "accelerate==1.15.0",
+  "datasets==4.3.0"
+ ],
+ "vllm_pins": [
+  "vllm==0.19.1",
+  "transformers==4.57.6",
+  "bitsandbytes==0.50.2"
+ ],
+ "budget_min": 35.0,
+ "repo_sha": "519bcf452c27cddf9e460b3d4a212ceacaf7e0c5",
+ "pdk": "bptm45",
+ "spice_budget": 300,
+ "clone_head": "519bcf452c27cddf9e460b3d4a212ceacaf7e0c5",
+ "vllm_state": {
+  "status": "ok",
+  "rc_pip": 0,
+  "rc_import": 0,
+  "versions": {
+   "vllm": "0.19.1",
+   "transformers": "4.57.6",
+   "torch": "2.10.0+cu128",
+   "unsloth": null,
+   "unsloth_zoo": null,
+   "trl": null,
+   "numpy": "2.0.2",
+   "numba": "0.61.2",
+   "xformers": null,
+   "flashinfer-python": "0.6.6"
+  },
+  "tail": null,
+  "python": "/tmp/r3/venv-vllm/bin/python",
+  "secs": 158
+ },
+ "results": {
+  "VGEN-G8-L1024-lora": {
+   "tag": "VGEN-G8-L1024-lora",
+   "gpu": 0,
+   "kind": "vgen",
+   "rc": "TIMEOUT",
+   "status": "FAIL",
+   "wall_min": 25.01,
+   "nvsmi_peak_mib": 13887,
+   "phases": {
+    "init_cfg": {
+     "status": null,
+     "tok_per_s": null,
+     "secs": null,
+     "rollouts": null,
+     "rollouts_per_hour": null,
+     "len_mean": null,
+     "with_lora": true,
+     "n_valid": null,
+     "n_fence": null,
+     "error": null
+    },
+    "init": {
+     "status": "OK",
+     "tok_per_s": null,
+     "secs": null,
+     "rollouts": null,
+     "rollouts_per_hour": null,
+     "len_mean": null,
+     "with_lora": true,
+     "n_valid": null,
+     "n_fence": null,
+     "error": null
+    },
+    "warmup": {
+     "status": "OK",
+     "tok_per_s": 6.3,
+     "secs": 81.1,
+     "rollouts": 8,
+     "rollouts_per_hour": 355.1,
+     "len_mean": 64.0,
+     "with_lora": null,
+     "n_valid": null,
+     "n_fence": null,
+     "error": null
+    }
+   },
+   "error": "_hour\": 355.1, \"len_mean\": 64.0, \"len_max\": 64, \"len_min\": 64, \"sample\": \"### 1. Diagnosis of the Failure\\n\\nThe failed circuit's primary limitation appears to be the **input matching (S11)**. While the noise figure (NF) and power gain (S21) are within or near specification, the S11 fails by approximately **3.3 dB** (i\", \"tag\": \"VGEN-G8-L1024-lora\", \"t_s\": 434.6}\n\rRendering prompts:   0%|          | 0/2 [00:00<?, ?it/s]\rRendering prompts: 100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588| 2/2 [00:00<00:00, 162.24it/s]\n\rProcessed prompts:   0%|          | 0/16 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]"
+  },
+  "VGEN-G8-L1024-base": {
+   "tag": "VGEN-G8-L1024-base",
+   "gpu": 1,
+   "kind": "vgen",
+   "rc": "TIMEOUT",
+   "status": "FAIL",
+   "wall_min": 25.01,
+   "nvsmi_peak_mib": 13537,
+   "phases": {
+    "init_cfg": {
+     "status": null,
+     "tok_per_s": null,
+     "secs": null,
+     "rollouts": null,
+     "rollouts_per_hour": null,
+     "len_mean": null,
+     "with_lora": false,
+     "n_valid": null,
+     "n_fence": null,
+     "error": null
+    },
+    "init": {
+     "status": "OK",
+     "tok_per_s": null,
+     "secs": null,
+     "rollouts": null,
+     "rollouts_per_hour": null,
+     "len_mean": null,
+     "with_lora": false,
+     "n_valid": null,
+     "n_fence": null,
+     "error": null
+    },
+    "warmup": {
+     "status": "OK",
+     "tok_per_s": 7.0,
+     "secs": 73.1,
+     "rollouts": 8,
+     "rollouts_per_hour": 394.0,
+     "len_mean": 64.0,
+     "with_lora": null,
+     "n_valid": null,
+     "n_fence": null,
+     "error": null
+    }
+   },
+   "error": "_hour\": 394.0, \"len_mean\": 64.0, \"len_max\": 64, \"len_min\": 64, \"sample\": \"### 1. Diagnosis of the Failure\\n\\nThe failed circuit's primary limitation appears to be the **input matching (S11)**. While the noise figure (NF) and power gain (S21) are within or near specification, the S11 fails by approximately **3.3 dB** (i\", \"tag\": \"VGEN-G8-L1024-base\", \"t_s\": 337.2}\n\rRendering prompts:   0%|          | 0/2 [00:00<?, ?it/s]\rRendering prompts: 100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588| 2/2 [00:00<00:00, 158.51it/s]\n\rProcessed prompts:   0%|          | 0/16 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]"
+  }
+ },
+ "wall_min": 28.7
+}

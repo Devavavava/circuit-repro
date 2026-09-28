@@ -1,0 +1,95 @@
+{
+ "prereg": "kaggle/PREREG-RL-READINESS.md#R3",
+ "model": "unsloth/Qwen3-14B-unsloth-bnb-4bit",
+ "pins": [
+  "unsloth==2026.9.11",
+  "unsloth_zoo==2026.9.7",
+  "transformers==5.5.0",
+  "trl==0.24.0",
+  "peft==0.21.0",
+  "bitsandbytes==0.50.2",
+  "accelerate==1.15.0",
+  "datasets==4.3.0"
+ ],
+ "vllm_pins": [
+  "vllm==0.19.1",
+  "transformers==4.57.6",
+  "bitsandbytes==0.50.2"
+ ],
+ "budget_min": 35.0,
+ "repo_sha": "519bcf452c27cddf9e460b3d4a212ceacaf7e0c5",
+ "pdk": "bptm45",
+ "spice_budget": 300,
+ "clone_head": "519bcf452c27cddf9e460b3d4a212ceacaf7e0c5",
+ "vllm_state": {
+  "status": "ok",
+  "rc_pip": 0,
+  "rc_import": 0,
+  "versions": {
+   "vllm": "0.19.1",
+   "transformers": "4.57.6",
+   "torch": "2.10.0+cu128",
+   "unsloth": null,
+   "unsloth_zoo": null,
+   "trl": null,
+   "numpy": "2.0.2",
+   "numba": "0.61.2",
+   "xformers": null,
+   "flashinfer-python": "0.6.6"
+  },
+  "tail": null,
+  "python": "/tmp/r3/venv-vllm/bin/python",
+  "secs": 155
+ },
+ "results": {
+  "VGEN-G8-L1024-base": {
+   "tag": "VGEN-G8-L1024-base",
+   "gpu": 1,
+   "kind": "vgen",
+   "rc": 0,
+   "status": "FAIL",
+   "wall_min": 5.51,
+   "nvsmi_peak_mib": 13537,
+   "phases": {
+    "init": {
+     "status": "ERROR",
+     "tok_per_s": null,
+     "secs": null,
+     "rollouts": null,
+     "rollouts_per_hour": null,
+     "len_mean": null,
+     "with_lora": false,
+     "n_valid": null,
+     "n_fence": null,
+     "error": "RuntimeError('Engine core initialization failed. See root cause above. Failed core proc(s): {}')"
+    }
+   },
+   "error": "\", line 710, in __init__\\n    super().__init__(\\n  File \\\"/tmp/r3/venv-vllm/lib/python3.12/site-packages/vllm/v1/engine/core_client.py\\\", line 535, in __init__\\n    with launch_core_engines(\\n         ^^^^^^^^^^^^^^^^^^^^\\n  File \\\"/usr/lib/python3.12/contextlib.py\\\", line 144, in __exit__\\n    next(self.gen)\\n  File \\\"/tmp/r3/venv-vllm/lib/python3.12/site-packages/vllm/v1/engine/utils.py\\\", line 998, in launch_core_engines\\n    wait_for_engine_startup(\\n  File \\\"/tmp/r3/venv-vllm/lib/python3.12/site-packages/vllm/v1/engine/utils.py\\\", line 1057, in wait_for_engine_startup\\n    raise RuntimeE\n"
+  },
+  "VGEN-G8-L1024-lora": {
+   "tag": "VGEN-G8-L1024-lora",
+   "gpu": 0,
+   "kind": "vgen",
+   "rc": 0,
+   "status": "FAIL",
+   "wall_min": 8.2,
+   "nvsmi_peak_mib": 13887,
+   "phases": {
+    "init": {
+     "status": "ERROR",
+     "tok_per_s": null,
+     "secs": null,
+     "rollouts": null,
+     "rollouts_per_hour": null,
+     "len_mean": null,
+     "with_lora": false,
+     "n_valid": null,
+     "n_fence": null,
+     "error": "RuntimeError('Engine core initialization failed. See root cause above. Failed core proc(s): {}')"
+    }
+   },
+   "error": "\", line 710, in __init__\\n    super().__init__(\\n  File \\\"/tmp/r3/venv-vllm/lib/python3.12/site-packages/vllm/v1/engine/core_client.py\\\", line 535, in __init__\\n    with launch_core_engines(\\n         ^^^^^^^^^^^^^^^^^^^^\\n  File \\\"/usr/lib/python3.12/contextlib.py\\\", line 144, in __exit__\\n    next(self.gen)\\n  File \\\"/tmp/r3/venv-vllm/lib/python3.12/site-packages/vllm/v1/engine/utils.py\\\", line 998, in launch_core_engines\\n    wait_for_engine_startup(\\n  File \\\"/tmp/r3/venv-vllm/lib/python3.12/site-packages/vllm/v1/engine/utils.py\\\", line 1057, in wait_for_engine_startup\\n    raise RuntimeE\n"
+  }
+ },
+ "wall_min": 11.5
+}

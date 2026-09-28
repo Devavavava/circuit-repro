@@ -1,0 +1,81 @@
+🦥 Unsloth: Will patch your computer to enable 2x faster free finetuning.
+🦥 Unsloth Zoo will now patch everything to make training faster!
+==((====))==  Unsloth 2026.9.11: Fast Qwen3 patching. Transformers: 5.5.0.
+   \\   /|    Tesla T4. Num GPUs = 1. Max memory: 14.562 GB. Platform: Linux.
+O^O/ \_/ \    Torch: 2.10.0+cu128. CUDA: 7.5. CUDA Toolkit: 12.8. Triton: 3.6.0
+\        /    Bfloat16 = FALSE. FA [Xformers = 0.0.35. FA2 = False]
+ "-____-"     Free license: http://github.com/unslothai/unsloth
+Unsloth: Fast downloading is enabled - ignore downloading bars which are red colored!
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Loading weights:   0%|          | 0/443 [00:00<?, ?it/s]
+Loading weights:   0%|          | 1/443 [00:03<27:00,  3.67s/it]
+Loading weights:   0%|          | 2/443 [00:03<12:22,  1.68s/it]
+Loading weights:   2%|▏         | 10/443 [00:04<01:42,  4.21it/s]
+Loading weights:   5%|▍         | 20/443 [00:04<00:42,  9.93it/s]
+Loading weights:   9%|▊         | 38/443 [00:04<00:17, 23.42it/s]
+Loading weights:  11%|█         | 48/443 [00:04<00:12, 30.79it/s]
+Loading weights:  13%|█▎        | 58/443 [00:04<00:10, 36.82it/s]
+Loading weights:  15%|█▌        | 67/443 [00:04<00:09, 39.44it/s]
+Loading weights:  17%|█▋        | 75/443 [00:04<00:08, 44.35it/s]
+Loading weights:  19%|█▉        | 86/443 [00:05<00:06, 54.07it/s]
+Loading weights:  21%|██        | 94/443 [00:05<00:06, 55.78it/s]
+Loading weights:  23%|██▎       | 102/443 [00:05<00:05, 57.74it/s]
+Loading weights:  25%|██▌       | 111/443 [00:05<00:05, 58.56it/s]
+Loading weights:  28%|██▊       | 125/443 [00:05<00:04, 73.64it/s]
+Loading weights:  31%|███       | 137/443 [00:05<00:03, 79.10it/s]
+Loading weights:  40%|███▉      | 175/443 [00:05<00:01, 137.33it/s]
+Loading weights:  51%|█████     | 224/443 [00:05<00:00, 220.21it/s]
+Loading weights:  67%|██████▋   | 299/443 [00:06<00:00, 348.49it/s]
+Loading weights:  76%|███████▋  | 338/443 [00:06<00:00, 336.71it/s]
+Loading weights:  95%|█████████▌| 423/443 [00:06<00:00, 446.30it/s]
+Loading weights: 100%|██████████| 443/443 [00:06<00:00, 69.64it/s] 
+Unsloth 2026.9.11 patched 40 layers with 40 QKV layers, 40 O layers and 40 MLP layers.
+EMIT {"phase": "load", "status": "OK", "load_s": 62.0, "mem_alloc_after_load_gib": 10.638, "mem_reserved_after_load_gib": 10.645, "mem_alloc_before_peft_gib": 10.399, "gpu_total_gib": 14.562, "has_vllm_engine": false, "trainable": 64225280, "tag": "F-G8-L1024", "G": 8, "L": 1024, "fast": 0, "forced": 1, "t_s": 62.0}
+EMIT {"phase": "prompts", "n": 27, "prompt_tokens_mean": 1378.1, "prompt_tokens_max": 1517, "prompt_tokens_min": 1330, "no_think_suffix": "|im_start|>assistant\n<think>\n\n</think>\n\n", "tag": "F-G8-L1024", "G": 8, "L": 1024, "fast": 0, "forced": 1, "t_s": 62.0}
+EMIT {"phase": "config", "dropped_kwargs": [], "use_vllm": false, "beta": 0.0, "loss_type": "bnpo", "gen_kwargs": {"min_new_tokens": 1024}, "per_device_train_batch_size": 1, "gradient_accumulation_steps": 8, "generation_batch_size": 8, "steps_per_generation": 8, "num_generations": 8, "gradient_checkpointing": true, "tag": "F-G8-L1024", "G": 8, "L": 1024, "fast": 0, "forced": 1, "t_s": 62.1}
+EMIT {"phase": "trainer_built", "gen_wrapped": true, "trainer_class": "UnslothGRPOTrainer", "trainer_use_vllm": false, "tag": "F-G8-L1024", "G": 8, "L": 1024, "fast": 0, "forced": 1, "t_s": 63.3}
+The tokenizer has new PAD/BOS/EOS tokens that differ from the model config and generation config. The model config and generation config were aligned accordingly, being updated with the tokenizer's values. Updated tokens: {'bos_token_id': None}.
+==((====))==  Unsloth - 2x faster free finetuning | Num GPUs used = 1
+   \\   /|    Num examples = 27 | Num Epochs = 1 | Total steps = 3
+O^O/ \_/ \    Batch size per device = 1 | Gradient accumulation steps = 8
+\        /    Data Parallel GPUs = 1 | Total batch size (1 x 8 x 1) = 8
+ "-____-"     Trainable parameters = 64,225,280 of 14,832,532,480 (0.43% trained)
+
+  0%|          | 0/3 [00:00<?, ?it/s]/usr/local/lib/python3.12/dist-packages/unsloth/import_fixes.py:4091: UserWarning: 'has_cuda' is deprecated, please use 'torch.backends.cuda.is_built()'
+  return original(name)
+/usr/local/lib/python3.12/dist-packages/unsloth/import_fixes.py:4091: UserWarning: 'has_cudnn' is deprecated, please use 'torch.backends.cudnn.is_available()'
+  return original(name)
+/usr/local/lib/python3.12/dist-packages/unsloth/import_fixes.py:4091: UserWarning: 'has_mps' is deprecated, please use 'torch.backends.mps.is_built()'
+  return original(name)
+/usr/local/lib/python3.12/dist-packages/unsloth/import_fixes.py:4091: UserWarning: 'has_mkldnn' is deprecated, please use 'torch.backends.mkldnn.is_available()'
+  return original(name)
+Unsloth: Will smartly offload gradients to save VRAM!
+Unsloth: Double buffering enabled (parallel H2D + compute) for backward pass.
+EMIT {"phase": "step", "step": 1, "s": 112.21, "gen_s": [0.03], "peak_alloc_gib": 12.303, "peak_reserved_gib": 13.02, "tag": "F-G8-L1024", "G": 8, "L": 1024, "fast": 0, "forced": 1, "t_s": 177.9}
+
+ 33%|███▎      | 1/3 [01:52<03:44, 112.22s/it]
+                                              
+
+ 33%|███▎      | 1/3 [01:52<03:44, 112.22s/it]{'loss': '0', 'grad_norm': '0', 'learning_rate': '5e-06', 'num_tokens': '1.916e+04', 'completions/mean_length': '1024', 'completions/min_length': '1024', 'completions/max_length': '1024', 'completions/clipped_ratio': '1', 'completions/mean_terminated_length': '0', 'completions/min_terminated_length': '0', 'completions/max_terminated_length': '0', 'rewards/reward_valid/mean': '0', 'rewards/reward_valid/std': '0', 'rewards/reward_novel/mean': '0', 'rewards/reward_novel/std': '0', 'rewards/reward_spice/mean': '0', 'rewards/reward_spice/std': '0', 'reward': '0', 'reward_std': '0', 'frac_reward_zero_std': '1', 'completion_length': '1024', 'kl': '0', 'clip_ratio/low_mean': '0', 'clip_ratio/low_min': '0', 'clip_ratio/high_mean': '0', 'clip_ratio/high_max': '0', 'clip_ratio/region_mean': '0', 'epoch': '0.03704'}
+EMIT {"phase": "step", "step": 2, "s": 92.15, "gen_s": [0.0], "peak_alloc_gib": 12.422, "peak_reserved_gib": 13.107, "tag": "F-G8-L1024", "G": 8, "L": 1024, "fast": 0, "forced": 1, "t_s": 270.0}
+
+ 67%|██████▋   | 2/3 [03:24<01:40, 100.42s/it]
+                                              
+
+ 67%|██████▋   | 2/3 [03:24<01:40, 100.42s/it]{'loss': '0', 'grad_norm': '0', 'learning_rate': '5e-06', 'num_tokens': '3.828e+04', 'completions/mean_length': '1024', 'completions/min_length': '1024', 'completions/max_length': '1024', 'completions/clipped_ratio': '1', 'completions/mean_terminated_length': '0', 'completions/min_terminated_length': '0', 'completions/max_terminated_length': '0', 'rewards/reward_valid/mean': '0', 'rewards/reward_valid/std': '0', 'rewards/reward_novel/mean': '0', 'rewards/reward_novel/std': '0', 'rewards/reward_spice/mean': '0', 'rewards/reward_spice/std': '0', 'reward': '0', 'reward_std': '0', 'frac_reward_zero_std': '1', 'completion_length': '1024', 'kl': '0', 'clip_ratio/low_mean': '0', 'clip_ratio/low_min': '0', 'clip_ratio/high_mean': '0', 'clip_ratio/high_max': '0', 'clip_ratio/region_mean': '0', 'epoch': '0.07407'}
+EMIT {"phase": "step", "step": 3, "s": 95.61, "gen_s": [0.0], "peak_alloc_gib": 12.443, "peak_reserved_gib": 13.107, "tag": "F-G8-L1024", "G": 8, "L": 1024, "fast": 0, "forced": 1, "t_s": 365.6}
+
+100%|██████████| 3/3 [04:59<00:00, 98.23s/it] 
+                                             
+
+100%|██████████| 3/3 [04:59<00:00, 98.23s/it]
+                                             
+
+100%|██████████| 3/3 [04:59<00:00, 98.23s/it]
+100%|██████████| 3/3 [04:59<00:00, 100.00s/it]
+{'loss': '0', 'grad_norm': '0', 'learning_rate': '5e-06', 'num_tokens': '5.772e+04', 'completions/mean_length': '1024', 'completions/min_length': '1024', 'completions/max_length': '1024', 'completions/clipped_ratio': '1', 'completions/mean_terminated_length': '0', 'completions/min_terminated_length': '0', 'completions/max_terminated_length': '0', 'rewards/reward_valid/mean': '0', 'rewards/reward_valid/std': '0', 'rewards/reward_novel/mean': '0', 'rewards/reward_novel/std': '0', 'rewards/reward_spice/mean': '0', 'rewards/reward_spice/std': '0', 'reward': '0', 'reward_std': '0', 'frac_reward_zero_std': '1', 'completion_length': '1024', 'kl': '0', 'clip_ratio/low_mean': '0', 'clip_ratio/low_min': '0', 'clip_ratio/high_mean': '0', 'clip_ratio/high_max': '0', 'clip_ratio/region_mean': '0', 'epoch': '0.1111'}
+{'train_runtime': '300', 'train_samples_per_second': '0.08', 'train_steps_per_second': '0.01', 'train_loss': '0', 'epoch': '0.1111'}
+EMIT {"phase": "train", "status": "PASS", "error": null, "tb": null, "steps_req": 3, "steps_done": 3, "s_per_step": [112.21, 92.15, 95.61], "s_per_step_median_excl_first": 93.88, "gen_s_all": [0.03, 0.0, 0.0], "peak_alloc_gib_max": 12.443, "peak_alloc_gib_at_fail": 12.443, "peak_reserved_gib_at_fail": 13.107, "log_history": [{"loss": 0.0, "grad_norm": 0.0, "learning_rate": 5e-06, "num_tokens": 19160.0, "completions/mean_length": 1024.0, "completions/min_length": 1024.0, "completions/max_length": 1024.0, "completions/clipped_ratio": 1.0, "completions/mean_terminated_length": 0.0, "completions/min_terminated_length": 0.0, "completions/max_terminated_length": 0.0, "rewards/reward_valid/mean": 0.0, "rewards/reward_valid/std": 0.0, "rewards/reward_novel/mean": 0.0, "rewards/reward_novel/std": 0.0, "rewards/reward_spice/mean": 0.0, "rewards/reward_spice/std": 0.0, "reward": 0.0, "reward_std": 0.0, "frac_reward_zero_std": 1.0, "completion_length": 1024.0, "kl": 0.0, "clip_ratio/low_mean": 0.0, "clip_ratio/low_min": 0.0, "clip_ratio/high_mean": 0.0, "clip_ratio/high_max": 0.0, "clip_ratio/region_mean": 0.0, "epoch": 0.037037037037037035, "step": 1}, {"loss": 0.0, "grad_norm": 0.0, "learning_rate": 5e-06, "num_tokens": 38280.0, "completions/mean_length": 1024.0, "completions/min_length": 1024.0, "completions/max_length": 1024.0, "completions/clipped_ratio": 1.0, "completions/mean_terminated_length": 0.0, "completions/min_terminated_length": 0.0, "completions/max_terminated_length": 0.0, "rewards/reward_valid/mean": 0.0, "rewards/reward_valid/std": 0.0, "rewards/reward_novel/mean": 0.0, "rewards/reward_novel/std": 0.0, "rewards/reward_spice/mean": 0.0, "rewards/reward_spice/std": 0.0, "reward": 0.0, "reward_std": 0.0, "frac_reward_zero_std": 1.0, "completion_length": 1024.0, "kl": 0.0, "clip_ratio/low_mean": 0.0, "clip_ratio/low_min": 0.0, "clip_ratio/high_mean": 0.0, "clip_ratio/high_max": 0.0, "clip_ratio/region_mean": 0.0, "epoch": 0.07407407407407407, "step": 2}, {"loss": 0.0, "grad_norm": 0.0, "learning_rate": 5e-06, "num_tokens": 57720.0, "completions/mean_length": 1024.0, "completions/min_length": 1024.0, "completions/max_length": 1024.0, "completions/clipped_ratio": 1.0, "completions/mean_terminated_length": 0.0, "completions/min_terminated_length": 0.0, "completions/max_terminated_length": 0.0, "rewards/reward_valid/mean": 0.0, "rewards/reward_valid/std": 0.0, "rewards/reward_novel/mean": 0.0, "rewards/reward_novel/std": 0.0, "rewards/reward_spice/mean": 0.0, "rewards/reward_spice/std": 0.0, "reward": 0.0, "reward_std": 0.0, "frac_reward_zero_std": 1.0, "completion_length": 1024.0, "kl": 0.0, "clip_ratio/low_mean": 0.0, "clip_ratio/low_min": 0.0, "clip_ratio/high_mean": 0.0, "clip_ratio/high_max": 0.0, "clip_ratio/region_mean": 0.0, "epoch": 0.1111111111111111, "step": 3}, {"train_runtime": 300.0044, "train_samples_per_second": 0.08, "train_steps_per_second": 0.01, "total_flos": 0.0, "train_loss": 0.0, "epoch": 0.1111111111111111, "step": 3}], "tag": "
+Unsloth: Restored added_tokens_decoder metadata in /tmp/r3/lora-fake/tokenizer_config.json.
+EMIT {"phase": "save_lora", "status": "OK", "dir": "/tmp/r3/lora-fake", "tag": "F-G8-L1024", "G": 8, "L": 1024, "fast": 0, "forced": 1, "t_s": 367.2}

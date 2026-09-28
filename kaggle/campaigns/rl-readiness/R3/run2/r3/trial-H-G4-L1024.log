@@ -1,0 +1,144 @@
+🦥 Unsloth: Will patch your computer to enable 2x faster free finetuning.
+🦥 Unsloth Zoo will now patch everything to make training faster!
+==((====))==  Unsloth 2026.9.11: Fast Qwen3 patching. Transformers: 5.5.0.
+   \\   /|    Tesla T4. Num GPUs = 1. Max memory: 14.562 GB. Platform: Linux.
+O^O/ \_/ \    Torch: 2.10.0+cu128. CUDA: 7.5. CUDA Toolkit: 12.8. Triton: 3.6.0
+\        /    Bfloat16 = FALSE. FA [Xformers = 0.0.35. FA2 = False]
+ "-____-"     Free license: http://github.com/unslothai/unsloth
+Unsloth: Fast downloading is enabled - ignore downloading bars which are red colored!
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Loading weights:   0%|          | 0/443 [00:00<?, ?it/s]
+Loading weights:   0%|          | 1/443 [00:04<30:44,  4.17s/it]
+Loading weights:   8%|▊         | 37/443 [00:04<00:33, 12.14it/s]
+Loading weights:  13%|█▎        | 59/443 [00:04<00:17, 21.35it/s]
+Loading weights:  20%|██        | 89/443 [00:04<00:09, 37.92it/s]
+Loading weights:  25%|██▌       | 112/443 [00:04<00:06, 52.99it/s]
+Loading weights:  30%|███       | 135/443 [00:04<00:04, 64.73it/s]
+Loading weights:  35%|███▍      | 155/443 [00:04<00:04, 71.97it/s]
+Loading weights:  43%|████▎     | 191/443 [00:05<00:02, 107.13it/s]
+Loading weights:  52%|█████▏    | 232/443 [00:05<00:01, 153.61it/s]
+Loading weights:  95%|█████████▌| 422/443 [00:05<00:00, 415.05it/s]
+Loading weights: 100%|██████████| 443/443 [00:05<00:00, 79.78it/s] 
+Unsloth 2026.9.11 patched 40 layers with 40 QKV layers, 40 O layers and 40 MLP layers.
+EMIT {"phase": "load", "status": "OK", "load_s": 53.7, "mem_alloc_after_load_gib": 10.638, "mem_reserved_after_load_gib": 10.645, "mem_alloc_before_peft_gib": 10.399, "gpu_total_gib": 14.562, "has_vllm_engine": false, "trainable": 64225280, "tag": "H-G4-L1024", "G": 4, "L": 1024, "fast": 0, "forced": 1, "t_s": 53.7}
+EMIT {"phase": "prompts", "n": 27, "prompt_tokens_mean": 1378.1, "prompt_tokens_max": 1517, "prompt_tokens_min": 1330, "no_think_suffix": "|im_start|>assistant\n<think>\n\n</think>\n\n", "tag": "H-G4-L1024", "G": 4, "L": 1024, "fast": 0, "forced": 1, "t_s": 53.8}
+EMIT {"phase": "config", "dropped_kwargs": [], "use_vllm": false, "beta": 0.001, "loss_type": "bnpo", "gen_kwargs": {"min_new_tokens": 1024}, "per_device_train_batch_size": 4, "num_generations": 4, "gradient_checkpointing": true, "tag": "H-G4-L1024", "G": 4, "L": 1024, "fast": 0, "forced": 1, "t_s": 53.9}
+EMIT {"phase": "trainer_built", "gen_wrapped": true, "trainer_class": "UnslothGRPOTrainer", "trainer_use_vllm": false, "tag": "H-G4-L1024", "G": 4, "L": 1024, "fast": 0, "forced": 1, "t_s": 54.2}
+The tokenizer has new PAD/BOS/EOS tokens that differ from the model config and generation config. The model config and generation config were aligned accordingly, being updated with the tokenizer's values. Updated tokens: {'bos_token_id': None}.
+==((====))==  Unsloth - 2x faster free finetuning | Num GPUs used = 1
+   \\   /|    Num examples = 27 | Num Epochs = 1 | Total steps = 3
+O^O/ \_/ \    Batch size per device = 4 | Gradient accumulation steps = 1
+\        /    Data Parallel GPUs = 1 | Total batch size (4 x 1 x 1) = 4
+ "-____-"     Trainable parameters = 64,225,280 of 14,832,532,480 (0.43% trained)
+
+  0%|          | 0/3 [00:00<?, ?it/s]Passing `generation_config` together with generation-related arguments=({'cache_implementation', 'pad_token_id', 'disable_compile'}) is deprecated and will be removed in future versions. Please pass either a `generation_config` object OR all generation parameters explicitly, but not both.
+Both `max_new_tokens` (=1024) and `max_length`(=40960) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+Unsloth: Will smartly offload gradients to save VRAM!
+^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1787, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/unsloth/models/rl.py", line 1640, in wrapped_forward
+    outputs = original_forward(*args, **forward_kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/unsloth/models/llama.py", line 1463, in _CausalLM_fast_forward
+    outputs = self.model(
+              ^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1787, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/unsloth/models/llama.py", line 1171, in LlamaModel_fast_forward
+    layer_outputs = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/transformers/modeling_layers.py", line 92, in __call__
+    return self._gradient_checkpointing_func(partial(super().__call__, **kwargs), *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/_compile.py", line 54, in inner
+    return disable_fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/_dynamo/eval_frame.py", line 1181, in _fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/unsloth_zoo/gradient_checkpointing.py", line 1191, in unsloth_checkpoint
+    return UnslothCheckpointFunction.apply(function, preserve, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/autograd/function.py", line 583, in apply
+    return super().apply(*args, **kwargs)  # type: ignore[misc]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/unsloth_zoo/gradient_checkpointing.py", line 972, in forward
+    outputs = run_function(*args)
+              ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1787, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/unsloth/models/llama.py", line 846, in LlamaDecoderLayer_fast_forward
+    hidden_states = self.mlp(hidden_states)
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1787, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/unsloth/kernels/fast_lora.py", line 222, in apply_lora_mlp_swiglu
+    out = LoRA_MLP.apply(
+          ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/autograd/function.py", line 583, in apply
+    return super().apply(*args, **kwargs)  # type: ignore[misc]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/amp/autocast_mode.py", line 477, in decorate_fwd
+    return fwd(*args, **kwargs)  # pyrefly: ignore [not-callable]
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/unsloth/kernels/fast_lora.py", line 93, in forward
+    i = matmul_lora(h, downW, downW_quant, downA, downB, downS)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/unsloth/kernels/utils.py", line 1115, in matmul_lora
+    out = torch_matmul(X, W.t(), out = out)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.AcceleratorError: CUDA error: an illegal memory access was encountered
+Search for `cudaErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+
+EMIT {"phase": "train", "status": "ERROR", "error": "AcceleratorError(\"CUDA error: an illegal memory access was encountered\\nSearch for `cudaErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\\n\")", "tb": "^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py\", line 1776, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py\", line 1787, in _call_impl\n    return forward_call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/unsloth/models/rl.py\", line 1640, in wrapped_forward\n    outputs = original_forward(*args, **forward_kwargs)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/unsloth/models/llama.py\", line 1463, in _CausalLM_fast_forward\n    outputs = self.model(\n              ^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py\", line 1776, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py\", line 1787, in _call_impl\n    return forward_call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/unsloth/models/llama.py\", line 1171, in LlamaModel_fast_forward\n    layer_outputs = decoder_layer(\n                    ^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/transformers/modeling_layers.py\", line 92, in __call__\n    return self._gradient_checkpointing_func(partial(super().__call__, **kwargs), *args)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/torch/_compile.py\", line 54, in inner\n    return disable_fn(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/torch/_dynamo/eval_frame.py\", line 1181, in _fn\n    return fn(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/unsloth_zoo/gradient_checkpointing.py\", line 1191, in unsloth_checkpoint\n    return UnslothCheckpointFunction.apply(function, preserve, *args)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/torch/autograd/function.py\", line 583, in apply\n    return super().apply(*args, **kwargs)  # type: ignore[misc]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File
+
+  0%|          | 0/3 [09:48<?, ?it/s]
+terminate called after throwing an instance of 'c10::AcceleratorError'
+  what():  CUDA error: an illegal memory access was encountered
+Search for `cudaErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+Exception raised from currentStreamCaptureStatusMayInitCtx at /pytorch/c10/cuda/CUDAGraphsC10Utils.h:71 (most recent call first):
+frame #0: c10::Error::Error(c10::SourceLocation, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) + 0x9d (0x7fdd6c972fdd in /usr/local/lib/python3.12/dist-packages/torch/lib/libc10.so)
+frame #1: <unknown function> + 0xc0e0 (0x7fdd6d2770e0 in /usr/local/lib/python3.12/dist-packages/torch/lib/libc10_cuda.so)
+frame #2: <unknown function> + 0xf2a97a (0x7fdc40a4297a in /usr/local/lib/python3.12/dist-packages/torch/lib/libtorch_cuda.so)
+frame #3: <unknown function> + 0x7e9d4 (0x7fdd6c9549d4 in /usr/local/lib/python3.12/dist-packages/torch/lib/libc10.so)
+frame #4: c10::TensorImpl::~TensorImpl() + 0x9 (0x7fdd6c94e369 in /usr/local/lib/python3.12/dist-packages/torch/lib/libc10.so)
+frame #5: <unknown function> + 0x862f45 (0x7fdc92e1df45 in /usr/local/lib/python3.12/dist-packages/torch/lib/libtorch_python.so)
+frame #6: <unknown function> + 0x862fe1 (0x7fdc92e1dfe1 in /usr/local/lib/python3.12/dist-packages/torch/lib/libtorch_python.so)
+frame #7: /usr/bin/python3() [0x59dc66]
+frame #8: /usr/bin/python3() [0x52e8f9]
+frame #9: /usr/bin/python3() [0x5332b3]
+frame #10: _PyModule_ClearDict + 0xc5 (0x65b965 in /usr/bin/python3)
+frame #11: /usr/bin/python3() [0x65ae06]
+frame #12: Py_FinalizeEx + 0x16c (0x64147c in /usr/bin/python3)
+frame #13: Py_RunMain + 0x24c (0x64f15c in /usr/bin/python3)
+frame #14: Py_BytesMain + 0x2d (0x6082cd in /usr/bin/python3)
+frame #15: <unknown function> + 0x29d90 (0x7fdd70b9ad90 in /lib/x86_64-linux-gnu/libc.so.6)
+frame #16: __libc_start_main + 0x80 (0x7fdd70b9ae40 in /lib/x86_64-linux-gnu/libc.so.6)
+frame #17: _start + 0x25 (0x608145 in /usr/bin/python3)
+

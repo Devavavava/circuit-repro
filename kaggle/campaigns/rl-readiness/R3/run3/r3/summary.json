@@ -1,0 +1,191 @@
+{
+ "prereg": "kaggle/PREREG-RL-READINESS.md#R3",
+ "model": "unsloth/Qwen3-14B-unsloth-bnb-4bit",
+ "pins": [
+  "unsloth==2026.9.11",
+  "unsloth_zoo==2026.9.7",
+  "transformers==5.5.0",
+  "trl==0.24.0",
+  "peft==0.21.0",
+  "bitsandbytes==0.50.2",
+  "accelerate==1.15.0",
+  "datasets==4.3.0"
+ ],
+ "vllm_pins": [
+  "vllm==0.19.1",
+  "transformers==4.57.6"
+ ],
+ "budget_min": 75.0,
+ "repo_sha": "519bcf452c27cddf9e460b3d4a212ceacaf7e0c5",
+ "pdk": "bptm45",
+ "spice_budget": 300,
+ "clone_head": "519bcf452c27cddf9e460b3d4a212ceacaf7e0c5",
+ "vllm_state": {
+  "status": "ok",
+  "rc_pip": 0,
+  "rc_import": 0,
+  "versions": {
+   "vllm": "0.19.1",
+   "transformers": "4.57.6",
+   "torch": "2.10.0+cu128",
+   "unsloth": "2026.9.11",
+   "unsloth_zoo": "2026.9.7",
+   "trl": "0.24.0",
+   "numpy": "2.0.2",
+   "numba": "0.61.2",
+   "xformers": "0.0.35",
+   "flashinfer-python": "0.6.6"
+  },
+  "tail": null,
+  "python": "/tmp/r3/venv-vllm/bin/python",
+  "secs": 184
+ },
+ "results": {
+  "F-G8-L1024": {
+   "tag": "F-G8-L1024",
+   "gpu": 0,
+   "G": 8,
+   "L": 1024,
+   "fast": 0,
+   "forced": 1,
+   "rc": 0,
+   "pdbs": 1,
+   "gen_chunk": 0,
+   "fake_gen": 1,
+   "status": "PASS",
+   "wall_min": 6.21,
+   "nvsmi_peak_mib": 13587,
+   "steps_done": 3,
+   "s_per_step": [
+    112.21,
+    92.15,
+    95.61
+   ],
+   "s_med": 93.88,
+   "peak_alloc_gib": 12.443,
+   "error": null
+  },
+  "F-G8-L2048": {
+   "tag": "F-G8-L2048",
+   "gpu": 0,
+   "G": 8,
+   "L": 2048,
+   "fast": 0,
+   "forced": 1,
+   "rc": 0,
+   "pdbs": 1,
+   "gen_chunk": 0,
+   "fake_gen": 1,
+   "status": "PASS",
+   "wall_min": 5.67,
+   "nvsmi_peak_mib": 14209,
+   "steps_done": 2,
+   "s_per_step": [
+    149.42,
+    144.52
+   ],
+   "s_med": 144.52,
+   "peak_alloc_gib": 12.961,
+   "error": null
+  },
+  "F-G16-L1024": {
+   "tag": "F-G16-L1024",
+   "gpu": 0,
+   "G": 16,
+   "L": 1024,
+   "fast": 0,
+   "forced": 1,
+   "rc": 0,
+   "pdbs": 1,
+   "gen_chunk": 0,
+   "fake_gen": 1,
+   "status": "PASS",
+   "wall_min": 7.22,
+   "nvsmi_peak_mib": 13587,
+   "steps_done": 2,
+   "s_per_step": [
+    195.23,
+    192.19
+   ],
+   "s_med": 192.19,
+   "peak_alloc_gib": 12.422,
+   "error": null
+  },
+  "VGEN-G8-L1024": {
+   "tag": "VGEN-G8-L1024",
+   "gpu": 0,
+   "kind": "vgen",
+   "rc": 0,
+   "status": "FAIL",
+   "wall_min": 8.31,
+   "nvsmi_peak_mib": 13881,
+   "phases": {
+    "init": {
+     "status": "ERROR",
+     "tok_per_s": null,
+     "secs": null,
+     "rollouts": null,
+     "rollouts_per_hour": null,
+     "len_mean": null,
+     "with_lora": false,
+     "n_valid": null,
+     "n_fence": null,
+     "error": "RuntimeError('Engine core initialization failed. See root cause above. Failed core proc(s): {}')"
+    }
+   },
+   "error": "\", line 710, in __init__\\n    super().__init__(\\n  File \\\"/tmp/r3/venv-vllm/lib/python3.12/site-packages/vllm/v1/engine/core_client.py\\\", line 535, in __init__\\n    with launch_core_engines(\\n         ^^^^^^^^^^^^^^^^^^^^\\n  File \\\"/usr/lib/python3.12/contextlib.py\\\", line 144, in __exit__\\n    next(self.gen)\\n  File \\\"/tmp/r3/venv-vllm/lib/python3.12/site-packages/vllm/v1/engine/utils.py\\\", line 998, in launch_core_engines\\n    wait_for_engine_startup(\\n  File \\\"/tmp/r3/venv-vllm/lib/python3.12/site-packages/vllm/v1/engine/utils.py\\\", line 1057, in wait_for_engine_startup\\n    raise RuntimeE\n"
+  },
+  "H-G8-L1024": {
+   "tag": "H-G8-L1024",
+   "gpu": 1,
+   "G": 8,
+   "L": 1024,
+   "fast": 0,
+   "forced": 1,
+   "rc": 0,
+   "pdbs": 1,
+   "gen_chunk": 4,
+   "fake_gen": 0,
+   "status": "PASS",
+   "wall_min": 49.42,
+   "nvsmi_peak_mib": 14753,
+   "steps_done": 2,
+   "s_per_step": [
+    1456.77,
+    1436.32
+   ],
+   "s_med": 1436.32,
+   "peak_alloc_gib": 13.46,
+   "error": null
+  },
+  "F-G8-L3072": {
+   "tag": "F-G8-L3072",
+   "gpu": 1,
+   "G": 8,
+   "L": 3072,
+   "fast": 0,
+   "forced": 1,
+   "rc": 0,
+   "pdbs": 1,
+   "gen_chunk": 0,
+   "fake_gen": 1,
+   "status": "PASS",
+   "wall_min": 7.47,
+   "nvsmi_peak_mib": 14785,
+   "steps_done": 2,
+   "s_per_step": [
+    208.12,
+    196.12
+   ],
+   "s_med": 196.12,
+   "peak_alloc_gib": 13.5,
+   "error": null
+  },
+  "H-G4-L1024": {
+   "tag": "H-G4-L1024",
+   "status": "NOT_RUN",
+   "reason": "budget"
+  }
+ },
+ "wall_min": 61.1
+}

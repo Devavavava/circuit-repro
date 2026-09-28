@@ -1,0 +1,116 @@
+🦥 Unsloth: Will patch your computer to enable 2x faster free finetuning.
+🦥 Unsloth Zoo will now patch everything to make training faster!
+==((====))==  Unsloth 2026.9.11: Fast Qwen3 patching. Transformers: 5.5.0.
+   \\   /|    Tesla T4. Num GPUs = 1. Max memory: 14.562 GB. Platform: Linux.
+O^O/ \_/ \    Torch: 2.10.0+cu128. CUDA: 7.5. CUDA Toolkit: 12.8. Triton: 3.6.0
+\        /    Bfloat16 = FALSE. FA [Xformers = 0.0.35. FA2 = False]
+ "-____-"     Free license: http://github.com/unslothai/unsloth
+Unsloth: Fast downloading is enabled - ignore downloading bars which are red colored!
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Loading weights:   0%|          | 0/443 [00:00<?, ?it/s]
+Loading weights:   0%|          | 1/443 [00:15<1:52:31, 15.27s/it]
+Loading weights:   0%|          | 2/443 [00:16<51:38,  7.03s/it]  
+Loading weights:   2%|▏         | 9/443 [00:16<07:37,  1.05s/it]
+Loading weights:   2%|▏         | 11/443 [00:16<05:48,  1.24it/s]
+Loading weights:   3%|▎         | 13/443 [00:17<04:23,  1.63it/s]
+Loading weights:   4%|▍         | 17/443 [00:17<02:36,  2.73it/s]
+Loading weights:   6%|▌         | 26/443 [00:17<01:07,  6.15it/s]
+Loading weights:   8%|▊         | 34/443 [00:17<00:40, 10.06it/s]
+Loading weights:   9%|▉         | 39/443 [00:17<00:31, 12.80it/s]
+Loading weights:  11%|█         | 49/443 [00:17<00:19, 20.62it/s]
+Loading weights:  13%|█▎        | 59/443 [00:17<00:13, 29.09it/s]
+Loading weights:  15%|█▌        | 68/443 [00:18<00:10, 37.45it/s]
+Loading weights:  19%|█▉        | 86/443 [00:18<00:06, 57.65it/s]
+Loading weights:  23%|██▎       | 101/443 [00:18<00:04, 68.41it/s]
+Loading weights:  25%|██▌       | 111/443 [00:18<00:05, 64.42it/s]
+Loading weights:  32%|███▏      | 142/443 [00:18<00:02, 106.12it/s]
+Loading weights:  39%|███▉      | 174/443 [00:18<00:01, 147.02it/s]
+Loading weights:  44%|████▍     | 196/443 [00:18<00:01, 162.29it/s]
+Loading weights:  62%|██████▏   | 276/443 [00:18<00:00, 313.54it/s]
+Loading weights:  95%|█████████▌| 422/443 [00:24<00:00, 39.37it/s] 
+Loading weights: 100%|██████████| 443/443 [00:24<00:00, 17.91it/s]
+Unsloth 2026.9.11 patched 40 layers with 40 QKV layers, 40 O layers and 40 MLP layers.
+EMIT {"phase": "load", "status": "OK", "load_s": 73.8, "mem_alloc_after_load_gib": 10.638, "mem_reserved_after_load_gib": 10.645, "mem_alloc_before_peft_gib": 10.399, "gpu_total_gib": 14.562, "has_vllm_engine": false, "trainable": 64225280, "tag": "H-G8-L1024", "G": 8, "L": 1024, "fast": 0, "forced": 1, "t_s": 73.8}
+EMIT {"phase": "prompts", "n": 27, "prompt_tokens_mean": 1378.1, "prompt_tokens_max": 1517, "prompt_tokens_min": 1330, "no_think_suffix": "|im_start|>assistant\n<think>\n\n</think>\n\n", "tag": "H-G8-L1024", "G": 8, "L": 1024, "fast": 0, "forced": 1, "t_s": 73.9}
+EMIT {"phase": "config", "dropped_kwargs": [], "use_vllm": false, "beta": 0.001, "loss_type": "bnpo", "gen_kwargs": {"min_new_tokens": 1024}, "per_device_train_batch_size": 8, "num_generations": 8, "gradient_checkpointing": true, "tag": "H-G8-L1024", "G": 8, "L": 1024, "fast": 0, "forced": 1, "t_s": 73.9}
+EMIT {"phase": "trainer_built", "gen_wrapped": true, "trainer_class": "UnslothGRPOTrainer", "trainer_use_vllm": false, "tag": "H-G8-L1024", "G": 8, "L": 1024, "fast": 0, "forced": 1, "t_s": 74.1}
+The tokenizer has new PAD/BOS/EOS tokens that differ from the model config and generation config. The model config and generation config were aligned accordingly, being updated with the tokenizer's values. Updated tokens: {'bos_token_id': None}.
+==((====))==  Unsloth - 2x faster free finetuning | Num GPUs used = 1
+   \\   /|    Num examples = 27 | Num Epochs = 1 | Total steps = 3
+O^O/ \_/ \    Batch size per device = 8 | Gradient accumulation steps = 1
+\        /    Data Parallel GPUs = 1 | Total batch size (8 x 1 x 1) = 8
+ "-____-"     Trainable parameters = 64,225,280 of 14,832,532,480 (0.43% trained)
+
+  0%|          | 0/3 [00:00<?, ?it/s]Passing `generation_config` together with generation-related arguments=({'disable_compile', 'pad_token_id', 'cache_implementation'}) is deprecated and will be removed in future versions. Please pass either a `generation_config` object OR all generation parameters explicitly, but not both.
+Both `max_new_tokens` (=1024) and `max_length`(=40960) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+ _fast_inner_training_loop
+  File "/usr/local/lib/python3.12/dist-packages/transformers/trainer.py", line 1734, in _run_epoch
+    tr_loss_step = self.training_step(model, inputs, num_items_in_batch)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/unsloth/models/_utils.py", line 3843, in _unsloth_training_step_settling_fallbacks
+    return _training_step_before_settle(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 34, in _unsloth_training_step
+  File "/usr/local/lib/python3.12/dist-packages/trl/extras/profiling.py", line 98, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/r3/tmp-H-G8-L1024/unsloth_compiled_cache/UnslothGRPOTrainer.py", line 4384, in _prepare_inputs
+    generation_batch = self._generate_and_score_completions(generation_batch)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/unsloth/models/rl.py", line 637, in wrapped
+    return original(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/r3/tmp-H-G8-L1024/unsloth_compiled_cache/UnslothGRPOTrainer.py", line 4793, in _generate_and_score_completions
+    ) = self._generate(prompts, images)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/r3/tmp-H-G8-L1024/unsloth_compiled_cache/UnslothGRPOTrainer.py", line 4724, in _generate
+    prompt_ids, completion_ids, logprobs, forward_kwargs = self._generate_single_turn(prompts, images)
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/r3/tmp-H-G8-L1024/unsloth_compiled_cache/UnslothGRPOTrainer.py", line 4700, in _generate_single_turn
+    prompt_completion_ids = unwrapped_model.generate(
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/unsloth/models/rl.py", line 202, in generate_with_clone
+    out = original_generate(*args, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/r3/r3_trial.py", line 110, in g
+    t = time.time(); r = f(*x, **k)
+                         ^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/peft/peft_model.py", line 2242, in generate
+    outputs = self.base_model.generate(*args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/unsloth/models/llama.py", line 2241, in unsloth_fast_generate
+    output = self._old_generate(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/transformers/generation/utils.py", line 2543, in generate
+    result = decoding_method(
+             ^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/transformers/generation/utils.py", line 2750, in _sample
+    outputs = model_forward(**model_inputs, return_dict=True)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1787, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/unsloth/models/rl.py", line 1613, in wrapped_forward
+    return original_forward(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/unsloth/models/llama.py", line 1440, in _CausalLM_fast_forward
+    outputs = fast_forward_inference(
+              ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/unsloth/models/llama.py", line 1293, in LlamaModel_fast_forward_inference_custom
+    X, present_key_value = attention_fast_forward_inference(
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/unsloth/models/qwen3.py", line 336, in Qwen3Attention_fast_forward_inference
+    A = scaled_dot_product_attention(
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 216.00 MiB. GPU 0 has a total capacity of 14.56 GiB of which 170.81 MiB is free. Including non-PyTorch memory, this process has 14.39 GiB memory in use. Of the allocated memory 14.22 GiB is allocated by PyTorch, and 20.66 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+
+EMIT {"phase": "train", "status": "OOM", "error": "OutOfMemoryError('CUDA out of memory. Tried to allocate 216.00 MiB. GPU 0 has a total capacity of 14.56 GiB of which 170.81 MiB is free. Including non-PyTorch memory, this process has 14.39 GiB memory in use. Of the allocated memory 14.22 GiB is allocated by PyTorch, and 20.66 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)')", "tb": " _fast_inner_training_loop\n  File \"/usr/local/lib/python3.12/dist-packages/transformers/trainer.py\", line 1734, in _run_epoch\n    tr_loss_step = self.training_step(model, inputs, num_items_in_batch)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/unsloth/models/_utils.py\", line 3843, in _unsloth_training_step_settling_fallbacks\n    return _training_step_before_settle(self, *args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<string>\", line 34, in _unsloth_training_step\n  File \"/usr/local/lib/python3.12/dist-packages/trl/extras/profiling.py\", line 98, in wrapper\n    return func(self, *args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/r3/tmp-H-G8-L1024/unsloth_compiled_cache/UnslothGRPOTrainer.py\", line 4384, in _prepare_inputs\n    generation_batch = self._generate_and_score_completions(generation_batch)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/unsloth/models/rl.py\", line 637, in wrapped\n    return original(self, *args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/r3/tmp-H-G8-L1024/unsloth_compiled_cache/UnslothGRPOTrainer.py\", line 4793, in _generate_and_score_completions\n    ) = self._generate(prompts, images)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/r3/tmp-H-G8-L1024/unsloth_compiled_cache/UnslothGRPOTrainer.py\", line 4724, in _generate\n    prompt_ids, completion_ids, logprobs, forward_kwargs = self._generate_single_turn(prompts, images)\n                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/r3/tmp-H-G8-L1024/unsloth_compiled_cache/UnslothGRPOTrainer.py\", line 4700, in _generate_single_turn\n    prompt_completion_ids = unwrapped_model.generate(\n                            ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/unsloth/models/rl.py\", line 202, in generate_with_clone\n    out = original_generate(*args, **kwargs)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/r3/r3_trial.py\", line 110, in g\n    t = time.time(); r = f(*x, **k)\n                         ^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/peft/peft_model.py\", line 2242, in ge
+
+  0%|          | 0/3 [00:21<?, ?it/s]

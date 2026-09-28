@@ -1,0 +1,66 @@
+🦥 Unsloth: Will patch your computer to enable 2x faster free finetuning.
+🦥 Unsloth Zoo will now patch everything to make training faster!
+==((====))==  Unsloth 2026.9.11: Fast Qwen3 patching. Transformers: 5.5.0.
+   \\   /|    Tesla T4. Num GPUs = 1. Max memory: 14.562 GB. Platform: Linux.
+O^O/ \_/ \    Torch: 2.10.0+cu128. CUDA: 7.5. CUDA Toolkit: 12.8. Triton: 3.6.0
+\        /    Bfloat16 = FALSE. FA [Xformers = 0.0.35. FA2 = False]
+ "-____-"     Free license: http://github.com/unslothai/unsloth
+Unsloth: Fast downloading is enabled - ignore downloading bars which are red colored!
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Loading weights:   0%|          | 0/443 [00:00<?, ?it/s]
+Loading weights:   0%|          | 1/443 [00:02<20:13,  2.75s/it]
+Loading weights:   0%|          | 2/443 [00:03<09:47,  1.33s/it]
+Loading weights:   5%|▌         | 23/443 [00:03<00:32, 13.11it/s]
+Loading weights:  10%|█         | 46/443 [00:03<00:13, 29.62it/s]
+Loading weights:  19%|█▊        | 82/443 [00:03<00:05, 61.40it/s]
+Loading weights:  23%|██▎       | 102/443 [00:03<00:04, 78.01it/s]
+Loading weights:  28%|██▊       | 123/443 [00:03<00:03, 95.89it/s]
+Loading weights:  33%|███▎      | 147/443 [00:03<00:02, 120.34it/s]
+Loading weights:  38%|███▊      | 169/443 [00:03<00:01, 139.73it/s]
+Loading weights:  44%|████▍     | 197/443 [00:03<00:01, 165.35it/s]
+Loading weights:  50%|█████     | 222/443 [00:04<00:01, 185.05it/s]
+Loading weights:  67%|██████▋   | 299/443 [00:04<00:00, 323.24it/s]
+Loading weights:  95%|█████████▌| 422/443 [00:04<00:00, 422.15it/s]
+Loading weights: 100%|██████████| 443/443 [00:04<00:00, 98.42it/s] 
+Unsloth 2026.9.11 patched 40 layers with 40 QKV layers, 40 O layers and 40 MLP layers.
+EMIT {"phase": "load", "status": "OK", "load_s": 37.6, "mem_alloc_after_load_gib": 10.638, "mem_reserved_after_load_gib": 10.645, "mem_alloc_before_peft_gib": 10.399, "gpu_total_gib": 14.562, "has_vllm_engine": false, "trainable": 64225280, "tag": "F-G8-L3072", "G": 8, "L": 3072, "fast": 0, "forced": 1, "t_s": 37.6}
+EMIT {"phase": "prompts", "n": 27, "prompt_tokens_mean": 1378.1, "prompt_tokens_max": 1517, "prompt_tokens_min": 1330, "no_think_suffix": "|im_start|>assistant\n<think>\n\n</think>\n\n", "tag": "F-G8-L3072", "G": 8, "L": 3072, "fast": 0, "forced": 1, "t_s": 37.6}
+EMIT {"phase": "config", "dropped_kwargs": [], "use_vllm": false, "beta": 0.0, "loss_type": "bnpo", "gen_kwargs": {"min_new_tokens": 3072}, "per_device_train_batch_size": 1, "gradient_accumulation_steps": 8, "generation_batch_size": 8, "steps_per_generation": 8, "num_generations": 8, "gradient_checkpointing": true, "tag": "F-G8-L3072", "G": 8, "L": 3072, "fast": 0, "forced": 1, "t_s": 37.7}
+EMIT {"phase": "trainer_built", "gen_wrapped": true, "trainer_class": "UnslothGRPOTrainer", "trainer_use_vllm": false, "tag": "F-G8-L3072", "G": 8, "L": 3072, "fast": 0, "forced": 1, "t_s": 37.8}
+The tokenizer has new PAD/BOS/EOS tokens that differ from the model config and generation config. The model config and generation config were aligned accordingly, being updated with the tokenizer's values. Updated tokens: {'bos_token_id': None}.
+==((====))==  Unsloth - 2x faster free finetuning | Num GPUs used = 1
+   \\   /|    Num examples = 27 | Num Epochs = 1 | Total steps = 2
+O^O/ \_/ \    Batch size per device = 1 | Gradient accumulation steps = 8
+\        /    Data Parallel GPUs = 1 | Total batch size (1 x 8 x 1) = 8
+ "-____-"     Trainable parameters = 64,225,280 of 14,832,532,480 (0.43% trained)
+
+  0%|          | 0/2 [00:00<?, ?it/s]/usr/local/lib/python3.12/dist-packages/unsloth/import_fixes.py:4091: UserWarning: 'has_cuda' is deprecated, please use 'torch.backends.cuda.is_built()'
+  return original(name)
+/usr/local/lib/python3.12/dist-packages/unsloth/import_fixes.py:4091: UserWarning: 'has_cudnn' is deprecated, please use 'torch.backends.cudnn.is_available()'
+  return original(name)
+/usr/local/lib/python3.12/dist-packages/unsloth/import_fixes.py:4091: UserWarning: 'has_mps' is deprecated, please use 'torch.backends.mps.is_built()'
+  return original(name)
+/usr/local/lib/python3.12/dist-packages/unsloth/import_fixes.py:4091: UserWarning: 'has_mkldnn' is deprecated, please use 'torch.backends.mkldnn.is_available()'
+  return original(name)
+Unsloth: Will smartly offload gradients to save VRAM!
+Unsloth: Double buffering enabled (parallel H2D + compute) for backward pass.
+EMIT {"phase": "step", "step": 1, "s": 208.12, "gen_s": [0.01], "peak_alloc_gib": 13.381, "peak_reserved_gib": 14.23, "tag": "F-G8-L3072", "G": 8, "L": 3072, "fast": 0, "forced": 1, "t_s": 247.5}
+
+ 50%|█████     | 1/2 [03:28<03:28, 208.13s/it]
+                                              
+
+ 50%|█████     | 1/2 [03:28<03:28, 208.13s/it]{'loss': '0', 'grad_norm': '0', 'learning_rate': '5e-06', 'num_tokens': '3.554e+04', 'completions/mean_length': '3072', 'completions/min_length': '3072', 'completions/max_length': '3072', 'completions/clipped_ratio': '1', 'completions/mean_terminated_length': '0', 'completions/min_terminated_length': '0', 'completions/max_terminated_length': '0', 'rewards/reward_valid/mean': '0', 'rewards/reward_valid/std': '0', 'rewards/reward_novel/mean': '0', 'rewards/reward_novel/std': '0', 'rewards/reward_spice/mean': '0', 'rewards/reward_spice/std': '0', 'reward': '0', 'reward_std': '0', 'frac_reward_zero_std': '1', 'completion_length': '3072', 'kl': '0', 'clip_ratio/low_mean': '0', 'clip_ratio/low_min': '0', 'clip_ratio/high_mean': '0', 'clip_ratio/high_max': '0', 'clip_ratio/region_mean': '0', 'epoch': '0.03704'}
+EMIT {"phase": "step", "step": 2, "s": 196.12, "gen_s": [0.0], "peak_alloc_gib": 13.5, "peak_reserved_gib": 14.275, "tag": "F-G8-L3072", "G": 8, "L": 3072, "fast": 0, "forced": 1, "t_s": 443.6}
+
+100%|██████████| 2/2 [06:44<00:00, 201.07s/it]
+                                              
+
+100%|██████████| 2/2 [06:44<00:00, 201.07s/it]
+                                              
+
+100%|██████████| 2/2 [06:44<00:00, 201.07s/it]
+100%|██████████| 2/2 [06:44<00:00, 202.13s/it]
+{'loss': '0', 'grad_norm': '0', 'learning_rate': '5e-06', 'num_tokens': '7.105e+04', 'completions/mean_length': '3072', 'completions/min_length': '3072', 'completions/max_length': '3072', 'completions/clipped_ratio': '1', 'completions/mean_terminated_length': '0', 'completions/min_terminated_length': '0', 'completions/max_terminated_length': '0', 'rewards/reward_valid/mean': '0', 'rewards/reward_valid/std': '0', 'rewards/reward_novel/mean': '0', 'rewards/reward_novel/std': '0', 'rewards/reward_spice/mean': '0', 'rewards/reward_spice/std': '0', 'reward': '0', 'reward_std': '0', 'frac_reward_zero_std': '1', 'completion_length': '3072', 'kl': '0', 'clip_ratio/low_mean': '0', 'clip_ratio/low_min': '0', 'clip_ratio/high_mean': '0', 'clip_ratio/high_max': '0', 'clip_ratio/region_mean': '0', 'epoch': '0.07407'}
+{'train_runtime': '404.3', 'train_samples_per_second': '0.04', 'train_steps_per_second': '0.005', 'train_loss': '0', 'epoch': '0.07407'}
+EMIT {"phase": "train", "status": "PASS", "error": null, "tb": null, "steps_req": 2, "steps_done": 2, "s_per_step": [208.12, 196.12], "s_per_step_median_excl_first": 196.12, "gen_s_all": [0.01, 0.0], "peak_alloc_gib_max": 13.5, "peak_alloc_gib_at_fail": 13.5, "peak_reserved_gib_at_fail": 14.275, "log_history": [{"loss": 0.0, "grad_norm": 0.0, "learning_rate": 5e-06, "num_tokens": 35544.0, "completions/mean_length": 3072.0, "completions/min_length": 3072.0, "completions/max_length": 3072.0, "completions/clipped_ratio": 1.0, "completions/mean_terminated_length": 0.0, "completions/min_terminated_length": 0.0, "completions/max_terminated_length": 0.0, "rewards/reward_valid/mean": 0.0, "rewards/reward_valid/std": 0.0, "rewards/reward_novel/mean": 0.0, "rewards/reward_novel/std": 0.0, "rewards/reward_spice/mean": 0.0, "rewards/reward_spice/std": 0.0, "reward": 0.0, "reward_std": 0.0, "frac_reward_zero_std": 1.0, "completion_length": 3072.0, "kl": 0.0, "clip_ratio/low_mean": 0.0, "clip_ratio/low_min": 0.0, "clip_ratio/high_mean": 0.0, "clip_ratio/high_max": 0.0, "clip_ratio/region_mean": 0.0, "epoch": 0.037037037037037035, "step": 1}, {"loss": 0.0, "grad_norm": 0.0, "learning_rate": 5e-06, "num_tokens": 71048.0, "completions/mean_length": 3072.0, "completions/min_length": 3072.0, "completions/max_length": 3072.0, "completions/clipped_ratio": 1.0, "completions/mean_terminated_length": 0.0, "completions/min_terminated_length": 0.0, "completions/max_terminated_length": 0.0, "rewards/reward_valid/mean": 0.0, "rewards/reward_valid/std": 0.0, "rewards/reward_novel/mean": 0.0, "rewards/reward_novel/std": 0.0, "rewards/reward_spice/mean": 0.0, "rewards/reward_spice/std": 0.0, "reward": 0.0, "reward_std": 0.0, "frac_reward_zero_std": 1.0, "completion_length": 3072.0, "kl": 0.0, "clip_ratio/low_mean": 0.0, "clip_ratio/low_min": 0.0, "clip_ratio/high_mean": 0.0, "clip_ratio/high_max": 0.0, "clip_ratio/region_mean": 0.0, "epoch": 0.07407407407407407, "step": 2}, {"train_runtime": 404.2644, "train_samples_per_second": 0.04, "train_steps_per_second": 0.005, "total_flos": 0.0, "train_loss": 0.0, "epoch": 0.07407407407407407, "step": 2}], "tag": "F-G8-L3072", "G": 8, "L": 3072, "fast": 0, "forced": 1, "t_s": 444.2}

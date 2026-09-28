@@ -1,0 +1,17 @@
+[bootstrap] pip: numpy scipy pyyaml
+[bootstrap] pip: pandas (WITH_PANDAS=1)
+[bootstrap] copying extracted ngspice tree from /kaggle/input/datasets/devavratpatni/circuit-repro-ngspice47/ngspice47/ngspice47 -> /kaggle/working/ngspice47
+[bootstrap] clone already present at /tmp/circuit-repro -- skipping
+[bootstrap] no checkpoints found in /kaggle/input/* (ok: LLM loop is torch-free)
+[bootstrap] pdk sky130: dataset not attached (marker */sky130/sky130_fd_pr/models/sky130.lib.min.spice) -- skip
+[bootstrap] pdk gf180mcu: dataset not attached (marker */gf180mcu/models/ngspice/sm141064.ngspice) -- skip
+[bootstrap] pdk ihp_sg13g2: dataset not attached (marker */ihp_sg13g2/libs.tech/ngspice/osdi/psp103.osdi) -- skip
+[bootstrap] no foundry-PDK datasets attached (ok: bptm45-only run)
+[bootstrap] wrote /kaggle/working/env-kaggle.sh
+[bootstrap] gate: python lna/extract.py --selftest
+[bootstrap] gate: python lna/ref/check_ref.py
+[bootstrap] gate: python lna/ref/check_bjt.py
+[bootstrap] gate: python lna/spec.py --all
+[bootstrap] gate: python lna/solve_spec.py wifi24 --corpus --budget 100 --seeds 1
+[bootstrap] wrote /kaggle/working/report/bootstrap.json (ok=true)
+[bootstrap] BOOTSTRAP OK

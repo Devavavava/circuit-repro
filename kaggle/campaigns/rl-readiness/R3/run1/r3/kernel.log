@@ -1,0 +1,18 @@
+[r3    0.0m] prompts: 27 cells from editcap-lib-v1a k=1
+[r3    0.0m] $ nvidia-smi; nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv
+[r3    0.0m] rc=0 | tail:                                  | \n |  GPU   GI   CI              PID   Type   Process name                        GPU Memory | \n |        ID   ID                                                               Usage      | \n |=========================================================================================| \n |  No running processes found                                                             | \n +-----------------------------------------------------------------------------------------+ \n name, memory.total [MiB], driver_version \n Tesla T4, 15360 MiB, 580.159.04 \n Tesla T4, 15360 MiB, 580.159.04 \n 
+[r3    0.0m] $ free -g; echo NPROC=$(nproc); lscpu; df -h / /tmp /kaggle/working
+[r3    0.0m] rc=0 | tail: Vulnerability Spectre v2:                Mitigation; IBRS; IBPB conditional; STIBP conditional; RSB filling; PBRSB-eIBRS Not affected; BHI SW loop, KVM SW loop \n Vulnerability Srbds:                     Not affected \n Vulnerability Tsa:                       Not affected \n Vulnerability Tsx async abort:           Mitigation; Clear CPU buffers; SMT Host state unknown \n Vulnerability Vmscape:                   Not affected \n Filesystem      Size  Used Avail Use% Mounted on \n overlay         8.0T  6.9T  1.1T  87% / \n overlay         8.0T  6.9T  1.1T  87% / \n /dev/loop2       20G  236K   20G   1% /kaggle/working \n 
+[r3    0.0m] $ nproc
+[r3    0.0m] rc=0 | tail: 4 \n 
+[r3    0.0m] EVENT {"os_cpu_count": 4, "sched_affinity": 4, "nproc": "4", "cpu_model": "Intel(R) Xeon(R) CPU @ 2.00GHz", "kind": "cpu", "t_min": 0.01}
+[r3    0.0m] $ pip freeze
+[r3    0.1m] rc=0 | tail: and==0.7.2 \n wandb==0.26.1 \n wasabi==1.1.3 \n watchdog==6.0.0 \n watchfiles==1.1.1 \n wavio==0.0.9 \n wcwidth==0.6.0 \n weasel==1.0.0 \n webcolors==25.10.0 \n webencodings==0.5.1 \n websocket-client==1.9.0 \n websockets==15.0.1 \n Werkzeug==3.1.8 \n wheel==0.47.0 \n widgetsnbextension==4.0.15 \n woodwork==0.31.0 \n wordcloud==1.9.6 \n wrapt==2.1.2 \n xarray==2025.12.0 \n xarray-einstats==0.10.0 \n xgboost==3.2.0 \n xlrd==2.0.2 \n xvfbwrapper==0.2.23 \n xxhash==3.6.0 \n xyzservices==2026.3.0 \n y-py==0.6.2 \n yarl==1.23.0 \n ydata-profiling==4.18.4 \n ydf==0.15.0 \n ydf_tf==2.20.0 \n yellowbrick==1.5 \n yfinance==0.2.66 \n ypy-websocket==0.8.4 \n zict==3.0.0 \n zipp==3.23.1 \n zstandard==0.25.0 \n 
+[r3    0.1m] preflight OK
+[r3    0.1m] $ git clone --depth 1 --branch worktree-externals-gf180 https://REDACTED@github.com/Devavavava/circuit-repro.git /tmp/circuit-repro
+[r3    0.1m] rc=0 | tail: Cloning into '/tmp/circuit-repro'... \n 
+[r3    0.1m] $ git -C /tmp/circuit-repro fetch --depth 1 origin 519bcf45235fa5c4c3aa5bc93d0c5b9ab28ec3ee
+[r3    0.1m] rc=128 | tail: fatal: remote error: upload-pack: not our ref 519bcf45235fa5c4c3aa5bc93d0c5b9ab28ec3ee \n 
+[r3    0.1m] $ git -C /tmp/circuit-repro checkout --detach FETCH_HEAD
+[r3    0.1m] rc=128 | tail: fatal: git checkout: --detach does not take a path argument 'FETCH_HEAD' \n 
+[r3    0.1m] SUMMARY {"prereg": "kaggle/PREREG-RL-READINESS.md#R3", "model": "unsloth/Qwen3-14B-unsloth-bnb-4bit", "pins": ["unsloth==2026.9.11", "unsloth_zoo==2026.9.7", "transformers==5.5.0", "trl==0.24.0", "peft==0.21.0", "bitsandbytes==0.50.2", "accelerate==1.15.0", "datasets==4.3.0"], "vllm_pins": ["vllm==0.19.1", "transformers==4.57.6"], "budget_min": 90.0, "repo_sha": "519bcf45235fa5c4c3aa5bc93d0c5b9ab28ec3ee", "pdk": "bptm45", "spice_budget": 300, "vllm_state": {"status": "pending"}, "results": {}, "wall_min": 0.1}

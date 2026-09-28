@@ -182,7 +182,13 @@ def smoke_run(tokens, spec_path, seed, budget, pdk):
     0.1-20 GHz and "feasible" additionally requires wide stability; extra keys
     (spec_feasible, mu_min_wide, k_min_wide, delta_max_wide, stab_wide_ok,
     stab_points_checked, stab_winner_replaced, ...) are added. Specs without
-    mu_min get exactly the historical dict."""
+    mu_min get exactly the historical dict.
+
+    OPT-IN IN-LOOP WIDE STABILITY (S-1): additionally with env
+    STAB_WIDE_INLOOP=1 (and the gate on), every sizing eval also pays the wide
+    audit and its mu shortfall enters the objective as a hard-constraint
+    violation (_stab_inloop_objective); the result gains `stab_inloop` stats.
+    Unset -> byte-identical to the gate-only behavior."""
     spec = SZ._spec_for_sizing(spec_path, nf_gate=None, pdk=pdk)
     topo = Topology(list(tokens))
     prep = SZ.prepared_body(topo, inductor_q=INDUCTOR_Q, pdk=SZ._pdk_name(spec))
@@ -195,6 +201,9 @@ def smoke_run(tokens, spec_path, seed, budget, pdk):
     health = SZ.SimHealth()
     obj, names, decode, evaluate = SZ.make_objective(
         body, spec, sizable, fixed, points=points, sim_health=health)
+    inloop = None
+    if stab_gate_on(spec) and os.environ.get("STAB_WIDE_INLOOP") == "1":
+        obj, inloop = _stab_inloop_objective(obj, spec, body, decode, points)
     bud = NS._Budget(obj, budget, points)
     x0 = SZ.warm_start_x0(
         {"tokens": list(tokens), "counts": topo.counts(),
@@ -235,6 +244,9 @@ def smoke_run(tokens, spec_path, seed, budget, pdk):
     if stab_gate_on(spec):
         _wide_stability_gate(res, spec, body, decode, evaluate, points, bx,
                              bud.best_i)
+    if inloop is not None:
+        res["stab_inloop"] = {k: (round(v, 3) if isinstance(v, float) else v)
+                              for k, v in inloop.items()}
     return res
 
 
@@ -362,6 +374,56 @@ def _wide_stability_gate(res, spec, body, decode, evaluate, points, bx, best_i):
     res["stab_winner_replaced"] = replaced
     res["stab_replacement"] = rep
     res["feasible"] = bool(spec_feas and ok)
+
+
+def _stab_inloop_objective(obj, spec, body, decode, points):
+    """S-1 (opt-in, STAB_WIDE_INLOOP=1 AND stab_gate_on): wrap the sizer
+    objective so EVERY evaluation is also audited over the wide window and an
+    out-of-band stability shortfall is penalized like any other hard spec
+    constraint (spec.feasible semantics: normalized violation
+    (limit - value)/_scale(limit), missing value -> 1.0).
+
+        wide ok       : f = spec.objective(m)                (unchanged)
+        wide violated : f = 1 + sum(in-band violations) + v_wide
+
+    i.e. exactly Spec.objective with the wide mu shortfall as ONE MORE hard
+    constraint: any violation (in-band or wide) -> the infeasible branch
+    1 + sum(violations), no violation -> the feasible branch unchanged. The
+    feasibility-first ordering is kept (a wide-unstable point never beats a
+    spec-feasible wide-stable one). Sim failures (m None) keep SIM_FAIL_PENALTY.
+    `points` still receives the plain (x, metrics) rows (the in-band metrics);
+    the wide verdict per eval is not stored there. Returns (wrapped, stats)."""
+    c = spec.constraints["mu_min"]
+    scale = spec._scale(c)
+    stats = {"n_wide": 0, "n_wide_viol": 0, "n_wide_none": 0, "wide_secs": 0.0}
+
+    def wrapped(x):
+        n0 = len(points)
+        f = obj(x)
+        m = points[-1][1] if len(points) > n0 else None
+        if not m:
+            return f
+        t = time.time()
+        st, _ok = wide_stability(spec, body, decode(x))
+        stats["wide_secs"] += time.time() - t
+        stats["n_wide"] += 1
+        mu = (st or {}).get("mu_min")
+        if not isinstance(mu, (int, float)):
+            stats["n_wide_none"] += 1
+            v = 1.0
+        else:
+            v = 0.0
+            if "min" in c and mu < c["min"]:
+                v += (c["min"] - mu) / scale
+            if "max" in c and mu > c["max"]:
+                v += (mu - c["max"]) / scale
+        if v <= 0:
+            return f
+        stats["n_wide_viol"] += 1
+        _feas, viol = spec.feasible(m)
+        return 1.0 + sum(viol.values()) + v
+
+    return wrapped, stats
 
 
 def stability_spec(src, out_dir=None, mu_min=1.0):

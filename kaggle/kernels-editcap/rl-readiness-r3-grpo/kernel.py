@@ -51,7 +51,10 @@ WORK = "/kaggle/working"
 OUT = os.path.join(WORK, "r3")
 TMP = "/tmp/r3"
 PY = sys.executable
-BUDGET_MIN = float(os.environ.get("R3_BUDGET_MIN", "75"))
+# R3_MODE: "full" = pushes 1-3 (trials); "vgen" = push 4 (vLLM on a dedicated T4 only:
+# run3's VGEN died on a missing __main__ guard in vgen.py, everything else was measured)
+R3_MODE = "vgen"
+BUDGET_MIN = float(os.environ.get("R3_BUDGET_MIN", "75" if R3_MODE == "full" else "35"))
 MIN_TRIAL_START_MIN = 16      # do not start a trial with less than this left
 
 REPO_SLUG = "Devavavava/circuit-repro"
@@ -700,8 +703,9 @@ def main():
         lr = LoRARequest("r3", 1, lora)
     for phase, n_prompts, forced in (("warmup", 1, True), ("forced", NP, True),
                                      ("natural", NP, False)):
-        sp = SamplingParams(n=G, temperature=1.0, max_tokens=L,
-                            min_tokens=(L if forced else 0))
+        mt = 64 if phase == "warmup" else L
+        sp = SamplingParams(n=G, temperature=1.0, max_tokens=mt,
+                            min_tokens=(mt if forced else 0))
         t = time.time()
         try:
             res = llm.generate(texts[:n_prompts], sp, lora_request=lr)
@@ -726,7 +730,41 @@ def main():
                      n_valid=sum(i["ok"] for i in infos), n_novel=sum(i["novel"] for i in infos))
             except Exception as e:
                 emit(phase="natural_validity", status="ERROR", error=repr(e)[:800])
-main()
+
+
+if __name__ == "__main__":   # vLLM V1 starts its engine core with spawn -> re-imports this file
+    main()
+"""
+
+# random-init LoRA adapter (r=16, all 7 projections, every layer) in PEFT format so the
+# dedicated-GPU vLLM test exercises the LoRA path without a trainer in the same session.
+MAKE_LORA_PY = r"""
+import json, os, sys, torch
+from safetensors.torch import save_file
+out = sys.argv[1]
+cfg = json.load(open(sys.argv[2]))
+H, I = cfg["hidden_size"], cfg["intermediate_size"]
+hd = cfg.get("head_dim") or H // cfg["num_attention_heads"]
+q, kv = cfg["num_attention_heads"] * hd, cfg["num_key_value_heads"] * hd
+shapes = {"self_attn.q_proj": (H, q), "self_attn.k_proj": (H, kv), "self_attn.v_proj": (H, kv),
+          "self_attn.o_proj": (q, H), "mlp.gate_proj": (H, I), "mlp.up_proj": (H, I),
+          "mlp.down_proj": (I, H)}
+r = 16
+g = torch.Generator().manual_seed(0)
+t = {}
+for i in range(cfg["num_hidden_layers"]):
+    for m, (din, dout) in shapes.items():
+        k = "base_model.model.model.layers.%d.%s" % (i, m)
+        t[k + ".lora_A.weight"] = (torch.randn(r, din, generator=g) / din ** 0.5).half()
+        t[k + ".lora_B.weight"] = (torch.randn(dout, r, generator=g) * 1e-3).half()
+os.makedirs(out, exist_ok=True)
+save_file(t, os.path.join(out, "adapter_model.safetensors"))
+json.dump({"peft_type": "LORA", "task_type": "CAUSAL_LM", "r": r, "lora_alpha": 32,
+           "lora_dropout": 0.0, "bias": "none", "base_model_name_or_path": "",
+           "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj",
+                              "down_proj"], "fan_in_fan_out": False, "inference_mode": True,
+           "modules_to_save": None}, open(os.path.join(out, "adapter_config.json"), "w"))
+print("LORA_OK", len(t), sum(v.numel() for v in t.values()))
 """
 
 
@@ -854,7 +892,7 @@ def gpu_sampler(stop):
 RESULTS = {}
 
 
-def run_vgen(gpu, tag, G=8, L=1024, n_prompts=4, lora=""):
+def run_vgen(gpu, tag, G=8, L=1024, n_prompts=2, lora=""):
     tfile = os.path.join(OUT, "trials.jsonl")
     remaining = left_min() - 3
     vpy = VLLM_STATE.get("python")
@@ -1027,6 +1065,32 @@ def not_passed(tag):
 
 
 # ============================================================ main
+def vgen_only(summary):
+    """Push 4: two concurrent dedicated-GPU vLLM generation tests (with / without LoRA)."""
+    cons, pins = constraints()
+    vth = threading.Thread(target=install_vllm_venv, args=(cons,), daemon=True)
+    vth.start()
+    predownload()
+    vth.join()
+    if VLLM_STATE["status"] != "ok":
+        log("vllm venv failed:", VLLM_STATE)
+        return
+    snap = glob.glob(os.path.expanduser("~/.cache/huggingface/hub/models--%s/snapshots/*/config.json"
+                                        % MODEL.replace("/", "--")))
+    lora = os.path.join(TMP, "lora-rand")
+    if snap:
+        rc, _ = sh([VLLM_STATE["python"], os.path.join(TMP, "make_lora.py"), lora, snap[0]],
+                   timeout=600, logfile=os.path.join(OUT, "make-lora.log"))
+        event("make_lora", rc=rc, dir=lora, exists=os.path.isdir(lora))
+    th = [threading.Thread(target=run_vgen, args=(0, "VGEN-G8-L1024-lora"), kwargs={"lora": lora}),
+          threading.Thread(target=run_vgen, args=(1, "VGEN-G8-L1024-base"), kwargs={"lora": ""})]
+    th[0].start()
+    time.sleep(20)
+    th[1].start()
+    for t in th:
+        t.join()
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     os.makedirs(TMP, exist_ok=True)
@@ -1036,6 +1100,7 @@ def main():
     open(os.path.join(TMP, "r3_trial.py"), "w").write(TRIAL_PY)
     open(os.path.join(TMP, "spice_bench.py"), "w").write(SPICE_BENCH_PY)
     open(os.path.join(TMP, "vgen.py"), "w").write(VGEN_PY)
+    open(os.path.join(TMP, "make_lora.py"), "w").write(MAKE_LORA_PY)
     log("prompts:", len(rows), "cells from", rows[0]["source_lib"], "k=%d" % rows[0]["k"])
     summary = {"prereg": "kaggle/PREREG-RL-READINESS.md#R3", "model": MODEL, "pins": PINS,
                "vllm_pins": VLLM_PINS, "budget_min": BUDGET_MIN, "repo_sha": REPO_SHA,
@@ -1048,6 +1113,8 @@ def main():
         preflight()
         summary["clone_head"] = clone_and_bootstrap()
         check_fence(rows)
+        if R3_MODE == "vgen":
+            return vgen_only(summary)
         spice_bench()
         cons, pins = constraints()
         if not install_main(cons, pins):

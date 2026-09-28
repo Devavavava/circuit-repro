@@ -57,6 +57,26 @@ Details + data: `kaggle/campaigns/bench-v12-audit/E-{a..e}/README.md`.
 
 **Implications:** bench-v1.2 is not a topology-reasoning benchmark (retrieval + single-edit search solve it) and the verifier accepts unstable amplifiers (reward-hacking hole). Pending user rulings: learner model (14B recommended), stability in the feasibility check, bench-v2 design (cells that survive the 5-anchor null AND single-edit search).
 
+## RL-readiness (step 1) RESULTS (2026-09-28/29) — pre-reg `PREREG-RL-READINESS.md`
+
+User rulings 2026-09-28: learner **Qwen3-14B**; stability check in; bench-v2 approved;
+**architecture B** (batched RL rounds: Kaggle generates, this box scores, Kaggle updates)
+first, C (rented GPU) only after discussion; review with the user after every step;
+verifier waivers W1–W6 = recommendations (see `VERIFIER-RL-V1.md`).
+
+| Item | Result | Commit |
+|---|---|---|
+| Stability gate | opt-in wide (0.1–20 GHz) mu≥1 acceptance gate in `smoke_run` | `a516247d` |
+| S-1 in-loop stability | wb instability was mostly sizer blindness: template 0/8 → 4/8 cells | `f3677bb0` |
+| R4 loophole audit | gate ≈ right (no window artifacts, 0 real 50 Ω oscillators, 5/17 rejects oscillate reactively); exploits: junk add-ons free, NF/S11 only at f0, max_inductors unenforced, window-edge gaming → guards | `6d615825` |
+| **Verifier rl-v1** | `VERIFIER_PROFILE=rl-v1` + `rl_v1_spec()`; nb 8/8 cells still solvable (template and a1 → nb stays RETRIEVAL); **wb only 4/8 cells have any known compliant stable solution** (7/48 runs) | `1cf1daed`, shared-core `c7451b0e` on main |
+| R1 cheap reward | 1×600 / 1×1200 miss too many solutions (recall 0.29/0.65, precision 1.0 always — prefix property); **reward = rl-v1 at 1 seed × 2500** (~116 CPU-s/candidate, ~310/rollout) | `72027d86` |
+| R2 thinking cap | **CAP-1024 thinking acceptable** (5 vs 6 cells, 1.10 vs 1.77 GPU-min/completion); no-think fails | `af1d76ba` (local; push held) |
+| R3 GRPO smoke | TRL+unsloth GRPO 14B LoRA runs on 1×T4 (G=8, 1024 tok) but generation = 91% of step (~20 rollouts/GPU-h online) → **architecture B**: llama-server gen + TRL update ≈ 1,200 rollouts/session, ~3,000/week; vLLM no help on T4; Kaggle session = 4 vCPU | `831bad6b` |
+
+GPU used for R2+R3 ≈ 3.0 of the approved 4 GPU-h. Next (step 1 remainder): bench-v2 +
+training-task generator under rl-v1, then step-2 pilot SFT + 100/300/1000 curve.
+
 ## Current assets (use these)
 
 | What | Path |

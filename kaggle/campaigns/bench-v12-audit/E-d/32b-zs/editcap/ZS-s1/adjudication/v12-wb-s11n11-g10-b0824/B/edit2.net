@@ -1,0 +1,16 @@
+* Edit 3: Add a common-gate stage at input to lower input impedance and enhance matching.
+C C4 VIN1 n5
+NMOS NM4 n5 n6 VSS VSS  # Common-gate stage to present low input impedance
+L L1 n6 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+PMOS PM2 n8 n8 VDD VDD
+R R4 n8 VSS
+R R5 n8 n3

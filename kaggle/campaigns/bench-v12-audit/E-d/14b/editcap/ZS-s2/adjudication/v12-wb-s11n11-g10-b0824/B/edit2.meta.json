@@ -1,0 +1,113 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "Predicted improvement: s11_db improves by ~2.0 dB via cascode load reducing Miller effect and improving impedance tuning.",
+  "wl_hash": "b73ed467a4f99e59",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 7.460347,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -23.7507,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 13.91632,
+    "metrics": {
+      "s11_db": -0.3101,
+      "s11_max_db": -0.259359,
+      "s21_db": -19.3061,
+      "s21_min_db": -23.4706,
+      "idd_ma": 4.000058,
+      "nf_db": 24.77697,
+      "s22_db": -0.210234,
+      "s22_max_db": -0.081471,
+      "s12_db": -17.789,
+      "k_f0": 0.89658,
+      "k_min": 0.697778,
+      "mu_f0": 0.974776,
+      "mu_min": 0.962493,
+      "mu_src_f0": 0.959544,
+      "mu_src_min": 0.866695,
+      "delta_f0": 0.953355,
+      "delta_max": 0.965849,
+      "stab_band": [
+        800000000.0,
+        2400000000.0
+      ],
+      "s21_ripple_db": 5.500600000000002,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 4.000058,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": 0.5999942,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 5,
+        "required_max": null,
+        "scale": 5,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 24.77697,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": -7.25899,
+        "supported": true
+      },
+      "s11_max_db": {
+        "achieved": -0.259359,
+        "required_min": null,
+        "required_max": -11,
+        "scale": 11,
+        "margin": -0.9764219090909091,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -19.3061,
+        "required_min": 10,
+        "required_max": null,
+        "scale": 10,
+        "margin": -2.93061,
+        "supported": true
+      },
+      "s21_ripple_db": {
+        "achieved": 5.500600000000002,
+        "required_min": null,
+        "required_max": 2.0,
+        "scale": 2.0,
+        "margin": -1.750300000000001,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -7.25899
+    ],
+    "seed": 2,
+    "seconds": 16.547,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 7.460347
+}

@@ -1,0 +1,16 @@
+* lna-a5-differential-convert: differential input with single-ended output.
+C C4 VIN1 n0
+C C5 VIN2 n1
+L L1 n0 n2
+L L2 n1 n3
+NMOS NM1 n2 n4 VSS VSS
+NMOS NM2 n3 n5 VSS VSS
+C C1 n4 n5
+PMOS PM1 n6 n7 VDD VDD
+C C2 n7 VOUT1
+R R1 VDD n8
+NMOS NM3 n8 n8 VSS VSS
+R R2 n8 n4
+PMOS PM2 n9 n9 VDD VDD
+R R4 n9 VSS
+R R5 n9 n5

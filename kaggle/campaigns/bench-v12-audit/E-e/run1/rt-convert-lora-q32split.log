@@ -1,0 +1,19 @@
+INFO:lora-to-gguf:Loading base model: 7f721e74a6a8cc9ee352f7e49303a2c1705f9083
+INFO:lora-to-gguf:Using model architecture: Qwen3ForCausalLM
+INFO:hf-to-gguf:gguf: loading model weight map from 'model.safetensors.index.json'
+INFO:hf-to-gguf:gguf: indexing model part 'model-00001-of-00004.safetensors'
+INFO:hf-to-gguf:gguf: indexing model part 'model-00002-of-00004.safetensors'
+INFO:hf-to-gguf:gguf: indexing model part 'model-00003-of-00004.safetensors'
+INFO:hf-to-gguf:gguf: indexing model part 'model-00004-of-00004.safetensors'
+INFO:gguf.gguf_writer:gguf: This GGUF file is for Little Endian only
+INFO:lora-to-gguf:Exporting model...
+Traceback (most recent call last):
+  File "/tmp/llama.cpp/convert_lora_to_gguf.py", line 545, in <module>
+    model_instance.write()
+  File "/tmp/llama.cpp/conversion/base.py", line 1068, in write
+    self.prepare_tensors()
+  File "/tmp/llama.cpp/conversion/base.py", line 900, in prepare_tensors
+    self.dequant_model()
+  File "/tmp/llama.cpp/conversion/base.py", line 567, in dequant_model
+    raise NotImplementedError(f"Quant method is not yet supported: {quant_method!r}")
+NotImplementedError: Quant method is not yet supported: 'bitsandbytes'

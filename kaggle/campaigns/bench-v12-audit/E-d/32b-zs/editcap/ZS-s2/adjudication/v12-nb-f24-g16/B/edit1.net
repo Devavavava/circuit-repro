@@ -1,0 +1,11 @@
+* Edit 2: Replace common-gate with common-source and add inductive gate matching
+* Adds gate inductor (L3) and bypass capacitor (Cbyp2) for input matching
+L L3 VIN1 n1
+C Cbyp2 n1 VSS
+NMOS NM1 n2 n1 VSS VSS
+L L2 n2 VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C C1 VIN1 n0  ; (redundant, but preserves VIN1 connectivity)

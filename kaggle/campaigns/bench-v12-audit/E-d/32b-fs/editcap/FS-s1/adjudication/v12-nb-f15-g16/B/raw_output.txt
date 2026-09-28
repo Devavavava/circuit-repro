@@ -1,0 +1,48 @@
+1. **Diagnosis**: The binding constraint (s21_db) is limited by insufficient transimpedance gain in the common-gate stage. The inductive load (L2) fails to provide sufficient real impedance at 1.6 GHz, and the topology lacks active gain elements. 
+
+---
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C3 VDD n2  ; Parallel LC resonance at 1.6 GHz to maximize load impedance
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Prediction**: s21_db improves by ~6 dB (LC resonance boosts load impedance).
+
+---
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+PMOS M2 VDD n3 n2 VDD  ; Cascode PMOS with gate tied to current mirror node n3
+```
+**Prediction**: s21_db improves by ~7 dB (cascode increases output impedance).
+
+---
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+PMOS M2 n2 n3 VDD VDD  ; Active PMOS current mirror load replaces inductive load
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Prediction**: s21_db improves by ~8 dB (active load replaces inductive load for higher real impedance).

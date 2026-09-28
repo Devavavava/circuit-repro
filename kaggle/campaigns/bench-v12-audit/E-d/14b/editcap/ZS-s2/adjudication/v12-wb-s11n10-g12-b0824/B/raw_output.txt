@@ -1,0 +1,64 @@
+```netlist
+* lna-a2-input-boost: input series inductor and shunt capacitor for wideband matching.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted impact**: s11_db improves by ~2.5 dB by enhancing input impedance matching via inductive coupling and capacitive decoupling.
+
+---
+
+```netlist
+* lna-a2-cascode-load: cascode PMOS load with inductive tuning for better stability and gain.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+PMOS PM2 n3 n4 VDD VDD
+L L2 n4 n5
+C C2 n5 VSS
+C C3 n2 VOUT1
+R R1 VDD n6
+NMOS NM3 n6 n6 VSS VSS
+R R2 n6 n1
+PMOS PM4 n7 n7 VDD VDD
+R R4 n7 VSS
+R R5 n7 n3
+```
+
+**Predicted impact**: s11_db improves by ~1.8 dB and s21_db improves by ~0.7 dB via cascode load stabilization and reduced Miller effect.
+
+---
+
+```netlist
+* lna-a2-common-gate: common-gate input stage with resistive feedback for wideband matching.
+C C4 VIN1 n0
+R R1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1a VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted impact**: s11_db improves by ~3.0 dB and s21_ripple_db reduces by ~1.0 dB through common-gate input impedance transformation and reduced phase variation.

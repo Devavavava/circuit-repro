@@ -1,0 +1,205 @@
+{
+  "index": 1,
+  "round": 1,
+  "predicted_delta_text": "**Predicted change**: S11_max_db improves by ~2 dB (source inductor Ls adjusts input impedance at low frequencies).\n\n---\n\n**Edit 3: Add a shunt inductor at the gate node (n0) to cancel capacitive reactance, improving wideband matching.**",
+  "wl_hash": "393b72baf91075e5",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 11.626320000000002,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": 10.98,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 1.69501,
+    "metrics": {
+      "s11_db": -6.64513,
+      "s11_max_db": -4.67624,
+      "s21_db": 10.98,
+      "s21_min_db": 10.0026,
+      "idd_ma": 11.626320000000002,
+      "nf_db": 2.042611,
+      "s22_db": -4.94157,
+      "s22_max_db": -3.07674,
+      "s12_db": -25.9615,
+      "k_f0": 1.38943,
+      "k_min": 1.15708,
+      "mu_f0": 1.14249,
+      "mu_min": 1.08859,
+      "mu_src_f0": 1.18294,
+      "mu_src_min": 1.1286,
+      "delta_f0": 0.179572,
+      "delta_max": 0.385167,
+      "stab_band": [
+        800000000.0,
+        2400000000.0
+      ],
+      "s21_ripple_db": 0.9877000000000002,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 11.626320000000002,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": -0.16263200000000017,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 5,
+        "required_max": null,
+        "scale": 5,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 2.042611,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": 0.3191296666666667,
+        "supported": true
+      },
+      "s11_max_db": {
+        "achieved": -4.67624,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.532376,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 10.98,
+        "required_min": 10,
+        "required_max": null,
+        "scale": 10,
+        "margin": 0.09800000000000005,
+        "supported": true
+      },
+      "s21_ripple_db": {
+        "achieved": 0.9877000000000002,
+        "required_min": null,
+        "required_max": 2.0,
+        "scale": 2.0,
+        "margin": 0.5061499999999999,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "s11_max_db",
+      -0.532376
+    ],
+    "seed": 1,
+    "seconds": 16.711,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 11.626320000000002,
+  "escalated": true,
+  "sized_escalated": {
+    "feasible": false,
+    "best_obj": 1.45167,
+    "metrics": {
+      "s11_db": -7.19788,
+      "s11_max_db": -5.48332,
+      "s21_db": 10.1358,
+      "s21_min_db": 9.14369,
+      "idd_ma": 9.365475,
+      "nf_db": 2.678414,
+      "s22_db": -5.54581,
+      "s22_max_db": -5.2028,
+      "s12_db": -25.7485,
+      "k_f0": 1.6617,
+      "k_min": 1.31397,
+      "mu_f0": 1.24074,
+      "mu_min": 1.15275,
+      "mu_src_f0": 1.30298,
+      "mu_src_min": 1.26421,
+      "delta_f0": 0.142336,
+      "delta_max": 0.202451,
+      "stab_band": [
+        800000000.0,
+        2400000000.0
+      ],
+      "s21_ripple_db": 1.1155100000000004,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 9.365475,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": 0.0634525,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 5,
+        "required_max": null,
+        "scale": 5,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 2.678414,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": 0.10719533333333331,
+        "supported": true
+      },
+      "s11_max_db": {
+        "achieved": -5.48332,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.451668,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 10.1358,
+        "required_min": 10,
+        "required_max": null,
+        "scale": 10,
+        "margin": 0.01357999999999997,
+        "supported": true
+      },
+      "s21_ripple_db": {
+        "achieved": 1.1155100000000004,
+        "required_min": null,
+        "required_max": 2.0,
+        "scale": 2.0,
+        "margin": 0.4422449999999998,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "s11_max_db",
+      -0.451668
+    ],
+    "seed": 2,
+    "seconds": 50.02,
+    "evals": 1800,
+    "sim_health": {
+      "n_evals": 1800,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  }
+}

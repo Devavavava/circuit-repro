@@ -1,0 +1,79 @@
+{
+ "prereg": "kaggle/PREREG-BENCH-V12-AUDIT.md#E-e",
+ "budget_min": 130.0,
+ "trials": [
+  {
+   "tag": "q14dyn",
+   "model": "unsloth/Qwen3-14B-unsloth-bnb-4bit",
+   "rc": 0,
+   "passed": [
+    4096,
+    8192
+   ],
+   "load_error": false,
+   "lora": "/tmp/ee/lora-q14dyn",
+   "load_status": "OK"
+  },
+  {
+   "tag": "q32split",
+   "model": "unsloth/Qwen3-32B-bnb-4bit",
+   "rc": 0,
+   "passed": [
+    4096
+   ],
+   "load_error": false,
+   "lora": "/tmp/ee/lora-q32split",
+   "load_status": "OK"
+  }
+ ],
+ "roundtrips": [
+  {
+   "route": "adapter",
+   "tag": "q32split",
+   "model": "unsloth/Qwen3-32B-bnb-4bit",
+   "convert_s": 10.9,
+   "status": "CONVERT_FAIL"
+  },
+  {
+   "route": "merged",
+   "tag": "q14dyn",
+   "model": "unsloth/Qwen3-14B-unsloth-bnb-4bit",
+   "merge_rc": 0,
+   "merge_s": 456.2,
+   "merged_bytes": 29548141883,
+   "convert_outtype": "f16",
+   "convert_s": 357.9,
+   "quantize_rc": 0,
+   "quantize_s": 788.5,
+   "quant_type": "Q4_K_M",
+   "serve": {
+    "status": "OK",
+    "gguf": "q14dyn-Q4_K_M.gguf",
+    "gguf_bytes": 9001753440,
+    "lora": false,
+    "load_s": 30.0,
+    "completion": "A cascode transistor in a low-noise amplifier increases the output impedance and improves the gain while reducing noise and bandwidth limitations.",
+    "reasoning": "",
+    "usage": {
+     "completion_tokens": 30,
+     "prompt_tokens": 30,
+     "total_tokens": 60,
+     "prompt_tokens_details": {
+      "cached_tokens": 0
+     }
+    },
+    "server_log_lora_lines": [],
+    "server_version": []
+   },
+   "status": "OK"
+  }
+ ],
+ "verdict": {
+  "largest_trainable": "unsloth/Qwen3-32B-bnb-4bit",
+  "tag": "q32split",
+  "seqs_passed": [
+   4096
+  ]
+ },
+ "elapsed_min": 51.8
+}

@@ -1,0 +1,39 @@
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+R Rload VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Prediction:** s21_db improves by ~1.0 dB. Replacing the inductive load with a resistor increases the real component of the load impedance, directly boosting transconductance-based gain.
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+NMOS NM2 VDD n2 n3 VSS
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Prediction:** s21_db improves by ~1.5 dB. Cascode configuration increases output impedance via NM2, enhancing voltage gain without altering input matching.
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+R Rf n2 n0
+```
+**Prediction:** s21_db improves by ~0.8 dB. Feedback resistor Rf from output to input boosts transconductance by stabilizing the source impedance, improving gain at the expense of noise figure.

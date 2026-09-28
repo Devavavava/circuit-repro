@@ -1,0 +1,59 @@
+```netlist
+* Add resistive shunt feedback from output to input gate (n1) to improve broadband S11
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+R Rf VOUT1 n1
+```
+Predicted: s11_max_db improves by ~2.5 dB (from -6.1 dB to ~-8.6 dB) via broadband real part in Zin
+
+```netlist
+* Add shunt resistor at input node (n0) to ground for broadband real impedance
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+R Rin n0 VSS
+```
+Predicted: s11_max_db improves by ~2 dB (from -6.1 dB to ~-8.1 dB) via input impedance damping
+
+```netlist
+* Add series resistor with input capacitor to shape broadband impedance
+R Rser VIN1 n0
+C C4 n0 VIN1
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+Predicted: s11_max_db improves by ~1.8 dB (from -6.1 dB to ~-7.9 dB) via controlled input real part

@@ -1,0 +1,50 @@
+```netlist
+* lna-a5-cascode: common-gate with cascode transistor for improved gain
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+NMOS NM4 n2 VOUT1 VDD VDD
+```
+
+**Predicted change**: s21_db improves by ~1.5 dB. Adding a cascode transistor (NM4) increases output impedance, enhancing gain by reducing Miller effect and improving drain impedance matching.
+
+---
+
+```netlist
+* lna-a5-commonsource: common-source input LNA with source inductor for broadband match
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 VIN1 n0 VOUT1 VSS
+L L2 VOUT1 VDD
+C C2 VDD VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 VSS
+C Cbyp VIN1 VSS
+```
+
+**Predicted change**: s21_db improves by ~2.0 dB. Switching to common-source topology increases intrinsic gain (gm*R_L) and avoids the common-gate's inherent voltage gain limitation.
+
+---
+
+```netlist
+* lna-a5-rlcload: common-gate with resonant LC load for enhanced impedance transformation
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 n2 n3
+C C3 n3 VDD
+C C2 n2 VOUT1
+R R1 VDD n4
+NMOS NM3 n4 n4 VSS VSS
+R R2 n4 n1
+C Cbyp n1 VSS
+```
+
+**Predicted change**: s21_db improves by ~1.2 dB. Replacing the single inductor load with an LC resonator (L2-C3) creates a higher-impedance load at f0, increasing gain through better impedance matching.

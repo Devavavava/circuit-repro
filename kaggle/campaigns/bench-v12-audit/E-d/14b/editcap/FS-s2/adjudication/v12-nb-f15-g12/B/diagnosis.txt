@@ -1,0 +1,6 @@
+### Diagnosis
+The binding failure (S21_db = 8.45 dB < 12 dB) stems from the **inherently low gain of the common-gate (CG) topology**. In CG LNAs, the transconductance gain (gm) is inherently limited by the source degeneration inductor (L1) and the load inductor (L2), which cannot provide sufficient voltage amplification in a narrowband design. The output impedance of the CG stage is also low, further suppressing gain. The current mirror biasing (NM3, R1) does not inherently improve this, and the inductive load (L2) cannot be tuned to achieve both sufficient gain and stability at 1.6 GHz.
+
+---
+
+### Edit 1: Convert to **Common-Source (CS)** with source inductor for broadband gain

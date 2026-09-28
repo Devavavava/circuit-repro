@@ -1,0 +1,113 @@
+{
+  "index": 1,
+  "round": 1,
+  "predicted_delta_text": "**Prediction**: S11_max_db improves by ~1 dB (increased source degeneration raises input impedance's real part).\n\n---\n\n4. **Edit 3: Add a feedback resistor from output (n4) to NMOS gate (n1) for broadband shunt feedback**",
+  "wl_hash": "89b2d138e65d49f9",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 1.950856,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -0.400365,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 1.89621,
+    "metrics": {
+      "s11_db": -4.99974,
+      "s11_max_db": -2.74267,
+      "s21_db": 9.95422,
+      "s21_min_db": 8.86125,
+      "idd_ma": 5.409674,
+      "nf_db": 1.973345,
+      "s22_db": -2.64394,
+      "s22_max_db": -1.12378,
+      "s12_db": -19.4191,
+      "k_f0": 0.312268,
+      "k_min": 0.298591,
+      "mu_f0": 0.685533,
+      "mu_min": 0.677229,
+      "mu_src_f0": 0.56229,
+      "mu_src_min": 0.255707,
+      "delta_f0": 0.265184,
+      "delta_max": 0.323239,
+      "stab_band": [
+        800000000.0,
+        2400000000.0
+      ],
+      "s21_ripple_db": 1.09943,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 5.409674,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": 0.4590326,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 5,
+        "required_max": null,
+        "scale": 5,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 1.973345,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": 0.34221833333333335,
+        "supported": true
+      },
+      "s11_max_db": {
+        "achieved": -2.74267,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.725733,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 9.95422,
+        "required_min": 12,
+        "required_max": null,
+        "scale": 12,
+        "margin": -0.17048166666666673,
+        "supported": true
+      },
+      "s21_ripple_db": {
+        "achieved": 1.09943,
+        "required_min": null,
+        "required_max": 2.0,
+        "scale": 2.0,
+        "margin": 0.45028500000000005,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "s11_max_db",
+      -0.725733
+    ],
+    "seed": 2,
+    "seconds": 15.928,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 1.950856
+}

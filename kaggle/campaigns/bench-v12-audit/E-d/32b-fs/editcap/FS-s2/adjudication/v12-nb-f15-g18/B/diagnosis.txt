@@ -1,0 +1,7 @@
+1. **DIAGNOSIS**: The circuit's common-gate configuration relies on a single inductor (L2) as the drain load. At resonance, inductors provide high impedance, but their Q and frequency dependence limit achievable load impedance. The transconductance (gm) of the single NM1 stage is insufficient to meet the required S21 gain of 18 dB, even after optimization. The structure lacks a high-impedance load or a cascode stage to amplify the transconductance's output voltage.
+
+---
+
+2. **STRUCTURAL EDITS**:  
+
+   **Edit 1**: Add a **cascode transistor** to increase output impedance. A second NMOS (NM2) is inserted between NM1's drain and the inductor load. This raises the output impedance, enhancing S21.

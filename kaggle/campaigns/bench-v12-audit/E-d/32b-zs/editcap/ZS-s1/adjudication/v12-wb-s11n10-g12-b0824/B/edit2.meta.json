@@ -1,0 +1,113 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**PREDICTION**: s11_max_db improves by ~0.4 dB (to ~-9.83 dB). The dual shunt capacitors (C4, C5) adjust the resonant frequency and bandwidth, enhancing broadband impedance matching.",
+  "wl_hash": "225b19a0690d7ec0",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 6.827617,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -7.91965,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 1.77366,
+    "metrics": {
+      "s11_db": -5.99376,
+      "s11_max_db": -2.82808,
+      "s21_db": 11.3224,
+      "s21_min_db": 9.72071,
+      "idd_ma": 7.121774,
+      "nf_db": 2.335314,
+      "s22_db": -0.829335,
+      "s22_max_db": 0.119514,
+      "s12_db": -25.3676,
+      "k_f0": 0.377473,
+      "k_min": 0.337347,
+      "mu_f0": 0.834712,
+      "mu_min": 0.811068,
+      "mu_src_f0": 0.426842,
+      "mu_src_min": -0.0502792,
+      "delta_f0": 0.477077,
+      "delta_max": 0.546601,
+      "stab_band": [
+        800000000.0,
+        2400000000.0
+      ],
+      "s21_ripple_db": 1.76539,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 7.121774,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": 0.2878226,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 5,
+        "required_max": null,
+        "scale": 5,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 2.335314,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": 0.22156200000000004,
+        "supported": true
+      },
+      "s11_max_db": {
+        "achieved": -2.82808,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.717192,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 11.3224,
+        "required_min": 12,
+        "required_max": null,
+        "scale": 12,
+        "margin": -0.056466666666666665,
+        "supported": true
+      },
+      "s21_ripple_db": {
+        "achieved": 1.76539,
+        "required_min": null,
+        "required_max": 2.0,
+        "scale": 2.0,
+        "margin": 0.11730499999999999,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "s11_max_db",
+      -0.717192
+    ],
+    "seed": 2,
+    "seconds": 16.753,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 6.827617
+}

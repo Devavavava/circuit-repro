@@ -1,0 +1,51 @@
+1. **Diagnosis**: The failure stems from insufficient broadband input impedance matching. The reactive input network (C4 and L1) creates a narrowband impedance, leading to poor S11 across the 0.8–2.4 GHz band. The current-reuse push-pull structure lacks a resistive element to stabilize the input impedance, causing S11_max_db to fall short by ~0.3 dB.
+
+---
+
+```netlist
+* Edit 1: Add resistive shunt feedback from output (VOUT1) to input (VIN1)
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R Rf VOUT1 VIN1
+```
+
+**Predicted improvement**: `s11_max_db improves by ~1.5 dB` (resistive feedback flattens input impedance).
+
+---
+
+```netlist
+* Edit 2: Replace push-pull with common-gate input stage (series inductor + grounded gate)
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R Rf n4 VIN1
+```
+
+**Predicted improvement**: `s11_max_db improves by ~1.2 dB` (common-gate stage provides lower input impedance with better broadband matching).
+
+---
+
+```netlist
+* Edit 3: Replace tuned load (L2+C2) with resistive load and add shunt resistor at output
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+R Rload n2 VSS
+C C3 n2 VOUT1
+R Rf VOUT1 VIN1
+```
+
+**Predicted improvement**: `s11_max_db improves by ~1.0 dB` (resistive load avoids resonant peaking, shunt resistor enhances impedance stability).

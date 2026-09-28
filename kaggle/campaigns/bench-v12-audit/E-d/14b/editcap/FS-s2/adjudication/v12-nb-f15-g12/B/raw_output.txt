@@ -1,0 +1,52 @@
+### Diagnosis
+The binding failure (S21_db = 8.45 dB < 12 dB) stems from the **inherently low gain of the common-gate (CG) topology**. In CG LNAs, the transconductance gain (gm) is inherently limited by the source degeneration inductor (L1) and the load inductor (L2), which cannot provide sufficient voltage amplification in a narrowband design. The output impedance of the CG stage is also low, further suppressing gain. The current mirror biasing (NM3, R1) does not inherently improve this, and the inductive load (L2) cannot be tuned to achieve both sufficient gain and stability at 1.6 GHz.
+
+---
+
+### Edit 1: Convert to **Common-Source (CS)** with source inductor for broadband gain
+```netlist
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 n1 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n2
+C Cbyp n1 VSS
+```
+**Predicted impact**: S21_db improves by ~4 dB (via higher gm and higher output impedance from CS topology). The source inductor (L1) ensures DC blocking while maintaining a low-noise match.
+
+---
+
+### Edit 2: Add **Cascode stage** to increase output impedance and gain
+```netlist
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 n1 VSS
+NMOS NM2 VDD n2 VSS VSS
+L L2 VDD VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Predicted impact**: S21_db improves by ~3 dB (via cascode’s high-output-impedance gain boost). NM2 acts as a cascode transistor, reducing Miller effect and increasing gain.
+
+---
+
+### Edit 3: Use **Inductive source degeneration + resistive feedback** for gain control
+```netlist
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 n1 VSS
+R Rf n2 n1
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Predicted impact**: S21_db improves by ~2.5 dB (via resistive feedback Rf stabilizing gain while inductive source degeneration (L1) maintains noise performance). Feedback reduces gain but improves linearity.

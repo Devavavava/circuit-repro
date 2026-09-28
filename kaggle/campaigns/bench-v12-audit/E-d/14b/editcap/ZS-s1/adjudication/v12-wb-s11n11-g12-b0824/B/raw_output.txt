@@ -1,0 +1,57 @@
+```netlist
+* lna-a2-current-reuse-mod1: add series inductor at input for improved S11.
+C C4 VIN1 n_in
+L L3 VIN1 n_in
+L L1 n_in n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+Predicted change: s11_db improves by ~1.5 dB. Adding an inductor in series with the input capacitor helps adjust the input impedance for better matching across the wideband.
+
+```netlist
+* lna-a2-current-reuse-mod2: common-gate input stage for lower impedance.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 VSS n1 VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+Predicted change: s11_db improves by ~2.0 dB. The common-gate configuration provides a lower input impedance, which improves matching at the input port.
+
+```netlist
+* lna-a2-current-reuse-mod3: single-stage common-source with series inductor load.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+R R_load n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+Predicted change: s11_db improves by ~1.0 dB. Replacing the parallel LC load with a series inductor and resistor provides better impedance control for improved input matching.

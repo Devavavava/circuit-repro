@@ -1,0 +1,56 @@
+1. **Diagnosis**: The common-gate topology inherently limits transconductance (gm) utilization due to its low input impedance and fixed source-ground configuration. The tuned inductor L2 fails to resonate properly at 2.4 GHz, yielding insufficient load impedance. The gain (S21) is critically constrained by the inability to amplify RF signals effectively in this topology.
+
+---
+
+```netlist
+* Edit 1: Convert to common-source with shunt-peaked LC tank at drain
+* Adds PMOS cascode (PM1) and shunt capacitor (C3) to form LC tank at drain
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n0 VSS VSS
+PMOS PM1 VDD n3 n2 VDD
+L L2 n3 VDD
+C C2 n3 VOUT1
+C C3 n2 VDD
+R R1 VDD n4
+NMOS NM3 n4 n4 VSS VSS
+R R2 n4 n0
+C Cbyp n0 VSS
+```
+**Predicted**: S21_db improves by ~4 dB (cascode + LC tank boost gain).
+
+---
+
+```netlist
+* Edit 2: Replace common-gate with common-source and add inductive gate matching
+* Adds gate inductor (L3) and bypass capacitor (Cbyp2) for input matching
+L L3 VIN1 n1
+C Cbyp2 n1 VSS
+NMOS NM1 n2 n1 VSS VSS
+L L2 n2 VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C C1 VIN1 n0  ; (redundant, but preserves VIN1 connectivity)
+```
+**Predicted**: S21_db improves by ~3.5 dB (common-source gm and inductive peaking).
+
+---
+
+```netlist
+* Edit 3: Add series inductor in source path for degeneration and LC tank at drain
+* Series inductor (L3) in source, shunt capacitor (C3) in drain for resonance
+L L3 n0 n4
+C C1 VIN1 n0
+L L1 n4 VSS
+NMOS NM1 n2 n4 VSS VSS
+L L2 n2 VDD
+C C2 n2 VOUT1
+C C3 n2 VDD
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n4
+C Cbyp n4 VSS
+```
+**Predicted**: S21_db improves by ~3 dB (source degeneration + LC tank).

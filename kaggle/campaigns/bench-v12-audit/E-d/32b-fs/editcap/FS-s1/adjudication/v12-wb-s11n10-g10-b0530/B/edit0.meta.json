@@ -1,0 +1,113 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "**PREDICTION**: S11_max_db improves by ~4 dB (from -6.07 dB to ~-10.0 dB). The feedback resistor (Rf) introduces a broadband real component to Zin, broadening the S11 improvement.\n\n---\n\n3. **EDIT 2: Add shunt resistor at input node n0**",
+  "wl_hash": "6df9d980790d9b5e",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 4.674459,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": 9.4327,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 1.51612,
+    "metrics": {
+      "s11_db": -8.69961,
+      "s11_max_db": -4.96827,
+      "s21_db": 9.8705,
+      "s21_min_db": 7.9799,
+      "idd_ma": 9.941270000000001,
+      "nf_db": 1.751836,
+      "s22_db": -8.3696,
+      "s22_max_db": -6.08452,
+      "s12_db": -21.2734,
+      "k_f0": 1.39858,
+      "k_min": 1.10071,
+      "mu_f0": 1.27032,
+      "mu_min": 1.06527,
+      "mu_src_f0": 1.27851,
+      "mu_src_min": 1.08652,
+      "delta_f0": 0.181897,
+      "delta_max": 0.249445,
+      "stab_band": [
+        500000000.0,
+        3000000000.0
+      ],
+      "s21_ripple_db": 1.9778399999999996,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 9.941270000000001,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": 0.0058729999999998835,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 5,
+        "required_max": null,
+        "scale": 5,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 1.751836,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": 0.4160546666666667,
+        "supported": true
+      },
+      "s11_max_db": {
+        "achieved": -4.96827,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.503173,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 9.8705,
+        "required_min": 10,
+        "required_max": null,
+        "scale": 10,
+        "margin": -0.012950000000000017,
+        "supported": true
+      },
+      "s21_ripple_db": {
+        "achieved": 1.9778399999999996,
+        "required_min": null,
+        "required_max": 2.0,
+        "scale": 2.0,
+        "margin": 0.0110800000000002,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "s11_max_db",
+      -0.503173
+    ],
+    "seed": 1,
+    "seconds": 15.8,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 4.674459
+}

@@ -1,0 +1,54 @@
+1. **Diagnosis**: The binding constraint is insufficient S21 gain (8.45 dB vs. required 14 dB). The single common-gate stage's gain is limited by the load inductor (L2) and transistor transconductance. The topology lacks amplification multiplication or impedance boosting to meet the 14 dB spec.
+
+---
+
+```netlist
+* Edit 1: Cascode common-gate with PMOS active load (increased output impedance)
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+PMOS PM1 VDD n4 n2 VDD
+L L2 n4 VDD
+C C2 n4 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+R R3 VDD n4
+C Cbyp2 n4 VSS
+```
+**Predicted S21 improvement**: +5–7 dB (gain boosted via cascode's higher output impedance and PMOS load).
+
+---
+
+```netlist
+* Edit 2: Two-stage common-gate + common-source cascade (gain multiplication)
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 n2 n3
+NMOS NM2 n4 n3 n5 VSS
+C C2 n4 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Predicted S21 improvement**: +8–10 dB (two-stage gain product meets 14 dB).
+
+---
+
+```netlist
+* Edit 3: Common-gate with shunt-series feedback (transimpedance gain enhancement)
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 n2 n3
+NMOS NM2 n3 n4 n5 VSS
+C C2 n3 VOUT1
+R R1 VDD n4
+NMOS NM3 n4 n4 VSS VSS
+R R2 n4 n1
+C Cbyp n1 VSS
+```
+**Predicted S21 improvement**: +4–6 dB (feedback topology enhances transimpedance gain).

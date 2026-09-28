@@ -1,0 +1,105 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**Predicted change:** s21_db improves by ~6 dB by switching to a common-source topology with resistive load, which inherently provides higher gain than the common-gate configuration.",
+  "wl_hash": "ba1bdb1e532b2a58",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 1.240463,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -9.0613,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 6.18066,
+    "metrics": {
+      "s11_db": -0.284027,
+      "s11_max_db": -0.279959,
+      "s21_db": -0.77978,
+      "s21_min_db": -0.78628,
+      "idd_ma": 4.005222,
+      "nf_db": 7.486234,
+      "s22_db": -6.42541,
+      "s22_max_db": -6.42,
+      "s12_db": -20.074,
+      "k_f0": 0.173705,
+      "k_min": 0.172523,
+      "mu_f0": 0.330102,
+      "mu_min": 0.329086,
+      "mu_src_f0": 0.90598,
+      "mu_src_min": 0.904481,
+      "delta_f0": 0.442642,
+      "delta_max": 0.443065,
+      "stab_band": [
+        2352000000.0,
+        2448000000.0
+      ],
+      "s21_ripple_db": 0.012817999999999996,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 4.005222,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": -0.0013054999999999595,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 7.486234,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -3.159018888888889,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -0.284027,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.9715973,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -0.77978,
+        "required_min": 16,
+        "required_max": null,
+        "scale": 16,
+        "margin": -1.04873625,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -3.159018888888889
+    ],
+    "seed": 1,
+    "seconds": 14.384,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 1.240463
+}

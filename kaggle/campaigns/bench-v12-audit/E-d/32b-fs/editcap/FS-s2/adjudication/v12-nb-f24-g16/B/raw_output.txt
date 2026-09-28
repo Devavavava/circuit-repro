@@ -1,0 +1,44 @@
+1. **Diagnosis**: The common-gate topology inherently limits gain due to its transconductance-to-source resistance (g_m/R_S) ratio. The inductive load (L2) cannot provide sufficient impedance to achieve S21 >= 16 dB. The binding constraint is insufficient voltage gain from the source-follower (common-gate) configuration.
+
+---
+
+2. **Structural Edits**:
+
+   **Edit 1**: Switch to a common-source cascode for higher gain. The cascode (PMOS P1) increases output impedance, enabling higher g_m * R_L gain.  
+   ```netlist
+   C C1 VIN1 g
+   L L1 g VSS
+   NMOS M1 d g VSS VSS
+   PMOS P1 o d VDD VDD
+   L L2 VDD o
+   C C2 o VOUT1
+   R Rbias VDD g
+   ```
+   **Predicted Impact**: s21_db improves by ~7 dB (gains from cascode and g_m * R_L scaling).
+
+---
+
+   **Edit 2**: Add a cascode to the original common-gate structure. The PMOS P1 stacks atop NM1’s drain, increasing output impedance.  
+   ```netlist
+   C C1 VIN1 n0
+   L L1 n0 VSS
+   NMOS NM1 n2 n1 n0 VSS
+   PMOS P1 n3 n2 VDD VDD
+   L L2 VDD n3
+   C C2 n3 VOUT1
+   R Rbias VDD n4
+   ```
+   **Predicted Impact**: s21_db improves by ~5 dB (cascode boosts gain without altering input topology).
+
+---
+
+   **Edit 3**: Replace the inductive load with a current-mirror (PMOS M2/M3) load for higher impedance. Common-source topology maximizes g_m * R_L.  
+   ```netlist
+   C C1 VIN1 g
+   L L1 g VSS
+   NMOS M1 d g VSS VSS
+   PMOS M2 d g_m2 VDD VDD
+   PMOS M3 g_m2 VDD VDD VDD
+   C C2 d VOUT1
+   ```
+   **Predicted Impact**: s21_db improves by ~6 dB (current mirror load replaces L2’s limited impedance).

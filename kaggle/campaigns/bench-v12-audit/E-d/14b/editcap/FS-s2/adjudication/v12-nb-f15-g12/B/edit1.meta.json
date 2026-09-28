@@ -1,0 +1,105 @@
+{
+  "index": 1,
+  "round": 1,
+  "predicted_delta_text": "**Predicted impact**: S21_db improves by ~3 dB (via cascode\u2019s high-output-impedance gain boost). NM2 acts as a cascode transistor, reducing Miller effect and increasing gain.\n\n---\n\n### Edit 3: Use **Inductive source degeneration + resistive feedback** for gain control",
+  "wl_hash": "b4e866fd8f9e7824",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 1.424747,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -15.5868,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 9.9769,
+    "metrics": {
+      "s11_db": -11.9037,
+      "s11_max_db": -8.94362,
+      "s21_db": -9.21503,
+      "s21_min_db": -9.81011,
+      "idd_ma": 0.05660951,
+      "nf_db": 14.77616,
+      "s22_db": -1.6788,
+      "s22_max_db": -1.50643,
+      "s12_db": -9.22042,
+      "k_f0": 1.11267,
+      "k_min": 1.10458,
+      "mu_f0": 1.01698,
+      "mu_min": 1.01697,
+      "mu_src_f0": 1.07667,
+      "mu_src_min": 1.07558,
+      "delta_f0": 0.101775,
+      "delta_max": 0.261977,
+      "stab_band": [
+        1548400000.0,
+        1611600000.0
+      ],
+      "s21_ripple_db": 0.8751499999999997,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 0.05660951,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": 0.9858476225,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 14.77616,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -7.208977777777777,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -11.9037,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": 0.19037000000000007,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -9.21503,
+        "required_min": 12,
+        "required_max": null,
+        "scale": 12,
+        "margin": -1.7679191666666665,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -7.208977777777777
+    ],
+    "seed": 2,
+    "seconds": 15.789,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 1.424747
+}

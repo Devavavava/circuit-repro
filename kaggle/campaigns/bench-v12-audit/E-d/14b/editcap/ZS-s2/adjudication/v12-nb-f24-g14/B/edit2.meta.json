@@ -1,0 +1,105 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**Predicted change**: s21_db improves by ~1.2 dB. Replacing the single inductor load with an LC resonator (L2-C3) creates a higher-impedance load at f0, increasing gain through better impedance matching.",
+  "wl_hash": "690826f9dd25e7a8",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 1.680439,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -7.79737,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 2.51642,
+    "metrics": {
+      "s11_db": -10.6979,
+      "s11_max_db": -10.2532,
+      "s21_db": -1.21208,
+      "s21_min_db": -1.28669,
+      "idd_ma": 0.5424857000000001,
+      "nf_db": 2.573719,
+      "s22_db": -10.518,
+      "s22_max_db": -10.0531,
+      "s12_db": -1.21203,
+      "k_f0": 1.01293,
+      "k_min": 1.0124,
+      "mu_f0": 1.08751,
+      "mu_min": 1.08657,
+      "mu_src_f0": 1.09164,
+      "mu_src_min": 1.09137,
+      "delta_f0": 0.84049,
+      "delta_max": 0.843956,
+      "stab_band": [
+        2352000000.0,
+        2448000000.0
+      ],
+      "s21_ripple_db": 0.14286,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 0.5424857000000001,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": 0.8643785749999999,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 2.573719,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -0.4298438888888889,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -10.6979,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": 0.06979000000000006,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -1.21208,
+        "required_min": 14,
+        "required_max": null,
+        "scale": 14,
+        "margin": -1.086577142857143,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "s21_db",
+      -1.086577142857143
+    ],
+    "seed": 1,
+    "seconds": 14.766,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 1.680439
+}

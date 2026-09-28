@@ -1,0 +1,51 @@
+1. **DIAGNOSIS**: The binding constraint (low S21 gain) is caused by insufficient voltage gain in the common-gate stage. The inductive drain load (L2) provides reactive impedance but limits maximum gain due to its frequency-dependent nature and inherent losses. A resistive load would better maximize transconductance-to-output impedance conversion.
+
+---
+
+2. **EDIT 1: Replace inductive drain load with resistive load**
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+R Rd VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**PREDICTION**: s21_db improves by ~3–4 dB due to resistive load enhancing transconductance conversion.
+
+---
+
+3. **EDIT 2: Add cascode transistor to increase output impedance**
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+PMOS M2 n2 n3 VDD VSS
+```
+**PREDICTION**: s21_db improves by ~2–3 dB from higher output impedance via cascode structure.
+
+---
+
+4. **EDIT 3: Add parallel NMOS to double transconductance**
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+NMOS M2 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**PREDICTION**: s21_db improves by ~2–3 dB via doubled gm from parallel transistor.

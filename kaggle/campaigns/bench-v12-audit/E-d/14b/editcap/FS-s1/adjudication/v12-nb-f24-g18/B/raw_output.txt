@@ -1,0 +1,33 @@
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+R Rs s VSS
+L L2 VDD d
+C C2 d VOUT1
+```
+**Predicted effect**: s21_db improves by ~10 dB. The common-source topology inherently provides higher gain than common-gate, directly addressing the insufficient gain.
+
+---
+
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+NMOS M2 VDD d s2 VSS
+R Rs s VSS
+C C2 d VOUT1
+```
+**Predicted effect**: s21_db improves by ~5 dB. The cascode stage (M2) increases output impedance and bandwidth, enhancing gain compared to the original common-gate structure.
+
+---
+
+```netlist
+C C1 VIN1 s
+L L1 s VSS
+NMOS M1 d g s VSS
+NMOS M2 VDD d VSS VSS
+R R1 VDD n3
+NMOS M3 n3 n3 VSS VSS
+R R2 n3 g
+C Cbyp g VSS
+```
+**Predicted effect**: s21_db improves by ~6 dB. Replacing the inductive load with a current mirror (M2, M3) increases the effective transconductance gain, improving the overall amplification.

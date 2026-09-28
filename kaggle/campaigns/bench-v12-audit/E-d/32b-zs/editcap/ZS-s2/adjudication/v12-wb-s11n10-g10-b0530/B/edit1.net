@@ -1,0 +1,13 @@
+* Edit 2: Replace push-pull with common-gate NMOS stage for lower input impedance
+C C4 VIN1 n1
+NMOS NM1 n2 n3 VSS VSS
+C C1 n1 n3
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n3
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3

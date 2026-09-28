@@ -1,0 +1,51 @@
+1. **DIAGNOSIS**: The common-gate topology (CG) inherently limits gain due to its low transconductance-to-source-impedance ratio. The load inductor L2 cannot provide sufficient impedance at 2.4 GHz to achieve the required 18 dB gain, and the single-stage CG configuration lacks voltage amplification headroom.
+
+---
+
+```netlist
+* Edit 1: Cascode output stage for higher output impedance.
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+PMOS PM1 VDD n3 n2 VDD
+L L2 n3 VDD
+C C2 n3 VOUT1
+R R1 VDD n4
+NMOS NM3 n4 n4 VSS VSS
+R R2 n4 n1
+C Cbyp n1 VSS
+```
+**Prediction**: s21_db improves by ~5 dB (cascode increases load impedance, enhancing transconductance gain).
+
+---
+
+```netlist
+* Edit 2: Add a common-source stage after the common-gate for cascaded gain.
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 n2 n3
+NMOS NM2 n3 n4 VSS VSS
+C C2 n3 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+C Cbyp n1 VSS
+```
+**Prediction**: s21_db improves by ~9 dB (two-stage cascaded gain multiplies individual stage gains).
+
+---
+
+```netlist
+* Edit 3: Convert input to common-source with source degeneration inductor.
+C C1 VIN1 n1
+NMOS NM1 n2 n1 n0 VSS
+L L1 n0 VSS
+L L2 n2 VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Prediction**: s21_db improves by ~7 dB (common-source topology inherently provides higher voltage gain than common-gate).

@@ -1,0 +1,27 @@
+```netlist
+C C1 VIN1 g
+L L1 g s
+NMOS M1 d g s VSS
+R Rload VDD d
+C C2 d VOUT1
+```
+Predicted: s21_db improves by ~8 dB (common-source topology provides higher gain than common-gate).
+
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+NMOS M2 VDD g2 d VSS
+C C2 d VOUT1
+R Rbias VDD g2
+```
+Predicted: s21_db improves by ~6 dB (cascode structure increases output impedance and gain).
+
+```netlist
+C C1 VIN1 s
+L L1 s VSS
+NMOS M1 d g s VSS
+L L2 VDD d
+C C2 d VOUT1
+R Rf d s
+```
+Predicted: s21_db improves by ~4 dB (shunt feedback resistor stabilizes gain and improves output impedance).

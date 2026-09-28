@@ -1,0 +1,47 @@
+1. **Diagnosis**: The binding constraint `s21_db` (gain) is too low (8.45 dB vs. 12 dB spec). The common-gate configuration's gain is fundamentally limited by the transconductance (g_m) and load impedance. The inductor L2 (tuned load) may not provide sufficient impedance at the design frequency, and the single NMOS transistor's g_m is insufficient. The cascode structure can increase output impedance and gain, while a PMOS current mirror load or resistive load can alter the load characteristics.
+
+2. **Structural Edits**:
+
+   **Edit 1: Cascode Output Stage** (Add cascode transistor to increase output impedance)
+   ```netlist
+   C C1 VIN1 n0
+   L L1 n0 VSS
+   NMOS NM1 n2 n1 n0 VSS
+   NMOS M3 n2 n3 n4 VSS
+   L L2 VDD n4
+   C C2 n4 VOUT1
+   R R1 VDD n3
+   NMOS NM3 n3 n3 VSS VSS
+   R R2 n3 n1
+   C Cbyp n1 VSS
+   ```
+   *Predicted s21_db improves by ~4 dB due to increased output impedance from the cascode structure.*
+
+   **Edit 2: PMOS Current Mirror Load** (Replace inductor with PMOS for higher output impedance)
+   ```netlist
+   C C1 VIN1 n0
+   L L1 n0 VSS
+   NMOS NM1 n2 n1 n0 VSS
+   PMOS PM1 n2 n3 VDD VDD
+   C C2 n2 VOUT1
+   R R1 VDD n3
+   NMOS NM3 n3 n3 VSS VSS
+   R R2 n3 n1
+   C Cbyp n1 VSS
+   ```
+   *Predicted s21_db improves by ~3 dB via PMOS mirror's high impedance replacing inductor L2.*
+
+   **Edit 3: Shunt Resistor at Output** (Add resistor to adjust load impedance)
+   ```netlist
+   C C1 VIN1 n0
+   L L1 n0 VSS
+   NMOS NM1 n2 n1 n0 VSS
+   L L2 VDD n2
+   C C2 n2 VOUT1
+   R R1 VDD n3
+   NMOS NM3 n3 n3 VSS VSS
+   R R2 n3 n1
+   C Cbyp n1 VSS
+   R Rl n2 VDD
+   ```
+   *Predicted s21_db improves by ~2 dB by tuning the load impedance via resistor Rl in parallel with L2.*

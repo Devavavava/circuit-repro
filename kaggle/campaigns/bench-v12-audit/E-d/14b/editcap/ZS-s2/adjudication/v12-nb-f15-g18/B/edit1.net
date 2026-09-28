@@ -1,0 +1,7 @@
+* lna-a5-parallel-lc-load: parallel LC resonant load for high impedance at f0
+C C1 VIN1 n1
+L L1 n1 n2
+NMOS NM1 n3 n2 n1 VSS
+C Cload n3 VDD
+L Lload n3 VDD
+C C2 n3 VOUT1

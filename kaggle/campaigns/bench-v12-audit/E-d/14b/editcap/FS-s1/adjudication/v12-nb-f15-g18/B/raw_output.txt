@@ -1,0 +1,50 @@
+### Diagnosis
+The binding constraint `s21_db` fails due to **insufficient voltage gain** in the common-gate (CG) topology. The CG configuration inherently has limited gain (typically ~gm·R_L), and the inductive load (L2) may not provide optimal impedance matching at 1.6 GHz. The lack of a resistive load or feedback mechanism exacerbates the gain deficit, while the narrowband design further limits the ability to compensate via reactive components.
+
+---
+
+### Structural Edit 1: Replace inductive load with resistive load (common-gate to resistive load)
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+R Rload VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Predicted change**: `s21_db` improves by ~6–8 dB due to a resistive load (Rload) providing a more predictable and higher-impedance match than an inductor at 1.6 GHz.
+
+---
+
+### Structural Edit 2: Convert to common-source topology with resistive load
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+R Rload d VDD
+C C2 d VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 s
+C Cbyp g VSS
+```
+**Predicted change**: `s21_db` improves by ~10–12 dB. The common-source topology provides higher gain (gm·Rload) and better impedance matching for narrowband operation, while the resistive load ensures stability and gain.
+
+---
+
+### Structural Edit 3: Add shunt resistor to gate for feedback (common-gate with shunt feedback)
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+R Rf n2 n1
+```
+**Predicted change**: `s21_db` improves by ~4–6 dB. The shunt feedback resistor (Rf) increases transconductance and stabilizes the gain, compensating for the CG topology's inherent limitations in narrowband designs.

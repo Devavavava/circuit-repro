@@ -1,0 +1,113 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**Predicted effect**: s11_max_db improves by ~1.2 dB, as the resistive load (Rl) modifies the output impedance, indirectly improving input impedance by altering the feedback dynamics in the push-pull stage.",
+  "wl_hash": "36ea6589166aed19",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 3.4947630000000003,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": 11.1652,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 1.71169,
+    "metrics": {
+      "s11_db": -6.324,
+      "s11_max_db": -2.8831,
+      "s21_db": 12.5518,
+      "s21_min_db": 11.1902,
+      "idd_ma": 3.7320819999999997,
+      "nf_db": 1.151402,
+      "s22_db": -1.25828,
+      "s22_max_db": -0.350197,
+      "s12_db": -21.4362,
+      "k_f0": 0.0943128,
+      "k_min": 0.0569456,
+      "mu_f0": 0.652495,
+      "mu_min": 0.636092,
+      "mu_src_f0": 0.323107,
+      "mu_src_min": 0.0798209,
+      "delta_f0": 0.222386,
+      "delta_max": 0.414462,
+      "stab_band": [
+        800000000.0,
+        2400000000.0
+      ],
+      "s21_ripple_db": 1.4556999999999984,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 3.7320819999999997,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": 0.6267918,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 5,
+        "required_max": null,
+        "scale": 5,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 1.151402,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": 0.6161993333333333,
+        "supported": true
+      },
+      "s11_max_db": {
+        "achieved": -2.8831,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": -0.7116899999999999,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 12.5518,
+        "required_min": 12,
+        "required_max": null,
+        "scale": 12,
+        "margin": 0.04598333333333334,
+        "supported": true
+      },
+      "s21_ripple_db": {
+        "achieved": 1.4556999999999984,
+        "required_min": null,
+        "required_max": 2.0,
+        "scale": 2.0,
+        "margin": 0.2721500000000008,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "s11_max_db",
+      -0.7116899999999999
+    ],
+    "seed": 2,
+    "seconds": 15.32,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 3.4947630000000003
+}

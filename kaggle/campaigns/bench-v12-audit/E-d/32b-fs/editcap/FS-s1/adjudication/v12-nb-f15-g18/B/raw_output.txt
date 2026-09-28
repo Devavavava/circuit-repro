@@ -1,0 +1,53 @@
+1. **DIAGNOSIS**: The binding constraint `s21_db` is failing because the inductive load (L2) provides insufficient real impedance at 1.6 GHz. Inductive loads depend on frequency and are limited by parasitic capacitance and core losses, resulting in a low effective load impedance for the common-gate stage. This limits voltage gain despite high transconductance (gm) from the common-gate configuration.
+
+---
+
+2. **STRUCTURAL EDIT 1**: Replace the inductive load with a resistor to increase real load impedance, enhancing gain.
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+R Rd VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**PREDICTION**: `s21_db` improves by ~9–12 dB due to higher real load impedance.
+
+---
+
+3. **STRUCTURAL EDIT 2**: Add a common-source stage after the common-gate stage for cascaded gain multiplication.
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+NMOS M2 n4 n2 VSS VSS
+R R3 VDD n4
+C C2a n4 VOUT1
+```
+**PREDICTION**: `s21_db` improves by ~12–15 dB from the added gain stage.
+
+---
+
+4. **STRUCTURAL EDIT 3**: Add a series resistor to the inductive load to increase real load impedance without removing the inductor.
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+R R3 n2 n4
+L L2 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**PREDICTION**: `s21_db` improves by ~4–7 dB from the added real impedance component.

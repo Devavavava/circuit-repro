@@ -1,0 +1,113 @@
+{
+  "index": 2,
+  "round": 1,
+  "predicted_delta_text": "**Prediction**: s11_max_db improves by ~3.2 dB via additional NMOS feedback transistor (NM_fb) from output to input, creating active broadband impedance control.",
+  "wl_hash": "a955cc6a6f1bb84a",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 2.0661669999999996,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": 4.46328,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 1.73271,
+    "metrics": {
+      "s11_db": -4.02544,
+      "s11_max_db": -2.94019,
+      "s21_db": 12.0425,
+      "s21_min_db": 11.1229,
+      "idd_ma": 5.1483170000000005,
+      "nf_db": 1.210749,
+      "s22_db": -3.97396,
+      "s22_max_db": -2.64963,
+      "s12_db": -22.9503,
+      "k_f0": 0.380566,
+      "k_min": 0.280373,
+      "mu_f0": 0.713957,
+      "mu_min": 0.661114,
+      "mu_src_f0": 0.71188,
+      "mu_src_min": 0.499409,
+      "delta_f0": 0.114411,
+      "delta_max": 0.281418,
+      "stab_band": [
+        800000000.0,
+        2400000000.0
+      ],
+      "s21_ripple_db": 0.969100000000001,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 5.1483170000000005,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": 0.48516829999999994,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 5,
+        "required_max": null,
+        "scale": 5,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 1.210749,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": 0.596417,
+        "supported": true
+      },
+      "s11_max_db": {
+        "achieved": -2.94019,
+        "required_min": null,
+        "required_max": -11,
+        "scale": 11,
+        "margin": -0.7327100000000001,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 12.0425,
+        "required_min": 10,
+        "required_max": null,
+        "scale": 10,
+        "margin": 0.20425000000000004,
+        "supported": true
+      },
+      "s21_ripple_db": {
+        "achieved": 0.969100000000001,
+        "required_min": null,
+        "required_max": 2.0,
+        "scale": 2.0,
+        "margin": 0.5154499999999995,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "s11_max_db",
+      -0.7327100000000001
+    ],
+    "seed": 1,
+    "seconds": 16.837,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 2.0661669999999996
+}

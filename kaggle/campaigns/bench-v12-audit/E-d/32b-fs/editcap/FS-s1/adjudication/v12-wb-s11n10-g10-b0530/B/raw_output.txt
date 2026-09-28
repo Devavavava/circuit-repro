@@ -1,0 +1,67 @@
+1. **DIAGNOSIS**: The input matching network (L1/C4) is inherently narrowband, causing S11 to degrade across the 0.5-3 GHz band. The reactive components cannot maintain a low return loss over the wideband, and the push-pull configuration lacks a resistive broadbanding element. Adding resistive feedback or shunt elements is necessary to flatten Zin.
+
+---
+
+2. **EDIT 1: Add resistive shunt feedback from output to input gate**  
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+R Rf VOUT1 n1
+```
+**PREDICTION**: S11_max_db improves by ~4 dB (from -6.07 dB to ~-10.0 dB). The feedback resistor (Rf) introduces a broadband real component to Zin, broadening the S11 improvement.
+
+---
+
+3. **EDIT 2: Add shunt resistor at input node n0**  
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+R Rin n0 VSS
+```
+**PREDICTION**: S11_max_db improves by ~3 dB (from -6.07 dB to ~-9.0 dB). The shunt resistor (Rin) adds a resistive load at the input, flattening the input impedance over the band.
+
+---
+
+4. **EDIT 3: Add series resistor at input gate node n1**  
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+R Rg n1 VSS
+```
+**PREDICTION**: S11_max_db improves by ~2.5 dB (from -6.07 dB to ~-8.5 dB). The series resistor (Rg) increases the real part of Zin, improving broadband matching at the expense of slight gain reduction.

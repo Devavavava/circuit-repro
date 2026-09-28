@@ -1,0 +1,60 @@
+{
+ "prereg": "kaggle/PREREG-BENCH-V12-AUDIT.md#E-e",
+ "budget_min": 130.0,
+ "trials": [
+  {
+   "tag": "q32split",
+   "model": "unsloth/Qwen3-32B-bnb-4bit",
+   "rc": 0,
+   "passed": [
+    4096
+   ],
+   "load_error": false,
+   "lora": "/tmp/ee/lora-q32split",
+   "load_status": "OK"
+  }
+ ],
+ "roundtrips": [
+  {
+   "route": "adapter",
+   "tag": "q32split",
+   "model": "unsloth/Qwen3-32B-bnb-4bit",
+   "base_gguf_path": "/tmp/ee/base32.gguf",
+   "convert_s": 19.3,
+   "lora_gguf_bytes": 268497216,
+   "base_gguf": "base32.gguf",
+   "serve": {
+    "status": "OK",
+    "gguf": "base32.gguf",
+    "gguf_bytes": 18771245728,
+    "lora": true,
+    "load_s": 90.0,
+    "completion": "A cascode transistor in a low-noise amplifier increases the input-output isolation, improves the gain bandwidth product, and reduces the effects of Miller capacitance, thereby enhancing stability and frequency response while maintaining low noise performance.",
+    "reasoning": "",
+    "usage": {
+     "completion_tokens": 48,
+     "prompt_tokens": 30,
+     "total_tokens": 78,
+     "prompt_tokens_details": {
+      "cached_tokens": 0
+     }
+    },
+    "lora_adapters": [
+     {
+      "id": 0,
+      "path": "/tmp/ee/lora-q32split.gguf",
+      "scale": 1.0,
+      "task_name": "",
+      "prompt_prefix": ""
+     }
+    ],
+    "completion_lora_scale0": "A cascode transistor in a low-noise amplifier increases the input-output isolation, improves the gain bandwidth product, and reduces the effects of Miller capacitance, thereby enhancing stability and frequency response while maintaining low noise performance.",
+    "lora_changes_output": false,
+    "server_log_lora_lines": [],
+    "server_version": []
+   },
+   "status": "OK"
+  }
+ ],
+ "elapsed_min": 13.1
+}

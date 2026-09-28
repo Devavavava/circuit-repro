@@ -1,0 +1,13 @@
+* lna-a5-two-stage: two-stage CG-CS cascade for gain multiplication
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+C C4 n2 n5
+NMOS NM2 n6 n5 n7 VSS
+L L4 n7 VSS
+L L3 VDD n6
+C C2 n6 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS

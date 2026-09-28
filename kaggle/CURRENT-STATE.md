@@ -43,6 +43,20 @@ is historical record (how we got here), not the live state.
   sample (~5.4 min/completion on Kaggle, ~90% of tokens are Qwen3 thinking), so the
   data engine should be search-heavy / LLM-light.
 
+## bench-v12-audit RESULTS (2026-09-26, all 5 pre-registered experiments done)
+
+Details + data: `kaggle/campaigns/bench-v12-audit/E-{a..e}/README.md`.
+
+| Exp | Result | Commit |
+|---|---|---|
+| E-a headroom | templates hold ≥0.02 cushion in 15/16 (1 EDGE: wb-s11n8-g12-b0530) → no recalibration; thin margins = violation-only objective artifact | `a0e4edcc` |
+| E-b 5-anchor null | **10/16 RETRIEVAL** (all 8 nb solved by a1/a2/a4; 2 wb by a1 razor-thin) → synthesis set = 6 wb cells | `a0e4edcc` |
+| E-c single-edit search | **16/16 SEARCH-TRIVIAL**: one blind add/delete edit solves every cell (wb 8–38 feasible edits/cell, ~5–20 random-order sizings; nb `add L VIN1-n1`). Many "solves" are **unstable (mu_min<1)** — stability is NOT in the spec; with it required, 9/16 still trivial | `95bebfa1` |
+| E-d Qwen matched | cells solved /16 (syn/ret): **32B-ZS 3 (2/1), 32B-FS 5 (3/2), 14B-ZS 1 (1/0), 14B-FS 6 (4/2)**; 0/8 nb for all; FS makes shunt-fb appear (28/88 wb edits vs 0/81 ZS); 14B-FS ≥ 32B-FS at ~2.4× less GPU (1.8 vs 4.3 min/completion). On the search-hardest wb cells the LLM needs 1–6 sizings vs 9–20 expected for random search; nb: LLM never proposes the search-found edit | `5fb2c4e5` |
+| E-e T4 fine-tune | **14B QLoRA fits 1×T4 at seq 8192**; 32B fits 2×T4 only to seq 5120 (OOM 6144; real examples ≈4.8k tok). Both GGUF round trips load in our llama-server. 1k examples ≈ 6 h (14B@4k) / 14 h (14B@8k) / 14–18 h (32B@4k) | `cb7700d0` |
+
+**Implications:** bench-v1.2 is not a topology-reasoning benchmark (retrieval + single-edit search solve it) and the verifier accepts unstable amplifiers (reward-hacking hole). Pending user rulings: learner model (14B recommended), stability in the feasibility check, bench-v2 design (cells that survive the 5-anchor null AND single-edit search).
+
 ## Current assets (use these)
 
 | What | Path |

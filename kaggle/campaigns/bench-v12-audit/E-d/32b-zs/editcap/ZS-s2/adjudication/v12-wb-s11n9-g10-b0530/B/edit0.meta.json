@@ -1,0 +1,205 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "**Predicted**: S11_max_db improves by ~2 dB from -6.13 dB to -8.13 dB (still marginally failing). The shunt inductor (L3) creates a parallel LC resonant circuit with C4, better matching the input impedance across the 0.5-3 GHz band.",
+  "wl_hash": "f0abedc02fffb10e",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 5.576058,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": 4.38507,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 1.72211,
+    "metrics": {
+      "s11_db": -3.43723,
+      "s11_max_db": -2.50102,
+      "s21_db": 12.7019,
+      "s21_min_db": 11.9923,
+      "idd_ma": 5.846375,
+      "nf_db": 1.303016,
+      "s22_db": -3.70145,
+      "s22_max_db": -1.9303,
+      "s12_db": -22.6972,
+      "k_f0": 0.284772,
+      "k_min": 0.19069,
+      "mu_f0": 0.632412,
+      "mu_min": 0.502825,
+      "mu_src_f0": 0.646543,
+      "mu_src_min": 0.266966,
+      "delta_f0": 0.244595,
+      "delta_max": 0.400482,
+      "stab_band": [
+        500000000.0,
+        3000000000.0
+      ],
+      "s21_ripple_db": 0.7395999999999994,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 5.846375,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": 0.41536249999999997,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 5,
+        "required_max": null,
+        "scale": 5,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 1.303016,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": 0.5656613333333333,
+        "supported": true
+      },
+      "s11_max_db": {
+        "achieved": -2.50102,
+        "required_min": null,
+        "required_max": -9,
+        "scale": 9,
+        "margin": -0.7221088888888888,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 12.7019,
+        "required_min": 10,
+        "required_max": null,
+        "scale": 10,
+        "margin": 0.27019000000000004,
+        "supported": true
+      },
+      "s21_ripple_db": {
+        "achieved": 0.7395999999999994,
+        "required_min": null,
+        "required_max": 2.0,
+        "scale": 2.0,
+        "margin": 0.6302000000000003,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "s11_max_db",
+      -0.7221088888888888
+    ],
+    "seed": 1,
+    "seconds": 16.919,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 5.576058,
+  "escalated": true,
+  "sized_escalated": {
+    "feasible": false,
+    "best_obj": 1.10649,
+    "metrics": {
+      "s11_db": -10.3764,
+      "s11_max_db": -8.04156,
+      "s21_db": 10.2862,
+      "s21_min_db": 9.6185,
+      "idd_ma": 7.012054999999999,
+      "nf_db": 2.780754,
+      "s22_db": -5.22426,
+      "s22_max_db": -3.89438,
+      "s12_db": -26.3949,
+      "k_f0": 1.9436,
+      "k_min": 0.857811,
+      "mu_f0": 1.295,
+      "mu_min": 0.931924,
+      "mu_src_f0": 1.54194,
+      "mu_src_min": 0.868448,
+      "delta_f0": 0.0206133,
+      "delta_max": 0.193982,
+      "stab_band": [
+        500000000.0,
+        3000000000.0
+      ],
+      "s21_ripple_db": 0.6678000000000015,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 7.012054999999999,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": 0.2987945000000001,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 5,
+        "required_max": null,
+        "scale": 5,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 2.780754,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": 0.07308200000000002,
+        "supported": true
+      },
+      "s11_max_db": {
+        "achieved": -8.04156,
+        "required_min": null,
+        "required_max": -9,
+        "scale": 9,
+        "margin": -0.10649333333333327,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": 10.2862,
+        "required_min": 10,
+        "required_max": null,
+        "scale": 10,
+        "margin": 0.028619999999999913,
+        "supported": true
+      },
+      "s21_ripple_db": {
+        "achieved": 0.6678000000000015,
+        "required_min": null,
+        "required_max": 2.0,
+        "scale": 2.0,
+        "margin": 0.6660999999999992,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "s11_max_db",
+      -0.10649333333333327
+    ],
+    "seed": 1,
+    "seconds": 49.637,
+    "evals": 1800,
+    "sim_health": {
+      "n_evals": 1800,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  }
+}

@@ -1,0 +1,13 @@
+* lna-a5-cascode: cascode common-source LNA with inductive source degeneration
+C C1 VIN1 G
+R R1 VDD G
+NMOS NM1 D G S VSS
+L L1 S VSS
+L L2 D D2
+NMOS NM2 D2 G2 S2 VSS
+L L3 S2 VSS
+C C2 D2 VOUT1
+R R2 D2 n3
+NMOS NM3 n3 n3 VSS VSS
+R R1a VDD n3
+C Cbyp G VSS

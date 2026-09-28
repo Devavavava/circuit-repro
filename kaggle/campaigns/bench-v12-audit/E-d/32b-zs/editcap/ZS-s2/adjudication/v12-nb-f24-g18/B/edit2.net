@@ -1,0 +1,10 @@
+* lna-a5-cs-source: common-source with inductive source/load
+C C1 VIN1 gate_in
+L L1 source_in VSS
+NMOS NM1 drain_in gate_in source_in VSS
+L L2 VDD drain_in
+C C2 drain_in VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 gate_in
+C Cbyp gate_in VSS

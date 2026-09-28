@@ -1,0 +1,6 @@
+1. **DIAGNOSIS**:  
+The binding constraint `s11_max_db` fails due to insufficient broadband input matching. The current shunt capacitor `C4` and inductor `L1` form a resonant LC tank, but the push-pull configuration (NMOS/PMOS) creates asymmetry in the input impedance. The LC tank's Q-factor is too high for wideband matching, and the single shunt capacitor cannot maintain a low VSWR across the 0.8-2.4 GHz band. This results in poor impedance transformation at higher frequencies, causing S11 to degrade.
+
+---
+
+2. **EDIT 1 (series inductor + shunt capacitor)**

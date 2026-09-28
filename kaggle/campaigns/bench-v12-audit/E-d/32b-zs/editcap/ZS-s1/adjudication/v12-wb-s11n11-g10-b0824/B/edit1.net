@@ -1,0 +1,16 @@
+* Edit 2: Replace LC input with a series inductor to create a broadband matching network.
+C C4 VIN1 n5
+L L4 n5 n0  # Series inductor for broadband impedance transformation
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n6
+NMOS NM3 n6 n6 VSS VSS
+R R2 n6 n1
+PMOS PM2 n7 n7 VDD VDD
+R R4 n7 VSS
+R R5 n7 n3

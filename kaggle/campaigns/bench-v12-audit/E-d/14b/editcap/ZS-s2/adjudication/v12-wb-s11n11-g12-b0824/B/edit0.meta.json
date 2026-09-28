@@ -1,0 +1,113 @@
+{
+  "index": 0,
+  "round": 1,
+  "predicted_delta_text": "**PREDICTION**: s11_db improves by ~2.5 dB (better input matching via common-gate stage).",
+  "wl_hash": "130553198baacc5d",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 1.146275,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -24.0613,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 14.34355,
+    "metrics": {
+      "s11_db": -0.853971,
+      "s11_max_db": -0.689154,
+      "s21_db": -22.3566,
+      "s21_min_db": -26.0553,
+      "idd_ma": 0.49183250000000006,
+      "nf_db": 27.61261,
+      "s22_db": -0.360731,
+      "s22_max_db": -0.267632,
+      "s12_db": -9.04018,
+      "k_f0": 0.326257,
+      "k_min": 0.200714,
+      "mu_f0": 0.899073,
+      "mu_min": 0.890368,
+      "mu_src_f0": 0.779321,
+      "mu_src_min": 0.7516,
+      "delta_f0": 0.87141,
+      "delta_max": 0.895189,
+      "stab_band": [
+        800000000.0,
+        2400000000.0
+      ],
+      "s21_ripple_db": 4.6778999999999975,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 0.49183250000000006,
+        "required_min": null,
+        "required_max": 10,
+        "scale": 10,
+        "margin": 0.9508167500000001,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": 5,
+        "required_max": null,
+        "scale": 5,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 27.61261,
+        "required_min": null,
+        "required_max": 3.0,
+        "scale": 3.0,
+        "margin": -8.204203333333334,
+        "supported": true
+      },
+      "s11_max_db": {
+        "achieved": -0.689154,
+        "required_min": null,
+        "required_max": -11,
+        "scale": 11,
+        "margin": -0.9373496363636363,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -22.3566,
+        "required_min": 12,
+        "required_max": null,
+        "scale": 12,
+        "margin": -2.86305,
+        "supported": true
+      },
+      "s21_ripple_db": {
+        "achieved": 4.6778999999999975,
+        "required_min": null,
+        "required_max": 2.0,
+        "scale": 2.0,
+        "margin": -1.3389499999999988,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -8.204203333333334
+    ],
+    "seed": 1,
+    "seconds": 16.163,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 1.146275
+}

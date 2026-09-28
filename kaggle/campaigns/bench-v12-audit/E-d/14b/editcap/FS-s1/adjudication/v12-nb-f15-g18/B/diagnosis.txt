@@ -1,0 +1,6 @@
+### Diagnosis
+The binding constraint `s21_db` fails due to **insufficient voltage gain** in the common-gate (CG) topology. The CG configuration inherently has limited gain (typically ~gm·R_L), and the inductive load (L2) may not provide optimal impedance matching at 1.6 GHz. The lack of a resistive load or feedback mechanism exacerbates the gain deficit, while the narrowband design further limits the ability to compensate via reactive components.
+
+---
+
+### Structural Edit 1: Replace inductive load with resistive load (common-gate to resistive load)

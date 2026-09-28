@@ -1,0 +1,55 @@
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+R Rf n4 n1
+```
+**Predicted change**: s11_max_db improves by ~2 dB (from -6.01 to ~-8 dB)
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+R R1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R2 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R3 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+**Predicted change**: s11_max_db improves by ~1.5 dB (from -6.01 to ~-7.5 dB)
+
+```netlist
+R Rin VIN1 n0
+C C4 n0 n0a
+L L1 n0a n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+**Predicted change**: s11_max_db improves by ~1.8 dB (from -6.01 to ~-7.8 dB)

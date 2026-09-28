@@ -1,0 +1,9 @@
+* Edit 3: Replace tuned load (L2+C2) with resistive load and add shunt resistor at output
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+R Rload n2 VSS
+C C3 n2 VOUT1
+R Rf VOUT1 VIN1

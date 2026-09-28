@@ -1,0 +1,55 @@
+1. **Diagnosis**: The common-gate LNA's gain (S21) is insufficient due to low transconductance (gm) and/or poor output impedance. The inductive source match (L1) provides broadband matching but limits the achievable voltage gain, while the tuned inductor (L2) may not optimize the load impedance at 2.4 GHz.
+
+2. **Structural Edits**:
+
+---
+
+```netlist
+* Edit 1: Add a cascode PMOS to increase output impedance and gain
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+PMOS PM1 VDD g2 n2 VDD
+R Rbias VDD g2
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Prediction**: S21 improves by ~2–3 dB due to cascode's higher output impedance and reduced Miller effect.
+
+---
+
+```netlist
+* Edit 2: Add a shunt resistor at the output to flatten load impedance
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R Rload n2 VSS
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Prediction**: S21 improves by ~1.5–2 dB via increased real load impedance at resonance.
+
+---
+
+```netlist
+* Edit 3: Add a feedback resistor to stabilize gain and broaden bandwidth
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R Rf n2 n1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Prediction**: S21 improves by ~1–1.5 dB via controlled feedback that reduces gain compression and phase shift.

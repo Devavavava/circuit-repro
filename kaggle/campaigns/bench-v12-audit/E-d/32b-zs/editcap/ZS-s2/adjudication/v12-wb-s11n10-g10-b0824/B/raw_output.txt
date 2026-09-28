@@ -1,0 +1,70 @@
+1. **Diagnosis**: The binding constraint (S11_max_db) is failing due to insufficient input impedance matching. The existing LC tank (L1+C1) and DC-blocking capacitor (C4) do not adequately transform the input impedance across the 0.8–2.4 GHz band, resulting in a mismatch that reflects too much signal (S11 = -7.17 dB vs. required -10 dB). The topology lacks an explicit input matching network to cancel reactance or adjust real impedance.
+
+---
+
+2. **Edit 1: Add a series inductor in the input path to form an LC tank with C4, improving broadband impedance matching.**  
+```netlist
+* lna-a2-current-reuse + input LC tank
+C C4 VIN1 n0
+L L5 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+**Predicted change**: S11_max_db improves by ~2.5 dB (resonance from L5+C4 sharpens input matching).
+
+---
+
+**Edit 2: Add a source inductor in NM1’s source to introduce a tunable real impedance, enhancing broadband matching.**  
+```netlist
+* lna-a2-current-reuse + source inductor for NM1
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n1s VSS
+L Ls n1s VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+**Predicted change**: S11_max_db improves by ~2 dB (source inductor Ls adjusts input impedance at low frequencies).
+
+---
+
+**Edit 3: Add a shunt inductor at the gate node (n0) to cancel capacitive reactance, improving wideband matching.**  
+```netlist
+* lna-a2-current-reuse + shunt inductor at gate
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+L Lg n0 VSS
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+**Predicted change**: S11_max_db improves by ~1.5 dB (inductor Lg resonates with C4’s capacitance, flattening input impedance).

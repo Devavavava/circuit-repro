@@ -1,0 +1,51 @@
+1. **DIAGNOSIS**: The common-gate LNA's low S21 (9.48 dB) fails the 18 dB spec due to insufficient voltage gain. The inductive load (L2) provides high impedance only at resonance, but without sufficient transconductance (Gm) or impedance scaling. The structure lacks a resistive load to convert transconductance to voltage gain effectively.
+
+---
+
+2. **EDIT 1: Replace inductive load with resistive load**  
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+R R2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**PREDICTION**: S21 improves by ~4 dB (from 9.48 dB to ~13.5 dB). Resistive load (R2) directly converts transconductance to voltage gain, bypassing inductor resonance constraints.
+
+---
+
+3. **EDIT 2: Add cascode transistor to increase output impedance**  
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+NMOS NM2 n3 n4 n2 VSS
+R R2 VDD n3
+C C2 n3 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+C Cbyp n1 VSS
+```
+**PREDICTION**: S21 improves by ~5 dB (from 9.48 dB to ~14.5 dB). Cascode (NM2) raises output impedance, enhancing voltage gain via Gm * Rload.
+
+---
+
+4. **EDIT 3: Add shunt feedback resistor to boost transconductance**  
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+R Rf n2 n1
+```
+**PREDICTION**: S21 improves by ~3 dB (from 9.48 dB to ~12.5 dB). Feedback resistor (Rf) increases effective transconductance via Miller gain, trading some NF for higher gain.

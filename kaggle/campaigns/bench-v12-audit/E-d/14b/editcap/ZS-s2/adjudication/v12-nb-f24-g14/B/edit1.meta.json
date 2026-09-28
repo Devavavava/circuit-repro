@@ -1,0 +1,105 @@
+{
+  "index": 1,
+  "round": 1,
+  "predicted_delta_text": "**Predicted change**: s21_db improves by ~2.0 dB. Switching to common-source topology increases intrinsic gain (gm*R_L) and avoids the common-gate's inherent voltage gain limitation.\n\n---",
+  "wl_hash": "3cb081265a0610b8",
+  "valid": true,
+  "dup": false,
+  "fence_outcome": "smoke_pass",
+  "fence_detail": {
+    "passed": true,
+    "idd_ma": 1.480051,
+    "idd_ok": true,
+    "idd_floor_ma": 0.05,
+    "s21_db": -12.8377,
+    "s21_ok": true,
+    "s21_applied": true,
+    "s21_floor_db": -30.0,
+    "fence_s21_flag": true
+  },
+  "sized": {
+    "feasible": false,
+    "best_obj": 7.89808,
+    "metrics": {
+      "s11_db": -14.4442,
+      "s11_max_db": -9.96469,
+      "s21_db": -12.9989,
+      "s21_min_db": -13.2999,
+      "idd_ma": 1.76711,
+      "nf_db": 10.74526,
+      "s22_db": -1.05264,
+      "s22_max_db": -1.02901,
+      "s12_db": -12.9947,
+      "k_f0": 2.17621,
+      "k_min": 2.06576,
+      "mu_f0": 1.07171,
+      "mu_min": 1.07131,
+      "mu_src_f0": 2.30809,
+      "mu_src_min": 2.14089,
+      "delta_f0": 0.197476,
+      "delta_max": 0.320904,
+      "stab_band": [
+        2352000000.0,
+        2448000000.0
+      ],
+      "s21_ripple_db": 0.4230999999999998,
+      "nf_method": "series_rs"
+    },
+    "margins": {
+      "idd_ma": {
+        "achieved": 1.76711,
+        "required_min": null,
+        "required_max": 4,
+        "scale": 4,
+        "margin": 0.5582225000000001,
+        "supported": true
+      },
+      "iip3_dbm": {
+        "achieved": null,
+        "required_min": -10,
+        "required_max": null,
+        "scale": 10,
+        "margin": null,
+        "supported": false
+      },
+      "nf_db": {
+        "achieved": 10.74526,
+        "required_min": null,
+        "required_max": 1.8,
+        "scale": 1.8,
+        "margin": -4.969588888888889,
+        "supported": true
+      },
+      "s11_db": {
+        "achieved": -14.4442,
+        "required_min": null,
+        "required_max": -10,
+        "scale": 10,
+        "margin": 0.44442000000000004,
+        "supported": true
+      },
+      "s21_db": {
+        "achieved": -12.9989,
+        "required_min": 14,
+        "required_max": null,
+        "scale": 14,
+        "margin": -1.928492857142857,
+        "supported": true
+      }
+    },
+    "worst_margin": [
+      "nf_db",
+      -4.969588888888889
+    ],
+    "seed": 1,
+    "seconds": 17.664,
+    "evals": 600,
+    "sim_health": {
+      "n_evals": 600,
+      "n_sim_fail": 0,
+      "sim_error": null
+    }
+  },
+  "error": null,
+  "smoke_idd_ma": 1.480051
+}

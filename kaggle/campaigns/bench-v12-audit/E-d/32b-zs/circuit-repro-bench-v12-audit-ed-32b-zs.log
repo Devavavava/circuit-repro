@@ -1,0 +1,153 @@
+[{"stream_name":"stdout","time":0.958403032,"data":"[ed-32b-zs]    0.0m preflight OK: ['GGUF', 'gh token', 'llamacpp cache', 'ngspice cache'] (pdk=bptm45)\n"}
+,{"stream_name":"stdout","time":0.991825002,"data":"[ed-32b-zs]    0.0m GH token from /kaggle/input/datasets/devavratpatni/circuit-repro-ghtoken/gh_token\n"}
+,{"stream_name":"stdout","time":0.999538837,"data":"[ed-32b-zs]    0.0m $ git clone --depth 1 --branch worktree-externals-gf180 https://REDACTED@github.com/Devavavava/circuit-repro.git /tmp/circuit-repro\n"}
+,{"stream_name":"stderr","time":1.02174703,"data":"Cloning into '/tmp/circuit-repro'...\n"}
+,{"stream_name":"stdout","time":3.95381111,"data":"[ed-32b-zs]    0.1m branch tip 391f8035fd62d3988741cc46d031871b4009ad43 != pinned cc5a836bb26fbfef4f128777945ebdae39c3fb66 -\u003e fetching pinned sha\n"}
+,{"stream_name":"stdout","time":3.953862541,"data":"[ed-32b-zs]    0.1m $ git -C /tmp/circuit-repro fetch --depth 1 origin cc5a836bb26fbfef4f128777945ebdae39c3fb66\n"}
+,{"stream_name":"stderr","time":5.050880588,"data":"From https://github.com/Devavavava/circuit-repro\n"}
+,{"stream_name":"stderr","time":5.050904351,"data":" * branch            cc5a836bb26fbfef4f128777945ebdae39c3fb66 -\u003e FETCH_HEAD\n"}
+,{"stream_name":"stdout","time":5.054109607,"data":"[ed-32b-zs]    0.1m $ git -C /tmp/circuit-repro checkout --detach FETCH_HEAD\n"}
+,{"stream_name":"stderr","time":5.685156158,"data":"HEAD is now at cc5a836 PREREG bench-v12-audit: E-a headroom, E-b 5-anchor null, E-c single-edit search, E-d matched Qwen ZS/FS (32B+14B), E-e T4 fine-tune feasibility\n"}
+,{"stream_name":"stdout","time":5.689370434,"data":"[ed-32b-zs]    0.1m clone pinned at cc5a836bb26fbfef4f128777945ebdae39c3fb66\n"}
+,{"stream_name":"stdout","time":5.689540661,"data":"[ed-32b-zs]    0.1m $ bash /tmp/circuit-repro/kaggle/bootstrap.sh\n"}
+,{"stream_name":"stderr","time":5.703411862,"data":"[bootstrap] pip: numpy scipy pyyaml\n"}
+,{"stream_name":"stderr","time":10.285305077,"data":"[bootstrap] pip: pandas (WITH_PANDAS=1)\n"}
+,{"stream_name":"stderr","time":13.545001301,"data":"[bootstrap] copying extracted ngspice tree from /kaggle/input/datasets/devavratpatni/circuit-repro-ngspice47/ngspice47/ngspice47 -\u003e /kaggle/working/ngspice47\n"}
+,{"stream_name":"stderr","time":13.708708894,"data":"[bootstrap] clone already present at /tmp/circuit-repro -- skipping\n"}
+,{"stream_name":"stderr","time":13.745689098,"data":"[bootstrap] no checkpoints found in /kaggle/input/* (ok: LLM loop is torch-free)\n"}
+,{"stream_name":"stderr","time":13.766381916,"data":"[bootstrap] pdk sky130: dataset not attached (marker */sky130/sky130_fd_pr/models/sky130.lib.min.spice) -- skip\n"}
+,{"stream_name":"stderr","time":13.790262111,"data":"[bootstrap] pdk gf180mcu: dataset not attached (marker */gf180mcu/models/ngspice/sm141064.ngspice) -- skip\n"}
+,{"stream_name":"stderr","time":13.808037436,"data":"[bootstrap] pdk ihp_sg13g2: dataset not attached (marker */ihp_sg13g2/libs.tech/ngspice/osdi/psp103.osdi) -- skip\n"}
+,{"stream_name":"stderr","time":13.808070342,"data":"[bootstrap] no foundry-PDK datasets attached (ok: bptm45-only run)\n"}
+,{"stream_name":"stderr","time":13.813088845,"data":"[bootstrap] wrote /kaggle/working/env-kaggle.sh\n"}
+,{"stream_name":"stderr","time":13.814964741,"data":"[bootstrap] gate: python lna/extract.py --selftest\n"}
+,{"stream_name":"stderr","time":13.934289954,"data":"[bootstrap] gate: python lna/ref/check_ref.py\n"}
+,{"stream_name":"stderr","time":14.071843569,"data":"[bootstrap] gate: python lna/ref/check_bjt.py\n"}
+,{"stream_name":"stderr","time":14.249618059,"data":"[bootstrap] gate: python lna/spec.py --all\n"}
+,{"stream_name":"stderr","time":14.450289328,"data":"[bootstrap] gate: python lna/solve_spec.py wifi24 --corpus --budget 100 --seeds 1\n"}
+,{"stream_name":"stderr","time":32.096114637,"data":"[bootstrap] wrote /kaggle/working/report/bootstrap.json (ok=true)\n"}
+,{"stream_name":"stderr","time":32.096153508,"data":"[bootstrap] BOOTSTRAP OK\n"}
+,{"stream_name":"stdout","time":32.127405485,"data":"[ed-32b-zs]    0.5m $ cp -r /kaggle/input/datasets/devavratpatni/circuit-repro-llamacpp-cuda/llamacpp/llamacpp /kaggle/working\n"}
+,{"stream_name":"stdout","time":33.201876921,"data":"[ed-32b-zs]    0.5m $ bash -c chmod +x /kaggle/working/llamacpp/bin/* || true\n"}
+,{"stream_name":"stdout","time":33.22844525,"data":"[ed-32b-zs]    0.5m launching: /kaggle/working/llamacpp/bin/llama-server -m /kaggle/input/datasets/devavratpatni/circuit-repro-gguf-qwen32/Qwen3-32B-Q4_K_S.gguf --host 127.0.0.1 --port 8080 --n-gpu-layers 999 --split-mode layer -c 16384 --parallel 1\n"}
+,{"stream_name":"stdout","time":132.266751907,"data":"[ed-32b-zs]    2.2m llama-server healthy after 99.0s\n"}
+,{"stream_name":"stdout","time":132.267406834,"data":"[ed-32b-zs]    2.2m RUN ZS-s1 fewshot=False\n"}
+,{"stream_name":"stdout","time":132.267426827,"data":"[ed-32b-zs]    2.2m $ bash -c source /kaggle/working/env-kaggle.sh \u0026\u0026 exec /usr/bin/python3 /tmp/circuit-repro/kaggle/editcap_run.py --lib /tmp/circuit-repro/kaggle/editcap-lib-v12-45nm --out /kaggle/working/editcap/ZS-s1 --arm B --k 3 --pdk bptm45 --llm-url http://127.0.0.1:8080/v1 --model qwen3-32b-q4ks --max-tokens 8192 --temperature 0.7\n"}
+,{"stream_name":"stdout","time":132.440263832,"data":"editcap: lib=/tmp/circuit-repro/kaggle/editcap-lib-v12-45nm out=/kaggle/working/editcap/ZS-s1 arms=['B'] cells=16 pdk=bptm45 fence_s21=True mode=live http://127.0.0.1:8080/v1\n"}
+,{"stream_name":"stdout","time":132.440294216,"data":"\n"}
+,{"stream_name":"stdout","time":132.440300749,"data":"[arm B] [1/16] v12-nb-f15-g12  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":566.081109313,"data":"Current recursion limit: 1000\n"}
+,{"stream_name":"stdout","time":566.081157571,"data":"New recursion limit: 9000\n"}
+,{"stream_name":"stdout","time":566.081162341,"data":"    -\u003e proposed=3 valid=3 smoke_pass=3 best_feasible=False binding_delta=-0.8238  (7.2 min)\n"}
+,{"stream_name":"stdout","time":566.081166206,"data":"\n"}
+,{"stream_name":"stdout","time":566.081169186,"data":"[arm B] [2/16] v12-nb-f15-g14  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":1051.038124863,"data":"    -\u003e proposed=3 valid=3 smoke_pass=3 best_feasible=False binding_delta=0.0747  (8.1 min)\n"}
+,{"stream_name":"stdout","time":1051.038157758,"data":"\n"}
+,{"stream_name":"stdout","time":1051.03816183,"data":"[arm B] [3/16] v12-nb-f15-g16  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":1497.546533026,"data":"    -\u003e proposed=3 valid=3 smoke_pass=3 best_feasible=False binding_delta=-0.004953  (7.4 min)\n"}
+,{"stream_name":"stdout","time":1497.546568599,"data":"\n"}
+,{"stream_name":"stdout","time":1497.546575125,"data":"[arm B] [4/16] v12-nb-f15-g18  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":1912.275413811,"data":"    -\u003e proposed=3 valid=3 smoke_pass=3 best_feasible=False binding_delta=-0.2078  (6.9 min)\n"}
+,{"stream_name":"stdout","time":1912.27548794,"data":"\n"}
+,{"stream_name":"stdout","time":1912.275498919,"data":"[arm B] [5/16] v12-nb-f24-g12  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":2541.544308875,"data":"    -\u003e proposed=3 valid=3 smoke_pass=2 best_feasible=False binding_delta=0.06334  (10.5 min)\n"}
+,{"stream_name":"stdout","time":2541.544359183,"data":"\n"}
+,{"stream_name":"stdout","time":2541.544370903,"data":"[arm B] [6/16] v12-nb-f24-g14  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":2946.073966529,"data":"    -\u003e proposed=3 valid=3 smoke_pass=3 best_feasible=False binding_delta=-0.004375  (6.7 min)\n"}
+,{"stream_name":"stdout","time":2946.073999485,"data":"\n"}
+,{"stream_name":"stdout","time":2946.074006593,"data":"[arm B] [7/16] v12-nb-f24-g16  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":3576.368283008,"data":"    -\u003e proposed=3 valid=3 smoke_pass=3 best_feasible=False binding_delta=0.3663  (10.5 min)\n"}
+,{"stream_name":"stdout","time":3576.368316515,"data":"\n"}
+,{"stream_name":"stdout","time":3576.368322677,"data":"[arm B] [8/16] v12-nb-f24-g18  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":3964.592696515,"data":"    -\u003e proposed=3 valid=3 smoke_pass=3 best_feasible=False binding_delta=0.05026  (6.5 min)\n"}
+,{"stream_name":"stdout","time":3964.592741788,"data":"\n"}
+,{"stream_name":"stdout","time":3964.59275519,"data":"[arm B] [9/16] v12-wb-s11n10-g10-b0530  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":4330.986048991,"data":"    -\u003e proposed=3 valid=3 smoke_pass=3 best_feasible=False binding_delta=0.3035  (6.1 min)\n"}
+,{"stream_name":"stdout","time":4330.986112302,"data":"\n"}
+,{"stream_name":"stdout","time":4330.986123416,"data":"[arm B] [10/16] v12-wb-s11n10-g10-b0824  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":4578.471628034,"data":"    -\u003e proposed=3 valid=3 smoke_pass=3 best_feasible=False binding_delta=0.2502  (4.1 min)\n"}
+,{"stream_name":"stdout","time":4578.471661465,"data":"\n"}
+,{"stream_name":"stdout","time":4578.471667175,"data":"[arm B] [11/16] v12-wb-s11n10-g12-b0824  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":4816.424003725,"data":"    -\u003e proposed=3 valid=3 smoke_pass=3 best_feasible=False binding_delta=-0.03469  (4.0 min)\n"}
+,{"stream_name":"stdout","time":4816.424039268,"data":"\n"}
+,{"stream_name":"stdout","time":4816.42404637,"data":"[arm B] [12/16] v12-wb-s11n11-g10-b0824  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":5050.939987064,"data":"    -\u003e proposed=3 valid=0 smoke_pass=0 best_feasible=False binding_delta=-  (3.9 min)\n"}
+,{"stream_name":"stdout","time":5050.940033192,"data":"\n"}
+,{"stream_name":"stdout","time":5050.940040648,"data":"[arm B] [13/16] v12-wb-s11n11-g12-b0824  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":5335.653181556,"data":"    -\u003e proposed=3 valid=0 smoke_pass=0 best_feasible=False binding_delta=-  (4.7 min)\n"}
+,{"stream_name":"stdout","time":5335.653218144,"data":"\n"}
+,{"stream_name":"stdout","time":5335.653225073,"data":"[arm B] [14/16] v12-wb-s11n8-g10-b0530  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":5672.759971591,"data":"    -\u003e proposed=3 valid=3 smoke_pass=3 best_feasible=False binding_delta=-0.4425  (5.6 min)\n"}
+,{"stream_name":"stdout","time":5672.760003109,"data":"\n"}
+,{"stream_name":"stdout","time":5672.760009391,"data":"[arm B] [15/16] v12-wb-s11n8-g12-b0530  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":5993.685580779,"data":"    -\u003e proposed=3 valid=3 smoke_pass=3 best_feasible=False binding_delta=-0.118  (5.3 min)\n"}
+,{"stream_name":"stdout","time":5993.685617781,"data":"\n"}
+,{"stream_name":"stdout","time":5993.685622291,"data":"[arm B] [16/16] v12-wb-s11n9-g10-b0530  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":6262.653744486,"data":"    -\u003e proposed=3 valid=3 smoke_pass=3 best_feasible=False binding_delta=-0.09427  (4.5 min)\n"}
+,{"stream_name":"stdout","time":6262.653775907,"data":"\n"}
+,{"stream_name":"stdout","time":6262.653782251,"data":"editcap done: arms=['B'] cells=16 total_valid_edits=42  out=/kaggle/working/editcap/ZS-s1\n"}
+,{"stream_name":"stdout","time":6262.845922871,"data":"[ed-32b-zs]  104.4m RUN ZS-s2 fewshot=False\n"}
+,{"stream_name":"stdout","time":6262.846153632,"data":"[ed-32b-zs]  104.4m $ bash -c source /kaggle/working/env-kaggle.sh \u0026\u0026 exec /usr/bin/python3 /tmp/circuit-repro/kaggle/editcap_run.py --lib /tmp/circuit-repro/kaggle/editcap-lib-v12-45nm --out /kaggle/working/editcap/ZS-s2 --arm B --k 3 --pdk bptm45 --llm-url http://127.0.0.1:8080/v1 --model qwen3-32b-q4ks --max-tokens 8192 --temperature 0.7\n"}
+,{"stream_name":"stdout","time":6262.983829366,"data":"editcap: lib=/tmp/circuit-repro/kaggle/editcap-lib-v12-45nm out=/kaggle/working/editcap/ZS-s2 arms=['B'] cells=16 pdk=bptm45 fence_s21=True mode=live http://127.0.0.1:8080/v1\n"}
+,{"stream_name":"stdout","time":6262.983855524,"data":"\n"}
+,{"stream_name":"stdout","time":6262.98385982,"data":"[arm B] [1/16] v12-nb-f15-g12  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":6707.693615593,"data":"Current recursion limit: 1000\n"}
+,{"stream_name":"stdout","time":6707.693652824,"data":"New recursion limit: 9000\n"}
+,{"stream_name":"stdout","time":6707.693659295,"data":"    -\u003e proposed=3 valid=3 smoke_pass=3 best_feasible=False binding_delta=-0.01694  (7.4 min)\n"}
+,{"stream_name":"stdout","time":6707.693665711,"data":"\n"}
+,{"stream_name":"stdout","time":6707.693670169,"data":"[arm B] [2/16] v12-nb-f15-g14  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":7028.823665424,"data":"    -\u003e proposed=3 valid=3 smoke_pass=3 best_feasible=False binding_delta=-0.71  (5.4 min)\n"}
+,{"stream_name":"stdout","time":7028.823708379,"data":"\n"}
+,{"stream_name":"stdout","time":7028.823714948,"data":"[arm B] [3/16] v12-nb-f15-g16  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":7462.691696344,"data":"    -\u003e proposed=3 valid=3 smoke_pass=3 best_feasible=False binding_delta=-0.0008531  (7.2 min)\n"}
+,{"stream_name":"stdout","time":7462.691752105,"data":"\n"}
+,{"stream_name":"stdout","time":7462.691758616,"data":"[arm B] [4/16] v12-nb-f15-g18  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":7846.27854647,"data":"    -\u003e proposed=3 valid=3 smoke_pass=3 best_feasible=False binding_delta=0.07865  (6.4 min)\n"}
+,{"stream_name":"stdout","time":7846.278585156,"data":"\n"}
+,{"stream_name":"stdout","time":7846.278591824,"data":"[arm B] [5/16] v12-nb-f24-g12  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":8278.805807628,"data":"    -\u003e proposed=3 valid=3 smoke_pass=3 best_feasible=False binding_delta=-0.008773  (7.2 min)\n"}
+,{"stream_name":"stdout","time":8278.805844227,"data":"\n"}
+,{"stream_name":"stdout","time":8278.805850872,"data":"[arm B] [6/16] v12-nb-f24-g14  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":8854.011199735,"data":"    -\u003e proposed=3 valid=3 smoke_pass=3 best_feasible=False binding_delta=0.02695  (9.6 min)\n"}
+,{"stream_name":"stdout","time":8854.0112377,"data":"\n"}
+,{"stream_name":"stdout","time":8854.011241936,"data":"[arm B] [7/16] v12-nb-f24-g16  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":9239.782387772,"data":"    -\u003e proposed=3 valid=2 smoke_pass=1 best_feasible=False binding_delta=-0.9613  (6.4 min)\n"}
+,{"stream_name":"stdout","time":9239.782420524,"data":"\n"}
+,{"stream_name":"stdout","time":9239.782426365,"data":"[arm B] [8/16] v12-nb-f24-g18  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":9894.703850912,"data":"    -\u003e proposed=3 valid=2 smoke_pass=2 best_feasible=False binding_delta=0.02699  (10.9 min)\n"}
+,{"stream_name":"stdout","time":9894.70389833,"data":"\n"}
+,{"stream_name":"stdout","time":9894.703912951,"data":"[arm B] [9/16] v12-wb-s11n10-g10-b0530  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":10281.176200603,"data":"    -\u003e proposed=3 valid=3 smoke_pass=2 best_feasible=False binding_delta=0.2518  (6.4 min)\n"}
+,{"stream_name":"stdout","time":10281.176237737,"data":"\n"}
+,{"stream_name":"stdout","time":10281.176242106,"data":"[arm B] [10/16] v12-wb-s11n10-g10-b0824  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":10575.919878319,"data":"    -\u003e proposed=3 valid=3 smoke_pass=3 best_feasible=False binding_delta=-0.1684  (4.9 min)\n"}
+,{"stream_name":"stdout","time":10575.919915141,"data":"\n"}
+,{"stream_name":"stdout","time":10575.919921484,"data":"[arm B] [11/16] v12-wb-s11n10-g12-b0824  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":10694.589880103,"data":"    -\u003e proposed=3 valid=0 smoke_pass=0 best_feasible=False binding_delta=-  (2.0 min)\n"}
+,{"stream_name":"stdout","time":10694.589928806,"data":"\n"}
+,{"stream_name":"stdout","time":10694.589935594,"data":"[arm B] [12/16] v12-wb-s11n11-g10-b0824  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":10963.487015953,"data":"    -\u003e proposed=3 valid=0 smoke_pass=0 best_feasible=False binding_delta=-  (4.5 min)\n"}
+,{"stream_name":"stdout","time":10963.487047866,"data":"\n"}
+,{"stream_name":"stdout","time":10963.487071725,"data":"[arm B] [13/16] v12-wb-s11n11-g12-b0824  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":11254.348952213,"data":"    -\u003e proposed=3 valid=3 smoke_pass=3 best_feasible=False binding_delta=0.02934  (4.8 min)\n"}
+,{"stream_name":"stdout","time":11254.348989024,"data":"\n"}
+,{"stream_name":"stdout","time":11254.348995128,"data":"[arm B] [14/16] v12-wb-s11n8-g10-b0530  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":11585.497011072,"data":"    -\u003e proposed=3 valid=3 smoke_pass=3 best_feasible=False binding_delta=-0.1588  (5.5 min)\n"}
+,{"stream_name":"stdout","time":11585.497071427,"data":"\n"}
+,{"stream_name":"stdout","time":11585.497079989,"data":"[arm B] [15/16] v12-wb-s11n8-g12-b0530  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":11986.612120081,"data":"    -\u003e proposed=3 valid=3 smoke_pass=3 best_feasible=False binding_delta=-0.5679  (6.7 min)\n"}
+,{"stream_name":"stdout","time":11986.612166349,"data":"\n"}
+,{"stream_name":"stdout","time":11986.612173421,"data":"[arm B] [16/16] v12-wb-s11n9-g10-b0530  pdk=bptm45 annotate=False rounds=1\n"}
+,{"stream_name":"stdout","time":12259.214997999,"data":"    -\u003e proposed=3 valid=2 smoke_pass=2 best_feasible=False binding_delta=0.2129  (4.5 min)\n"}
+,{"stream_name":"stdout","time":12259.215029271,"data":"\n"}
+,{"stream_name":"stdout","time":12259.215035787,"data":"editcap done: arms=['B'] cells=16 total_valid_edits=39  out=/kaggle/working/editcap/ZS-s2\n"}
+,{"stream_name":"stdout","time":12259.356300094,"data":"[ed-32b-zs]  204.3m run ZS-s1: rc=0 cells=16 proposed=48 valid=42 inkernel_feasible=0\n"}
+,{"stream_name":"stdout","time":12259.358638627,"data":"[ed-32b-zs]  204.3m run ZS-s2: rc=0 cells=16 proposed=48 valid=39 inkernel_feasible=0\n"}
+,{"stream_name":"stdout","time":12259.360158672,"data":"[ed-32b-zs]  204.3m cond ZS: identical s1/s2 raw outputs 0/16\n"}
+,{"stream_name":"stderr","time":12262.397530013,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":12262.397566293,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":12262.647689439,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":12262.647748618,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":12263.403545483,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":12264.687025848,"data":"[NbConvertApp] Writing 350068 bytes to __results__.html\n"}
+]

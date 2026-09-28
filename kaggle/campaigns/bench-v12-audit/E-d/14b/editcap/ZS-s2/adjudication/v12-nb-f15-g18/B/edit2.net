@@ -1,0 +1,7 @@
+* lna-a5-cascode-stage: cascode configuration for improved gain and stability
+C C1 VIN1 n1
+L L1 n1 n2
+NMOS NM1 n3 n2 n1 VSS
+NMOS NM2 n4 n3 n5 VSS
+L L2 n4 VDD
+C C2 n4 VOUT1

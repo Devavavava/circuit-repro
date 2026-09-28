@@ -1,0 +1,15 @@
+* Edit 3: Add second amplification stage (common-source) after first stage.
+* NM2 (n5) driven by NM1’s drain (n2), with inductive source degeneration.
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 n4
+NMOS NM2 n5 n4 n6 VSS
+L L3 n6 VSS
+L L4 VDD n5
+C C3 n5 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS

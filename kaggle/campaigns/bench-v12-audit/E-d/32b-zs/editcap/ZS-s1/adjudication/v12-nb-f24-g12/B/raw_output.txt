@@ -1,0 +1,53 @@
+1. **Diagnosis**: The binding constraint (S21 gain) is limited by the low transconductance (gm) of the common-gate NM1 and insufficient load impedance. The common-gate topology inherently has lower gain than common-source, and the inductor L2 provides suboptimal impedance matching at 2.4 GHz due to its series configuration.
+
+---
+
+2. **Structural Edits**:
+
+```netlist
+* Edit 1: Convert to common-source with gate-input and source inductor for matching
+C C1 VIN1 n1
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Predicted**: S21_db improves by ~2.5 dB (common-source offers higher gain than common-gate).
+
+---
+
+```netlist
+* Edit 2: Add cascode PMOS load to increase output impedance
+L L2 VDD p1
+PMOS PM1 p1 n3 n2 VDD
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Predicted**: S21_db improves by ~1.8 dB (cascode increases load impedance, boosting gain).
+
+---
+
+```netlist
+* Edit 3: Replace series L2 with parallel LC tank for resonance at 2.4 GHz
+C C2 n2 VDD
+L L2 n2 VDD
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+C C2tank n2 VDD
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Predicted**: S21_db improves by ~1.5 dB (parallel LC tank maximizes load impedance at resonance).

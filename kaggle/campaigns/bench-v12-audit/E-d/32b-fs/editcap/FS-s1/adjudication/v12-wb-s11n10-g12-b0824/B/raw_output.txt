@@ -1,0 +1,67 @@
+1. **Diagnosis**: The input matching network (L1/C1) is inherently narrowband, failing to maintain S11 ≤ -10 dB across the 0.8-2.4 GHz octave band. Reactive components cannot flatten the input impedance's real part, leading to poor broadband return loss.
+
+---
+
+2. **Edit 1: Add a shunt resistor at the input (n0) to ground, forming a broadband RC load**  
+```netlist
+C C4 VIN1 n0
+R Rshunt n0 VSS
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+**Prediction**: S11_max_db improves by ~2-3 dB (adds real part to input impedance).
+
+---
+
+3. **Edit 2: Add a source resistor in the NMOS path to increase source degeneration and broaden impedance**  
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n7 VSS
+R Rs n7 VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+**Prediction**: S11_max_db improves by ~1 dB (increased source degeneration raises input impedance's real part).
+
+---
+
+4. **Edit 3: Add a feedback resistor from output (n4) to NMOS gate (n1) for broadband shunt feedback**  
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R Rfb n4 n1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+**Prediction**: S11_max_db improves by ~2-3 dB (feedback resistor flattens input impedance via broadband feedback).

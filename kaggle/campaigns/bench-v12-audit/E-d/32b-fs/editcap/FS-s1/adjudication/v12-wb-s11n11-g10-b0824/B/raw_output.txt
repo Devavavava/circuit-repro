@@ -1,0 +1,70 @@
+1. **DIAGNOSIS**  
+The S11 failure stems from the LC input matching network's narrowband nature. The current-reuse push-pull topology uses a resonant L1-C4 LC tank at the input, which cannot maintain low return loss across the 3:1 bandwidth (0.8–2.4 GHz). The LC tank's high Q and reactive impedance cause S11 to degrade at band edges, violating the -11 dB spec.
+
+---
+
+2. **STRUCTURAL EDITS**  
+
+```netlist
+* Edit 1: Add series resistor at input to broaden LC tank's bandwidth
+C C4 VIN1 n0
+R Rin VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VDD
+R R5 n6 n3
+```
+**PREDICTION**: S11 improves by ~3–4 dB due to reduced LC tank Q via series damping.  
+
+---
+
+```netlist
+* Edit 2: Add shunt resistor at input to flatten impedance
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VDD
+R R5 n6 n3
+R Rshunt n0 VSS
+```
+**PREDICTION**: S11 improves by ~2.5 dB via parallel resistive damping of LC resonator.  
+
+---
+
+```netlist
+* Edit 3: Add output-to-input feedback resistor for broadband Zin
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VDD
+R R5 n6 n3
+R Rf n2 n1
+```
+**PREDICTION**: S11 improves by ~3–5 dB through feedback-induced input impedance stabilization.

@@ -1,0 +1,12 @@
+* lna-a5-cascode: Add PMOS cascode on drain of NM1 to increase output impedance.
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+PMOS PM1 VDD n2 n3 VDD
+R R3 VDD n3_bias
+PMOS PM2 n3_bias n3_bias VSS VDD
+C C2 n3 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS

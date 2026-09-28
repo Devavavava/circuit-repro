@@ -1,0 +1,39 @@
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+R Rload d VDD
+C C2 d VOUT1
+R Rbypass g VSS
+```
+
+**Diagnosis**: The common-gate topology's gain is insufficient due to its inherent low transconductance amplification and reactive load (L2), which fails to provide adequate voltage gain at 2.4 GHz. The S21 is limited by the small-signal gain of the single transistor and the reactive load's impedance mismatch.
+
+**Predicted change**: s21_db improves by ~7–10 dB via a common-source configuration with resistive load and bypass capacitor, enabling higher transconductance amplification.
+
+---
+
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+NMOS M2 d VDD s VSS
+C C2 d VOUT1
+R Rbypass g VSS
+```
+
+**Diagnosis**: The original circuit's single-transistor common-gate structure lacks sufficient gain. Adding a cascode transistor (M2) increases the output impedance and amplifies the signal more effectively.
+
+**Predicted change**: s21_db improves by ~5–7 dB via cascode configuration, enhancing gain through higher output impedance and reduced Miller effect.
+
+---
+
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+L Lload d VDD
+C C2 d VOUT1
+R Rbypass g VSS
+```
+
+**Diagnosis**: The original inductive load (L2) may not resonate optimally at 2.4 GHz, leading to suboptimal voltage gain. Replacing the load with a simple inductor and bypass capacitor provides a more stable and efficient impedance match.
+
+**Predicted change**: s21_db improves by ~4–6 dB via optimized inductive load and bypass capacitor, improving impedance matching and signal amplification.

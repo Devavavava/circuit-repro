@@ -1,0 +1,13 @@
+* lna-a5-dualstage: dual-stage common-source LNA with inductive source degeneration
+C C1 VIN1 G1
+R R1 VDD G1
+NMOS NM1 D1 G1 S1 VSS
+L L1 S1 VSS
+L L2 D1 D2
+C C2 D2 VOUT1
+R R2 D2 n3
+NMOS NM3 n3 n3 VSS VSS
+R R1a VDD n3
+C Cbyp G1 VSS
+NMOS NM4 D2 G2 S2 VSS
+L L3 S2 VSS

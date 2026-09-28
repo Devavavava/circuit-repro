@@ -1,0 +1,8 @@
+* lna-a5-cc-cascode: common-source cascode with inductive loads
+C C1 VIN1 gate_in
+L L1 source_in VSS
+NMOS NM1 drain_in gate_in source_in VSS
+PMOS PM1 VDD drain_out drain_in
+C C2 drain_out VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS

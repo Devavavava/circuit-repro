@@ -44,6 +44,8 @@ import json
 import os
 import sys
 import time
+import urllib.error
+import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 # Bind $LNA_DEPS_ROOT on sys.path so the driver runs the WORKTREE's modules.
@@ -204,8 +206,16 @@ class _LiveLLM(object):
 
         Raises driver.LLMError on transport/HTTP failure (the caller turns it
         into a recorded structural failure for the cell)."""
-        resp = self.client.complete(prompt_messages, temperature=self.temperature,
-                                    max_tokens=self.max_tokens, n=1)
+        _budget = _think_budget()
+        _t0 = time.time()
+        if _budget:
+            # EDITCAP_THINK_BUDGET (rl-readiness R2; additive, unset => the
+            # single chat request below, byte-identical): two-phase capped think.
+            resp = self._complete_think_budget(prompt_messages, _budget)
+        else:
+            resp = self.client.complete(prompt_messages, temperature=self.temperature,
+                                        max_tokens=self.max_tokens, n=1)
+        _wall = time.time() - _t0
         ch = (resp.get("choices") or [{}])[0]
         msg = ch.get("message") or {}
         content = msg.get("content", "") or ""
@@ -224,6 +234,14 @@ class _LiveLLM(object):
             "max_tokens": self.max_tokens,
             "recovered_from_reasoning": False,
         }
+        if _budget or os.environ.get("EDITCAP_NO_THINK"):
+            # R2 telemetry (flags on only): server timings + client wall, and the
+            # two-phase split when the think budget is active.
+            self.last_meta["r2"] = {"think_budget": _budget or None,
+                                    "no_think": bool(os.environ.get("EDITCAP_NO_THINK")),
+                                    "client_wall_s": round(_wall, 3),
+                                    "timings": resp.get("timings"),
+                                    "phases": resp.get("_phases")}
         # OPTIONAL recovery (OFF by default -> flags-off byte-identical): if the
         # visible answer is empty but a reasoning trace exists, parse the edits
         # from the trace instead of dropping the cell.
@@ -239,6 +257,113 @@ class _LiveLLM(object):
             fence = content.find("```")
             diag = (content[:fence] if fence >= 0 else content).strip() or None
         return content, diag, edits
+
+    # ---------------------------------------------------- R2: capped thinking
+    def _post_root(self, path, body):
+        """POST to the llama-server ROOT (not /v1): /apply-template, /completion."""
+        root = self.client.base_url
+        if root.endswith("/v1"):
+            root = root[:-3]
+        req = urllib.request.Request(
+            root + path, data=json.dumps(body).encode("utf-8"),
+            headers={"Content-Type": "application/json"}, method="POST")
+        try:
+            with urllib.request.urlopen(req, timeout=self.client.timeout) as r:
+                return json.loads(r.read().decode("utf-8"))
+        except urllib.error.HTTPError as e:
+            raise D.LLMError("HTTP %s from %s%s: %s" % (
+                e.code, root, path, e.read().decode("utf-8", "replace")))
+        except urllib.error.URLError as e:
+            raise D.LLMError("cannot reach %s%s: %s" % (root, path, e))
+
+    def _complete_think_budget(self, messages, budget):
+        """Qwen3 thinking capped at `budget` tokens, client-side (no reliance on
+        a server-side budget sampler):
+          phase 1: chat template (server /apply-template, the model's own jinja)
+                   -> raw /completion, n_predict=budget, stop at '</think>'.
+          phase 2: prompt + phase-1 text + closer -> /completion for the answer,
+                   n_predict = max_tokens - phase-1 tokens (same 8192 total cap).
+        closer = '</think>' when the model closed its think naturally; when the
+        budget ran out, Qwen's documented early-exit string THINK_BUDGET_CLOSER.
+        Returns a chat.completions-shaped dict so the caller is unchanged."""
+        prompt = self._post_root("/apply-template", {"messages": messages})["prompt"]
+        common = {"temperature": self.temperature, "cache_prompt": True}
+        p1 = self._post_root("/completion", dict(
+            common, prompt=prompt, n_predict=int(budget), stop=["</think>"]))
+        think = p1.get("content") or ""
+        n1 = int(p1.get("tokens_predicted") or 0)
+        st1 = _stop_type(p1)
+        natural = st1 in ("word", "eos")
+        if st1 == "eos":            # ended the whole turn inside phase 1
+            closer = ""
+        elif natural:
+            closer = "</think>"
+        else:
+            closer = THINK_BUDGET_CLOSER
+        answer, n2, st2, p2 = "", 0, None, None
+        if st1 != "eos":
+            p2 = self._post_root("/completion", dict(
+                common, prompt=prompt + think + closer,
+                n_predict=max(1, self.max_tokens - n1)))
+            answer = p2.get("content") or ""
+            n2 = int(p2.get("tokens_predicted") or 0)
+            st2 = _stop_type(p2)
+        # reasoning = the think text minus the tag; answer = what follows </think>
+        reasoning = think.replace("<think>", "", 1).strip("\n")
+        if st1 == "eos" and "</think>" in think:
+            reasoning, _, answer = think.partition("</think>")
+        t1, t2 = p1.get("timings") or {}, (p2 or {}).get("timings") or {}
+        tim = {k: (t1.get(k) or 0) + (t2.get(k) or 0)
+               for k in ("prompt_n", "prompt_ms", "predicted_n", "predicted_ms")}
+        return {
+            "choices": [{"index": 0,
+                         "finish_reason": "length" if st2 == "limit" else "stop",
+                         "message": {"role": "assistant", "content": answer,
+                                     "reasoning_content": reasoning}}],
+            "usage": {"prompt_tokens": int(p1.get("tokens_evaluated") or 0),
+                      "completion_tokens": n1 + n2,
+                      "reasoning_tokens": n1, "answer_tokens": n2},
+            "timings": tim,
+            "_phases": {"think_tokens": n1, "think_stop": st1,
+                        "think_closed_naturally": natural, "closer": closer,
+                        "answer_tokens": n2, "answer_stop": st2,
+                        "prompt_template_tail": prompt[-40:],
+                        "think_head": think[:40],
+                        "timings_think": t1, "timings_answer": t2},
+        }
+
+
+# R2 (rl-readiness) thinking controls -- ALL off by default (byte-identical):
+#   EDITCAP_THINK_BUDGET=N  cap Qwen3 reasoning at N tokens (two-phase, above)
+#   EDITCAP_NO_THINK=1      Qwen3 soft switch: append '/no_think' to the user turn
+THINK_BUDGET_CLOSER = ("\n\nConsidering the limited time by the user, I have to "
+                       "give the solution based on the thinking directly now.\n"
+                       "</think>\n\n")
+NO_THINK_SUFFIX = "\n/no_think"
+
+
+def _think_budget():
+    v = os.environ.get("EDITCAP_THINK_BUDGET")
+    return int(v) if v and int(v) > 0 else 0
+
+
+def _no_think_suffix():
+    return NO_THINK_SUFFIX if os.environ.get("EDITCAP_NO_THINK") else ""
+
+
+def _stop_type(resp):
+    """llama-server /completion stop reason across versions: 'stop_type'
+    (eos|limit|word|none) or the older stopped_* booleans."""
+    st = resp.get("stop_type")
+    if st:
+        return st
+    if resp.get("stopped_word"):
+        return "word"
+    if resp.get("stopped_eos"):
+        return "eos"
+    if resp.get("stopped_limit"):
+        return "limit"
+    return "none"
 
 
 # ================================================================ prompting
@@ -434,6 +559,7 @@ def build_prompt_B(spec, anchor_net, ev, k=K_EDITS, annotate=False,
     ) % (fewshot, _spec_constraint_block(spec), anchor_net.rstrip("\n") + "\n",
          anno, _evidence_block(ev),
          _instructions_B(k, diagnosis_first=diagnosis_first))
+    user += _no_think_suffix()      # R2 EDITCAP_NO_THINK; '' when unset
     messages = [{"role": "system", "content": SYSTEM},
                 {"role": "user", "content": user}]
     return messages, SYSTEM + "\n\n" + user
@@ -451,6 +577,7 @@ def build_prompt_C(spec, anchor_net, k=K_EDITS):
         "%s"
     ) % (_spec_constraint_block(spec), anchor_net.rstrip("\n") + "\n",
          _instructions_C(k))
+    user += _no_think_suffix()      # R2 EDITCAP_NO_THINK; '' when unset
     messages = [{"role": "system", "content": SYSTEM},
                 {"role": "user", "content": user}]
     return messages, SYSTEM + "\n\n" + user
@@ -653,6 +780,14 @@ def _process_round(adj_round, edit_texts, raw_output, seen_wl, spec_ref, pdk,
             continue
         seen_wl.add(wl)
         tokens = info["tokens"]
+        if os.environ.get("EDITCAP_GEN_ONLY"):
+            # R2 (additive; unset => unchanged): generation-only kernel, every
+            # valid edit is scored offline, so no in-kernel smoke/size/escalate.
+            meta["fence_outcome"] = "not_sized_gen_only"
+            _write_verbatim(os.path.join(adj_round, "edit%d.meta.json" % i),
+                            json.dumps(meta, indent=2, default=float))
+            edit_summaries.append(_edit_summary(meta))
+            continue
 
         # -- 40-eval conduction smoke + signal-path fence --
         idd, smoke_best = _smoke_idd(tokens, spec_ref, pdk)

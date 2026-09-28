@@ -438,8 +438,13 @@ def stability_spec(src, out_dir=None, mu_min=1.0):
     d.mkdir(parents=True, exist_ok=True)
     name = data.get("name") or Path(src).stem
     out = d / f"{name}__mu{mu_min:g}.yaml"
-    with open(out, "w") as fh:
+    # Atomic write: parallel callers on the same cell share this path, and a
+    # plain open("w") let one process read another's half-written file (S-1).
+    # Content is deterministic per (src, mu_min), so last-rename-wins is safe.
+    tmp = d / f".{out.name}.{os.getpid()}.tmp"
+    with open(tmp, "w") as fh:
         yaml.safe_dump(data, fh, sort_keys=False)
+    os.replace(tmp, out)
     Spec.load(str(out))                    # validate loudly
     return str(out)
 

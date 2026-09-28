@@ -164,7 +164,103 @@ def _num(x):
     return round(x, 4) if isinstance(x, (int, float)) else x
 
 
-def smoke_run(tokens, spec_path, seed, budget, pdk):
+# ------------------------------------------------ verifier profiles (rl-v1)
+# kaggle/VERIFIER-RL-V1.md (user rulings W1-W6, 2026-09-28). A profile is a
+# named bundle of the opt-in verifier env flags below; it is selected by env
+# VERIFIER_PROFILE=<name> or smoke_run(..., profile=<name>) (the kwarg beats the
+# env; profile="" forces none). Precedence per flag: an env var that is SET
+# (even to "0"/"") beats the profile value. The effective flags are applied to
+# os.environ only for the duration of the smoke_run call (every guard reads the
+# env at call time), then removed again.
+# The stability pieces still need the SPEC to constrain mu_min (stab_gate_on);
+# use rl_v1_spec() to put a library spec into rl-v1 form.
+# Recording: whenever a profile is active or ANY flag below is set, the result
+# gains result["verifier"] = {profile, flags (every flag: effective value or
+# None), env_overrides, stab_gate_on, stab_window, spec_rl_v1_issues}. With no
+# profile and no flag set, smoke_run is the historical code path, byte-identical.
+VERIFIER_PROFILES = {
+    "rl-v1": {
+        "STAB_WIDE_INLOOP": "1",                 # S-1: wide mu in the objective
+        "STAB_WIDE_WINDOW": "1e7,5e10,1001",     # R4(d): 10 MHz-50 GHz window
+        "VERIFY_STRUCT": "1",                    # R4(b): degenerate structures
+        "VERIFY_FINITE": "1",                    # R4(f): NaN/inf constrained metric
+        "VERIFY_TOPO_LIMITS": "1",               # W1: spec topology limits enforced
+        "VERIFY_INERT_COUNT": "1",               # W2: inert-device COUNT (no gate)
+        # NOT in rl-v1 (diagnostics only): VERIFY_ROBUST (W3 waived),
+        # VERIFY_NO_INERT (W2: penalty, not gate), VERIFY_NF_BAND (W5 is in-loop
+        # via nf_max_db), VERIFY_BAND_METRICS (W6 is spec-level s11_max_db).
+    },
+}
+VERIFIER_FLAGS = ("STAB_WIDE_INLOOP", "STAB_WIDE_WINDOW", "VERIFY_TOPO_LIMITS",
+                  "VERIFY_STRUCT", "VERIFY_FINITE", "VERIFY_BAND_METRICS",
+                  "VERIFY_NF_BAND", "VERIFY_NO_INERT", "VERIFY_INERT_COUNT",
+                  "VERIFY_ROBUST", "VERIFY_ROBUST_PCT", "VERIFY_ROBUST_MIN")
+
+
+def resolve_verifier(profile=None):
+    """(profile_name_or_None, {flag: effective value}, [env-overridden flags])."""
+    name = profile if profile is not None else os.environ.get("VERIFIER_PROFILE")
+    name = name or None
+    if name is not None and name not in VERIFIER_PROFILES:
+        raise ValueError(f"unknown VERIFIER_PROFILE {name!r}; known: "
+                         f"{sorted(VERIFIER_PROFILES)}")
+    base = VERIFIER_PROFILES.get(name, {})
+    eff, over = {}, []
+    for k in VERIFIER_FLAGS:
+        if k in os.environ:
+            eff[k] = os.environ[k]
+            if k in base and os.environ[k] != base[k]:
+                over.append(k)
+        elif k in base:
+            eff[k] = base[k]
+    return name, eff, over
+
+
+def rl_v1_issues(spec):
+    """Why `spec` is NOT in rl-v1 form ([] = conforming; see rl_v1_spec)."""
+    c = spec.constraints
+    bad = []
+    if not stab_gate_on(spec):
+        bad.append("no mu_min constraint (stability gate off)")
+    if spec.band_type == "wideband":
+        if "nf_db" in c:
+            bad.append("wideband gates nf_db (f0) instead of nf_max_db (band)")
+        if (spec.topology or {}).get("max_inductors") != 2:
+            bad.append("wideband max_inductors != 2")
+    elif "s11_db" in c:
+        bad.append("narrowband gates s11_db (f0) instead of s11_max_db (band)")
+    return bad
+
+
+def smoke_run(tokens, spec_path, seed, budget, pdk, profile=None):
+    """Verifier entry point: resolves the verifier profile/flags (see
+    VERIFIER_PROFILES above), runs _smoke_run with them applied, and records
+    them in result["verifier"]. No profile and no flag set -> exactly the
+    historical _smoke_run call (byte-identical result)."""
+    name, eff, over = resolve_verifier(profile)
+    if name is None and not any(k in os.environ for k in VERIFIER_FLAGS):
+        return _smoke_run(tokens, spec_path, seed, budget, pdk)
+    applied = [k for k in eff if k not in os.environ]
+    for k in applied:
+        os.environ[k] = eff[k]
+    try:
+        res = _smoke_run(tokens, spec_path, seed, budget, pdk)
+        if res is not None:
+            spec = SZ._spec_for_sizing(spec_path, nf_gate=None, pdk=pdk)
+            res["verifier"] = {
+                "profile": name,
+                "flags": {k: eff.get(k) for k in VERIFIER_FLAGS},
+                "env_overrides": over,
+                "stab_gate_on": stab_gate_on(spec),
+                "stab_window": list(stab_window()),
+                "spec_rl_v1_issues": rl_v1_issues(spec)}
+    finally:
+        for k in applied:
+            os.environ.pop(k, None)
+    return res
+
+
+def _smoke_run(tokens, spec_path, seed, budget, pdk):
     """solve_spec.size_tokens with (a) the per-eval points KEPT and (b) the
     winner re-measured through make_objective's UNGATED endpoint `evaluate`
     (identical engine calls otherwise: _spec_for_sizing -> prepared_body ->
@@ -196,7 +292,8 @@ def smoke_run(tokens, spec_path, seed, budget, pdk):
     `infeasible_reason` and 0 evals; STAB_WIDE_WINDOW="lo,hi,n" widens the
     stability window (in-loop + gate); post-hoc on the final winner
     VERIFY_FINITE / VERIFY_BAND_METRICS / VERIFY_NF_BAND / VERIFY_NO_INERT /
-    VERIFY_ROBUST=N (see _r4_posthoc) can only turn feasible -> infeasible."""
+    VERIFY_ROBUST=N (see _r4_posthoc) can only turn feasible -> infeasible;
+    VERIFY_INERT_COUNT=1 (W2) only RECORDS inert devices (no feasibility effect)."""
     spec = SZ._spec_for_sizing(spec_path, nf_gate=None, pdk=pdk)
     topo = Topology(list(tokens))
     topo_chk = None
@@ -294,13 +391,20 @@ def smoke_run(tokens, spec_path, seed, budget, pdk):
 #                     value x (1+U[-p,+p]), p = VERIFY_ROBUST_PCT (default 5 %);
 #                     infeasible if the final-feasible fraction < VERIFY_ROBUST_MIN
 #                     (default 0.5). Result gains robust_frac / robust_n.
+#   VERIFY_INERT_COUNT=1  (W2, rl-v1) the SAME inert test as VERIFY_NO_INERT but
+#                     record-only: result gains inert_devices (list of sized
+#                     R/C/L names that can be opened with the design staying
+#                     final-feasible) + n_inert_devices (their count, the RL
+#                     reward-penalty input); NO feasibility effect. Both are
+#                     None when the final winner is infeasible (inert undefined);
+#                     absent on a pre-sizing (topo/struct) reject.
 #   VERIFY_BAND_METRICS=1  a point constraint is also held over the whole spec
 #                     band using the band metrics run_and_extract ALREADY
 #                     measures (free): s11_db max -> s11_max_db, s21_db min ->
 #                     s21_min_db (narrowband specs gate s11/s21 at f0 only; R4
 #                     found 61/63 nb winners with in-band s11_max above the limit)
 _R4_POSTHOC_FLAGS = ("VERIFY_FINITE", "VERIFY_NF_BAND", "VERIFY_NO_INERT",
-                     "VERIFY_ROBUST", "VERIFY_BAND_METRICS")
+                     "VERIFY_ROBUST", "VERIFY_BAND_METRICS", "VERIFY_INERT_COUNT")
 _BAND_OF = {"s11_db": ("s11_max_db", "max"), "s21_db": ("s21_min_db", "min")}
 _OPEN_VALUE = {"R": "1e12", "C": "1e-20", "L": "1"}
 
@@ -382,14 +486,18 @@ def _r4_posthoc(res, spec, body, sizable, decode, bx, seed):
             res["nf_band_max_db"] = nfb
             if nfb is None or nfb > spec.constraints["nf_db"]["max"]:
                 why.append(f"NF over band {nfb} > {spec.constraints['nf_db']['max']}")
-        if os.environ.get("VERIFY_NO_INERT") == "1":
+        gate_inert = os.environ.get("VERIFY_NO_INERT") == "1"
+        count_inert = os.environ.get("VERIFY_INERT_COUNT") == "1"
+        if gate_inert or count_inert:
             inert = []
             for name, kind in sizable.items():
                 if kind in _OPEN_VALUE and _final_ok(spec, body,
                                                      dict(params, **{name: _OPEN_VALUE[kind]})):
                     inert.append(name)
             res["inert_devices"] = inert
-            if inert:
+            if count_inert:                      # W2: penalty input, never a gate
+                res["n_inert_devices"] = len(inert)
+            if gate_inert and inert:
                 why.append("inert device(s): " + ", ".join(inert))
         n = int(os.environ.get("VERIFY_ROBUST") or 0)
         if n > 0:
@@ -405,6 +513,8 @@ def _r4_posthoc(res, spec, body, sizable, decode, bx, seed):
             res["robust_n"], res["robust_frac"] = n, ok / n
             if ok / n < need:
                 why.append(f"robust fraction {ok}/{n} < {need}")
+    elif os.environ.get("VERIFY_INERT_COUNT") == "1":
+        res["inert_devices"], res["n_inert_devices"] = None, None
     if why:
         res["feasible"] = False
         res["infeasible_reason"] = "; ".join(why)
@@ -747,6 +857,61 @@ def stability_spec(src, out_dir=None, mu_min=1.0):
         yaml.safe_dump(data, fh, sort_keys=False)
     os.replace(tmp, out)
     Spec.load(str(out))                    # validate loudly
+    return str(out)
+
+
+def rl_v1_spec(src, out_dir=None, mu_min=1.0):
+    """Write the rl-v1-form COPY of spec `src` (kaggle/VERIFIER-RL-V1.md) and
+    return its path; the source is never modified.
+
+      all        : + constraints.mu_min {min: mu_min}   (stability gate on)
+      wideband   : constraint nf_db -> nf_max_db (same limit; band-worst NF,
+                   measured in-loop by extract.run_and_extract)  [W5]
+                   topology.max_inductors = 2                     [W1]
+      narrowband : constraint s11_db -> s11_max_db (same limit; worst S11 over
+                   [f_lo, f_hi], already measured every eval)   [W6]
+
+    A renamed constraint keeps its position and limit dict; objectives on the
+    old metric are renamed too (so the objective floor/scale stays the
+    constraint's). If the new name already exists the old one is dropped and
+    the existing limit kept. Everything else verbatim. Default out_dir =
+    $TMPDIR/rlv1-specs; the write is atomic (per-PID temp + os.replace), like
+    stability_spec, so parallel callers on the same cell are safe."""
+    import yaml
+    data = yaml.safe_load(Path(src).read_text())
+    cons = data.get("constraints") or {}
+    wide = (data.get("band") or {}).get("type") == "wideband"
+
+    def rename(old, new):
+        nonlocal cons
+        if old not in cons:
+            return
+        if new in cons:
+            cons = {k: v for k, v in cons.items() if k != old}
+        else:
+            cons = {(new if k == old else k): v for k, v in cons.items()}
+        for o in data.get("objectives") or []:
+            if o.get("metric") == old:
+                o["metric"] = new
+
+    if wide:
+        rename("nf_db", "nf_max_db")
+        data.setdefault("topology", {})["max_inductors"] = 2
+    else:
+        rename("s11_db", "s11_max_db")
+    cons["mu_min"] = {"min": float(mu_min)}
+    data["constraints"] = cons
+    d = Path(out_dir or os.path.join(os.environ.get("TMPDIR", "/tmp"),
+                                     "rlv1-specs"))
+    d.mkdir(parents=True, exist_ok=True)
+    name = data.get("name") or Path(src).stem
+    out = d / f"{name}__rlv1.yaml"
+    tmp = d / f".{out.name}.{os.getpid()}.tmp"
+    with open(tmp, "w") as fh:
+        yaml.safe_dump(data, fh, sort_keys=False)
+    os.replace(tmp, out)
+    sp = Spec.load(str(out))               # validate loudly
+    assert not rl_v1_issues(sp), rl_v1_issues(sp)
     return str(out)
 
 

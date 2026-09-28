@@ -1,0 +1,701 @@
+{
+ "checks": {
+  "none_is_empty": true,
+  "rl_v1_flags_exact": true,
+  "env_equals_kwarg": true,
+  "kwarg_empty_forces_none": true,
+  "override_wins": true,
+  "unknown_raises": true,
+  "all_specs_rl_v1_form": true,
+  "reject_topo_infeasible": true,
+  "reject_has_verifier": true,
+  "env_restored": true
+ },
+ "all_ok": true,
+ "resolve": {
+  "none": [
+   null,
+   {},
+   []
+  ],
+  "kwarg_rl_v1": [
+   "rl-v1",
+   {
+    "STAB_WIDE_INLOOP": "1",
+    "STAB_WIDE_WINDOW": "1e7,5e10,1001",
+    "VERIFY_TOPO_LIMITS": "1",
+    "VERIFY_STRUCT": "1",
+    "VERIFY_FINITE": "1",
+    "VERIFY_INERT_COUNT": "1"
+   },
+   []
+  ],
+  "env_rl_v1": [
+   "rl-v1",
+   {
+    "STAB_WIDE_INLOOP": "1",
+    "STAB_WIDE_WINDOW": "1e7,5e10,1001",
+    "VERIFY_TOPO_LIMITS": "1",
+    "VERIFY_STRUCT": "1",
+    "VERIFY_FINITE": "1",
+    "VERIFY_INERT_COUNT": "1"
+   },
+   []
+  ],
+  "env_rl_v1_kwarg_empty": [
+   null,
+   {},
+   []
+  ],
+  "env_rl_v1_override_inert0_robust10": [
+   "rl-v1",
+   {
+    "STAB_WIDE_INLOOP": "1",
+    "STAB_WIDE_WINDOW": "1e7,5e10,1001",
+    "VERIFY_TOPO_LIMITS": "1",
+    "VERIFY_STRUCT": "1",
+    "VERIFY_FINITE": "1",
+    "VERIFY_INERT_COUNT": "0",
+    "VERIFY_ROBUST": "10"
+   },
+   [
+    "VERIFY_INERT_COUNT"
+   ]
+  ],
+  "unknown_raises": true
+ },
+ "rl_v1_specs": {
+  "v12-nb-f15-g12": {
+   "diff": {
+    "constraints.mu_min": [
+     null,
+     {
+      "min": 1.0
+     }
+    ],
+    "constraints.s11_max_db": [
+     null,
+     {
+      "max": -10
+     }
+    ],
+    "constraints.s11_db": [
+     {
+      "max": -10
+     },
+     null
+    ]
+   },
+   "rest_identical": true,
+   "issues_src": [
+    "no mu_min constraint (stability gate off)",
+    "narrowband gates s11_db (f0) instead of s11_max_db (band)"
+   ],
+   "issues_out": []
+  },
+  "v12-nb-f15-g14": {
+   "diff": {
+    "constraints.mu_min": [
+     null,
+     {
+      "min": 1.0
+     }
+    ],
+    "constraints.s11_max_db": [
+     null,
+     {
+      "max": -10
+     }
+    ],
+    "constraints.s11_db": [
+     {
+      "max": -10
+     },
+     null
+    ]
+   },
+   "rest_identical": true,
+   "issues_src": [
+    "no mu_min constraint (stability gate off)",
+    "narrowband gates s11_db (f0) instead of s11_max_db (band)"
+   ],
+   "issues_out": []
+  },
+  "v12-nb-f15-g16": {
+   "diff": {
+    "constraints.mu_min": [
+     null,
+     {
+      "min": 1.0
+     }
+    ],
+    "constraints.s11_max_db": [
+     null,
+     {
+      "max": -10
+     }
+    ],
+    "constraints.s11_db": [
+     {
+      "max": -10
+     },
+     null
+    ]
+   },
+   "rest_identical": true,
+   "issues_src": [
+    "no mu_min constraint (stability gate off)",
+    "narrowband gates s11_db (f0) instead of s11_max_db (band)"
+   ],
+   "issues_out": []
+  },
+  "v12-nb-f15-g18": {
+   "diff": {
+    "constraints.mu_min": [
+     null,
+     {
+      "min": 1.0
+     }
+    ],
+    "constraints.s11_max_db": [
+     null,
+     {
+      "max": -10
+     }
+    ],
+    "constraints.s11_db": [
+     {
+      "max": -10
+     },
+     null
+    ]
+   },
+   "rest_identical": true,
+   "issues_src": [
+    "no mu_min constraint (stability gate off)",
+    "narrowband gates s11_db (f0) instead of s11_max_db (band)"
+   ],
+   "issues_out": []
+  },
+  "v12-nb-f24-g12": {
+   "diff": {
+    "constraints.mu_min": [
+     null,
+     {
+      "min": 1.0
+     }
+    ],
+    "constraints.s11_max_db": [
+     null,
+     {
+      "max": -10
+     }
+    ],
+    "constraints.s11_db": [
+     {
+      "max": -10
+     },
+     null
+    ]
+   },
+   "rest_identical": true,
+   "issues_src": [
+    "no mu_min constraint (stability gate off)",
+    "narrowband gates s11_db (f0) instead of s11_max_db (band)"
+   ],
+   "issues_out": []
+  },
+  "v12-nb-f24-g14": {
+   "diff": {
+    "constraints.mu_min": [
+     null,
+     {
+      "min": 1.0
+     }
+    ],
+    "constraints.s11_max_db": [
+     null,
+     {
+      "max": -10
+     }
+    ],
+    "constraints.s11_db": [
+     {
+      "max": -10
+     },
+     null
+    ]
+   },
+   "rest_identical": true,
+   "issues_src": [
+    "no mu_min constraint (stability gate off)",
+    "narrowband gates s11_db (f0) instead of s11_max_db (band)"
+   ],
+   "issues_out": []
+  },
+  "v12-nb-f24-g16": {
+   "diff": {
+    "constraints.mu_min": [
+     null,
+     {
+      "min": 1.0
+     }
+    ],
+    "constraints.s11_max_db": [
+     null,
+     {
+      "max": -10
+     }
+    ],
+    "constraints.s11_db": [
+     {
+      "max": -10
+     },
+     null
+    ]
+   },
+   "rest_identical": true,
+   "issues_src": [
+    "no mu_min constraint (stability gate off)",
+    "narrowband gates s11_db (f0) instead of s11_max_db (band)"
+   ],
+   "issues_out": []
+  },
+  "v12-nb-f24-g18": {
+   "diff": {
+    "constraints.mu_min": [
+     null,
+     {
+      "min": 1.0
+     }
+    ],
+    "constraints.s11_max_db": [
+     null,
+     {
+      "max": -10
+     }
+    ],
+    "constraints.s11_db": [
+     {
+      "max": -10
+     },
+     null
+    ]
+   },
+   "rest_identical": true,
+   "issues_src": [
+    "no mu_min constraint (stability gate off)",
+    "narrowband gates s11_db (f0) instead of s11_max_db (band)"
+   ],
+   "issues_out": []
+  },
+  "v12-wb-s11n10-g10-b0530": {
+   "diff": {
+    "constraints.nf_max_db": [
+     null,
+     {
+      "max": 3.0
+     }
+    ],
+    "constraints.mu_min": [
+     null,
+     {
+      "min": 1.0
+     }
+    ],
+    "constraints.nf_db": [
+     {
+      "max": 3.0
+     },
+     null
+    ],
+    "topology.max_inductors": [
+     1,
+     2
+    ],
+    "objectives": [
+     [
+      "nf_db",
+      "s21_db",
+      "idd_ma"
+     ],
+     [
+      "nf_max_db",
+      "s21_db",
+      "idd_ma"
+     ]
+    ]
+   },
+   "rest_identical": true,
+   "issues_src": [
+    "no mu_min constraint (stability gate off)",
+    "wideband gates nf_db (f0) instead of nf_max_db (band)",
+    "wideband max_inductors != 2"
+   ],
+   "issues_out": []
+  },
+  "v12-wb-s11n10-g10-b0824": {
+   "diff": {
+    "constraints.nf_max_db": [
+     null,
+     {
+      "max": 3.0
+     }
+    ],
+    "constraints.mu_min": [
+     null,
+     {
+      "min": 1.0
+     }
+    ],
+    "constraints.nf_db": [
+     {
+      "max": 3.0
+     },
+     null
+    ],
+    "topology.max_inductors": [
+     1,
+     2
+    ],
+    "objectives": [
+     [
+      "nf_db",
+      "s21_db",
+      "idd_ma"
+     ],
+     [
+      "nf_max_db",
+      "s21_db",
+      "idd_ma"
+     ]
+    ]
+   },
+   "rest_identical": true,
+   "issues_src": [
+    "no mu_min constraint (stability gate off)",
+    "wideband gates nf_db (f0) instead of nf_max_db (band)",
+    "wideband max_inductors != 2"
+   ],
+   "issues_out": []
+  },
+  "v12-wb-s11n10-g12-b0824": {
+   "diff": {
+    "constraints.nf_max_db": [
+     null,
+     {
+      "max": 3.0
+     }
+    ],
+    "constraints.mu_min": [
+     null,
+     {
+      "min": 1.0
+     }
+    ],
+    "constraints.nf_db": [
+     {
+      "max": 3.0
+     },
+     null
+    ],
+    "topology.max_inductors": [
+     1,
+     2
+    ],
+    "objectives": [
+     [
+      "nf_db",
+      "s21_db",
+      "idd_ma"
+     ],
+     [
+      "nf_max_db",
+      "s21_db",
+      "idd_ma"
+     ]
+    ]
+   },
+   "rest_identical": true,
+   "issues_src": [
+    "no mu_min constraint (stability gate off)",
+    "wideband gates nf_db (f0) instead of nf_max_db (band)",
+    "wideband max_inductors != 2"
+   ],
+   "issues_out": []
+  },
+  "v12-wb-s11n11-g10-b0824": {
+   "diff": {
+    "constraints.nf_max_db": [
+     null,
+     {
+      "max": 3.0
+     }
+    ],
+    "constraints.mu_min": [
+     null,
+     {
+      "min": 1.0
+     }
+    ],
+    "constraints.nf_db": [
+     {
+      "max": 3.0
+     },
+     null
+    ],
+    "topology.max_inductors": [
+     1,
+     2
+    ],
+    "objectives": [
+     [
+      "nf_db",
+      "s21_db",
+      "idd_ma"
+     ],
+     [
+      "nf_max_db",
+      "s21_db",
+      "idd_ma"
+     ]
+    ]
+   },
+   "rest_identical": true,
+   "issues_src": [
+    "no mu_min constraint (stability gate off)",
+    "wideband gates nf_db (f0) instead of nf_max_db (band)",
+    "wideband max_inductors != 2"
+   ],
+   "issues_out": []
+  },
+  "v12-wb-s11n11-g12-b0824": {
+   "diff": {
+    "constraints.nf_max_db": [
+     null,
+     {
+      "max": 3.0
+     }
+    ],
+    "constraints.mu_min": [
+     null,
+     {
+      "min": 1.0
+     }
+    ],
+    "constraints.nf_db": [
+     {
+      "max": 3.0
+     },
+     null
+    ],
+    "topology.max_inductors": [
+     1,
+     2
+    ],
+    "objectives": [
+     [
+      "nf_db",
+      "s21_db",
+      "idd_ma"
+     ],
+     [
+      "nf_max_db",
+      "s21_db",
+      "idd_ma"
+     ]
+    ]
+   },
+   "rest_identical": true,
+   "issues_src": [
+    "no mu_min constraint (stability gate off)",
+    "wideband gates nf_db (f0) instead of nf_max_db (band)",
+    "wideband max_inductors != 2"
+   ],
+   "issues_out": []
+  },
+  "v12-wb-s11n8-g10-b0530": {
+   "diff": {
+    "constraints.nf_max_db": [
+     null,
+     {
+      "max": 3.0
+     }
+    ],
+    "constraints.mu_min": [
+     null,
+     {
+      "min": 1.0
+     }
+    ],
+    "constraints.nf_db": [
+     {
+      "max": 3.0
+     },
+     null
+    ],
+    "topology.max_inductors": [
+     1,
+     2
+    ],
+    "objectives": [
+     [
+      "nf_db",
+      "s21_db",
+      "idd_ma"
+     ],
+     [
+      "nf_max_db",
+      "s21_db",
+      "idd_ma"
+     ]
+    ]
+   },
+   "rest_identical": true,
+   "issues_src": [
+    "no mu_min constraint (stability gate off)",
+    "wideband gates nf_db (f0) instead of nf_max_db (band)",
+    "wideband max_inductors != 2"
+   ],
+   "issues_out": []
+  },
+  "v12-wb-s11n8-g12-b0530": {
+   "diff": {
+    "constraints.nf_max_db": [
+     null,
+     {
+      "max": 3.0
+     }
+    ],
+    "constraints.mu_min": [
+     null,
+     {
+      "min": 1.0
+     }
+    ],
+    "constraints.nf_db": [
+     {
+      "max": 3.0
+     },
+     null
+    ],
+    "topology.max_inductors": [
+     1,
+     2
+    ],
+    "objectives": [
+     [
+      "nf_db",
+      "s21_db",
+      "idd_ma"
+     ],
+     [
+      "nf_max_db",
+      "s21_db",
+      "idd_ma"
+     ]
+    ]
+   },
+   "rest_identical": true,
+   "issues_src": [
+    "no mu_min constraint (stability gate off)",
+    "wideband gates nf_db (f0) instead of nf_max_db (band)",
+    "wideband max_inductors != 2"
+   ],
+   "issues_out": []
+  },
+  "v12-wb-s11n9-g10-b0530": {
+   "diff": {
+    "constraints.nf_max_db": [
+     null,
+     {
+      "max": 3.0
+     }
+    ],
+    "constraints.mu_min": [
+     null,
+     {
+      "min": 1.0
+     }
+    ],
+    "constraints.nf_db": [
+     {
+      "max": 3.0
+     },
+     null
+    ],
+    "topology.max_inductors": [
+     1,
+     2
+    ],
+    "objectives": [
+     [
+      "nf_db",
+      "s21_db",
+      "idd_ma"
+     ],
+     [
+      "nf_max_db",
+      "s21_db",
+      "idd_ma"
+     ]
+    ]
+   },
+   "rest_identical": true,
+   "issues_src": [
+    "no mu_min constraint (stability gate off)",
+    "wideband gates nf_db (f0) instead of nf_max_db (band)",
+    "wideband max_inductors != 2"
+   ],
+   "issues_out": []
+  }
+ },
+ "reject_result": {
+  "feasible": false,
+  "metrics": {},
+  "winner_reeval_ungated": false,
+  "best_idd_ma": null,
+  "best_s21_db": null,
+  "best_conv_gain_db": null,
+  "best_sds21_db": null,
+  "n_evals": 0,
+  "n_sim_fail": 0,
+  "sim_error": null,
+  "topo_limits_ok": false,
+  "topo_limits": {
+   "has_transistor": true,
+   "device_budget": false,
+   "has_ports": true,
+   "single_input": true,
+   "not_floating": true,
+   "max_inductors": false,
+   "match_plausible": true
+  },
+  "infeasible_reason": "topology limits violated: device_budget, max_inductors",
+  "verifier": {
+   "profile": "rl-v1",
+   "flags": {
+    "STAB_WIDE_INLOOP": "1",
+    "STAB_WIDE_WINDOW": "1e7,5e10,1001",
+    "VERIFY_TOPO_LIMITS": "1",
+    "VERIFY_STRUCT": "1",
+    "VERIFY_FINITE": "1",
+    "VERIFY_BAND_METRICS": null,
+    "VERIFY_NF_BAND": null,
+    "VERIFY_NO_INERT": null,
+    "VERIFY_INERT_COUNT": "1",
+    "VERIFY_ROBUST": null,
+    "VERIFY_ROBUST_PCT": null,
+    "VERIFY_ROBUST_MIN": null
+   },
+   "env_overrides": [],
+   "stab_gate_on": true,
+   "stab_window": [
+    10000000.0,
+    50000000000.0,
+    1001
+   ],
+   "spec_rl_v1_issues": []
+  }
+ }
+}

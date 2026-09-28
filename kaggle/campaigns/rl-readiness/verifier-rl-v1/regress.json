@@ -1,0 +1,141 @@
+[
+ {
+  "row": "E-a v12-nb-f15-g12 template d0 s1 (lib, no profile)",
+  "compared": [
+   "metrics",
+   "feasible",
+   "n_evals",
+   "n_sim_fail",
+   "sim_error",
+   "winner_reeval_ungated"
+  ],
+  "per_key": {
+   "metrics": true,
+   "feasible": true,
+   "n_evals": true,
+   "n_sim_fail": true,
+   "sim_error": true,
+   "winner_reeval_ungated": true
+  },
+  "identical": true,
+  "verifier_key_present": false
+ },
+ {
+  "row": "E-a v12-wb-s11n10-g10-b0824 template d0 s1 (lib, no profile)",
+  "compared": [
+   "metrics",
+   "feasible",
+   "n_evals",
+   "n_sim_fail",
+   "sim_error",
+   "winner_reeval_ungated"
+  ],
+  "per_key": {
+   "metrics": true,
+   "feasible": true,
+   "n_evals": true,
+   "n_sim_fail": true,
+   "sim_error": true,
+   "winner_reeval_ungated": true
+  },
+  "identical": true,
+  "verifier_key_present": false
+ },
+ {
+  "row": "E-c wb-s11n10-g10-b0530 ec:72945e70a2a1:131 s1 (lib, no profile)",
+  "compared": [
+   "metrics",
+   "feasible",
+   "n_evals",
+   "n_sim_fail",
+   "sim_error",
+   "(metrics restricted to the keys E-c stored)"
+  ],
+  "metrics_keys_not_recorded_by_E-c": [
+   "stab_band"
+  ],
+  "per_key": {
+   "metrics": true,
+   "feasible": true,
+   "n_evals": true,
+   "n_sim_fail": true,
+   "sim_error": true
+  },
+  "identical": true,
+  "verifier_key_present": false
+ },
+ {
+  "row": "stability-gate nb-f15-g14 template stab gate s1 (no profile)",
+  "compared": "FULL result dict",
+  "identical": true,
+  "verifier_key_present": false,
+  "keys_new_minus_old": [],
+  "keys_old_minus_new": []
+ },
+ {
+  "row": "S-1 wb-s11n10-g10-b0824 template inloop s1 (flag STAB_WIDE_INLOOP=1, no profile)",
+  "compared": "full dict minus stab_inloop.wide_secs and the added `verifier` key",
+  "identical": true,
+  "keys_new_minus_old": [
+   "verifier"
+  ],
+  "verifier": {
+   "profile": null,
+   "flags": {
+    "STAB_WIDE_INLOOP": "1",
+    "STAB_WIDE_WINDOW": null,
+    "VERIFY_TOPO_LIMITS": null,
+    "VERIFY_STRUCT": null,
+    "VERIFY_FINITE": null,
+    "VERIFY_BAND_METRICS": null,
+    "VERIFY_NF_BAND": null,
+    "VERIFY_NO_INERT": null,
+    "VERIFY_INERT_COUNT": null,
+    "VERIFY_ROBUST": null,
+    "VERIFY_ROBUST_PCT": null,
+    "VERIFY_ROBUST_MIN": null
+   },
+   "env_overrides": [],
+   "stab_gate_on": true,
+   "stab_window": [
+    100000000.0,
+    20000000000.0,
+    401
+   ],
+   "spec_rl_v1_issues": [
+    "wideband gates nf_db (f0) instead of nf_max_db (band)",
+    "wideband max_inductors != 2"
+   ]
+  }
+ },
+ {
+  "row": "rl-v1 via env VERIFIER_PROFILE vs via smoke_run(profile=) nb-f15-g16 template s1",
+  "compared": "full dict minus stab_inloop.wide_secs",
+  "identical": true,
+  "verifier": {
+   "profile": "rl-v1",
+   "flags": {
+    "STAB_WIDE_INLOOP": "1",
+    "STAB_WIDE_WINDOW": "1e7,5e10,1001",
+    "VERIFY_TOPO_LIMITS": "1",
+    "VERIFY_STRUCT": "1",
+    "VERIFY_FINITE": "1",
+    "VERIFY_BAND_METRICS": null,
+    "VERIFY_NF_BAND": null,
+    "VERIFY_NO_INERT": null,
+    "VERIFY_INERT_COUNT": "1",
+    "VERIFY_ROBUST": null,
+    "VERIFY_ROBUST_PCT": null,
+    "VERIFY_ROBUST_MIN": null
+   },
+   "env_overrides": [],
+   "stab_gate_on": true,
+   "stab_window": [
+    10000000.0,
+    50000000000.0,
+    1001
+   ],
+   "spec_rl_v1_issues": []
+  }
+ }
+]

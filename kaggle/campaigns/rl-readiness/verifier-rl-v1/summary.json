@@ -1,0 +1,2172 @@
+{
+ "groups": {
+  "nb a1": {
+   "pairs": 8,
+   "runs": 24,
+   "gate_F": 12,
+   "inloop_F": 22,
+   "rlv1_F": 22,
+   "cells": 8,
+   "gate_cells": 6,
+   "inloop_cells": 8,
+   "rlv1_cells": 8,
+   "lost_cells": [],
+   "gained_cells": [],
+   "rlv1_cell_list": [
+    "nb-f15-g12",
+    "nb-f15-g14",
+    "nb-f15-g16",
+    "nb-f15-g18",
+    "nb-f24-g12",
+    "nb-f24-g14",
+    "nb-f24-g16",
+    "nb-f24-g18"
+   ]
+  },
+  "nb ANY candidate": {
+   "pairs": 16,
+   "runs": 48,
+   "gate_F": 32,
+   "inloop_F": 46,
+   "rlv1_F": 46,
+   "cells": 8,
+   "gate_cells": 8,
+   "inloop_cells": 8,
+   "rlv1_cells": 8,
+   "lost_cells": [],
+   "gained_cells": [],
+   "rlv1_cell_list": [
+    "nb-f15-g12",
+    "nb-f15-g14",
+    "nb-f15-g16",
+    "nb-f15-g18",
+    "nb-f24-g12",
+    "nb-f24-g14",
+    "nb-f24-g16",
+    "nb-f24-g18"
+   ]
+  },
+  "nb template": {
+   "pairs": 8,
+   "runs": 24,
+   "gate_F": 20,
+   "inloop_F": 24,
+   "rlv1_F": 24,
+   "cells": 8,
+   "gate_cells": 8,
+   "inloop_cells": 8,
+   "rlv1_cells": 8,
+   "lost_cells": [],
+   "gained_cells": [],
+   "rlv1_cell_list": [
+    "nb-f15-g12",
+    "nb-f15-g14",
+    "nb-f15-g16",
+    "nb-f15-g18",
+    "nb-f24-g12",
+    "nb-f24-g14",
+    "nb-f24-g16",
+    "nb-f24-g18"
+   ]
+  },
+  "wb template": {
+   "pairs": 8,
+   "runs": 24,
+   "gate_F": 0,
+   "inloop_F": 8,
+   "rlv1_F": 5,
+   "cells": 8,
+   "gate_cells": 0,
+   "inloop_cells": 4,
+   "rlv1_cells": 2,
+   "lost_cells": [
+    "wb-s11n8-g10-b0530",
+    "wb-s11n9-g10-b0530"
+   ],
+   "gained_cells": [],
+   "rlv1_cell_list": [
+    "wb-s11n10-g10-b0824",
+    "wb-s11n11-g10-b0824"
+   ]
+  },
+  "wb ANY candidate": {
+   "pairs": 16,
+   "runs": 48,
+   "gate_F": 0,
+   "inloop_F": 22,
+   "rlv1_F": 7,
+   "cells": 8,
+   "gate_cells": 0,
+   "inloop_cells": 4,
+   "rlv1_cells": 4,
+   "lost_cells": [],
+   "gained_cells": [],
+   "rlv1_cell_list": [
+    "wb-s11n10-g10-b0824",
+    "wb-s11n11-g10-b0824",
+    "wb-s11n8-g10-b0530",
+    "wb-s11n9-g10-b0530"
+   ]
+  },
+  "wb E-c (S-1 picks)": {
+   "pairs": 8,
+   "runs": 24,
+   "gate_F": 0,
+   "inloop_F": 14,
+   "rlv1_F": 2,
+   "cells": 4,
+   "gate_cells": 0,
+   "inloop_cells": 4,
+   "rlv1_cells": 2,
+   "lost_cells": [
+    "wb-s11n10-g10-b0824",
+    "wb-s11n11-g10-b0824"
+   ],
+   "gained_cells": [],
+   "rlv1_cell_list": [
+    "wb-s11n8-g10-b0530",
+    "wb-s11n9-g10-b0530"
+   ]
+  }
+ },
+ "per_cell": [
+  {
+   "cell": "v12-nb-f15-g12",
+   "cand": "anchor:lna-a1-inddegen-cascode",
+   "group": "nb a1",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "xxx",
+   "inloop": "FxF",
+   "rlv1": "FFF",
+   "rlv1_causes": {},
+   "static_baseline_winners": 2,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {
+    "spec:s11_max_db": 2
+   },
+   "inert_counts": [
+    0,
+    0,
+    0
+   ],
+   "nf_max_db": [
+    null,
+    null,
+    null
+   ],
+   "s11_max_db": [
+    -10.0708,
+    -10.196,
+    -10.0088
+   ],
+   "mu_min_wide": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "secs": [
+    124.4,
+    124.4,
+    124.4
+   ]
+  },
+  {
+   "cell": "v12-nb-f15-g12",
+   "cand": "template",
+   "group": "nb template",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "xFF",
+   "inloop": "FFF",
+   "rlv1": "FFF",
+   "rlv1_causes": {},
+   "static_baseline_winners": 3,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {
+    "spec:s11_max_db": 3
+   },
+   "inert_counts": [
+    1,
+    1,
+    0
+   ],
+   "nf_max_db": [
+    null,
+    null,
+    null
+   ],
+   "s11_max_db": [
+    -10.138,
+    -10.0092,
+    -10.0111
+   ],
+   "mu_min_wide": [
+    1.00004,
+    1.0,
+    1.0
+   ],
+   "secs": [
+    125.9,
+    125.6,
+    124.3
+   ]
+  },
+  {
+   "cell": "v12-nb-f15-g14",
+   "cand": "anchor:lna-a1-inddegen-cascode",
+   "group": "nb a1",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "FFF",
+   "inloop": "FFF",
+   "rlv1": "FFF",
+   "rlv1_causes": {},
+   "static_baseline_winners": 3,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {
+    "spec:s11_max_db": 3
+   },
+   "inert_counts": [
+    0,
+    0,
+    0
+   ],
+   "nf_max_db": [
+    null,
+    null,
+    null
+   ],
+   "s11_max_db": [
+    -10.0222,
+    -10.0744,
+    -10.0059
+   ],
+   "mu_min_wide": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "secs": [
+    125.0,
+    124.9,
+    125.5
+   ]
+  },
+  {
+   "cell": "v12-nb-f15-g14",
+   "cand": "template",
+   "group": "nb template",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "FFF",
+   "inloop": "FFF",
+   "rlv1": "FFF",
+   "rlv1_causes": {},
+   "static_baseline_winners": 3,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {
+    "spec:s11_max_db": 3
+   },
+   "inert_counts": [
+    0,
+    0,
+    0
+   ],
+   "nf_max_db": [
+    null,
+    null,
+    null
+   ],
+   "s11_max_db": [
+    -10.0047,
+    -10.0017,
+    -10.0002
+   ],
+   "mu_min_wide": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "secs": [
+    124.2,
+    124.4,
+    125.2
+   ]
+  },
+  {
+   "cell": "v12-nb-f15-g16",
+   "cand": "anchor:lna-a1-inddegen-cascode",
+   "group": "nb a1",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "FFF",
+   "inloop": "FFF",
+   "rlv1": "FxF",
+   "rlv1_causes": {
+    "nf@f0": 1,
+    "band S11 (W6 if nb)": 1
+   },
+   "static_baseline_winners": 3,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {
+    "spec:s11_max_db": 3
+   },
+   "inert_counts": [
+    0,
+    null,
+    0
+   ],
+   "nf_max_db": [
+    null,
+    null,
+    null
+   ],
+   "s11_max_db": [
+    -10.0907,
+    -9.99979,
+    -10.0151
+   ],
+   "mu_min_wide": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "secs": [
+    123.2,
+    122.8,
+    123.0
+   ]
+  },
+  {
+   "cell": "v12-nb-f15-g16",
+   "cand": "template",
+   "group": "nb template",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "FFF",
+   "inloop": "FFF",
+   "rlv1": "FFF",
+   "rlv1_causes": {},
+   "static_baseline_winners": 3,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {
+    "spec:s11_max_db": 3
+   },
+   "inert_counts": [
+    1,
+    0,
+    0
+   ],
+   "nf_max_db": [
+    null,
+    null,
+    null
+   ],
+   "s11_max_db": [
+    -10.5826,
+    -10.018,
+    -10.0021
+   ],
+   "mu_min_wide": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "secs": [
+    125.8,
+    125.0,
+    123.7
+   ]
+  },
+  {
+   "cell": "v12-nb-f15-g18",
+   "cand": "anchor:lna-a1-inddegen-cascode",
+   "group": "nb a1",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "FxF",
+   "inloop": "FxF",
+   "rlv1": "FxF",
+   "rlv1_causes": {
+    "nf@f0": 1,
+    "band S11 (W6 if nb)": 1,
+    "s21": 1
+   },
+   "static_baseline_winners": 2,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {
+    "spec:s11_max_db": 2
+   },
+   "inert_counts": [
+    0,
+    null,
+    0
+   ],
+   "nf_max_db": [
+    null,
+    null,
+    null
+   ],
+   "s11_max_db": [
+    -10.0001,
+    -9.51135,
+    -10.0018
+   ],
+   "mu_min_wide": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "secs": [
+    122.7,
+    122.0,
+    122.0
+   ]
+  },
+  {
+   "cell": "v12-nb-f15-g18",
+   "cand": "template",
+   "group": "nb template",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "FFF",
+   "inloop": "FFF",
+   "rlv1": "FFF",
+   "rlv1_causes": {},
+   "static_baseline_winners": 3,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {
+    "spec:s11_max_db": 3
+   },
+   "inert_counts": [
+    1,
+    0,
+    0
+   ],
+   "nf_max_db": [
+    null,
+    null,
+    null
+   ],
+   "s11_max_db": [
+    -10.0075,
+    -10.0009,
+    -10.0006
+   ],
+   "mu_min_wide": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "secs": [
+    122.9,
+    123.0,
+    123.1
+   ]
+  },
+  {
+   "cell": "v12-nb-f24-g12",
+   "cand": "anchor:lna-a1-inddegen-cascode",
+   "group": "nb a1",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "xFx",
+   "inloop": "FFF",
+   "rlv1": "FFF",
+   "rlv1_causes": {},
+   "static_baseline_winners": 3,
+   "static_pass_rlv1": 1,
+   "static_fail_checks": {
+    "spec:s11_max_db": 2
+   },
+   "inert_counts": [
+    0,
+    0,
+    0
+   ],
+   "nf_max_db": [
+    null,
+    null,
+    null
+   ],
+   "s11_max_db": [
+    -10.0011,
+    -10.0202,
+    -10.0007
+   ],
+   "mu_min_wide": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "secs": [
+    137.9,
+    138.0,
+    137.8
+   ]
+  },
+  {
+   "cell": "v12-nb-f24-g12",
+   "cand": "template",
+   "group": "nb template",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "FxF",
+   "inloop": "FFF",
+   "rlv1": "FFF",
+   "rlv1_causes": {},
+   "static_baseline_winners": 3,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {
+    "spec:s11_max_db": 3
+   },
+   "inert_counts": [
+    1,
+    1,
+    1
+   ],
+   "nf_max_db": [
+    null,
+    null,
+    null
+   ],
+   "s11_max_db": [
+    -10.0958,
+    -10.2168,
+    -10.205
+   ],
+   "mu_min_wide": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "secs": [
+    122.5,
+    122.3,
+    138.1
+   ]
+  },
+  {
+   "cell": "v12-nb-f24-g14",
+   "cand": "anchor:lna-a1-inddegen-cascode",
+   "group": "nb a1",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "xxx",
+   "inloop": "FFF",
+   "rlv1": "FFF",
+   "rlv1_causes": {},
+   "static_baseline_winners": 3,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {
+    "spec:s11_max_db": 3
+   },
+   "inert_counts": [
+    0,
+    0,
+    0
+   ],
+   "nf_max_db": [
+    null,
+    null,
+    null
+   ],
+   "s11_max_db": [
+    -10.0959,
+    -10.0155,
+    -10.5452
+   ],
+   "mu_min_wide": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "secs": [
+    124.3,
+    125.0,
+    124.5
+   ]
+  },
+  {
+   "cell": "v12-nb-f24-g14",
+   "cand": "template",
+   "group": "nb template",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "xFx",
+   "inloop": "FFF",
+   "rlv1": "FFF",
+   "rlv1_causes": {},
+   "static_baseline_winners": 3,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {
+    "spec:s11_max_db": 3
+   },
+   "inert_counts": [
+    1,
+    0,
+    1
+   ],
+   "nf_max_db": [
+    null,
+    null,
+    null
+   ],
+   "s11_max_db": [
+    -10.0313,
+    -10.0261,
+    -10.0131
+   ],
+   "mu_min_wide": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "secs": [
+    138.3,
+    139.0,
+    125.1
+   ]
+  },
+  {
+   "cell": "v12-nb-f24-g16",
+   "cand": "anchor:lna-a1-inddegen-cascode",
+   "group": "nb a1",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "xFx",
+   "inloop": "FFF",
+   "rlv1": "FFF",
+   "rlv1_causes": {},
+   "static_baseline_winners": 3,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {
+    "spec:s11_max_db": 3,
+    "wide_mu": 1
+   },
+   "inert_counts": [
+    0,
+    0,
+    0
+   ],
+   "nf_max_db": [
+    null,
+    null,
+    null
+   ],
+   "s11_max_db": [
+    -10.0265,
+    -10.0375,
+    -10.1429
+   ],
+   "mu_min_wide": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "secs": [
+    128.7,
+    128.9,
+    129.0
+   ]
+  },
+  {
+   "cell": "v12-nb-f24-g16",
+   "cand": "template",
+   "group": "nb template",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "FFF",
+   "inloop": "FFF",
+   "rlv1": "FFF",
+   "rlv1_causes": {},
+   "static_baseline_winners": 3,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {
+    "spec:s11_max_db": 3
+   },
+   "inert_counts": [
+    1,
+    0,
+    1
+   ],
+   "nf_max_db": [
+    null,
+    null,
+    null
+   ],
+   "s11_max_db": [
+    -10.2165,
+    -10.0031,
+    -10.0728
+   ],
+   "mu_min_wide": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "secs": [
+    125.3,
+    124.8,
+    129.7
+   ]
+  },
+  {
+   "cell": "v12-nb-f24-g18",
+   "cand": "anchor:lna-a1-inddegen-cascode",
+   "group": "nb a1",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "FxF",
+   "inloop": "FFF",
+   "rlv1": "FFF",
+   "rlv1_causes": {},
+   "static_baseline_winners": 3,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {
+    "spec:s11_max_db": 3
+   },
+   "inert_counts": [
+    0,
+    0,
+    0
+   ],
+   "nf_max_db": [
+    null,
+    null,
+    null
+   ],
+   "s11_max_db": [
+    -10.0144,
+    -10.0054,
+    -10.03
+   ],
+   "mu_min_wide": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "secs": [
+    130.9,
+    130.7,
+    130.5
+   ]
+  },
+  {
+   "cell": "v12-nb-f24-g18",
+   "cand": "template",
+   "group": "nb template",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "FFF",
+   "inloop": "FFF",
+   "rlv1": "FFF",
+   "rlv1_causes": {},
+   "static_baseline_winners": 3,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {
+    "spec:s11_max_db": 3
+   },
+   "inert_counts": [
+    1,
+    1,
+    1
+   ],
+   "nf_max_db": [
+    null,
+    null,
+    null
+   ],
+   "s11_max_db": [
+    -10.1301,
+    -10.0653,
+    -10.4836
+   ],
+   "mu_min_wide": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "secs": [
+    129.4,
+    129.1,
+    130.7
+   ]
+  },
+  {
+   "cell": "v12-wb-s11n10-g10-b0530",
+   "cand": "template",
+   "group": "wb template",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "xxx",
+   "inloop": "xxx",
+   "rlv1": "xxx",
+   "rlv1_causes": {
+    "band S11 (W6 if nb)": 3,
+    "s21": 1
+   },
+   "static_baseline_winners": 0,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {},
+   "inert_counts": [
+    null,
+    null,
+    null
+   ],
+   "nf_max_db": [
+    2.939224,
+    2.997315,
+    2.997933
+   ],
+   "s11_max_db": [
+    -9.88787,
+    -9.93585,
+    -9.79594
+   ],
+   "mu_min_wide": [
+    0.944352,
+    0.95367,
+    0.957864
+   ],
+   "secs": [
+    210.7,
+    211.1,
+    225.2
+   ]
+  },
+  {
+   "cell": "v12-wb-s11n10-g10-b0824",
+   "cand": "ec:72945e70a2a1:051",
+   "group": "wb E-c (S-1 picks)",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "xxx",
+   "inloop": "xxx",
+   "rlv1": "xxx",
+   "rlv1_causes": {
+    "W5 band NF": 3,
+    "band S11 (W6 if nb)": 3
+   },
+   "static_baseline_winners": 0,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {},
+   "inert_counts": [
+    null,
+    null,
+    null
+   ],
+   "nf_max_db": [
+    3.00519,
+    3.000431,
+    3.103238
+   ],
+   "s11_max_db": [
+    -8.53079,
+    -7.73339,
+    -7.35843
+   ],
+   "mu_min_wide": [
+    1.0001,
+    0.999747,
+    1.00047
+   ],
+   "secs": [
+    194.5,
+    195.1,
+    196.8
+   ]
+  },
+  {
+   "cell": "v12-wb-s11n10-g10-b0824",
+   "cand": "ec:72945e70a2a1:131",
+   "group": "wb E-c (S-1 picks)",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "xxx",
+   "inloop": "FFx",
+   "rlv1": "xxx",
+   "rlv1_causes": {
+    "topo:max_inductors": 3
+   },
+   "static_baseline_winners": 2,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {
+    "topo:max_inductors": 2,
+    "spec:nf_max_db": 2
+   },
+   "inert_counts": [
+    null,
+    null,
+    null
+   ],
+   "nf_max_db": [
+    null,
+    null,
+    null
+   ],
+   "s11_max_db": [
+    null,
+    null,
+    null
+   ],
+   "mu_min_wide": [
+    null,
+    null,
+    null
+   ],
+   "secs": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "cell": "v12-wb-s11n10-g10-b0824",
+   "cand": "template",
+   "group": "wb template",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "xxx",
+   "inloop": "FFF",
+   "rlv1": "FFx",
+   "rlv1_causes": {
+    "wide mu 0.01-50GHz": 1
+   },
+   "static_baseline_winners": 3,
+   "static_pass_rlv1": 2,
+   "static_fail_checks": {
+    "spec:nf_max_db": 1
+   },
+   "inert_counts": [
+    0,
+    1,
+    null
+   ],
+   "nf_max_db": [
+    2.748323,
+    2.624336,
+    2.587456
+   ],
+   "s11_max_db": [
+    -10.599,
+    -10.0701,
+    -10.0109
+   ],
+   "mu_min_wide": [
+    1.00015,
+    1.00014,
+    0.997374
+   ],
+   "secs": [
+    225.6,
+    226.3,
+    227.0
+   ]
+  },
+  {
+   "cell": "v12-wb-s11n10-g12-b0824",
+   "cand": "template",
+   "group": "wb template",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "xxx",
+   "inloop": "xxx",
+   "rlv1": "xxx",
+   "rlv1_causes": {
+    "wide mu 0.01-50GHz": 1,
+    "s21": 2
+   },
+   "static_baseline_winners": 0,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {},
+   "inert_counts": [
+    null,
+    null,
+    null
+   ],
+   "nf_max_db": [
+    2.998081,
+    2.986704,
+    2.953214
+   ],
+   "s11_max_db": [
+    -10.0007,
+    -10.0065,
+    -10.0865
+   ],
+   "mu_min_wide": [
+    0.966181,
+    0.949999,
+    0.948279
+   ],
+   "secs": [
+    210.5,
+    210.1,
+    217.3
+   ]
+  },
+  {
+   "cell": "v12-wb-s11n11-g10-b0824",
+   "cand": "ec:72945e70a2a1:053",
+   "group": "wb E-c (S-1 picks)",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "xxx",
+   "inloop": "FFF",
+   "rlv1": "xxx",
+   "rlv1_causes": {
+    "topo:max_inductors": 3
+   },
+   "static_baseline_winners": 3,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {
+    "topo:max_inductors": 3,
+    "spec:nf_max_db": 3
+   },
+   "inert_counts": [
+    null,
+    null,
+    null
+   ],
+   "nf_max_db": [
+    null,
+    null,
+    null
+   ],
+   "s11_max_db": [
+    null,
+    null,
+    null
+   ],
+   "mu_min_wide": [
+    null,
+    null,
+    null
+   ],
+   "secs": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "cell": "v12-wb-s11n11-g10-b0824",
+   "cand": "ec:72945e70a2a1:131",
+   "group": "wb E-c (S-1 picks)",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "xxx",
+   "inloop": "xFx",
+   "rlv1": "xxx",
+   "rlv1_causes": {
+    "topo:max_inductors": 3
+   },
+   "static_baseline_winners": 1,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {
+    "topo:max_inductors": 1,
+    "spec:nf_max_db": 1
+   },
+   "inert_counts": [
+    null,
+    null,
+    null
+   ],
+   "nf_max_db": [
+    null,
+    null,
+    null
+   ],
+   "s11_max_db": [
+    null,
+    null,
+    null
+   ],
+   "mu_min_wide": [
+    null,
+    null,
+    null
+   ],
+   "secs": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "cell": "v12-wb-s11n11-g10-b0824",
+   "cand": "template",
+   "group": "wb template",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "xxx",
+   "inloop": "FxF",
+   "rlv1": "FFF",
+   "rlv1_causes": {},
+   "static_baseline_winners": 2,
+   "static_pass_rlv1": 1,
+   "static_fail_checks": {
+    "spec:nf_max_db": 1
+   },
+   "inert_counts": [
+    0,
+    0,
+    0
+   ],
+   "nf_max_db": [
+    2.670377,
+    2.601358,
+    2.69829
+   ],
+   "s11_max_db": [
+    -11.0019,
+    -11.0029,
+    -11.0295
+   ],
+   "mu_min_wide": [
+    1.00005,
+    1.00009,
+    1.0001
+   ],
+   "secs": [
+    217.2,
+    216.5,
+    216.1
+   ]
+  },
+  {
+   "cell": "v12-wb-s11n11-g12-b0824",
+   "cand": "template",
+   "group": "wb template",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "xxx",
+   "inloop": "xxx",
+   "rlv1": "xxx",
+   "rlv1_causes": {
+    "s21": 3
+   },
+   "static_baseline_winners": 0,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {},
+   "inert_counts": [
+    null,
+    null,
+    null
+   ],
+   "nf_max_db": [
+    2.808445,
+    2.991414,
+    2.458749
+   ],
+   "s11_max_db": [
+    -11.002,
+    -11.0013,
+    -11.0389
+   ],
+   "mu_min_wide": [
+    0.957329,
+    0.954862,
+    0.927477
+   ],
+   "secs": [
+    217.0,
+    216.7,
+    202.8
+   ]
+  },
+  {
+   "cell": "v12-wb-s11n8-g10-b0530",
+   "cand": "ec:72945e70a2a1:147",
+   "group": "wb E-c (S-1 picks)",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "xxx",
+   "inloop": "FFF",
+   "rlv1": "xxF",
+   "rlv1_causes": {
+    "wide mu 0.01-50GHz": 1,
+    "W5 band NF": 1
+   },
+   "static_baseline_winners": 3,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {
+    "spec:nf_max_db": 3,
+    "wide_mu": 1
+   },
+   "inert_counts": [
+    null,
+    null,
+    0
+   ],
+   "nf_max_db": [
+    2.999155,
+    3.001145,
+    2.989304
+   ],
+   "s11_max_db": [
+    -8.05065,
+    -8.08965,
+    -8.03072
+   ],
+   "mu_min_wide": [
+    0.995883,
+    1.00006,
+    1.00011
+   ],
+   "secs": [
+    196.8,
+    195.8,
+    196.4
+   ]
+  },
+  {
+   "cell": "v12-wb-s11n8-g10-b0530",
+   "cand": "ec:72945e70a2a1:157",
+   "group": "wb E-c (S-1 picks)",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "xxx",
+   "inloop": "xxx",
+   "rlv1": "xxx",
+   "rlv1_causes": {
+    "W5 band NF": 1,
+    "band S11 (W6 if nb)": 2,
+    "in-band mu": 1,
+    "s21": 1,
+    "wide mu 0.01-50GHz": 1
+   },
+   "static_baseline_winners": 0,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {},
+   "inert_counts": [
+    null,
+    null,
+    null
+   ],
+   "nf_max_db": [
+    3.084212,
+    2.998656,
+    2.960109
+   ],
+   "s11_max_db": [
+    -2.72251,
+    -5.16998,
+    -8.04809
+   ],
+   "mu_min_wide": [
+    0.816403,
+    0.982459,
+    0.999643
+   ],
+   "secs": [
+    195.9,
+    195.3,
+    203.0
+   ]
+  },
+  {
+   "cell": "v12-wb-s11n8-g10-b0530",
+   "cand": "template",
+   "group": "wb template",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "xxx",
+   "inloop": "xFF",
+   "rlv1": "xxx",
+   "rlv1_causes": {
+    "wide mu 0.01-50GHz": 2,
+    "W5 band NF": 1
+   },
+   "static_baseline_winners": 2,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {
+    "spec:nf_max_db": 2
+   },
+   "inert_counts": [
+    null,
+    null,
+    null
+   ],
+   "nf_max_db": [
+    2.961012,
+    2.99967,
+    3.000402
+   ],
+   "s11_max_db": [
+    -8.04387,
+    -8.00181,
+    -8.01693
+   ],
+   "mu_min_wide": [
+    0.987148,
+    0.977732,
+    0.964695
+   ],
+   "secs": [
+    203.2,
+    204.1,
+    201.4
+   ]
+  },
+  {
+   "cell": "v12-wb-s11n8-g12-b0530",
+   "cand": "template",
+   "group": "wb template",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "xxx",
+   "inloop": "xxx",
+   "rlv1": "xxx",
+   "rlv1_causes": {
+    "s21": 3
+   },
+   "static_baseline_winners": 0,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {},
+   "inert_counts": [
+    null,
+    null,
+    null
+   ],
+   "nf_max_db": [
+    2.637788,
+    2.771829,
+    2.826629
+   ],
+   "s11_max_db": [
+    -8.00664,
+    -8.00989,
+    -8.0005
+   ],
+   "mu_min_wide": [
+    0.881608,
+    0.914457,
+    0.929267
+   ],
+   "secs": [
+    195.9,
+    195.8,
+    189.5
+   ]
+  },
+  {
+   "cell": "v12-wb-s11n9-g10-b0530",
+   "cand": "ec:72945e70a2a1:126",
+   "group": "wb E-c (S-1 picks)",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "xxx",
+   "inloop": "FFF",
+   "rlv1": "xxF",
+   "rlv1_causes": {
+    "W5 band NF": 1,
+    "wide mu 0.01-50GHz": 1
+   },
+   "static_baseline_winners": 3,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {
+    "spec:nf_max_db": 3,
+    "wide_mu": 1
+   },
+   "inert_counts": [
+    null,
+    null,
+    1
+   ],
+   "nf_max_db": [
+    3.001091,
+    2.995099,
+    2.846795
+   ],
+   "s11_max_db": [
+    -9.02173,
+    -9.00443,
+    -9.31555
+   ],
+   "mu_min_wide": [
+    0.987342,
+    0.983864,
+    1.00012
+   ],
+   "secs": [
+    193.9,
+    194.7,
+    156.1
+   ]
+  },
+  {
+   "cell": "v12-wb-s11n9-g10-b0530",
+   "cand": "ec:72945e70a2a1:156",
+   "group": "wb E-c (S-1 picks)",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "xxx",
+   "inloop": "FxF",
+   "rlv1": "xxx",
+   "rlv1_causes": {
+    "wide mu 0.01-50GHz": 1,
+    "W5 band NF": 2,
+    "band S11 (W6 if nb)": 2
+   },
+   "static_baseline_winners": 2,
+   "static_pass_rlv1": 1,
+   "static_fail_checks": {
+    "spec:nf_max_db": 1,
+    "wide_mu": 1
+   },
+   "inert_counts": [
+    null,
+    null,
+    null
+   ],
+   "nf_max_db": [
+    2.99968,
+    3.0315,
+    3.035401
+   ],
+   "s11_max_db": [
+    -9.11802,
+    -3.28057,
+    -8.87277
+   ],
+   "mu_min_wide": [
+    0.975205,
+    0.948946,
+    0.999659
+   ],
+   "secs": [
+    202.4,
+    202.0,
+    202.2
+   ]
+  },
+  {
+   "cell": "v12-wb-s11n9-g10-b0530",
+   "cand": "template",
+   "group": "wb template",
+   "seeds": [
+    1,
+    2,
+    3
+   ],
+   "gate": "xxx",
+   "inloop": "xFx",
+   "rlv1": "xxx",
+   "rlv1_causes": {
+    "wide mu 0.01-50GHz": 2,
+    "W5 band NF": 1
+   },
+   "static_baseline_winners": 1,
+   "static_pass_rlv1": 0,
+   "static_fail_checks": {
+    "spec:nf_max_db": 1
+   },
+   "inert_counts": [
+    null,
+    null,
+    null
+   ],
+   "nf_max_db": [
+    2.987947,
+    2.999242,
+    3.000032
+   ],
+   "s11_max_db": [
+    -9.04309,
+    -9.00579,
+    -9.00835
+   ],
+   "mu_min_wide": [
+    0.929344,
+    0.976691,
+    0.986673
+   ],
+   "secs": [
+    191.0,
+    190.0,
+    188.1
+   ]
+  }
+ ],
+ "loop": [
+  {
+   "mutant": "nb_bleeder",
+   "cell": "v12-nb-f15-g16",
+   "junk_sized_devices": [
+    "pR3V"
+   ],
+   "junk_flagged_inert": [
+    "pR3V"
+   ],
+   "r4_inloop_feasible": true,
+   "rlv1_feasible": true,
+   "rlv1_reason": null,
+   "n_evals": 2500,
+   "inert_devices": [
+    "pC4V",
+    "pR3V"
+   ],
+   "n_inert_devices": 2,
+   "causes": [],
+   "secs": 125.1
+  },
+  {
+   "mutant": "nb_bleeder",
+   "cell": "v12-nb-f24-g12",
+   "junk_sized_devices": [
+    "pR3V"
+   ],
+   "junk_flagged_inert": [
+    "pR3V"
+   ],
+   "r4_inloop_feasible": null,
+   "rlv1_feasible": true,
+   "rlv1_reason": null,
+   "n_evals": 2500,
+   "inert_devices": [
+    "pC4V",
+    "pR3V"
+   ],
+   "n_inert_devices": 2,
+   "causes": [],
+   "secs": 125.7
+  },
+  {
+   "mutant": "nb_cap_in",
+   "cell": "v12-nb-f15-g16",
+   "junk_sized_devices": [
+    "pC5V"
+   ],
+   "junk_flagged_inert": [
+    "pC5V"
+   ],
+   "r4_inloop_feasible": true,
+   "rlv1_feasible": true,
+   "rlv1_reason": null,
+   "n_evals": 2500,
+   "inert_devices": [
+    "pC4V",
+    "pC5V"
+   ],
+   "n_inert_devices": 2,
+   "causes": [],
+   "secs": 125.8
+  },
+  {
+   "mutant": "nb_cap_in",
+   "cell": "v12-nb-f24-g12",
+   "junk_sized_devices": [
+    "pC5V"
+   ],
+   "junk_flagged_inert": [
+    "pC5V"
+   ],
+   "r4_inloop_feasible": null,
+   "rlv1_feasible": true,
+   "rlv1_reason": null,
+   "n_evals": 2500,
+   "inert_devices": [
+    "pC4V",
+    "pC5V"
+   ],
+   "n_inert_devices": 2,
+   "causes": [],
+   "secs": 126.3
+  },
+  {
+   "mutant": "nb_dangling",
+   "cell": "v12-nb-f15-g16",
+   "junk_sized_devices": [],
+   "junk_flagged_inert": null,
+   "r4_inloop_feasible": true,
+   "rlv1_feasible": false,
+   "rlv1_reason": "structural degeneracy: dangling_node=['C5_N']",
+   "n_evals": 0,
+   "inert_devices": null,
+   "n_inert_devices": null,
+   "causes": [
+    "struct:dangling_node"
+   ],
+   "secs": 0.0
+  },
+  {
+   "mutant": "nb_dangling",
+   "cell": "v12-nb-f24-g12",
+   "junk_sized_devices": [],
+   "junk_flagged_inert": null,
+   "r4_inloop_feasible": null,
+   "rlv1_feasible": false,
+   "rlv1_reason": "structural degeneracy: dangling_node=['C5_N']",
+   "n_evals": 0,
+   "inert_devices": null,
+   "n_inert_devices": null,
+   "causes": [
+    "struct:dangling_node"
+   ],
+   "secs": 0.0
+  },
+  {
+   "mutant": "nb_dead_mos",
+   "cell": "v12-nb-f15-g16",
+   "junk_sized_devices": [],
+   "junk_flagged_inert": null,
+   "r4_inloop_feasible": true,
+   "rlv1_feasible": false,
+   "rlv1_reason": "structural degeneracy: mos_d_eq_s=['NM4']; mos_g_eq_s=['NM4']",
+   "n_evals": 0,
+   "inert_devices": null,
+   "n_inert_devices": null,
+   "causes": [
+    "struct:mos_d_eq_s,mos_g_eq_s"
+   ],
+   "secs": 0.0
+  },
+  {
+   "mutant": "nb_dead_mos",
+   "cell": "v12-nb-f24-g12",
+   "junk_sized_devices": [],
+   "junk_flagged_inert": null,
+   "r4_inloop_feasible": null,
+   "rlv1_feasible": false,
+   "rlv1_reason": "structural degeneracy: mos_d_eq_s=['NM4']; mos_g_eq_s=['NM4']",
+   "n_evals": 0,
+   "inert_devices": null,
+   "n_inert_devices": null,
+   "causes": [
+    "struct:mos_d_eq_s,mos_g_eq_s"
+   ],
+   "secs": 0.0
+  },
+  {
+   "mutant": "nb_dup_out",
+   "cell": "v12-nb-f15-g16",
+   "junk_sized_devices": [
+    "pC5V",
+    "pR3V"
+   ],
+   "junk_flagged_inert": [
+    "pC5V"
+   ],
+   "r4_inloop_feasible": true,
+   "rlv1_feasible": true,
+   "rlv1_reason": null,
+   "n_evals": 2500,
+   "inert_devices": [
+    "pC5V"
+   ],
+   "n_inert_devices": 1,
+   "causes": [],
+   "secs": 126.6
+  },
+  {
+   "mutant": "nb_dup_out",
+   "cell": "v12-nb-f24-g12",
+   "junk_sized_devices": [
+    "pC5V",
+    "pR3V"
+   ],
+   "junk_flagged_inert": [
+    "pC5V",
+    "pR3V"
+   ],
+   "r4_inloop_feasible": null,
+   "rlv1_feasible": true,
+   "rlv1_reason": null,
+   "n_evals": 2500,
+   "inert_devices": [
+    "pC4V",
+    "pC5V",
+    "pR3V"
+   ],
+   "n_inert_devices": 3,
+   "causes": [],
+   "secs": 127.1
+  },
+  {
+   "mutant": "nb_rin_out",
+   "cell": "v12-nb-f15-g16",
+   "junk_sized_devices": [
+    "pR3V"
+   ],
+   "junk_flagged_inert": null,
+   "r4_inloop_feasible": false,
+   "rlv1_feasible": false,
+   "rlv1_reason": null,
+   "n_evals": 2500,
+   "inert_devices": null,
+   "n_inert_devices": null,
+   "causes": [
+    "nf@f0",
+    "band S11 (W6 if nb)",
+    "s21"
+   ],
+   "secs": 124.8
+  },
+  {
+   "mutant": "nb_rin_out",
+   "cell": "v12-nb-f24-g12",
+   "junk_sized_devices": [
+    "pR3V"
+   ],
+   "junk_flagged_inert": null,
+   "r4_inloop_feasible": null,
+   "rlv1_feasible": false,
+   "rlv1_reason": null,
+   "n_evals": 2500,
+   "inert_devices": null,
+   "n_inert_devices": null,
+   "causes": [
+    "nf@f0",
+    "band S11 (W6 if nb)",
+    "s21",
+    "in-band mu"
+   ],
+   "secs": 124.7
+  },
+  {
+   "mutant": "nb_tank_out",
+   "cell": "v12-nb-f15-g16",
+   "junk_sized_devices": [
+    "pC5V",
+    "pL4V"
+   ],
+   "junk_flagged_inert": [
+    "pC5V"
+   ],
+   "r4_inloop_feasible": true,
+   "rlv1_feasible": true,
+   "rlv1_reason": null,
+   "n_evals": 2500,
+   "inert_devices": [
+    "pC5V"
+   ],
+   "n_inert_devices": 1,
+   "causes": [],
+   "secs": 125.3
+  },
+  {
+   "mutant": "nb_tank_out",
+   "cell": "v12-nb-f24-g12",
+   "junk_sized_devices": [
+    "pC5V",
+    "pL4V"
+   ],
+   "junk_flagged_inert": [
+    "pC5V"
+   ],
+   "r4_inloop_feasible": null,
+   "rlv1_feasible": true,
+   "rlv1_reason": null,
+   "n_evals": 2500,
+   "inert_devices": [
+    "pC5V"
+   ],
+   "n_inert_devices": 1,
+   "causes": [],
+   "secs": 124.7
+  },
+  {
+   "mutant": "nb_vbnet",
+   "cell": "v12-nb-f15-g16",
+   "junk_sized_devices": [],
+   "junk_flagged_inert": null,
+   "r4_inloop_feasible": false,
+   "rlv1_feasible": false,
+   "rlv1_reason": "structural degeneracy: mos_no_dc_path=['NM4']",
+   "n_evals": 0,
+   "inert_devices": null,
+   "n_inert_devices": null,
+   "causes": [
+    "struct:mos_no_dc_path"
+   ],
+   "secs": 0.0
+  },
+  {
+   "mutant": "nb_vbnet",
+   "cell": "v12-nb-f24-g12",
+   "junk_sized_devices": [],
+   "junk_flagged_inert": null,
+   "r4_inloop_feasible": null,
+   "rlv1_feasible": false,
+   "rlv1_reason": "structural degeneracy: mos_no_dc_path=['NM4']",
+   "n_evals": 0,
+   "inert_devices": null,
+   "n_inert_devices": null,
+   "causes": [
+    "struct:mos_no_dc_path"
+   ],
+   "secs": 0.0
+  },
+  {
+   "mutant": "wb_bleeder",
+   "cell": "v12-wb-s11n10-g10-b0824",
+   "junk_sized_devices": [
+    "pR6V"
+   ],
+   "junk_flagged_inert": [
+    "pR6V"
+   ],
+   "r4_inloop_feasible": true,
+   "rlv1_feasible": true,
+   "rlv1_reason": null,
+   "n_evals": 2500,
+   "inert_devices": [
+    "pR6V"
+   ],
+   "n_inert_devices": 1,
+   "causes": [],
+   "secs": 197.3
+  },
+  {
+   "mutant": "wb_bleeder",
+   "cell": "v12-wb-s11n8-g10-b0530",
+   "junk_sized_devices": [
+    "pR6V"
+   ],
+   "junk_flagged_inert": null,
+   "r4_inloop_feasible": null,
+   "rlv1_feasible": false,
+   "rlv1_reason": null,
+   "n_evals": 2500,
+   "inert_devices": null,
+   "n_inert_devices": null,
+   "causes": [
+    "wide mu 0.01-50GHz"
+   ],
+   "secs": 197.3
+  },
+  {
+   "mutant": "wb_cap_in",
+   "cell": "v12-wb-s11n10-g10-b0824",
+   "junk_sized_devices": [
+    "pC5V"
+   ],
+   "junk_flagged_inert": [
+    "pC5V"
+   ],
+   "r4_inloop_feasible": true,
+   "rlv1_feasible": true,
+   "rlv1_reason": null,
+   "n_evals": 2500,
+   "inert_devices": [
+    "pC3V",
+    "pC5V",
+    "pL2V"
+   ],
+   "n_inert_devices": 3,
+   "causes": [],
+   "secs": 198.4
+  },
+  {
+   "mutant": "wb_cap_in",
+   "cell": "v12-wb-s11n8-g10-b0530",
+   "junk_sized_devices": [
+    "pC5V"
+   ],
+   "junk_flagged_inert": null,
+   "r4_inloop_feasible": null,
+   "rlv1_feasible": false,
+   "rlv1_reason": null,
+   "n_evals": 2500,
+   "inert_devices": null,
+   "n_inert_devices": null,
+   "causes": [
+    "W5 band NF"
+   ],
+   "secs": 197.9
+  },
+  {
+   "mutant": "wb_dangling",
+   "cell": "v12-wb-s11n10-g10-b0824",
+   "junk_sized_devices": [],
+   "junk_flagged_inert": null,
+   "r4_inloop_feasible": false,
+   "rlv1_feasible": false,
+   "rlv1_reason": "topology limits violated: device_budget",
+   "n_evals": 0,
+   "inert_devices": null,
+   "n_inert_devices": null,
+   "causes": [
+    "topo:device_budget"
+   ],
+   "secs": 0.0
+  },
+  {
+   "mutant": "wb_dangling",
+   "cell": "v12-wb-s11n8-g10-b0530",
+   "junk_sized_devices": [],
+   "junk_flagged_inert": null,
+   "r4_inloop_feasible": null,
+   "rlv1_feasible": false,
+   "rlv1_reason": "topology limits violated: device_budget",
+   "n_evals": 0,
+   "inert_devices": null,
+   "n_inert_devices": null,
+   "causes": [
+    "topo:device_budget"
+   ],
+   "secs": 0.0
+  },
+  {
+   "mutant": "wb_dead_mos",
+   "cell": "v12-wb-s11n10-g10-b0824",
+   "junk_sized_devices": [],
+   "junk_flagged_inert": null,
+   "r4_inloop_feasible": true,
+   "rlv1_feasible": false,
+   "rlv1_reason": "structural degeneracy: mos_d_eq_s=['NM3']; mos_g_eq_s=['NM3']",
+   "n_evals": 0,
+   "inert_devices": null,
+   "n_inert_devices": null,
+   "causes": [
+    "struct:mos_d_eq_s,mos_g_eq_s"
+   ],
+   "secs": 0.0
+  },
+  {
+   "mutant": "wb_dead_mos",
+   "cell": "v12-wb-s11n8-g10-b0530",
+   "junk_sized_devices": [],
+   "junk_flagged_inert": null,
+   "r4_inloop_feasible": null,
+   "rlv1_feasible": false,
+   "rlv1_reason": "structural degeneracy: mos_d_eq_s=['NM3']; mos_g_eq_s=['NM3']",
+   "n_evals": 0,
+   "inert_devices": null,
+   "n_inert_devices": null,
+   "causes": [
+    "struct:mos_d_eq_s,mos_g_eq_s"
+   ],
+   "secs": 0.0
+  },
+  {
+   "mutant": "wb_dup_out",
+   "cell": "v12-wb-s11n10-g10-b0824",
+   "junk_sized_devices": [],
+   "junk_flagged_inert": null,
+   "r4_inloop_feasible": true,
+   "rlv1_feasible": false,
+   "rlv1_reason": "topology limits violated: device_budget",
+   "n_evals": 0,
+   "inert_devices": null,
+   "n_inert_devices": null,
+   "causes": [
+    "topo:device_budget"
+   ],
+   "secs": 0.0
+  },
+  {
+   "mutant": "wb_dup_out",
+   "cell": "v12-wb-s11n8-g10-b0530",
+   "junk_sized_devices": [],
+   "junk_flagged_inert": null,
+   "r4_inloop_feasible": null,
+   "rlv1_feasible": false,
+   "rlv1_reason": "topology limits violated: device_budget",
+   "n_evals": 0,
+   "inert_devices": null,
+   "n_inert_devices": null,
+   "causes": [
+    "topo:device_budget"
+   ],
+   "secs": 0.0
+  },
+  {
+   "mutant": "wb_rin_out",
+   "cell": "v12-wb-s11n10-g10-b0824",
+   "junk_sized_devices": [
+    "pR6V"
+   ],
+   "junk_flagged_inert": null,
+   "r4_inloop_feasible": true,
+   "rlv1_feasible": false,
+   "rlv1_reason": null,
+   "n_evals": 2500,
+   "inert_devices": null,
+   "n_inert_devices": null,
+   "causes": [
+    "wide mu 0.01-50GHz"
+   ],
+   "secs": 197.3
+  },
+  {
+   "mutant": "wb_rin_out",
+   "cell": "v12-wb-s11n8-g10-b0530",
+   "junk_sized_devices": [
+    "pR6V"
+   ],
+   "junk_flagged_inert": null,
+   "r4_inloop_feasible": null,
+   "rlv1_feasible": false,
+   "rlv1_reason": null,
+   "n_evals": 2500,
+   "inert_devices": null,
+   "n_inert_devices": null,
+   "causes": [
+    "wide mu 0.01-50GHz"
+   ],
+   "secs": 197.1
+  },
+  {
+   "mutant": "wb_tank_out",
+   "cell": "v12-wb-s11n10-g10-b0824",
+   "junk_sized_devices": [],
+   "junk_flagged_inert": null,
+   "r4_inloop_feasible": true,
+   "rlv1_feasible": false,
+   "rlv1_reason": "topology limits violated: device_budget, max_inductors",
+   "n_evals": 0,
+   "inert_devices": null,
+   "n_inert_devices": null,
+   "causes": [
+    "topo:device_budget, max_inductors"
+   ],
+   "secs": 0.0
+  },
+  {
+   "mutant": "wb_tank_out",
+   "cell": "v12-wb-s11n8-g10-b0530",
+   "junk_sized_devices": [],
+   "junk_flagged_inert": null,
+   "r4_inloop_feasible": null,
+   "rlv1_feasible": false,
+   "rlv1_reason": "topology limits violated: device_budget, max_inductors",
+   "n_evals": 0,
+   "inert_devices": null,
+   "n_inert_devices": null,
+   "causes": [
+    "topo:device_budget, max_inductors"
+   ],
+   "secs": 0.0
+  },
+  {
+   "mutant": "wb_vbnet",
+   "cell": "v12-wb-s11n10-g10-b0824",
+   "junk_sized_devices": [],
+   "junk_flagged_inert": null,
+   "r4_inloop_feasible": true,
+   "rlv1_feasible": false,
+   "rlv1_reason": "topology limits violated: device_budget",
+   "n_evals": 0,
+   "inert_devices": null,
+   "n_inert_devices": null,
+   "causes": [
+    "topo:device_budget"
+   ],
+   "secs": 0.0
+  },
+  {
+   "mutant": "wb_vbnet",
+   "cell": "v12-wb-s11n8-g10-b0530",
+   "junk_sized_devices": [],
+   "junk_flagged_inert": null,
+   "r4_inloop_feasible": null,
+   "rlv1_feasible": false,
+   "rlv1_reason": "topology limits violated: device_budget",
+   "n_evals": 0,
+   "inert_devices": null,
+   "n_inert_devices": null,
+   "causes": [
+    "topo:device_budget"
+   ],
+   "secs": 0.0
+  }
+ ],
+ "median_secs_rlv1_sized": 137.9
+}

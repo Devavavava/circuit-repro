@@ -258,6 +258,21 @@ def stab_section(out, S, res, U, mode):
         st[f"1x{b}"] = row
     if not slab:
         return
+    # EXPLORATORY escalation (same rule as the lib section; s1x2500 of this mode)
+    c25 = med([slab[x]["s1"].get("secs") for x in slab])
+    for b in (600, 1200):
+        L = {x: res.get(D.jkey(x, mode, 1, b)) for x in slab}
+        cheap = st[f"1x{b}"]["secs_median"]
+        for tau in (-0.02, -0.05, -0.1, -0.2, -0.3):
+            e = {x for x in slab if not L[x]["feasible"] and L[x].get("worst") is not None
+                 and L[x]["worst"] >= tau}
+            pred = [(bool(L[x]["feasible"]) or (x in e and bool(slab[x]["s1"]["feasible"])),
+                     slab[x]["any"]) for x in slab]
+            c = conf(pred)
+            st.setdefault("escalation", {})[f"1x{b}|tau={tau}"] = {
+                "recall": c["recall"], "precision": c["precision"],
+                "p_escalate": len(e) / len(slab),
+                "cpu_s": cheap + len(e) / len(slab) * c25}
     out[mode] = st
     out[mode + "_labels"] = {
         "n": len(slab), "full_any": sum(v["any"] for v in slab.values()),
@@ -329,17 +344,30 @@ def tables(o):
         L.append("| level | n | P / R / F1 (vs any-seed) | TP FP FN TN | vs >=2/3 P / R | spec-part only P / R | Spearman worst | s/call median | rule |")
         L.append("|---|---|---|---|---|---|---|---|---|")
         for k, r in o[mode].items():
+            if k == "escalation":
+                continue
             a, b, s = r["vs_any"], r["vs_2of3"], r["spec_only_vs_spec_any"]
             L.append(f"| {k} | {r['n']} | {f3(a['precision'])} / {f3(a['recall'])} / {f3(a['F1'])} | "
                      f"{a['TP']} {a['FP']} {a['FN']} {a['TN']} | {f3(b['precision'])} / {f3(b['recall'])} | "
                      f"{f3(s['precision'])} / {f3(s['recall'])} | {f3(r['spearman_vs_best_seed'])} | "
                      f"{f3(r['secs_median'])} | {'PASS' if r['pass_rule_vs_any'] else 'fail'} |")
         L.append("")
+        L.append("EXPLORATORY escalation in this mode (cheap+ accept; cheap- with worst >= tau -> s1x2500):")
+        L.append("")
+        L.append("| screen, tau | recall | precision | P(escalate) | CPU-s per candidate |")
+        L.append("|---|---|---|---|---|")
+        for k, r in o[mode].get("escalation", {}).items():
+            L.append(f"| {k} | {f3(r['recall'])} | {f3(r['precision'])} | {f3(r['p_escalate'])} | {f3(r['cpu_s'])} |")
+        L.append("")
     L.append(f"cost: {o['cost']}")
     L.append("")
-    L.append(f"completion: planned {o['completion']['planned']} done {o['completion']['done']} "
-             f"by bin {o['completion']['by_bin']}; flips to feasible at seed 2/3: "
-             f"{len(o['completion']['flips_to_feasible'])} {o['completion']['flips_to_feasible']}")
+    fl = o["completion"]["flips_to_feasible"]
+    fu = {f["uid"]: f["bin"] for f in fl}
+    L.append(f"completion (seeds 2,3 x 2500 of sampled E-c-only negatives): planned "
+             f"{o['completion']['planned']} done {o['completion']['done']} by bin "
+             f"{o['completion']['by_bin']}; units feasible at seed 2 and/or 3 (seed 1 "
+             f"infeasible): {len(fu)} by bin {dict(collections.Counter(fu.values()))} "
+             f"({len(fl)} seed-runs; list in summary.json)")
     open(R1 + "/tables.md", "w").write("\n".join(L) + "\n")
     print("\n".join(L))
 

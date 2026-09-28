@@ -183,6 +183,39 @@ def make_sample():
     print(out["population"])
 
 
+def topup(n):
+    """Added after the completion runs relabelled ~20 E-c near-miss negatives as
+    positives (feasible at seed 2/3), which pushed neg/pos below the pre-registered 3x:
+    draw n more E-c-only far negatives (bins B/C/D, 40/35/25 split, balanced by cell,
+    seeded) not yet in the sample; appended to main (cheap levels only; labelled on the
+    seed-1 verdict like the other uncompleted far negatives)."""
+    rng = random.Random(SEED + 1)
+    S = json.load(open(SAMPLE))
+    if S.get("topup"):
+        print("topup already drawn:", len(S["topup"]))
+        return
+    U = population()
+    have = set(S["main"])
+    pool = [u for u in U.values() if u["sizable"] and not u["any_feas"]
+            and "ed" not in u["src"] and u["uid"] not in have]
+    alloc = {"B[-0.3,-0.1)": round(n * 0.40), "C[-1,-0.3)": round(n * 0.35)}
+    alloc["D(<-1)"] = n - sum(alloc.values())
+    add = []
+    for b, k in alloc.items():
+        add += _strat(rng, [u for u in pool if wbin(u["w1"]) == b], k,
+                      key=lambda u: u["cell"])
+    for u in add:
+        S["units"][u["uid"]] = {k: u[k] for k in ("uid", "cell", "key", "band", "src", "w1",
+                                                  "any_feas", "seeds_known", "tokens", "full")}
+    S["topup"] = [u["uid"] for u in add]
+    S["topup_alloc"] = alloc
+    S["main"] = S["main"] + S["topup"]
+    tmp = SAMPLE + ".tmp"
+    json.dump(S, open(tmp, "w"))
+    os.replace(tmp, SAMPLE)
+    print("topup", len(add), alloc)
+
+
 # ------------------------------------------------------------------ jobs
 def jobs():
     S = json.load(open(SAMPLE))
@@ -332,6 +365,8 @@ if __name__ == "__main__":
     a = sys.argv[1:]
     if a[0] == "sample":
         make_sample()
+    elif a[0] == "topup":
+        topup(int(a[1]))
     elif a[0] == "run":
         run(int(a[1]) if len(a) > 1 else 6)
     elif a[0] == "one":

@@ -10,6 +10,11 @@ that spec.feasible()/objective()/report() consume:
 s11_db / s21_db are at f0; *_max/_min/_ripple are across [f_lo, f_hi] (wideband).
 Idd is the DC supply current. ~1 s/eval.
 
+nf_max_db (W5, kaggle/VERIFIER-RL-V1.md, additive): ONLY when the spec itself
+constrains `nf_max_db`, run_and_extract also runs the series-Rs noise deck once
+(measure_nf_band) and adds the WORST NF over the band (plus the f0 NF as nf_db).
+Every other spec gets exactly the historical dict and decks.
+
 NF caveat (WORKLOG, WP-REF R3): NF from `inoise_spectrum` with a *port* source is
 unreliable once the stage has gain (the port z0 is not modelled as a noisy Rs).
 It is extracted best-effort and flagged; the sizer should treat nf as
@@ -514,7 +519,7 @@ def run_and_extract(body, params, spec, op_capture=None, pdk=None, err_sink=None
         "s21_db": s21,
         "s21_min_db": s21_min,
         "idd_ma": abs(idd) * 1e3 if idd is not None else None,
-        "nf_db": None,              # only measure_nf (series-Rs) may fill this
+        "nf_db": None,              # only the series-Rs deck (measure_nf / nf_max_db path) fills this
         # --- advisory two-port stability (WP-D4b); never gated, free from `sp`
         "s22_db": g("m_s22_f0"),
         "s22_max_db": g("m_s22_max"),   # band-wide worst S22 (ladder-v2 G2')
@@ -531,6 +536,15 @@ def run_and_extract(body, params, spec, op_capture=None, pdk=None, err_sink=None
     }
     if s21_min is not None and s21_max is not None:
         metrics["s21_ripple_db"] = s21_max - s21_min
+    if nf_band_gated(spec):
+        # W5 (VERIFIER-RL-V1, additive): a spec that constrains nf_max_db gets
+        # the band-worst series-Rs NF IN-LOOP (one noise deck; the same deck
+        # also yields the f0 NF, stored as nf_db -- identical to measure_nf).
+        # Specs without nf_max_db never reach this line (byte-identical).
+        nfb = measure_nf_band(body, params, spec, pdk=pdk) or (None, None)
+        metrics["nf_max_db"] = nfb[1]
+        if nfb[0] is not None:
+            metrics["nf_db"] = nfb[0]
     return metrics
 
 
@@ -590,7 +604,7 @@ def measure_stability(body, params, f0, f_lo, f_hi, npts=201):
 
 
 def build_noise_deck(body, params, f0, f_lo, f_hi, rs=50.0, rl=50.0,
-                     op_probe=None, osdi=None):
+                     op_probe=None, osdi=None, band_max=False):
     """Rewrite a port-driven DUT body into a **series-Rs noise deck**.
 
     NF from `inoise_spectrum` with an S-parameter *port* source is unphysical
@@ -609,7 +623,12 @@ def build_noise_deck(body, params, f0, f_lo, f_hi, rs=50.0, rl=50.0,
     `osdi` (cross-PDK v0, IHP): a non-empty list of .osdi paths triggers the
     source-split -- the returned deck_text is a control-only driver, and the
     net-body is returned as a THIRD element only in that case (see the tuple
-    length). None/[] -> the historical single-deck string, byte-identical."""
+    length). None/[] -> the historical single-deck string, byte-identical.
+
+    `band_max` (W5 / VERIFIER-RL-V1, additive): True appends
+    `let m_nf_max = vecmax(nfv)` + its print, the WORST NF over the same 51-point
+    [f_lo, f_hi] sweep this deck already runs (no new analysis). False (the
+    default, every existing caller) -> the deck text is byte-identical."""
     lines, node_in, node_out = [], None, None
     for ln in body.splitlines():
         toks = ln.split()
@@ -635,6 +654,8 @@ def build_noise_deck(body, params, f0, f_lo, f_hi, rs=50.0, rl=50.0,
         "setplot noise1",
         f"let nfv = 10*log10((inoise_spectrum*inoise_spectrum)/{K4TRS:.6e})",
         f"let m_nf_f0 = nfv[{nf_idx}]", "print m_nf_f0"]
+    if band_max:
+        ctrl_body += ["let m_nf_max = vecmax(nfv)", "print m_nf_max"]
     if osdi:
         net = ["\n".join(lines)]
         if params:
@@ -697,6 +718,46 @@ def measure_nf(body, params, spec, rs=50.0, op_capture=None, pdk=None):
         op_capture["deck"] = "noise"
     m = re.search(rf"m_nf_f0\s*=\s*{_NUM}", out, re.IGNORECASE)
     return float(m.group(1)) if m else None
+
+
+def nf_band_gated(spec):
+    """Does this spec constrain the band-worst NF `nf_max_db`? (W5, rl-v1.)
+    No pre-existing spec does, so for every existing spec this is False and
+    run_and_extract is byte-identical."""
+    c = (getattr(spec, "constraints", None) or {}).get("nf_max_db")
+    return isinstance(c, dict) and c.get("status") != "unsupported"
+
+
+def measure_nf_band(body, params, spec, rs=50.0, pdk=None):
+    """(nf_f0_db, nf_max_db) from ONE series-Rs noise deck (W5, additive).
+
+    Same deck as measure_nf (build_noise_deck, 51 linear points over the spec's
+    [f_lo, f_hi]) plus `vecmax(nfv)`: nf_f0_db is bit-for-bit the value
+    measure_nf returns, nf_max_db is the worst NF over the whole band. Returns
+    None when the deck cannot be built/run (either value may be None if its
+    print is missing). Balun (3-port) bodies are NOT supported by the generic
+    noise deck -- a balun-lna spec must not constrain nf_max_db."""
+    band = spec.band
+    f0 = float(band.get("f0", 2.442e9))
+    f_lo = float(band.get("f_lo", f0 * 0.98))
+    f_hi = float(band.get("f_hi", f0 * 1.02))
+    built = build_noise_deck(body, params, f0, f_lo, f_hi, rs=rs,
+                             osdi=osdi_lines_for(pdk), band_max=True)
+    deck = built[0]
+    extra = {"net.sp": built[3]} if len(built) == 4 else None
+    if deck is None:
+        return None
+    out = run_deck(deck, "nfb_", "nf.cir", extra_files=extra)
+    if out is None or "singular matrix" in out.lower():
+        return None
+
+    def g(name):
+        m = re.search(rf"{name}\s*=\s*{_NUM}", out, re.IGNORECASE)
+        try:
+            return float(m.group(1)) if m else None
+        except ValueError:
+            return None
+    return g("m_nf_f0"), g("m_nf_max")
 
 
 _ELEM_RE = re.compile(r"^([MR])(\w+)", re.IGNORECASE)

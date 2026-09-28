@@ -1,0 +1,51 @@
+1. **Diagnosis**: The common-gate topology inherently has low gain (S21) due to the transconductance being multiplied by a low output impedance (inductive load). The inductor L2 as a load provides insufficient impedance at 2.4 GHz, and the output capacitor C2 may short the AC signal. The gain is further limited by the lack of a high-impedance load and poor transconductance utilization in the CG configuration.
+
+---
+
+2. **Structural Edits**:
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+C Cload n2 VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+
+**Predicted improvement**: S21_db improves by ~5 dB by replacing inductive load L2 with a capacitive load (Cload), which provides a higher impedance at 2.4 GHz and avoids resonant losses.
+
+---
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+NMOS NM2 VDD n2 VSS VSS
+```
+
+**Predicted improvement**: S21_db improves by ~6 dB by adding a cascode NMOS (NM2) to increase the output impedance and stabilize the gain, leveraging the common-gate stage's low noise and the cascode's high output impedance.
+
+---
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+L L3 n2 VDD
+```
+
+**Predicted improvement**: S21_db improves by ~4 dB by replacing the capacitive load (Cload) with an inductor L3, which provides a high impedance at 2.4 GHz and avoids AC shorting, improving the gain.

@@ -1,0 +1,9 @@
+### 1. Diagnosis of the Failure:
+
+The binding constraint failing is **s21_db**, which is the gain of the LNA. The circuit is a **common-gate (CG)** LNA, and the **input is connected to the source** of the transistor, which is inherently **low-impedance** and not well-suited for high gain at a single frequency. The CG configuration has **inherent limitations in gain** compared to a common-source configuration, and the current structure is **not optimized for a narrowband gain boost** at 1.6 GHz. Additionally, the **load is inductive**, which may not be optimal for gain at a specific frequency. The **lack of feedback or a dedicated gain-enhancing topology** is likely the root cause of the low gain.
+
+---
+
+### 2. Structural Edits (Proposed Topologies)
+
+#### Edit 1: Convert to a Common-Source (CS) LNA with a Shunt Resistor for Stability and Gain Boost

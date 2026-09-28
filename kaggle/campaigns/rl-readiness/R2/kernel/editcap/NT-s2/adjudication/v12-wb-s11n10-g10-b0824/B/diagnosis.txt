@@ -1,0 +1,13 @@
+### 1. Diagnosis of the Failure
+
+The binding constraint is the **S11_max_db**, which is failing by **-0.283252** (i.e., the worst-case S11 is **-7.16748 dB**, which is below the required **-10 dB**). This indicates that the input return loss is **not sufficiently low** across the entire wideband range (0.8–2.4 GHz), which is a common issue for current-reuse push-pull LNAs with reactive input matching.
+
+The problem likely stems from the **reactive input matching network** (C4 and L1), which is insufficient to provide broadband impedance matching. The input is DC-blocked by C4, and L1 is used to match the input impedance. However, a **purely reactive input matching network** has limited bandwidth and cannot maintain a low S11 across a wide frequency range (a decade). Additionally, the current-reuse topology (NMOS/PMOS push-pull) may not provide sufficient impedance control at the input for broadband operation.
+
+The lack of **broadband impedance control at the input** (e.g., via resistive feedback or a real impedance matching network) is likely the root cause of the failure. Without this, the S11 does not meet the required specification.
+
+---
+
+### 2. Proposed Structural Edits
+
+#### Edit 1: Add Resistive Shunt Feedback from Output to Input (similar to the worked example but tailored to this topology)

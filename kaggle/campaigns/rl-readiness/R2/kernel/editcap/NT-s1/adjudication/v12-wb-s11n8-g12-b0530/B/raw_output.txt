@@ -1,0 +1,78 @@
+### 1. DIAGNOSIS:
+The binding constraint is the `s11_max_db` (return loss at input), which failed by a margin of -0.238 dB (i.e., the maximum S11 is -6.095 dB, which is above the -8 dB target). This indicates that the input return loss is too high (not sufficiently matched) across the wideband range [0.5–3 GHz]. The issue is likely due to the reactive input matching network (C4, L1) being too narrowband to provide a sufficiently low S11 across the entire frequency range. The current topology relies on passive elements for matching without sufficient broadband control, leading to poor impedance matching at the edges of the band.
+
+---
+
+### 2. PROPOSED STRUCTURAL EDITS
+
+#### **Edit 1: Add a resistive shunt feedback path from output to gate**  
+This is a direct analog to the worked example, adding a resistor from the output node to the input gate node for broadband matching.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R Rf VOUT1 n1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted change**: `s11_max_db improves by ~2–3 dB`, bringing it closer to the -8 dB target.
+
+---
+
+#### **Edit 2: Replace the input C4-L1 matching network with a resistive input divider**  
+Instead of using a reactive L-C input matching network, use a resistive divider to make the input impedance more broadband and predictable. This reduces sensitivity to frequency and improves S11.
+
+```netlist
+R Rin1 VIN1 n0
+R Rin2 n0 VSS
+NMOS NM1 n2 n0 VSS VSS
+C C1 n0 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n0
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted change**: `s11_max_db improves by ~1–2 dB`, with a more stable return loss across the band.
+
+---
+
+#### **Edit 3: Add a resistive feedback path from output to source of the input transistor**  
+This introduces a feedback path that increases the effective input impedance and helps flatten the S11 response across the frequency range.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+R Rfb VOUT1 n1
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted change**: `s11_max_db improves by ~2–3 dB`, with better impedance control at the input.

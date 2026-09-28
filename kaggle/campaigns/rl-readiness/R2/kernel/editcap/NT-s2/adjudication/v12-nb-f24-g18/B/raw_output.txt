@@ -1,0 +1,69 @@
+### 1. Diagnosis of the Failure
+
+The binding constraint that failed is the **S21 gain** (forward gain), which is only achieving **9.48 dB**, well below the target of **18 dB**. This significant shortfall suggests a fundamental issue with the **gain structure** or **impedance matching** in the current topology.
+
+The anchor circuit is a **common-gate (CG) LNA**, where the **source is the input port**. This configuration is known for its **high linearity and low noise**, but it is inherently **low-gain** due to the **inversion of signal phase at the gate**. The **1/gm broadband matching** is achieved via the **source inductor (L1)**, but the **drain load (L2)** is **not sufficient to provide enough transconductance amplification** or **output swing**.
+
+Additionally, the **drain is loaded with an inductor (L2)**, which is **not a good impedance transformer at a single frequency**, and **does not provide a resistive load** to maximize the gain. The **output is DC-blocked** with a capacitor (C2), which is fine for AC coupling, but **not a source of gain**.
+
+The **drain is not loaded with a proper resistive load**, and the **transconductance is not being used to its full potential**. The **input is DC-blocked with a capacitor**, and the **source is AC-coupled to the gate**, which makes it **not a true common-gate** but more of a **common-source** with a **shunt inductor**.
+
+In short, the **gain is too low**, and the **output impedance is not properly matched** to the load. The **anchor circuit is fundamentally designed for low-noise and linearity, not high gain** — which is the root of the failure.
+
+---
+
+### 2. Structural Edits (Three Topologies)
+
+#### Edit 1: Convert to Common-Source with Inductive Source Matching and Resistive Drain Load
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+R Rload n2 VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+
+**Prediction:** The **S21_db improves by ~6–8 dB**, as the **resistive load (Rload)** provides a **better transconductance amplification** compared to the inductive load, and the **common-source configuration** provides more gain.
+
+---
+
+#### Edit 2: Add a Second Transistor for Gain Staging (Cascode or Current Reuse)
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+NMOS NM2 n2 n3 n2 VSS
+R Rload n3 VDD
+C C2 n3 VOUT1
+R R1 VDD n4
+NMOS NM3 n4 n4 VSS VSS
+R R2 n4 n1
+C Cbyp n1 VSS
+```
+
+**Prediction:** The **S21_db improves by ~4–6 dB**, as the **second transistor (NM2)** acts as a **gain booster** or **cascode** to **increase the output impedance and transconductance**, leading to **higher gain**.
+
+---
+
+#### Edit 3: Use a Current Mirror for Improved Output Matching and Gain
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+NMOS NM2 n2 n3 n3 VSS
+R Rload n3 VDD
+C C2 n3 VOUT1
+R R1 VDD n4
+NMOS NM3 n4 n4 VSS VSS
+R R2 n4 n1
+C Cbyp n1 VSS
+```
+
+**Prediction:** The **S21_db improves by ~5–7 dB**, as the **current mirror** (NM2) helps in **improving the output impedance matching** and **boosting the gain** through **current reuse**.

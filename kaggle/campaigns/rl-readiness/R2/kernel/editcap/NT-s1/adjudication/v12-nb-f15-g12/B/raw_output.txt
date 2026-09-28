@@ -1,0 +1,60 @@
+### DIAGNOSIS:
+The binding failure is in the **s21_db** metric, which is too low (achieved 8.45 dB, needs at least 12 dB). The core issue is the **poor gain of the common-gate topology**. Common-gate amplifiers inherently suffer from **low voltage gain** (typically less than 1) because the output is taken from the drain, and the input is at the source — the transconductance is not directly reflected in the voltage gain. Additionally, the **tuned inductor load (L2)** likely introduces **resonant peaking** or **loss at the frequency of operation**, further degrading gain. The structure is inherently **not suitable** for achieving the required gain in a narrowband LNA, especially when the LNA is designed to have **a DC return path through the source** (via L1), which also limits the ability to use a strong load impedance for gain.
+
+---
+
+### EDIT 1: Convert to Common-Source with Input Inductor and Feedback Resistor (Improved Gain and Stability)
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 VSS VSS
+R Rf n2 n1
+L L2 n2 VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+
+**PREDICTION:** s21_db improves by ~3.5 dB. The common-source configuration provides voltage gain, and the feedback resistor Rf improves stability and broadband behavior, helping to increase gain.
+
+---
+
+### EDIT 2: Use a Cascode Configuration with Source Degeneration and Inductor Load
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 VSS VSS
+NMOS NM2 n2 n2 VSS VSS
+L L2 n2 VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+
+**PREDICTION:** s21_db improves by ~2 dB. The cascode topology increases output impedance and provides better gain, while source degeneration (via NM2) helps reduce noise and improve linearity.
+
+---
+
+### EDIT 3: Add an Output Inductor and Use a Hybrid Configuration with Feedback (Improved Gain and Bandwidth)
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 VSS VSS
+L L2 n2 VDD
+L L3 n2 VOUT1
+C C2 VOUT1 VDD
+R Rf VDD n1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+
+**PREDICTION:** s21_db improves by ~4 dB. The output inductor (L3) isolates the load and improves gain, while the feedback resistor Rf provides stability and helps increase the effective transconductance. The hybrid configuration improves both gain and bandwidth.

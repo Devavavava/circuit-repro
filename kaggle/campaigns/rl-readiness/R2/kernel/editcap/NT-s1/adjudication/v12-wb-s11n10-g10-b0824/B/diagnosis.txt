@@ -1,0 +1,9 @@
+### 1. Diagnosis of the Failure
+
+The failure is primarily due to the **poor input matching (S11)** across the wideband frequency range of 0.8–2.4 GHz. The anchor netlist relies on a **reactive input matching network** (capacitor C4 and inductor L1), which is inherently narrowband. As a result, the input impedance varies significantly across the frequency range, leading to **high return loss (S11)** at certain frequencies. The constraint `s11_max_db <= -10 dB` is barely missed, with the worst-case value at -7.17 dB (a 2.8 dB margin shortfall). This is a clear sign that the input impedance is **not sufficiently matched** across the wideband range, and a **broadband input impedance stabilization technique** is needed.
+
+---
+
+### 2. Structural Edits to Improve S11
+
+#### **Edit 1: Add a resistive shunt feedback from output to gate (similar to the worked example), but with a modified topology to preserve current-reuse and push-pull configuration.**

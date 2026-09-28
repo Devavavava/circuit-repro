@@ -1,0 +1,47 @@
+1. **Diagnosis**: The binding constraint (S11_max_db) fails because the input matching network (C4 and L1) is inherently narrowband. Reactive components (L/C) alone cannot maintain a low S11 across the wideband (0.8–2.4 GHz). The input impedance at VIN1 is dominated by the series LC network, which resonates at a single frequency and degrades return loss outside that point. The current-reuse push-pull topology lacks broadband impedance control at the input.
+
+---
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R Rf VOUT1 n0
+```
+
+**Prediction**: Adding a resistive feedback path from output (VOUT1) to input node (n0) will flatten the input impedance, improving S11_max_db by ~3–4 dB.
+
+---
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+R Rload n2 VSS
+C C3 n2 VOUT1
+```
+
+**Prediction**: Replacing the tuned load (L2+C2) with a resistor (Rload) eliminates resonant frequency dependence, improving S11_max_db by ~2–3 dB at the cost of slight gain degradation.
+
+---
+
+```netlist
+C C4 VIN1 n0
+R Rshunt n0 VSS
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+```
+
+**Prediction**: Adding a shunt resistor (Rshunt) at the input node (n0) provides a resistive path, broadening the input impedance bandwidth and improving S11_max_db by ~2–3 dB.

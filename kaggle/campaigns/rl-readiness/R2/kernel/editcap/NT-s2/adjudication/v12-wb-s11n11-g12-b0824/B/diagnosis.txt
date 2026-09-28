@@ -1,0 +1,10 @@
+### 1. Diagnosis of the Failure
+
+The LNA's failure to meet the S11 constraint (S11_max_db = -11 dB) is primarily due to poor input impedance matching across the wideband range (0.8–2.4 GHz). The anchor netlist employs a current-reuse topology with a capacitive input matching (C4) and inductive peaking (L1), but these reactive elements are inherently narrowband and cannot maintain a low S11 across the full frequency band. Additionally, the input is DC-blocked by C4, but no resistive or broadband feedback mechanism is present to stabilize the input impedance. As a result, the input impedance becomes highly reactive and resonant at certain frequencies, leading to a poor return loss (S11) at the worst-case frequency.
+
+---
+
+### 2. Structural Edits
+
+#### Edit 1: Add Resistive Shunt Feedback
+Adding a resistive shunt feedback path from the output (VOUT1) to the input (VIN1) helps flatten the input impedance across the band, improving S11.

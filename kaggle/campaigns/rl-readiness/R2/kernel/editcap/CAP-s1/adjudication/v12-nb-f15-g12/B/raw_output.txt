@@ -1,0 +1,39 @@
+The failure is due to insufficient gain (s21_db) in the common-gate topology. The inherent low gain of the common-gate configuration, combined with the inductive source match and resonant drain load, fails to achieve the required 12 dB gain at 1.6 GHz. The low transconductance (gm) of the single NMOS stage and lack of impedance boosting mechanisms limit the amplification.
+
+---
+
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+R Rg g VSS
+L Ls s VSS
+NMOS M2 d VDD o VSS
+C C2 o VOUT1
+```
+**Edit 1: Common-source with inductive source degeneration**  
+**Predicted change:** s21_db improves by ~4 dB (common-source topology provides higher gain than common-gate).
+
+---
+
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+L Ls s VSS
+NMOS M2 d VDD o VSS
+NMOS Mcas o VDD o VSS
+C C2 o VOUT1
+```
+**Edit 2: Common-source with cascode stage**  
+**Predicted change:** s21_db improves by ~3 dB (cascode increases output impedance, enhancing gain).
+
+---
+
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+R Rs s VSS
+NMOS M2 d VDD o VSS
+C C2 o VOUT1
+```
+**Edit 3: Common-source with resistive source degeneration**  
+**Predicted change:** s21_db improves by ~2 dB (resistive degeneration improves stability and boosts gain slightly).

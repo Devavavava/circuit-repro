@@ -1,0 +1,6 @@
+### 1. DIAGNOSIS:
+The binding constraint failure is due to the **insufficient gain** in the common-gate LNA topology. The circuit relies on a single NMOS transistor (NM1) with a source-degenerated inductor (L1) for input matching, and a tuned inductor (L2) for the load. The common-gate configuration inherently suffers from low transconductance (gm) and poor voltage gain, especially when trying to meet a narrowband 2.4 GHz specification with a high S21 (>12 dB). The feedback and biasing in this topology are not sufficient to boost the gain, and the current-mirror reference (NM3 and R1) does not provide enough DC control over the operating point for optimal gain. The S21 is below the target by ~2.5 dB, which is the binding constraint.
+
+---
+
+### 2. STRUCTURAL EDIT 1: Convert to a common-source LNA with a resistive feedback network.

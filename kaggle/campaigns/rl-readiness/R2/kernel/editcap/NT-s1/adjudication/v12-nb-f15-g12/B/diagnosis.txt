@@ -1,0 +1,6 @@
+### DIAGNOSIS:
+The binding failure is in the **s21_db** metric, which is too low (achieved 8.45 dB, needs at least 12 dB). The core issue is the **poor gain of the common-gate topology**. Common-gate amplifiers inherently suffer from **low voltage gain** (typically less than 1) because the output is taken from the drain, and the input is at the source — the transconductance is not directly reflected in the voltage gain. Additionally, the **tuned inductor load (L2)** likely introduces **resonant peaking** or **loss at the frequency of operation**, further degrading gain. The structure is inherently **not suitable** for achieving the required gain in a narrowband LNA, especially when the LNA is designed to have **a DC return path through the source** (via L1), which also limits the ability to use a strong load impedance for gain.
+
+---
+
+### EDIT 1: Convert to Common-Source with Input Inductor and Feedback Resistor (Improved Gain and Stability)

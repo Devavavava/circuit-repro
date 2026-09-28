@@ -1,0 +1,79 @@
+### 1. Diagnosis:
+The failure is due to **poor input matching** across the wideband frequency range (0.5–3 GHz). The anchor circuit uses a purely reactive input matching network (C4 and L1), which is inherently narrowband and cannot maintain a low S11 over a decade of frequencies. Additionally, the lack of **resistive feedback or broadband impedance shaping** causes the input impedance to become strongly reactive at higher frequencies, leading to a **peak in the S11 response** that fails the -8 dB constraint.
+
+---
+
+### 2. Structural Edits:
+
+#### Edit 1: Add resistive shunt feedback from output to gate
+This introduces a resistive feedback path from the output to the input gate, which helps to flatten the input impedance over a wide frequency range, improving S11.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R Rf VOUT1 n1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted effect**: S11_max_db improves by **~1.5 dB**, bringing it closer to -7.5 dB. Gain and noise figure may suffer slightly due to the feedback resistor, but the improvement in S11 is worth it.
+
+---
+
+#### Edit 2: Add a resistive load in parallel to the output capacitor C3
+This adds a resistive component to the output load, helping to stabilize the output impedance and improve input matching by reducing the reactive component that contributes to S11 peaking.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R Rload VOUT1 n2
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted effect**: S11_max_db improves by **~1.2 dB**, as the resistive load helps reduce the reactive component at the output, which indirectly improves input matching. Gain may decrease slightly due to the added load.
+
+---
+
+#### Edit 3: Add a resistive shunt at the input (VIN1) to help stabilize input impedance
+Adding a small resistor shunt at the input helps to dampen the reactive effects of the input matching network, improving the S11 over a wider frequency band.
+
+```netlist
+C C4 VIN1 n0
+R Rshunt VIN1 VSS
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted effect**: S11_max_db improves by **~1.0 dB**, due to the resistive shunt helping to stabilize the input impedance and reduce its frequency-dependent reactance. The cost is a small reduction in gain.

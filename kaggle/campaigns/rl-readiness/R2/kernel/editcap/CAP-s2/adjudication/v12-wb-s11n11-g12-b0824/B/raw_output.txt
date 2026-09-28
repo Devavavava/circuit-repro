@@ -1,0 +1,67 @@
+The LNA's failure stems from insufficient broadband input matching. The LC network (C4, L1) at the input is inherently narrowband, and the push-pull configuration lacks resistive feedback or damping to flatten the input impedance across the 0.8–2.4 GHz band. This results in a poorly suppressed S11 (−9.14 dB vs. required −11 dB), as the reactive matching cannot maintain a stable real impedance over a decade frequency range.
+
+---
+
+```netlist
+C C4 VIN1 n0
+R Rf n0 n1
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Edit 1**: Adds a resistive shunt (Rf) from input node n0 (after C4) to gate n1. This damps resonances in the LC input network, improving S11 by ~2.5 dB across the band. The resistor provides a broadband real component to the input impedance.
+
+---
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n3
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+R Rf n2 n1
+```
+
+**Edit 2**: Adds resistive feedback (Rf) from output node n2 to gate n1. This creates a negative feedback path that stabilizes the input impedance, improving S11 by ~3 dB while slightly reducing gain (but keeping S21 above 12 dB).
+
+---
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n4
+R Rf n4 n1
+```
+
+**Edit 3**: Adds resistive feedback (Rf) from load node n4 (after L2+C2) to gate n1. This decouples the output load from the input, improving S11 by ~2 dB and reducing gain ripple. The resistor provides a broadband damping effect without altering the core push-pull topology.

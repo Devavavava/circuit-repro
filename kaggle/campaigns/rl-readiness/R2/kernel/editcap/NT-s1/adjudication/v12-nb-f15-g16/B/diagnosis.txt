@@ -1,0 +1,12 @@
+### 1. Diagnosis of Failure
+
+The failure is primarily due to the **insufficient gain** in the common-gate (CG) LNA configuration. The common-gate topology inherently provides a low input impedance and a high output impedance, which is useful for certain matching applications. However, the gain of a CG amplifier is typically lower compared to a common-source (CS) amplifier due to the transconductance being effectively bypassed by the input capacitor and the source inductor. Additionally, the drain load (L2) is reactive and cannot provide the necessary amplification at 1.6 GHz. The output is DC-blocked by C2, and the input is DC-blocked by C1, which may lead to a loss of signal amplitude across the frequency band.
+
+The **s21_db** (forward gain) is the binding constraint, and it is failing by ~0.47 dB below the target of 16 dB. This indicates that the circuit is **not achieving sufficient amplification** at the center frequency of 1.58 GHz.
+
+---
+
+### 2. Structural Edits
+
+#### **Edit 1: Convert Common-Gate to Common-Source with Source Degeneration for Gain and Stability**
+This approach replaces the common-gate configuration with a common-source (CS) topology, which inherently provides higher gain. Source degeneration is added to stabilize the amplifier and improve linearity. The input is now at the gate, and the source is AC-grounded through a small capacitor. The output is still DC-blocked by C2.

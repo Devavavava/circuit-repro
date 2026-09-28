@@ -1,0 +1,9 @@
+### 1. Diagnosis of Failure:
+
+The binding constraint is **s21_db**, which failed by **-0.396 dB** (i.e., the gain is too low by ~0.4 dB). The amplifier is a **common-gate (CG)** configuration, which inherently has a low transconductance gain because the gate is grounded for AC signals. The CG topology is known for good input and output matching but suffers from **low voltage gain** due to the lack of a direct signal path from gate to drain (which is AC-grounded). Furthermore, the drain inductor **L2** may be limiting the gain by acting as a load that is not optimized for amplification at the target frequency. The circuit relies on a **source-degenerated** NMOS (NM1) with an inductor **L1** for input matching, which may not provide enough transconductance or voltage gain for the desired 14 dB S21 at 1.6 GHz.
+
+---
+
+### 2. Structural Edits (Proposed Topologies):
+
+#### Edit 1: Convert to a common-source topology with a resistive shunt feedback for broadband gain enhancement.

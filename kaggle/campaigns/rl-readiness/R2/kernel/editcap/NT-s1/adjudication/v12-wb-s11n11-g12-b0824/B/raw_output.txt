@@ -1,0 +1,79 @@
+### 1. DIAGNOSIS
+The binding constraint is the **S11_max_db** (return loss at input port), which failed by **-0.169 dB** (i.e., it is **-9.14 dB** instead of the required **-11 dB**). The circuit is a current-reuse LNA with a push-pull configuration, and its input matching is dominated by the series inductor **L1** and capacitor **C4**. This reactive input matching network is **narrowband**, and fails to provide sufficient impedance transformation across the full wideband range of **0.8–2.4 GHz**. The result is a **poor S11** at the band edges. The issue is exacerbated by the lack of **resistive feedback or broadband impedance-shaping elements** at the input, which are necessary to flatten the input impedance over a wide frequency range.
+
+---
+
+### 2. PROPOSED STRUCTURAL EDITS
+
+#### Edit 1: Add **resistive shunt feedback** from output to input
+This is a **broadband S11 improvement technique**. A **resistor** from the **output node** to the **input gate node** will provide **shunt feedback**, making the input impedance more resistive and broadband. This is the **most direct fix** for the S11 failure.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+R Rf VOUT1 n0
+```
+
+**Predicted effect**: S11_max_db improves by **~1.5–2 dB**, bringing it above -11 dB.
+
+---
+
+#### Edit 2: Replace **series inductor L1** with **resistor + inductor in parallel**
+This is a **mixed feedback approach**, where a **parallel resistor** and inductor are used to replace the original series inductor. This creates a **broadband impedance matching network** that can handle a wider range of frequencies. It improves the **S11** by making the input impedance more **real and stable** across the wideband range.
+
+```netlist
+C C4 VIN1 n0
+R R_L1 n0 n1
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted effect**: S11_max_db improves by **~1.2–1.8 dB**, with a **small gain penalty**.
+
+---
+
+#### Edit 3: Add **shunt resistor at input node n0** to dampen resonances
+This is a **damping approach**, where a **resistor is added in parallel** with the input capacitor **C4**. This helps to **dampen resonances** that occur at the band edges, which are likely the cause of the **S11 degradation**. This is a **less aggressive** fix than the shunt feedback, but still effective.
+
+```netlist
+C C4 VIN1 n0
+R R_in n0 VSS
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted effect**: S11_max_db improves by **~1–1.5 dB**, with **negligible impact on gain**.

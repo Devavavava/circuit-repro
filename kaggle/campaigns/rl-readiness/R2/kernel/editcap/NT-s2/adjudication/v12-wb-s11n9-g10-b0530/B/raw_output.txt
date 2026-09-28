@@ -1,0 +1,79 @@
+### 1. Diagnosis of the failure
+The LNA failed the S11 constraint (`s11_max_db = -6.12589 dB`, which is **-0.319346 dB** below the required -9 dB). This indicates a poor input match at some frequency in the 0.5–3 GHz band. The anchor circuit uses a **current-reuse push-pull CS LNA** with **C4** as a DC blocking capacitor at the input, and **L1** as an inductor to provide input impedance transformation. However, the input matching is purely reactive (inductor and capacitor), which is inherently **narrowband** and cannot achieve a flat S11 across a wide frequency range (especially a decade). The input impedance is likely resonating at some frequency, leading to a **high S11** (poor return loss), thereby failing the specification. The circuit lacks a **broadband impedance-matching mechanism** such as **resistive feedback or a resistive shunt** to flatten the input impedance and improve S11 over the wideband.
+
+---
+
+### 2. Structural edits to fix the failure
+
+#### Edit 1: Add resistive shunt feedback from output to input
+This is the standard fix for poor wideband S11 in reactive input-matched LNAs. A **resistive feedback path** from the output to the input gate will make the input impedance more **real** and **broadband**, improving S11.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R Rf VOUT1 n0
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted effect**: `s11_max_db` improves by **~2–3 dB** (from -6.12589 dB to -9 dB or better), resolving the binding constraint.
+
+---
+
+#### Edit 2: Replace the input matching with a resistive inductor (R-L) network
+Instead of a pure inductor (L1) for input matching, use an **R-L network** to add **resistive damping** and **improve impedance matching** over a wideband. This avoids the resonance issues of a purely reactive network and allows for a more **stable input impedance** over a wide frequency range.
+
+```netlist
+C C4 VIN1 n0
+R R_in VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted effect**: `s11_max_db` improves by **~2–3 dB**, similar to Edit 1, by eliminating resonance in the input matching network.
+
+---
+
+#### Edit 3: Add a resistive shunt at the input node
+Adding a **small resistor in parallel with the input capacitor** (C4) helps **flatten the input impedance** and improves the wideband S11. This adds a small amount of **damping** to the input network, reducing its resonant behavior.
+
+```netlist
+C C4 VIN1 n0
+R R_in VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted effect**: `s11_max_db` improves by **~1–2 dB**, helping the circuit meet the requirement by reducing the resonance at the input node.

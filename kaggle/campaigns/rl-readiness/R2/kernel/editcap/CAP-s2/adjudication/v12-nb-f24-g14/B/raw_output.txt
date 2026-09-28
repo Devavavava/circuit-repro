@@ -1,0 +1,39 @@
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+L L1 s VSS
+NMOS M2 d VDD VSS VSS
+C C2 d VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 g
+C Cbyp g VSS
+```
+**Prediction**: s21_db improves by ~2.5 dB. Converting to common-source increases gain by utilizing gm more effectively, though feedback resistor R2 may slightly reduce gain.
+
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+L L1 s VSS
+NMOS M2 d VDD VSS VSS
+NMOS M3 d VDD VSS VSS
+C C2 d VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 g
+C Cbyp g VSS
+```
+**Prediction**: s21_db improves by ~1.8 dB. Adding a cascode transistor M3 increases output impedance, boosting gain without degrading noise figure.
+
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+R R1 s VSS
+NMOS M2 d VDD VSS VSS
+C C2 d VOUT1
+R R1b VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 g
+C Cbyp g VSS
+```
+**Prediction**: s21_db improves by ~2.2 dB. Replacing L1 with R1 creates a broadband real impedance match at input, preserving gain while improving stability.

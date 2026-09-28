@@ -1,0 +1,12 @@
+### 1. Diagnosis of the Failure
+
+The binding constraint failing is **s11_max_db** (input return loss), which is too high (only -6.01 dB, failing the -8 dB requirement). This suggests that the input impedance is not sufficiently matched across the full band (0.5–3 GHz). The original topology uses a purely reactive input matching network (C4 and L1) and does not include any resistive feedback or broadband impedance stabilization techniques. As a result, the input impedance is not flat or well-controlled across the wide frequency range, causing the S11 to fail.
+
+The use of a current-reuse push-pull LNA topology may also be contributing to this issue, as it can be more sensitive to impedance mismatches on the input and output sides. The lack of a resistive component to stabilize the input impedance is likely the core issue.
+
+---
+
+### 2. Proposed Structural Edits
+
+#### Edit 1: Add a resistive shunt feedback from the output to the input
+This is a classic fix for wideband impedance mismatch in LNAs. It helps flatten the input impedance, reducing S11 variation across the band.

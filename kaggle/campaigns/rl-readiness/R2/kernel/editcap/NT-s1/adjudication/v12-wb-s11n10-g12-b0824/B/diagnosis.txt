@@ -1,0 +1,11 @@
+### 1. Diagnosis of the Failure
+
+The circuit is a current-reuse push-pull LNA with a NMOS and PMOS stage. The failure is in the **S11 constraint**, where the **maximum S11 is -9.43532 dB**, which is just **-0.56 dB below the required -10 dB**. This indicates that the **input matching is insufficient** across the wideband range (0.8–2.4 GHz). The input is DC-blocked with a capacitor **C4**, and the input matching is formed by **C4, L1**, and the input impedance of the NMOS transistor **NM1**.
+
+The **resonant input matching network (C4 and L1)** is likely too narrowband to maintain a stable return loss across the full 0.8–2.4 GHz band, and the **lack of resistive feedback or broadband impedance shaping** makes it challenging to flatten the S11 response. This is a common issue in inductive input matching without resistive feedback or broadband impedance control.
+
+---
+
+### 2. Structural Edits
+
+#### Edit 1: Add resistive shunt feedback from output to gate to broaden input impedance

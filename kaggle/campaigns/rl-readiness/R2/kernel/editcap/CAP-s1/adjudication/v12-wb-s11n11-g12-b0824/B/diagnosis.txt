@@ -1,0 +1,6 @@
+### Diagnosis:
+The failure is due to the input matching being too narrowband. The current design relies on reactive components (C4 and L1) for input matching, which cannot maintain a low S11 across the 0.8–2.4 GHz band. This is exacerbated by the push-pull topology's sensitivity to frequency-dependent impedance variations, leading to insufficient return loss at the band edges.
+
+---
+
+### Edit 1: Add resistive shunt feedback from output to input gate

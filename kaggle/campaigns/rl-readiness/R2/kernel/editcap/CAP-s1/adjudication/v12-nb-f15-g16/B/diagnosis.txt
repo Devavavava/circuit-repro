@@ -1,0 +1,6 @@
+### Diagnosis
+The binding constraint failure (S21_db = 8.4 dB < 16 dB) stems from the **low gain in the common-gate topology**. The drain load (L2) provides insufficient impedance at 1.6 GHz, and the source-degenerated input (L1 + C1) introduces loss and phase shifts that degrade gain. Additionally, the inductive load (L2) may resonate with the output capacitor (C2), creating a low-impedance path that reduces gain. The common-gate configuration inherently has limited gain unless paired with a high-impedance load or a current-source load.
+
+---
+
+### Edit 1: Replace inductive load (L2) with resistive load and add a shunt inductor for broadband matching

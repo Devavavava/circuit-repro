@@ -1,0 +1,44 @@
+1. **Diagnosis**: The common-gate (CG) topology inherently limits gain due to its transconductance-limited nature (gain ≈ 1/gm). The drain load (L2) is reactive and cannot provide sufficient impedance to boost gain to 14 dB. Additionally, the CG input matching (L1/C1) prioritizes broadband impedance but sacrifices gain, leading to insufficient S21.
+
+---
+
+2. **Structural Edits**:
+
+```netlist
+* Edit 1: Convert to common-source (CS) with resistive load and inductive input matching
+C C1 VIN1 g
+NMOS M1 d g VSS VSS
+R Rload d VDD
+C C2 d VOUT1
+R Rbias VDD g
+C Cbyp g VSS
+```
+**Predicted improvement**: s21_db improves by ~6–8 dB (CS gain is typically higher than CG, and resistive load boosts gain at f0).
+
+---
+
+```netlist
+* Edit 2: Cascode CG amplifier with inductive load and feedback
+C C1 VIN1 s
+NMOS M1 d g s VSS
+NMOS M2 d2 g2 d VSS
+L Lload d2 VDD
+C C2 d2 VOUT1
+R Rbias VDD g2
+C Cbyp g VSS
+```
+**Predicted improvement**: s21_db improves by ~4–5 dB (cascode increases output impedance, enhancing gain while maintaining narrowband stability).
+
+---
+
+```netlist
+* Edit 3: Dual-gate CG with series inductor for impedance boosting
+C C1 VIN1 s1
+NMOS M1 d g s1 VSS
+L Lboost g VSS
+L Lload d VDD
+C C2 d VOUT1
+R Rbias VDD g
+C Cbyp g VSS
+```
+**Predicted improvement**: s21_db improves by ~3–4 dB (series inductor Lboost raises gate impedance, indirectly increasing transconductance and gain).

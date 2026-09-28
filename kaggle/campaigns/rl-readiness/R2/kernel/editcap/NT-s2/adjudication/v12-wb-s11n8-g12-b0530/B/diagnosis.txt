@@ -1,0 +1,11 @@
+### 1. DIAGNOSIS
+
+The binding constraint that failed is **S11_max_db**, which is the maximum return loss (i.e., the worst-case S11) across the band. The anchor netlist is a current-reuse push-pull CS LNA with a DC-blocked input (C4), and the input is matched using a series inductor (L1) and capacitor (C4) to ground. However, the S11 performance is insufficient (only -6.095 dB), falling short of the required -8 dB. 
+
+The issue likely stems from the **narrowband nature of the reactive input matching network** (L1 and C4) and **lack of broadband impedance control** at the input. Additionally, the feedback and stability mechanisms in the current-reuse topology may not be sufficient to maintain a low S11 across the wideband frequency range (0.5–3 GHz). The LNA also shows a relatively low gain (S21 of ~11.88 dB), which is near the specification limit, suggesting a trade-off between gain and S11 is occurring.
+
+---
+
+### 2. PROPOSED STRUCTURAL EDITS
+
+#### **Edit 1: Add resistive shunt feedback from output to input (similar to the worked example but adapted to this topology)**

@@ -1,0 +1,52 @@
+1. **Diagnosis**: The binding constraint (S21_db) fails due to insufficient gain in the common-gate topology. The drain load (L2) provides high impedance at resonance but does not adequately drive the output capacitor (C2), leading to poor voltage gain. The output impedance mismatch between the inductor and capacitor reduces the effective gain, while the source inductor (L1) may also contribute to phase shifts that degrade performance.
+
+---
+
+2. **Structural Edit 1: Replace inductive load with a parallel LC resonator for better impedance matching**  
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+L L3 VDD n4
+C C3 n4 n2
+```
+**Predicted change**: S21_db improves by ~5 dB. The parallel LC resonator (L3, C3) provides a higher and more stable output impedance at 2.4 GHz, improving voltage gain and reducing mismatch with C2.
+
+---
+
+3. **Structural Edit 2: Add a shunt inductor at the output to increase gain bandwidth**  
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+L L3 n2 VOUT1
+C C2 VOUT1 VSS
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Predicted change**: S21_db improves by ~4 dB. The shunt inductor (L3) at the output provides a low-impedance path for AC signals, improving the amplifier's ability to drive the output capacitor (C2) and increasing gain.
+
+---
+
+4. **Structural Edit 3: Replace the inductive source match with a resistive source degeneration**  
+```netlist
+C C1 VIN1 n0
+R R1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1b VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+**Predicted change**: S21_db improves by ~6 dB. Replacing L1 with a resistor (R1) simplifies the source impedance and avoids phase shifts, allowing the transistor to operate with a higher transconductance (gm) and better voltage gain.

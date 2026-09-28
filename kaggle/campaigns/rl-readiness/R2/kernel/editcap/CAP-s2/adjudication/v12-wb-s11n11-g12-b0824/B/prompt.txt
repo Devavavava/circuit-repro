@@ -1,0 +1,104 @@
+You are an analog IC designer repairing a low-noise amplifier (LNA) that FAILED its specification after full SPICE sizing. You reason about the failure and propose STRUCTURAL (topology) changes. You output TOPOLOGY ONLY as a small line-oriented netlist; a downstream deterministic tool inserts biasing and sizes every device with a SPICE optimizer. Never invent device values, DC sources, or bias networks -- only the connectivity.
+
+=== WORKED EXAMPLE: repairing a wideband (multi-octave) LNA ===
+A wideband LNA that relies only on reactive (L/C) input matching cannot hold a low S11 across a decade of frequency: a series/shunt L-C network is inherently narrowband. The standard fix is RESISTIVE SHUNT FEEDBACK -- add a feedback resistor from the amplifier's output/drain node back to the input gate node. This makes the input impedance broadband and largely real (Zin ~ Rf/(1+gm*Rd)), flattening the return loss across the whole band, at the cost of a little gain/NF. Example fix (topology only, generic device):
+```netlist
+C C1 VIN1 g
+NMOS M1 d g VSS VSS
+NMOS M2 o VDD d VSS
+R Rd VDD o
+R Rf o g
+C C2 o VOUT1
+```
+Here `R Rf o g` is the feedback resistor from output `o` to input gate `g` -- the broadband-matching element a purely reactive network lacks. Apply the technique that FITS the failure below; do not copy this example verbatim.
+
+=== SPEC (v12-wb-s11n11-g12-b0824) ===
+description: bench-v1.2 achievable-survivor wideband [0.8-2.4]GHz S11<=-11 S21>=12
+band: wideband, f0=1385640646.0551019 Hz
+gated constraints:
+  idd_ma     max 10
+  nf_db      max 3.0
+  s11_max_db max -11
+  s21_db     min 12
+  s21_ripple_db max 2.0
+
+=== ANCHOR NETLIST (the failed circuit, dialect form) ===
+```netlist
+* lna-a2-current-reuse: current-reuse NMOS/PMOS push-pull CS LNA.
+* Lineage: Karanicolas, "A 2.7-V 900-MHz CMOS LNA and Mixer", JSSC 1996 /
+* inverter-LNA (current-reuse) lineage. Bench-v1 anchor; verbatim of the
+* proven v0.2 external c3 (round-1 external, wl 226544590d47717b, 6/24 gf180
+* topology credit). Structure-only, ZERO component values. Published BIAS
+* NETWORKS in-topology: NMOS gate via mirror ref R1 -> diode NM3 through R2;
+* PMOS gate via diode PM2 (current set by R4) through R5; tuned load L2+C2
+* off the shared DC path; input DC-blocked (C4).
+* Approved 2026-09-14 (bench round 1, "approve all").
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+=== FAILURE EVIDENCE (this circuit was sized and MISSED) ===
+binding (worst) constraint: s11_max_db  margin=-0.169399 (normalized; negative == failing)
+feasible: False   total sizing evals spent: 3600
+
+per-constraint margins (achieved vs gate, normalized margin):
+  metric     achieved       margin         supported
+  idd_ma     9.92695        0.0073047      True
+  nf_db      3.00697        -0.002322      True
+  s11_max_db -9.13661       -0.169399      True
+  s21_db     11.6016        -0.0332        True
+  s21_ripple_db 0.9958         0.5021         True
+
+Idd: achieved 9.92695 mA (normalized margin 0.0073046999999998976 vs the idd_ma cap; negative == over budget).
+
+full sized-best metrics (verbatim):
+{
+  "s11_db": -18.3081,
+  "s11_max_db": -9.13661,
+  "s21_db": 11.6016,
+  "s21_min_db": 10.6122,
+  "idd_ma": 9.926953000000001,
+  "nf_db": 3.006966,
+  "s22_db": -5.34116,
+  "s22_max_db": -3.33039,
+  "s12_db": -26.7487,
+  "k_f0": 2.03038,
+  "k_min": 1.25297,
+  "mu_f0": 1.36051,
+  "mu_min": 1.11493,
+  "mu_src_f0": 2.05159,
+  "mu_src_min": 1.38285,
+  "delta_f0": 0.130729,
+  "delta_max": 0.436629,
+  "stab_band": [
+    800000000.0,
+    2400000000.0
+  ],
+  "s21_ripple_db": 0.9958000000000009,
+  "nf_method": "series_rs"
+}
+
+YOUR TASK (arm B):
+1. DIAGNOSE the failure in words: what is physically limiting the binding constraint in the circuit above?
+2. Propose EXACTLY 3 STRUCTURAL edits as FULL netlists in the dialect below. Each edit is a complete netlist (not a diff), each structurally DIFFERENT from the anchor and from the other edits.
+3. After EACH edit, state a PREDICTED direction AND magnitude for the binding metric (e.g. 's11_db improves by ~3 dB').
+
+Emit each edit in its OWN fenced ```netlist block.
+
+NETLIST DIALECT (obey exactly, one device per line):
+  TYPE name node1 node2 [node3 node4]
+  TYPE in {NMOS, PMOS, R, C, L}.
+  NMOS/PMOS take 4 nodes in order D G S B; R/C/L take 2 nodes P N.
+  Nets: VIN1 (input), VOUT1 (output), VDD, VSS (ground); any internal node name otherwise. NO device values. NO V sources. NO bias networks.

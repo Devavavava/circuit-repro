@@ -1,0 +1,49 @@
+1. **Diagnosis**: The common-gate topology inherently limits gain due to its low transconductance and poor voltage gain characteristics. The inductive load (L2) and output capacitor (C2) likely do not form a resonant circuit with sufficient quality factor (Q) to achieve the required 16 dB gain at 1.6 GHz. The S21 failure is primarily due to insufficient voltage amplification and poor impedance matching at the output.
+
+---
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+C Cload n2 VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+
+**Prediction**: Replacing L2 with a capacitor (Cload) creates a capacitive load, improving voltage gain by reducing output impedance mismatch. This may increase S21 by ~5–7 dB.
+
+---
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+R Rbyp n1 VSS
+```
+
+**Prediction**: Replacing Cbyp (AC ground) with a resistor (Rbyp) reduces gate AC grounding, allowing the gate to interact with the source for better transconductance. This could improve S21 by ~3–5 dB.
+
+---
+
+```netlist
+C C1 VIN1 n2
+NMOS NM1 n2 n1 VSS VSS
+L L1 n1 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+
+**Prediction**: Switching to a common-source topology (input at gate, source grounded via inductor) leverages higher transconductance and better voltage gain. This could boost S21 by ~8–10 dB.

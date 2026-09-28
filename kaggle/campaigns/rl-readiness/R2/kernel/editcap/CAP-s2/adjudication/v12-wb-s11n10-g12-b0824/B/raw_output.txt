@@ -1,0 +1,48 @@
+### Diagnosis
+The LNA's poor S11 performance across the wideband (0.8–2.4 GHz) is due to **narrowband input matching**. The anchor netlist relies on reactive components (C4, L1, C1, L2, C2) for impedance transformation, which are inherently insufficient for broadband matching. The feedback and load networks lack resistive elements to flatten the input impedance, leading to S11 peaking above -10 dB at certain frequencies. The S21 is also slightly below target, indicating a tradeoff between gain and bandwidth.
+
+---
+
+### Edit 1: Resistive Shunt Feedback (Improved Input Matching)
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R Rf VOUT1 n1
+```
+**Predicted improvement**: S11_max_db improves by ~3–4 dB (e.g., from -9.4 dB to -12.8–13.4 dB), as resistive feedback flattens input impedance across the band.
+
+---
+
+### Edit 2: Resistive Input Loading (Broadband Real Component)
+```netlist
+C C4 VIN1 n0
+R Rload VIN1 VSS
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+```
+**Predicted improvement**: S11_max_db improves by ~2–3 dB, but S21_db may degrade slightly (e.g., by 0.5–1 dB) due to resistive loading at the input.
+
+---
+
+### Edit 3: Output Resistive Load (Simplified Tuned Load)
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+R Rload n2 VSS
+C C3 n2 VOUT1
+```
+**Predicted improvement**: S11_max_db improves by ~1–2 dB, but S21_db may decrease by 1–1.5 dB due to lossy resistive load replacing the resonant LC network.

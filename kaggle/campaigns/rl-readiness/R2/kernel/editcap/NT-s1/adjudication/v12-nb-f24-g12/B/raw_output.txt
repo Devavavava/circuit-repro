@@ -1,0 +1,45 @@
+### 1. DIAGNOSIS:
+The binding constraint failure is due to the **insufficient gain** in the common-gate LNA topology. The circuit relies on a single NMOS transistor (NM1) with a source-degenerated inductor (L1) for input matching, and a tuned inductor (L2) for the load. The common-gate configuration inherently suffers from low transconductance (gm) and poor voltage gain, especially when trying to meet a narrowband 2.4 GHz specification with a high S21 (>12 dB). The feedback and biasing in this topology are not sufficient to boost the gain, and the current-mirror reference (NM3 and R1) does not provide enough DC control over the operating point for optimal gain. The S21 is below the target by ~2.5 dB, which is the binding constraint.
+
+---
+
+### 2. STRUCTURAL EDIT 1: Convert to a common-source LNA with a resistive feedback network.
+
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+R Rf d g
+L L1 g VSS
+NMOS M2 d VDD s VSS
+C C2 d VOUT1
+```
+
+**PREDICTION**: The common-source topology with resistive feedback (Rf) provides better gain and allows for better control of the transconductance, which should improve **s21_db by ~3 dB**.
+
+---
+
+### 3. STRUCTURAL EDIT 2: Introduce a second transistor in a cascode configuration with a resistive load.
+
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+NMOS M2 d VDD s VSS
+R Rload d VDD
+C C2 d VOUT1
+```
+
+**PREDICTION**: The cascode configuration increases output impedance and gain, especially in a narrowband design. This should **improve s21_db by ~2.5 dB**.
+
+---
+
+### 4. STRUCTURAL EDIT 3: Use a current-source load with a feedback resistor from drain to gate.
+
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+NMOS M2 d VDD s VSS
+R Rf d g
+C C2 d VOUT1
+```
+
+**PREDICTION**: The feedback resistor from drain to gate increases gain and provides better stability. This should **improve s21_db by ~2 dB**.

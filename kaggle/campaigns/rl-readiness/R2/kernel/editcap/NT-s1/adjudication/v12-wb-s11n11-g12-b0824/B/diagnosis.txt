@@ -1,0 +1,9 @@
+### 1. DIAGNOSIS
+The binding constraint is the **S11_max_db** (return loss at input port), which failed by **-0.169 dB** (i.e., it is **-9.14 dB** instead of the required **-11 dB**). The circuit is a current-reuse LNA with a push-pull configuration, and its input matching is dominated by the series inductor **L1** and capacitor **C4**. This reactive input matching network is **narrowband**, and fails to provide sufficient impedance transformation across the full wideband range of **0.8–2.4 GHz**. The result is a **poor S11** at the band edges. The issue is exacerbated by the lack of **resistive feedback or broadband impedance-shaping elements** at the input, which are necessary to flatten the input impedance over a wide frequency range.
+
+---
+
+### 2. PROPOSED STRUCTURAL EDITS
+
+#### Edit 1: Add **resistive shunt feedback** from output to input
+This is a **broadband S11 improvement technique**. A **resistor** from the **output node** to the **input gate node** will provide **shunt feedback**, making the input impedance more resistive and broadband. This is the **most direct fix** for the S11 failure.

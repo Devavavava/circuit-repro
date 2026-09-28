@@ -1,0 +1,15 @@
+### 1. DIAGNOSIS:
+The circuit is a **common-gate LNA** with input coupling through a capacitor (C1) and a source inductor (L1) for DC return. The output is loaded by an inductor (L2) to VDD, and a capacitor (C2) blocks DC at the output. While this topology provides a **1/gm broadband input matching** strategy, it suffers from **poor gain and stability** in the narrowband context of 2.4 GHz. The issue is likely due to:
+
+- **Insufficient transconductance (gm)** from the NMOS device (NM1), leading to a **low gain** (S21_db) that fails the 18 dB requirement.
+- **Poor impedance matching** between the transistor and the load, exacerbated by the inductive load (L2), which may be causing **low-frequency roll-off or resonance** issues.
+- **Lack of feedback or stability control**, making the amplifier **unstable or poorly damped** in the target frequency band, leading to **gain degradation and poor noise figure**.
+
+The core issue is that the **common-gate topology with inductive load is not sufficient for achieving high gain and stability** in a narrowband, high-performance LNA at 2.4 GHz.
+
+---
+
+### 2. PROPOSED STRUCTURAL EDITS
+
+#### Edit 1: Add a shunt resistor to stabilize gain and provide feedback
+Instead of an inductive load, a **shunt resistor (Rd)** from the drain to VDD improves gain and stability, and can be used in combination with a **feedback resistor (Rf)** from the output to the gate for improved broadband behavior.

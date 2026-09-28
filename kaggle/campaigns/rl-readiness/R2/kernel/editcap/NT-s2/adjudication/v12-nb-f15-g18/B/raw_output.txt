@@ -1,0 +1,63 @@
+### 1. Diagnosis
+
+The failure is due to the **insufficient gain** of the common-gate (CG) amplifier topology. In a CG amplifier, the transconductance $ g_m $ is the main contributor to gain, but the output is taken from the drain, which is loaded by an inductor $ L_2 $. The inductor is tuned for impedance matching at the center frequency $ f_0 $, but it does not provide additional gain. The amplifier is also DC-blocked on both input and output with capacitors $ C_1 $ and $ C_2 $, which can limit the bandwidth and increase the signal loss. The observed $ S_{21} $ of only ~8.37 dB is far below the required 18 dB, and the gain is limited by the intrinsic gain of the CG configuration.
+
+---
+
+### 2. Structural Edits
+
+#### Edit 1: Convert to Common-Source (CS) topology with a shunt inductor for broadband impedance matching
+
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+L L1 s VSS
+NMOS M2 d VDD g VSS
+C C2 d VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 g
+C Cbyp g VSS
+```
+
+**Predicted change:**  
+The common-source configuration provides a much higher gain than the common-gate, and the shunt inductor $ L_1 $ at the source improves input impedance matching. This should **increase $ S_{21} $ by ~10 dB**, bringing it close to or above the required 18 dB.
+
+---
+
+#### Edit 2: Add a second NMOS transistor in cascode configuration for gain and stability
+
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+L L1 s VSS
+NMOS M2 d VDD g VSS
+NMOS M3 d VDD s VSS
+C C2 d VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 g
+C Cbyp g VSS
+```
+
+**Predicted change:**  
+The cascode configuration increases the output impedance and provides better stability and gain. This should **increase $ S_{21} $ by ~6 dB** and improve the noise figure slightly.
+
+---
+
+#### Edit 3: Use a series inductor for input matching and a shunt capacitor at the output for impedance matching
+
+```netlist
+L L1 VIN1 g
+NMOS M1 d g s VSS
+C C1 s VSS
+NMOS M2 d VDD g VSS
+C C2 d VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 g
+C Cbyp g VSS
+```
+
+**Predicted change:**  
+Replacing the input capacitor with a series inductor and adding a shunt capacitor at the output improves broadband impedance matching and increases gain. This should **increase $ S_{21} $ by ~8 dB**, bringing it well within the required 18 dB.

@@ -1,0 +1,9 @@
+### 1. DIAGNOSIS:
+The binding constraint is the `s11_max_db` (return loss at input), which failed by a margin of -0.238 dB (i.e., the maximum S11 is -6.095 dB, which is above the -8 dB target). This indicates that the input return loss is too high (not sufficiently matched) across the wideband range [0.5–3 GHz]. The issue is likely due to the reactive input matching network (C4, L1) being too narrowband to provide a sufficiently low S11 across the entire frequency range. The current topology relies on passive elements for matching without sufficient broadband control, leading to poor impedance matching at the edges of the band.
+
+---
+
+### 2. PROPOSED STRUCTURAL EDITS
+
+#### **Edit 1: Add a resistive shunt feedback path from output to gate**  
+This is a direct analog to the worked example, adding a resistor from the output node to the input gate node for broadband matching.

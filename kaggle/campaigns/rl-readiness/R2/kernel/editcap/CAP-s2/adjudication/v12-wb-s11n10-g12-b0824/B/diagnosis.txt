@@ -1,0 +1,6 @@
+### Diagnosis
+The LNA's poor S11 performance across the wideband (0.8–2.4 GHz) is due to **narrowband input matching**. The anchor netlist relies on reactive components (C4, L1, C1, L2, C2) for impedance transformation, which are inherently insufficient for broadband matching. The feedback and load networks lack resistive elements to flatten the input impedance, leading to S11 peaking above -10 dB at certain frequencies. The S21 is also slightly below target, indicating a tradeoff between gain and bandwidth.
+
+---
+
+### Edit 1: Resistive Shunt Feedback (Improved Input Matching)

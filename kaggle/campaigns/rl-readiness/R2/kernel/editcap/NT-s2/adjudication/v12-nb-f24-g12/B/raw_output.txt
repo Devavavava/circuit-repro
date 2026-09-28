@@ -1,0 +1,47 @@
+### 1. Diagnosis of Failure:
+The failure is due to the **insufficient gain** of the common-gate (CG) LNA topology, specifically due to the **low transconductance (gm) of the CG amplifier** and the **poor impedance transformation** at the desired 2.4 GHz frequency. The CG topology inherently has lower gain compared to common-source (CS) configurations because the gate is grounded and the transconductance is not used in the signal path. Additionally, the inductive source matching (L1) and the tuned load (L2) may not be optimal for achieving the required gain and noise figure at 2.4 GHz. The **binding constraint (s21_db)** is failing by ~0.2 dB, which is likely due to the amplifier not being able to deliver sufficient gain despite the design's low noise and good input matching.
+
+---
+
+### 2. Structural Edits:
+
+#### Edit 1: Convert to a Common-Source (CS) topology with resistive feedback for broadband stability and gain
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+R Rf d g
+L L1 s VSS
+NMOS M2 d VDD s VSS
+C C2 d VOUT1
+```
+
+**Predicted effect**: s21_db improves by ~1.5 dB due to higher gain from the CS topology and the resistive feedback helping to stabilize the gain and reduce phase shift.
+
+---
+
+#### Edit 2: Add a second-stage amplifier (common-source) for cascading gain
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+L L1 s VSS
+NMOS M2 d VDD s VSS
+C C2 d VOUT1
+NMOS M3 d2 d s2 VSS
+C C3 d2 VOUT1
+R Rf d s
+```
+
+**Predicted effect**: s21_db improves by ~2 dB due to the cascading gain from the second stage, allowing the overall gain to meet the required 12 dB at 2.4 GHz.
+
+---
+
+#### Edit 3: Use a common-gate topology with a shunt inductor for better impedance matching and stability
+```netlist
+C C1 VIN1 s
+NMOS M1 d g s VSS
+L L1 g VSS
+NMOS M2 d VDD s VSS
+C C2 d VOUT1
+```
+
+**Predicted effect**: s21_db improves by ~1 dB due to the improved impedance matching and stability from the shunt inductor (L1), which helps to increase the transconductance contribution at the desired frequency.

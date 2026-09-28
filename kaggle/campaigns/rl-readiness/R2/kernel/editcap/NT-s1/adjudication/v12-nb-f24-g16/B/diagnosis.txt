@@ -1,0 +1,8 @@
+### 1. Diagnosis:
+The failure is due to the **insufficient gain** in the common-gate (CG) LNA topology. The common-gate configuration inherently has low voltage gain due to the input being at the source terminal, which is AC-grounded via the bypass capacitor `Cbyp`. While this topology provides good broadband input matching (via the 1/gm match), the transconductance `gm` is not being effectively leveraged for voltage gain. Additionally, the load inductor `L2` provides a reactive load, which is not optimal for maximizing gain at 2.4 GHz, especially when combined with the CG configuration. The resulting transimpedance gain is too low, leading to a **s21_db margin of -0.4 dB**, which fails the specification of S21 ≥ 16 dB.
+
+---
+
+### 2. Structural Edits (Proposed Topologies)
+
+#### Edit 1: Convert to Common-Source (CS) LNA with Inductive Source Degeneration (Improved Gain)

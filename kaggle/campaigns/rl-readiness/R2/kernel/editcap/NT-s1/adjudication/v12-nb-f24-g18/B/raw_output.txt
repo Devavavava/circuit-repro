@@ -1,0 +1,78 @@
+### 1. DIAGNOSIS:
+The circuit is a **common-gate LNA** with input coupling through a capacitor (C1) and a source inductor (L1) for DC return. The output is loaded by an inductor (L2) to VDD, and a capacitor (C2) blocks DC at the output. While this topology provides a **1/gm broadband input matching** strategy, it suffers from **poor gain and stability** in the narrowband context of 2.4 GHz. The issue is likely due to:
+
+- **Insufficient transconductance (gm)** from the NMOS device (NM1), leading to a **low gain** (S21_db) that fails the 18 dB requirement.
+- **Poor impedance matching** between the transistor and the load, exacerbated by the inductive load (L2), which may be causing **low-frequency roll-off or resonance** issues.
+- **Lack of feedback or stability control**, making the amplifier **unstable or poorly damped** in the target frequency band, leading to **gain degradation and poor noise figure**.
+
+The core issue is that the **common-gate topology with inductive load is not sufficient for achieving high gain and stability** in a narrowband, high-performance LNA at 2.4 GHz.
+
+---
+
+### 2. PROPOSED STRUCTURAL EDITS
+
+#### Edit 1: Add a shunt resistor to stabilize gain and provide feedback
+Instead of an inductive load, a **shunt resistor (Rd)** from the drain to VDD improves gain and stability, and can be used in combination with a **feedback resistor (Rf)** from the output to the gate for improved broadband behavior.
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+R Rd n2 VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+R Rf n2 n1
+```
+
+**Predicted impact:**  
+- **s21_db improves by ~2–3 dB**, due to higher gain from the shunt resistor and feedback.
+- **s11_db may slightly degrade by ~0.5–1 dB**, due to the added feedback resistor.
+- **NF may improve slightly**, due to better stability and less gain degradation.
+
+---
+
+#### Edit 2: Replace inductive load with a resistor and add a second NMOS for current reuse
+Replace the inductive load (L2) with a resistor (Rd), and add a **second NMOS (M2)** as a current reuse stage for better gain and noise performance.
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+R Rd n2 VDD
+C C2 n2 VOUT1
+NMOS NM2 n2 VDD n2 VSS
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+
+**Predicted impact:**  
+- **s21_db improves by ~2–3 dB**, due to current reuse and higher gain.
+- **NF may slightly increase by ~0.1–0.2 dB**, due to the added transistor.
+- **s11_db is likely to remain stable or slightly improve**, due to better impedance matching.
+
+---
+
+#### Edit 3: Add a second NMOS in a cascode configuration for improved gain and stability
+Instead of an inductive load, use a **cascode configuration** with a second NMOS (M2) to improve gain and stability.
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+NMOS NM2 n2 VDD n2 VSS
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+
+**Predicted impact:**  
+- **s21_db improves by ~2–3 dB**, due to the cascode configuration providing higher gain and better impedance matching.
+- **NF may slightly increase by ~0.1–0.2 dB**, due to the added transistor.
+- **s11_db is likely to remain stable or slightly improve**, due to better impedance control.

@@ -1,0 +1,39 @@
+1. **Diagnosis**: The common-gate (CG) topology inherently limits gain due to the transconductance not being directly amplified. The CG configuration's output impedance is dominated by the load inductor (L2), which may not provide sufficient impedance to achieve the required 16 dB gain at 2.4 GHz. The low gain (achieved ~9.5 dB) is the binding constraint, likely due to insufficient amplification from the CG stage.
+
+---
+
+2. **Structural Edits**:
+
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+L L1 s VSS
+NMOS M2 o VDD d VSS
+R Rd VDD o
+C C2 o VOUT1
+```
+**Prediction**: s21_db improves by ~6 dB. Converting to a common-source (CS) topology directly utilizes gm for gain, which is more efficient than CG. The series inductor L1 at the source provides broadband matching while maintaining gain.
+
+---
+
+```netlist
+C C1 VIN1 g
+NMOS M1 d g VSS VSS
+NMOS M2 o VDD d VSS
+R Rd VDD o
+C C2 o VOUT1
+R Rf o g
+```
+**Prediction**: s21_db improves by ~4 dB. Adding resistive shunt feedback (Rf) from output to gate improves gain by stabilizing the transconductance and increasing the effective output impedance. This is a standard technique to boost gain in CG configurations.
+
+---
+
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+L L1 s VSS
+NMOS M2 o VDD d VSS
+C C2 o VOUT1
+L L2 o VDD
+```
+**Prediction**: s21_db improves by ~5 dB. Replacing the load resistor with an inductor (L2) at the drain creates a resonant LC tank at 2.4 GHz, increasing the effective load impedance and thus the gain. The source inductor (L1) ensures proper input matching.

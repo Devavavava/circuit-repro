@@ -1,0 +1,54 @@
+### 1. Diagnosis of Failure:
+
+The binding constraint is **s21_db**, which failed by **-0.396 dB** (i.e., the gain is too low by ~0.4 dB). The amplifier is a **common-gate (CG)** configuration, which inherently has a low transconductance gain because the gate is grounded for AC signals. The CG topology is known for good input and output matching but suffers from **low voltage gain** due to the lack of a direct signal path from gate to drain (which is AC-grounded). Furthermore, the drain inductor **L2** may be limiting the gain by acting as a load that is not optimized for amplification at the target frequency. The circuit relies on a **source-degenerated** NMOS (NM1) with an inductor **L1** for input matching, which may not provide enough transconductance or voltage gain for the desired 14 dB S21 at 1.6 GHz.
+
+---
+
+### 2. Structural Edits (Proposed Topologies):
+
+#### Edit 1: Convert to a common-source topology with a resistive shunt feedback for broadband gain enhancement.
+```netlist
+C C1 VIN1 g
+NMOS M1 d g VSS VSS
+NMOS M2 o VDD d VSS
+R Rd VDD o
+R Rf o g
+C C2 o VOUT1
+```
+
+**Predicted effect**: The **s21_db improves by ~2.5 dB**, as the common-source topology provides much higher voltage gain than the common-gate, and the feedback resistor **Rf** helps stabilize the gain and improve bandwidth.
+
+---
+
+#### Edit 2: Add a cascode stage to increase voltage gain and improve output impedance.
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS M1 n2 n0 VSS VSS
+NMOS M2 o VDD n2 VSS
+C C2 o VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n0
+C Cbyp n0 VSS
+```
+
+**Predicted effect**: The **s21_db improves by ~1.5 dB**, as the cascode configuration increases the output impedance and voltage gain, which helps boost the S21 metric.
+
+---
+
+#### Edit 3: Add an inductive source degeneration to improve transconductance and gain.
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+L Lsrc n0 g
+NMOS M1 d g VSS VSS
+L L2 VDD d
+C C2 d VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 g
+C Cbyp g VSS
+```
+
+**Predicted effect**: The **s21_db improves by ~1.8 dB**, as the inductive source degeneration increases the transconductance and provides a more efficient amplification path, especially at 1.6 GHz.

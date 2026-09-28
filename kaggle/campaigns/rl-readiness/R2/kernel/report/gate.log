@@ -1,0 +1,74 @@
+NF harness self-test: measured 3.012469 dB, expected 3.0103 dB -- PASS
+== ref24_cg.cir: stage-A common-gate match anchor ==
+   s11_f0_db          -23.472 dB   (baseline -23.472, ok)
+   s11_bandmax_db     -23.312 dB   (baseline -23.312, ok)
+   s21_f0_db           -1.372 dB   (baseline -1.372, ok)
+   nf_f0_db             4.127 dB   (baseline 4.127, ok)
+   idd_ma               2.400 mA   (baseline 2.400, ok)
+   re_zin              49.809 ohm   (baseline 49.809, ok)
+   im_zin              -6.705 ohm   (baseline -6.705, ok)
+   gm_mS               19.984 mS   (baseline 19.984, ok)
+   gmb_mS              -0.122 mS   (baseline -0.122, ok)
+   acceptance gates:
+     [PASS] S11 <= -10 dB across band -- S11_bandmax = -23.31 dB
+     [PASS] Re(Zin) within +-25% of 1/(gm+gmb)  [H-Q2] -- Re(Zin) = 49.8 ohm vs 1/(gm+gmb) = 49.7 ohm (0.1%)
+
+== ref24_csdeg.cir: stage-B CS+Cex inductive-degeneration match (F1 fix) ==
+   s11_f0_db          -21.265 dB   (baseline -21.265, ok)
+   s11_bandmax_db     -17.810 dB   (baseline -17.810, ok)
+   s21_f0_db            6.694 dB   (baseline 6.694, ok)
+   idd_ma               2.184 mA   (baseline 2.184, ok)
+   re_zin              50.425 ohm   (baseline 50.425, ok)
+   im_zin               8.703 ohm   (baseline 8.703, ok)
+   gm_mS               19.724 mS   (baseline 19.724, ok)
+   acceptance gates:
+     [PASS] S11 <= -12 dB across band (the F1-fix match holds) -- S11_bandmax = -17.81 dB
+     [PASS] Re(Zin) within +-20% of 50 ohm -- Re(Zin) = 50.4 ohm
+
+check_ref: GREEN
+== 1. model cards vs closed-form Gummel-Poon ==
+  dev    Ic set   Ic meas    beta    pred    err   fT GHz     pred    err  ok
+  NPN     1.00m    0.965m   193.0   192.9   0.1%     68.6     71.1   3.5%  OK
+  NPN     5.00m    4.182m   167.3   166.9   0.2%     92.0     97.0   5.1%  OK
+  PNP     1.00m    0.868m    43.4    43.3   0.2%     11.1     12.3   9.3%  OK
+  PNP     5.00m    3.133m    31.3    31.2   0.5%      7.7      8.0   4.0%  OK
+
+== 2. token -> Netlist emission vs a hand-written deck ==
+  quantity       token path      hand deck   rel err
+  ic_npn1       0.000574052    0.000574052  0.00e+00
+  ib_npn1       2.96736e-06    2.96736e-06  0.00e+00
+  vbe_npn1          0.80236        0.80236  0.00e+00
+  vbc_npn1         0.284079       0.284079  0.00e+00
+
+== 3. additive: MOS-only decks are untouched ==
+  MOS-only deck: bjt_kinds=[] model_card=False Q_element=False -> OK
+
+check_bjt: GREEN
+  OK   balunlna24-example.yaml balunlna24-example (narrowband)
+  OK   dhruva-l1.yaml       dhruva-l1 (narrowband)
+  OK   dhruva-l2.yaml       dhruva-l2 (narrowband)
+  OK   dhruva-l5.yaml       dhruva-l5 (narrowband)
+  OK   dhruva-s.yaml        dhruva-s (narrowband)
+  OK   easy1g.yaml          easy1g (narrowband)
+  OK   gps-l1.yaml          gps-l1 (narrowband)
+  OK   ism58.yaml           ism58 (narrowband)
+  OK   legacy-lna5.yaml     legacy-lna5 (narrowband)
+  OK   mixer24-example.yaml mixer24-example (narrowband)
+  OK   n78-35.yaml          n78-35 (narrowband)
+  OK   pa24-example.yaml    pa24-example (narrowband)
+  OK   sub900.yaml          sub900 (narrowband)
+  OK   unii55.yaml          unii55 (narrowband)
+  OK   wb05-2.yaml          wb05-2 (wideband)
+  OK   wideband-sdr.yaml    wideband-sdr (wideband)
+  OK   wifi24.yaml          wifi24 (narrowband)
+  OK   xband8.yaml          xband8 (narrowband)
+solving spec 'wifi24' on pdk 'bptm45'  (feasible = meets every gated constraint)
+
+sizing 6 topologies x 1 seeds at 100 evals each ...
+
+result: infeasible -- closest attempt saved (see which metric FAILs)
+  topology 1403690fcd12, seed 1, objective 1.5052
+  design saved to /tmp/circuit-repro/designs/wifi24
+
+view it:
+  python lna/render_design.py --design designs/wifi24/design

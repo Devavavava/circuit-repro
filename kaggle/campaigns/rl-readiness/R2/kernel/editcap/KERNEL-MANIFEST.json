@@ -1,0 +1,141 @@
+{
+  "kernel": "r2-think",
+  "prereg": "kaggle/PREREG-RL-READINESS.md#R2",
+  "model_id": "qwen3-14b-q4km",
+  "lib": "editcap-lib-v12-45nm",
+  "pdk": "bptm45",
+  "arm": "B",
+  "k": "3",
+  "max_tokens": "8192",
+  "temperature": "0.7",
+  "fewshot": true,
+  "gen_only": true,
+  "think_budget": "1024",
+  "recover_reasoning": true,
+  "repo_branch": "worktree-externals-gf180",
+  "repo_sha_pinned": "b5b90e01ddfb05c429218867dc81354beffcb950",
+  "runs": [
+    {
+      "cond": "CAP",
+      "sample": 1,
+      "out": "/kaggle/working/editcap/CAP-s1",
+      "rc": 0,
+      "minutes": 18.2,
+      "n_cells_done": 16,
+      "n_proposed": 48,
+      "n_valid": 48,
+      "n_inkernel_feasible_cells": 0
+    },
+    {
+      "cond": "NT",
+      "sample": 1,
+      "out": "/kaggle/working/editcap/NT-s1",
+      "rc": 0,
+      "minutes": 9.5,
+      "n_cells_done": 16,
+      "n_proposed": 48,
+      "n_valid": 46,
+      "n_inkernel_feasible_cells": 0
+    },
+    {
+      "cond": "CAP",
+      "sample": 2,
+      "out": "/kaggle/working/editcap/CAP-s2",
+      "rc": 0,
+      "minutes": 17.4,
+      "n_cells_done": 16,
+      "n_proposed": 48,
+      "n_valid": 48,
+      "n_inkernel_feasible_cells": 0
+    },
+    {
+      "cond": "NT",
+      "sample": 2,
+      "out": "/kaggle/working/editcap/NT-s2",
+      "rc": 0,
+      "minutes": 9.4,
+      "n_cells_done": 16,
+      "n_proposed": 48,
+      "n_valid": 45,
+      "n_inkernel_feasible_cells": 0
+    }
+  ],
+  "clone_head": "b5b90e01ddfb05c429218867dc81354beffcb950",
+  "server_caps": {
+    "version": "version: 0.3.0-dev (build 1, commit 4d19b28)\nbuilt with GNU 11.4.0 for Linux x86_64",
+    "help_reasoning_lines": [
+      "                                        note: for security reasons, this will limit --cors-origins to",
+      "                                        note: for security reasons, this will limit --cors-origins to",
+      "                                        note: for security reasons, this will limit --cors-origins to",
+      "                                        note: for security reasons, this will limit --cors-origins to",
+      "--reasoning-format FORMAT               controls whether thought tags are allowed and/or extracted from the",
+      "                                        - deepseek: puts thoughts in `message.reasoning_content`",
+      "                                        - deepseek-legacy: keeps `<think>` tags in `message.content` while",
+      "                                        also populating `message.reasoning_content`",
+      "                                        (env: LLAMA_ARG_THINK)",
+      "-rea,  --reasoning [on|off|auto]        Use reasoning/thinking in the chat ('on', 'off', or 'auto', default:",
+      "                                        (env: LLAMA_ARG_REASONING)",
+      "--reasoning-effort LEVEL                reasoning effort level given to the chat template: 'default' to keep",
+      "                                        (env: LLAMA_ARG_REASONING_EFFORT)",
+      "--reasoning-budget N                    token budget for thinking: -1 for unrestricted, 0 for immediate end,",
+      "                                        N>0 for token budget (default: -1)",
+      "                                        (env: LLAMA_ARG_THINK_BUDGET)",
+      "--reasoning-budget-message MESSAGE      message injected before the end-of-thinking tag when reasoning budget",
+      "                                        (env: LLAMA_ARG_THINK_BUDGET_MESSAGE)",
+      "--reasoning-preserve, --no-reasoning-preserve",
+      "                                        preserve reasoning trace in the full history, not just the last",
+      "                                        compatible with certain templates having 'supports_preserve_reasoning'",
+      "                                        https://docs.z.ai/guides/capabilities/thinking-mode#preserved-thinking",
+      "                                        (env: LLAMA_ARG_REASONING_PRESERVE)",
+      "                                        bailing, bailing-think, bailing2, chatglm3, chatglm4, chatml,",
+      "                                        bailing, bailing-think, bailing2, chatglm3, chatglm4, chatml,",
+      "                                        reasoning and/or tool calls (default: disabled)"
+    ]
+  },
+  "gguf": {
+    "source": "download",
+    "url": "https://huggingface.co/Qwen/Qwen3-14B-GGUF/resolve/main/Qwen3-14B-Q4_K_M.gguf",
+    "path": "/tmp/Qwen3-14B-Q4_K_M.gguf",
+    "bytes": 9001752960,
+    "sha256": "500a8806e85ee9c83f3ae08420295592451379b4f8cf2d0f41c15dffeb6b81f0",
+    "verified": true
+  },
+  "probe": {
+    "template_tail": " 17*23? Think step by step.<|im_end|>\n<|im_start|>assistant\n",
+    "p1_head": "<think>\nOkay, so I need to figure out what 17 multiplied by 23 is. Let me think about how to approach this. I remember t",
+    "p1_tokens": 64,
+    "p1_stop": "limit",
+    "p2_head": "To calculate **17 \u00d7 23**, we can break it down step by step using the distributive property:\n\n### Step 1: Break down 23 into 20 + 3  \n$$\n17 \\times 23 = 17 \\times (20 + 3)\n$$\n\n### Step 2: Apply the dis",
+    "p2_tokens": 128,
+    "p2_stop": "limit",
+    "p1_keys": [
+      "content",
+      "generation_settings",
+      "has_new_line",
+      "id_slot",
+      "index",
+      "model",
+      "prompt",
+      "stop",
+      "stop_type",
+      "stopping_word",
+      "timings",
+      "tokens",
+      "tokens_cached",
+      "tokens_evaluated",
+      "tokens_predicted",
+      "truncated"
+    ]
+  },
+  "identical_raw_s1_s2": {
+    "CAP": [
+      0,
+      16
+    ],
+    "NT": [
+      0,
+      16
+    ]
+  },
+  "wall_minutes": 57.9
+}

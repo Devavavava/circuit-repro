@@ -1,0 +1,63 @@
+### 1. Diagnosis of Failure
+
+The failed LNA has a poor S11 (input return loss) performance, with the worst-case S11_max_db at -6.12589 dB, which is below the required -9 dB specification. This indicates that the input impedance is not sufficiently matched across the wideband frequency range (0.5–3 GHz), especially at the edges of the band. The core issue is that the current-reuse push-pull LNA topology relies on reactive elements (capacitors and inductors) for input matching, which are inherently narrowband and cannot maintain a low S11 over a decade of frequencies. Additionally, the input is DC-blocked (C4), and the reactive elements (C1, L1, C2, etc.) do not provide sufficient broadband impedance control, leading to a high input reflection at the band edges. This is a classic case of a wideband LNA failing due to insufficient input impedance matching across the full frequency range.
+
+---
+
+### 2. Structural Edits (Topologies) to Improve S11
+
+#### **Edit 1: Add a Resistive Shunt Feedback Path from Output to Input Gate**
+This is a classic method to improve wideband input matching by making the input impedance more resistive and stable over a wide frequency range.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R Rf VOUT1 n1
+```
+
+**Predicted Effect**:  
+The addition of a feedback resistor `Rf` from the output node `VOUT1` to the input node `n1` will stabilize the input impedance and reduce the S11_max_db by **~2.5 dB**, bringing it closer to the specification. The feedback resistor will make the input impedance more resistive and broadband, improving the input return loss.
+
+---
+
+#### **Edit 2: Replace the Push-Pull Configuration with a Single-Stage NMOS LNA with Inductive Source Degeneration**
+This topology is known for better wideband performance and improved input impedance control. Inductive source degeneration can help flatten the input impedance and improve S11 over a wide frequency range.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+L Ls n1 VSS
+C C1 n2 n3
+PMOS PM1 n2 n3 VDD VDD
+C C2 n3 VSS
+C C3 n2 VOUT1
+```
+
+**Predicted Effect**:  
+This single-stage NMOS LNA with inductive source degeneration (`Ls`) will provide a more stable and resistive input impedance, which should improve the S11_max_db by **~3 dB**. This topology is better suited for wideband operation compared to the push-pull structure.
+
+---
+
+#### **Edit 3: Add a Resistive Source Degeneration in the NMOS Stage**
+Adding a resistive source degeneration in the NMOS stage helps to increase the input impedance and flatten the S11 curve. This is particularly effective in wideband applications.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+R Rs n1 VSS
+C C1 n2 n3
+PMOS PM1 n2 n3 VDD VDD
+C C2 n3 VSS
+C C3 n2 VOUT1
+```
+
+**Predicted Effect**:  
+The resistive source degeneration (`Rs`) will help flatten the input impedance and improve the S11_max_db by **~2 dB**. This method is more passive and less complex than the feedback approach but can still significantly improve the wideband input matching.

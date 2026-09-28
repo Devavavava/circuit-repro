@@ -1,0 +1,55 @@
+### Diagnosis
+The binding constraint failure (S21_db = 8.4 dB < 16 dB) stems from the **low gain in the common-gate topology**. The drain load (L2) provides insufficient impedance at 1.6 GHz, and the source-degenerated input (L1 + C1) introduces loss and phase shifts that degrade gain. Additionally, the inductive load (L2) may resonate with the output capacitor (C2), creating a low-impedance path that reduces gain. The common-gate configuration inherently has limited gain unless paired with a high-impedance load or a current-source load.
+
+---
+
+### Edit 1: Replace inductive load (L2) with resistive load and add a shunt inductor for broadband matching
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+R Rload n2 VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+L Lshunt n2 VDD
+```
+
+**Predicted effect**: S21_db improves by ~5–7 dB by replacing L2 with a resistor (Rload), which provides a stable high-impedance load at 1.6 GHz. The shunt inductor (Lshunt) helps maintain broadband matching by compensating for frequency-dependent reactance.
+
+---
+
+### Edit 2: Use a common-source topology with a resistive source degeneration and inductive load
+```netlist
+C C1 VIN1 n0
+R Rsrc n0 n1
+NMOS NM1 n2 n1 VSS VSS
+L Lload n2 VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+
+**Predicted effect**: S21_db improves by ~8–10 dB. The common-source configuration provides higher gain than common-gate. The resistive source degeneration (Rsrc) helps stabilize the input impedance, while the inductive load (Lload) ensures a high-impedance path for gain.
+
+---
+
+### Edit 3: Use a current mirror as a load and add a parallel capacitor for impedance boosting
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+NMOS NM2 n2 VDD VDD VSS
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+C Cboost n2 VDD
+```
+
+**Predicted effect**: S21_db improves by ~6–8 dB. Replacing L2 with a current mirror (NM2) provides a high-impedance load, boosting gain. The parallel capacitor (Cboost) ensures impedance matching at 1.6 GHz, preventing gain roll-off.

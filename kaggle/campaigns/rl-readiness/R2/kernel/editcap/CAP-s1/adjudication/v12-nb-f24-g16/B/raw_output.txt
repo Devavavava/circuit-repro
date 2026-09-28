@@ -1,0 +1,40 @@
+1. The failure stems from the common-gate (CG) topology's inherently limited gain, exacerbated by the inductive load (L2) which may not provide sufficient impedance at 2.4 GHz. The CG configuration's gain is constrained by the source impedance (L1's reactance at 2.4 GHz) and the load impedance (L2's reactance), leading to insufficient S21. The drain inductor's reactance may also reduce the effective load, lowering transconductance contribution.
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+C Cload n2 VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+Predicted: s21_db improves by ~6 dB via replacing L2 with a capacitor (Cload) to increase transconductance contribution and stabilize load impedance.
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+NMOS NM2 n2 VDD n0 VSS
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+Predicted: s21_db improves by ~4 dB via adding a cascode transistor (NM2) to increase output impedance and amplify gain.
+
+```netlist
+C C1 VIN1 n0
+R Rg n0 VSS
+NMOS NM1 n2 n1 VSS VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+Predicted: s21_db improves by ~5 dB via switching to common-source topology (gate at n1) with resistive source degeneration (Rg) to enhance gain and stability.

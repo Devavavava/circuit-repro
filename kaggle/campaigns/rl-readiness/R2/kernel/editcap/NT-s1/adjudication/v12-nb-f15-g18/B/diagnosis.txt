@@ -1,0 +1,9 @@
+### 1. DIAGNOSIS:
+The failure is due to the **low S21 (gain) margin** (`s21_db = 8.36585 dB` vs required `18 dB`). The common-gate topology has inherently limited gain due to the source being the input port and the gate being grounded for RF signals. The LNA structure as given is not optimized for high gain and suffers from poor transconductance utilization and insufficient amplification. The low gain is likely exacerbated by the inductive source matching (L1) and the lack of active gain enhancement elements in the topology.
+
+---
+
+### 2. STRUCTURAL EDITS (3 topologies, each with a unique structural change to improve gain and meet S21 constraint)
+
+#### Edit 1: Convert to common-source topology with resistive feedback for broadband gain
+This change replaces the common-gate configuration with a common-source topology and adds a resistive feedback path to enhance gain and flatten the response.

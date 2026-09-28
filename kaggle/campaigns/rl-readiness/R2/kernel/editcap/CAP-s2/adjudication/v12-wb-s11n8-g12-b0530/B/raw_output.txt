@@ -1,0 +1,49 @@
+### DIAGNOSIS
+The failure stems from the input impedance's frequency-dependent reactance, which causes S11 to exceed -8 dB at certain frequencies within the 0.5–3 GHz band. The current topology relies on reactive components (C4, L1) for input matching, which inherently limit broadband impedance matching. While the current-reuse push-pull configuration improves linearity and gain, it lacks a mechanism to flatten the input impedance's phase and magnitude across the wideband, leading to a marginal S11 failure.
+
+---
+
+### EDIT 1: Add resistive shunt feedback from output to input
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R Rf n2 n1
+```
+**PREDICTION**: S11_max_db improves by ~2.5 dB (flattens input impedance phase).
+
+---
+
+### EDIT 2: Replace input inductor (L1) with a resistor for resistive input matching
+```netlist
+C C4 VIN1 n0
+R R1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+```
+**PREDICTION**: S11_max_db improves by ~1.8 dB (reduces reactance in input path).
+
+---
+
+### EDIT 3: Add a shunt resistor at output node (n2) to stabilize impedance
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R Rshunt n2 VSS
+```
+**PREDICTION**: S11_max_db improves by ~1.2 dB (damps output resonance effects).

@@ -1,0 +1,36 @@
+The LNA's failure is due to the **common-gate topology's inherently low gain** and **poor output impedance matching**, exacerbated by the reactive load (L2) and DC-blocking capacitor (C2) at the output. The s21 is critically low because the drain load (L2) and output capacitor (C2) do not provide sufficient impedance transformation or bandwidth for high-gain signal transfer at 1.6 GHz. The structure lacks direct signal amplification from input to output, relying instead on a low-impedance source input with a reactive load, which cannot deliver the required 18 dB gain.
+
+---
+
+### Edit 1: Convert to Common-Source with Inductive Source Degeneration
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+L Ls s VSS
+L L2 VDD d
+C C2 d VOUT1
+```
+**Predicted change**: s21_db improves by ~10 dB. The common-source topology provides higher intrinsic gain, and the inductive source degeneration (Ls) helps stabilize the gain while maintaining a broadband match.
+
+---
+
+### Edit 2: Add a Cascode Stage for Gain and Bandwidth
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+NMOS Mcas d2 d s VSS
+L L2 VDD d2
+C C2 d2 VOUT1
+```
+**Predicted change**: s21_db improves by ~8 dB. The cascode stage (Mcas) increases the output impedance and bandwidth, enhancing gain while reducing Miller effect limitations.
+
+---
+
+### Edit 3: Use a Resistive Load with Capacitive Coupling
+```netlist
+C C1 VIN1 g
+NMOS M1 d g s VSS
+R Rload VDD d
+C C2 d VOUT1
+```
+**Predicted change**: s21_db improves by ~7 dB. A resistive load (Rload) provides a stable impedance match for maximum gain, while C2 blocks DC, avoiding the reactive losses of an inductor.

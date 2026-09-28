@@ -1,0 +1,67 @@
+1. **Diagnosis**: The failure stems from the input impedance mismatch across the wideband range. The reactive input matching network (C4, L1) cannot maintain a low S11 due to inherent narrowband behavior. The current-reuse topology lacks resistive elements to dampen reactance, leading to poor return loss at band edges.
+
+---
+
+2. **Structural Edits**:
+
+```netlist
+C C4 VIN1 n0
+R Rf VIN1 VOUT1
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted effect**: Adding a resistive feedback path (Rf) from input (VIN1) to output (VOUT1) provides broadband impedance control. This flattens S11 by reducing reactance, improving it by ~2.5 dB.
+
+---
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+R Rshunt n1 VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted effect**: Introducing a shunt resistor (Rshunt) at the input node (n1) adds a resistive path to ground, broadening the impedance match. This improves S11 by ~2 dB.
+
+---
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+R Rload n2 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted effect**: Replacing the inductive load (L2 + C2) with a resistive load (Rload) simplifies the output impedance, reducing resonant effects that degrade S11. This improves S11 by ~1.5 dB.

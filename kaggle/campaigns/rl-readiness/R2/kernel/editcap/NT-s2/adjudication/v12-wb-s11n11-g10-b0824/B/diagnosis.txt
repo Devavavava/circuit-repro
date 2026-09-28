@@ -1,0 +1,11 @@
+### 1. Diagnosis of the Failure
+
+The binding constraint failing is `s11_max_db`, which is the maximum (i.e., worst-case) return loss at the input port over the band. The circuit is not achieving the required S11 <= -11 dB across the wideband range (0.8–2.4 GHz). The issue is likely due to the **input impedance not being sufficiently matched** over the wide frequency range. The current topology relies on a shunt inductor `L1` and a capacitor `C4` for input matching, but this is **not sufficient for broadband matching** due to the reactive nature of the components. Additionally, the current-reuse topology, while efficient for gain and noise figure, **does not inherently provide wideband impedance control** at the input.
+
+The lack of a **resistive feedback path** from output to input — which would help flatten the input impedance — is likely the root cause of the poor S11 performance. Without this, the input impedance varies strongly with frequency, leading to a **poor S11 across the wideband**.
+
+---
+
+### 2. Structural Edits (Proposed Topologies)
+
+#### **Edit 1: Add resistive feedback from output to input to flatten S11**

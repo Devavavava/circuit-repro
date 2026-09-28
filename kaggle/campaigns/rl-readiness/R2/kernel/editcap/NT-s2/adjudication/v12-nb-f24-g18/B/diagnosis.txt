@@ -1,0 +1,17 @@
+### 1. Diagnosis of the Failure
+
+The binding constraint that failed is the **S21 gain** (forward gain), which is only achieving **9.48 dB**, well below the target of **18 dB**. This significant shortfall suggests a fundamental issue with the **gain structure** or **impedance matching** in the current topology.
+
+The anchor circuit is a **common-gate (CG) LNA**, where the **source is the input port**. This configuration is known for its **high linearity and low noise**, but it is inherently **low-gain** due to the **inversion of signal phase at the gate**. The **1/gm broadband matching** is achieved via the **source inductor (L1)**, but the **drain load (L2)** is **not sufficient to provide enough transconductance amplification** or **output swing**.
+
+Additionally, the **drain is loaded with an inductor (L2)**, which is **not a good impedance transformer at a single frequency**, and **does not provide a resistive load** to maximize the gain. The **output is DC-blocked** with a capacitor (C2), which is fine for AC coupling, but **not a source of gain**.
+
+The **drain is not loaded with a proper resistive load**, and the **transconductance is not being used to its full potential**. The **input is DC-blocked with a capacitor**, and the **source is AC-coupled to the gate**, which makes it **not a true common-gate** but more of a **common-source** with a **shunt inductor**.
+
+In short, the **gain is too low**, and the **output impedance is not properly matched** to the load. The **anchor circuit is fundamentally designed for low-noise and linearity, not high gain** — which is the root of the failure.
+
+---
+
+### 2. Structural Edits (Three Topologies)
+
+#### Edit 1: Convert to Common-Source with Inductive Source Matching and Resistive Drain Load

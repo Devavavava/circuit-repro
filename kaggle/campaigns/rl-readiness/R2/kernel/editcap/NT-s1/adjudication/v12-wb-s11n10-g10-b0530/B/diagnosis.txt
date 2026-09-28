@@ -1,0 +1,9 @@
+### 1. Diagnosis of the Failure
+
+The binding constraint failure is due to the **poor input matching** over the wideband range (0.5–3 GHz). The current LNA topology relies on a simple LC network (C4 and L1) for input matching, which is inherently narrowband. The input impedance is not sufficiently matched across the entire band, resulting in a **S11_max_db of -6.07 dB**, which is **0.39 dB above the -10 dB requirement**. This is a clear sign of a **return loss failure** due to **inadequate broadband input matching**. The lack of resistive feedback or a more robust matching strategy is the root cause of the problem.
+
+---
+
+### 2. Structural Edits (Proposed Topologies)
+
+#### Edit 1: Add Resistive Shunt Feedback from Output to Input (Similar to the worked example, but applied to this topology)

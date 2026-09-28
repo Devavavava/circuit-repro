@@ -1,0 +1,6 @@
+### Diagnosis:
+The failure stems from the **common-gate (CG) topology's intrinsic low gain**, exacerbated by the **inductive load (L2)** which may not provide sufficient impedance at 2.4 GHz. The gain in CG LNAs is approximately $-g_m \cdot R_{\text{load}}$, but the inductor's impedance at resonance might not be optimized, and the CG configuration inherently limits transconductance utilization. The S21 shortfall suggests the load impedance and/or transconductance are insufficient to meet the gain target.
+
+---
+
+### Edit 1: Replace inductive load with a **resonant tank** (inductor + capacitor) for higher impedance at 2.4 GHz.

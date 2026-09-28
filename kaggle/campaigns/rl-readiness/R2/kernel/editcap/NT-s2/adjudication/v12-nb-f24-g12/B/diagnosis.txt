@@ -1,0 +1,8 @@
+### 1. Diagnosis of Failure:
+The failure is due to the **insufficient gain** of the common-gate (CG) LNA topology, specifically due to the **low transconductance (gm) of the CG amplifier** and the **poor impedance transformation** at the desired 2.4 GHz frequency. The CG topology inherently has lower gain compared to common-source (CS) configurations because the gate is grounded and the transconductance is not used in the signal path. Additionally, the inductive source matching (L1) and the tuned load (L2) may not be optimal for achieving the required gain and noise figure at 2.4 GHz. The **binding constraint (s21_db)** is failing by ~0.2 dB, which is likely due to the amplifier not being able to deliver sufficient gain despite the design's low noise and good input matching.
+
+---
+
+### 2. Structural Edits:
+
+#### Edit 1: Convert to a Common-Source (CS) topology with resistive feedback for broadband stability and gain

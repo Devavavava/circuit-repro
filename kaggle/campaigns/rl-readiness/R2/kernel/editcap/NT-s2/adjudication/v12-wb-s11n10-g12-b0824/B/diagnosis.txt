@@ -1,0 +1,10 @@
+### 1. Diagnosis of the Failure
+
+The LNA fails to meet the S11 specification (`s11_max_db` margin of -0.056468) because the input matching network is insufficient for the wideband operation (0.8–2.4 GHz). The circuit uses only a capacitor `C4` for DC blocking, and an inductor `L1` to create a resonant input network. However, this is inherently narrowband and cannot provide a low enough return loss across the entire frequency range. The lack of resistive feedback or additional impedance-shaping elements results in a poor match at some frequencies within the band, causing the S11 to exceed -10 dB. This is a classic issue in wideband LNAs: reactive input matching alone cannot provide sufficient broadband impedance control.
+
+---
+
+### 2. Structural Edits
+
+#### **Edit 1: Add Resistive Shunt Feedback for Broadband Input Matching**
+This edit introduces a resistive feedback path from the output to the input gate, similar to the classic approach used in wideband LNAs. It flattens the input impedance over a wide frequency range, reducing S11 variation.

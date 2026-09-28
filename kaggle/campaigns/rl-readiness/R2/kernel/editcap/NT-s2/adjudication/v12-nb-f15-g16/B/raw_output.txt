@@ -1,0 +1,55 @@
+### 1. Diagnosis of the Failure
+
+The LNA is failing due to an insufficient gain (S21_db), which is below the required 16 dB at 1.6 GHz. The anchor netlist implements a **common-gate (CG) LNA** with a **source-degenerated inductor (L1)** and a **tuned drain load (L2)**. While the CG topology inherently provides a broadband input match (due to the 1/gm impedance), it suffers from **inherently low gain** and **poor gain-bandwidth product**, especially when the drain is loaded with a reactive element like an inductor (L2). The L2 inductor provides a high-impedance load at resonance, but the gain is still constrained by the transconductance (gm) of the transistor and the overall impedance matching. Additionally, the input is DC-blocked by C1 and matched via L1, which is not sufficient to ensure high gain at 1.6 GHz. The circuit also lacks **active feedback or impedance boosting** to increase gain and stability.
+
+---
+
+### 2. Structural Edits (Proposed Topologies)
+
+#### Edit 1: **Common-Source (CS) LNA with Source Degeneration and Resistive Feedback**
+This topology improves gain by using a CS configuration and adds a **resistive feedback** path from the output to the source to help stabilize and improve gain.
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 VSS VSS
+R Rsrc n2 n0
+R Rf n2 n1
+C C2 n2 VOUT1
+```
+
+**Predicted change**:  
+`s21_db improves by ~3–5 dB` due to the higher gain of the CS topology and the resistive feedback helping to increase gain while maintaining stability.
+
+---
+
+#### Edit 2: **Cascode LNA with Inductive Source Degeneration and Tuned Drain Load**
+This topology uses a **cascode configuration** with a **source inductor (L1)** to increase the output impedance and bandwidth, and a **tuned load (L2)** to match the frequency.
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 VSS VSS
+NMOS NM2 n2 n3 VSS VSS
+L L2 VDD n3
+C C2 n3 VOUT1
+```
+
+**Predicted change**:  
+`s21_db improves by ~4–6 dB` due to the higher output impedance and better gain from the cascode structure, which also improves stability and bandwidth.
+
+---
+
+#### Edit 3: **Common-Gate LNA with Inductive Source and Resistive Load**
+This is a modified CG configuration with an **inductive source match (L1)** and a **resistive load (Rd)** instead of a reactive load. This helps increase gain and improve S21 performance.
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 VSS VSS
+R Rd VDD n2
+C C2 n2 VOUT1
+```
+
+**Predicted change**:  
+`s21_db improves by ~2–4 dB` due to the resistive load increasing the transconductance gain (gm*Rd), which boosts the overall gain of the LNA.

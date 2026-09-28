@@ -1,0 +1,65 @@
+### 1. Diagnosis of the Failure
+
+The binding constraint failure is due to the **insufficient gain** in the circuit, as evidenced by the `s21_db` metric being only **8.45 dB**, which is **0.2958 dB below the required 12 dB**. The low gain is most likely caused by the **common-gate topology's inherently low voltage gain**, compounded by the **reactive load (L2)** that may not be effectively transferring power at the target frequency. Additionally, the **input matching** (via L1) and **output decoupling (C2)** do not provide enough gain boost, especially in a narrowband design. The **source-degenerated configuration** (with L1 and C1) also limits the transconductance contribution to the gain. Therefore, the circuit lacks sufficient amplification at the target frequency of 1.58 GHz.
+
+---
+
+### 2. Structural Edits (3 Topologies)
+
+#### Edit 1: Add a resistive shunt feedback from drain to gate (similar to the worked example) to improve gain and bandwidth, while maintaining the narrowband character.
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+R Rf n2 n1
+```
+
+**Predicted change:**  
+`s21_db` improves by **~2.5 dB**, bringing it to **~10.95 dB**, still slightly below the target but significantly closer. The feedback resistor `Rf` helps stabilize the gain and increase the effective transconductance, improving the voltage gain of the amplifier.
+
+---
+
+#### Edit 2: Convert the common-gate configuration to a common-source configuration with an inductive source degeneration for better gain and input matching.
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n3 n0 VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n4
+NMOS NM3 n4 n4 VSS VSS
+R R2 n4 n3
+C Cbyp n3 VSS
+L Ls n0 n3
+```
+
+**Predicted change:**  
+`s21_db` improves by **~4.5 dB**, bringing it to **~13.0 dB**, satisfying the constraint. The common-source configuration with inductive source degeneration allows for greater voltage gain and better control of the input impedance, especially when paired with a reactive load.
+
+---
+
+#### Edit 3: Add a cascode stage to the output to increase gain and improve stability without sacrificing bandwidth or increasing noise.
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 n0 VSS
+L L2 VDD n2
+C C2 n2 n3
+NMOS NM2 n3 n4 n2 VSS
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+C Cbyp n1 VSS
+```
+
+**Predicted change:**  
+`s21_db` improves by **~3.8 dB**, bringing it to **~12.25 dB**, meeting the requirement. The cascode stage (NM2) boosts the output impedance and gain while maintaining a stable and low-noise configuration. This topology is especially effective for narrowband designs where gain and noise figure are both critical.

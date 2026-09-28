@@ -1,0 +1,80 @@
+### 1. Diagnosis of the Failure
+
+The LNA's failure to meet the S11 constraint (S11_max_db = -11 dB) is primarily due to poor input impedance matching across the wideband range (0.8–2.4 GHz). The anchor netlist employs a current-reuse topology with a capacitive input matching (C4) and inductive peaking (L1), but these reactive elements are inherently narrowband and cannot maintain a low S11 across the full frequency band. Additionally, the input is DC-blocked by C4, but no resistive or broadband feedback mechanism is present to stabilize the input impedance. As a result, the input impedance becomes highly reactive and resonant at certain frequencies, leading to a poor return loss (S11) at the worst-case frequency.
+
+---
+
+### 2. Structural Edits
+
+#### Edit 1: Add Resistive Shunt Feedback
+Adding a resistive shunt feedback path from the output (VOUT1) to the input (VIN1) helps flatten the input impedance across the band, improving S11.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+R Rf VOUT1 VIN1
+```
+
+**Predicted Effect:** S11_max_db improves by ~2–3 dB (from -9.14 dB to -11.14 dB or better), meeting the specification.
+
+---
+
+#### Edit 2: Add a Broadband Inductor at Input
+Adding a broadband inductor in parallel with the input capacitor (C4) can help flatten the input impedance across the wideband by providing a low-impedance path at low frequencies and a high-impedance path at high frequencies, improving S11.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+L L_in VIN1 n0
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted Effect:** S11_max_db improves by ~1.5–2 dB (from -9.14 dB to -10.64 dB or better), helping to meet the specification.
+
+---
+
+#### Edit 3: Add a Resistive Series Component to Input
+Adding a small resistive component in series with the input (VIN1) can increase the input impedance's real part and improve the return loss by reducing the reactive nature of the input impedance.
+
+```netlist
+C C4 VIN1 n0
+R R_in VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted Effect:** S11_max_db improves by ~1.5–2 dB (from -9.14 dB to -10.64 dB or better), helping to meet the specification.

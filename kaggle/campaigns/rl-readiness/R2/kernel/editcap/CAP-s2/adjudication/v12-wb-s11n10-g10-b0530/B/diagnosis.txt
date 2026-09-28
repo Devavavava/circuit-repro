@@ -1,0 +1,6 @@
+### Diagnosis:
+The failure stems from poor broadband input matching. The current design relies on a series inductor (L1) and capacitor (C4) for input matching, which creates a narrowband response. The input impedance is dominated by the inductor's reactance, leading to a resonant peak at a specific frequency and poor return loss (S11) across the wideband (0.5–3 GHz). The lack of resistive feedback or broadband impedance compensation mechanisms exacerbates this, as the input impedance becomes highly reactive and frequency-dependent, failing to meet the S11 ≤ -10 dB requirement.
+
+---
+
+### Edit 1: Add resistive shunt feedback from output to input gate

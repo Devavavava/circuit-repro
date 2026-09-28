@@ -1,0 +1,60 @@
+### 1. Diagnosis:
+The failure is due to the **insufficient gain** in the common-gate (CG) LNA topology. The common-gate configuration inherently has low voltage gain due to the input being at the source terminal, which is AC-grounded via the bypass capacitor `Cbyp`. While this topology provides good broadband input matching (via the 1/gm match), the transconductance `gm` is not being effectively leveraged for voltage gain. Additionally, the load inductor `L2` provides a reactive load, which is not optimal for maximizing gain at 2.4 GHz, especially when combined with the CG configuration. The resulting transimpedance gain is too low, leading to a **s21_db margin of -0.4 dB**, which fails the specification of S21 ≥ 16 dB.
+
+---
+
+### 2. Structural Edits (Proposed Topologies)
+
+#### Edit 1: Convert to Common-Source (CS) LNA with Inductive Source Degeneration (Improved Gain)
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 VSS VSS
+L Ls n1 n2
+L L2 n2 VDD
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+
+**Predicted impact:**  
+s21_db improves by **~5.5 dB**, bringing it well above the 16 dB threshold. The inductive source degeneration (Ls) improves gain by increasing the transconductance seen by the input while also improving stability. The common-source configuration provides a direct voltage gain path.
+
+---
+
+#### Edit 2: Add a Second Stage (Cascode) to Amplify Gain
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 VSS VSS
+L L2 n2 n3
+NMOS NM2 n3 n4 VDD VDD
+C C2 n3 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+C Cbyp n1 VSS
+```
+
+**Predicted impact:**  
+s21_db improves by **~6 dB**, significantly exceeding the target. The cascode configuration increases the output impedance of the first stage and provides additional gain from the second stage, making this topology more suitable for high-gain narrowband operation at 2.4 GHz.
+
+---
+
+#### Edit 3: Replace Common-Gate with Common-Drain (Source Follower) with Resistive Load
+```netlist
+C C1 VIN1 n0
+R R1 n0 VSS
+NMOS NM1 VOUT1 n1 VSS VSS
+R Rload VOUT1 VDD
+C C2 VOUT1 VSS
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+
+**Predicted impact:**  
+s21_db improves by **~3.5 dB**, bringing it closer to the target. While the source follower topology is not ideal for high gain, the resistive load `Rload` provides a better transimpedance gain than the inductive load. This is a less optimal solution but still improves upon the original circuit.

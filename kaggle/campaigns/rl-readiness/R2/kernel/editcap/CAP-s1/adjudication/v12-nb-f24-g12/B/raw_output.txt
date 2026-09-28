@@ -1,0 +1,47 @@
+1. The LNA's low gain (s21_db) is due to the common-gate topology's inherent limitations. The source-degenerated input and inductive load (L2) reduce transconductance gain and fail to provide sufficient voltage amplification at 2.4 GHz. The feedback resistor R2 and source inductor L1 also introduce impedance mismatches that degrade gain.
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 VSS VSS
+R Rload n2 VDD
+C C2 n2 VOUT1
+R Rbias VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R Rfb n3 n1
+C Cbyp n1 VSS
+```
+**Predicted change**: s21_db improves by ~4 dB (common-source topology increases gain by leveraging higher transconductance and resistive load).
+
+---
+
+2. 
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 VSS VSS
+NMOS NM2 n2 n3 VSS VSS
+R Rload n3 VDD
+C C2 n3 VOUT1
+R Rbias VDD n4
+NMOS NM3 n4 n4 VSS VSS
+R Rfb n4 n1
+C Cbyp n1 VSS
+```
+**Predicted change**: s21_db improves by ~3 dB (cascode structure boosts output impedance and gain through NM2).
+
+---
+
+3. 
+```netlist
+C C1 VIN1 n0
+L L1 n0 VSS
+NMOS NM1 n2 n1 VSS VSS
+R Rload n2 VDD
+C C2 n2 VOUT1
+C Cbyp n2 VSS
+R Rbias VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R Rfb n3 n1
+```
+**Predicted change**: s21_db improves by ~2.5 dB (removing L2's inductive load and using resistive load + bypass capacitor improves impedance matching at 2.4 GHz).

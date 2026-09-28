@@ -1,0 +1,9 @@
+### 1. Diagnosis of the failure
+The LNA failed the S11 constraint (`s11_max_db = -6.12589 dB`, which is **-0.319346 dB** below the required -9 dB). This indicates a poor input match at some frequency in the 0.5–3 GHz band. The anchor circuit uses a **current-reuse push-pull CS LNA** with **C4** as a DC blocking capacitor at the input, and **L1** as an inductor to provide input impedance transformation. However, the input matching is purely reactive (inductor and capacitor), which is inherently **narrowband** and cannot achieve a flat S11 across a wide frequency range (especially a decade). The input impedance is likely resonating at some frequency, leading to a **high S11** (poor return loss), thereby failing the specification. The circuit lacks a **broadband impedance-matching mechanism** such as **resistive feedback or a resistive shunt** to flatten the input impedance and improve S11 over the wideband.
+
+---
+
+### 2. Structural edits to fix the failure
+
+#### Edit 1: Add resistive shunt feedback from output to input
+This is the standard fix for poor wideband S11 in reactive input-matched LNAs. A **resistive feedback path** from the output to the input gate will make the input impedance more **real** and **broadband**, improving S11.

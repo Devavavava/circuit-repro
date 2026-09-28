@@ -1,0 +1,58 @@
+### 1. DIAGNOSIS:
+The failure is due to the **low S21 (gain) margin** (`s21_db = 8.36585 dB` vs required `18 dB`). The common-gate topology has inherently limited gain due to the source being the input port and the gate being grounded for RF signals. The LNA structure as given is not optimized for high gain and suffers from poor transconductance utilization and insufficient amplification. The low gain is likely exacerbated by the inductive source matching (L1) and the lack of active gain enhancement elements in the topology.
+
+---
+
+### 2. STRUCTURAL EDITS (3 topologies, each with a unique structural change to improve gain and meet S21 constraint)
+
+#### Edit 1: Convert to common-source topology with resistive feedback for broadband gain
+This change replaces the common-gate configuration with a common-source topology and adds a resistive feedback path to enhance gain and flatten the response.
+
+```netlist
+C C1 VIN1 n0
+R Rg n0 g
+NMOS M1 d g VSS VSS
+L L2 VDD d
+C C2 d VOUT1
+R Rf VDD g
+C Cbyp g VSS
+```
+
+**PREDICTION**: `s21_db improves by ~10 dB` due to higher transconductance utilization and feedback-enhanced gain.
+
+---
+
+#### Edit 2: Add a second transistor as a cascode stage for gain boosting
+This change introduces a cascode configuration to increase the output impedance and gain of the LNA.
+
+```netlist
+C C1 VIN1 n0
+NMOS M1 n2 n1 VSS VSS
+L L1 n0 VSS
+NMOS M2 n2 VDD VSS VSS
+L L2 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+C Cbyp n1 VSS
+```
+
+**PREDICTION**: `s21_db improves by ~8 dB` due to increased transconductance and higher output impedance.
+
+---
+
+#### Edit 3: Use a series inductor and shunt capacitor for active input matching and gain
+This change adds a series inductor and shunt capacitor to the input for better impedance matching and gain improvement.
+
+```netlist
+L L1 VIN1 n0
+C C1 n0 VSS
+NMOS M1 d g VSS VSS
+L L2 VDD d
+C C2 d VOUT1
+R Rf VDD g
+C Cbyp g VSS
+```
+
+**PREDICTION**: `s21_db improves by ~7 dB` due to better input matching and transconductance utilization.

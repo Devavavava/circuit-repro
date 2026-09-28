@@ -1,0 +1,9 @@
+### 1. Diagnosis of the Failure
+
+The binding constraint failure is due to the **insufficient gain** in the circuit, as evidenced by the `s21_db` metric being only **8.45 dB**, which is **0.2958 dB below the required 12 dB**. The low gain is most likely caused by the **common-gate topology's inherently low voltage gain**, compounded by the **reactive load (L2)** that may not be effectively transferring power at the target frequency. Additionally, the **input matching** (via L1) and **output decoupling (C2)** do not provide enough gain boost, especially in a narrowband design. The **source-degenerated configuration** (with L1 and C1) also limits the transconductance contribution to the gain. Therefore, the circuit lacks sufficient amplification at the target frequency of 1.58 GHz.
+
+---
+
+### 2. Structural Edits (3 Topologies)
+
+#### Edit 1: Add a resistive shunt feedback from drain to gate (similar to the worked example) to improve gain and bandwidth, while maintaining the narrowband character.

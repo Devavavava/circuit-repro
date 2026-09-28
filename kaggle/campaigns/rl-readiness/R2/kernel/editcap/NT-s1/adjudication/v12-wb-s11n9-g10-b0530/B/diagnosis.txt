@@ -1,0 +1,10 @@
+### 1. Diagnosis of Failure
+
+The failed LNA has a poor S11 (input return loss) performance, with the worst-case S11_max_db at -6.12589 dB, which is below the required -9 dB specification. This indicates that the input impedance is not sufficiently matched across the wideband frequency range (0.5–3 GHz), especially at the edges of the band. The core issue is that the current-reuse push-pull LNA topology relies on reactive elements (capacitors and inductors) for input matching, which are inherently narrowband and cannot maintain a low S11 over a decade of frequencies. Additionally, the input is DC-blocked (C4), and the reactive elements (C1, L1, C2, etc.) do not provide sufficient broadband impedance control, leading to a high input reflection at the band edges. This is a classic case of a wideband LNA failing due to insufficient input impedance matching across the full frequency range.
+
+---
+
+### 2. Structural Edits (Topologies) to Improve S11
+
+#### **Edit 1: Add a Resistive Shunt Feedback Path from Output to Input Gate**
+This is a classic method to improve wideband input matching by making the input impedance more resistive and stable over a wide frequency range.

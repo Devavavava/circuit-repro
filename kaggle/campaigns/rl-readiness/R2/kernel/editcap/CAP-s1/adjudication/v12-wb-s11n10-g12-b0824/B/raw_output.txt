@@ -1,0 +1,60 @@
+1. **Diagnosis**: The failure stems from the input matching network (C4 and L1) being insufficient for wideband S11 performance. The reactive components (L/C) cannot flatten the input impedance across the 0.8–2.4 GHz band, leading to a peak S11 of -9.43 dB (just below the -10 dB target). The current-reuse push-pull topology lacks broadband impedance control, and the absence of resistive feedback or a broadband matching element exacerbates the narrowband nature of the reactive network.
+
+---
+
+2. **Structural Edits**:
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R Rf VOUT1 n1
+R Rshunt VIN1 VSS
+C Cshunt VIN1 n0
+```
+
+**Predicted change**:  
+- **s11_max_db improves by ~1–1.5 dB**. The resistive shunt feedback `Rf VOUT1 n1` and `Rshunt VIN1 VSS` flatten the input impedance, while the shunt capacitor `Cshunt` adds a broadband matching element. Together, they suppress S11 peaks and improve return loss.
+
+---
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R Rf VOUT1 n0
+R Rload VDD VOUT1
+C Cload VOUT1 VSS
+```
+
+**Predicted change**:  
+- **s11_max_db improves by ~0.8–1.2 dB**. The feedback resistor `Rf VOUT1 n0` (from output to input node) and added load network (`Rload`, `Cload`) stabilize the output impedance, indirectly improving input impedance matching by reducing signal reflections and enhancing stability.
+
+---
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R Rf VOUT1 n3
+R Rbias n3 VSS
+C Cbias n3 n1
+```
+
+**Predicted change**:  
+- **s11_max_db improves by ~1–1.3 dB**. The feedback resistor `Rf VOUT1 n3` (from output to PMOS gate node `n3`) introduces a resistive feedback path that modifies the transconductance and stabilizes the input impedance. The added `Rbias` and `Cbias` help decouple the gate network for better broadband control.

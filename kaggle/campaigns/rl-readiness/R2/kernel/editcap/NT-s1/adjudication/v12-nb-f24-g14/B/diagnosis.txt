@@ -1,0 +1,13 @@
+### 1. Diagnosis of the Failure:
+The binding constraint that is failing is **s21_db**, which is the forward gain of the LNA. The achieved gain of **9.45 dB** is below the required **14 dB**, by a margin of **-0.325 dB**. This indicates a **gain shortfall** in the circuit.
+
+The anchor circuit is a **common-gate (CG) LNA**, which has a **high input impedance** due to the AC-grounded gate. However, the gain of a CG stage is inherently **limited**, especially in a narrowband design, because the transconductance $ g_m $ of the transistor is not fully utilized in the forward path. The input is connected to the **source**, and the output is taken from the **drain**, but the gain of a CG amplifier is generally **less than 1** (in voltage gain) unless a **tuned load** is used to enhance the voltage gain.
+
+In this case, the **tuned load** (inductor $ L2 $) may not be effective enough to provide the required voltage gain due to **parasitic effects**, **load mismatch**, or **insufficient transconductance** in the operating region. The **source-degeneration** is also absent, which would otherwise help to increase the gain by increasing $ g_m $. The lack of **source degeneration** or **additional gain stages** is the likely cause of the gain shortfall.
+
+---
+
+### 2. Proposed Structural Edits
+
+#### Edit 1: Add a Source Degeneration Resistor and a Second Gain Stage (Cascode Amplifier)
+This edit adds a **source degeneration resistor** to increase $ g_m $ and a **cascode amplifier** to provide additional gain. This topology is more complex but can significantly improve gain.

@@ -1,0 +1,9 @@
+### 1. Diagnosis:
+The failure is due to **poor input matching** across the wideband frequency range (0.5–3 GHz). The anchor circuit uses a purely reactive input matching network (C4 and L1), which is inherently narrowband and cannot maintain a low S11 over a decade of frequencies. Additionally, the lack of **resistive feedback or broadband impedance shaping** causes the input impedance to become strongly reactive at higher frequencies, leading to a **peak in the S11 response** that fails the -8 dB constraint.
+
+---
+
+### 2. Structural Edits:
+
+#### Edit 1: Add resistive shunt feedback from output to gate
+This introduces a resistive feedback path from the output to the input gate, which helps to flatten the input impedance over a wide frequency range, improving S11.

@@ -1,0 +1,13 @@
+### 1. Diagnosis of Failure:
+
+The binding constraint that failed is **s21_db**, which represents the gain of the LNA. The achieved value of **9.45 dB** is below the required **16 dB**, indicating a **significant gain deficiency**.
+
+The **common-gate topology** used in the anchor netlist provides a **low input impedance** (due to 1/gm matching), which is **broadband** and **low-noise**, but it suffers from **low gain** due to the lack of a **low-impedance path** from the drain to the output. The **tuned inductor L2** at the drain provides **selectivity**, but it also **limits the gain** because the drain is **not directly connected to the output** — the output is **DC-blocked** by **C2**, which introduces **reactive impedance** at 2.4 GHz.
+
+The **current-mirror biasing** (via R1, NM3, R2) ensures stable DC operation but **does not contribute to RF gain**. The **common-gate configuration** itself is **not inherently high-gain**, especially in the narrowband regime, and **additional gain stages or feedback mechanisms** may be required to meet the s21_db target.
+
+---
+
+### 2. Structural Edits (3 Different Topologies)
+
+#### Edit 1: Add a **Common-Source Amplifier Stage** after the Common-Gate LNA to boost gain

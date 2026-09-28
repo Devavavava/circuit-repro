@@ -51,7 +51,7 @@ WORK = "/kaggle/working"
 OUT = os.path.join(WORK, "r3")
 TMP = "/tmp/r3"
 PY = sys.executable
-BUDGET_MIN = float(os.environ.get("R3_BUDGET_MIN", "90"))
+BUDGET_MIN = float(os.environ.get("R3_BUDGET_MIN", "75"))
 MIN_TRIAL_START_MIN = 16      # do not start a trial with less than this left
 
 REPO_SLUG = "Devavavava/circuit-repro"
@@ -446,7 +446,11 @@ def _main():
     ap.add_argument("--steps", type=int); ap.add_argument("--forced", type=int, default=1)
     ap.add_argument("--fast", type=int, default=0); ap.add_argument("--gmu", type=float, default=0.7)
     ap.add_argument("--n-spice", type=int, default=0); ap.add_argument("--deadline", type=float)
-    ap.add_argument("--prompts"); ap.add_argument("--max-prompt", type=int, default=2048)
+    ap.add_argument("--prompts"); ap.add_argument("--max-prompt", type=int, default=1536)
+    ap.add_argument("--pdbs", type=int, default=1)        # per-device micro-batch (grad-accum = G/pdbs)
+    ap.add_argument("--gen-chunk", type=int, default=0)   # >0: generate the G rollouts in chunks
+    ap.add_argument("--fake-gen", type=int, default=0)    # 1: random-token completions (update-cost probe)
+    ap.add_argument("--save-lora", default="")
     a = ap.parse_args()
     T0 = time.time()
 
@@ -507,7 +511,8 @@ def _main():
     from trl import GRPOConfig, GRPOTrainer
     from transformers import TrainerCallback
     cfg_kw = dict(output_dir="/tmp/r3/out-" + a.tag, learning_rate=5e-6,
-                  per_device_train_batch_size=a.G, gradient_accumulation_steps=1,
+                  per_device_train_batch_size=a.pdbs, gradient_accumulation_steps=a.G // a.pdbs,
+                  beta=0.0,          # no reference-model forward (unsloth default is 0.001)
                   num_generations=a.G, max_prompt_length=a.max_prompt,
                   max_completion_length=a.L, max_steps=a.steps, logging_steps=1,
                   save_strategy="no", report_to="none", fp16=True, bf16=False,
@@ -535,6 +540,9 @@ def _main():
          beta=getattr(cfg, "beta", None), loss_type=getattr(cfg, "loss_type", None),
          gen_kwargs=getattr(cfg, "generation_kwargs", None),
          per_device_train_batch_size=cfg.per_device_train_batch_size,
+         gradient_accumulation_steps=cfg.gradient_accumulation_steps,
+         generation_batch_size=getattr(cfg, "generation_batch_size", None),
+         steps_per_generation=getattr(cfg, "steps_per_generation", None),
          num_generations=cfg.num_generations,
          gradient_checkpointing=getattr(cfg, "gradient_checkpointing", None))
 
@@ -552,6 +560,36 @@ def _main():
             setattr(obj, name, g); return True
         except Exception:
             return False
+    PAD = tok.pad_token_id if tok.pad_token_id is not None else tok.eos_token_id
+    def _chunked(obj, name, chunk, fake):
+        """Instance-level generate wrapper (TRL calls unwrapped_model.generate(input_ids=...,
+        attention_mask=..., generation_config=...) and splits prompt/completion at the prompt
+        length). chunk>0: run the G rows in sub-batches (KV cache of 8 x 2.5k tokens does not
+        fit next to the 10.6 GiB of 4-bit weights); fake=1: return random non-special token
+        ids of exactly L new tokens (update-cost / OOM-boundary probe, no generation)."""
+        f = getattr(obj, name)
+        def g(*x, **k):
+            ids = k.get("input_ids", x[0] if x else None)
+            if fake:
+                new = torch.randint(1000, 100000, (ids.shape[0], a.L), device=ids.device,
+                                    dtype=ids.dtype)
+                return torch.cat([ids, new], dim=1)
+            if not chunk or ids.shape[0] <= chunk:
+                return f(*x, **k)
+            am = k.get("attention_mask")
+            outs = []
+            for i in range(0, ids.shape[0], chunk):
+                kk = dict(k); kk["input_ids"] = ids[i:i + chunk]
+                if am is not None:
+                    kk["attention_mask"] = am[i:i + chunk]
+                outs.append(f(**kk))
+                torch.cuda.empty_cache()
+            n = max(o.shape[1] for o in outs)
+            outs = [torch.nn.functional.pad(o, (0, n - o.shape[1]), value=PAD) for o in outs]
+            return torch.cat(outs, dim=0)
+        setattr(obj, name, g)
+    if not a.fast and (a.gen_chunk or a.fake_gen):
+        _chunked(model, "generate", a.gen_chunk, a.fake_gen)
     wrapped = _wrap(model.vllm_engine, "generate") if a.fast and hasattr(model, "vllm_engine") \
         else _wrap(model, "generate")
 
@@ -601,6 +639,12 @@ def _main():
          peak_alloc_gib_at_fail=round(torch.cuda.max_memory_allocated() / GiB, 3),
          peak_reserved_gib_at_fail=round(torch.cuda.max_memory_reserved() / GiB, 3),
          log_history=hist)
+    if a.save_lora and STEPS:
+        try:
+            model.save_pretrained(a.save_lora); tok.save_pretrained(a.save_lora)
+            emit(phase="save_lora", status="OK", dir=a.save_lora)
+        except Exception as e:
+            emit(phase="save_lora", status="ERROR", error=repr(e)[:800])
     if RW.POOL is not None:
         RW.POOL.terminate()
 
@@ -608,6 +652,82 @@ def _main():
 if __name__ == "__main__":   # spawn children re-import this file as __mp_main__
     _main()
 '''
+
+
+# ============================================================ vLLM on a DEDICATED T4
+VGEN_PY = r"""
+import json, os, sys, time, traceback
+out, model, lora, tag = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
+G, L, NP = int(sys.argv[5]), int(sys.argv[6]), int(sys.argv[7])
+T0 = time.time()
+def emit(**kw):
+    kw.update(tag=tag, t_s=round(time.time() - T0, 1))
+    with open(out, "a") as f: f.write(json.dumps(kw, default=str) + "\n")
+    print("EMIT", json.dumps(kw, default=str)[:2000], flush=True)
+def main():
+    import torch
+    from vllm import LLM, SamplingParams
+    rows = json.load(open("/tmp/r3/prompts.json"))
+    use_lora = bool(lora) and os.path.isdir(lora)
+    kw = dict(model=model, quantization="bitsandbytes", dtype="float16",
+              gpu_memory_utilization=0.92, max_model_len=1536 + L + 64, max_num_seqs=16,
+              enable_prefix_caching=True, seed=0)
+    llm = None
+    for attempt in ([True, False] if use_lora else [False]):
+        try:
+            k = dict(kw)
+            if attempt:
+                k.update(enable_lora=True, max_lora_rank=16, max_loras=1)
+            llm = LLM(**k); use_lora = attempt
+            break
+        except Exception as e:
+            emit(phase="init", status="ERROR", with_lora=attempt, error=repr(e)[:1500],
+                 tb=traceback.format_exc()[-3000:])
+            llm = None
+            torch.cuda.empty_cache()
+    if llm is None:
+        return
+    emit(phase="init", status="OK", with_lora=use_lora, load_s=round(time.time() - T0, 1),
+         mem_used_gib=round((torch.cuda.mem_get_info()[1] - torch.cuda.mem_get_info()[0]) / 1024 ** 3, 2))
+    tokz = llm.get_tokenizer()
+    texts = [tokz.apply_chat_template([{"role": "system", "content": r["system"]},
+                                       {"role": "user", "content": r["user"]}], tokenize=False,
+                                      add_generation_prompt=True, enable_thinking=False)
+             for r in rows]
+    lr = None
+    if use_lora:
+        from vllm.lora.request import LoRARequest
+        lr = LoRARequest("r3", 1, lora)
+    for phase, n_prompts, forced in (("warmup", 1, True), ("forced", NP, True),
+                                     ("natural", NP, False)):
+        sp = SamplingParams(n=G, temperature=1.0, max_tokens=L,
+                            min_tokens=(L if forced else 0))
+        t = time.time()
+        try:
+            res = llm.generate(texts[:n_prompts], sp, lora_request=lr)
+        except Exception as e:
+            emit(phase=phase, status="ERROR", error=repr(e)[:1500], tb=traceback.format_exc()[-3000:])
+            return
+        dt = time.time() - t
+        ntok = sum(len(o.token_ids) for r in res for o in r.outputs)
+        lens = [len(o.token_ids) for r in res for o in r.outputs]
+        emit(phase=phase, status="OK", prompts=n_prompts, rollouts=len(lens), gen_tokens=ntok,
+             secs=round(dt, 1), tok_per_s=round(ntok / dt, 1),
+             rollouts_per_hour=round(len(lens) / dt * 3600, 1),
+             len_mean=round(sum(lens) / len(lens), 1), len_max=max(lens), len_min=min(lens),
+             sample=res[0].outputs[0].text[:600])
+        if phase == "natural":
+            try:
+                sys.path.insert(0, "/tmp/r3")
+                import r3_reward as RW
+                cells = [rows[i]["cell"] for i, r in enumerate(res) for _ in r.outputs]
+                infos = [RW.info(o.text, c) for r, c in zip([o for r in res for o in r.outputs], cells)]
+                emit(phase="natural_validity", n=len(infos), n_fence=sum(i["has_fence"] for i in infos),
+                     n_valid=sum(i["ok"] for i in infos), n_novel=sum(i["novel"] for i in infos))
+            except Exception as e:
+                emit(phase="natural_validity", status="ERROR", error=repr(e)[:800])
+main()
+"""
 
 
 # ============================================================ phase 2: SPICE timing
@@ -734,7 +854,46 @@ def gpu_sampler(stop):
 RESULTS = {}
 
 
-def run_trial(gpu, tag, G, L, steps, fast=0, forced=1, n_spice=0, gmu=0.7, extra_env=None):
+def run_vgen(gpu, tag, G=8, L=1024, n_prompts=4, lora=""):
+    tfile = os.path.join(OUT, "trials.jsonl")
+    remaining = left_min() - 3
+    vpy = VLLM_STATE.get("python")
+    inner = "source %s && exec %s %s %s %s %s %s %d %d %d" % (
+        ENV_SH, vpy, os.path.join(TMP, "vgen.py"), tfile, MODEL, lora or "none", tag, G, L,
+        n_prompts)
+    env = dict(os.environ, CUDA_VISIBLE_DEVICES=str(gpu), TOKENIZERS_PARALLELISM="false",
+               R3_CLONE=CLONE, TMPDIR=os.path.join(TMP, "tmp-" + tag))
+    os.makedirs(env["TMPDIR"], exist_ok=True)
+    key = (str(gpu), tag)
+    with _LOCK:
+        GPU_PEAK[key] = 0
+    log("VGEN START", tag, "gpu", gpu, "lora", lora, "exists", os.path.isdir(lora or "/nonexistent"))
+    t = time.time()
+    rc, tail = sh(["bash", "-c", inner], env=env, cwd=env["TMPDIR"],
+                  timeout=max(120, int(min(remaining, 25) * 60)),
+                  logfile=os.path.join(OUT, "trial-%s.log" % tag))
+    recs = []
+    try:
+        recs = [json.loads(l) for l in open(tfile) if l.strip()]
+    except Exception:
+        pass
+    mine = [r for r in recs if r.get("tag") == tag]
+    with _LOCK:
+        peak = GPU_PEAK.pop(key, None)
+    ok = [r for r in mine if r.get("phase") in ("forced", "natural") and r.get("status") == "OK"]
+    RESULTS[tag] = dict(tag=tag, gpu=gpu, kind="vgen", rc=rc,
+                        status="PASS" if ok else "FAIL", wall_min=round((time.time() - t) / 60, 2),
+                        nvsmi_peak_mib=peak,
+                        phases={r.get("phase"): {k: r.get(k) for k in ("status", "tok_per_s", "secs",
+                                "rollouts", "rollouts_per_hour", "len_mean", "with_lora",
+                                "n_valid", "n_fence", "error")} for r in mine},
+                        error=None if ok else tail[-600:])
+    event("trial_done", **RESULTS[tag])
+    return RESULTS[tag]
+
+
+def run_trial(gpu, tag, G, L, steps, fast=0, forced=1, n_spice=0, gmu=0.7, extra_env=None,
+              pdbs=1, gen_chunk=0, fake=0, save_lora=""):
     tfile = os.path.join(OUT, "trials.jsonl")
     remaining = left_min() - 3
     deadline = time.time() + max(60, (remaining - 4) * 60)
@@ -743,7 +902,10 @@ def run_trial(gpu, tag, G, L, steps, fast=0, forced=1, n_spice=0, gmu=0.7, extra
             "--out", tfile, "--G", str(G), "--L", str(L), "--steps", str(steps),
             "--forced", str(forced), "--fast", str(fast), "--gmu", str(gmu),
             "--n-spice", str(n_spice), "--deadline", "%.0f" % deadline,
-            "--prompts", os.path.join(TMP, "prompts.json")]
+            "--prompts", os.path.join(TMP, "prompts.json"), "--pdbs", str(pdbs),
+            "--gen-chunk", str(gen_chunk), "--fake-gen", str(fake)]
+    if save_lora:
+        args += ["--save-lora", save_lora]
     inner = "source %s && exec %s" % (ENV_SH, " ".join(args))
     env = dict(os.environ, CUDA_VISIBLE_DEVICES=str(gpu), TOKENIZERS_PARALLELISM="false",
                R3_CLONE=CLONE, R3_PDK=PDK, R3_SPICE_BUDGET=str(SPICE_BUDGET),
@@ -782,6 +944,7 @@ def run_trial(gpu, tag, G, L, steps, fast=0, forced=1, n_spice=0, gmu=0.7, extra
     with _LOCK:
         peak = GPU_PEAK.pop(key, None)
     RESULTS[tag] = dict(tag=tag, gpu=gpu, G=G, L=L, fast=fast, forced=forced, rc=rc,
+                        pdbs=pdbs, gen_chunk=gen_chunk, fake_gen=fake,
                         status=status, wall_min=wall, nvsmi_peak_mib=peak,
                         steps_done=(tr[-1]["steps_done"] if tr else 0),
                         s_per_step=(tr[-1]["s_per_step"] if tr else None),
@@ -800,13 +963,18 @@ def passed(tag):
 def gpu_queue(gpu, plan, lock_state):
     """Pull the next runnable item from the shared plan; run it on this gpu."""
     while True:
-        if left_min() < MIN_TRIAL_START_MIN:
+        if left_min() < 7:
             log("gpu", gpu, "stop: budget left %.1f min" % left_min())
             return
         item = None
         with lock_state["lock"]:
             for it in plan:
                 if it.get("taken"):
+                    continue
+                if left_min() < it.get("min_left", MIN_TRIAL_START_MIN):
+                    it["taken"] = True
+                    RESULTS.setdefault(it["tag"], dict(tag=it["tag"], status="NOT_RUN",
+                                                       reason="budget"))
                     continue
                 ok = it.get("when", lambda: True)()
                 if ok is None:          # prerequisite not decided yet -> skip for now
@@ -817,7 +985,7 @@ def gpu_queue(gpu, plan, lock_state):
                     RESULTS.setdefault(it["tag"], dict(tag=it["tag"], status="SKIPPED",
                                                        reason=it.get("why", "")))
                     continue
-                if it.get("fast") and VLLM_STATE["status"] != "ok":
+                if (it.get("fast") or it.get("kind") == "vgen") and VLLM_STATE["status"] != "ok":
                     if VLLM_STATE["status"] == "pending":
                         continue
                     it["taken"] = True
@@ -833,9 +1001,14 @@ def gpu_queue(gpu, plan, lock_state):
                 return
             time.sleep(20)
             continue
+        if item.get("kind") == "vgen":
+            run_vgen(gpu, item["tag"], lora=item.get("lora", ""))
+            continue
         run_trial(gpu, item["tag"], item["G"], item["L"], item["steps"], fast=item.get("fast", 0),
                   n_spice=item.get("n_spice", 0), gmu=item.get("gmu", 0.7),
-                  extra_env=item.get("env"))
+                  extra_env=item.get("env"), pdbs=item.get("pdbs", 1),
+                  gen_chunk=item.get("gen_chunk", 0), fake=item.get("fake", 0),
+                  save_lora=item.get("save_lora", ""))
 
 
 def decided(tag):
@@ -862,6 +1035,7 @@ def main():
     open(os.path.join(TMP, "r3_reward.py"), "w").write(REWARD_PY)
     open(os.path.join(TMP, "r3_trial.py"), "w").write(TRIAL_PY)
     open(os.path.join(TMP, "spice_bench.py"), "w").write(SPICE_BENCH_PY)
+    open(os.path.join(TMP, "vgen.py"), "w").write(VGEN_PY)
     log("prompts:", len(rows), "cells from", rows[0]["source_lib"], "k=%d" % rows[0]["k"])
     summary = {"prereg": "kaggle/PREREG-RL-READINESS.md#R3", "model": MODEL, "pins": PINS,
                "vllm_pins": VLLM_PINS, "budget_min": BUDGET_MIN, "repo_sha": REPO_SHA,
@@ -881,17 +1055,22 @@ def main():
         vth = threading.Thread(target=install_vllm_venv, args=(cons,), daemon=True)
         vth.start()
         predownload()
+        # push-2 lessons (run2): vLLM colocated with training cannot fit 14B on one T4
+        # (unsloth: KV cache 0 GB, max_model_len 256); HF generation of 8 x 2.5k tokens
+        # OOMs next to 10.6 GiB of weights; the reference-model forward (beta 0.001)
+        # hit the memory wall at G=4. -> beta=0, micro-batch 1, generation in chunks of 4.
+        LM, LF = "/tmp/r3/lora-main", "/tmp/r3/lora-fake"
         plan = [
-            dict(tag="H-G8-L1024", G=8, L=1024, steps=3, n_spice=3),
-            dict(tag="H-G4-L1024", G=4, L=1024, steps=3, n_spice=1),
-            dict(tag="V-G8-L1024", G=8, L=1024, steps=3, fast=1, n_spice=1, gmu=0.8,
-                 env={"UNSLOTH_VLLM_STANDBY": "1"}),
-            dict(tag="V-G4-L1024-gmu06", G=4, L=1024, steps=3, fast=1, n_spice=1, gmu=0.6,
-                 when=lambda: not_passed("V-G8-L1024"), why="V-G8-L1024 passed"),
-            dict(tag="H-G8-L2048", G=8, L=2048, steps=2, n_spice=0,
-                 when=lambda: decided("H-G8-L1024"), why="MAIN did not pass"),
-            dict(tag="H-G16-L1024", G=16, L=1024, steps=2, n_spice=0,
-                 when=lambda: decided("H-G8-L1024"), why="MAIN did not pass"),
+            dict(tag="H-G8-L1024", G=8, L=1024, steps=2, n_spice=3, gen_chunk=4,
+                 save_lora=LM),
+            dict(tag="F-G8-L1024", G=8, L=1024, steps=3, fake=1, save_lora=LF, min_left=7),
+            dict(tag="F-G8-L2048", G=8, L=2048, steps=2, fake=1, min_left=7),
+            dict(tag="F-G16-L1024", G=16, L=1024, steps=2, fake=1, min_left=8),
+            dict(tag="VGEN-G8-L1024", kind="vgen", lora=LF, min_left=10),
+            dict(tag="F-G8-L3072", G=8, L=3072, steps=2, fake=1, min_left=8,
+                 when=lambda: decided("F-G8-L2048"), why="F-G8-L2048 did not pass"),
+            dict(tag="H-G4-L1024", G=4, L=1024, steps=2, n_spice=1, gen_chunk=4, min_left=14,
+                 when=lambda: not_passed("H-G8-L1024"), why="H-G8-L1024 passed"),
         ]
         st = {"lock": threading.Lock()}
         # GPU1 takes the MAIN first; GPU0 starts 30 s later (takes G4 or vLLM)

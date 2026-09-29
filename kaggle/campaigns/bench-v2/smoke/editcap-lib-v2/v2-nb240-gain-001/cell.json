@@ -1,0 +1,224 @@
+{
+ "name": "v2-nb240-gain-001",
+ "seq": 1,
+ "g": "nb240-gain",
+ "band": "nb240",
+ "flavor": "gain",
+ "bt": "narrowband",
+ "cid": "b0001-nb240-gain-4",
+ "anchor": "a4",
+ "wl": "fab4cc14f5704969",
+ "tok": "b230d694448093b5",
+ "script": [
+  {
+   "op": "rw",
+   "name": "R2",
+   "pin": 1,
+   "net": "x1",
+   "grp": 0,
+   "macro": "ser"
+  },
+  {
+   "op": "add",
+   "t": "L",
+   "name": "ZL1",
+   "nets": [
+    "x1",
+    "n1"
+   ],
+   "grp": 0,
+   "macro": "ser"
+  },
+  {
+   "op": "rw",
+   "name": "NM3",
+   "pin": 0,
+   "net": "x2",
+   "grp": 1,
+   "macro": "stk"
+  },
+  {
+   "op": "add",
+   "t": "NMOS",
+   "name": "ZN1",
+   "nets": [
+    "n7",
+    "n6",
+    "x2",
+    "VSS"
+   ],
+   "grp": 1,
+   "macro": "stk"
+  }
+ ],
+ "repairs": [],
+ "cls": "added-stage",
+ "label": "added-stage",
+ "edit_labels": [
+  {
+   "op": "rw",
+   "name": "R2",
+   "label": "input-match",
+   "tok": "R2",
+   "inert": false
+  },
+  {
+   "op": "add",
+   "name": "ZL1",
+   "label": "L-match",
+   "tok": "L4",
+   "inert": false
+  },
+  {
+   "op": "rw",
+   "name": "NM3",
+   "label": "gm-boost",
+   "tok": "NM3",
+   "inert": false
+  },
+  {
+   "op": "add",
+   "name": "ZN1",
+   "label": "added-stage",
+   "tok": "NM4",
+   "inert": false
+  }
+ ],
+ "e": 0.1751752390991032,
+ "e_vs": "cal:nb240-gain:a1:s1",
+ "limits": {
+  "nf_db": 1.3573,
+  "s11_max_db": -7.8934,
+  "s21_db": 24.7243,
+  "idd_ma": 5.1062
+ },
+ "tight_limits": {
+  "nf_db": 1.330154,
+  "s11_max_db": -8.051268,
+  "s21_db": 25.218785999999998,
+  "idd_ma": 5.004076
+ },
+ "spec": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/smoke/run/specs/v2-nb240-gain-001.yaml",
+ "tight_spec": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/smoke/run/specs/v2-nb240-gain-001__tight.yaml",
+ "witness_search_metrics": {
+  "s11_db": -12.8152,
+  "s11_max_db": -8.05128,
+  "s21_db": 25.2188,
+  "s21_min_db": 24.1328,
+  "idd_ma": 5.004024,
+  "nf_db": 1.330097,
+  "s22_db": -18.8834,
+  "s22_max_db": -7.91572,
+  "s12_db": -30.1906,
+  "k_f0": 1.08628,
+  "k_min": 1.04466,
+  "mu_f0": 1.1871,
+  "mu_min": 1.13783,
+  "mu_src_f0": 1.15877,
+  "mu_src_min": 1.08245,
+  "delta_f0": 0.539377,
+  "delta_max": 0.641429,
+  "s21_ripple_db": 1.2974999999999994
+ },
+ "planted_from": {
+  "nf_db": 1.330097,
+  "s11_max_db": -8.05128,
+  "s21_db": 25.2188,
+  "idd_ma": 5.004024,
+  "mu_min": 1.01437
+ },
+ "metrics_seed2": {
+  "s11_db": -14.9265,
+  "s11_max_db": -10.1561,
+  "s21_db": 26.5659,
+  "s21_min_db": 26.1665,
+  "idd_ma": 3.711434,
+  "nf_db": 1.020193,
+  "s22_db": -17.9562,
+  "s22_max_db": -9.72098,
+  "s12_db": -28.2121,
+  "k_f0": 1.0023,
+  "k_min": 1.00225,
+  "mu_f0": 1.01445,
+  "mu_min": 1.01437,
+  "mu_src_f0": 1.01281,
+  "mu_src_min": 1.0095,
+  "delta_f0": 0.840643,
+  "delta_max": 0.861842,
+  "s21_ripple_db": 0.42760000000000176
+ },
+ "status": "validating",
+ "stages": {
+  "A1": {
+   "n_feasible": 2,
+   "pass": true,
+   "n_runs": 2
+  },
+  "F1": {
+   "pass": false,
+   "n_runs": 10
+  },
+  "A2": {
+   "pass": true,
+   "n_runs": 1
+  },
+  "A3": {
+   "pass": true,
+   "n_runs": 1
+  },
+  "F2": {
+   "pass": true,
+   "solving_edits": [],
+   "n_sized": 24,
+   "n_prereject": 0,
+   "n_runs": 24
+  },
+  "ABL": {
+   "essential_groups": [
+    0,
+    1
+   ],
+   "n_runs": 2
+  }
+ },
+ "smoke": true,
+ "SMOKE_FORCED_would_kill": [
+  "F1_library_solves"
+ ],
+ "f2_space_total": 147,
+ "f2_rt_fail": [],
+ "f2_SMOKE_SUBSET": 12,
+ "f2_progress": 24,
+ "cls_search": "added-stage",
+ "label_search": "added-stage",
+ "edit_labels_essential": [
+  {
+   "op": "rw",
+   "name": "R2",
+   "label": "input-match",
+   "tok": "R2",
+   "inert": false
+  },
+  {
+   "op": "add",
+   "name": "ZL1",
+   "label": "L-match",
+   "tok": "L4",
+   "inert": false
+  },
+  {
+   "op": "rw",
+   "name": "NM3",
+   "label": "gm-boost",
+   "tok": "NM3",
+   "inert": false
+  },
+  {
+   "op": "add",
+   "name": "ZN1",
+   "label": "added-stage",
+   "tok": "NM4",
+   "inert": false
+  }
+ ]
+}

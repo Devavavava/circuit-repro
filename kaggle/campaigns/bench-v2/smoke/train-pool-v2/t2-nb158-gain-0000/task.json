@@ -1,0 +1,62 @@
+{
+ "name": "t2-nb158-gain-0000",
+ "seq": 0,
+ "g": "nb158-gain",
+ "band": "nb158",
+ "flavor": "gain",
+ "bt": "narrowband",
+ "cid": "t0001-nb158-gain-0",
+ "anchor": "a1",
+ "wl": "23de0a6a0d791090",
+ "tok": "cea4a7523305d5a4",
+ "script": [
+  {
+   "op": "add",
+   "t": "C",
+   "name": "ZC1",
+   "nets": [
+    "VDD",
+    "n2"
+   ],
+   "grp": 0
+  },
+  {
+   "op": "add",
+   "t": "R",
+   "name": "ZR1",
+   "nets": [
+    "VDD",
+    "n5"
+   ],
+   "grp": 1
+  }
+ ],
+ "repairs": [],
+ "cls": "degeneration",
+ "label": "degeneration",
+ "limits": {
+  "nf_db": 1.6768,
+  "s11_max_db": -7.8438,
+  "s21_db": 25.5237,
+  "idd_ma": 4.4331
+ },
+ "spec": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/smoke/run/specs/t2-nb158-gain-0000.yaml",
+ "status": "ok",
+ "stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "b360ae75d529d663dc07",
+    "feasible": true
+   },
+   {
+    "seed": 2,
+    "jid": "32eb52c47029ca9c8898",
+    "feasible": true
+   }
+  ]
+ },
+ "smoke": true,
+ "difficulty": "library-solvable",
+ "difficulty_why": "recorded anchor design cal:nb158-gain:a1:s1"
+}

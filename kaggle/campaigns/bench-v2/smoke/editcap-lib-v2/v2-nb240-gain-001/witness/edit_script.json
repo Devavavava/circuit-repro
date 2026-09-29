@@ -1,0 +1,81 @@
+{
+ "parent_anchor": "lna-a4-twostage",
+ "script": [
+  {
+   "op": "rw",
+   "name": "R2",
+   "pin": 1,
+   "net": "x1",
+   "grp": 0,
+   "macro": "ser"
+  },
+  {
+   "op": "add",
+   "t": "L",
+   "name": "ZL1",
+   "nets": [
+    "x1",
+    "n1"
+   ],
+   "grp": 0,
+   "macro": "ser"
+  },
+  {
+   "op": "rw",
+   "name": "NM3",
+   "pin": 0,
+   "net": "x2",
+   "grp": 1,
+   "macro": "stk"
+  },
+  {
+   "op": "add",
+   "t": "NMOS",
+   "name": "ZN1",
+   "nets": [
+    "n7",
+    "n6",
+    "x2",
+    "VSS"
+   ],
+   "grp": 1,
+   "macro": "stk"
+  }
+ ],
+ "repairs": [],
+ "move_class": "added-stage",
+ "label": "added-stage",
+ "edit_labels": [
+  {
+   "op": "rw",
+   "name": "R2",
+   "label": "input-match",
+   "tok": "R2",
+   "inert": false
+  },
+  {
+   "op": "add",
+   "name": "ZL1",
+   "label": "L-match",
+   "tok": "L4",
+   "inert": false
+  },
+  {
+   "op": "rw",
+   "name": "NM3",
+   "label": "gm-boost",
+   "tok": "NM3",
+   "inert": false
+  },
+  {
+   "op": "add",
+   "name": "ZN1",
+   "label": "added-stage",
+   "tok": "NM4",
+   "inert": false
+  }
+ ],
+ "search_cid": "b0001-nb240-gain-4",
+ "wl_hash": "fab4cc14f5704969",
+ "tok_hash": "b230d694448093b5"
+}

@@ -1,0 +1,157 @@
+{
+ "ts": "2026-09-30T13:54:55",
+ "mode": "full",
+ "final": false,
+ "pid": 3613476,
+ "run_dir": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/run",
+ "era": {
+  "git": "e5bfd075559cb49ed2285021996674deb8ebacb8",
+  "md5": {
+   "kaggle/bench_anchor_prep.py": "a43ccc256e",
+   "kaggle/campaigns/bench-v2/bv2.py": "95280bbdaf"
+  }
+ },
+ "elapsed_h": 26.976,
+ "load1": 14.48,
+ "proc_limit": 8,
+ "running": {
+  "f2": 2,
+  "search": 2,
+  "val": 2,
+  "train": 2
+ },
+ "pending": {
+  "f2": 109,
+  "train": 44
+ },
+ "calls": {
+  "new_this_session": 8497,
+  "cached_total": 10162,
+  "cpu_h_this_session": 213.66,
+  "last_hour": 290,
+  "median_secs_last_hour": 101.47
+ },
+ "calibration_done": true,
+ "search": {
+  "bench": {
+   "generation": 31,
+   "candidates": 2112,
+   "rej_max_inductors": 226,
+   "rej_repair:missing_port": 169,
+   "rej_device_budget": 80,
+   "rej_dup": 380,
+   "rej_verifier_prescreen": 61,
+   "rej_in_single_edit_space": 12,
+   "rej_equals_anchor": 6,
+   "rej_repair:dangling_mos_pin": 82,
+   "rej_repair:no_mos": 20,
+   "sized": 2112,
+   "feasible": 930,
+   "confirm_fail": 173,
+   "confirmed": 736,
+   "rej_sample": 308,
+   "rej_repair:no_dc_path": 28,
+   "rej_round_trip": 7,
+   "rej_has_inductor": 9
+  },
+  "train": {
+   "generation": 16,
+   "candidates": 604,
+   "rej_max_inductors": 31,
+   "rej_repair:missing_port": 45,
+   "rej_verifier_prescreen": 18,
+   "rej_device_budget": 72,
+   "rej_repair:no_mos": 4,
+   "rej_repair:no_dc_path": 10,
+   "rej_has_inductor": 6,
+   "rej_repair:dangling_mos_pin": 26,
+   "sized": 604,
+   "feasible": 328,
+   "confirmed": 284,
+   "confirm_fail": 44,
+   "rej_sample": 136,
+   "rej_dup": 78,
+   "rej_equals_anchor": 4,
+   "rej_round_trip": 1,
+   "rej_in_single_edit_space": 3
+  }
+ },
+ "bench": {
+  "planted": 378,
+  "queued": 260,
+  "validating": {
+   "F2": 7,
+   "A1": 1
+  },
+  "status": {
+   "killed": 84,
+   "accepted": 10,
+   "skipped_dupwl": 16,
+   "queued": 260,
+   "validating": 8
+  },
+  "accepted": 10,
+  "selectable": 4,
+  "accepted_class_hist": {
+   "L-match": 5,
+   "current-reuse": 1,
+   "other": 2,
+   "added-stage": 2
+  },
+  "selected_class_hist": {
+   "L-match": 1,
+   "current-reuse": 1,
+   "added-stage": 1,
+   "other": 1
+  },
+  "stage_started": {
+   "planted": 378,
+   "A1_started": 102,
+   "F1_started": 68,
+   "A23_started": 45,
+   "F2_started": 39
+  },
+  "kills": {
+   "prekill_F1_known_anchor_design": 334,
+   "killed:A1_witness_not_2of3": 33,
+   "killed:F1_library_solves": 23,
+   "killed:F2_single_edit_solves": 22,
+   "killed:A2_tightened_fails": 4,
+   "prekill_F2_known_single_edit_design": 24,
+   "accepted": 10,
+   "killed:A3_fresh_seeds_fail": 2
+  },
+  "bench_done": false,
+  "search_done": false
+ },
+ "train": {
+  "tasks": 279,
+  "ok": 251,
+  "labels": {
+   "library-solvable": 155,
+   "witness-only": 87,
+   "single-edit-solvable": 9
+  },
+  "per_grid": {
+   "nb090-power": 21,
+   "nb158-gain": 25,
+   "nb240-noise": 30,
+   "wb0824-power": 29,
+   "wb1020-gain": 31,
+   "wb0824-noise": 24,
+   "nb090-noise": 24,
+   "nb240-power": 30,
+   "nb350-gain": 28,
+   "wb0530-gain": 9
+  },
+  "search_done": false
+ },
+ "eta": {
+  "bench_cells_per_h": 0.371,
+  "bench_eta_h_to_target": 56.6,
+  "bench_hard_stop_h": 57.0,
+  "train_tasks_per_h": 9.3,
+  "train_eta_h_to_target": 5.3,
+  "total_hard_stop_h": 91.0
+ }
+}

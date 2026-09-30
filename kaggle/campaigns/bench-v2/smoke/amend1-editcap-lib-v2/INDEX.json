@@ -1,0 +1,196 @@
+{
+ "prereg": "kaggle/PREREG-BENCH-V2.md (+ AMENDMENT 1)",
+ "verifier": "rl-v1",
+ "pdk": "bptm45",
+ "budget": 2500,
+ "mode": "smoke-a1",
+ "n_accepted": 1,
+ "n_accepted_pre_amendment_not_selectable": 0,
+ "n_selected": 1,
+ "shortfall": 0,
+ "floors": {
+  "s11_max_db": {
+   "side": "max",
+   "limit": -9.0
+  },
+  "s21_db": {
+   "side": "min",
+   "limit": 10.0
+  }
+ },
+ "selection": {
+  "class_rule_active": "signature",
+  "selected": {
+   "n": 1,
+   "per_class": {
+    "rw:C:p:D>D": 1
+   },
+   "per_primary_atom": {
+    "rw:C:p:D>D": 1
+   },
+   "per_parent": {
+    "a1": 1
+   },
+   "per_band": {
+    "nb240": 1
+   },
+   "per_band_type": {
+    "narrowband": 1
+   },
+   "atom_prevalence": {
+    "rw:C:p:D>D": {
+     "n": 1,
+     "frac": 1.0
+    }
+   }
+  },
+  "selected_names": [
+   "v2a-nb240-gain-003"
+  ],
+  "variants": {
+   "a_signature": {
+    "n": 1,
+    "per_class": {
+     "rw:C:p:D>D": 1
+    },
+    "per_primary_atom": {
+     "rw:C:p:D>D": 1
+    },
+    "per_parent": {
+     "a1": 1
+    },
+    "per_band": {
+     "nb240": 1
+    },
+    "per_band_type": {
+     "narrowband": 1
+    },
+    "atom_prevalence": {
+     "rw:C:p:D>D": {
+      "n": 1,
+      "frac": 1.0
+     }
+    }
+   },
+   "b_primary_atom": {
+    "n": 1,
+    "per_class": {
+     "rw:C:p:D>D": 1
+    },
+    "per_primary_atom": {
+     "rw:C:p:D>D": 1
+    },
+    "per_parent": {
+     "a1": 1
+    },
+    "per_band": {
+     "nb240": 1
+    },
+    "per_band_type": {
+     "narrowband": 1
+    },
+    "atom_prevalence": {
+     "rw:C:p:D>D": {
+      "n": 1,
+      "frac": 1.0
+     }
+    }
+   }
+  },
+  "variant_names": {
+   "signature": [
+    "v2a-nb240-gain-003"
+   ],
+   "primary_atom": [
+    "v2a-nb240-gain-003"
+   ]
+  },
+  "without_nb_quota": {
+   "n": 1,
+   "per_class": {
+    "rw:C:p:D>D": 1
+   },
+   "per_primary_atom": {
+    "rw:C:p:D>D": 1
+   },
+   "per_parent": {
+    "a1": 1
+   },
+   "per_band": {
+    "nb240": 1
+   },
+   "per_band_type": {
+    "narrowband": 1
+   },
+   "atom_prevalence": {
+    "rw:C:p:D>D": {
+     "n": 1,
+     "frac": 1.0
+    }
+   }
+  },
+  "accepted": {
+   "n": 1,
+   "per_class": {
+    "rw:C:p:D>D": 1
+   },
+   "per_primary_atom": {
+    "rw:C:p:D>D": 1
+   },
+   "per_parent": {
+    "a1": 1
+   },
+   "per_band": {
+    "nb240": 1
+   },
+   "per_band_type": {
+    "narrowband": 1
+   },
+   "atom_prevalence": {
+    "rw:C:p:D>D": {
+     "n": 1,
+     "frac": 1.0
+    }
+   }
+  },
+  "quotas": {
+   "class_cap_frac": 1.0,
+   "class_rule": "signature",
+   "parent_cap_frac": 1.0,
+   "narrowband_min_frac": 0.0,
+   "target": 1,
+   "min": 1
+  },
+  "shortfall_vs_min": 0,
+  "nb_quota_binding": false
+ },
+ "class_hist_selected": {
+  "rw:C:p:D>D": 1
+ },
+ "class_hist_accepted": {
+  "rw:C:p:D>D": 1
+ },
+ "cells": {
+  "v2a-nb240-gain-003": {
+   "band": "nb240",
+   "flavor": "gain",
+   "band_type": "narrowband",
+   "move_class": "rw:C:p:D>D",
+   "core_signature": "rw:C:p:D>D",
+   "primary_atom": "rw:C:p:D>D",
+   "legacy_class": "tank-load",
+   "parent_anchor": "a1",
+   "witness_wl": "8dc6f228a40e0811",
+   "witness_tok": "d997492b892a9d65",
+   "limits": {
+    "nf_db": 2.0196,
+    "s11_max_db": -11.2966,
+    "s21_db": 13.6249,
+    "idd_ma": 5.9567
+   },
+   "strip": "core_below_2_primitive_edits(original kept)",
+   "floor_violations": [],
+   "smoke": true
+  }
+ }
+}

@@ -1,5 +1,5 @@
 #!/bin/bash
-# usage: launch.sh [full|smoke]   -> detached, resumable bench-v2 scheduler.
+# usage: launch.sh [full|smoke|smoke-a1]   -> detached, resumable bench-v2 scheduler.
 # Survives the launching session (nohup + setsid). Re-running after a stop/kill
 # RESUMES: every finished sizing call is cached in <run>/results.jsonl and the
 # deterministic generators replay through the cache.
@@ -7,6 +7,7 @@ MODE=${1:-full}
 D=/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2
 RD=$D/run
 [ "$MODE" = smoke ] && RD=$D/smoke/run
+[ "$MODE" = smoke-a1 ] && RD=$D/smoke/run-amend1
 mkdir -p "$RD"
 if [ -f "$RD/sched.pid" ] && kill -0 "$(cat "$RD/sched.pid")" 2>/dev/null; then
   echo "already running: pid $(cat "$RD/sched.pid")"; exit 1

@@ -1,28 +1,29 @@
 {
- "ts": "2026-09-29T10:56:57",
+ "ts": "2026-09-30T14:51:48",
  "mode": "full",
  "final": false,
- "pid": 3613476,
+ "pid": 4146540,
  "run_dir": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/run",
  "era": {
-  "git": "e5bfd075559cb49ed2285021996674deb8ebacb8",
+  "git": "78ccdf0b48e3c787bca90e1d5b186f97d60bd0d7",
   "md5": {
    "kaggle/bench_anchor_prep.py": "a43ccc256e",
-   "kaggle/campaigns/bench-v2/bv2.py": "95280bbdaf"
+   "kaggle/campaigns/bench-v2/bv2.py": "aef04c30f2"
   }
  },
- "elapsed_h": 0.009,
- "load1": 1.03,
+ "elapsed_h": 27.924,
+ "load1": 4.48,
  "proc_limit": 8,
  "running": {
   "cal": 8
  },
  "pending": {
-  "cal": 166
+  "cal": 74
  },
  "calls": {
   "new_this_session": 0,
-  "cached_total": 36,
+  "cached_total": 10317,
+  "extra_readonly_cache": 137,
   "cpu_h_this_session": 0.0,
   "last_hour": 0,
   "median_secs_last_hour": null
@@ -45,12 +46,77 @@
   "status": {},
   "accepted": 0,
   "selectable": 0,
-  "accepted_class_hist": {},
-  "selected_class_hist": {},
+  "era": "amendment-1",
+  "accepted_per_core_class": {},
+  "accepted_per_parent": {},
+  "accepted_core_atom_hist": {},
+  "accepted_per_band": {},
+  "accepted_per_band_type": {},
+  "class_rule_active": "signature",
+  "accepted_per_primary_atom": {},
+  "accepted_atom_prevalence": {},
+  "selectable_a_signature": {
+   "n": 0,
+   "per_class": {},
+   "per_parent": {},
+   "per_band_type": {}
+  },
+  "selectable_b_primary_atom": {
+   "n": 0,
+   "per_primary_atom": {},
+   "per_parent": {},
+   "per_band_type": {}
+  },
+  "selectable_per_core_class": {},
+  "selectable_per_parent": {},
+  "selectable_per_band": {},
+  "selectable_per_band_type": {},
+  "selection_without_nb_quota": 0,
+  "nb_quota_binding": false,
+  "quotas": {
+   "class_cap_frac": 0.25,
+   "class_rule": "signature",
+   "parent_cap_frac": 0.4,
+   "narrowband_min_frac": 0.25,
+   "target": 25,
+   "min": 20
+  },
+  "planted_per_band_type": {},
+  "planted_per_parent": {},
+  "floor_rejects": {},
+  "strip": {},
+  "steer": null,
   "stage_started": {},
   "kills": {},
   "bench_done": false,
   "search_done": false
+ },
+ "pre_amendment": {
+  "cells": 110,
+  "status": {
+   "killed": 84,
+   "accepted": 10,
+   "skipped_dupwl": 16
+  },
+  "accepted": 10,
+  "selectable": 0,
+  "core_classes_done": 10,
+  "core_class_hist": {
+   "add:L:IN-G + add:R:IN-X": 4,
+   "add:C:OUT-X + add:L:IN-G + add:R:IN-X": 1,
+   "add:L:IN-G + add:L:OUT-D + add:R:OUT-D + del:L:X-RAIL": 1,
+   "add:L:IN-G + add:L:OUT-D + add:NMOS:dRAIL.gD.sOUT + del:L:X-RAIL": 1,
+   "add:L:IN-G + add:PMOS:dG.gX.sOUT + del:L:X-RAIL + rw:R:p:D>OUT": 1,
+   "add:L:IN-G + add:NMOS:dG.gG.sIN": 1,
+   "add:L:OUT-D + add:PMOS:dRAIL.gOUT.sIN + add:R:OUT-D": 1
+  },
+  "primary_atom_hist": {
+   "add:L:IN-G": 6,
+   "del:L:X-RAIL": 2,
+   "add:L:OUT-D": 2
+  },
+  "seed_topologies": 1657,
+  "seeds_used": 0
  },
  "train": {
   "tasks": 0,
@@ -60,7 +126,8 @@
   "search_done": false
  },
  "eta": {
-  "bench_hard_stop_h": 84.0,
-  "total_hard_stop_h": 118.0
+  "bench_elapsed_h_since_amendment": 0.009,
+  "bench_hard_stop_h": 72.0,
+  "total_hard_stop_h": 90.1
  }
 }

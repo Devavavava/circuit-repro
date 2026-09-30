@@ -12,6 +12,9 @@ Checks, for every training task under --train against every bench cell under
   3. spec content (band + constraints + objectives + topology) not equal to any
      bench spec;
   4. no training task's witness.net body text equals a bench witness body.
+AMENDMENT 1: the bench side also includes every post-amendment PLANTED cell in
+--cells-jsonl (any status; its spec and both the stripped and the original
+witness), not only accepted ones.
 Exit 1 on any violation. Usage:
   fence_check.py --bench kaggle/editcap-lib-v2 --train kaggle/train-pool-v2 \
                  [--cells-jsonl kaggle/campaigns/bench-v2/run/cells.jsonl]
@@ -72,18 +75,28 @@ def main():
             b_wl[w2] = c
         b_spec[spec_key(f"{d}/spec.yaml")] = c
         b_body[body(f"{d}/witness/witness.net")] = c
-    n_acc = 0
+    n_acc = n_post = 0
     if a.cells_jsonl and os.path.exists(a.cells_jsonl):
+        last = {}
         for ln in open(a.cells_jsonl):
             r = json.loads(ln)
-            if r.get("status") == "accepted":
-                n_acc += 1
-                b_tok.setdefault(r["tok"], r["name"])
-                b_wl.setdefault(r["wl"], r["name"])
-                if os.path.exists(r.get("spec", "")):
-                    b_spec.setdefault(spec_key(r["spec"]), r["name"])
-                b_body.setdefault("\n".join(x.strip() for x in r["netlist"].splitlines()
+            last[r["name"]] = r
+        for r in last.values():
+            # every ACCEPTED cell (both eras) and, AMENDMENT 1, every post-amendment
+            # PLANTED cell whatever its status (spec + witness, original and stripped)
+            post = r.get("era_tag") == "amendment-1"
+            if r.get("status") != "accepted" and not post:
+                continue
+            n_acc += r.get("status") == "accepted"
+            n_post += post
+            wits = [r] + ([r["witness_original"]] if r.get("witness_original") else [])
+            for w in wits:
+                b_tok.setdefault(w["tok"], r["name"])
+                b_wl.setdefault(w["wl"], r["name"])
+                b_body.setdefault("\n".join(x.strip() for x in w["netlist"].splitlines()
                                             if x.strip()), r["name"])
+            if os.path.exists(r.get("spec", "")):
+                b_spec.setdefault(spec_key(r["spec"]), r["name"])
     viol = []
     n = 0
     for t in sorted(os.listdir(a.train)) if os.path.isdir(a.train) else []:
@@ -105,7 +118,8 @@ def main():
         bb = body(f"{d}/witness/witness.net")
         if bb in b_body:
             viol.append((t, "witness netlist body", b_body[bb]))
-    print(f"fence_check: bench cells={len(b_spec)} (accepted in jsonl={n_acc}) "
+    print(f"fence_check: bench specs={len(b_spec)} (accepted in jsonl={n_acc}, "
+          f"post-amendment planted={n_post}) "
           f"bench witness tok={len(b_tok)} wl={len(b_wl)}; training tasks={n}; "
           f"violations={len(viol)}")
     for v in viol:

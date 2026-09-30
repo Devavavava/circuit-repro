@@ -1,0 +1,503 @@
+{
+ "verifier": "rl-v1",
+ "pdk": "bptm45",
+ "budget": 2500,
+ "tight_limits": {
+  "nf_db": 1.979208,
+  "s11_max_db": -11.522532,
+  "s21_db": 13.897398,
+  "idd_ma": 5.837566
+ },
+ "limits": {
+  "nf_db": 2.0196,
+  "s11_max_db": -11.2966,
+  "s21_db": 13.6249,
+  "idd_ma": 5.9567
+ },
+ "runs": {
+  "A1_seed1": {
+   "seed": 1,
+   "budget": 2500,
+   "spec": "spec.yaml",
+   "result": {
+    "feasible": false,
+    "metrics": {
+     "s11_db": -12.4485,
+     "s11_max_db": -11.3143,
+     "s21_db": 12.1411,
+     "s21_min_db": 12.0914,
+     "idd_ma": 5.956521,
+     "nf_db": 2.017441,
+     "s22_db": -4.99398,
+     "s22_max_db": -4.79053,
+     "s12_db": -21.2896,
+     "k_f0": 1.07755,
+     "k_min": 1.07063,
+     "mu_f0": 1.04963,
+     "mu_min": 1.0451,
+     "mu_src_f0": 1.09761,
+     "mu_src_min": 1.07957,
+     "delta_f0": 0.353923,
+     "delta_max": 0.374101,
+     "stab_band": [
+      2352000000.0,
+      2448000000.0
+     ],
+     "s21_ripple_db": 0.08259999999999934,
+     "nf_method": "series_rs"
+    },
+    "winner_reeval_ungated": true,
+    "best_idd_ma": 47.62665,
+    "best_s21_db": 12.3156,
+    "best_conv_gain_db": null,
+    "best_sds21_db": null,
+    "n_evals": 2500,
+    "n_sim_fail": 0,
+    "sim_error": null,
+    "spec_feasible": false,
+    "stab_window": [
+     10000000.0,
+     50000000000.0,
+     1001
+    ],
+    "stab_wide": {
+     "k_f0": 1.07756,
+     "k_min": 0.99973,
+     "mu_f0": 1.04964,
+     "mu_min": 0.999842,
+     "mu_src_f0": 1.09789,
+     "mu_src_min": 0.999933,
+     "delta_f0": 0.353883,
+     "delta_max": 0.988931,
+     "stab_band": [
+      10000000.0,
+      50000000000.0
+     ]
+    },
+    "mu_min_wide": 0.999842,
+    "k_min_wide": 0.99973,
+    "delta_max_wide": 0.988931,
+    "stab_wide_ok": false,
+    "stab_points_checked": 1,
+    "stab_winner_replaced": false,
+    "stab_replacement": null,
+    "stab_inloop": {
+     "n_wide": 2500,
+     "n_wide_viol": 1980,
+     "n_wide_none": 0,
+     "wide_secs": 31.944
+    },
+    "topo_limits_ok": true,
+    "topo_limits": {
+     "has_transistor": true,
+     "device_budget": true,
+     "has_ports": true,
+     "single_input": true,
+     "not_floating": true,
+     "has_inductor": true,
+     "max_inductors": true
+    },
+    "structural_degeneracy": {},
+    "nonfinite_metrics": [],
+    "inert_devices": null,
+    "n_inert_devices": null,
+    "verifier": {
+     "profile": "rl-v1",
+     "flags": {
+      "STAB_WIDE_INLOOP": "1",
+      "STAB_WIDE_WINDOW": "1e7,5e10,1001",
+      "VERIFY_TOPO_LIMITS": "1",
+      "VERIFY_STRUCT": "1",
+      "VERIFY_FINITE": "1",
+      "VERIFY_BAND_METRICS": null,
+      "VERIFY_NF_BAND": null,
+      "VERIFY_NO_INERT": null,
+      "VERIFY_INERT_COUNT": "1",
+      "VERIFY_ROBUST": null,
+      "VERIFY_ROBUST_PCT": null,
+      "VERIFY_ROBUST_MIN": null
+     },
+     "env_overrides": [],
+     "stab_gate_on": true,
+     "stab_window": [
+      10000000.0,
+      50000000000.0,
+      1001
+     ],
+     "spec_rl_v1_issues": []
+    }
+   },
+   "era": {
+    "git": "78ccdf0b48e3c787bca90e1d5b186f97d60bd0d7",
+    "md5": {
+     "kaggle/bench_anchor_prep.py": "a43ccc256e",
+     "kaggle/campaigns/bench-v2/bv2.py": "847a99297b"
+    }
+   }
+  },
+  "A1_seed2": {
+   "seed": 2,
+   "budget": 2500,
+   "spec": "spec.yaml",
+   "result": {
+    "feasible": false,
+    "metrics": {
+     "s11_db": -12.459,
+     "s11_max_db": -11.3108,
+     "s21_db": 12.1387,
+     "s21_min_db": 12.0892,
+     "idd_ma": 5.955393,
+     "nf_db": 2.018835,
+     "s22_db": -4.90838,
+     "s22_max_db": -4.70007,
+     "s12_db": -21.2386,
+     "k_f0": 1.07071,
+     "k_min": 1.06409,
+     "mu_f0": 1.04532,
+     "mu_min": 1.04099,
+     "mu_src_f0": 1.09075,
+     "mu_src_min": 1.07334,
+     "delta_f0": 0.361739,
+     "delta_max": 0.382318,
+     "stab_band": [
+      2352000000.0,
+      2448000000.0
+     ],
+     "s21_ripple_db": 0.08109999999999928,
+     "nf_method": "series_rs"
+    },
+    "winner_reeval_ungated": true,
+    "best_idd_ma": 54.45419,
+    "best_s21_db": 12.5095,
+    "best_conv_gain_db": null,
+    "best_sds21_db": null,
+    "n_evals": 2500,
+    "n_sim_fail": 0,
+    "sim_error": null,
+    "spec_feasible": false,
+    "stab_window": [
+     10000000.0,
+     50000000000.0,
+     1001
+    ],
+    "stab_wide": {
+     "k_f0": 1.07072,
+     "k_min": 0.998301,
+     "mu_f0": 1.04533,
+     "mu_min": 0.999004,
+     "mu_src_f0": 1.09104,
+     "mu_src_min": 0.999578,
+     "delta_f0": 0.361695,
+     "delta_max": 0.996305,
+     "stab_band": [
+      10000000.0,
+      50000000000.0
+     ]
+    },
+    "mu_min_wide": 0.999004,
+    "k_min_wide": 0.998301,
+    "delta_max_wide": 0.996305,
+    "stab_wide_ok": false,
+    "stab_points_checked": 1,
+    "stab_winner_replaced": false,
+    "stab_replacement": null,
+    "stab_inloop": {
+     "n_wide": 2500,
+     "n_wide_viol": 1142,
+     "n_wide_none": 0,
+     "wide_secs": 31.84
+    },
+    "topo_limits_ok": true,
+    "topo_limits": {
+     "has_transistor": true,
+     "device_budget": true,
+     "has_ports": true,
+     "single_input": true,
+     "not_floating": true,
+     "has_inductor": true,
+     "max_inductors": true
+    },
+    "structural_degeneracy": {},
+    "nonfinite_metrics": [],
+    "inert_devices": null,
+    "n_inert_devices": null,
+    "verifier": {
+     "profile": "rl-v1",
+     "flags": {
+      "STAB_WIDE_INLOOP": "1",
+      "STAB_WIDE_WINDOW": "1e7,5e10,1001",
+      "VERIFY_TOPO_LIMITS": "1",
+      "VERIFY_STRUCT": "1",
+      "VERIFY_FINITE": "1",
+      "VERIFY_BAND_METRICS": null,
+      "VERIFY_NF_BAND": null,
+      "VERIFY_NO_INERT": null,
+      "VERIFY_INERT_COUNT": "1",
+      "VERIFY_ROBUST": null,
+      "VERIFY_ROBUST_PCT": null,
+      "VERIFY_ROBUST_MIN": null
+     },
+     "env_overrides": [],
+     "stab_gate_on": true,
+     "stab_window": [
+      10000000.0,
+      50000000000.0,
+      1001
+     ],
+     "spec_rl_v1_issues": []
+    }
+   },
+   "era": {
+    "git": "78ccdf0b48e3c787bca90e1d5b186f97d60bd0d7",
+    "md5": {
+     "kaggle/bench_anchor_prep.py": "a43ccc256e",
+     "kaggle/campaigns/bench-v2/bv2.py": "847a99297b"
+    }
+   }
+  },
+  "A2_seed1": {
+   "seed": 1,
+   "budget": 2500,
+   "spec": "tightened (limits in results.json)",
+   "result": {
+    "feasible": true,
+    "metrics": {
+     "s11_db": -14.0424,
+     "s11_max_db": -11.6926,
+     "s21_db": 13.9121,
+     "s21_min_db": 13.8529,
+     "idd_ma": 5.81422,
+     "nf_db": 1.680891,
+     "s22_db": -11.2326,
+     "s22_max_db": -10.1392,
+     "s12_db": -19.7182,
+     "k_f0": 1.10154,
+     "k_min": 1.10033,
+     "mu_f0": 1.15735,
+     "mu_min": 1.155,
+     "mu_src_f0": 1.17959,
+     "mu_src_min": 1.14911,
+     "delta_f0": 0.493762,
+     "delta_max": 0.52648,
+     "stab_band": [
+      2352000000.0,
+      2448000000.0
+     ],
+     "s21_ripple_db": 0.07220000000000049,
+     "nf_method": "series_rs"
+    },
+    "winner_reeval_ungated": true,
+    "best_idd_ma": 47.62665,
+    "best_s21_db": 15.4089,
+    "best_conv_gain_db": null,
+    "best_sds21_db": null,
+    "n_evals": 2500,
+    "n_sim_fail": 0,
+    "sim_error": null,
+    "spec_feasible": true,
+    "stab_window": [
+     10000000.0,
+     50000000000.0,
+     1001
+    ],
+    "stab_wide": {
+     "k_f0": 1.10152,
+     "k_min": 1.00003,
+     "mu_f0": 1.15731,
+     "mu_min": 1.00005,
+     "mu_src_f0": 1.18018,
+     "mu_src_min": 1.0,
+     "delta_f0": 0.49365,
+     "delta_max": 0.992322,
+     "stab_band": [
+      10000000.0,
+      50000000000.0
+     ]
+    },
+    "mu_min_wide": 1.00005,
+    "k_min_wide": 1.00003,
+    "delta_max_wide": 0.992322,
+    "stab_wide_ok": true,
+    "stab_points_checked": 1,
+    "stab_winner_replaced": false,
+    "stab_replacement": null,
+    "stab_inloop": {
+     "n_wide": 2500,
+     "n_wide_viol": 1284,
+     "n_wide_none": 0,
+     "wide_secs": 26.916
+    },
+    "topo_limits_ok": true,
+    "topo_limits": {
+     "has_transistor": true,
+     "device_budget": true,
+     "has_ports": true,
+     "single_input": true,
+     "not_floating": true,
+     "has_inductor": true,
+     "max_inductors": true
+    },
+    "structural_degeneracy": {},
+    "nonfinite_metrics": [],
+    "inert_devices": [
+     "pC3V"
+    ],
+    "n_inert_devices": 1,
+    "verifier": {
+     "profile": "rl-v1",
+     "flags": {
+      "STAB_WIDE_INLOOP": "1",
+      "STAB_WIDE_WINDOW": "1e7,5e10,1001",
+      "VERIFY_TOPO_LIMITS": "1",
+      "VERIFY_STRUCT": "1",
+      "VERIFY_FINITE": "1",
+      "VERIFY_BAND_METRICS": null,
+      "VERIFY_NF_BAND": null,
+      "VERIFY_NO_INERT": null,
+      "VERIFY_INERT_COUNT": "1",
+      "VERIFY_ROBUST": null,
+      "VERIFY_ROBUST_PCT": null,
+      "VERIFY_ROBUST_MIN": null
+     },
+     "env_overrides": [],
+     "stab_gate_on": true,
+     "stab_window": [
+      10000000.0,
+      50000000000.0,
+      1001
+     ],
+     "spec_rl_v1_issues": []
+    }
+   },
+   "era": {
+    "git": "78ccdf0b48e3c787bca90e1d5b186f97d60bd0d7",
+    "md5": {
+     "kaggle/bench_anchor_prep.py": "a43ccc256e",
+     "kaggle/campaigns/bench-v2/bv2.py": "847a99297b"
+    }
+   }
+  },
+  "A3_seed4": {
+   "seed": 4,
+   "budget": 2500,
+   "spec": "spec.yaml",
+   "result": {
+    "feasible": true,
+    "metrics": {
+     "s11_db": -14.1295,
+     "s11_max_db": -11.84,
+     "s21_db": 13.6612,
+     "s21_min_db": 13.6163,
+     "idd_ma": 5.859071,
+     "nf_db": 1.751346,
+     "s22_db": -9.36603,
+     "s22_max_db": -8.64198,
+     "s12_db": -19.5142,
+     "k_f0": 1.05727,
+     "k_min": 1.05612,
+     "mu_f0": 1.07507,
+     "mu_min": 1.07223,
+     "mu_src_f0": 1.09511,
+     "mu_src_min": 1.07885,
+     "delta_f0": 0.481896,
+     "delta_max": 0.51262,
+     "stab_band": [
+      2352000000.0,
+      2448000000.0
+     ],
+     "s21_ripple_db": 0.054199999999999804,
+     "nf_method": "series_rs"
+    },
+    "winner_reeval_ungated": true,
+    "best_idd_ma": 46.921200000000006,
+    "best_s21_db": 14.7856,
+    "best_conv_gain_db": null,
+    "best_sds21_db": null,
+    "n_evals": 2500,
+    "n_sim_fail": 0,
+    "sim_error": null,
+    "spec_feasible": true,
+    "stab_window": [
+     10000000.0,
+     50000000000.0,
+     1001
+    ],
+    "stab_wide": {
+     "k_f0": 1.05726,
+     "k_min": 1.00319,
+     "mu_f0": 1.07506,
+     "mu_min": 1.00024,
+     "mu_src_f0": 1.09537,
+     "mu_src_min": 1.00009,
+     "delta_f0": 0.481773,
+     "delta_max": 0.988152,
+     "stab_band": [
+      10000000.0,
+      50000000000.0
+     ]
+    },
+    "mu_min_wide": 1.00024,
+    "k_min_wide": 1.00319,
+    "delta_max_wide": 0.988152,
+    "stab_wide_ok": true,
+    "stab_points_checked": 1,
+    "stab_winner_replaced": false,
+    "stab_replacement": null,
+    "stab_inloop": {
+     "n_wide": 2500,
+     "n_wide_viol": 1155,
+     "n_wide_none": 0,
+     "wide_secs": 26.96
+    },
+    "topo_limits_ok": true,
+    "topo_limits": {
+     "has_transistor": true,
+     "device_budget": true,
+     "has_ports": true,
+     "single_input": true,
+     "not_floating": true,
+     "has_inductor": true,
+     "max_inductors": true
+    },
+    "structural_degeneracy": {},
+    "nonfinite_metrics": [],
+    "inert_devices": [
+     "pC3V"
+    ],
+    "n_inert_devices": 1,
+    "verifier": {
+     "profile": "rl-v1",
+     "flags": {
+      "STAB_WIDE_INLOOP": "1",
+      "STAB_WIDE_WINDOW": "1e7,5e10,1001",
+      "VERIFY_TOPO_LIMITS": "1",
+      "VERIFY_STRUCT": "1",
+      "VERIFY_FINITE": "1",
+      "VERIFY_BAND_METRICS": null,
+      "VERIFY_NF_BAND": null,
+      "VERIFY_NO_INERT": null,
+      "VERIFY_INERT_COUNT": "1",
+      "VERIFY_ROBUST": null,
+      "VERIFY_ROBUST_PCT": null,
+      "VERIFY_ROBUST_MIN": null
+     },
+     "env_overrides": [],
+     "stab_gate_on": true,
+     "stab_window": [
+      10000000.0,
+      50000000000.0,
+      1001
+     ],
+     "spec_rl_v1_issues": []
+    }
+   },
+   "era": {
+    "git": "78ccdf0b48e3c787bca90e1d5b186f97d60bd0d7",
+    "md5": {
+     "kaggle/bench_anchor_prep.py": "a43ccc256e",
+     "kaggle/campaigns/bench-v2/bv2.py": "847a99297b"
+    }
+   }
+  }
+ }
+}

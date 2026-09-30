@@ -1,0 +1,49 @@
+{
+ "parent_anchor": "lna-a1-inddegen-cascode",
+ "script": [
+  {
+   "op": "add",
+   "t": "C",
+   "name": "ZC1",
+   "nets": [
+    "n2",
+    "VDD"
+   ],
+   "grp": 2
+  },
+  {
+   "op": "rw",
+   "name": "C2",
+   "pin": 0,
+   "net": "n2",
+   "grp": 4
+  }
+ ],
+ "repairs": [],
+ "move_class": "rw:C:p:D>D",
+ "core_signature": "rw:C:p:D>D",
+ "core_groups": [
+  4
+ ],
+ "legacy_class": "tank-load",
+ "label": "tank-load",
+ "edit_labels": [
+  {
+   "op": "add",
+   "name": "ZC1",
+   "label": "degeneration",
+   "tok": "C3",
+   "inert": true
+  },
+  {
+   "op": "rw",
+   "name": "C2",
+   "label": "tank-load",
+   "tok": "C2",
+   "inert": false
+  }
+ ],
+ "search_cid": "B0001-nb240-gain-3",
+ "wl_hash": "8dc6f228a40e0811",
+ "tok_hash": "d997492b892a9d65"
+}

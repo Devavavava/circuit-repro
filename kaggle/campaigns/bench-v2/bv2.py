@@ -31,8 +31,15 @@ on an rl-v1-form spec. Stages (see README.md for the full design):
 usage (always via envrun.sh):
   bv2.py run   --mode full|smoke [--run-dir DIR]   # scheduler (resumable)
   bv2.py worker JOB.json OUT.json                  # one sizing call
-  bv2.py finalize --mode full|smoke [--run-dir DIR]
+  bv2.py finalize --mode full|smoke|smoke-a1 [--run-dir DIR]
   bv2.py status [--run-dir DIR]
+  bv2.py amend-snapshot --mode full                 # AMENDMENT 1: freeze pre-amendment record
+
+AMENDMENT 1 (2026-09-30, PREREG commit 78ccdf0b4): core-fix classes (abl_core),
+parent <= 40 % / narrowband >= 25 % selection quotas + search steering
+(make_generation_bench), spec floors s11_max_db <= -9 dB & s21_db >= 10 dB
+(PROBE_BENCH / floor_violations), fresh 72 h bench budget from the resume,
+pre-amendment rows kept and tagged, never selectable. See README "AMENDMENT 1".
 """
 import argparse
 import copy
@@ -102,6 +109,47 @@ PROBE = {"wideband": {"nf_max_db": 4.5, "s11_max_db": -8.0, "s21_db": 8.0,
                       "s21_ripple_db": 3.0, "idd_ma": 12.0},
          "narrowband": {"nf_db": 2.5, "s11_max_db": -8.0, "s21_db": 10.0,
                         "idd_ma": 6.0}}
+# ---------------------------------------------------------------------------
+# PRE-REG AMENDMENT 1 (2026-09-30, commit 78ccdf0b4; user: "go with B, including
+# the spec floors"). Everything planted/accepted before it is tagged
+# "pre-amendment" and is never selectable; post-amendment rows/cells carry AMEND.
+AMEND = "amendment-1"
+PRE = "pre-amendment"
+# realistic spec floors, ALL bench cells (wideband and narrowband; narrowband
+# uses s11_max_db per rl-v1 W6): planted limit must be at least this strict.
+FLOORS = OrderedDict([("s11_max_db", ("max", -9.0)), ("s21_db", ("min", 10.0))])
+FLOOR_GUARD = 0.01     # outward guard against the 1e-4 outward rounding of planting
+
+
+def floor_probe_value(side, F):
+    """Achieved value a whose cushion-relaxed planted limit is exactly the floor F.
+    Planting: L - DELTA*max(|L|,1) = a (max side) / L + DELTA*max(|L|,1) = a (min
+    side). For |L| >= 1 both reduce to L = a/(1+DELTA) (max side with L <= -1:
+    L + DELTA*L = a; min side with L >= 1: L + DELTA*L = a), so L within F <=> a
+    within F*(1+DELTA): s11 a <= -9.18 dB, s21 a >= 10.20 dB. The probe adds a
+    0.01 guard outward (rounding): s11 <= -9.19, s21 >= 10.21."""
+    a = F * (1 + DELTA)
+    return round(a - FLOOR_GUARD, 6) if side == "max" else round(a + FLOOR_GUARD, 6)
+
+
+def floor_violations(limits):
+    """[(metric, limit, floor)] for every planted limit looser than its floor."""
+    out = []
+    for m, (side, F) in FLOORS.items():
+        v = limits.get(m)
+        if not isinstance(v, (int, float)) or (v > F if side == "max" else v < F):
+            out.append((m, v, F))
+    return out
+
+
+# bench probe = the loose probe with the floors folded in (at the derived achieved
+# threshold), so a seed-1+2 probe-feasible witness plants a spec within the floors.
+PROBE_BENCH = copy.deepcopy(PROBE)
+for _bt in PROBE_BENCH:
+    for _m, (_side, _F) in FLOORS.items():
+        _pv = floor_probe_value(_side, _F)
+        PROBE_BENCH[_bt][_m] = (min(PROBE_BENCH[_bt][_m], _pv) if _side == "max"
+                                else max(PROBE_BENCH[_bt][_m], _pv))
 FLAVOR_W = {"noise": {"nf": 1.0, "s21_db": 0.5, "idd_ma": 0.5},
             "gain": {"s21_db": 1.0, "nf": 0.5, "idd_ma": 0.5},
             "power": {"idd_ma": 1.0, "nf": 0.5, "s21_db": 0.5}}
@@ -122,11 +170,23 @@ CONFIGS = {
         cal_seeds=(1, 2), gen_size={"bench": 6, "train": 4},
         max_gens={"bench": 100000, "train": 100000},
         bench_target=25, bench_min=20, cap_frac=0.25, cap_build=6,
+        # AMENDMENT 1: quotas on the final selection + their build-time caps
+        parent_frac=0.40, nb_frac=0.25, parent_cap_build=10,
+        # final-selection class cap rule, PENDING USER RULING: "signature" (a,
+        # pre-registered whole core-fix signature; default) | "primary_atom" (b)
+        class_rule="signature",
+        pre_amend_dir=f"{CAMP}/run/pre-amendment",
+        # exact-key reuse of the AMENDMENT-1 smoke's calls (same code, same
+        # verifier): its pre-amendment re-classification and floor-probe cal rows
+        extra_cache=[f"{CAMP}/smoke/run-amend1/results.jsonl"],
+        abl_strip=True,
         train_target=300, train_quota_per_point=32,
         max_active_val=8, f2_chunk=16, f2_limit=None,
         max_procs=8, throttle_procs=4, load_thresh=22.0,
         search_min_slots=3, train_min_slots=2,
-        bench_max_hours=84.0, total_max_hours=118.0, grid_only=None),
+        # AMENDMENT 1: fresh 72 h bench hard stop measured from the resume
+        # (start.json t_amend1); total (training) budget unchanged from t_start.
+        bench_max_hours=72.0, total_max_hours=118.0, grid_only=None),
     "smoke": dict(
         run_dir=f"{CAMP}/smoke/run", stream_seed={"bench": 777_01, "train": 777_02},
         cal_seeds=(1,), gen_size={"bench": 6, "train": 4},
@@ -139,7 +199,37 @@ CONFIGS = {
         search_min_slots=3, train_min_slots=1,
         bench_max_hours=3.0, total_max_hours=4.0,
         grid_only={"bench": [("nb240", "gain")], "train": [("nb158", "gain")]}),
+    # AMENDMENT-1 smoke: separate run dir; reads the full run's pre-amendment
+    # snapshot + result cache READ-ONLY (exact-key hits only) so the old cells can
+    # be re-classified and pre-amendment topologies can seed the search.
+    "smoke-a1": dict(
+        run_dir=f"{CAMP}/smoke/run-amend1", stream_seed={"bench": 930_01, "train": 930_02},
+        cal_seeds=(1,), gen_size={"bench": 4, "train": 3},
+        max_gens={"bench": 2, "train": 1},
+        bench_target=1, bench_min=1, cap_frac=1.0, cap_build=1,
+        parent_frac=1.0, nb_frac=0.0, parent_cap_build=1,
+        pre_amend_dir=f"{CAMP}/run/pre-amendment",
+        extra_cache=[f"{CAMP}/run/results.jsonl"],
+        abl_strip=True,
+        train_target=1, train_quota_per_point=1,
+        max_active_val=1, f2_chunk=8, f2_limit=12,     # SMOKE: F2 SUBSET (first 12)
+        smoke_force=True,          # SMOKE: run every stage even after a kill
+        smoke_force_plant=True,    # SMOKE: plant even after a pre-kill (recorded)
+        max_procs=8, throttle_procs=4, load_thresh=22.0,
+        search_min_slots=3, train_min_slots=1,
+        bench_max_hours=3.0, total_max_hours=4.0,
+        grid_only={"bench": [("wb0530", "noise"), ("nb240", "gain")],
+                   "train": [("nb158", "gain")]}),
 }
+for _k in ("smoke",):          # pre-amendment smoke config kept for the record
+    CONFIGS[_k].setdefault("parent_frac", 1.0)
+    CONFIGS[_k].setdefault("nb_frac", 0.0)
+    CONFIGS[_k].setdefault("parent_cap_build", 99)
+    CONFIGS[_k].setdefault("pre_amend_dir", None)
+    CONFIGS[_k].setdefault("extra_cache", [])
+    CONFIGS[_k].setdefault("abl_strip", True)
+for _k in CONFIGS:
+    CONFIGS[_k].setdefault("class_rule", "signature")
 
 
 def sha(s, n=16):
@@ -618,6 +708,157 @@ def inert_toknames(res):
     return out
 
 
+# ------------------------------------------- AMENDMENT 1: core-fix signatures
+# Net class of every net, computed on the PARENT ANCHOR netlist (so a role never
+# depends on the other edits of the script). First match wins:
+#   IN   = VIN1            OUT = VOUT1          RAIL = VDD / VSS
+#   G    = gate of any MOS (a diode net D=G counts as G)
+#   D    = drain of any MOS          S = source of any MOS
+#   X    = any other parent net (passive-only node)
+#   NEW  = a net that does not exist in the parent (introduced by the script)
+NET_CLASS_ORDER = ["IN", "OUT", "G", "D", "S", "X", "NEW", "RAIL"]
+
+
+def net_classes(parent_el):
+    mos = [e for e in parent_el if is_mos(e)]
+    g, d, s = {e[3] for e in mos}, {e[2] for e in mos}, {e[4] for e in mos}
+    out = {}
+    for n in nets_of(parent_el):
+        out[n] = ("IN" if n == "VIN1" else "OUT" if n == "VOUT1" else
+                  "RAIL" if n in RAILS else "G" if n in g else "D" if n in d else
+                  "S" if n in s else "X")
+    return out
+
+
+def _dev_role(e, nc):
+    """role of a device from its terminal net classes: 2-terminal = sorted pair
+    (NET_CLASS_ORDER), MOS = d<cls>.g<cls>.s<cls> (bulk ignored)."""
+    if is_mos(e):
+        return f"d{nc(e[2])}.g{nc(e[3])}.s{nc(e[4])}"
+    return "-".join(sorted((nc(e[2]), nc(e[3])), key=NET_CLASS_ORDER.index))
+
+
+def group_atoms(parent_el, script):
+    """One canonical atom 'op:TYPE:role' per edit group of `script` applied to the
+    parent anchor (ops simulated in order so del/rw see the element they touch):
+      add   -> add:T:<role of the added device>
+      del   -> del:T:<role of the deleted device in the netlist it was deleted from>
+      rw    -> rw:T:<pin>:<old net class>><new net class>   (pin D/G/S, 'p' passive)
+      ser   (composite: rewire host pin to a new net + passive back to the old net)
+            -> ser:<added T>:<host T>.<pin>:<old net class>
+      stk   (composite: rewire MOS D/S to a new net + MOS channel old<->new)
+            -> stk:<added T>:<host T>.<pin>:<old net class>.g<gate net class>
+    Returns OrderedDict gid -> atom."""
+    NC = net_classes(parent_el)
+
+    def nc(n):
+        return NC.get(n, "NEW")
+    el = [list(e) for e in parent_el]
+    parts = OrderedDict()
+    for op in script:
+        cur = {e[1]: e for e in el}
+        info = {"op": op["op"], "macro": op.get("macro")}
+        if op["op"] == "add":
+            dev = [op["t"], op["name"]] + list(op["nets"])
+            info.update(T=op["t"], role=_dev_role(dev, nc), nets=list(op["nets"]))
+        elif op["op"] == "del":
+            e = cur.get(op["name"])
+            info.update(T=e[0] if e else "?", role=_dev_role(e, nc) if e else "?")
+        else:
+            e = cur.get(op["name"])
+            T = e[0] if e else "?"
+            pin = ("DGS"[op["pin"]] if e and is_mos(e) else "p")
+            old = e[2 + op["pin"]] if e else "?"
+            info.update(T=T, pin=pin, old=old,
+                        role=f"{pin}:{nc(old)}>{nc(op['net'])}")
+        parts.setdefault(op["grp"], []).append(info)
+        el = apply_script(el, [op])
+    atoms = OrderedDict()
+    for gid, ps in parts.items():
+        mac = ps[0].get("macro")
+        if mac in ("ser", "stk") and len(ps) == 2:
+            rw, ad = ps
+            if mac == "ser":
+                atoms[gid] = f"ser:{ad['T']}:{rw['T']}.{rw['pin']}:{nc(rw['old'])}"
+            else:
+                atoms[gid] = (f"stk:{ad['T']}:{rw['T']}.{rw['pin']}:{nc(rw['old'])}"
+                              f".g{nc(ad['nets'][1])}")
+        else:
+            atoms[gid] = " & ".join(f"{p['op']}:{p['T']}:{p['role']}" for p in ps)
+    return atoms
+
+
+def signature(atoms, gids):
+    """canonical core-class signature: sorted multiset of the groups' atoms."""
+    return " + ".join(sorted(atoms[g] for g in gids)) or "(empty)"
+
+
+def sig_atoms(sig):
+    return [] if sig in (None, "(empty)") else sig.split(" + ")
+
+
+def contains_atoms(big, small):
+    """multiset inclusion small <= big (lists of atoms)."""
+    return not (Counter(small) - Counter(big))
+
+
+def drop_loss(info, spec_path, cache):
+    """feasibility loss of removing one group: invalid circuit -> 1e9; otherwise
+    -(best over the sized seeds of the worst normalized margin at the cell spec,
+    with the wide-mu shortfall mu_min_wide - 1 folded in when wide-unstable);
+    an unsized / pre-rejected run counts margin -1e6."""
+    if not info.get("valid"):
+        return 1e9
+    best = None
+    for x in info.get("runs") or []:
+        res = (cache.get(x["jid"]) or {}).get("res")
+        if not res or not res.get("n_evals"):
+            m = -1e6
+        else:
+            _rows, w = worst_margin(spec_path, res.get("metrics") or {})
+            m = w[1] if w else -3.0
+            mu = res.get("mu_min_wide")
+            if res.get("stab_wide_ok") is False and isinstance(mu, (int, float)):
+                m = min(m, mu - 1.0)
+        best = m if best is None else max(best, m)
+    return -(best if best is not None else -1e6)
+
+
+def primary_atom(atoms, sig_groups, core_drop, spec_path, cache):
+    """PRIMARY ATOM of a core = atom of the single core group (inert excluded)
+    whose removal from the core causes the largest feasibility loss (drop_loss).
+    Tie-break: larger loss, then atom string ascending, then group id. A 1-group
+    core's primary atom is that group's atom."""
+    if len(sig_groups) == 1 or not core_drop:
+        g = sig_groups[0] if sig_groups else None
+        return {"atom": atoms.get(g, "(empty)") if g is not None else "(empty)",
+                "grp": g, "loss": None, "ranking": []}
+    rk = sorted(([round(drop_loss(info, spec_path, cache), 6), atoms[g], g]
+                 for g, info in core_drop), key=lambda t: (-t[0], t[1], t[2]))
+    return {"atom": rk[0][1], "grp": rk[0][2], "loss": rk[0][0], "ranking": rk}
+
+
+def inert_groups(script, final_el, inert_tok):
+    """edit groups that are pure decoration by the verifier's own W2 test: every
+    op of the group is an ADD of an R/C/L (or the rewire half of a series-insert)
+    and every added passive is on the witness run's inert list."""
+    groups = OrderedDict()
+    for op in script:
+        groups.setdefault(op["grp"], []).append(op)
+    out = set()
+    if not inert_tok:
+        return out
+    for gid, ops in groups.items():
+        adds = [o for o in ops if o["op"] == "add"]
+        if not adds or any(o["t"] not in ("R", "C", "L") for o in adds):
+            continue
+        if any(o["op"] != "add" and o.get("macro") != "ser" for o in ops):
+            continue
+        if all(_tokname(final_el, o["name"]) in inert_tok for o in adds):
+            out.add(gid)
+    return out
+
+
 # --------------------------------------------------------------------- specs
 def band_dict(b):
     bt = BANDS[b]
@@ -841,13 +1082,33 @@ class Pipeline:
         self.era = era_stamp()
         sp_ = f"{self.rd}/start.json"
         if os.path.exists(sp_):
-            self.t_start = json.load(open(sp_))["t_start"]
+            st0 = json.load(open(sp_))
+            self.t_start = st0["t_start"]
         else:
             self.t_start = time.time()
-            atomic_write(sp_, json.dumps({"t_start": self.t_start, "era": self.era,
-                                          "mode": mode}))
+            st0 = {"t_start": self.t_start, "era": self.era, "mode": mode}
+        if "t_amend1" not in st0:
+            # AMENDMENT 1: the fresh 72 h bench budget runs from this (re)start
+            st0["t_amend1"] = time.time()
+            st0["era_amend1"] = self.era
+            atomic_write(sp_, json.dumps(st0))
+        self.t_amend = st0["t_amend1"]
         self.cache = {}
         self.res_path = f"{self.rd}/results.jsonl"
+        # AMENDMENT 1 (5): reuse only on the exact (topology, spec content, seed,
+        # budget, profile) key = jid. extra_cache = other run dirs' results read
+        # READ-ONLY (smoke-a1 reads the full run's cache); own rows win.
+        self.n_extra_cache = 0
+        for xp in self.cfg.get("extra_cache") or []:
+            if os.path.exists(xp) and os.path.abspath(xp) != os.path.abspath(self.res_path):
+                for ln in open(xp):
+                    try:
+                        r = json.loads(ln)
+                    except Exception:                            # noqa: BLE001
+                        continue
+                    r.setdefault("cache_source", os.path.relpath(xp, REPO))
+                    self.cache[r["jid"]] = r
+                    self.n_extra_cache += 1
         if os.path.exists(self.res_path):
             for ln in open(self.res_path):
                 try:
@@ -915,11 +1176,36 @@ class Pipeline:
         self.probe = {}
         for g in GRID:
             bt = BANDS[g[0]][0]
-            self.probe[g] = write_spec(f"{self.rd}/specs/probe-{gkey(g)}.yaml",
-                                       make_spec(g, PROBE[bt], f"probe-{gkey(g)}",
-                                                 f"bench-v2 loose probe spec {gkey(g)}"))
+            if grid_split(g) == "bench":
+                # AMENDMENT 1 (3): bench probe carries the spec floors (new file:
+                # the pre-amendment probe files stay as the record)
+                self.probe[g] = write_spec(
+                    f"{self.rd}/specs/probe-amd1-{gkey(g)}.yaml",
+                    make_spec(g, PROBE_BENCH[bt], f"probe-amd1-{gkey(g)}",
+                              f"bench-v2 probe spec {gkey(g)} with AMENDMENT-1 floors "
+                              f"(s11_max_db <= {FLOORS['s11_max_db'][1]}, s21_db >= "
+                              f"{FLOORS['s21_db'][1]} after the 2% cushion)"))
+            else:
+                self.probe[g] = write_spec(f"{self.rd}/specs/probe-{gkey(g)}.yaml",
+                                           make_spec(g, PROBE[bt], f"probe-{gkey(g)}",
+                                                     f"bench-v2 loose probe spec {gkey(g)}"))
+        # ---- AMENDMENT 1 state
+        self.core_accepted = Counter()        # core signature -> accepted (post)
+        self.core_atom_count = Counter()      # core atom -> accepted cells containing it
+        self.primary_accepted = Counter()     # primary atom -> accepted (post)
+        self.parent_accepted = Counter()      # parent anchor -> accepted (post)
+        self.floor_rejects = Counter()
+        self.steer_last = None
+        self.pre_core = OrderedDict()         # pre-amendment accepted -> core class
+        self.pre_seed_used = set()
+        self.fence_wl, self.fence_tok, self.fence_spec = set(), set(), set()
+        self.pre_cells = OrderedDict()
+        self.pre_cands = []
+        self.load_pre_amendment()
         self.log(f"=== start mode={mode} run_dir={self.rd} era={self.era} "
-                 f"cached_results={len(self.cache)}")
+                 f"cached_results={len(self.cache)} (extra read-only {self.n_extra_cache}) "
+                 f"{AMEND}: t_amend={time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(self.t_amend))} "
+                 f"pre-amendment cells={len(self.pre_cells)} seeds={len(self.pre_cands)}")
 
     # ------------------------------------------------------------ utilities
     def log(self, msg):
@@ -951,6 +1237,73 @@ class Pipeline:
         self.rt_fh.write(json.dumps({"k": k, "v": v}) + "\n")
         self.rt_fh.flush()
         return v
+
+    # ----------------------------------------------- AMENDMENT 1: pre-amendment
+    def load_pre_amendment(self):
+        """Pre-amendment record (snapshot taken at the 26.8 h stop): every cell is
+        kept, tagged era_tag=pre-amendment, never selectable. Their recorded
+        anchor / single-edit designs stay in the pre-kill pools, their accepted
+        witnesses stay fenced, their bench candidates' topologies seed the search,
+        their accepted cells are re-classified (core-fix signature) by task_preclass."""
+        d = self.cfg.get("pre_amend_dir")
+        if not d or not os.path.isdir(d):
+            self.log("no pre-amendment snapshot")
+            return
+        cells = load_jsonl_last(f"{d}/cells.jsonl", "name")
+        own = os.path.abspath(d).startswith(os.path.abspath(self.rd) + "/")
+        for n, c in cells.items():
+            c = dict(c, era_tag=PRE, selectable=False)
+            self.pre_cells[n] = c
+            if own:            # re-emit so this run's cells.jsonl is the full record
+                self.write_cell(c)
+            if c["status"] == "accepted":
+                self.fence_wl.add(c["wl"])
+                self.fence_tok.add(c["tok"])
+        n_pool = Counter()
+        for r in list(self.cache.values()):
+            if r.get("phase") == AMEND:
+                continue
+            k, m = r.get("kind"), r.get("meta") or {}
+            try:
+                if k == "cal":
+                    b = m["g"].split("-")[0]
+                    did = f"pre:cal:{m['g']}:{m['anchor']}:s{r['seed']}"
+                    self.add_pool(self.pool_cal[b], r, did)
+                    self.add_pool(self.pool[b], r, did)
+                elif k == "F1" and m.get("cell") in cells:
+                    b = cells[m["cell"]]["band"]
+                    self.add_pool(self.pool[b], r, f"pre:F1:{m['cell']}:{m['anchor']}:s{r['seed']}")
+                elif k == "F2" and m.get("cell") in cells:
+                    c = cells[m["cell"]]
+                    self.add_pool(self.pool_se[(c["band"], c["anchor"])], r,
+                                  f"pre:F2:{m['cell']}:{m.get('edit')}:s{r['seed']}")
+                else:
+                    continue
+                n_pool[k] += 1
+            except (KeyError, TypeError):
+                continue
+        best = OrderedDict()
+        if os.path.exists(f"{d}/candidates.jsonl"):
+            for ln in open(f"{d}/candidates.jsonl"):
+                try:
+                    c = json.loads(ln)
+                except Exception:                                # noqa: BLE001
+                    continue
+                if c.get("stream") != "bench" or not c.get("script"):
+                    continue
+                key = (c["anchor"], json.dumps(c["script"], sort_keys=True))
+                sc = c.get("score") if isinstance(c.get("score"), (int, float)) else -9
+                if key not in best or sc > best[key][1]:
+                    best[key] = (c, sc)
+        self.pre_cands = [
+            {"cid": c["cid"], "anchor": c["anchor"], "script": c["script"],
+             "g": c["g"], "bt": BANDS[c["g"].split("-")[0]][0],
+             "feasible": bool(c.get("feasible")), "score": sc}
+            for c, sc in best.values()]
+        self.pre_cands.sort(key=lambda c: (not c["feasible"], -c["score"], c["cid"]))
+        self.log(f"pre-amendment: cells={len(cells)} "
+                 f"accepted={sum(1 for c in cells.values() if c['status'] == 'accepted')} "
+                 f"pool rows={dict(n_pool)} seed topologies={len(self.pre_cands)}")
 
     # ------------------------------------------------------------ job engine
     def spawn(self, name, gen, cls):
@@ -1058,7 +1411,7 @@ class Pipeline:
                        "res": None, "error": f"worker rc={rc}: {err}"}
             rec.update(kind=j.kind, cls=j.cls, seed=j.seed, budget=j.budget,
                        spec=os.path.relpath(j.spec, REPO), tok=tokhash(j.tokens),
-                       meta=j.meta, era=self.era, profile=PROFILE,
+                       meta=j.meta, era=self.era, profile=PROFILE, phase=AMEND,
                        ts=time.strftime("%Y-%m-%dT%H:%M:%S"))
             self.res_fh.write(jdump(rec) + "\n")
             self.res_fh.flush()
@@ -1085,7 +1438,7 @@ class Pipeline:
                "error": None, "inproc_reject": True, "kind": job.kind, "cls": job.cls,
                "seed": job.seed, "budget": job.budget,
                "spec": os.path.relpath(job.spec, REPO), "tok": tokhash(job.tokens),
-               "meta": job.meta, "era": self.era, "profile": PROFILE,
+               "meta": job.meta, "era": self.era, "profile": PROFILE, "phase": AMEND,
                "ts": time.strftime("%Y-%m-%dT%H:%M:%S")}
         self.res_fh.write(jdump(rec) + "\n")
         self.res_fh.flush()
@@ -1109,6 +1462,7 @@ class Pipeline:
         signal.signal(signal.SIGINT, self._sigterm)
         self.f2space_build()
         self.spawn("calibration", self.task_calibration(), "cal")
+        self.spawn("preclass", self.task_preclass(), "val")
         while not self.stop:
             self._reap()
             self.control()
@@ -1150,22 +1504,71 @@ class Pipeline:
     def elapsed_h(self):
         return (time.time() - self.t_start) / 3600.0
 
+    def bench_elapsed_h(self):
+        """AMENDMENT 1 (4): the bench hard stop is measured from the resume."""
+        return (time.time() - self.t_amend) / 3600.0
+
+    # ------------------------------------------------ AMENDMENT 1: steering
+    def steer_counts(self):
+        """accepted post-amendment cells count 1, cells in validation 0.5 (queued
+        plantings 0): per band, band type, parent anchor."""
+        nb, nbt, npar = Counter(), Counter(), Counter()
+        for c in self.cells.values():
+            w = 1.0 if c["status"] == "accepted" else \
+                0.5 if c["status"] == "validating" else 0.0
+            if w:
+                nb[c["band"]] += w
+                nbt[c["bt"]] += w
+                npar[c["anchor"]] += w
+        return nb, nbt, npar
+
+    def capped_cores(self):
+        return [sig_atoms(s) for s, k in self.core_accepted.items()
+                if k >= self.cfg["cap_build"]]
+
+    def core_penalty(self, atoms):
+        """number of accepted cells whose core atoms are contained in `atoms`
+        (a candidate carrying an already-accepted core is likely the same fix)."""
+        return sum(k for s, k in self.core_accepted.items()
+                   if contains_atoms(atoms, sig_atoms(s)))
+
+    def atom_penalty(self, atoms):
+        """soft atom-level steering (not a selection criterion): the largest number
+        of accepted cells whose core contains any one of `atoms`, in units of the
+        class build cap (6): 0 = no overlap, 1 = an atom already in 6 cores."""
+        if not atoms:
+            return 0.0
+        return max(self.core_atom_count.get(a, 0) for a in set(atoms)) / float(
+            max(1, self.cfg["cap_build"]))
+
+    def parent_weights(self, bt):
+        _nb, _nbt, npar = self.steer_counts()
+        pc = self.cfg["parent_cap_build"]
+        return OrderedDict((p, 0.0 if self.parent_accepted[p] >= pc else 1.0 / (1.0 + npar[p]))
+                           for p in PARENTS[bt])
+
+    def nb_need(self):
+        return int(math.ceil(self.cfg["nb_frac"] * self.cfg["bench_target"] - 1e-9))
+
     def control(self):
         if not self.cal_done:
             return
-        # bench stop rule: a cap-respecting selection of bench_target cells exists
+        # bench stop rule: a quota-compliant selection of bench_target cells exists
         if not self.bench_done:
             sel = select_cells([self.cells[c] for c in self.accepted], self.cfg)
             if len(sel) >= self.cfg["bench_target"]:
                 self.bench_done = True
                 self.log(f"BENCH TARGET REACHED: {len(sel)} selectable cells")
                 self.event("bench_done", n_selectable=len(sel))
-            elif self.elapsed_h() > self.cfg["bench_max_hours"]:
+            elif self.bench_elapsed_h() > self.cfg["bench_max_hours"]:
                 self.bench_done = True
                 self.log("BENCH TIME BUDGET EXHAUSTED")
                 self.event("bench_time_budget", n_selectable=len(sel))
             if self.bench_done:
                 self.bench_search_done = True
+                for c in self.val_queue:
+                    c["status"] = "not_validated_bench_done"
+                    self.write_cell(c)
                 self.val_queue = []
                 for t in self.tasks:
                     if t.name.startswith("cell:") and not t.done:
@@ -1183,25 +1586,37 @@ class Pipeline:
         # admission of cell validations
         if self.bench_done:
             return
-        cap = self.cfg["cap_build"]
+        # AMENDMENT 1 admission (steering): drop cells whose parent anchor is at
+        # its build cap or that carry an already-capped core fix; then prefer
+        # narrowband while the narrowband quota is unmet, then the least-
+        # represented parent, then the fewest accepted cores contained in the
+        # witness's live atoms, then larger dominance excess, then plant order.
+        pcap = self.cfg["parent_cap_build"]
         while len(self.active_val) < self.cfg["max_active_val"] and self.val_queue:
-            act_cls = Counter(self.cells[n]["cls"] for n in self.active_val)
             acc_wl = {self.cells[n]["wl"] for n in self.accepted}
             act_wl = {self.cells[n]["wl"] for n in self.active_val}
+            capped = self.capped_cores()
             keep, best = [], None
             for c in self.val_queue:
-                if self.cls_accepted[c["cls"]] >= cap or c["wl"] in acc_wl:
-                    c["status"] = "skipped_cap" if c["wl"] not in acc_wl else "skipped_dupwl"
+                why = ("skipped_dupwl" if c["wl"] in acc_wl else
+                       "skipped_parent_cap" if self.parent_accepted[c["anchor"]] >= pcap else
+                       "skipped_cap" if any(contains_atoms(c["atoms_live"], k) for k in capped)
+                       else None)
+                if why:
+                    c["status"] = why
                     self.write_cell(c)
                     continue
                 keep.append(c)
             self.val_queue = keep
-            elig = [c for c in keep if self.cls_accepted[c["cls"]] + act_cls[c["cls"]] < cap + 2
-                    and c["wl"] not in act_wl]
+            elig = [c for c in keep if c["wl"] not in act_wl]
             if not elig:
                 break
-            best = min(elig, key=lambda c: (self.cls_accepted[c["cls"]] + act_cls[c["cls"]],
-                                            -c["e"], c["seq"]))
+            _nb, nbt, npar = self.steer_counts()
+            nb_short = nbt["narrowband"] < self.nb_need()
+            best = min(elig, key=lambda c: (
+                0 if (nb_short and c["bt"] == "narrowband") else 1,
+                npar[c["anchor"]], self.core_penalty(c["atoms_live"]),
+                round(self.atom_penalty(c["atoms_live"]), 3), -c["e"], c["seq"]))
             self.val_queue.remove(best)
             self.active_val[best["name"]] = True
             best["status"] = "validating"
@@ -1237,6 +1652,11 @@ class Pipeline:
         m = r.get("metrics") or {}
         if not m:
             return
+        # a design (sizing call) enters each pool once, whatever path re-adds it
+        seen = self.__dict__.setdefault("_pool_seen", defaultdict(set))[id(lst)]
+        if rec.get("jid") in seen:
+            return
+        seen.add(rec.get("jid"))
         lst.append({"id": did, "metrics": {k: v for k, v in m.items()
                                           if isinstance(v, (int, float))},
                     "stab_ok": bool(r.get("stab_wide_ok")),
@@ -1310,13 +1730,168 @@ class Pipeline:
         if self.pre_reject(rt["tokens"], self.probe[g]):
             return None, "verifier_prescreen"
         cls, top, labels = label_script(base, script, el)
+        atoms = group_atoms(base, script)
         return {"stream": stream, "g": gkey(g), "anchor": anchor, "script": script,
                 "repairs": reps, "netlist": text, "tokens": rt["tokens"],
                 "tok": tokhash(rt["tokens"]), "wl": wl, "cls": cls, "label": top,
                 "edit_labels": labels, "origin": origin,
+                "atoms": [[gid, a] for gid, a in atoms.items()],
+                "atoms_live": sorted(atoms.values()),
                 "n_edits": len(script)}, None
 
+    def make_generation_bench(self, gen):
+        """AMENDMENT 1 steered bench generation. Weights are recomputed every
+        generation from the post-amendment cell counts (accepted 1, validating 0.5)
+        and recorded as a `steer` event:
+          point weight   w_g = m_bt / (1 + n_band[b]),  m_bt(narrowband) = 1 +
+                         2 * max(0, nb_need - n_nb) / nb_need (up to 3x while the
+                         >= 25 % narrowband quota is unmet), m_bt(wideband) = 1
+          children       N = gen_size * #points split by w_g (largest remainder,
+                         >= 1 per point)
+          parent weight  w_p = 0 if the parent has parent_cap_build accepted cells
+                         (10 = 40 % of 25) else 1 / (1 + n_parent[p]); fresh random
+                         children draw their anchor by w_p
+          tournament     3 draws (with replacement) from the top-20 archive,
+                         weight w_p(anchor) / (1 + #accepted cores contained in the
+                         archive member's live atoms) / (1 + atom_penalty); best
+                         score wins. atom_penalty = max over the member's atoms of
+                         #accepted cores containing that atom / 6 (soft push away
+                         from a dominant ingredient, e.g. the pre-amendment
+                         series input L, which a whole-signature class misses)
+          reject         any child whose atoms contain a capped core class
+                         (6 accepted = 25 % of 25) is not generated
+        Generation 0 re-sizes pre-amendment bench topologies under the new probe
+        (best old score first, rotating over parents by w_p), no random children."""
+        cfg, stream = self.cfg, "bench"
+        pts = self.grid(stream)
+        nb, nbt, npar = self.steer_counts()
+        need = self.nb_need()
+        m_nb = (1.0 + 2.0 * max(0.0, need - nbt["narrowband"]) / need) if need else 1.0
+        w_pt = OrderedDict()
+        for g in pts:
+            bt = BANDS[g[0]][0]
+            w_pt[g] = (m_nb if bt == "narrowband" else 1.0) / (1.0 + nb[g[0]])
+            if not any(self.parent_weights(bt).values()):
+                w_pt[g] = 0.0
+        N = cfg["gen_size"][stream] * len(pts)
+        live = [g for g in pts if w_pt[g] > 0]
+        alloc = OrderedDict((g, 0) for g in pts)
+        if live:
+            tot = sum(w_pt[g] for g in live)
+            base = {g: max(1.0, N * w_pt[g] / tot) for g in live}
+            for g in live:
+                alloc[g] = int(base[g])
+            rest = N - sum(alloc.values())
+            for g in sorted(live, key=lambda g: -(base[g] - int(base[g])))[:max(0, rest)]:
+                alloc[g] += 1
+        capped = self.capped_cores()
+        self.steer_last = {
+            "gen": gen, "m_nb": round(m_nb, 3),
+            "point_w": {gkey(g): round(w, 4) for g, w in w_pt.items()},
+            "alloc": {gkey(g): k for g, k in alloc.items()},
+            "parent_w": {bt: {p: round(w, 4) for p, w in self.parent_weights(bt).items()}
+                         for bt in ("wideband", "narrowband")},
+            "counts": {"band": dict(nb), "band_type": dict(nbt), "parent": dict(npar)},
+            "capped_cores": [" + ".join(k) for k in capped]}
+        self.event("steer", **self.steer_last)
+        out = []
+        for g in pts:
+            n = alloc[g]
+            if n <= 0:
+                continue
+            bt = BANDS[g[0]][0]
+            pw = self.parent_weights(bt)
+            rng = random.Random(f"{cfg['stream_seed'][stream]}:{AMEND}:{gkey(g)}:{gen}")
+            arch = [c for gg in pts if BANDS[gg[0]][0] == bt
+                    for c in self.archive[stream][gg]]
+            top = sorted(arch, key=lambda c: (-c["score"], c["cid"]))[:20]
+            tw = [pw.get(c["anchor"], 0.0)
+                  / (1.0 + self.core_penalty(c.get("atoms_live") or []))
+                  / (1.0 + self.atom_penalty(c.get("atoms_live") or []))
+                  for c in top]
+            if not any(tw):
+                top, tw = [], []
+            if gen == 0:
+                plan = ["seed"] * n
+            elif not top:
+                plan = ["rand"] * n
+            else:
+                n_rand = max(1, n // 3)
+                plan = ["rand"] * n_rand + ["mut"] * (n - n_rand)
+                sib = [c for c in top if c["g"] != gkey(g) and c["feasible"]
+                       and c["wl"] not in self.seen_wl[stream][g]
+                       and pw.get(c["anchor"], 0.0) > 0]
+                if sib and len(plan) > 1:
+                    plan[-1] = "xfer"
+            seedq = OrderedDict((p, [s for s in self.pre_cands if s["bt"] == bt
+                                     and s["anchor"] == p]) for p in pw if pw[p] > 0)
+            for slot, kind in enumerate(plan):
+                cand, why, tries = None, None, 0
+                rej = Counter()
+                while cand is None and tries < 150:
+                    tries += 1
+                    if kind == "seed":
+                        # rotate over parents (highest w_p first), best old score
+                        par = sorted((p for p in seedq if any(
+                            s["cid"] not in self.pre_seed_used for s in seedq[p])),
+                            key=lambda p: (-pw[p], list(pw).index(p)))
+                        if not par:
+                            kind = "rand"
+                            continue
+                        p = par[(slot + tries - 1) % len(par)]
+                        s = next(s for s in seedq[p] if s["cid"] not in self.pre_seed_used)
+                        self.pre_seed_used.add(s["cid"])
+                        anchor, script = s["anchor"], s["script"]
+                        origin = {"kind": "seed_pre_amendment", "from": s["cid"],
+                                  "old_score": s["score"]}
+                    elif kind == "xfer":
+                        if not sib:
+                            kind = "mut"
+                            continue
+                        p = sib.pop(0)
+                        anchor, script = p["anchor"], p["script"]
+                        origin = {"kind": "xfer", "from": p["cid"]}
+                    elif kind == "mut" and top:
+                        k = min(3, len(top))
+                        pk = min(rng.choices(top, weights=tw, k=k),
+                                 key=lambda c: (-c["score"], c["cid"]))
+                        script, mv = mutate_script(rng, self.anch[pk["anchor"]]["elems"],
+                                                   pk["script"])
+                        anchor, origin = pk["anchor"], {"kind": "mut", "move": mv,
+                                                        "parent": pk["cid"]}
+                    else:
+                        ps = [p for p in pw if pw[p] > 0]
+                        if not ps:
+                            break
+                        anchor = rng.choices(ps, weights=[pw[p] for p in ps])[0]
+                        script = random_script(rng, self.anch[anchor]["elems"])
+                        origin = {"kind": "rand"}
+                    if not script:
+                        rej["sample"] += 1
+                        continue
+                    cand, why = self.candidate_from_script(stream, g, anchor, script, origin)
+                    if cand is None:
+                        rej[why] += 1
+                        continue
+                    if any(contains_atoms(cand["atoms_live"], k) for k in capped):
+                        rej["contains_capped_core"] += 1
+                        cand = None
+                if cand is None:
+                    self.search_stats[stream]["gen_fail"] += 1
+                    continue
+                cand["gen"] = gen
+                cand["cid"] = f"B{gen:04d}-{gkey(g)}-{slot}"
+                cand["era_tag"] = AMEND
+                cand["rejects_before"] = dict(rej)
+                self.seen_wl[stream][g].add(cand["wl"])
+                out.append(cand)
+                for r_, k_ in rej.items():
+                    self.search_stats[stream]["rej_" + r_] += k_
+        return out
+
     def make_generation(self, stream, gen):
+        if stream == "bench":
+            return self.make_generation_bench(gen)
         cfg = self.cfg
         out = []
         n = cfg["gen_size"][stream]
@@ -1476,6 +2051,9 @@ class Pipeline:
             cls, top, labels = label_script(base, c["script"], el,
                                             inert_toknames(res))
             c["cls"], c["label"], c["edit_labels"] = cls, top, labels
+            ig = inert_groups(c["script"], el, inert_toknames(res))
+            c["inert_groups"] = sorted(ig)
+            c["atoms_live"] = sorted(a for gid, a in c["atoms"] if gid not in ig)
         self.fh["candidates.jsonl"].write(jdump(c) + "\n")
         self.fh["candidates.jsonl"].flush()
         self.n_cand[stream] += 1
@@ -1510,22 +2088,42 @@ class Pipeline:
     # ---------------------------------------------------------------- planting
     def plant_bench(self, c, g, bt):
         lim = planted_limits(bt, c["planted_from"])
+        # AMENDMENT 1 (3): a planted spec looser than a floor is NOT planted
+        fv = floor_violations(lim)
+        if fv:
+            for m, _v, _F in fv:
+                self.floor_rejects[m] += 1
+            self.floor_rejects["specs"] += 1
+            self.kill_counts["floor_reject"] += 1
+            self.event("floor_reject", cid=c["cid"], limits=lim,
+                       violations=[list(x) for x in fv])
+            return
+        # SMOKE (smoke-a1 only, smoke_force_plant): a pre-kill is recorded as a
+        # would-kill and the cell is planted anyway so the post-amendment cell
+        # stages run end-to-end at tiny scale; never set in the full run.
+        forced = []
         for d in self.pool[g[0]]:
             if satisfies(d["metrics"], d["stab_ok"], bt, lim):
                 self.kill_counts["prekill_F1_known_anchor_design"] += 1
                 self.event("prekill", cid=c["cid"], why="F1: recorded anchor design "
                            "satisfies the planted spec", design=d["id"], limits=lim)
-                return
+                if not self.cfg.get("smoke_force_plant"):
+                    return
+                forced.append(f"prekill_F1({d['id']})")
+                break
         for d in self.pool_se[(g[0], c["anchor"])]:
             if satisfies(d["metrics"], d["stab_ok"], bt, lim):
                 self.kill_counts["prekill_F2_known_single_edit_design"] += 1
                 self.event("prekill", cid=c["cid"], why="F2: recorded single edit of "
                            "the parent satisfies the planted spec", design=d["id"],
                            limits=lim)
-                return
+                if not self.cfg.get("smoke_force_plant"):
+                    return
+                forced.append(f"prekill_F2({d['id']})")
+                break
         e, who = excess(c["planted_from"], bt, self.pool[g[0]])
         seq = len(self.cells)
-        name = f"v2-{g[0]}-{g[1]}-{seq:03d}"
+        name = f"v2a-{g[0]}-{g[1]}-{seq:03d}"          # AMENDMENT-1 cell namespace
         spec_path = write_spec(f"{self.rd}/specs/{name}.yaml", make_spec(
             g, lim, name, f"bench-v2 planted cell ({BANDS[g[0]][0]} {g[0]}, "
             f"{g[1]} objective) from search witness {c['cid']}"))
@@ -1539,15 +2137,29 @@ class Pipeline:
                 "label": c["label"], "edit_labels": c["edit_labels"], "e": e,
                 "e_vs": who, "limits": lim, "tight_limits": tlim, "spec": spec_path,
                 "tight_spec": tight_path, "witness_search_metrics": c["metrics"], "planted_from": c["planted_from"], "metrics_seed2": c["metrics_seed2"],
-                "status": "queued", "stages": {}, "smoke": self.mode == "smoke"}
+                "atoms": c["atoms"], "atoms_live": c["atoms_live"],
+                "inert_groups_search": c.get("inert_groups", []),
+                "floors": {m: F for m, (_s, F) in FLOORS.items()},
+                "era_tag": AMEND, "selectable": True,
+                **({"SMOKE_FORCED_would_kill": forced} if forced else {}),
+                "status": "queued", "stages": {}, "smoke": self.mode.startswith("smoke")}
         self.cells[name] = cell
+        self.write_cell(cell)          # every planted cell is on record (fence)
+        # AMENDMENT 1 (4): every post-amendment bench spec / witness is fenced
+        # from the training stream as soon as it is planted
+        self.fence_wl.add(c["wl"])
+        self.fence_tok.add(c["tok"])
+        self.fence_spec.add(spec_sha(spec_path))
         self.val_queue.append(cell)
         self.stage_counts["planted"] += 1
         self.event("planted", cell=name, cid=c["cid"], cls=c["cls"], e=e, limits=lim)
 
     def write_cell(self, c):
-        self.fh["cells.jsonl"].write(jdump({k: v for k, v in c.items() if k != "tokens"})
-                                     + "\n")
+        d = {k: v for k, v in c.items() if k != "tokens"}
+        if d.get("witness_original"):
+            d["witness_original"] = {k: v for k, v in d["witness_original"].items()
+                                     if k != "tokens"}
+        self.fh["cells.jsonl"].write(jdump(d) + "\n")
         self.fh["cells.jsonl"].flush()
 
     # ------------------------------------------------------------ cell pipeline
@@ -1691,51 +2303,268 @@ class Pipeline:
                     "solving_edits": [x["edit"] for x in f2 if x["feasible"]], "n_sized": sum(
             1 for x in f2 if not x.get("inproc_reject")),
             "n_prereject": sum(1 for x in f2 if x.get("inproc_reject"))}
-        # ---- ABL: automatic move-class label from the ESSENTIAL edit groups
-        # (drop one group -> re-size seed 1 at the planted spec; still feasible
-        # => that group is not needed). Label = _LABEL_PRIO-top over the
-        # essential groups' per-edit labels in the witness netlist.
-        base = self.anch[c["anchor"]]["elems"]
-        groups = OrderedDict()
-        for op in c["script"]:
-            groups.setdefault(op["grp"], []).append(op)
-        abl, jobs, gids = [], [], []
-        if len(groups) > 1:
-            for gid in groups:
-                s2 = [o for o in c["script"] if o["grp"] != gid]
-                try:
-                    el2, _r = repair(apply_script(base, s2))
-                    rt2 = self.round_trip(net_text(el2))
-                except Bad:
-                    rt2 = None
-                if not rt2 or not rt2["ok"] or self.pre_reject(rt2["tokens"], spec):
-                    abl.append({"grp": gid, "essential": True, "why": "invalid_without"})
-                    continue
-                jobs.append(J("ABL", rt2["tokens"], spec, 1, grp=gid))
-                gids.append(gid)
-            if jobs:
-                recs = yield jobs
-                for gid, r in zip(gids, recs):
-                    abl.append({"grp": gid, "essential": not feasible(r), "jid": r["jid"]})
-        ess = {x["grp"] for x in abl if x["essential"]} or set(groups)
-        inert = set()
-        for x in st["A1"]["runs"]:
-            if x["feasible"]:
-                inert = inert_toknames((self.cache.get(x["jid"]) or {}).get("res"))
-                break
-        cls, top, labels = label_script(base, [o for o in c["script"] if o["grp"] in ess],
-                                        parse_net(c["netlist"]), inert)
-        st["ABL"] = {"runs": abl, "essential_groups": sorted(ess)}
+        # ---- ABL (AMENDMENT 1): core fix = ablation-essential edits (minimal
+        # sufficient subset), class = its canonical signature; non-essential /
+        # inert edits stripped from the archived witness when the stripped
+        # netlist re-verifies as an accepted witness (else original kept, flagged)
         c["cls_search"], c["label_search"] = c["cls"], c["label"]
-        c["cls"], c["label"], c["edit_labels_essential"] = cls, top, labels
+        core = yield from self.abl_core(c, J, strip=self.cfg.get("abl_strip", True))
+        c["core"] = core
+        c["cls"] = core["signature"]
+        c["primary_atom"] = core["primary_atom"]
+        c["legacy_class"], c["label"] = core["legacy_class"], core["legacy_label"]
         self.accepted.append(c["name"])
-        self.cls_accepted[c["cls"]] += 1
+        self.core_accepted[c["cls"]] += 1
+        self.primary_accepted[c["primary_atom"]] += 1
+        self.core_atom_count.update(set(sig_atoms(c["cls"])))
+        self.parent_accepted[c["anchor"]] += 1
+        if c.get("witness_original"):
+            self.fence_wl.add(c["wl"])
+            self.fence_tok.add(c["tok"])
         write_cell_dir(c, f"{self.rd}/cells/{c['name']}", self.anch[c["anchor"]], self.cache)
         if c.get("SMOKE_FORCED_would_kill"):
             c["smoke_forced"] = True
             return verdict("accepted", "SMOKE_FORCED(would kill: "
                            + ",".join(c["SMOKE_FORCED_would_kill"]) + ")")
         return verdict("accepted", "all_filters_pass")
+
+    # ------------------------------------------- AMENDMENT 1: core-fix ablation
+    def _abl_trials(self, c, J, keys, memo, stage="ABL"):
+        """generator: evaluate kept-group sets `keys` (frozensets) at the cell's
+        planted spec: invalid (repair / round-trip / equals anchor / verifier
+        pre-screen) or sized at seed 1, and seed 2 when seed 1 is infeasible
+        (2 seeds, as the F2 null uses). feasible = feasible at seed 1 or 2."""
+        base = self.anch[c["anchor"]]["elems"]
+        todo = []
+        for key in keys:
+            if key in memo:
+                continue
+            s2 = [o for o in c["script"] if o["grp"] in key]
+            info = {"kept": sorted(key), "n_prims": len(s2), "runs": [], "valid": False}
+            memo[key] = info
+            if not s2:
+                info["why"] = "empty_script(=anchor)"
+                continue
+            try:
+                el2, reps2 = repair(apply_script(base, s2))
+                rt2 = self.round_trip(net_text(el2))
+            except Bad as e:
+                info["why"] = f"repair:{e}"
+                continue
+            if not rt2["ok"]:
+                info["why"] = "round_trip"
+            elif rt2["wl_hash"] in self.anchor_wls:
+                info["why"] = "equals_anchor"
+            elif self.pre_reject(rt2["tokens"], c["spec"]):
+                info["why"] = "verifier_prescreen"
+            else:
+                info.update(valid=True, tokens=rt2["tokens"], wl=rt2["wl_hash"],
+                            netlist=net_text(el2), repairs=reps2, script=s2)
+                todo.append(key)
+        for seed in (1, 2):
+            run = [k for k in todo if not any(x["feasible"] for x in memo[k]["runs"])]
+            if not run:
+                break
+            jobs = [J(stage, memo[k]["tokens"], c["spec"], seed, kept=sorted(k)) for k in run]
+            recs = yield jobs
+            for k, r in zip(run, recs):
+                memo[k]["runs"].append({"seed": seed, "jid": r["jid"], "feasible": feasible(r)})
+        for key in keys:
+            memo[key]["feasible"] = any(x["feasible"] for x in memo[key]["runs"])
+        return [memo[k] for k in keys]
+
+    def abl_core(self, c, J, strip=True):
+        """AMENDMENT 1 core fix of an accepted witness.
+          inert groups   = pure-decoration groups by the verifier's W2 inert list
+                           (first feasible A1 run)
+          drop-one       = each group removed in turn; ESSENTIAL iff the reduced
+                           circuit is invalid or infeasible at BOTH seeds {1,2}
+          core           = greedy backward elimination from the full script, trying
+                           inert, then non-essential, then essential groups (in
+                           group order); a group is dropped if the circuit without
+                           it is still feasible at seed 1 or 2. Every group left
+                           in the core is then ablation-essential in the core.
+          signature      = sorted multiset of group_atoms() over the core groups,
+                           excluding inert groups (decoration never makes a class)
+          strip          = if the core is a strict subset: re-verify the core-only
+                           netlist as a witness (A1 >= 2 of {1,2,3}, A2 tightened
+                           >= 1 of {1,2,3}, A3 >= 1 of {4,5,6}); pass -> archived
+                           witness := stripped (original kept alongside); fail or
+                           < 2 primitive edits -> original kept, flagged."""
+        base = self.anch[c["anchor"]]["elems"]
+        script = c["script"]
+        groups = OrderedDict()
+        for op in script:
+            groups.setdefault(op["grp"], []).append(op)
+        gids = list(groups)
+        allg = frozenset(gids)
+        final_el = parse_net(c["netlist"])
+        inert_tok = set()
+        for x in (c["stages"].get("A1") or {}).get("runs", []):
+            if x["feasible"]:
+                inert_tok = inert_toknames((self.cache.get(x["jid"]) or {}).get("res"))
+                break
+        ig = inert_groups(script, final_el, inert_tok)
+        atoms = group_atoms(base, script)
+        memo = {allg: {"kept": sorted(allg), "n_prims": len(script), "valid": True,
+                       "feasible": True, "runs": [], "why": "full witness (A1)"}}
+        drop1 = OrderedDict()
+        if len(gids) > 1:
+            keys = [allg - {g} for g in gids]
+            infos = yield from self._abl_trials(c, J, keys, memo)
+            for g, info in zip(gids, infos):
+                drop1[g] = {"essential": not info["feasible"], "valid": info["valid"],
+                            "why": info.get("why"), "runs": info["runs"]}
+        else:
+            drop1[gids[0]] = {"essential": True, "why": "single_group"}
+        cur = allg
+        order = ([g for g in gids if g in ig]
+                 + [g for g in gids if g not in ig and not drop1[g]["essential"]]
+                 + [g for g in gids if g not in ig and drop1[g]["essential"]])
+        greedy = []
+        changed = True
+        while changed:             # passes until a full pass drops nothing
+            changed = False
+            for g in order:
+                if len(cur) <= 1 or g not in cur:
+                    continue
+                if cur == allg and drop1[g]["essential"]:
+                    continue           # already known: removal breaks feasibility
+                if (cur - {g}) in memo and not memo[cur - {g}].get("feasible", True):
+                    continue           # already tested infeasible in this context
+                (info,) = yield from self._abl_trials(c, J, [cur - {g}], memo)
+                greedy.append({"drop": g, "from": sorted(cur), "feasible": info["feasible"],
+                               "why": info.get("why")})
+                if info["feasible"]:
+                    cur = cur - {g}
+                    changed = True
+        core_groups = [g for g in gids if g in cur]
+        sig_groups = [g for g in core_groups if g not in ig]
+        flags = []
+        if not sig_groups:
+            sig_groups = core_groups
+            flags.append("core_all_inert")
+        if any(g in ig for g in core_groups):
+            flags.append("inert_group_needed_for_feasibility")
+        sig = signature(atoms, sig_groups)
+        # primary atom (selection variant (b), pending user ruling): the core
+        # group whose removal FROM THE CORE loses the most feasibility
+        core_drop = []
+        if len(core_groups) > 1:
+            miss = [cur - {g} for g in sig_groups if (cur - {g}) not in memo]
+            if miss:
+                yield from self._abl_trials(c, J, miss, memo)
+            for g in sig_groups:
+                info = memo[cur - {g}]
+                core_drop.append([g, {"valid": info["valid"], "why": info.get("why"),
+                                      "feasible": info.get("feasible"),
+                                      "runs": info["runs"]}])
+        prim = primary_atom(atoms, sig_groups, core_drop, c["spec"], self.cache)
+        cls_l, top_l, labels_l = label_script(
+            base, [o for o in script if o["grp"] in cur], final_el, inert_tok)
+        out = {"inert_groups": sorted(ig), "inert_toknames": sorted(inert_tok),
+               "atoms": [[g, a] for g, a in atoms.items()],
+               "drop_one": [[g, v] for g, v in drop1.items()], "greedy": greedy,
+               "essential_drop_one": [g for g in gids if drop1[g]["essential"]],
+               "core_groups": core_groups, "sig_groups": sig_groups,
+               "signature": sig, "primary_atom": prim["atom"], "primary": prim,
+               "core_drop": core_drop,
+               "legacy_class": cls_l, "legacy_label": top_l,
+               "legacy_edit_labels": labels_l, "flags": flags}
+        # ---- strip the witness to its core
+        sinfo = {"attempted": False}
+        if cur != allg:
+            ci = memo[cur]
+            if not strip:
+                sinfo["flag"] = "strip_disabled"
+            elif ci["n_prims"] < 2:
+                sinfo["flag"] = "core_below_2_primitive_edits(original kept)"
+            elif ci.get("wl") in self.f2_wls:
+                sinfo["flag"] = "core_in_single_edit_space(original kept)"
+            else:
+                sinfo["attempted"] = True
+                tok2 = ci["tokens"]
+                a1 = []
+                recs = yield [J("S-A1", tok2, c["spec"], 1), J("S-A1", tok2, c["spec"], 2)]
+                a1 += [{"seed": s, "jid": r["jid"], "feasible": feasible(r)}
+                       for s, r in zip((1, 2), recs)]
+                if sum(x["feasible"] for x in a1) == 1:
+                    recs = yield [J("S-A1", tok2, c["spec"], 3)]
+                    a1.append({"seed": 3, "jid": recs[0]["jid"], "feasible": feasible(recs[0])})
+                a2, a3 = [], []
+                if sum(x["feasible"] for x in a1) >= 2:
+                    ts, fs = [1, 2, 3], [4, 5, 6]
+                    while True:
+                        need = []
+                        if not any(x["feasible"] for x in a2) and ts:
+                            need.append(("S-A2", c["tight_spec"], ts.pop(0)))
+                        if not any(x["feasible"] for x in a3) and fs:
+                            need.append(("S-A3", c["spec"], fs.pop(0)))
+                        if not need:
+                            break
+                        recs = yield [J(k, tok2, sp, s) for k, sp, s in need]
+                        for (k, _sp, s), r in zip(need, recs):
+                            (a2 if k == "S-A2" else a3).append(
+                                {"seed": s, "jid": r["jid"], "feasible": feasible(r)})
+                ok = (sum(x["feasible"] for x in a1) >= 2 and any(x["feasible"] for x in a2)
+                      and any(x["feasible"] for x in a3))
+                sinfo.update(A1=a1, A2=a2, A3=a3, passed=ok, n_prims=ci["n_prims"],
+                             wl=ci["wl"], tok=tokhash(tok2))
+                if ok:
+                    c["witness_original"] = {k: c[k] for k in ("script", "netlist", "tok",
+                                                               "wl", "repairs")}
+                    c["witness_original"]["tokens"] = c.get("tokens")
+                    c["script"], c["netlist"], c["repairs"] = ci["script"], ci["netlist"], ci["repairs"]
+                    c["tokens"], c["tok"], c["wl"] = tok2, tokhash(tok2), ci["wl"]
+                    sinfo["flag"] = "stripped"
+                else:
+                    sinfo["flag"] = "strip_failed_reverify(original kept)"
+        else:
+            sinfo["flag"] = "nothing_to_strip"
+        out["strip"] = sinfo
+        return out
+
+    def task_preclass(self):
+        """AMENDMENT 1 sanity record: core-fix signature of every pre-amendment
+        ACCEPTED cell, by the same abl_core() the new cells use (strip included,
+        for the record only; pre-amendment cells are never selectable). One
+        sub-task per cell so they run in parallel."""
+        names = [n for n, c in self.pre_cells.items() if c["status"] == "accepted"]
+        if not names:
+            return
+        self.pre_core_pending = set(names)
+        for n in names:
+            self.spawn("preclass:" + n, self.task_preclass_one(n), "val")
+        return
+        yield                                                   # noqa: unreachable
+
+    def task_preclass_one(self, n):
+        c = copy.deepcopy(self.pre_cells[n])
+        rt = self.round_trip(c["netlist"])
+        c["tokens"] = rt["tokens"]
+
+        def J(kind, tokens, sp, seed, cls="val", **meta):
+            meta.update(cell=n, stage=kind, pre_amendment=True)
+            return Job(kind, cls, tokens, sp, seed, meta=meta)
+        core = yield from self.abl_core(c, J, strip=self.cfg.get("abl_strip", True))
+        self.pre_core[n] = {"anchor": c["anchor"], "band": c["band"],
+                            "old_class": self.pre_cells[n]["cls"],
+                            "limits": self.pre_cells[n]["limits"],
+                            "floor_violations": floor_violations(self.pre_cells[n]["limits"]),
+                            **core}
+        self.pre_core_pending.discard(n)
+        self.event("preclass", cell=n, signature=core["signature"],
+                   primary_atom=core["primary_atom"],
+                   core_groups=core["core_groups"], strip=core["strip"].get("flag"))
+        atomic_write(f"{self.rd}/pre-amendment-core-classes.json", json.dumps(
+            {"note": "AMENDMENT 1 core-fix signatures of the pre-amendment accepted "
+                     "cells (never selectable)",
+             "done": sorted(self.pre_core), "pending": sorted(self.pre_core_pending),
+             "class_hist": dict(Counter(v["signature"] for v in self.pre_core.values())),
+             "primary_atom_hist": dict(Counter(v["primary_atom"] for v in self.pre_core.values())),
+             "atom_prevalence": atom_prevalence([{"cls": v["signature"]}
+                                                 for v in self.pre_core.values()]),
+             "cells": self.pre_core}, indent=1, default=repr))
 
     # --------------------------------------------------------------- training
     def plant_train(self, c, g, bt):
@@ -1745,8 +2574,10 @@ class Pipeline:
         have = sum(1 for t in self.train_tasks.values() if t["g"] == gkey(g))
         if have >= self.cfg["train_quota_per_point"]:
             return
-        bench_wl = {self.cells[n]["wl"] for n in self.accepted}
-        bench_tok = {self.cells[n]["tok"] for n in self.accepted}
+        # fence: accepted bench witnesses (both eras) + AMENDMENT 1: every
+        # post-amendment planted bench witness (original and stripped) and spec
+        bench_wl = {self.cells[n]["wl"] for n in self.accepted} | self.fence_wl
+        bench_tok = {self.cells[n]["tok"] for n in self.accepted} | self.fence_tok
         if c["wl"] in bench_wl or c["tok"] in bench_tok:
             self.event("train_fenced", cid=c["cid"])
             return
@@ -1756,6 +2587,9 @@ class Pipeline:
         spec_path = write_spec(f"{self.rd}/specs/{name}.yaml", make_spec(
             g, lim, name, f"train-pool-v2 planted task ({g[0]}, {g[1]} objective) "
             f"from search witness {c['cid']}"))
+        if spec_sha(spec_path) in self.fence_spec:
+            self.event("train_fenced", cid=c["cid"], why="spec equals a bench spec")
+            return
         t = {"name": name, "seq": seq, "g": gkey(g), "band": g[0], "flavor": g[1],
              "bt": bt, "cid": c["cid"], "anchor": c["anchor"], "wl": c["wl"],
              "tok": c["tok"], "tokens": c["tokens"], "netlist": c["netlist"],
@@ -1841,15 +2675,17 @@ class Pipeline:
             stage_active[("F2" if "A3" in stg else "A2/A3" if "F1" in stg and stg["F1"]["pass"]
                           else "F1" if "A1" in stg else "A1")] += 1
         eh = self.elapsed_h()
+        beh = self.bench_elapsed_h()
         acc = len(self.accepted)
-        sel = select_cells([self.cells[c] for c in self.accepted], self.cfg)
+        srep, sel = selection_report([self.cells[c] for c in self.accepted], self.cfg)
         rate_calls_h = len(self.recent)
         eta = {}
-        if acc and eh > 0:
-            r = acc / eh
+        if acc and beh > 0:
+            r = acc / beh
             eta["bench_cells_per_h"] = round(r, 3)
             eta["bench_eta_h_to_target"] = round(max(0, self.cfg["bench_target"] - len(sel)) / r, 1)
-        eta["bench_hard_stop_h"] = round(max(0.0, self.cfg["bench_max_hours"] - eh), 1)
+        eta["bench_elapsed_h_since_amendment"] = round(beh, 3)
+        eta["bench_hard_stop_h"] = round(max(0.0, self.cfg["bench_max_hours"] - beh), 1)
         if self.train_ok and eh > 0:
             r = len(self.train_ok) / eh
             eta["train_tasks_per_h"] = round(r, 2)
@@ -1864,6 +2700,7 @@ class Pipeline:
             "running": dict(cls_run), "pending": dict(cls_pend),
             "calls": {"new_this_session": self.n_done_new,
                       "cached_total": len(self.cache),
+                      "extra_readonly_cache": self.n_extra_cache,
                       "cpu_h_this_session": round(self.cpu_new / 3600, 2),
                       "last_hour": rate_calls_h,
                       "median_secs_last_hour": (sorted(s for _t, s in self.recent)[
@@ -1874,12 +2711,52 @@ class Pipeline:
             "bench": {"planted": len(self.cells), "queued": len(self.val_queue),
                       "validating": dict(stage_active), "status": dict(stat),
                       "accepted": acc, "selectable": len(sel),
-                      "accepted_class_hist": dict(self.cls_accepted),
-                      "selected_class_hist": dict(Counter(c["cls"] for c in sel)),
+                      "era": AMEND,
+                      "accepted_per_core_class": dict(self.core_accepted),
+                      "accepted_per_parent": dict(self.parent_accepted),
+                      "accepted_core_atom_hist": dict(self.core_atom_count),
+                      "accepted_per_band": srep["accepted"]["per_band"],
+                      "accepted_per_band_type": srep["accepted"]["per_band_type"],
+                      "class_rule_active": srep["class_rule_active"],
+                      "accepted_per_primary_atom": dict(self.primary_accepted),
+                      "accepted_atom_prevalence": srep["accepted"]["atom_prevalence"],
+                      "selectable_a_signature": {
+                          "n": srep["variants"]["a_signature"]["n"],
+                          "per_class": srep["variants"]["a_signature"]["per_class"],
+                          "per_parent": srep["variants"]["a_signature"]["per_parent"],
+                          "per_band_type": srep["variants"]["a_signature"]["per_band_type"]},
+                      "selectable_b_primary_atom": {
+                          "n": srep["variants"]["b_primary_atom"]["n"],
+                          "per_primary_atom": srep["variants"]["b_primary_atom"]["per_primary_atom"],
+                          "per_parent": srep["variants"]["b_primary_atom"]["per_parent"],
+                          "per_band_type": srep["variants"]["b_primary_atom"]["per_band_type"]},
+                      "selectable_per_core_class": srep["selected"]["per_class"],
+                      "selectable_per_parent": srep["selected"]["per_parent"],
+                      "selectable_per_band": srep["selected"]["per_band"],
+                      "selectable_per_band_type": srep["selected"]["per_band_type"],
+                      "selection_without_nb_quota": srep["without_nb_quota"]["n"],
+                      "nb_quota_binding": srep["nb_quota_binding"],
+                      "quotas": srep["quotas"],
+                      "planted_per_band_type": dict(Counter(c["bt"] for c in self.cells.values())),
+                      "planted_per_parent": dict(Counter(c["anchor"] for c in self.cells.values())),
+                      "floor_rejects": dict(self.floor_rejects),
+                      "strip": dict(Counter((self.cells[n].get("core") or {}).get(
+                          "strip", {}).get("flag") for n in self.accepted)),
+                      "steer": self.steer_last,
                       "stage_started": dict(self.stage_counts),
                       "kills": dict(self.kill_counts),
                       "bench_done": self.bench_done,
                       "search_done": self.bench_search_done},
+            "pre_amendment": {
+                "cells": len(self.pre_cells),
+                "status": dict(Counter(c["status"] for c in self.pre_cells.values())),
+                "accepted": sum(1 for c in self.pre_cells.values() if c["status"] == "accepted"),
+                "selectable": 0,
+                "core_classes_done": len(self.pre_core),
+                "core_class_hist": dict(Counter(v["signature"] for v in self.pre_core.values())),
+                "primary_atom_hist": dict(Counter(v["primary_atom"] for v in self.pre_core.values())),
+                "seed_topologies": len(self.pre_cands),
+                "seeds_used": len(self.pre_seed_used)},
             "train": {"tasks": len(self.train_tasks), "ok": len(self.train_ok),
                       "labels": dict(Counter(self.train_tasks[n].get("difficulty")
                                              for n in self.train_ok)),
@@ -1938,55 +2815,167 @@ def write_cell_dir(c, d, A, cache):
     shutil.copy(f"{REPO}/{A['tokens_file']}", f"{d}/anchor.tokens.json")
     if c.get("evidence"):
         atomic_write(f"{d}/evidence.json", json.dumps(c["evidence"], indent=1, default=float))
-    atomic_write(f"{d}/witness/README", "EVAL-ONLY. Witness (proof of solvability) of a "
-                 "bench-v2 cell. Never use in SFT/RL/prompt data (PREREG-BENCH-V2 fence).\n")
-    atomic_write(f"{d}/witness/witness.net",
-                 "* bench-v2 witness (EVAL-ONLY). Found by search from anchor "
-                 f"{A['family']}; edit script in edit_script.json.\n" + c["netlist"])
-    atomic_write(f"{d}/witness/witness.tokens.json", json.dumps(c.get("tokens")))
-    atomic_write(f"{d}/witness/edit_script.json", json.dumps(
-        {"parent_anchor": A["family"], "script": c["script"], "repairs": c["repairs"],
-         "move_class": c["cls"], "label": c["label"], "edit_labels": c["edit_labels"],
-         "search_cid": c["cid"], "wl_hash": c["wl"], "tok_hash": c["tok"]}, indent=1))
-    runs = {}
-    for stg in ("A1", "A2", "A3"):
-        for x in (c["stages"].get(stg) or {}).get("runs", []):
-            rec = cache.get(x["jid"]) or {}
-            runs[f"{stg}_seed{x['seed']}"] = {"seed": x["seed"], "budget": BUDGET,
-                                             "spec": "spec.yaml" if stg != "A2" else
-                                             "tightened (limits in results.json)",
-                                             "result": rec.get("res"), "era": rec.get("era")}
-    atomic_write(f"{d}/witness/results.json", json.dumps(
-        {"verifier": PROFILE, "pdk": PDK, "budget": BUDGET,
-         "tight_limits": c["tight_limits"], "limits": c["limits"], "runs": runs},
-        indent=1, default=repr))
+    readme = ("EVAL-ONLY. Witness (proof of solvability) of a bench-v2 cell. Never use "
+              "in SFT/RL/prompt data (PREREG-BENCH-V2 fence).\n")
+    core = c.get("core") or {}
+    strip = core.get("strip") or {}
+    orig = c.get("witness_original")
+    if orig:
+        readme += ("AMENDMENT 1: this witness is the ablation CORE of the search-found "
+                   "witness (non-essential/inert edit groups stripped) and re-verified "
+                   "(A1/A2/A3, results.json). The original search witness is kept in "
+                   "original/.\n")
+    atomic_write(f"{d}/witness/README", readme)
+
+    def put(dd, netlist, tokens, script, repairs, tok, wl, stages, note):
+        os.makedirs(dd, exist_ok=True)
+        atomic_write(f"{dd}/witness.net", "* bench-v2 witness (EVAL-ONLY). Found by search "
+                     f"from anchor {A['family']}; edit script in edit_script.json. {note}\n"
+                     + netlist)
+        atomic_write(f"{dd}/witness.tokens.json", json.dumps(tokens))
+        atomic_write(f"{dd}/edit_script.json", json.dumps(
+            {"parent_anchor": A["family"], "script": script, "repairs": repairs,
+             "move_class": c["cls"], "core_signature": core.get("signature"),
+             "core_groups": core.get("core_groups"), "legacy_class": c.get("legacy_class"),
+             "label": c.get("label"), "edit_labels": c.get("edit_labels"),
+             "search_cid": c["cid"], "wl_hash": wl, "tok_hash": tok}, indent=1))
+        runs = {}
+        for stg, lst, sp in stages:
+            for x in lst:
+                rec = cache.get(x["jid"]) or {}
+                runs[f"{stg}_seed{x['seed']}"] = {
+                    "seed": x["seed"], "budget": BUDGET, "spec": sp,
+                    "result": rec.get("res"), "era": rec.get("era")}
+        atomic_write(f"{dd}/results.json", json.dumps(
+            {"verifier": PROFILE, "pdk": PDK, "budget": BUDGET,
+             "tight_limits": c["tight_limits"], "limits": c["limits"], "runs": runs},
+            indent=1, default=repr))
+    tight_note = "tightened (limits in results.json)"
+    orig_stages = [(stg, (c["stages"].get(stg) or {}).get("runs", []),
+                    "spec.yaml" if stg != "A2" else tight_note) for stg in ("A1", "A2", "A3")]
+    if orig:
+        put(f"{d}/witness", c["netlist"], c.get("tokens"), c["script"], c["repairs"],
+            c["tok"], c["wl"], [("A1", strip.get("A1", []), "spec.yaml"),
+                                ("A2", strip.get("A2", []), tight_note),
+                                ("A3", strip.get("A3", []), "spec.yaml")],
+            "AMENDMENT-1 stripped core witness.")
+        put(f"{d}/witness/original", orig["netlist"], orig.get("tokens"), orig["script"],
+            orig["repairs"], orig["tok"], orig["wl"], orig_stages,
+            "Original (unstripped) search witness.")
+    else:
+        put(f"{d}/witness", c["netlist"], c.get("tokens"), c["script"], c["repairs"],
+            c["tok"], c["wl"], orig_stages,
+            f"AMENDMENT-1 strip: {strip.get('flag')}.")
     meta = {k: v for k, v in c.items() if k not in ("tokens", "netlist", "evidence")}
+    if meta.get("witness_original"):
+        meta["witness_original"] = {k: v for k, v in meta["witness_original"].items()
+                                    if k != "tokens"}
     meta["stages"] = {k: {kk: vv for kk, vv in v.items() if kk != "runs"} | {
         "n_runs": len(v.get("runs", []))} for k, v in c["stages"].items()}
     atomic_write(f"{d}/cell.json", json.dumps(meta, indent=1, default=repr))
 
 
-def select_cells(cells, cfg):
-    """Final selection: acceptance order, <= 1 cell per witness WL hash, no move
-    class > cap_frac of the selected set, at most bench_target cells. Returns the
-    largest such list."""
-    cells = sorted(cells, key=lambda c: c["seq"])
-    best = []
+CLASS_RULES = ("signature", "primary_atom")
+
+
+def class_key(c, rule):
+    """class used by the 25 % cap: (a) 'signature' = whole core-fix signature (as
+    pre-registered, the default); (b) 'primary_atom' = the core's primary atom
+    (pending user ruling). Falls back to the signature if no primary atom."""
+    if rule == "primary_atom":
+        return c.get("primary_atom") or c["cls"]
+    return c["cls"]
+
+
+def atom_prevalence(cells):
+    """(c) fraction of cells whose core signature contains each atom."""
+    n = len(cells)
+    cnt = Counter(a for c in cells for a in set(sig_atoms(c["cls"])))
+    return {a: {"n": k, "frac": round(k / n, 3)} for a, k in
+            sorted(cnt.items(), key=lambda kv: (-kv[1], kv[0]))} if n else {}
+
+
+def select_cells(cells, cfg, nb_quota=True, era=AMEND, rule=None):
+    """Final selection (AMENDMENT 1). Only ACCEPTED cells of era `era` (post-
+    amendment) are selectable; pre-amendment cells never are. The selection of
+    size n must satisfy
+      <= 1 cell per witness WL hash,
+      no class > floor(cap_frac * n)            (25 %; class = class_key(c, rule),
+                                                 rule = cfg['class_rule'] unless given),
+      no parent anchor > floor(parent_frac * n) (40 %),
+      >= ceil(nb_frac * n) narrowband cells     (25 %; skipped if nb_quota=False).
+    Largest n <= bench_target wins. Deterministic greedy per n: first take
+    narrowband cells in acceptance order until the narrowband quota is met, then
+    fill in acceptance order; all caps are checked at every pick."""
+    rule = rule or cfg.get("class_rule", "signature")
+    assert rule in CLASS_RULES, rule
+    cells = sorted([c for c in cells if era is None or c.get("era_tag") == era],
+                   key=lambda c: c["seq"])
     for n in range(min(cfg["bench_target"], len(cells)), 0, -1):
-        cap = max(1, int(math.floor(cfg["cap_frac"] * n + 1e-9)))
-        pick, cnt, wls = [], Counter(), set()
-        for c in cells:
-            if c["wl"] in wls or cnt[c["cls"]] >= cap:
-                continue
+        ccap = max(1, int(math.floor(cfg["cap_frac"] * n + 1e-9)))
+        pcap = max(1, int(math.floor(cfg.get("parent_frac", 1.0) * n + 1e-9)))
+        nbq = int(math.ceil(cfg.get("nb_frac", 0.0) * n - 1e-9)) if nb_quota else 0
+        pick, cnt, pc, wls, ids = [], Counter(), Counter(), set(), set()
+
+        def ok(c):
+            return (c["wl"] not in wls and cnt[class_key(c, rule)] < ccap
+                    and pc[c["anchor"]] < pcap and id(c) not in ids)
+
+        def take(c):
             pick.append(c)
-            cnt[c["cls"]] += 1
+            ids.add(id(c))
+            cnt[class_key(c, rule)] += 1
+            pc[c["anchor"]] += 1
             wls.add(c["wl"])
-            if len(pick) == n:
+        for c in cells:
+            if sum(1 for x in pick if x["bt"] == "narrowband") >= nbq:
                 break
+            if c["bt"] == "narrowband" and ok(c):
+                take(c)
+        if sum(1 for x in pick if x["bt"] == "narrowband") < nbq:
+            continue
+        for c in cells:
+            if len(pick) >= n:
+                break
+            if ok(c):
+                take(c)
         if len(pick) == n:
-            best = pick
-            break
-    return best
+            return sorted(pick, key=lambda c: c["seq"])
+    return []
+
+
+def selection_report(cells, cfg, era=AMEND):
+    """quota bookkeeping for progress / INDEX. The ACTIVE selection uses
+    cfg['class_rule'] (default 'signature', as pre-registered). Both class-cap
+    variants are always computed: (a) whole-signature, (b) primary-atom; plus the
+    active rule without the narrowband quota (shortfall report) and (c) the
+    any-atom prevalence over accepted and selected cells."""
+    acc = [c for c in cells if c.get("era_tag") == era]
+    rule = cfg.get("class_rule", "signature")
+    var = {r: select_cells(acc, cfg, True, era, r) for r in CLASS_RULES}
+    sel = var[rule]
+    sel_nonb = select_cells(acc, cfg, False, era, rule)
+
+    def hist(lst):
+        return {"n": len(lst), "per_class": dict(Counter(c["cls"] for c in lst)),
+                "per_primary_atom": dict(Counter(c.get("primary_atom") for c in lst)),
+                "per_parent": dict(Counter(c["anchor"] for c in lst)),
+                "per_band": dict(Counter(c["band"] for c in lst)),
+                "per_band_type": dict(Counter(c["bt"] for c in lst)),
+                "atom_prevalence": atom_prevalence(lst)}
+    return {"class_rule_active": rule,
+            "selected": hist(sel), "selected_names": [c["name"] for c in sel],
+            "variants": {"a_signature": hist(var["signature"]),
+                         "b_primary_atom": hist(var["primary_atom"])},
+            "variant_names": {r: [c["name"] for c in v] for r, v in var.items()},
+            "without_nb_quota": hist(sel_nonb),
+            "accepted": hist(acc),
+            "quotas": {"class_cap_frac": cfg["cap_frac"], "class_rule": rule,
+                       "parent_cap_frac": cfg.get("parent_frac"),
+                       "narrowband_min_frac": cfg.get("nb_frac"),
+                       "target": cfg["bench_target"], "min": cfg["bench_min"]},
+            "shortfall_vs_min": max(0, cfg["bench_min"] - len(sel)),
+            "nb_quota_binding": len(sel_nonb) > len(sel)}, sel
 
 
 def load_jsonl_last(path, key):
@@ -2008,14 +2997,20 @@ def finalize(mode, rd=None):
     cfg = dict(CONFIGS[mode])
     rd = rd or cfg["run_dir"]
     cells = load_jsonl_last(f"{rd}/cells.jsonl", "name")
-    acc = [c for c in cells.values() if c["status"] == "accepted"]
-    sel = select_cells(acc, cfg)
-    lib = f"{REPO}/kaggle/editcap-lib-v2" if mode == "full" else f"{CAMP}/smoke/editcap-lib-v2"
-    tp = f"{REPO}/kaggle/train-pool-v2" if mode == "full" else f"{CAMP}/smoke/train-pool-v2"
+    # AMENDMENT 1: only post-amendment accepted cells are selectable
+    acc_all = [c for c in cells.values() if c["status"] == "accepted"]
+    acc = [c for c in acc_all if c.get("era_tag") == AMEND]
+    srep, sel = selection_report(acc, cfg)
+    sub = {"full": "", "smoke": "smoke/", "smoke-a1": "smoke/amend1-"}[mode]
+    lib = f"{REPO}/kaggle/editcap-lib-v2" if mode == "full" else f"{CAMP}/{sub}editcap-lib-v2"
+    tp = f"{REPO}/kaggle/train-pool-v2" if mode == "full" else f"{CAMP}/{sub}train-pool-v2"
     os.makedirs(lib, exist_ok=True)
-    index = {"prereg": "kaggle/PREREG-BENCH-V2.md", "verifier": PROFILE, "pdk": PDK,
-             "budget": BUDGET, "mode": mode, "n_accepted": len(acc),
+    index = {"prereg": "kaggle/PREREG-BENCH-V2.md (+ AMENDMENT 1)", "verifier": PROFILE,
+             "pdk": PDK, "budget": BUDGET, "mode": mode, "n_accepted": len(acc),
+             "n_accepted_pre_amendment_not_selectable": len(acc_all) - len(acc),
              "n_selected": len(sel), "shortfall": max(0, cfg["bench_min"] - len(sel)),
+             "floors": {m: {"side": sd, "limit": F} for m, (sd, F) in FLOORS.items()},
+             "selection": srep,
              "class_hist_selected": dict(Counter(c["cls"] for c in sel)),
              "class_hist_accepted": dict(Counter(c["cls"] for c in acc)),
              "cells": OrderedDict()}
@@ -2027,16 +3022,27 @@ def finalize(mode, rd=None):
         shutil.copytree(src, dst)
         index["cells"][c["name"]] = {"band": c["band"], "flavor": c["flavor"],
                                      "band_type": c["bt"], "move_class": c["cls"],
+                                     "core_signature": c["cls"],
+                                     "primary_atom": c.get("primary_atom"),
+                                     "legacy_class": c.get("legacy_class"),
                                      "parent_anchor": c["anchor"], "witness_wl": c["wl"],
                                      "witness_tok": c["tok"], "limits": c["limits"],
+                                     "strip": ((c.get("core") or {}).get("strip") or {}).get("flag"),
+                                     "floor_violations": floor_violations(c["limits"]),
                                      "smoke": c.get("smoke", False)}
     atomic_write(f"{lib}/INDEX.json", json.dumps(index, indent=1))
     # ---- training pool
     tasks = load_jsonl_last(f"{rd}/train.jsonl", "name")
     ok = [t for t in tasks.values() if t["status"] == "ok"]
-    bench_wl = {c["wl"] for c in acc}
-    bench_tok = {c["tok"] for c in acc}
-    bench_specs = {json.dumps(c["limits"], sort_keys=True) + c["g"] for c in acc}
+    # fence: every accepted cell (both eras) + every post-amendment planted cell
+    # (original and stripped witness), by WL / token hash and spec
+    fcells = acc_all + [c for c in cells.values() if c.get("era_tag") == AMEND
+                        and c["status"] != "accepted"]
+    bench_wl = {c["wl"] for c in fcells} | {(c.get("witness_original") or {}).get("wl")
+                                            for c in fcells} - {None}
+    bench_tok = {c["tok"] for c in fcells} | {(c.get("witness_original") or {}).get("tok")
+                                              for c in fcells} - {None}
+    bench_specs = {json.dumps(c["limits"], sort_keys=True) + c["g"] for c in fcells}
     os.makedirs(tp, exist_ok=True)
     tindex = {"prereg": "kaggle/PREREG-BENCH-V2.md", "verifier": PROFILE, "mode": mode,
               "fence": "no bench-v2 spec, witness WL hash or witness token hash",
@@ -2094,6 +3100,27 @@ def main():
         Pipeline(a.mode, rd).run()
     elif a.cmd == "finalize":
         finalize(a.mode, a.run_dir)
+    elif a.cmd == "amend-snapshot":
+        # AMENDMENT 1: freeze the pre-amendment record (copies, never moved) before
+        # the first post-amendment start; the result cache stays in place.
+        import shutil
+        rd = a.run_dir or CONFIGS[a.mode]["run_dir"]
+        d = f"{rd}/pre-amendment"
+        if os.path.isdir(d):
+            raise SystemExit(f"snapshot exists: {d}")
+        os.makedirs(d)
+        man = {"taken": time.strftime("%Y-%m-%dT%H:%M:%S"), "amendment": AMEND,
+               "prereg_commit": "78ccdf0b4", "files": {}}
+        for f in ("cells.jsonl", "candidates.jsonl", "events.jsonl", "train.jsonl",
+                  "progress.json", "sched.log", "start.json"):
+            if os.path.exists(f"{rd}/{f}"):
+                shutil.copy2(f"{rd}/{f}", f"{d}/{f}")
+                man["files"][f] = hashlib.md5(open(f"{d}/{f}", "rb").read()).hexdigest()
+        n = sum(1 for _ in open(f"{rd}/results.jsonl")) if os.path.exists(
+            f"{rd}/results.jsonl") else 0
+        man["results_jsonl_rows_at_snapshot"] = n
+        atomic_write(f"{d}/MANIFEST.json", json.dumps(man, indent=1))
+        print(json.dumps(man, indent=1))
     elif a.cmd == "status":
         rd = a.run_dir or CONFIGS[a.mode]["run_dir"]
         print(open(f"{rd}/progress.json").read())

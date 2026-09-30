@@ -82,3 +82,34 @@ EVAL-ONLY.
 Local CPU only, ≤ 8 parallel processes (shared box; lower if load > 22). Resumable,
 checkpointed, run detached with progress files. Every result row carries the git era
 stamp and `result["verifier"]`. Deviations recorded in the campaign README.
+
+---
+
+## AMENDMENT 1 — 2026-09-30 (user ruling "go with B, including the spec floors")
+
+**Trigger (observed at 26.8 h, before any cell was frozen):** 10 cells accepted, but all
+10 wideband, all from parent anchor a3, and all sharing ONE core fix (series input L,
+usually + R into the input); the "other classes" were that core plus an extra device.
+Every spec sat at s11 ≤ −7.85 dB and gain 7.9–10.5 dB (witnesses hug the −8 dB probe).
+Continuing would reproduce bench-v1.2's one-trick flaw. Run stopped at 26.8 h; all
+prior rows kept as a record (recorded as "pre-amendment", not selectable).
+
+Changes (everything else in this pre-reg stands):
+
+1. **Class = core fix.** A witness's move class is computed from its *ablation-essential*
+   edits only (the minimal subset whose removal breaks rl-v1 feasibility), as a canonical
+   signature (op × element type × role). Decorations and inert devices do not create a
+   new class. The 25% cap applies to these core classes.
+2. **Diversity quotas on the final selection:** ≤ 40% of cells from any one parent
+   anchor; ≥ 25% narrowband cells. Search budget is steered toward under-represented
+   parents / bands / core classes. Quotas are targets for selection — if unmet, report
+   the shortfall; do not relax other criteria.
+3. **Realistic spec floors (all bench cells):** input match `s11_max_db` ≤ −9 dB and gain
+   `s21_db` ≥ 10 dB. Planting probes are set at or beyond the floors; a planted spec whose
+   limits (after the 2% cushion) are looser than a floor is not planted. Witness acceptance
+   (≥2/3 seeds, tightened, fresh seeds) is unchanged.
+4. **Budget:** a fresh bench hard stop of 72 h from the resumed start (total campaign stays
+   within the user-approved 3–5 days). Training pool unchanged (no floors: mixed difficulty
+   for curricula) — its fence now also covers every post-amendment bench spec/witness.
+5. Cache reuse only where the exact (topology, spec, seed, budget, profile) repeats;
+   pre-amendment topologies may seed the search.

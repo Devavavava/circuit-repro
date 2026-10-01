@@ -84,12 +84,16 @@ def main():
         for r in last.values():
             # every ACCEPTED cell (both eras) and, AMENDMENT 1, every post-amendment
             # PLANTED cell whatever its status (spec + witness, original and stripped)
-            post = r.get("era_tag") == "amendment-1"
+            # AMENDMENT 2: + amendment-2 planted cells (any status, incl. cells
+            # tagged amend2-port-dc) and the amendment-1 original witness of a
+            # cell re-validated under rl-v1.1 (witness_original_amend1)
+            post = r.get("era_tag") in ("amendment-1", "amendment-2")
             if r.get("status") != "accepted" and not post:
                 continue
             n_acc += r.get("status") == "accepted"
             n_post += post
-            wits = [r] + ([r["witness_original"]] if r.get("witness_original") else [])
+            wits = [r] + [r[k] for k in ("witness_original", "witness_original_amend1")
+                          if r.get(k)]
             for w in wits:
                 b_tok.setdefault(w["tok"], r["name"])
                 b_wl.setdefault(w["wl"], r["name"])

@@ -5,7 +5,14 @@ The user approved **full size**: 20–25 bench cells plus about 300 training tas
 Verifier: `bench_anchor_prep.smoke_run(tokens, spec, seed, 2500, "bptm45", profile="rl-v1")` on rl-v1-form specs (`kaggle/VERIFIER-RL-V1.md`).
 Every result row carries the git era stamp (HEAD plus the md5 of `bench_anchor_prep.py` and `bv2.py`) and `result["verifier"]`.
 
-Status: **RUNNING under PRE-REG AMENDMENT 1** (full run launched 2026-09-29, stopped at 26.8 h on 2026-09-30, resumed with the amendment the same day). **Read the "AMENDMENT 1" section first**: where it differs from the design sections below, the amendment wins. Results sections are filled in when the run finalizes.
+Status: **RUNNING under PRE-REG AMENDMENT 2** (verifier **rl-v1.1**). History:
+- launched 2026-09-29
+- stopped at 26.8 h, then resumed under AMENDMENT 1 on 2026-09-30
+- stopped 2026-10-01 18:43, then resumed under AMENDMENT 2 the same evening
+
+The bench end time is unchanged: **2026-10-03 14:51 IST**.
+
+**Read the "AMENDMENT 2" and then the "AMENDMENT 1" sections first.** Where they differ from the design sections below, the later amendment wins. Results sections are filled in when the run finalizes.
 
 ## Files
 
@@ -20,10 +27,125 @@ Status: **RUNNING under PRE-REG AMENDMENT 1** (full run launched 2026-09-29, sto
 | `run/` | The full run. Not committed except `progress.json`, `README`-level summaries and specs. |
 | `smoke/` | The smoke runs and their checks (committed): `smoke/run/` (original), `smoke/run-amend1/` (AMENDMENT 1). |
 | `run/pre-amendment/` | Frozen copy of the pre-amendment record at the 26.8 h stop (`MANIFEST.json` has md5s). |
+| `smoke_checks_a2.py` | AMENDMENT-2 smoke checks: rl-v1.1 profile on every row, restore actions, re-validation, cache-bridge exactness, generation pre-filter, training re-check, fence with a negative control, budget clock. |
+| `port-dc-guard/` | rl-v1.1 port-DC requirement tests (`test_port_dc.py`, `results.json`, README). |
+| `run/amendment-1-record/` | Frozen copy of the amendment-1 record at the 2026-10-01 18:43 stop (`bv2.py amend2-snapshot`, `MANIFEST.json` has md5s). AMENDMENT 2 restores from it. |
 
 Outputs at finalize:
 - `kaggle/editcap-lib-v2/<cell>/{spec.yaml, anchor.net, anchor.tokens.json, evidence.json, cell.json, witness/}` plus `INDEX.json`. `witness/` is **EVAL-ONLY**.
 - `kaggle/train-pool-v2/<task>/...` plus `INDEX.json`, with difficulty labels.
+
+## AMENDMENT 2 (2026-10-01) — what changed in the pipeline
+
+Pre-reg: `kaggle/PREREG-BENCH-V2.md` § "AMENDMENT 2" (commit `1a0413fb9`). User approval 2026-10-01: *"go ahead with whatever you suggest"*.
+
+**Why.** At 23.8 h after amendment 1, 9 of 11 accepted cells shared the core atom `add:L:IN-G`. By the 18:43 stop this was 16 of 18. The motif audit (`motif-audit/`, `e189abbbb`) found that these designs:
+- size their own input DC block to nothing
+- rely on the testbench port's 10 pF DC block
+- collapse with any DC-grounded source
+
+That is a missing interface requirement, so it was added to the verifier.
+
+### A2-1 Verifier rl-v1.1 (`bench_anchor_prep.py`; `kaggle/VERIFIER-RL-V1.md` § rl-v1.1; tests in `port-dc-guard/`)
+`rl-v1.1` is `rl-v1` plus `VERIFY_PORT_DC`:
+- **Structural pre-filter** (0 sims, before sizing): reject if VIN1's DC group holds a MOS terminal or the positive supply. A DC path to VSS alone is allowed.
+- **Behavioural check** (the authority): run on the final winner, comparing the DC op with an extra 50 Ω DC path to ground at VIN1. Pass iff every |ΔV_G| < 10 mV and |ΔIdd| < 1 %. Failure is `port_dc_fail`.
+
+rl-v1 and no-profile results are byte-identical to before (`port-dc-guard/` T8). Bench and training verification both use rl-v1.1. Job cache keys include the profile, so rl-v1.1 rows never collide with rl-v1 rows.
+
+### A2-2 Resume by restore, not replay (`restore_amend2`, `bv2.py amend2-snapshot`)
+The amendment-1 record was frozen at the stop (`run/amendment-1-record/`). The resume **restores** state from it rather than replaying the generators, because a replay re-derives steering from wall-clock order (D13) and would redo most of the 24 h of search (D21). Restoring then re-evaluates everything under rl-v1.1:
+- **Pools.** These are the anchor (cal/F1) and single-edit (F2) designs used for pre-kills, difficulty labels and dominance. A design counts as a solver only if it meets the port-DC requirement (D23).
+- **Search.**
+  - All 2442 bench and 864 train candidates and their seen WLs are restored.
+  - Archive members that fail the pre-filter are dropped: 1415 bench and 267 train. Kept: 1027 and 597.
+  - Search continues at generation 37 (bench) and 41 (train) in an `amendment-2` RNG namespace.
+  - The free pre-filter is applied at candidate generation, with reject reason `port_dc_prefilter`.
+- **Cells (amendment-1 record, 152 planted).**
+  - **Tagged `amend2-port-dc`** (pre-filter fail): 36 cells. 16 of the 18 accepted, the 1 queued/validating cell (nb158-noise-149), 9 skipped_dupwl and 10 skipped_parent_cap. They stay on record and fenced, and are not selectable.
+  - **Re-validated:** the 2 accepted cells that pass the pre-filter (nb090-gain-007, wb1020-noise-003). They re-run every stage under rl-v1.1.
+  - **Re-queued:** 2 skipped_dupwl cells that pass the pre-filter. Admission re-applies the caps.
+  - **Revived:** 7 cells killed by F2 where the witness passes the pre-filter and every solving single edit fails it (D24).
+  - **Re-planted:** 3 of the 4 void F2 pre-kills (D24); the fourth was pre-killed again.
+- **Cache bridge** (`try_derive` → `bench_anchor_prep.derive_port_dc`). A stage run whose rl-v1 twin is cached is answered exactly without re-sizing whenever port-DC cannot change it: a pre-sizing reject, or an infeasible winner. A feasible twin is re-sized; the run is deterministic, so this gives the same winner, now checked (D22).
+- **Training (320 tasks).** Of the 290 `ok` tasks, 101 are tagged `amend2-port-dc` (out of the pool): 74 library-solvable, 16 witness-only and 11 single-edit-solvable. The other 189 have their witness re-checked under rl-v1.1 and their label re-checked (D27). The 30 unproved tasks stay unproved. Freed quota slots are refilled by the training search (D29).
+- **Fence.** Every amendment-1 planted cell (any status, both witnesses) and every amendment-2 planted cell is fenced, including `witness_original_amend1`. `fence_check.py` and `finalize` are extended to match.
+
+### A2-3 Selection, budget, records
+- **Class rule (b) `primary_atom`** is active for the final selection (`class_rule`, D28). Selectable cells are amendment-1 cells re-accepted under rl-v1.1 plus amendment-2 cells (`v2b-…`, `era_tag: amendment-2`). Pre-amendment cells and tagged cells are never selectable.
+- **Bench end UNCHANGED:** `start.json` `t_amend1` + 72 h = **2026-10-03 14:51:17 IST**. `t_amend2` is recorded only. `progress.amendment2.bench_end_unchanged` shows the end time. The total budget is unchanged too (t_start + 118 h = 2026-10-04 08:56).
+- **Records.** New rows carry `profile: rl-v1.1` and `phase: amendment-2`. Derived rows carry `derived_from` (the rl-v1 twin's jid). `progress.json` gains `amendment2.port_dc`, which holds:
+  - pre-filter rejects at generation
+  - behavioural checks and their failures
+  - derived and re-sized rows
+  - cell and training actions/outcomes, and tagged counts
+  - pool designs that pass or fail the requirement
+  - archive drops
+
+### A2-4 Smoke (`smoke/run-amend2/`, `--mode smoke-a2`, checks in `smoke/smoke_checks_a2.json`)
+**Setup.**
+- Run with `launch.sh smoke-a2`, after `bv2.py amend2-snapshot --mode full`.
+- It restores a subset of the frozen full-run record, read-only:
+  - 5 cells, each with a different action: re-validate nb090-gain-007; tag wb0530-power-000 (an accepted L-IN-G cell); tag nb158-noise-149 (the cell that was validating at the stop); revive nb090-gain-038; re-queue wb0824-gain-033 (skipped_dupwl).
+  - 1 void pre-kill to re-plant (B0010-nb090-gain-2).
+  - 3 training tasks.
+- It reads the full run's cache read-only: exact-key hits plus the rl-v1 → rl-v1.1 bridge.
+- One new generation each: bench (nb090-gain, wb1020-noise, 4 children per point) and train (nb158-gain, 3 children).
+- F2 is cut to the first 12 edits (SMOKE SUBSET). `smoke_force` is off, so kills are real.
+- Totals: 240 rows (146 sized, 57 derived, 37 in-process pre-rejects), 29 min wall clock, 8 processes. The pipeline then finalized into `smoke/amend2-*`.
+
+**Checks** (`smoke_checks_a2.py` → `smoke/smoke_checks_a2.json`; all pass):
+1. **Profile.** Every row is `profile: rl-v1.1`, `phase: amendment-2`, with `verifier.flags` = the rl-v1 flags + `VERIFY_PORT_DC=1`.
+2. **Restore.** All 5 actions came out as intended, and both tagged cells are `amend2-port-dc` and not selectable.
+   - The revived nb090-gain-038 was **accepted** under rl-v1.1, though only against the F2 subset.
+   - The re-queued wb0824-gain-033 was accepted; its duplicate is not restored in the smoke.
+   - The re-planted void pre-kill became `v2b-nb090-gain-005`. It was cancelled when the smoke's bench target of 3 was reached.
+3. **Re-validation of nb090-gain-007.** It was **re-accepted**. All 39 stage runs are rl-v1.1, and all 4 feasible witness winners carry a behavioural `port_dc` that passes (ΔV_G = 0, ΔIdd = 0). Core `rw:C:p:D>X + ser:L:C.p:IN`, primary atom `ser:L:C.p:IN`, both unchanged.
+4. **Bridge.** A derived A1 row re-run fresh under rl-v1.1 is identical, apart from `wide_secs` (D30).
+5. **Generation.** 11 new candidates, all passing the pre-filter. The pre-filter rejected 2 bench and 6 train candidates at generation.
+6. **Training.**
+   - The pre-filter-failing task is tagged.
+   - Both passing tasks were re-proved at seed 1 by a re-size, with the behavioural check passing.
+   - t2-nb090-noise-0012 was relabelled single-edit → witness-only. This is a **smoke artefact**: the smoke loads no pre-amendment pools, and its solving design was a pre-amendment F2 row. The full run loads those pools.
+7. **Fence.** The finalize fence check gives rc 0. Negative control: a training dir holding a copy of the *tagged* cell wb0530-power-000 is flagged on all 4 counts (token, WL, spec, body), rc 1.
+8. **Budget.** The full run's bench end is `t_amend1` + 72 h = 2026-10-03 14:51:17 IST, unchanged.
+
+The smoke INDEX (`smoke/amend2-editcap-lib-v2/INDEX.json`) shows `verifier: rl-v1.1` and `class_rule_active: primary_atom`, with 3 cells selected.
+
+### A2-5 Full-run resume (2026-10-01 19:50 IST, pid 4111916)
+**Restore:** 152 amendment-1 cells, 320 training tasks, next generation 37 (bench) and 41 (train). At +11 min:
+- 47 new sizing calls, 406 derived rows, 52 in-process pre-filter rejects; 8 processes at load 14.
+- **Both** re-validated accepted cells (nb090-gain-007, wb1020-noise-003) were **re-accepted** under rl-v1.1. That gives 2 accepted / 2 selectable.
+- The 2 re-queued skipped_dupwl cells were skipped again: they duplicate a re-accepted witness.
+- 7 revived and 3 re-planted cells are validating or queued.
+- 187 training re-checks are running (2 were already answered by the smoke's rows).
+
+### Deviations / interpretations (AMENDMENT 2)
+- **D21: resume by restore, not replay.** Restoring the frozen amendment-1 record replaces the deterministic generator replay for this resume. Every restored decision is logged (`amend2_restore` event, `amend2` field on each cell and task).
+  - A later restart of the amendment-2 run restores from the same record again. Already-run rl-v1.1 calls are cache hits, but new search generations can diverge as in D13. That costs re-sizing, never correctness.
+- **D22: cache bridge.** An rl-v1.1 job whose rl-v1 twin is cached and cannot be changed by the port-DC requirement is *derived*, not re-sized. These are pre-sizing rejects (computed by the verifier in-process) and infeasible winners (the rl-v1 dict plus the port-DC keys plus the rl-v1.1 verifier record). Derived equals a fresh rl-v1.1 run byte for byte (3/3 in `port-dc-guard/` T7), apart from the one wall-clock field `stab_inloop.wide_secs` (D30). Feasible twins are always re-sized and checked.
+- **D23: solvers in the pools.** A recorded design pre-kills a spec, labels a training task or enters dominance scoring only if it meets the port-DC requirement.
+  - An rl-v1.1 row uses its own behavioural verdict, or its pre-filter verdict if its winner was infeasible.
+  - A recorded rl-v1 row uses the pre-filter of its topology. For a pre-filter-passing topology the behavioural check is a provable no-op (no MOS terminal or positive rail in VIN1's DC group, so a DC path to ground draws no current). It measured ΔV = ΔIdd = 0 in every pass case.
+  - Calibration is not re-run: all 5 anchors pass both checks (T3).
+  - 715 of 7248 pool designs fail.
+- **D24: void kills and pre-kills are re-examined.** The pre-reg lists accepted, queued and validating cells. On top of that:
+  - A cell **killed by F2** is revived if its witness passes the pre-filter and *every* recorded solving single edit fails it (e.g. `add L VIN1-n5`, `add L VDD-VIN1`). Under rl-v1.1 those edits are rejected, so the F2 null evidence is void. The cell re-runs every stage under rl-v1.1, and F2 runs to completion. 7 cells; 8 F2 kills stand.
+  - A bench candidate **pre-killed** only by such a single-edit design is planted from its recorded seed-1 and seed-2 probe winners. `plant_bench` re-applies the filtered pre-kill pools, floors and fence. 4 candidates: 3 planted, 1 pre-killed again by a valid design; 5 pre-kills stand.
+  - F1 and A1–A3 kills stand: the anchors pass, and rl-v1.1 is stricter, so those kills are monotone.
+- **D25: harness bias-source nets count as positive supply** in the pre-filter. These are VB\*, VCM\* and VREF\*, which `to_spice` drives from positive dc sources. No bench-v2 anchor has such a net, so this has no effect here.
+- **D26: archive scores carry over.** Restored archive members that pass the pre-filter keep their rl-v1 search scores without a re-size. The scores only steer mutation parents. Members that fail are dropped.
+- **D27: training re-check.**
+  - The witness is re-proved at seed 1, then at seed 2 only if seed 1 fails. The pre-reg requires ≥ 1 of {1, 2}.
+  - `library-solvable` labels stand, since anchors meet the requirement.
+  - `single-edit-solvable` and `witness-only` labels are re-derived from the port-DC-filtered pools, with no new sizing. A relabel is recorded in `amend2.label_before/after`.
+  - New tasks follow the original protocol under rl-v1.1.
+- **D28: class rule (b) `primary_atom` is active** (AMENDMENT 2 item 2). As in D17, the search-time build caps stay on whole signatures, with the soft atom penalty on. Rule (a) and the atom prevalence are still reported.
+- **D29: freed training slots are refilled.** A task tagged `amend2-port-dc` no longer counts against its grid point's quota of 32, so the training search resumes in a new RNG namespace to refill towards 300 under rl-v1.1. The 118 h total budget is unchanged.
+- **D30: the byte-identity convention excludes `stab_inloop.wide_secs`.** It is wall-clock seconds, the same exclusion as `smoke_checks.py`. A derived row keeps its twin's value.
+- **D31: re-validated cells keep their amendment-1 witness record.** A re-validated or revived cell gets a fresh rl-v1.1 validation of its current witness, which is the stripped core when amendment 1 stripped it.
+  - Fields moved: the amendment-1 stages, core and evidence move to `amend1_*`, and `witness_original` moves to `witness_original_amend1` (fenced).
+  - If the new ABL strips again, the usual `witness/` + `witness/original/` layout applies.
 
 ## AMENDMENT 1 (2026-09-30) — what changed in the pipeline
 

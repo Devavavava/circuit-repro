@@ -1,0 +1,66 @@
+{
+ "parent_anchor": "lna-a3-shunt-feedback",
+ "script": [
+  {
+   "op": "rw",
+   "name": "C2",
+   "pin": 0,
+   "net": "n3",
+   "grp": 0
+  },
+  {
+   "op": "rw",
+   "name": "C1",
+   "pin": 0,
+   "net": "x1",
+   "grp": 1,
+   "macro": "ser"
+  },
+  {
+   "op": "add",
+   "t": "L",
+   "name": "ZL1",
+   "nets": [
+    "x1",
+    "VIN1"
+   ],
+   "grp": 1,
+   "macro": "ser"
+  }
+ ],
+ "repairs": [],
+ "move_class": "rw:C:p:D>X + ser:L:C.p:IN",
+ "core_signature": "rw:C:p:D>X + ser:L:C.p:IN",
+ "core_groups": [
+  0,
+  1
+ ],
+ "legacy_class": "L-match",
+ "label": "L-match",
+ "edit_labels": [
+  {
+   "op": "rw",
+   "name": "C2",
+   "label": "input-match",
+   "tok": "C2",
+   "inert": false
+  },
+  {
+   "op": "rw",
+   "name": "C1",
+   "label": "input-match",
+   "tok": "C1",
+   "inert": false
+  },
+  {
+   "op": "add",
+   "name": "ZL1",
+   "label": "L-match",
+   "tok": "L2",
+   "inert": false
+  }
+ ],
+ "search_cid": "B0000-nb090-gain-2",
+ "wl_hash": "604c82d5cd2c93ee",
+ "tok_hash": "e3b009ac6f379666"
+}

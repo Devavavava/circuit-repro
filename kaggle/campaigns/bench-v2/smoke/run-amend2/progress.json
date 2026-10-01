@@ -1,0 +1,327 @@
+{
+ "ts": "2026-10-01T19:48:32",
+ "mode": "smoke-a2",
+ "final": true,
+ "pid": 1882546,
+ "run_dir": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/smoke/run-amend2",
+ "era": {
+  "git": "1a0413fb95c5ba33ecd8d78f93bb1342e923dfaa",
+  "md5": {
+   "kaggle/bench_anchor_prep.py": "a40dc59769",
+   "kaggle/campaigns/bench-v2/bv2.py": "3b6665e23d"
+  }
+ },
+ "elapsed_h": 0.493,
+ "load1": 12.2,
+ "proc_limit": 8,
+ "running": {},
+ "pending": {},
+ "calls": {
+  "new_this_session": 146,
+  "cached_total": 20808,
+  "extra_readonly_cache": 20568,
+  "cpu_h_this_session": 3.7,
+  "last_hour": 146,
+  "median_secs_last_hour": 92.33
+ },
+ "calibration_done": true,
+ "search": {
+  "bench": {
+   "generation": 37,
+   "candidates": 8,
+   "confirmed": 5,
+   "rej_port_dc_prefilter": 2,
+   "rej_max_inductors": 1,
+   "rej_sample": 1,
+   "rej_device_budget": 2,
+   "sized": 8,
+   "feasible": 7,
+   "confirm_fail": 3
+  },
+  "train": {
+   "generation": 41,
+   "candidates": 3,
+   "rej_verifier_prescreen": 1,
+   "rej_port_dc_prefilter": 6,
+   "rej_sample": 2,
+   "sized": 3,
+   "feasible": 1,
+   "confirm_fail": 1
+  }
+ },
+ "bench": {
+  "planted": 8,
+  "queued": 0,
+  "validating": {},
+  "status": {
+   "amend2-port-dc": 2,
+   "accepted": 3,
+   "cancelled": 3
+  },
+  "accepted": 3,
+  "selectable": 3,
+  "era": "amendment-2",
+  "accepted_per_core_class": {
+   "rw:C:p:D>X + ser:L:C.p:IN": 1,
+   "stk:PMOS:NMOS.D:D.gG": 1,
+   "add:NMOS:dRAIL.gD.sG + stk:PMOS:PMOS.D:D.gG": 1
+  },
+  "accepted_per_parent": {
+   "a3": 1,
+   "a1": 1,
+   "a2": 1
+  },
+  "accepted_core_atom_hist": {
+   "ser:L:C.p:IN": 1,
+   "rw:C:p:D>X": 1,
+   "stk:PMOS:NMOS.D:D.gG": 1,
+   "add:NMOS:dRAIL.gD.sG": 1,
+   "stk:PMOS:PMOS.D:D.gG": 1
+  },
+  "accepted_per_band": {
+   "nb090": 2,
+   "wb0824": 1
+  },
+  "accepted_per_band_type": {
+   "narrowband": 2,
+   "wideband": 1
+  },
+  "class_rule_active": "primary_atom",
+  "accepted_per_primary_atom": {
+   "ser:L:C.p:IN": 1,
+   "stk:PMOS:NMOS.D:D.gG": 1,
+   "add:NMOS:dRAIL.gD.sG": 1
+  },
+  "accepted_atom_prevalence": {
+   "add:NMOS:dRAIL.gD.sG": {
+    "n": 1,
+    "frac": 0.333
+   },
+   "rw:C:p:D>X": {
+    "n": 1,
+    "frac": 0.333
+   },
+   "ser:L:C.p:IN": {
+    "n": 1,
+    "frac": 0.333
+   },
+   "stk:PMOS:NMOS.D:D.gG": {
+    "n": 1,
+    "frac": 0.333
+   },
+   "stk:PMOS:PMOS.D:D.gG": {
+    "n": 1,
+    "frac": 0.333
+   }
+  },
+  "selectable_a_signature": {
+   "n": 3,
+   "per_class": {
+    "rw:C:p:D>X + ser:L:C.p:IN": 1,
+    "add:NMOS:dRAIL.gD.sG + stk:PMOS:PMOS.D:D.gG": 1,
+    "stk:PMOS:NMOS.D:D.gG": 1
+   },
+   "per_parent": {
+    "a3": 1,
+    "a2": 1,
+    "a1": 1
+   },
+   "per_band_type": {
+    "narrowband": 2,
+    "wideband": 1
+   }
+  },
+  "selectable_b_primary_atom": {
+   "n": 3,
+   "per_primary_atom": {
+    "ser:L:C.p:IN": 1,
+    "add:NMOS:dRAIL.gD.sG": 1,
+    "stk:PMOS:NMOS.D:D.gG": 1
+   },
+   "per_parent": {
+    "a3": 1,
+    "a2": 1,
+    "a1": 1
+   },
+   "per_band_type": {
+    "narrowband": 2,
+    "wideband": 1
+   }
+  },
+  "selectable_per_core_class": {
+   "rw:C:p:D>X + ser:L:C.p:IN": 1,
+   "add:NMOS:dRAIL.gD.sG + stk:PMOS:PMOS.D:D.gG": 1,
+   "stk:PMOS:NMOS.D:D.gG": 1
+  },
+  "selectable_per_parent": {
+   "a3": 1,
+   "a2": 1,
+   "a1": 1
+  },
+  "selectable_per_band": {
+   "nb090": 2,
+   "wb0824": 1
+  },
+  "selectable_per_band_type": {
+   "narrowband": 2,
+   "wideband": 1
+  },
+  "selection_without_nb_quota": 3,
+  "nb_quota_binding": false,
+  "quotas": {
+   "class_cap_frac": 1.0,
+   "class_rule": "primary_atom",
+   "parent_cap_frac": 1.0,
+   "narrowband_min_frac": 0.0,
+   "target": 3,
+   "min": 1
+  },
+  "planted_per_band_type": {
+   "wideband": 3,
+   "narrowband": 5
+  },
+  "planted_per_parent": {
+   "a3": 2,
+   "a2": 2,
+   "a1": 4
+  },
+  "floor_rejects": {},
+  "strip": {
+   "nothing_to_strip": 3
+  },
+  "steer": {
+   "gen": 37,
+   "m_nb": 1.0,
+   "point_w": {
+    "nb090-gain": 0.6667,
+    "wb1020-noise": 1.0
+   },
+   "alloc": {
+    "nb090-gain": 3,
+    "wb1020-noise": 5
+   },
+   "parent_w": {
+    "wideband": {
+     "a2": 1.0,
+     "a3": 0.6667,
+     "a5": 1.0
+    },
+    "narrowband": {
+     "a1": 1.0,
+     "a2": 1.0,
+     "a3": 0.6667,
+     "a4": 1.0,
+     "a5": 1.0
+    }
+   },
+   "counts": {
+    "band": {
+     "nb090": 0.5
+    },
+    "band_type": {
+     "narrowband": 0.5
+    },
+    "parent": {
+     "a3": 0.5
+    }
+   },
+   "capped_cores": []
+  },
+  "stage_started": {
+   "A1_started": 6,
+   "planted": 3,
+   "F1_started": 6,
+   "A23_started": 6,
+   "F2_started": 6
+  },
+  "kills": {
+   "accepted": 3,
+   "prekill_F1_known_anchor_design": 2
+  },
+  "bench_done": true,
+  "search_done": true
+ },
+ "pre_amendment": {
+  "cells": 0,
+  "status": {},
+  "accepted": 0,
+  "selectable": 0,
+  "core_classes_done": 0,
+  "core_class_hist": {},
+  "primary_atom_hist": {},
+  "seed_topologies": 0,
+  "seeds_used": 0
+ },
+ "amendment2": {
+  "profile": "rl-v1.1",
+  "t_amend2": "2026-10-01T19:18:56",
+  "bench_end_unchanged": "2026-10-01T22:18:56",
+  "class_rule": "primary_atom",
+  "port_dc": {
+   "archive_dropped_prefilter_bench": 1415,
+   "archive_dropped_prefilter_train": 267,
+   "archive_kept_bench": 1027,
+   "archive_kept_train": 597,
+   "behavioural_checks": 38,
+   "cells_replanted_void_prekill": 1,
+   "cells_requeue_accepted": 1,
+   "cells_requeue_queued": 1,
+   "cells_revalidate_accepted": 1,
+   "cells_revalidate_started": 1,
+   "cells_revive_accepted": 1,
+   "cells_revive_queued": 1,
+   "cells_revived_f2_kill_void": 1,
+   "cells_tagged_prefilter_accepted": 1,
+   "cells_tagged_prefilter_queued": 1,
+   "derived_rows": 57,
+   "inproc_prefilter_rejects": 17,
+   "pool_designs_pdc_fail": 424,
+   "pool_designs_pdc_ok": 3830,
+   "restored_candidates_bench": 2442,
+   "restored_candidates_train": 864,
+   "rl_v1_feasible_resized": 10,
+   "train_recheck_ok": 2,
+   "train_relabelled_single-edit-solvable->witness-only": 1,
+   "train_tagged_prefilter_library-solvable": 1,
+   "gen_rejects_prefilter": {
+    "bench": 2,
+    "train": 6
+   },
+   "cells_by_action_outcome": {
+    "tag:amend2-port-dc": 2,
+    "revalidate:accepted": 1,
+    "requeue:accepted": 1,
+    "revive:accepted": 1,
+    "replant:cancelled": 1
+   },
+   "cells_tagged": 2,
+   "train_by_action_outcome": {
+    "recheck:ok": 1,
+    "tag:amend2-port-dc": 1,
+    "recheck:ok (relabelled single-edit-solvable -> witness-only)": 1
+   },
+   "train_tagged": 1
+  }
+ },
+ "train": {
+  "tasks": 3,
+  "ok": 2,
+  "labels": {
+   "witness-only": 2
+  },
+  "per_grid": {
+   "wb1020-gain": 1,
+   "nb090-noise": 1
+  },
+  "search_done": true
+ },
+ "eta": {
+  "bench_cells_per_h": 6.082,
+  "bench_eta_h_to_target": 0.0,
+  "bench_elapsed_h_since_amendment": 0.493,
+  "bench_hard_stop_h": 2.5,
+  "train_tasks_per_h": 4.05,
+  "train_eta_h_to_target": 73.5,
+  "total_hard_stop_h": 3.5
+ }
+}

@@ -1,0 +1,2742 @@
+{
+ "note": "AMENDMENT 1 core-fix signatures of the pre-amendment accepted cells (never selectable)",
+ "done": [
+  "v2-wb0530-noise-009",
+  "v2-wb0530-noise-026",
+  "v2-wb0530-noise-051",
+  "v2-wb0530-noise-141",
+  "v2-wb0530-power-010",
+  "v2-wb0530-power-102",
+  "v2-wb0530-power-144",
+  "v2-wb0824-gain-044",
+  "v2-wb0824-gain-192",
+  "v2-wb1020-noise-033"
+ ],
+ "pending": [],
+ "class_hist": {
+  "add:L:IN-G + add:R:IN-X": 4,
+  "add:C:OUT-X + add:L:IN-G + add:R:IN-X": 1,
+  "add:L:IN-G + add:L:OUT-D + add:R:OUT-D + del:L:X-RAIL": 1,
+  "add:L:IN-G + add:L:OUT-D + add:NMOS:dRAIL.gD.sOUT + del:L:X-RAIL": 1,
+  "add:L:IN-G + add:PMOS:dG.gX.sOUT + del:L:X-RAIL + rw:R:p:D>OUT": 1,
+  "add:L:IN-G + add:NMOS:dG.gG.sIN": 1,
+  "add:L:OUT-D + add:PMOS:dRAIL.gOUT.sIN + add:R:OUT-D": 1
+ },
+ "primary_atom_hist": {
+  "add:L:IN-G": 6,
+  "del:L:X-RAIL": 2,
+  "add:L:OUT-D": 2
+ },
+ "atom_prevalence": {
+  "add:L:IN-G": {
+   "n": 9,
+   "frac": 0.9
+  },
+  "add:R:IN-X": {
+   "n": 5,
+   "frac": 0.5
+  },
+  "add:L:OUT-D": {
+   "n": 3,
+   "frac": 0.3
+  },
+  "del:L:X-RAIL": {
+   "n": 3,
+   "frac": 0.3
+  },
+  "add:R:OUT-D": {
+   "n": 2,
+   "frac": 0.2
+  },
+  "add:C:OUT-X": {
+   "n": 1,
+   "frac": 0.1
+  },
+  "add:NMOS:dG.gG.sIN": {
+   "n": 1,
+   "frac": 0.1
+  },
+  "add:NMOS:dRAIL.gD.sOUT": {
+   "n": 1,
+   "frac": 0.1
+  },
+  "add:PMOS:dG.gX.sOUT": {
+   "n": 1,
+   "frac": 0.1
+  },
+  "add:PMOS:dRAIL.gOUT.sIN": {
+   "n": 1,
+   "frac": 0.1
+  },
+  "rw:R:p:D>OUT": {
+   "n": 1,
+   "frac": 0.1
+  }
+ },
+ "cells": {
+  "v2-wb0530-power-010": {
+   "anchor": "a3",
+   "band": "wb0530",
+   "old_class": "L-match",
+   "limits": {
+    "nf_max_db": 2.8974,
+    "s11_max_db": -7.8447,
+    "s21_db": 7.8827,
+    "s21_ripple_db": 1.7236,
+    "idd_ma": 4.2966
+   },
+   "floor_violations": [
+    [
+     "s11_max_db",
+     -7.8447,
+     -9.0
+    ],
+    [
+     "s21_db",
+     7.8827,
+     10.0
+    ]
+   ],
+   "inert_groups": [
+    3
+   ],
+   "inert_toknames": [
+    "R4"
+   ],
+   "atoms": [
+    [
+     0,
+     "add:L:IN-G"
+    ],
+    [
+     2,
+     "add:R:IN-X"
+    ],
+    [
+     3,
+     "add:R:RAIL-RAIL"
+    ]
+   ],
+   "drop_one": [
+    [
+     0,
+     {
+      "essential": true,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "5504506266ef5d8e65d0",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "929854b154ad1446ddf6",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     2,
+     {
+      "essential": true,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "35a372cbbb3d77cc6339",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "879134db196c2c0207a0",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     3,
+     {
+      "essential": false,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "548865b49025b64e9136",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "5bc51bf94e2b6cef930b",
+        "feasible": true
+       }
+      ]
+     }
+    ]
+   ],
+   "greedy": [
+    {
+     "drop": 3,
+     "from": [
+      0,
+      2,
+      3
+     ],
+     "feasible": true,
+     "why": null
+    },
+    {
+     "drop": 0,
+     "from": [
+      0,
+      2
+     ],
+     "feasible": false,
+     "why": null
+    },
+    {
+     "drop": 2,
+     "from": [
+      0,
+      2
+     ],
+     "feasible": false,
+     "why": null
+    }
+   ],
+   "essential_drop_one": [
+    0,
+    2
+   ],
+   "core_groups": [
+    0,
+    2
+   ],
+   "sig_groups": [
+    0,
+    2
+   ],
+   "signature": "add:L:IN-G + add:R:IN-X",
+   "primary_atom": "add:L:IN-G",
+   "primary": {
+    "atom": "add:L:IN-G",
+    "grp": 0,
+    "loss": 0.275013,
+    "ranking": [
+     [
+      0.275013,
+      "add:L:IN-G",
+      0
+     ],
+     [
+      0.122765,
+      "add:R:IN-X",
+      2
+     ]
+    ]
+   },
+   "core_drop": [
+    [
+     0,
+     {
+      "valid": true,
+      "why": null,
+      "feasible": false,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "6c1d0ac1ed73cc00b465",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "0d97a7fca103a0cf32ec",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     2,
+     {
+      "valid": true,
+      "why": null,
+      "feasible": false,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "bb02fa167238b0f8413a",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "9ed80ef33dd4bd557012",
+        "feasible": false
+       }
+      ]
+     }
+    ]
+   ],
+   "legacy_class": "L-match",
+   "legacy_label": "L-match",
+   "legacy_edit_labels": [
+    {
+     "op": "add",
+     "name": "ZL1",
+     "label": "L-match",
+     "tok": "L2",
+     "inert": false
+    },
+    {
+     "op": "add",
+     "name": "ZR1",
+     "label": "input-match",
+     "tok": "R3",
+     "inert": false
+    }
+   ],
+   "flags": [],
+   "strip": {
+    "attempted": true,
+    "A1": [
+     {
+      "seed": 1,
+      "jid": "548865b49025b64e9136",
+      "feasible": false
+     },
+     {
+      "seed": 2,
+      "jid": "5bc51bf94e2b6cef930b",
+      "feasible": true
+     },
+     {
+      "seed": 3,
+      "jid": "37455ecb18c6ecd4802a",
+      "feasible": false
+     }
+    ],
+    "A2": [],
+    "A3": [],
+    "passed": false,
+    "n_prims": 2,
+    "wl": "6b092f27aa92c1ff",
+    "tok": "3b8438121dcf610d",
+    "flag": "strip_failed_reverify(original kept)"
+   }
+  },
+  "v2-wb0530-noise-009": {
+   "anchor": "a3",
+   "band": "wb0530",
+   "old_class": "L-match",
+   "limits": {
+    "nf_max_db": 2.6838,
+    "s11_max_db": -7.844,
+    "s21_db": 8.8315,
+    "s21_ripple_db": 2.4089,
+    "idd_ma": 6.4624
+   },
+   "floor_violations": [
+    [
+     "s11_max_db",
+     -7.844,
+     -9.0
+    ],
+    [
+     "s21_db",
+     8.8315,
+     10.0
+    ]
+   ],
+   "inert_groups": [],
+   "inert_toknames": [],
+   "atoms": [
+    [
+     0,
+     "add:L:IN-G"
+    ],
+    [
+     1,
+     "del:L:X-RAIL"
+    ],
+    [
+     2,
+     "add:R:IN-X"
+    ]
+   ],
+   "drop_one": [
+    [
+     0,
+     {
+      "essential": true,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "7349e93b569c958d62da",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "6d7250ad67ba4d49b2a1",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     1,
+     {
+      "essential": false,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "1a90e571cd7cea220b4f",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "b55b82bbda519a0c9681",
+        "feasible": true
+       }
+      ]
+     }
+    ],
+    [
+     2,
+     {
+      "essential": true,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "81d08af313a8eec469d0",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "7c379b5f89585bfe6c62",
+        "feasible": false
+       }
+      ]
+     }
+    ]
+   ],
+   "greedy": [
+    {
+     "drop": 1,
+     "from": [
+      0,
+      1,
+      2
+     ],
+     "feasible": true,
+     "why": null
+    },
+    {
+     "drop": 0,
+     "from": [
+      0,
+      2
+     ],
+     "feasible": false,
+     "why": null
+    },
+    {
+     "drop": 2,
+     "from": [
+      0,
+      2
+     ],
+     "feasible": false,
+     "why": null
+    }
+   ],
+   "essential_drop_one": [
+    0,
+    2
+   ],
+   "core_groups": [
+    0,
+    2
+   ],
+   "sig_groups": [
+    0,
+    2
+   ],
+   "signature": "add:L:IN-G + add:R:IN-X",
+   "primary_atom": "add:L:IN-G",
+   "primary": {
+    "atom": "add:L:IN-G",
+    "grp": 0,
+    "loss": 0.263874,
+    "ranking": [
+     [
+      0.263874,
+      "add:L:IN-G",
+      0
+     ],
+     [
+      0.144092,
+      "add:R:IN-X",
+      2
+     ]
+    ]
+   },
+   "core_drop": [
+    [
+     0,
+     {
+      "valid": true,
+      "why": null,
+      "feasible": false,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "907c6103581ade8ad542",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "56a1a5ac20a4c3d633f3",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     2,
+     {
+      "valid": true,
+      "why": null,
+      "feasible": false,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "dc7252d4fe278c567fe8",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "3b625ef095fa844d9b77",
+        "feasible": false
+       }
+      ]
+     }
+    ]
+   ],
+   "legacy_class": "L-match",
+   "legacy_label": "L-match",
+   "legacy_edit_labels": [
+    {
+     "op": "add",
+     "name": "ZL1",
+     "label": "L-match",
+     "tok": "L1",
+     "inert": false
+    },
+    {
+     "op": "add",
+     "name": "ZR1",
+     "label": "input-match",
+     "tok": "R3",
+     "inert": false
+    }
+   ],
+   "flags": [],
+   "strip": {
+    "attempted": true,
+    "A1": [
+     {
+      "seed": 1,
+      "jid": "1a90e571cd7cea220b4f",
+      "feasible": false
+     },
+     {
+      "seed": 2,
+      "jid": "b55b82bbda519a0c9681",
+      "feasible": true
+     },
+     {
+      "seed": 3,
+      "jid": "a6620e7b84e383ca6db8",
+      "feasible": false
+     }
+    ],
+    "A2": [],
+    "A3": [],
+    "passed": false,
+    "n_prims": 2,
+    "wl": "6b092f27aa92c1ff",
+    "tok": "3b8438121dcf610d",
+    "flag": "strip_failed_reverify(original kept)"
+   }
+  },
+  "v2-wb1020-noise-033": {
+   "anchor": "a3",
+   "band": "wb1020",
+   "old_class": "L-match",
+   "limits": {
+    "nf_max_db": 1.6784,
+    "s11_max_db": -7.846,
+    "s21_db": 9.7555,
+    "s21_ripple_db": 0.3145,
+    "idd_ma": 7.397
+   },
+   "floor_violations": [
+    [
+     "s11_max_db",
+     -7.846,
+     -9.0
+    ],
+    [
+     "s21_db",
+     9.7555,
+     10.0
+    ]
+   ],
+   "inert_groups": [],
+   "inert_toknames": [],
+   "atoms": [
+    [
+     0,
+     "add:L:IN-G"
+    ],
+    [
+     2,
+     "add:R:IN-X"
+    ],
+    [
+     3,
+     "add:C:OUT-X"
+    ]
+   ],
+   "drop_one": [
+    [
+     0,
+     {
+      "essential": true,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "0455dc128a6a6214eb83",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "2a588717d26dee8f1abe",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     2,
+     {
+      "essential": true,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "c964c903c61484e8b5a6",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "3923bf8e15a93f16a46a",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     3,
+     {
+      "essential": true,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "6022d460128bd3bf737a",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "e5ac5521a0772c12c742",
+        "feasible": false
+       }
+      ]
+     }
+    ]
+   ],
+   "greedy": [],
+   "essential_drop_one": [
+    0,
+    2,
+    3
+   ],
+   "core_groups": [
+    0,
+    2,
+    3
+   ],
+   "sig_groups": [
+    0,
+    2,
+    3
+   ],
+   "signature": "add:C:OUT-X + add:L:IN-G + add:R:IN-X",
+   "primary_atom": "add:L:IN-G",
+   "primary": {
+    "atom": "add:L:IN-G",
+    "grp": 0,
+    "loss": 0.247515,
+    "ranking": [
+     [
+      0.247515,
+      "add:L:IN-G",
+      0
+     ],
+     [
+      0.164381,
+      "add:C:OUT-X",
+      3
+     ],
+     [
+      0.1296,
+      "add:R:IN-X",
+      2
+     ]
+    ]
+   },
+   "core_drop": [
+    [
+     0,
+     {
+      "valid": true,
+      "why": null,
+      "feasible": false,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "0455dc128a6a6214eb83",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "2a588717d26dee8f1abe",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     2,
+     {
+      "valid": true,
+      "why": null,
+      "feasible": false,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "c964c903c61484e8b5a6",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "3923bf8e15a93f16a46a",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     3,
+     {
+      "valid": true,
+      "why": null,
+      "feasible": false,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "6022d460128bd3bf737a",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "e5ac5521a0772c12c742",
+        "feasible": false
+       }
+      ]
+     }
+    ]
+   ],
+   "legacy_class": "L-match",
+   "legacy_label": "L-match",
+   "legacy_edit_labels": [
+    {
+     "op": "add",
+     "name": "ZL1",
+     "label": "L-match",
+     "tok": "L2",
+     "inert": false
+    },
+    {
+     "op": "add",
+     "name": "ZR1",
+     "label": "input-match",
+     "tok": "R3",
+     "inert": false
+    },
+    {
+     "op": "add",
+     "name": "ZC1",
+     "label": "input-match",
+     "tok": "C3",
+     "inert": false
+    }
+   ],
+   "flags": [],
+   "strip": {
+    "attempted": false,
+    "flag": "nothing_to_strip"
+   }
+  },
+  "v2-wb0530-noise-026": {
+   "anchor": "a3",
+   "band": "wb0530",
+   "old_class": "L-match",
+   "limits": {
+    "nf_max_db": 1.6999,
+    "s11_max_db": -7.8431,
+    "s21_db": 10.3252,
+    "s21_ripple_db": 0.7937,
+    "idd_ma": 7.5821
+   },
+   "floor_violations": [
+    [
+     "s11_max_db",
+     -7.8431,
+     -9.0
+    ]
+   ],
+   "inert_groups": [],
+   "inert_toknames": [
+    "C2"
+   ],
+   "atoms": [
+    [
+     0,
+     "add:L:IN-G"
+    ],
+    [
+     1,
+     "del:L:X-RAIL"
+    ],
+    [
+     3,
+     "add:R:OUT-D"
+    ],
+    [
+     4,
+     "add:L:OUT-D"
+    ]
+   ],
+   "drop_one": [
+    [
+     0,
+     {
+      "essential": true,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "a44f8908ccc1ef35a611",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "40e803bb8a1add477f5a",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     1,
+     {
+      "essential": true,
+      "valid": false,
+      "why": "verifier_prescreen",
+      "runs": []
+     }
+    ],
+    [
+     3,
+     {
+      "essential": true,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "d3bba4d11aa706f21516",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "3327232168c7c48d5f3e",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     4,
+     {
+      "essential": true,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "693dd4687c68d5c3cdea",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "73356beee66643f80c44",
+        "feasible": false
+       }
+      ]
+     }
+    ]
+   ],
+   "greedy": [],
+   "essential_drop_one": [
+    0,
+    1,
+    3,
+    4
+   ],
+   "core_groups": [
+    0,
+    1,
+    3,
+    4
+   ],
+   "sig_groups": [
+    0,
+    1,
+    3,
+    4
+   ],
+   "signature": "add:L:IN-G + add:L:OUT-D + add:R:OUT-D + del:L:X-RAIL",
+   "primary_atom": "del:L:X-RAIL",
+   "primary": {
+    "atom": "del:L:X-RAIL",
+    "grp": 1,
+    "loss": 1000000000.0,
+    "ranking": [
+     [
+      1000000000.0,
+      "del:L:X-RAIL",
+      1
+     ],
+     [
+      0.569475,
+      "add:L:IN-G",
+      0
+     ],
+     [
+      0.405091,
+      "add:L:OUT-D",
+      4
+     ],
+     [
+      0.026982,
+      "add:R:OUT-D",
+      3
+     ]
+    ]
+   },
+   "core_drop": [
+    [
+     0,
+     {
+      "valid": true,
+      "why": null,
+      "feasible": false,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "a44f8908ccc1ef35a611",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "40e803bb8a1add477f5a",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     1,
+     {
+      "valid": false,
+      "why": "verifier_prescreen",
+      "feasible": false,
+      "runs": []
+     }
+    ],
+    [
+     3,
+     {
+      "valid": true,
+      "why": null,
+      "feasible": false,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "d3bba4d11aa706f21516",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "3327232168c7c48d5f3e",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     4,
+     {
+      "valid": true,
+      "why": null,
+      "feasible": false,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "693dd4687c68d5c3cdea",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "73356beee66643f80c44",
+        "feasible": false
+       }
+      ]
+     }
+    ]
+   ],
+   "legacy_class": "L-match",
+   "legacy_label": "L-match",
+   "legacy_edit_labels": [
+    {
+     "op": "add",
+     "name": "ZL1",
+     "label": "L-match",
+     "tok": "L1",
+     "inert": false
+    },
+    {
+     "op": "del",
+     "name": "L1",
+     "label": "removal"
+    },
+    {
+     "op": "add",
+     "name": "ZR2",
+     "label": "input-match",
+     "tok": "R2",
+     "inert": false
+    },
+    {
+     "op": "add",
+     "name": "ZL2",
+     "label": "L-match",
+     "tok": "L2",
+     "inert": false
+    }
+   ],
+   "flags": [],
+   "strip": {
+    "attempted": false,
+    "flag": "nothing_to_strip"
+   }
+  },
+  "v2-wb0824-gain-044": {
+   "anchor": "a3",
+   "band": "wb0824",
+   "old_class": "L-match",
+   "limits": {
+    "nf_max_db": 3.0324,
+    "s11_max_db": -7.8449,
+    "s21_db": 10.4533,
+    "s21_ripple_db": 1.5344,
+    "idd_ma": 8.0181
+   },
+   "floor_violations": [
+    [
+     "s11_max_db",
+     -7.8449,
+     -9.0
+    ]
+   ],
+   "inert_groups": [],
+   "inert_toknames": [],
+   "atoms": [
+    [
+     0,
+     "add:L:IN-G"
+    ],
+    [
+     2,
+     "add:R:IN-X"
+    ],
+    [
+     4,
+     "add:NMOS:dD.gD.sRAIL"
+    ]
+   ],
+   "drop_one": [
+    [
+     0,
+     {
+      "essential": true,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "571f99f1540caad25a95",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "7f385b2c57c3e23a2fa7",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     2,
+     {
+      "essential": true,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "4962b2710bb9629b9e4f",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "1c34cad43c3a7f975610",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     4,
+     {
+      "essential": false,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "7e98ef876c3c51cadfc6",
+        "feasible": true
+       }
+      ]
+     }
+    ]
+   ],
+   "greedy": [
+    {
+     "drop": 4,
+     "from": [
+      0,
+      2,
+      4
+     ],
+     "feasible": true,
+     "why": null
+    },
+    {
+     "drop": 0,
+     "from": [
+      0,
+      2
+     ],
+     "feasible": false,
+     "why": null
+    },
+    {
+     "drop": 2,
+     "from": [
+      0,
+      2
+     ],
+     "feasible": false,
+     "why": null
+    }
+   ],
+   "essential_drop_one": [
+    0,
+    2
+   ],
+   "core_groups": [
+    0,
+    2
+   ],
+   "sig_groups": [
+    0,
+    2
+   ],
+   "signature": "add:L:IN-G + add:R:IN-X",
+   "primary_atom": "add:L:IN-G",
+   "primary": {
+    "atom": "add:L:IN-G",
+    "grp": 0,
+    "loss": 0.223589,
+    "ranking": [
+     [
+      0.223589,
+      "add:L:IN-G",
+      0
+     ],
+     [
+      0.175389,
+      "add:R:IN-X",
+      2
+     ]
+    ]
+   },
+   "core_drop": [
+    [
+     0,
+     {
+      "valid": true,
+      "why": null,
+      "feasible": false,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "3a01eeb731c3a7240452",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "08452f39eb08e4ac4e1a",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     2,
+     {
+      "valid": true,
+      "why": null,
+      "feasible": false,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "f398e6a8c8d8218d4ae1",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "df8c99a9ef9cc82d5c80",
+        "feasible": false
+       }
+      ]
+     }
+    ]
+   ],
+   "legacy_class": "L-match",
+   "legacy_label": "L-match",
+   "legacy_edit_labels": [
+    {
+     "op": "add",
+     "name": "ZL1",
+     "label": "L-match",
+     "tok": "L2",
+     "inert": false
+    },
+    {
+     "op": "add",
+     "name": "ZR1",
+     "label": "input-match",
+     "tok": "R3",
+     "inert": false
+    }
+   ],
+   "flags": [],
+   "strip": {
+    "attempted": true,
+    "A1": [
+     {
+      "seed": 1,
+      "jid": "7e98ef876c3c51cadfc6",
+      "feasible": true
+     },
+     {
+      "seed": 2,
+      "jid": "397639b0806e51755b63",
+      "feasible": true
+     }
+    ],
+    "A2": [
+     {
+      "seed": 1,
+      "jid": "bb375d6737a00ec9ccf6",
+      "feasible": true
+     }
+    ],
+    "A3": [
+     {
+      "seed": 4,
+      "jid": "8648863775e9ee424c03",
+      "feasible": true
+     }
+    ],
+    "passed": true,
+    "n_prims": 2,
+    "wl": "6b092f27aa92c1ff",
+    "tok": "3b8438121dcf610d",
+    "flag": "stripped"
+   }
+  },
+  "v2-wb0530-noise-051": {
+   "anchor": "a3",
+   "band": "wb0530",
+   "old_class": "current-reuse",
+   "limits": {
+    "nf_max_db": 3.1646,
+    "s11_max_db": -7.847,
+    "s21_db": 9.346,
+    "s21_ripple_db": 2.2384,
+    "idd_ma": 7.4512
+   },
+   "floor_violations": [
+    [
+     "s11_max_db",
+     -7.847,
+     -9.0
+    ],
+    [
+     "s21_db",
+     9.346,
+     10.0
+    ]
+   ],
+   "inert_groups": [
+    3
+   ],
+   "inert_toknames": [
+    "R4"
+   ],
+   "atoms": [
+    [
+     0,
+     "add:L:IN-G"
+    ],
+    [
+     2,
+     "add:R:IN-X"
+    ],
+    [
+     3,
+     "add:R:RAIL-RAIL"
+    ],
+    [
+     5,
+     "add:PMOS:dD.gG.sRAIL"
+    ]
+   ],
+   "drop_one": [
+    [
+     0,
+     {
+      "essential": true,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "6513ae1a55bc78749bba",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "780b5a424659e61a19e4",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     2,
+     {
+      "essential": true,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "22ca27754b0f8034c6de",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "b68056fcc0ca7631b3fd",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     3,
+     {
+      "essential": false,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "b1043d1ef204f325ea20",
+        "feasible": true
+       }
+      ]
+     }
+    ],
+    [
+     5,
+     {
+      "essential": false,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "73512f2ef830d54e8848",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "8e0c0e95e0397eeed714",
+        "feasible": true
+       }
+      ]
+     }
+    ]
+   ],
+   "greedy": [
+    {
+     "drop": 3,
+     "from": [
+      0,
+      2,
+      3,
+      5
+     ],
+     "feasible": true,
+     "why": null
+    },
+    {
+     "drop": 5,
+     "from": [
+      0,
+      2,
+      5
+     ],
+     "feasible": true,
+     "why": null
+    },
+    {
+     "drop": 0,
+     "from": [
+      0,
+      2
+     ],
+     "feasible": false,
+     "why": null
+    },
+    {
+     "drop": 2,
+     "from": [
+      0,
+      2
+     ],
+     "feasible": false,
+     "why": null
+    }
+   ],
+   "essential_drop_one": [
+    0,
+    2
+   ],
+   "core_groups": [
+    0,
+    2
+   ],
+   "sig_groups": [
+    0,
+    2
+   ],
+   "signature": "add:L:IN-G + add:R:IN-X",
+   "primary_atom": "add:L:IN-G",
+   "primary": {
+    "atom": "add:L:IN-G",
+    "grp": 0,
+    "loss": 0.234819,
+    "ranking": [
+     [
+      0.234819,
+      "add:L:IN-G",
+      0
+     ],
+     [
+      0.144214,
+      "add:R:IN-X",
+      2
+     ]
+    ]
+   },
+   "core_drop": [
+    [
+     0,
+     {
+      "valid": true,
+      "why": null,
+      "feasible": false,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "d67d55c546295c65fec0",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "7df79b394bc53634eeb8",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     2,
+     {
+      "valid": true,
+      "why": null,
+      "feasible": false,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "7fcaa8526d30b0737af7",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "e641893fc6572bbe67cf",
+        "feasible": false
+       }
+      ]
+     }
+    ]
+   ],
+   "legacy_class": "L-match",
+   "legacy_label": "L-match",
+   "legacy_edit_labels": [
+    {
+     "op": "add",
+     "name": "ZL1",
+     "label": "L-match",
+     "tok": "L2",
+     "inert": false
+    },
+    {
+     "op": "add",
+     "name": "ZR1",
+     "label": "input-match",
+     "tok": "R3",
+     "inert": false
+    }
+   ],
+   "flags": [],
+   "strip": {
+    "attempted": true,
+    "A1": [
+     {
+      "seed": 1,
+      "jid": "cf241ca16e74efeb6c0c",
+      "feasible": false
+     },
+     {
+      "seed": 2,
+      "jid": "67517e49179fbcdac494",
+      "feasible": true
+     },
+     {
+      "seed": 3,
+      "jid": "ad10eb9f9f13526e9336",
+      "feasible": false
+     }
+    ],
+    "A2": [],
+    "A3": [],
+    "passed": false,
+    "n_prims": 2,
+    "wl": "6b092f27aa92c1ff",
+    "tok": "3b8438121dcf610d",
+    "flag": "strip_failed_reverify(original kept)"
+   }
+  },
+  "v2-wb0530-noise-141": {
+   "anchor": "a3",
+   "band": "wb0530",
+   "old_class": "other",
+   "limits": {
+    "nf_max_db": 2.3719,
+    "s11_max_db": -7.8518,
+    "s21_db": 7.8514,
+    "s21_ripple_db": 0.9402,
+    "idd_ma": 10.5738
+   },
+   "floor_violations": [
+    [
+     "s11_max_db",
+     -7.8518,
+     -9.0
+    ],
+    [
+     "s21_db",
+     7.8514,
+     10.0
+    ]
+   ],
+   "inert_groups": [],
+   "inert_toknames": [],
+   "atoms": [
+    [
+     0,
+     "add:L:IN-G"
+    ],
+    [
+     1,
+     "del:L:X-RAIL"
+    ],
+    [
+     4,
+     "add:L:OUT-D"
+    ],
+    [
+     5,
+     "add:NMOS:dRAIL.gD.sOUT"
+    ]
+   ],
+   "drop_one": [
+    [
+     0,
+     {
+      "essential": true,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "e28aba530cf5691952e4",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "f498ca037c91805af0c3",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     1,
+     {
+      "essential": true,
+      "valid": false,
+      "why": "verifier_prescreen",
+      "runs": []
+     }
+    ],
+    [
+     4,
+     {
+      "essential": true,
+      "valid": false,
+      "why": "repair:no_dc_path",
+      "runs": []
+     }
+    ],
+    [
+     5,
+     {
+      "essential": true,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "8b4146fa5175282936d8",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "648e6260332d8953974a",
+        "feasible": false
+       }
+      ]
+     }
+    ]
+   ],
+   "greedy": [],
+   "essential_drop_one": [
+    0,
+    1,
+    4,
+    5
+   ],
+   "core_groups": [
+    0,
+    1,
+    4,
+    5
+   ],
+   "sig_groups": [
+    0,
+    1,
+    4,
+    5
+   ],
+   "signature": "add:L:IN-G + add:L:OUT-D + add:NMOS:dRAIL.gD.sOUT + del:L:X-RAIL",
+   "primary_atom": "add:L:OUT-D",
+   "primary": {
+    "atom": "add:L:OUT-D",
+    "grp": 4,
+    "loss": 1000000000.0,
+    "ranking": [
+     [
+      1000000000.0,
+      "add:L:OUT-D",
+      4
+     ],
+     [
+      1000000000.0,
+      "del:L:X-RAIL",
+      1
+     ],
+     [
+      0.235016,
+      "add:L:IN-G",
+      0
+     ],
+     [
+      0.017118,
+      "add:NMOS:dRAIL.gD.sOUT",
+      5
+     ]
+    ]
+   },
+   "core_drop": [
+    [
+     0,
+     {
+      "valid": true,
+      "why": null,
+      "feasible": false,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "e28aba530cf5691952e4",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "f498ca037c91805af0c3",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     1,
+     {
+      "valid": false,
+      "why": "verifier_prescreen",
+      "feasible": false,
+      "runs": []
+     }
+    ],
+    [
+     4,
+     {
+      "valid": false,
+      "why": "repair:no_dc_path",
+      "feasible": false,
+      "runs": []
+     }
+    ],
+    [
+     5,
+     {
+      "valid": true,
+      "why": null,
+      "feasible": false,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "8b4146fa5175282936d8",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "648e6260332d8953974a",
+        "feasible": false
+       }
+      ]
+     }
+    ]
+   ],
+   "legacy_class": "other",
+   "legacy_label": "cg-input",
+   "legacy_edit_labels": [
+    {
+     "op": "add",
+     "name": "ZL1",
+     "label": "L-match",
+     "tok": "L1",
+     "inert": false
+    },
+    {
+     "op": "del",
+     "name": "L1",
+     "label": "removal"
+    },
+    {
+     "op": "add",
+     "name": "ZL2",
+     "label": "L-match",
+     "tok": "L2",
+     "inert": false
+    },
+    {
+     "op": "add",
+     "name": "ZN1",
+     "label": "cg-input",
+     "tok": "NM2",
+     "inert": false
+    }
+   ],
+   "flags": [],
+   "strip": {
+    "attempted": false,
+    "flag": "nothing_to_strip"
+   }
+  },
+  "v2-wb0530-power-144": {
+   "anchor": "a3",
+   "band": "wb0530",
+   "old_class": "added-stage",
+   "limits": {
+    "nf_max_db": 2.6508,
+    "s11_max_db": -7.8433,
+    "s21_db": 8.2051,
+    "s21_ripple_db": 1.8201,
+    "idd_ma": 4.7977
+   },
+   "floor_violations": [
+    [
+     "s11_max_db",
+     -7.8433,
+     -9.0
+    ],
+    [
+     "s21_db",
+     8.2051,
+     10.0
+    ]
+   ],
+   "inert_groups": [],
+   "inert_toknames": [],
+   "atoms": [
+    [
+     0,
+     "add:L:IN-G"
+    ],
+    [
+     1,
+     "del:L:X-RAIL"
+    ],
+    [
+     5,
+     "add:PMOS:dG.gX.sOUT"
+    ],
+    [
+     6,
+     "rw:R:p:D>OUT"
+    ]
+   ],
+   "drop_one": [
+    [
+     0,
+     {
+      "essential": true,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "e670fe6e0c9e1f4b6dd4",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "276a9457ad41a9b5d56a",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     1,
+     {
+      "essential": true,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "2d752fb5c30e5b15e80f",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "316d6319f64a04ab9417",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     5,
+     {
+      "essential": true,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "d45172be77905a45039b",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "e5e150d8ddf66f8aef81",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     6,
+     {
+      "essential": true,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "7a9f7dd98706f5bf9242",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "2cc20b32f0079eb8653e",
+        "feasible": false
+       }
+      ]
+     }
+    ]
+   ],
+   "greedy": [],
+   "essential_drop_one": [
+    0,
+    1,
+    5,
+    6
+   ],
+   "core_groups": [
+    0,
+    1,
+    5,
+    6
+   ],
+   "sig_groups": [
+    0,
+    1,
+    5,
+    6
+   ],
+   "signature": "add:L:IN-G + add:PMOS:dG.gX.sOUT + del:L:X-RAIL + rw:R:p:D>OUT",
+   "primary_atom": "del:L:X-RAIL",
+   "primary": {
+    "atom": "del:L:X-RAIL",
+    "grp": 1,
+    "loss": 2.631073,
+    "ranking": [
+     [
+      2.631073,
+      "del:L:X-RAIL",
+      1
+     ],
+     [
+      0.369253,
+      "add:L:IN-G",
+      0
+     ],
+     [
+      0.125509,
+      "add:PMOS:dG.gX.sOUT",
+      5
+     ],
+     [
+      0.124943,
+      "rw:R:p:D>OUT",
+      6
+     ]
+    ]
+   },
+   "core_drop": [
+    [
+     0,
+     {
+      "valid": true,
+      "why": null,
+      "feasible": false,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "e670fe6e0c9e1f4b6dd4",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "276a9457ad41a9b5d56a",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     1,
+     {
+      "valid": true,
+      "why": null,
+      "feasible": false,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "2d752fb5c30e5b15e80f",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "316d6319f64a04ab9417",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     5,
+     {
+      "valid": true,
+      "why": null,
+      "feasible": false,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "d45172be77905a45039b",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "e5e150d8ddf66f8aef81",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     6,
+     {
+      "valid": true,
+      "why": null,
+      "feasible": false,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "7a9f7dd98706f5bf9242",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "2cc20b32f0079eb8653e",
+        "feasible": false
+       }
+      ]
+     }
+    ]
+   ],
+   "legacy_class": "added-stage",
+   "legacy_label": "gm-boost",
+   "legacy_edit_labels": [
+    {
+     "op": "add",
+     "name": "ZL1",
+     "label": "L-match",
+     "tok": "L1",
+     "inert": false
+    },
+    {
+     "op": "del",
+     "name": "L1",
+     "label": "removal"
+    },
+    {
+     "op": "add",
+     "name": "ZP1",
+     "label": "gm-boost",
+     "tok": "PM1",
+     "inert": false
+    },
+    {
+     "op": "rw",
+     "name": "R2",
+     "label": "input-match",
+     "tok": "R2",
+     "inert": false
+    }
+   ],
+   "flags": [],
+   "strip": {
+    "attempted": false,
+    "flag": "nothing_to_strip"
+   }
+  },
+  "v2-wb0530-power-102": {
+   "anchor": "a3",
+   "band": "wb0530",
+   "old_class": "added-stage",
+   "limits": {
+    "nf_max_db": 2.9724,
+    "s11_max_db": -7.8435,
+    "s21_db": 7.8517,
+    "s21_ripple_db": 2.0414,
+    "idd_ma": 4.3026
+   },
+   "floor_violations": [
+    [
+     "s11_max_db",
+     -7.8435,
+     -9.0
+    ],
+    [
+     "s21_db",
+     7.8517,
+     10.0
+    ]
+   ],
+   "inert_groups": [],
+   "inert_toknames": [],
+   "atoms": [
+    [
+     0,
+     "add:L:IN-G"
+    ],
+    [
+     2,
+     "add:R:IN-X"
+    ],
+    [
+     3,
+     "add:NMOS:dG.gG.sIN"
+    ]
+   ],
+   "drop_one": [
+    [
+     0,
+     {
+      "essential": true,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "cec09417246ebebf3c64",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "f93bd348527ed0617e02",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     2,
+     {
+      "essential": false,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "8376577d736576db53fa",
+        "feasible": true
+       }
+      ]
+     }
+    ],
+    [
+     3,
+     {
+      "essential": false,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "9b5544335b6241ff1b4b",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "41778364a48d22d51f78",
+        "feasible": true
+       }
+      ]
+     }
+    ]
+   ],
+   "greedy": [
+    {
+     "drop": 2,
+     "from": [
+      0,
+      2,
+      3
+     ],
+     "feasible": true,
+     "why": null
+    },
+    {
+     "drop": 3,
+     "from": [
+      0,
+      3
+     ],
+     "feasible": false,
+     "why": null
+    },
+    {
+     "drop": 0,
+     "from": [
+      0,
+      3
+     ],
+     "feasible": false,
+     "why": null
+    }
+   ],
+   "essential_drop_one": [
+    0
+   ],
+   "core_groups": [
+    0,
+    3
+   ],
+   "sig_groups": [
+    0,
+    3
+   ],
+   "signature": "add:L:IN-G + add:NMOS:dG.gG.sIN",
+   "primary_atom": "add:L:IN-G",
+   "primary": {
+    "atom": "add:L:IN-G",
+    "grp": 0,
+    "loss": 0.269627,
+    "ranking": [
+     [
+      0.269627,
+      "add:L:IN-G",
+      0
+     ],
+     [
+      0.118486,
+      "add:NMOS:dG.gG.sIN",
+      3
+     ]
+    ]
+   },
+   "core_drop": [
+    [
+     0,
+     {
+      "valid": true,
+      "why": null,
+      "feasible": false,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "46e13adfe48d5d22718c",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "6108f0b541b931cd16ff",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     3,
+     {
+      "valid": true,
+      "why": null,
+      "feasible": false,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "e8083ad4dd2fba4faf48",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "1cd874ae78f7661b2c3c",
+        "feasible": false
+       }
+      ]
+     }
+    ]
+   ],
+   "legacy_class": "added-stage",
+   "legacy_label": "gm-boost",
+   "legacy_edit_labels": [
+    {
+     "op": "add",
+     "name": "ZL1",
+     "label": "L-match",
+     "tok": "L2",
+     "inert": false
+    },
+    {
+     "op": "add",
+     "name": "ZN1",
+     "label": "gm-boost",
+     "tok": "NM2",
+     "inert": false
+    }
+   ],
+   "flags": [],
+   "strip": {
+    "attempted": true,
+    "A1": [
+     {
+      "seed": 1,
+      "jid": "8376577d736576db53fa",
+      "feasible": true
+     },
+     {
+      "seed": 2,
+      "jid": "75af90270ae6f68393a3",
+      "feasible": false
+     },
+     {
+      "seed": 3,
+      "jid": "e495508d4fc9320b75cd",
+      "feasible": true
+     }
+    ],
+    "A2": [
+     {
+      "seed": 1,
+      "jid": "a31ed37b54630e21409e",
+      "feasible": true
+     }
+    ],
+    "A3": [
+     {
+      "seed": 4,
+      "jid": "1b403dd20c0b90727df6",
+      "feasible": true
+     }
+    ],
+    "passed": true,
+    "n_prims": 2,
+    "wl": "630c87cc04c87147",
+    "tok": "11fd3304c8f19525",
+    "flag": "stripped"
+   }
+  },
+  "v2-wb0824-gain-192": {
+   "anchor": "a3",
+   "band": "wb0824",
+   "old_class": "other",
+   "limits": {
+    "nf_max_db": 2.3793,
+    "s11_max_db": -7.8567,
+    "s21_db": 8.6084,
+    "s21_ripple_db": 0.324,
+    "idd_ma": 7.8054
+   },
+   "floor_violations": [
+    [
+     "s11_max_db",
+     -7.8567,
+     -9.0
+    ],
+    [
+     "s21_db",
+     8.6084,
+     10.0
+    ]
+   ],
+   "inert_groups": [],
+   "inert_toknames": [],
+   "atoms": [
+    [
+     3,
+     "add:R:OUT-D"
+    ],
+    [
+     4,
+     "add:L:OUT-D"
+    ],
+    [
+     5,
+     "rw:R:p:X>RAIL"
+    ],
+    [
+     6,
+     "add:PMOS:dRAIL.gOUT.sIN"
+    ]
+   ],
+   "drop_one": [
+    [
+     3,
+     {
+      "essential": true,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "6142dcb1cc40e8341fbd",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "d92946f77aca71c3694b",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     4,
+     {
+      "essential": true,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "b84b42d504cd6abbe5b3",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "e73d3baaefacc30ff20e",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     5,
+     {
+      "essential": false,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "c716af012a25440f2e99",
+        "feasible": true
+       }
+      ]
+     }
+    ],
+    [
+     6,
+     {
+      "essential": true,
+      "valid": true,
+      "why": null,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "201d39b333456d0b0ac4",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "fd26418121f93fafd9de",
+        "feasible": false
+       }
+      ]
+     }
+    ]
+   ],
+   "greedy": [
+    {
+     "drop": 5,
+     "from": [
+      3,
+      4,
+      5,
+      6
+     ],
+     "feasible": true,
+     "why": null
+    },
+    {
+     "drop": 3,
+     "from": [
+      3,
+      4,
+      6
+     ],
+     "feasible": false,
+     "why": null
+    },
+    {
+     "drop": 4,
+     "from": [
+      3,
+      4,
+      6
+     ],
+     "feasible": false,
+     "why": null
+    },
+    {
+     "drop": 6,
+     "from": [
+      3,
+      4,
+      6
+     ],
+     "feasible": false,
+     "why": null
+    }
+   ],
+   "essential_drop_one": [
+    3,
+    4,
+    6
+   ],
+   "core_groups": [
+    3,
+    4,
+    6
+   ],
+   "sig_groups": [
+    3,
+    4,
+    6
+   ],
+   "signature": "add:L:OUT-D + add:PMOS:dRAIL.gOUT.sIN + add:R:OUT-D",
+   "primary_atom": "add:L:OUT-D",
+   "primary": {
+    "atom": "add:L:OUT-D",
+    "grp": 4,
+    "loss": 0.244372,
+    "ranking": [
+     [
+      0.244372,
+      "add:L:OUT-D",
+      4
+     ],
+     [
+      0.184854,
+      "add:R:OUT-D",
+      3
+     ],
+     [
+      0.092968,
+      "add:PMOS:dRAIL.gOUT.sIN",
+      6
+     ]
+    ]
+   },
+   "core_drop": [
+    [
+     3,
+     {
+      "valid": true,
+      "why": null,
+      "feasible": false,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "eaa876a23b5ed71f760e",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "a956313da416335b5860",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     4,
+     {
+      "valid": true,
+      "why": null,
+      "feasible": false,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "ef41f24e1f3d655d0357",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "3c07626f1433bea297b5",
+        "feasible": false
+       }
+      ]
+     }
+    ],
+    [
+     6,
+     {
+      "valid": true,
+      "why": null,
+      "feasible": false,
+      "runs": [
+       {
+        "seed": 1,
+        "jid": "f2b6fb28014af3c9298f",
+        "feasible": false
+       },
+       {
+        "seed": 2,
+        "jid": "6c7b2156a06bb9a760e4",
+        "feasible": false
+       }
+      ]
+     }
+    ]
+   ],
+   "legacy_class": "other",
+   "legacy_label": "cg-input",
+   "legacy_edit_labels": [
+    {
+     "op": "add",
+     "name": "ZR2",
+     "label": "input-match",
+     "tok": "R3",
+     "inert": false
+    },
+    {
+     "op": "add",
+     "name": "ZL2",
+     "label": "L-match",
+     "tok": "L1",
+     "inert": false
+    },
+    {
+     "op": "add",
+     "name": "ZP1",
+     "label": "cg-input",
+     "tok": "PM1",
+     "inert": false
+    }
+   ],
+   "flags": [],
+   "strip": {
+    "attempted": true,
+    "A1": [
+     {
+      "seed": 1,
+      "jid": "c716af012a25440f2e99",
+      "feasible": true
+     },
+     {
+      "seed": 2,
+      "jid": "3cc22567b67932e288a5",
+      "feasible": true
+     }
+    ],
+    "A2": [
+     {
+      "seed": 1,
+      "jid": "2ba8bb701a696a211299",
+      "feasible": true
+     }
+    ],
+    "A3": [
+     {
+      "seed": 4,
+      "jid": "aa31d97daac64078982e",
+      "feasible": false
+     },
+     {
+      "seed": 5,
+      "jid": "f4c7dc63bb12aa0059d4",
+      "feasible": true
+     }
+    ],
+    "passed": true,
+    "n_prims": 3,
+    "wl": "422e889a60ad659c",
+    "tok": "781dc97ddcb49b69",
+    "flag": "stripped"
+   }
+  }
+ }
+}

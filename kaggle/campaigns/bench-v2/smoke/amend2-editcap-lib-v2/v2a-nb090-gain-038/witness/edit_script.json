@@ -1,0 +1,71 @@
+{
+ "parent_anchor": "lna-a1-inddegen-cascode",
+ "script": [
+  {
+   "op": "rw",
+   "name": "NM2",
+   "pin": 0,
+   "net": "x1",
+   "grp": 1,
+   "macro": "stk"
+  },
+  {
+   "op": "add",
+   "t": "PMOS",
+   "name": "ZP1",
+   "nets": [
+    "x1",
+    "n1",
+    "n4",
+    "VDD"
+   ],
+   "grp": 1,
+   "macro": "stk"
+  },
+  {
+   "op": "add",
+   "t": "C",
+   "name": "ZC1",
+   "nets": [
+    "n0",
+    "VSS"
+   ],
+   "grp": 3
+  }
+ ],
+ "repairs": [],
+ "move_class": "stk:PMOS:NMOS.D:D.gG",
+ "core_signature": "stk:PMOS:NMOS.D:D.gG",
+ "core_groups": [
+  1,
+  3
+ ],
+ "legacy_class": "cascode",
+ "label": "cascode",
+ "edit_labels": [
+  {
+   "op": "rw",
+   "name": "NM2",
+   "label": "cascode",
+   "tok": "NM2",
+   "inert": false
+  },
+  {
+   "op": "add",
+   "name": "ZP1",
+   "label": "current-reuse",
+   "tok": "PM1",
+   "inert": false
+  },
+  {
+   "op": "add",
+   "name": "ZC1",
+   "label": "input-match",
+   "tok": "C3",
+   "inert": true
+  }
+ ],
+ "search_cid": "B0002-nb090-gain-2",
+ "wl_hash": "54e718d6b5b0d291",
+ "tok_hash": "bad48d1fab89914d"
+}

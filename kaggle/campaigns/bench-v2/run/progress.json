@@ -1,93 +1,275 @@
 {
- "ts": "2026-09-30T14:51:48",
+ "ts": "2026-10-01T20:01:51",
  "mode": "full",
  "final": false,
- "pid": 4146540,
+ "pid": 4111916,
  "run_dir": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/run",
  "era": {
-  "git": "78ccdf0b48e3c787bca90e1d5b186f97d60bd0d7",
+  "git": "1a0413fb95c5ba33ecd8d78f93bb1342e923dfaa",
   "md5": {
-   "kaggle/bench_anchor_prep.py": "a43ccc256e",
-   "kaggle/campaigns/bench-v2/bv2.py": "aef04c30f2"
+   "kaggle/bench_anchor_prep.py": "a40dc59769",
+   "kaggle/campaigns/bench-v2/bv2.py": "3b6665e23d"
   }
  },
- "elapsed_h": 27.924,
- "load1": 4.48,
+ "elapsed_h": 57.091,
+ "load1": 13.94,
  "proc_limit": 8,
  "running": {
-  "cal": 8
+  "train": 2,
+  "val": 3,
+  "search": 3
  },
  "pending": {
-  "cal": 74
+  "train": 210,
+  "search": 45,
+  "f2": 20,
+  "val": 5
  },
  "calls": {
-  "new_this_session": 0,
-  "cached_total": 10317,
-  "extra_readonly_cache": 137,
-  "cpu_h_this_session": 0.0,
-  "last_hour": 0,
-  "median_secs_last_hour": null
+  "new_this_session": 47,
+  "cached_total": 21600,
+  "extra_readonly_cache": 377,
+  "cpu_h_this_session": 1.33,
+  "last_hour": 47,
+  "median_secs_last_hour": 106.76
  },
- "calibration_done": false,
+ "calibration_done": true,
  "search": {
   "bench": {
-   "generation": 0,
-   "candidates": 0
+   "generation": 37,
+   "candidates": 0,
+   "confirmed": 4,
+   "rej_sample": 15,
+   "rej_device_budget": 3,
+   "rej_max_inductors": 5,
+   "rej_repair:missing_port": 7,
+   "rej_repair:no_dc_path": 1,
+   "rej_verifier_prescreen": 2,
+   "rej_port_dc_prefilter": 10,
+   "rej_round_trip": 1,
+   "rej_dup": 12,
+   "rej_equals_anchor": 1,
+   "rej_repair:dangling_mos_pin": 2
   },
   "train": {
-   "generation": 0,
-   "candidates": 0
+   "generation": 41,
+   "candidates": 0,
+   "rej_device_budget": 6,
+   "rej_port_dc_prefilter": 3,
+   "rej_dup": 10,
+   "rej_max_inductors": 4,
+   "rej_verifier_prescreen": 1,
+   "rej_repair:missing_port": 1,
+   "rej_sample": 7,
+   "rej_has_inductor": 1
   }
  },
  "bench": {
-  "planted": 0,
-  "queued": 0,
-  "validating": {},
-  "status": {},
-  "accepted": 0,
-  "selectable": 0,
-  "era": "amendment-1",
-  "accepted_per_core_class": {},
-  "accepted_per_parent": {},
-  "accepted_core_atom_hist": {},
-  "accepted_per_band": {},
-  "accepted_per_band_type": {},
-  "class_rule_active": "signature",
-  "accepted_per_primary_atom": {},
-  "accepted_atom_prevalence": {},
+  "planted": 155,
+  "queued": 2,
+  "validating": {
+   "F1": 1,
+   "A2/A3": 2,
+   "A1": 3,
+   "F2": 2
+  },
+  "status": {
+   "amend2-port-dc": 36,
+   "killed": 105,
+   "accepted": 2,
+   "skipped_dupwl": 2,
+   "validating": 8,
+   "queued": 2
+  },
+  "accepted": 2,
+  "selectable": 2,
+  "era": "amendment-2",
+  "accepted_per_core_class": {
+   "rw:C:p:D>X + ser:L:C.p:IN": 1,
+   "add:NMOS:dRAIL.gD.sG + stk:PMOS:PMOS.D:D.gG": 1
+  },
+  "accepted_per_parent": {
+   "a3": 1,
+   "a2": 1
+  },
+  "accepted_core_atom_hist": {
+   "ser:L:C.p:IN": 1,
+   "rw:C:p:D>X": 1,
+   "stk:PMOS:PMOS.D:D.gG": 1,
+   "add:NMOS:dRAIL.gD.sG": 1
+  },
+  "accepted_per_band": {
+   "nb090": 1,
+   "wb1020": 1
+  },
+  "accepted_per_band_type": {
+   "narrowband": 1,
+   "wideband": 1
+  },
+  "class_rule_active": "primary_atom",
+  "accepted_per_primary_atom": {
+   "ser:L:C.p:IN": 1,
+   "add:NMOS:dRAIL.gD.sG": 1
+  },
+  "accepted_atom_prevalence": {
+   "add:NMOS:dRAIL.gD.sG": {
+    "n": 1,
+    "frac": 0.5
+   },
+   "rw:C:p:D>X": {
+    "n": 1,
+    "frac": 0.5
+   },
+   "ser:L:C.p:IN": {
+    "n": 1,
+    "frac": 0.5
+   },
+   "stk:PMOS:PMOS.D:D.gG": {
+    "n": 1,
+    "frac": 0.5
+   }
+  },
   "selectable_a_signature": {
-   "n": 0,
-   "per_class": {},
-   "per_parent": {},
-   "per_band_type": {}
+   "n": 2,
+   "per_class": {
+    "add:NMOS:dRAIL.gD.sG + stk:PMOS:PMOS.D:D.gG": 1,
+    "rw:C:p:D>X + ser:L:C.p:IN": 1
+   },
+   "per_parent": {
+    "a2": 1,
+    "a3": 1
+   },
+   "per_band_type": {
+    "wideband": 1,
+    "narrowband": 1
+   }
   },
   "selectable_b_primary_atom": {
-   "n": 0,
-   "per_primary_atom": {},
-   "per_parent": {},
-   "per_band_type": {}
+   "n": 2,
+   "per_primary_atom": {
+    "add:NMOS:dRAIL.gD.sG": 1,
+    "ser:L:C.p:IN": 1
+   },
+   "per_parent": {
+    "a2": 1,
+    "a3": 1
+   },
+   "per_band_type": {
+    "wideband": 1,
+    "narrowband": 1
+   }
   },
-  "selectable_per_core_class": {},
-  "selectable_per_parent": {},
-  "selectable_per_band": {},
-  "selectable_per_band_type": {},
-  "selection_without_nb_quota": 0,
+  "selectable_per_core_class": {
+   "add:NMOS:dRAIL.gD.sG + stk:PMOS:PMOS.D:D.gG": 1,
+   "rw:C:p:D>X + ser:L:C.p:IN": 1
+  },
+  "selectable_per_parent": {
+   "a2": 1,
+   "a3": 1
+  },
+  "selectable_per_band": {
+   "wb1020": 1,
+   "nb090": 1
+  },
+  "selectable_per_band_type": {
+   "wideband": 1,
+   "narrowband": 1
+  },
+  "selection_without_nb_quota": 2,
   "nb_quota_binding": false,
   "quotas": {
    "class_cap_frac": 0.25,
-   "class_rule": "signature",
+   "class_rule": "primary_atom",
    "parent_cap_frac": 0.4,
    "narrowband_min_frac": 0.25,
    "target": 25,
    "min": 20
   },
-  "planted_per_band_type": {},
-  "planted_per_parent": {},
+  "planted_per_band_type": {
+   "wideband": 60,
+   "narrowband": 95
+  },
+  "planted_per_parent": {
+   "a3": 47,
+   "a2": 15,
+   "a4": 9,
+   "a5": 6,
+   "a1": 78
+  },
   "floor_rejects": {},
-  "strip": {},
-  "steer": null,
-  "stage_started": {},
-  "kills": {},
+  "strip": {
+   "nothing_to_strip": 2
+  },
+  "steer": {
+   "gen": 37,
+   "m_nb": 2.714,
+   "point_w": {
+    "wb0530-noise": 1.0,
+    "wb0530-power": 1.0,
+    "wb0824-gain": 1.0,
+    "wb1020-noise": 0.6667,
+    "wb1020-power": 0.6667,
+    "nb090-gain": 1.3571,
+    "nb158-noise": 2.7143,
+    "nb158-power": 2.7143,
+    "nb240-gain": 2.7143,
+    "nb350-noise": 2.7143,
+    "nb350-power": 2.7143
+   },
+   "alloc": {
+    "wb0530-noise": 4,
+    "wb0530-power": 4,
+    "wb0824-gain": 4,
+    "wb1020-noise": 2,
+    "wb1020-power": 2,
+    "nb090-gain": 5,
+    "nb158-noise": 9,
+    "nb158-power": 9,
+    "nb240-gain": 9,
+    "nb350-noise": 9,
+    "nb350-power": 9
+   },
+   "parent_w": {
+    "wideband": {
+     "a2": 0.6667,
+     "a3": 0.5,
+     "a5": 1.0
+    },
+    "narrowband": {
+     "a1": 1.0,
+     "a2": 0.6667,
+     "a3": 0.5,
+     "a4": 1.0,
+     "a5": 1.0
+    }
+   },
+   "counts": {
+    "band": {
+     "wb1020": 0.5,
+     "nb090": 1.0
+    },
+    "band_type": {
+     "wideband": 0.5,
+     "narrowband": 1.0
+    },
+    "parent": {
+     "a2": 0.5,
+     "a3": 1.0
+    }
+   },
+   "capped_cores": []
+  },
+  "stage_started": {
+   "A1_started": 10,
+   "F1_started": 7,
+   "A23_started": 6,
+   "F2_started": 4,
+   "planted": 3
+  },
+  "kills": {
+   "accepted": 2,
+   "prekill_F2_known_single_edit_design": 1
+  },
   "bench_done": false,
   "search_done": false
  },
@@ -100,34 +282,97 @@
   },
   "accepted": 10,
   "selectable": 0,
-  "core_classes_done": 10,
-  "core_class_hist": {
-   "add:L:IN-G + add:R:IN-X": 4,
-   "add:C:OUT-X + add:L:IN-G + add:R:IN-X": 1,
-   "add:L:IN-G + add:L:OUT-D + add:R:OUT-D + del:L:X-RAIL": 1,
-   "add:L:IN-G + add:L:OUT-D + add:NMOS:dRAIL.gD.sOUT + del:L:X-RAIL": 1,
-   "add:L:IN-G + add:PMOS:dG.gX.sOUT + del:L:X-RAIL + rw:R:p:D>OUT": 1,
-   "add:L:IN-G + add:NMOS:dG.gG.sIN": 1,
-   "add:L:OUT-D + add:PMOS:dRAIL.gOUT.sIN + add:R:OUT-D": 1
-  },
-  "primary_atom_hist": {
-   "add:L:IN-G": 6,
-   "del:L:X-RAIL": 2,
-   "add:L:OUT-D": 2
-  },
+  "core_classes_done": 0,
+  "core_class_hist": {},
+  "primary_atom_hist": {},
   "seed_topologies": 1657,
   "seeds_used": 0
  },
+ "amendment2": {
+  "profile": "rl-v1.1",
+  "t_amend2": "2026-10-01T19:50:36",
+  "bench_end_unchanged": "2026-10-03T14:51:17",
+  "class_rule": "primary_atom",
+  "port_dc": {
+   "archive_dropped_prefilter_bench": 1415,
+   "archive_dropped_prefilter_train": 267,
+   "archive_kept_bench": 1027,
+   "archive_kept_train": 597,
+   "behavioural_checks": 32,
+   "cells_f2_kill_stands": 8,
+   "cells_replanted_void_prekill": 3,
+   "cells_requeue_queued": 2,
+   "cells_revalidate_accepted": 2,
+   "cells_revalidate_started": 2,
+   "cells_revive_queued": 7,
+   "cells_revived_f2_kill_void": 7,
+   "cells_tagged_prefilter_accepted": 16,
+   "cells_tagged_prefilter_queued": 1,
+   "cells_tagged_prefilter_skipped_dupwl": 9,
+   "cells_tagged_prefilter_skipped_parent_cap": 10,
+   "derived_rows": 406,
+   "inproc_prefilter_rejects": 52,
+   "pool_designs_pdc_fail": 715,
+   "pool_designs_pdc_ok": 6963,
+   "prekill_f2_stands": 5,
+   "replant_rejected_again": 1,
+   "restored_candidates_bench": 2442,
+   "restored_candidates_train": 864,
+   "rl_v1_feasible_resized": 203,
+   "train_recheck_ok": 13,
+   "train_relabelled_witness-only->single-edit-solvable": 1,
+   "train_tagged_prefilter_library-solvable": 74,
+   "train_tagged_prefilter_single-edit-solvable": 11,
+   "train_tagged_prefilter_witness-only": 16,
+   "gen_rejects_prefilter": {
+    "bench": 10,
+    "train": 3
+   },
+   "cells_by_action_outcome": {
+    "tag:amend2-port-dc": 36,
+    "revalidate:accepted": 2,
+    "requeue:skipped_dupwl": 2,
+    "revive:validating": 5,
+    "revive:queued": 2,
+    "replant:validating": 3
+   },
+   "cells_tagged": 36,
+   "train_by_action_outcome": {
+    "recheck:ok": 12,
+    "tag:amend2-port-dc": 101,
+    "recheck:ok (relabelled witness-only -> single-edit-solvable)": 1,
+    "recheck:running": 176
+   },
+   "train_tagged": 101
+  }
+ },
  "train": {
-  "tasks": 0,
-  "ok": 0,
-  "labels": {},
-  "per_grid": {},
+  "tasks": 320,
+  "ok": 13,
+  "labels": {
+   "witness-only": 3,
+   "single-edit-solvable": 2,
+   "library-solvable": 8
+  },
+  "per_grid": {
+   "wb1020-gain": 2,
+   "nb090-noise": 2,
+   "nb090-power": 2,
+   "wb0824-power": 3,
+   "nb240-noise": 1,
+   "wb0530-gain": 1,
+   "wb0824-noise": 1,
+   "nb158-gain": 1
+  },
   "search_done": false
  },
  "eta": {
-  "bench_elapsed_h_since_amendment": 0.009,
-  "bench_hard_stop_h": 72.0,
-  "total_hard_stop_h": 90.1
+  "bench_cells_per_h": 0.069,
+  "bench_eta_h_to_target": 335.5,
+  "bench_elapsed_h_since_amendment": 29.176,
+  "bench_hard_stop_h": 42.8,
+  "train_tasks_per_h": 0.23,
+  "train_eta_h_to_target": 1260.4,
+  "total_hard_stop_h": 60.9
  }
 }

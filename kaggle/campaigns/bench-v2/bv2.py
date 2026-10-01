@@ -64,7 +64,13 @@ for _p in (REPO, REPO + "/lna", REPO + "/kaggle", REPO + "/kaggle/loop"):
 
 PDK = "bptm45"
 BUDGET = 2500
-PROFILE = "rl-v1"
+PROFILE = "rl-v1"                 # verifier of every pre-amendment / amendment-1 row
+# PRE-REG AMENDMENT 2 (2026-10-01, PREREG commit 1a0413fb9): bench AND training
+# verification switch to rl-v1.1 = rl-v1 + the input-port DC requirement
+# (bench_anchor_prep VERIFY_PORT_DC). The active profile of a run is its config's
+# `profile`; a Job carries its own profile (part of its cache key).
+PROFILE_V11 = "rl-v1.1"
+CUR_PROFILE = PROFILE             # set by Pipeline from cfg["profile"]
 DELTA = 0.02                      # cushion (planting) == tightening (acceptance)
 WORKER_TIMEOUT_S = 3600
 
@@ -115,6 +121,9 @@ PROBE = {"wideband": {"nf_max_db": 4.5, "s11_max_db": -8.0, "s21_db": 8.0,
 # "pre-amendment" and is never selectable; post-amendment rows/cells carry AMEND.
 AMEND = "amendment-1"
 PRE = "pre-amendment"
+AMEND2 = "amendment-2"
+POST_ERAS = (AMEND, AMEND2)       # selectable eras (pre-amendment never is)
+TAG_PDC = "amend2-port-dc"        # AMENDMENT 2: failed the port-DC requirement
 # realistic spec floors, ALL bench cells (wideband and narrowband; narrowband
 # uses s11_max_db per rl-v1 W6): planted limit must be at least this strict.
 FLOORS = OrderedDict([("s11_max_db", ("max", -9.0)), ("s21_db", ("min", 10.0))])
@@ -172,13 +181,20 @@ CONFIGS = {
         bench_target=25, bench_min=20, cap_frac=0.25, cap_build=6,
         # AMENDMENT 1: quotas on the final selection + their build-time caps
         parent_frac=0.40, nb_frac=0.25, parent_cap_build=10,
-        # final-selection class cap rule, PENDING USER RULING: "signature" (a,
-        # pre-registered whole core-fix signature; default) | "primary_atom" (b)
-        class_rule="signature",
+        # final-selection class cap rule: AMENDMENT 2 ruled (b) "primary_atom"
+        # (was "signature", pre-registered default, pending ruling until then)
+        class_rule="primary_atom",
         pre_amend_dir=f"{CAMP}/run/pre-amendment",
         # exact-key reuse of the AMENDMENT-1 smoke's calls (same code, same
-        # verifier): its pre-amendment re-classification and floor-probe cal rows
-        extra_cache=[f"{CAMP}/smoke/run-amend1/results.jsonl"],
+        # verifier): its pre-amendment re-classification and floor-probe cal rows;
+        # AMENDMENT 2: + the amendment-2 smoke's rl-v1.1 calls (exact key only)
+        extra_cache=[f"{CAMP}/smoke/run-amend1/results.jsonl",
+                     f"{CAMP}/smoke/run-amend2/results.jsonl"],
+        # AMENDMENT 2: verifier rl-v1.1; the amendment-1 state is RESTORED from
+        # the frozen record (not replayed), re-evaluated under rl-v1.1, and the
+        # search continues from it (bv2.py amend2-snapshot writes the record)
+        profile=PROFILE_V11, amend2=True,
+        restore_from=f"{CAMP}/run/amendment-1-record",
         abl_strip=True,
         train_target=300, train_quota_per_point=32,
         max_active_val=8, f2_chunk=16, f2_limit=None,
@@ -220,6 +236,38 @@ CONFIGS = {
         bench_max_hours=3.0, total_max_hours=4.0,
         grid_only={"bench": [("wb0530", "noise"), ("nb240", "gain")],
                    "train": [("nb158", "gain")]}),
+    # AMENDMENT-2 smoke: separate run dir; restores a SUBSET of the full run's
+    # frozen amendment-1 record (READ-ONLY) and reads its result cache read-only
+    # (exact-key hits + rl-v1 -> rl-v1.1 derivation), then runs every amendment-2
+    # path at tiny scale: tag / revalidate / revive / requeue cells, re-check
+    # training tasks, one new bench and train generation under rl-v1.1.
+    "smoke-a2": dict(
+        run_dir=f"{CAMP}/smoke/run-amend2", stream_seed={"bench": 1001_01, "train": 1001_02},
+        cal_seeds=(1,), gen_size={"bench": 4, "train": 3},
+        max_gens={"bench": 100000, "train": 100000}, new_gens={"bench": 1, "train": 1},
+        bench_target=3, bench_min=1, cap_frac=1.0, cap_build=6,
+        parent_frac=1.0, nb_frac=0.0, parent_cap_build=10,
+        class_rule="primary_atom",
+        pre_amend_dir=None,
+        extra_cache=[f"{CAMP}/run/results.jsonl"],
+        abl_strip=True,
+        train_target=300, train_quota_per_point=32,
+        max_active_val=8, f2_chunk=8, f2_limit=12,     # SMOKE: F2 SUBSET (first 12)
+        smoke_force=False,
+        max_procs=8, throttle_procs=4, load_thresh=22.0,
+        search_min_slots=2, train_min_slots=1,
+        bench_max_hours=3.0, total_max_hours=4.0,
+        grid_only={"bench": [("nb090", "gain"), ("wb1020", "noise")],
+                   "train": [("nb158", "gain")]},
+        profile=PROFILE_V11, amend2=True,
+        restore_from=f"{CAMP}/run/amendment-1-record",
+        restore_cells=["v2a-nb090-gain-007", "v2a-wb0530-power-000",
+                       "v2a-nb158-noise-149", "v2a-nb090-gain-038",
+                       "v2a-wb0824-gain-033"],
+        # training: pre-filter fail (tag) / pass witness-only / pass single-edit
+        restore_train=["t2-nb158-gain-0003", "t2-wb1020-gain-0001", "t2-nb090-noise-0012"],
+        # a candidate pre-killed by a single edit that fails the port-DC pre-filter
+        restore_replant=["B0010-nb090-gain-2"]),
 }
 for _k in ("smoke",):          # pre-amendment smoke config kept for the record
     CONFIGS[_k].setdefault("parent_frac", 1.0)
@@ -230,6 +278,13 @@ for _k in ("smoke",):          # pre-amendment smoke config kept for the record
     CONFIGS[_k].setdefault("abl_strip", True)
 for _k in CONFIGS:
     CONFIGS[_k].setdefault("class_rule", "signature")
+    # every config before AMENDMENT 2 keeps its historical verifier and code path
+    CONFIGS[_k].setdefault("profile", PROFILE)
+    CONFIGS[_k].setdefault("amend2", False)
+    CONFIGS[_k].setdefault("new_gens", None)
+    CONFIGS[_k].setdefault("restore_cells", None)
+    CONFIGS[_k].setdefault("restore_train", None)
+    CONFIGS[_k].setdefault("restore_replant", None)
 
 
 def sha(s, n=16):
@@ -1004,7 +1059,7 @@ def excess(metrics, bt, pool):
     planted spec (up to rounding). Returns (e, id of the closest pool design)."""
     best, who = None, None
     for d in pool:
-        if not d["stab_ok"]:
+        if not d["stab_ok"] or not d.get("pdc_ok", True):     # AMENDMENT 2: port DC
             continue
         gap = -9.0
         for m, side in CONS[bt].items():
@@ -1032,7 +1087,7 @@ def worker(jobfile, outfile):
     err, r = None, None
     try:
         r = PREP.smoke_run(list(job["tokens"]), job["spec"], int(job["seed"]),
-                           int(job["budget"]), PDK, profile=PROFILE)
+                           int(job["budget"]), PDK, profile=job.get("profile", PROFILE))
     except Exception:                                            # noqa: BLE001
         err = traceback.format_exc()[-3000:]
     rec = {"jid": job["jid"], "secs": round(time.time() - t0, 2), "load1": l0,
@@ -1053,13 +1108,21 @@ def worst_margin(spec_path, metrics):
 
 
 # ================================================================= scheduler
-class Job:
-    __slots__ = ("jid", "kind", "cls", "tokens", "spec", "seed", "budget", "meta")
+def job_id(tokens, spec, seed, budget, profile):
+    """cache key = (token hash, spec content, seed, budget, verifier profile)."""
+    return sha(f"{tokhash(tokens)}|{spec_sha(spec)}|{seed}|{budget}|{profile}", 20)
 
-    def __init__(self, kind, cls, tokens, spec, seed, budget=BUDGET, meta=None):
+
+class Job:
+    __slots__ = ("jid", "kind", "cls", "tokens", "spec", "seed", "budget", "meta",
+                 "profile")
+
+    def __init__(self, kind, cls, tokens, spec, seed, budget=BUDGET, meta=None,
+                 profile=None):
         self.kind, self.cls, self.tokens, self.spec = kind, cls, list(tokens), spec
         self.seed, self.budget, self.meta = int(seed), int(budget), meta or {}
-        self.jid = sha(f"{tokhash(tokens)}|{spec_sha(spec)}|{seed}|{budget}|{PROFILE}", 20)
+        self.profile = profile or CUR_PROFILE
+        self.jid = job_id(tokens, spec, seed, budget, self.profile)
 
 
 class Task:
@@ -1072,11 +1135,18 @@ class Pipeline:
     CLS_PRIO = {"cal": 0, "val": 1, "f2": 2, "search": 3, "train": 4}
 
     def __init__(self, mode, run_dir=None):
+        global CUR_PROFILE
         self.mode = mode
         self.cfg = dict(CONFIGS[mode])
         if run_dir:
             self.cfg["run_dir"] = run_dir
         self.rd = self.cfg["run_dir"]
+        CUR_PROFILE = self.cfg["profile"]
+        self.amend2 = bool(self.cfg.get("amend2"))
+        self.phase = AMEND2 if self.amend2 else AMEND
+        if self.amend2 and not os.path.isdir(self.cfg["restore_from"]):
+            raise SystemExit(f"AMENDMENT 2: frozen amendment-1 record missing: "
+                             f"{self.cfg['restore_from']} (run: bv2.py amend2-snapshot)")
         for d in ("specs", "jobs", "logs", "cells", "train"):
             os.makedirs(f"{self.rd}/{d}", exist_ok=True)
         self.era = era_stamp()
@@ -1092,7 +1162,14 @@ class Pipeline:
             st0["t_amend1"] = time.time()
             st0["era_amend1"] = self.era
             atomic_write(sp_, json.dumps(st0))
+        if self.amend2 and "t_amend2" not in st0:
+            # AMENDMENT 2: recorded only -- the bench end time is UNCHANGED
+            # (t_amend1 + bench_max_hours), so is the total budget (t_start)
+            st0["t_amend2"] = time.time()
+            st0["era_amend2"] = self.era
+            atomic_write(sp_, json.dumps(st0))
         self.t_amend = st0["t_amend1"]
+        self.t_amend2 = st0.get("t_amend2")
         self.cache = {}
         self.res_path = f"{self.rd}/results.jsonl"
         # AMENDMENT 1 (5): reuse only on the exact (topology, spec content, seed,
@@ -1201,10 +1278,18 @@ class Pipeline:
         self.fence_wl, self.fence_tok, self.fence_spec = set(), set(), set()
         self.pre_cells = OrderedDict()
         self.pre_cands = []
+        # ---- AMENDMENT 2 state
+        self.pdc = Counter()                  # port-DC bookkeeping (progress.json)
+        self.search_gen0 = {"bench": 0, "train": 0}
+        self.amend1_cells = OrderedDict()     # restored amendment-1 record (name -> cell)
+        if self.amend2:
+            self.f2space_build()              # pools need the F2 edit tokens (port-DC)
         self.load_pre_amendment()
         self.log(f"=== start mode={mode} run_dir={self.rd} era={self.era} "
+                 f"profile={CUR_PROFILE} phase={self.phase} "
                  f"cached_results={len(self.cache)} (extra read-only {self.n_extra_cache}) "
                  f"{AMEND}: t_amend={time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(self.t_amend))} "
+                 f"bench end={time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(self.t_amend + 3600 * self.cfg['bench_max_hours']))} "
                  f"pre-amendment cells={len(self.pre_cells)} seeds={len(self.pre_cands)}")
 
     # ------------------------------------------------------------ utilities
@@ -1261,22 +1346,25 @@ class Pipeline:
                 self.fence_tok.add(c["tok"])
         n_pool = Counter()
         for r in list(self.cache.values()):
-            if r.get("phase") == AMEND:
+            if r.get("phase") in POST_ERAS:
                 continue
             k, m = r.get("kind"), r.get("meta") or {}
             try:
                 if k == "cal":
                     b = m["g"].split("-")[0]
                     did = f"pre:cal:{m['g']}:{m['anchor']}:s{r['seed']}"
-                    self.add_pool(self.pool_cal[b], r, did)
-                    self.add_pool(self.pool[b], r, did)
+                    tk = self.anch[m["anchor"]]["tokens"]
+                    self.add_pool(self.pool_cal[b], r, did, tokens=tk)
+                    self.add_pool(self.pool[b], r, did, tokens=tk)
                 elif k == "F1" and m.get("cell") in cells:
                     b = cells[m["cell"]]["band"]
-                    self.add_pool(self.pool[b], r, f"pre:F1:{m['cell']}:{m['anchor']}:s{r['seed']}")
+                    self.add_pool(self.pool[b], r, f"pre:F1:{m['cell']}:{m['anchor']}:s{r['seed']}",
+                                  tokens=self.anch[m["anchor"]]["tokens"])
                 elif k == "F2" and m.get("cell") in cells:
                     c = cells[m["cell"]]
                     self.add_pool(self.pool_se[(c["band"], c["anchor"])], r,
-                                  f"pre:F2:{m['cell']}:{m.get('edit')}:s{r['seed']}")
+                                  f"pre:F2:{m['cell']}:{m.get('edit')}:s{r['seed']}",
+                                  tokens=self.f2_edit_tokens(c["anchor"], m))
                 else:
                     continue
                 n_pool[k] += 1
@@ -1325,7 +1413,8 @@ class Pipeline:
                 t.done = True
                 return
             t.jobs = jobs
-            miss = [j for j in jobs if j.jid not in self.cache]
+            miss = [j for j in jobs if j.jid not in self.cache
+                    and not (j.jid not in self.running and self.try_derive(j))]
             if not miss:
                 results = [self.cache[j.jid] for j in jobs]
                 continue
@@ -1382,7 +1471,8 @@ class Pipeline:
         of = f"{self.rd}/jobs/{j.jid}.out.json"
         ef = f"{self.rd}/jobs/{j.jid}.err"
         atomic_write(jf, jdump({"jid": j.jid, "tokens": j.tokens, "spec": j.spec,
-                                "seed": j.seed, "budget": j.budget}))
+                                "seed": j.seed, "budget": j.budget,
+                                "profile": j.profile}))
         with open(ef, "w") as efh:
             p = subprocess.Popen([sys.executable, os.path.abspath(__file__), "worker", jf,
                                   of], stdout=subprocess.DEVNULL, stderr=efh,
@@ -1411,7 +1501,7 @@ class Pipeline:
                        "res": None, "error": f"worker rc={rc}: {err}"}
             rec.update(kind=j.kind, cls=j.cls, seed=j.seed, budget=j.budget,
                        spec=os.path.relpath(j.spec, REPO), tok=tokhash(j.tokens),
-                       meta=j.meta, era=self.era, profile=PROFILE, phase=AMEND,
+                       meta=j.meta, era=self.era, profile=j.profile, phase=self.phase,
                        ts=time.strftime("%Y-%m-%dT%H:%M:%S"))
             self.res_fh.write(jdump(rec) + "\n")
             self.res_fh.flush()
@@ -1420,6 +1510,11 @@ class Pipeline:
                     os.remove(f)
                 except OSError:
                     pass
+            pd = (rec.get("res") or {}).get("port_dc")
+            if isinstance(pd, dict):                # AMENDMENT 2: behavioural checks
+                self.pdc["behavioural_checks"] += 1
+                if not pd.get("pass"):
+                    self.pdc["behavioural_fail"] += 1
             self.n_done_new += 1
             self.cpu_new += rec.get("secs") or 0
             self.recent.append((time.time(), rec.get("secs") or 0))
@@ -1432,14 +1527,16 @@ class Pipeline:
             return self.cache[job.jid]
         import bench_anchor_prep as PREP
         r = PREP.smoke_run(job.tokens, job.spec, job.seed, job.budget, PDK,
-                           profile=PROFILE)
+                           profile=job.profile)
         assert r is not None and r.get("n_evals") == 0, "inproc job was not a pre-reject"
         rec = {"jid": job.jid, "secs": 0.0, "load1": load1(), "sizable": True, "res": r,
                "error": None, "inproc_reject": True, "kind": job.kind, "cls": job.cls,
                "seed": job.seed, "budget": job.budget,
                "spec": os.path.relpath(job.spec, REPO), "tok": tokhash(job.tokens),
-               "meta": job.meta, "era": self.era, "profile": PROFILE, "phase": AMEND,
-               "ts": time.strftime("%Y-%m-%dT%H:%M:%S")}
+               "meta": job.meta, "era": self.era, "profile": job.profile,
+               "phase": self.phase, "ts": time.strftime("%Y-%m-%dT%H:%M:%S")}
+        if (r.get("port_dc_prefilter") or {}).get("pass") is False:
+            self.pdc["inproc_prefilter_rejects"] += 1
         self.res_fh.write(jdump(rec) + "\n")
         self.res_fh.flush()
         self.cache[job.jid] = rec
@@ -1454,15 +1551,23 @@ class Pipeline:
         topo = Topology(list(tokens))
         if not PREP.topo_limits(sp, topo)["ok"]:
             return True
-        return bool(PREP.structural_degeneracy(topo))
+        if PREP.structural_degeneracy(topo):
+            return True
+        # AMENDMENT 2 (rl-v1.1): the port-DC pre-filter is the third pre-sizing reject
+        return bool(self.port_dc_on() and not self.prefilter(tokens)["pass"])
 
     # -------------------------------------------------------------- main loop
     def run(self):
         signal.signal(signal.SIGTERM, self._sigterm)
         signal.signal(signal.SIGINT, self._sigterm)
-        self.f2space_build()
-        self.spawn("calibration", self.task_calibration(), "cal")
-        self.spawn("preclass", self.task_preclass(), "val")
+        if self.amend2:
+            # AMENDMENT 2: restore the frozen amendment-1 state, re-evaluate it
+            # under rl-v1.1 and continue (no generator replay: see restore_amend2)
+            self.restore_amend2()
+        else:
+            self.f2space_build()
+            self.spawn("calibration", self.task_calibration(), "cal")
+            self.spawn("preclass", self.task_preclass(), "val")
         while not self.stop:
             self._reap()
             self.control()
@@ -1647,7 +1752,7 @@ class Pipeline:
         self.spawn("search:bench", self.task_search("bench"), "search")
         self.spawn("search:train", self.task_search("train"), "train")
 
-    def add_pool(self, lst, rec, did):
+    def add_pool(self, lst, rec, did, tokens=None):
         r = rec.get("res") or {}
         m = r.get("metrics") or {}
         if not m:
@@ -1657,10 +1762,95 @@ class Pipeline:
         if rec.get("jid") in seen:
             return
         seen.add(rec.get("jid"))
-        lst.append({"id": did, "metrics": {k: v for k, v in m.items()
-                                          if isinstance(v, (int, float))},
-                    "stab_ok": bool(r.get("stab_wide_ok")),
-                    "feasible": bool(r.get("feasible"))})
+        d = {"id": did, "metrics": {k: v for k, v in m.items()
+                                    if isinstance(v, (int, float))},
+             "stab_ok": bool(r.get("stab_wide_ok")),
+             "feasible": bool(r.get("feasible"))}
+        if self.amend2:
+            # AMENDMENT 2: a recorded design is a valid solver (pre-kill / label)
+            # only if it meets the port-DC requirement: its own behavioural
+            # verdict when it has one (rl-v1.1 feasible winner), else the
+            # structural pre-filter of its topology (for a pre-filter-passing
+            # topology the behavioural check is a provable no-op: VIN1's DC
+            # group holds no MOS terminal / positive rail, so a DC path to ground
+            # at VIN1 carries no current -- D23); unknown topology -> not a solver
+            pd, pf = r.get("port_dc"), r.get("port_dc_prefilter")
+            if isinstance(pd, dict):
+                d["pdc_ok"] = bool(pd.get("pass"))
+            elif isinstance(pf, dict):
+                d["pdc_ok"] = bool(pf.get("pass"))
+            elif tokens is not None:
+                d["pdc_ok"] = bool(self.prefilter(tokens)["pass"])
+            else:
+                d["pdc_ok"] = False
+            self.pdc["pool_designs_pdc_ok" if d["pdc_ok"] else "pool_designs_pdc_fail"] += 1
+        lst.append(d)
+
+    # ------------------------------------------------ AMENDMENT 2: port DC
+    def prefilter(self, tokens):
+        """bench_anchor_prep.port_dc_prefilter, memoized on the token hash."""
+        memo = self.__dict__.setdefault("_pf_memo", {})
+        k = tokhash(tokens)
+        if k not in memo:
+            import bench_anchor_prep as PREP
+            memo[k] = PREP.port_dc_prefilter(list(tokens))
+        return memo[k]
+
+    def port_dc_on(self):
+        import bench_anchor_prep as PREP
+        return PREP.VERIFIER_PROFILES.get(CUR_PROFILE, {}).get("VERIFY_PORT_DC") == "1"
+
+    def f2_edit_tokens(self, anchor, meta):
+        """tokens of a recorded F2 single edit (f2space entry by idx, desc-checked)."""
+        sp = self.f2space.get(anchor) or []
+        i = meta.get("idx")
+        if isinstance(i, int) and 0 <= i < len(sp) and sp[i]["desc"] == meta.get("edit") \
+                and sp[i]["rt_ok"]:
+            return sp[i]["tokens"]
+        for x in sp:
+            if x["desc"] == meta.get("edit") and x["rt_ok"]:
+                return x["tokens"]
+        return None
+
+    def try_derive(self, j):
+        """AMENDMENT 2 cache bridge: an rl-v1.1 job whose rl-v1 twin (same tokens,
+        spec content, seed, budget) is cached is answered WITHOUT a re-size when
+        the port-DC requirement cannot change it (bench_anchor_prep.derive_port_dc:
+        pre-sizing reject in-process, or the rl-v1 winner was infeasible). A
+        feasible rl-v1 twin needs the behavioural check on its winner -> None
+        (the job is re-sized; the sizing is deterministic, so it is the same
+        winner, now checked)."""
+        if j.profile != PROFILE_V11:
+            return None
+        oj = job_id(j.tokens, j.spec, j.seed, j.budget, PROFILE)
+        old = self.cache.get(oj)
+        if old is None or old.get("error") or old.get("sizable") is None:
+            return None
+        import bench_anchor_prep as PREP
+        try:
+            ok, res = PREP.derive_port_dc(old.get("res"), j.tokens, j.spec, j.seed,
+                                          j.budget, PDK, profile=j.profile)
+        except Exception:                                        # noqa: BLE001
+            self.pdc["derive_error"] += 1
+            return None
+        if not ok:
+            self.__dict__.setdefault("_pdc_resize", set()).add(j.jid)
+            self.pdc["rl_v1_feasible_resized"] = len(self._pdc_resize)
+            return None
+        rec = {"jid": j.jid, "secs": 0.0, "load1": load1(), "sizable": res is not None,
+               "res": res, "error": None, "derived_from": oj,
+               "derived": "rl-v1 -> rl-v1.1 (port-DC cannot change it)",
+               "kind": j.kind, "cls": j.cls, "seed": j.seed, "budget": j.budget,
+               "spec": os.path.relpath(j.spec, REPO), "tok": tokhash(j.tokens),
+               "meta": j.meta, "era": self.era, "profile": j.profile,
+               "phase": self.phase, "ts": time.strftime("%Y-%m-%dT%H:%M:%S")}
+        self.res_fh.write(jdump(rec) + "\n")
+        self.res_fh.flush()
+        self.cache[j.jid] = rec
+        self.pdc["derived_rows"] += 1
+        if res and (res.get("port_dc_prefilter") or {}).get("pass") is False:
+            self.pdc["derived_prefilter_rejects"] += 1
+        return rec
 
     # --------------------------------------------------------------- F2 space
     def f2space_build(self):
@@ -1727,6 +1917,9 @@ class Pipeline:
             return None, "in_single_edit_space"
         if wl in self.seen_wl[stream][g]:
             return None, "dup"
+        if self.port_dc_on() and not self.prefilter(rt["tokens"])["pass"]:
+            # AMENDMENT 2: the free port-DC pre-filter at candidate generation
+            return None, "port_dc_prefilter"
         if self.pre_reject(rt["tokens"], self.probe[g]):
             return None, "verifier_prescreen"
         cls, top, labels = label_script(base, script, el)
@@ -1801,7 +1994,7 @@ class Pipeline:
                 continue
             bt = BANDS[g[0]][0]
             pw = self.parent_weights(bt)
-            rng = random.Random(f"{cfg['stream_seed'][stream]}:{AMEND}:{gkey(g)}:{gen}")
+            rng = random.Random(f"{cfg['stream_seed'][stream]}:{self.phase}:{gkey(g)}:{gen}")
             arch = [c for gg in pts if BANDS[gg[0]][0] == bt
                     for c in self.archive[stream][gg]]
             top = sorted(arch, key=lambda c: (-c["score"], c["cid"]))[:20]
@@ -1881,7 +2074,7 @@ class Pipeline:
                     continue
                 cand["gen"] = gen
                 cand["cid"] = f"B{gen:04d}-{gkey(g)}-{slot}"
-                cand["era_tag"] = AMEND
+                cand["era_tag"] = self.phase
                 cand["rejects_before"] = dict(rej)
                 self.seen_wl[stream][g].add(cand["wl"])
                 out.append(cand)
@@ -1897,11 +2090,11 @@ class Pipeline:
         n = cfg["gen_size"][stream]
         for g in self.grid(stream):
             if stream == "train":
-                have = sum(1 for t in self.train_tasks.values() if t["g"] == gkey(g))
+                have = self.train_have(g)
                 if have >= cfg["train_quota_per_point"]:
                     continue
             bt = BANDS[g[0]][0]
-            rng = random.Random(f"{cfg['stream_seed'][stream]}:{gkey(g)}:{gen}")
+            rng = random.Random(f"{cfg['stream_seed'][stream]}:{gkey(g)}:{gen}" if not self.amend2 else f"{cfg['stream_seed'][stream]}:{AMEND2}:{gkey(g)}:{gen}")
             arch = [c for gg in self.grid(stream) if BANDS[gg[0]][0] == bt
                     for c in self.archive[stream][gg]]
             here = self.archive[stream][g]
@@ -1966,10 +2159,13 @@ class Pipeline:
         return out
 
     def task_search(self, stream):
-        gen = 0
+        gen = self.search_gen0[stream]
         cfg = self.cfg
         empty = 0
-        while gen < cfg["max_gens"][stream]:
+        stop_at = cfg["max_gens"][stream]
+        if cfg.get("new_gens"):                    # smoke-a2: N generations past the restore
+            stop_at = min(stop_at, gen + cfg["new_gens"][stream])
+        while gen < stop_at:
             if stream == "bench" and self.bench_search_done:
                 break
             if stream == "train" and (self.train_search_done
@@ -1980,7 +2176,7 @@ class Pipeline:
             if not cands:
                 empty += 1
                 if empty >= 3 or (stream == "train" and all(
-                        sum(1 for t in self.train_tasks.values() if t["g"] == gkey(g))
+                        self.train_have(g)
                         >= cfg["train_quota_per_point"] for g in self.grid(stream))):
                     self.log(f"search:{stream} exhausted (no admissible candidates) "
                              f"at gen {gen}")
@@ -2103,7 +2299,7 @@ class Pipeline:
         # stages run end-to-end at tiny scale; never set in the full run.
         forced = []
         for d in self.pool[g[0]]:
-            if satisfies(d["metrics"], d["stab_ok"], bt, lim):
+            if d.get("pdc_ok", True) and satisfies(d["metrics"], d["stab_ok"], bt, lim):
                 self.kill_counts["prekill_F1_known_anchor_design"] += 1
                 self.event("prekill", cid=c["cid"], why="F1: recorded anchor design "
                            "satisfies the planted spec", design=d["id"], limits=lim)
@@ -2112,7 +2308,7 @@ class Pipeline:
                 forced.append(f"prekill_F1({d['id']})")
                 break
         for d in self.pool_se[(g[0], c["anchor"])]:
-            if satisfies(d["metrics"], d["stab_ok"], bt, lim):
+            if d.get("pdc_ok", True) and satisfies(d["metrics"], d["stab_ok"], bt, lim):
                 self.kill_counts["prekill_F2_known_single_edit_design"] += 1
                 self.event("prekill", cid=c["cid"], why="F2: recorded single edit of "
                            "the parent satisfies the planted spec", design=d["id"],
@@ -2123,7 +2319,8 @@ class Pipeline:
                 break
         e, who = excess(c["planted_from"], bt, self.pool[g[0]])
         seq = len(self.cells)
-        name = f"v2a-{g[0]}-{g[1]}-{seq:03d}"          # AMENDMENT-1 cell namespace
+        # AMENDMENT-1 cell namespace v2a-, AMENDMENT-2 v2b- (seq continues)
+        name = f"{'v2b' if self.amend2 else 'v2a'}-{g[0]}-{g[1]}-{seq:03d}"
         spec_path = write_spec(f"{self.rd}/specs/{name}.yaml", make_spec(
             g, lim, name, f"bench-v2 planted cell ({BANDS[g[0]][0]} {g[0]}, "
             f"{g[1]} objective) from search witness {c['cid']}"))
@@ -2140,7 +2337,8 @@ class Pipeline:
                 "atoms": c["atoms"], "atoms_live": c["atoms_live"],
                 "inert_groups_search": c.get("inert_groups", []),
                 "floors": {m: F for m, (_s, F) in FLOORS.items()},
-                "era_tag": AMEND, "selectable": True,
+                "era_tag": self.phase, "selectable": True,
+                **({"verifier": CUR_PROFILE} if self.amend2 else {}),
                 **({"SMOKE_FORCED_would_kill": forced} if forced else {}),
                 "status": "queued", "stages": {}, "smoke": self.mode.startswith("smoke")}
         self.cells[name] = cell
@@ -2177,6 +2375,19 @@ class Pipeline:
             c["status"] = status
             c["why"] = why
             self.active_val.pop(c["name"], None)
+            if isinstance(c.get("amend2"), dict):
+                # AMENDMENT 2 re-evaluation outcome (revalidated / revived / requeued
+                # amendment-1 cell); a kill caused by the port-DC requirement is
+                # tagged amend2-port-dc (kept on record, not selectable)
+                a2 = c["amend2"]
+                a2["outcome"] = status if status == "accepted" else f"{status}:{why}"
+                port = any("port_dc" in (x.get("infeasible_reason") or "")
+                           for stg in c["stages"].values() if isinstance(stg, dict)
+                           for x in stg.get("runs", []) or [] if isinstance(x, dict))
+                if status != "accepted" and port:
+                    a2["tag"] = TAG_PDC
+                    c["selectable"] = False
+                self.pdc[f"cells_{a2.get('action')}_{'accepted' if status == 'accepted' else ('killed_port_dc' if port else 'killed_other')}"] += 1
             self.kill_counts[f"{status}:{why}" if status != "accepted" else "accepted"] += 1
             self.write_cell(c)
             self.event("cell_verdict", cell=c["name"], status=status, why=why,
@@ -2235,7 +2446,7 @@ class Pipeline:
             for j, r in zip(jobs, recs):
                 f1.append(summ(r, seed, {"anchor": j.meta["anchor"],
                                          "inproc_reject": bool(r.get("inproc_reject"))}))
-                self.add_pool(self.pool[c["band"]], r, f"F1:{c['name']}:{j.meta['anchor']}:s{seed}")
+                self.add_pool(self.pool[c["band"]], r, f"F1:{c['name']}:{j.meta['anchor']}:s{seed}", tokens=j.tokens)
                 if j.meta["anchor"] == c["anchor"]:
                     parent_recs.append((seed, r))
             if any(x["feasible"] for x in f1):
@@ -2292,7 +2503,7 @@ class Pipeline:
                 for j, r in zip(chunk, recs):
                     f2.append(summ(r, seed, {"edit": j.meta["edit"]}))
                     self.add_pool(self.pool_se[(c["band"], c["anchor"])], r,
-                                  f"F2:{c['name']}:{j.meta['edit']}:s{seed}")
+                                  f"F2:{c['name']}:{j.meta['edit']}:s{seed}", tokens=j.tokens)
                 c["f2_progress"] = len(f2)
                 if any(x["feasible"] for x in f2):
                     st["F2"] = {"runs": f2, "pass": False,
@@ -2566,12 +2777,340 @@ class Pipeline:
                                                  for v in self.pre_core.values()]),
              "cells": self.pre_core}, indent=1, default=repr))
 
+    # ------------------------------------------- AMENDMENT 2: restore + re-check
+    REQUEUE_STATUSES = ("queued", "validating", "skipped_parent_cap", "skipped_cap",
+                        "skipped_dupwl", "cancelled", "not_validated_bench_done")
+
+    def restore_amend2(self):
+        """AMENDMENT 2 (PREREG 1a0413fb9) resume. The amendment-1 state is RESTORED
+        from the frozen record (`restore_from`, written by `bv2.py amend2-snapshot`
+        at the stop) instead of replaying the generators: a replay re-derives
+        steering from wall-clock order (D13) and would diverge early, redoing most
+        of 24 h of search. Then everything is re-evaluated under rl-v1.1:
+          pools     anchor (cal/F1) and single-edit (F2) designs of the cached
+                    amendment-1 rows; a design solves (pre-kill / label) only if
+                    it meets the port-DC requirement (add_pool pdc_ok)
+          search    candidates + scores + seen WLs restored; an archive member
+                    failing the port-DC pre-filter is dropped (it could never be
+                    sized under rl-v1.1); new generations continue at the next
+                    generation index with an amendment-2 RNG namespace
+          cells     accepted / queued / validating / skipped / cancelled:
+                    pre-filter fail -> status amend2-port-dc (kept, fenced, never
+                    selectable); pass -> accepted cells RE-VALIDATED under rl-v1.1
+                    (every stage re-run through the cache bridge try_derive: rows
+                    the port-DC requirement cannot change are derived exactly, a
+                    feasible rl-v1 row is re-sized and its winner checked), the
+                    others re-queued (admission re-applies the caps). A cell
+                    KILLED by F2 whose witness passes the pre-filter and whose
+                    every solving single edit fails it is REVIVED (that kill is
+                    void under rl-v1.1) and re-queued.
+          training  ok tasks: pre-filter fail -> amend2-port-dc (out of the
+                    pool); pass -> witness re-checked under rl-v1.1 (seed 1, then
+                    seed 2 only if needed) and the difficulty label re-checked
+                    against the port-DC-filtered pools; unproved stay unproved
+          fence     every amendment-1 planted cell (any status), both witnesses
+        The bench end time stays t_amend1 + bench_max_hours."""
+        rf = self.cfg["restore_from"]
+        only_c, only_t = self.cfg.get("restore_cells"), self.cfg.get("restore_train")
+        cells = load_jsonl_last(f"{rf}/cells.jsonl", "name")
+        tasks = load_jsonl_last(f"{rf}/train.jsonl", "name")
+        cands = []
+        for ln in open(f"{rf}/candidates.jsonl"):
+            try:
+                cands.append(json.loads(ln))
+            except Exception:                                    # noqa: BLE001
+                continue
+        a1 = OrderedDict((n, c) for n, c in sorted(cells.items(), key=lambda kv: kv[1]["seq"])
+                         if c.get("era_tag") == AMEND and (only_c is None or n in only_c))
+        # ---- pools (amendment-1 cached rows; pre-amendment rows: load_pre_amendment)
+        n_pool = Counter()
+        for r in list(self.cache.values()):
+            if r.get("phase") != AMEND:
+                continue
+            k, m = r.get("kind"), r.get("meta") or {}
+            try:
+                if k == "cal":
+                    b = m["g"].split("-")[0]
+                    did = f"a1:cal:{m['g']}:{m['anchor']}:s{r['seed']}"
+                    tk = self.anch[m["anchor"]]["tokens"]
+                    self.add_pool(self.pool_cal[b], r, did, tokens=tk)
+                    self.add_pool(self.pool[b], r, did, tokens=tk)
+                elif k == "F1" and m.get("cell") in cells:
+                    b = cells[m["cell"]]["band"]
+                    self.add_pool(self.pool[b], r, f"F1:{m['cell']}:{m['anchor']}:s{r['seed']}",
+                                  tokens=self.anch[m["anchor"]]["tokens"])
+                elif k == "F2" and m.get("cell") in cells:
+                    c = cells[m["cell"]]
+                    self.add_pool(self.pool_se[(c["band"], c["anchor"])], r,
+                                  f"F2:{m['cell']}:{m.get('edit')}:s{r['seed']}",
+                                  tokens=self.f2_edit_tokens(c["anchor"], m))
+                else:
+                    continue
+                n_pool[k] += 1
+            except (KeyError, TypeError):
+                continue
+        self.cal_done = True
+        # ---- search state
+        gmax = {"bench": -1, "train": -1}
+        for c in cands:
+            s = c.get("stream")
+            if s not in gmax or not c.get("g"):
+                continue
+            g = tuple(c["g"].split("-"))
+            self.seen_wl[s][g].add(c["wl"])
+            gmax[s] = max(gmax[s], int(c.get("gen", 0)))
+            self.pdc[f"restored_candidates_{s}"] += 1
+            if c.get("score") is None:
+                continue
+            if not self.prefilter(c["tokens"])["pass"]:
+                self.pdc[f"archive_dropped_prefilter_{s}"] += 1
+                continue
+            self.archive[s][g].append(c)
+            self.pdc[f"archive_kept_{s}"] += 1
+        for s in gmax:
+            self.search_gen0[s] = gmax[s] + 1
+        # ---- cells
+        revalidate, requeue = [], []
+        for n, c0 in a1.items():
+            c = copy.deepcopy(c0)
+            rt = self.round_trip(c["netlist"])
+            c["tokens"] = rt["tokens"]
+            for w in [c] + [c[k] for k in ("witness_original",) if c.get(k)]:
+                self.fence_wl.add(w["wl"])
+                self.fence_tok.add(w["tok"])
+            if os.path.exists(c.get("spec", "")):
+                self.fence_spec.add(spec_sha(c["spec"]))
+            st = c["status"]
+            pf = self.prefilter(c["tokens"])
+            pfs = {k: pf[k] for k in ("pass", "why", "group")}
+            if st == "accepted" or st in self.REQUEUE_STATUSES:
+                if not pf["pass"]:
+                    c["amend2"] = {"action": "tag", "status_before": st, "prefilter": pfs,
+                                   "tag": TAG_PDC, "outcome": TAG_PDC}
+                    c["status"], c["selectable"] = TAG_PDC, False
+                    self.pdc[f"cells_tagged_prefilter_{st}"] += 1
+                elif st == "accepted":
+                    c["amend2"] = {"action": "revalidate", "status_before": st,
+                                   "prefilter": pfs,
+                                   "amend1": {"cls": c.get("cls"),
+                                              "primary_atom": c.get("primary_atom"),
+                                              "strip": ((c.get("core") or {}).get("strip")
+                                                        or {}).get("flag")}}
+                    revalidate.append(c)
+                else:
+                    c["amend2"] = {"action": "requeue", "status_before": st, "prefilter": pfs}
+                    requeue.append(c)
+            elif st == "killed" and c.get("why") == "F2_single_edit_solves" and pf["pass"]:
+                sol = (c["stages"].get("F2") or {}).get("solving_edits") or []
+                stoks = [next((x["tokens"] for x in self.f2space[c["anchor"]]
+                               if x["desc"] == e and x["rt_ok"]), None) for e in sol]
+                void = bool(sol) and all(t is not None and not self.prefilter(t)["pass"]
+                                         for t in stoks)
+                if void:
+                    c["amend2"] = {"action": "revive", "status_before": st,
+                                   "why_before": c.get("why"), "prefilter": pfs,
+                                   "void_solving_edits": sol}
+                    requeue.append(c)
+                    self.pdc["cells_revived_f2_kill_void"] += 1
+                else:
+                    self.pdc["cells_f2_kill_stands"] += 1
+            acted = any(x and x[-1] is c for x in (revalidate, requeue))
+            if acted:
+                # fresh rl-v1.1 validation; the amendment-1 record is kept
+                c["amend1_stages"] = c.get("stages") or {}
+                c["stages"] = {}
+                for k in ("core", "evidence", "f2_progress", "why", "cls_search",
+                          "label_search", "f2_space_total", "f2_rt_fail"):
+                    if k in c:
+                        c[f"amend1_{k}"] = c.pop(k)
+                if c.get("witness_original"):
+                    c["witness_original_amend1"] = c.pop("witness_original")
+                c["selectable"] = True
+            self.cells[n] = c
+            if not acted:
+                self.write_cell(c)
+        self.amend1_cells = a1
+        for c in revalidate:
+            c["status"] = "validating"
+            self.write_cell(c)
+            self.active_val[c["name"]] = True
+            self.pdc["cells_revalidate_started"] += 1
+            self.spawn("cell:" + c["name"], self.task_cell(c), "val")
+        for c in requeue:
+            c["status"] = "queued"
+            self.write_cell(c)
+            self.val_queue.append(c)
+            self.pdc[f"cells_{c['amend2']['action']}_queued"] += 1
+        # ---- void F2 pre-kills: a bench candidate pre-killed (never planted) only
+        # because a recorded single edit of its parent met its spec, where that
+        # edit fails the port-DC pre-filter (so it is no solver under rl-v1.1),
+        # and the candidate itself passes: planted now from its recorded seed-1 +
+        # seed-2 probe rows (plant_bench re-applies the port-DC-filtered pre-kill
+        # pools, the floors and the fence; the cell then validates under rl-v1.1)
+        only_r = self.cfg.get("restore_replant")
+        cand_by = {c["cid"]: c for c in cands}
+        evs = []
+        for ln in open(f"{rf}/events.jsonl"):
+            try:
+                e = json.loads(ln)
+            except Exception:                                    # noqa: BLE001
+                continue
+            if e.get("kind") == "prekill" and str(e.get("why", "")).startswith("F2"):
+                evs.append(e)
+        done = set()
+        for e in evs:
+            cid = e["cid"]
+            if cid in done or (only_r is not None and cid not in only_r):
+                continue
+            done.add(cid)
+            c = cand_by.get(cid)
+            parts = str(e.get("design", "")).split(":")
+            if not c or len(parts) < 3 or not c.get("feasible"):
+                continue
+            cell0 = cells.get(parts[1]) or {}
+            etoks = next((x["tokens"] for x in self.f2space.get(cell0.get("anchor"), [])
+                          if x["desc"] == parts[2] and x["rt_ok"]), None)
+            if etoks is None or self.prefilter(etoks)["pass"] or \
+                    not self.prefilter(c["tokens"])["pass"]:
+                self.pdc["prekill_f2_stands"] += 1
+                continue
+            g = tuple(c["g"].split("-"))
+            if g not in self.probe:
+                continue
+            rec2 = self.cache.get(job_id(c["tokens"], self.probe[g], 2, BUDGET, PROFILE))
+            if not rec2 or not feasible(rec2):
+                continue
+            n0 = len(self.cells)
+            c = dict(c, origin=dict(c.get("origin") or {}, amend2_replant=e["design"]))
+            self.plant("bench", c, rec2)
+            if len(self.cells) > n0:
+                nc = list(self.cells.values())[-1]
+                nc["amend2"] = {"action": "replant", "void_prekill": e["design"],
+                                "cid": cid}
+                self.write_cell(nc)
+                self.pdc["cells_replanted_void_prekill"] += 1
+            else:
+                self.pdc["replant_rejected_again"] += 1
+        # ---- training tasks
+        for n, t0 in sorted(tasks.items(), key=lambda kv: kv[1]["seq"]):
+            if only_t is not None and n not in only_t:
+                continue
+            t = copy.deepcopy(t0)
+            t["tokens"] = self.round_trip(t["netlist"])["tokens"]
+            self.train_tasks[n] = t
+            if t["status"] != "ok":
+                self.write_train(t)
+                continue
+            pf = self.prefilter(t["tokens"])
+            pfs = {k: pf[k] for k in ("pass", "why", "group")}
+            if not pf["pass"]:
+                t["amend2"] = {"action": "tag", "status_before": "ok", "prefilter": pfs,
+                               "label_before": t.get("difficulty"), "tag": TAG_PDC,
+                               "outcome": TAG_PDC}
+                t["status"] = TAG_PDC
+                self.pdc[f"train_tagged_prefilter_{t.get('difficulty')}"] += 1
+                self.write_train(t)
+                continue
+            t["amend2"] = {"action": "recheck", "status_before": "ok", "prefilter": pfs,
+                           "label_before": t.get("difficulty")}
+            t["status"] = "running"
+            self.spawn("train:" + n, self.task_train_recheck(t), "train")
+        self.log(f"AMENDMENT 2 restore from {rf}: cells={len(a1)} revalidate={len(revalidate)} "
+                 f"requeue/revive={len(requeue)} tagged={sum(1 for c in self.cells.values() if c['status'] == TAG_PDC)} "
+                 f"train={len(self.train_tasks)} recheck={sum(1 for t in self.train_tasks.values() if t['status'] == 'running')} "
+                 f"pool rows={dict(n_pool)} next gen={self.search_gen0} pdc={dict(self.pdc)}")
+        self.event("amend2_restore", restore_from=os.path.relpath(rf, REPO),
+                   cells=len(a1), next_gen=self.search_gen0, pdc=dict(self.pdc),
+                   revalidate=[c["name"] for c in revalidate],
+                   requeue=[[c["name"], c["amend2"]["action"]] for c in requeue])
+        self.spawn("search:bench", self.task_search("bench"), "search")
+        self.spawn("search:train", self.task_search("train"), "train")
+
+    def write_train(self, t):
+        self.fh["train.jsonl"].write(jdump({k: v for k, v in t.items() if k != "tokens"})
+                                     + "\n")
+        self.fh["train.jsonl"].flush()
+
+    def task_train_recheck(self, t):
+        """AMENDMENT 2: re-check a pre-filter-passing amendment-1 training task under
+        rl-v1.1. Witness proof: seed 1, then seed 2 only if seed 1 fails (>= 1 of
+        {1, 2} as pre-registered; rows the port-DC requirement cannot change come
+        from the cache bridge, a feasible rl-v1 row is re-sized and checked).
+        Difficulty: library-solvable stays (anchor designs meet the requirement:
+        port-dc-guard tests + pre-filter); otherwise re-derived from the port-DC-
+        filtered pools (recorded anchor / single-edit designs), no new sizing."""
+        tok, spec, bt = t["tokens"], t["spec"], t["bt"]
+        t["amend1_stages"] = t.get("stages") or {}
+        t["stages"] = {}
+        wit = []
+        for s in (1, 2):
+            (r,) = yield [Job("T-wit", "train", tok, spec, s,
+                              meta={"task": t["name"], "stage": "T-wit", "amend2_recheck": True})]
+            res = r.get("res") or {}
+            pd = res.get("port_dc") or {}
+            wit.append({"seed": s, "jid": r["jid"], "feasible": feasible(r),
+                        "derived": bool(r.get("derived_from")),
+                        "infeasible_reason": res.get("infeasible_reason"),
+                        "port_dc": {k: pd.get(k) for k in ("pass", "dVG_max_V", "dIdd_pct")}
+                        if pd else None})
+            if wit[-1]["feasible"]:
+                break
+        t["stages"]["witness"] = wit
+        a2 = t["amend2"]
+        if not any(x["feasible"] for x in wit):
+            port = any("port_dc" in (x["infeasible_reason"] or "") for x in wit)
+            t["status"] = TAG_PDC if port else "unproved"
+            a2["outcome"] = t["status"]
+            if port:
+                a2["tag"] = TAG_PDC
+            self.pdc[f"train_recheck_{'fail_port_dc' if port else 'fail_other'}"] += 1
+            self.write_train(t)
+            return
+        old = t.get("difficulty")
+        label, why = None, None
+        if old == "library-solvable":
+            label, why = old, t.get("difficulty_why")
+        else:
+            for d in self.pool[t["band"]]:
+                if d.get("pdc_ok", True) and satisfies(d["metrics"], d["stab_ok"], bt, t["limits"]):
+                    label, why = "library-solvable", f"recorded anchor design {d['id']}"
+                    break
+            if label is None:
+                for key, lst in self.pool_se.items():
+                    if key[0] != t["band"]:
+                        continue
+                    for d in lst:
+                        if d.get("pdc_ok", True) and satisfies(d["metrics"], d["stab_ok"],
+                                                               bt, t["limits"]):
+                            label, why = "single-edit-solvable", f"recorded single edit {d['id']}"
+                            break
+                    if label:
+                        break
+            if label is None:
+                label, why = "witness-only", ("no anchor feasible at seed 1; no known "
+                                              "single edit meeting the port-DC requirement")
+        t["difficulty"], t["difficulty_why"] = label, why
+        a2["label_after"] = label
+        a2["outcome"] = "ok" + ("" if label == old else f" (relabelled {old} -> {label})")
+        self.pdc["train_recheck_ok"] += 1
+        if label != old:
+            self.pdc[f"train_relabelled_{old}->{label}"] += 1
+        t["status"] = "ok"
+        self.train_ok.append(t["name"])
+        self.write_train(t)
+
     # --------------------------------------------------------------- training
+    def train_have(self, g):
+        """tasks counted against a grid point's quota (AMENDMENT 2: a task tagged
+        amend2-port-dc no longer holds a slot; its point may be refilled)."""
+        return sum(1 for t in self.train_tasks.values()
+                   if t["g"] == gkey(g) and t["status"] != TAG_PDC)
+
     def plant_train(self, c, g, bt):
         if len(self.train_ok) + sum(1 for t in self.train_tasks.values()
                                     if t["status"] == "running") >= self.cfg["train_target"]:
             return
-        have = sum(1 for t in self.train_tasks.values() if t["g"] == gkey(g))
+        have = self.train_have(g)
         if have >= self.cfg["train_quota_per_point"]:
             return
         # fence: accepted bench witnesses (both eras) + AMENDMENT 1: every
@@ -2618,7 +3157,7 @@ class Pipeline:
             return
         label, why = None, None
         for d in self.pool[t["band"]]:
-            if satisfies(d["metrics"], d["stab_ok"], bt, t["limits"]):
+            if d.get("pdc_ok", True) and satisfies(d["metrics"], d["stab_ok"], bt, t["limits"]):
                 label, why = "library-solvable", f"recorded anchor design {d['id']}"
                 break
         parent_recs = []
@@ -2645,7 +3184,7 @@ class Pipeline:
                 if key[0] != t["band"]:
                     continue
                 for d in lst:
-                    if satisfies(d["metrics"], d["stab_ok"], bt, t["limits"]):
+                    if d.get("pdc_ok", True) and satisfies(d["metrics"], d["stab_ok"], bt, t["limits"]):
                         label, why = "single-edit-solvable", f"recorded single edit {d['id']}"
                         break
                 if label:
@@ -2711,7 +3250,7 @@ class Pipeline:
             "bench": {"planted": len(self.cells), "queued": len(self.val_queue),
                       "validating": dict(stage_active), "status": dict(stat),
                       "accepted": acc, "selectable": len(sel),
-                      "era": AMEND,
+                      "era": self.phase,
                       "accepted_per_core_class": dict(self.core_accepted),
                       "accepted_per_parent": dict(self.parent_accepted),
                       "accepted_core_atom_hist": dict(self.core_atom_count),
@@ -2757,6 +3296,27 @@ class Pipeline:
                 "primary_atom_hist": dict(Counter(v["primary_atom"] for v in self.pre_core.values())),
                 "seed_topologies": len(self.pre_cands),
                 "seeds_used": len(self.pre_seed_used)},
+            "amendment2": None if not self.amend2 else {
+                "profile": CUR_PROFILE,
+                "t_amend2": (time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(self.t_amend2))
+                             if self.t_amend2 else None),
+                "bench_end_unchanged": time.strftime(
+                    "%Y-%m-%dT%H:%M:%S", time.localtime(self.t_amend + 3600 * self.cfg["bench_max_hours"])),
+                "class_rule": self.cfg.get("class_rule"),
+                "port_dc": {
+                    **dict(sorted(self.pdc.items())),
+                    "gen_rejects_prefilter": {s: self.search_stats[s].get("rej_port_dc_prefilter", 0)
+                                              for s in ("bench", "train")},
+                    "cells_by_action_outcome": dict(Counter(
+                        f"{c['amend2'].get('action')}:{c['amend2'].get('outcome') or c['status']}"
+                        for c in self.cells.values() if isinstance(c.get("amend2"), dict))),
+                    "cells_tagged": sum(1 for c in self.cells.values()
+                                        if (c.get("amend2") or {}).get("tag") == TAG_PDC),
+                    "train_by_action_outcome": dict(Counter(
+                        f"{t['amend2'].get('action')}:{t['amend2'].get('outcome') or t['status']}"
+                        for t in self.train_tasks.values() if isinstance(t.get("amend2"), dict))),
+                    "train_tagged": sum(1 for t in self.train_tasks.values()
+                                        if t["status"] == TAG_PDC)}},
             "train": {"tasks": len(self.train_tasks), "ok": len(self.train_ok),
                       "labels": dict(Counter(self.train_tasks[n].get("difficulty")
                                              for n in self.train_ok)),
@@ -2801,7 +3361,7 @@ def make_evidence(c, spec_path, parent_recs, A):
             "margins": {n: {"achieved": a, "margin": mg, "supported": sup}
                         for n, a, _c, mg, sup in rows},
             "metrics": m, "total_evals": tot,
-            "verifier": "rl-v1", "seeds": [s for s, _r in parent_recs],
+            "verifier": CUR_PROFILE, "seeds": [s for s, _r in parent_recs],
             "best_seed": seed, "stab_wide_ok": res.get("stab_wide_ok"),
             "mu_min_wide": res.get("mu_min_wide"),
             "infeasible_reason": res.get("infeasible_reason")}
@@ -2825,6 +3385,14 @@ def write_cell_dir(c, d, A, cache):
                    "witness (non-essential/inert edit groups stripped) and re-verified "
                    "(A1/A2/A3, results.json). The original search witness is kept in "
                    "original/.\n")
+    if c.get("amend2"):
+        readme += (f"AMENDMENT 2: this cell was {c['amend2'].get('action')}d under verifier "
+                   f"{CUR_PROFILE} (rl-v1 + input-port DC requirement); every stage in "
+                   "results.json is an rl-v1.1 run.\n")
+        if c.get("witness_original_amend1") and not orig:
+            readme += ("original/ (if present) is the AMENDMENT-1 search witness of which "
+                       "this witness is the ablation core -- a fenced record, not the "
+                       "cell's witness.\n")
     atomic_write(f"{d}/witness/README", readme)
 
     def put(dd, netlist, tokens, script, repairs, tok, wl, stages, note):
@@ -2847,7 +3415,7 @@ def write_cell_dir(c, d, A, cache):
                     "seed": x["seed"], "budget": BUDGET, "spec": sp,
                     "result": rec.get("res"), "era": rec.get("era")}
         atomic_write(f"{dd}/results.json", json.dumps(
-            {"verifier": PROFILE, "pdk": PDK, "budget": BUDGET,
+            {"verifier": CUR_PROFILE, "pdk": PDK, "budget": BUDGET,
              "tight_limits": c["tight_limits"], "limits": c["limits"], "runs": runs},
             indent=1, default=repr))
     tight_note = "tightened (limits in results.json)"
@@ -2895,7 +3463,21 @@ def atom_prevalence(cells):
             sorted(cnt.items(), key=lambda kv: (-kv[1], kv[0]))} if n else {}
 
 
-def select_cells(cells, cfg, nb_quota=True, era=AMEND, rule=None):
+def _cfg_eras(cfg):
+    """selectable eras of a config: AMENDMENT 2 runs select amendment-1 cells
+    re-accepted under rl-v1.1 and amendment-2 cells; earlier configs amendment-1."""
+    return POST_ERAS if cfg.get("amend2") else AMEND
+
+
+def _era_ok(c, era):
+    if era is None:
+        return True
+    if isinstance(era, (tuple, list, set)):
+        return c.get("era_tag") in era
+    return c.get("era_tag") == era
+
+
+def select_cells(cells, cfg, nb_quota=True, era="cfg", rule=None):
     """Final selection (AMENDMENT 1). Only ACCEPTED cells of era `era` (post-
     amendment) are selectable; pre-amendment cells never are. The selection of
     size n must satisfy
@@ -2909,7 +3491,8 @@ def select_cells(cells, cfg, nb_quota=True, era=AMEND, rule=None):
     fill in acceptance order; all caps are checked at every pick."""
     rule = rule or cfg.get("class_rule", "signature")
     assert rule in CLASS_RULES, rule
-    cells = sorted([c for c in cells if era is None or c.get("era_tag") == era],
+    era = _cfg_eras(cfg) if era == "cfg" else era
+    cells = sorted([c for c in cells if _era_ok(c, era)],
                    key=lambda c: c["seq"])
     for n in range(min(cfg["bench_target"], len(cells)), 0, -1):
         ccap = max(1, int(math.floor(cfg["cap_frac"] * n + 1e-9)))
@@ -2944,13 +3527,14 @@ def select_cells(cells, cfg, nb_quota=True, era=AMEND, rule=None):
     return []
 
 
-def selection_report(cells, cfg, era=AMEND):
+def selection_report(cells, cfg, era="cfg"):
     """quota bookkeeping for progress / INDEX. The ACTIVE selection uses
     cfg['class_rule'] (default 'signature', as pre-registered). Both class-cap
     variants are always computed: (a) whole-signature, (b) primary-atom; plus the
     active rule without the narrowband quota (shortfall report) and (c) the
     any-atom prevalence over accepted and selected cells."""
-    acc = [c for c in cells if c.get("era_tag") == era]
+    era = _cfg_eras(cfg) if era == "cfg" else era
+    acc = [c for c in cells if _era_ok(c, era)]
     rule = cfg.get("class_rule", "signature")
     var = {r: select_cells(acc, cfg, True, era, r) for r in CLASS_RULES}
     sel = var[rule]
@@ -2998,14 +3582,20 @@ def finalize(mode, rd=None):
     rd = rd or cfg["run_dir"]
     cells = load_jsonl_last(f"{rd}/cells.jsonl", "name")
     # AMENDMENT 1: only post-amendment accepted cells are selectable
+    # AMENDMENT 2: + amendment-2 cells; an amendment-1 cell is selectable only if it
+    # was re-accepted under rl-v1.1 (status accepted again, never tagged)
     acc_all = [c for c in cells.values() if c["status"] == "accepted"]
-    acc = [c for c in acc_all if c.get("era_tag") == AMEND]
-    srep, sel = selection_report(acc, cfg)
-    sub = {"full": "", "smoke": "smoke/", "smoke-a1": "smoke/amend1-"}[mode]
+    eras = POST_ERAS if cfg.get("amend2") else (AMEND,)
+    acc = [c for c in acc_all if c.get("era_tag") in eras and c.get("selectable", True)]
+    srep, sel = selection_report(acc, cfg, era=eras)
+    sub = {"full": "", "smoke": "smoke/", "smoke-a1": "smoke/amend1-",
+           "smoke-a2": "smoke/amend2-"}[mode]
     lib = f"{REPO}/kaggle/editcap-lib-v2" if mode == "full" else f"{CAMP}/{sub}editcap-lib-v2"
     tp = f"{REPO}/kaggle/train-pool-v2" if mode == "full" else f"{CAMP}/{sub}train-pool-v2"
     os.makedirs(lib, exist_ok=True)
-    index = {"prereg": "kaggle/PREREG-BENCH-V2.md (+ AMENDMENT 1)", "verifier": PROFILE,
+    index = {"prereg": "kaggle/PREREG-BENCH-V2.md (+ AMENDMENT 1"
+                       + (", AMENDMENT 2)" if cfg.get("amend2") else ")"),
+             "verifier": cfg["profile"],
              "pdk": PDK, "budget": BUDGET, "mode": mode, "n_accepted": len(acc),
              "n_accepted_pre_amendment_not_selectable": len(acc_all) - len(acc),
              "n_selected": len(sel), "shortfall": max(0, cfg["bench_min"] - len(sel)),
@@ -3036,15 +3626,18 @@ def finalize(mode, rd=None):
     ok = [t for t in tasks.values() if t["status"] == "ok"]
     # fence: every accepted cell (both eras) + every post-amendment planted cell
     # (original and stripped witness), by WL / token hash and spec
-    fcells = acc_all + [c for c in cells.values() if c.get("era_tag") == AMEND
+    # AMENDMENT 2: + every amendment-2 planted cell and the amendment-1 original
+    # witness of a cell re-validated under rl-v1.1 (witness_original_amend1)
+    fcells = acc_all + [c for c in cells.values() if c.get("era_tag") in POST_ERAS
                         and c["status"] != "accepted"]
-    bench_wl = {c["wl"] for c in fcells} | {(c.get("witness_original") or {}).get("wl")
-                                            for c in fcells} - {None}
-    bench_tok = {c["tok"] for c in fcells} | {(c.get("witness_original") or {}).get("tok")
-                                              for c in fcells} - {None}
+    wkeys = ("witness_original", "witness_original_amend1")
+    bench_wl = {c["wl"] for c in fcells} | {(c.get(k) or {}).get("wl")
+                                            for c in fcells for k in wkeys} - {None}
+    bench_tok = {c["tok"] for c in fcells} | {(c.get(k) or {}).get("tok")
+                                              for c in fcells for k in wkeys} - {None}
     bench_specs = {json.dumps(c["limits"], sort_keys=True) + c["g"] for c in fcells}
     os.makedirs(tp, exist_ok=True)
-    tindex = {"prereg": "kaggle/PREREG-BENCH-V2.md", "verifier": PROFILE, "mode": mode,
+    tindex = {"prereg": "kaggle/PREREG-BENCH-V2.md", "verifier": cfg["profile"], "mode": mode,
               "fence": "no bench-v2 spec, witness WL hash or witness token hash",
               "tasks": OrderedDict(), "fenced_out": []}
     for t in ok:
@@ -3100,6 +3693,36 @@ def main():
         Pipeline(a.mode, rd).run()
     elif a.cmd == "finalize":
         finalize(a.mode, a.run_dir)
+    elif a.cmd == "amend2-snapshot":
+        # AMENDMENT 2: freeze the amendment-1 record (copies, never moved) at the
+        # stop; restore_amend2 rebuilds the state from it. Result cache stays.
+        import shutil
+        rd = a.run_dir or CONFIGS[a.mode]["run_dir"]
+        d = f"{rd}/amendment-1-record"
+        if os.path.isdir(d):
+            raise SystemExit(f"snapshot exists: {d}")
+        pid = f"{rd}/sched.pid"
+        if os.path.exists(pid):
+            try:
+                cmd = open(f"/proc/{int(open(pid).read().strip())}/cmdline").read()
+            except (OSError, ValueError):
+                cmd = ""
+            if "bv2.py" in cmd and " run" in cmd.replace("\0", " "):
+                raise SystemExit("scheduler still running: stop it first")
+        os.makedirs(d)
+        man = {"taken": time.strftime("%Y-%m-%dT%H:%M:%S"), "amendment": AMEND2,
+               "prereg_commit": "1a0413fb9", "files": {}}
+        for f in ("cells.jsonl", "candidates.jsonl", "events.jsonl", "train.jsonl",
+                  "progress.json", "sched.log", "start.json",
+                  "pre-amendment-core-classes.json"):
+            if os.path.exists(f"{rd}/{f}"):
+                shutil.copy2(f"{rd}/{f}", f"{d}/{f}")
+                man["files"][f] = hashlib.md5(open(f"{d}/{f}", "rb").read()).hexdigest()
+        n = sum(1 for _ in open(f"{rd}/results.jsonl")) if os.path.exists(
+            f"{rd}/results.jsonl") else 0
+        man["results_jsonl_rows_at_snapshot"] = n
+        atomic_write(f"{d}/MANIFEST.json", json.dumps(man, indent=1))
+        print(json.dumps(man, indent=1))
     elif a.cmd == "amend-snapshot":
         # AMENDMENT 1: freeze the pre-amendment record (copies, never moved) before
         # the first post-amendment start; the result cache stays in place.

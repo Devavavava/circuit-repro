@@ -1,0 +1,73 @@
+{
+ "parent_anchor": "lna-a2-current-reuse",
+ "script": [
+  {
+   "op": "add",
+   "t": "NMOS",
+   "name": "ZN1",
+   "nets": [
+    "VDD",
+    "n2",
+    "n1",
+    "VSS"
+   ],
+   "grp": 0
+  },
+  {
+   "op": "rw",
+   "name": "PM1",
+   "pin": 0,
+   "net": "x1",
+   "grp": 1,
+   "macro": "stk"
+  },
+  {
+   "op": "add",
+   "t": "PMOS",
+   "name": "ZP1",
+   "nets": [
+    "x1",
+    "n3",
+    "n2",
+    "VDD"
+   ],
+   "grp": 1,
+   "macro": "stk"
+  }
+ ],
+ "repairs": [],
+ "move_class": "add:NMOS:dRAIL.gD.sG + stk:PMOS:PMOS.D:D.gG",
+ "core_signature": "add:NMOS:dRAIL.gD.sG + stk:PMOS:PMOS.D:D.gG",
+ "core_groups": [
+  0,
+  1
+ ],
+ "legacy_class": "added-stage",
+ "label": "added-stage",
+ "edit_labels": [
+  {
+   "op": "add",
+   "name": "ZN1",
+   "label": "added-stage",
+   "tok": "NM3",
+   "inert": false
+  },
+  {
+   "op": "rw",
+   "name": "PM1",
+   "label": "gm-boost",
+   "tok": "PM1",
+   "inert": false
+  },
+  {
+   "op": "add",
+   "name": "ZP1",
+   "label": "gm-boost",
+   "tok": "PM3",
+   "inert": false
+  }
+ ],
+ "search_cid": "B0002-wb0824-gain-4",
+ "wl_hash": "c03e1adb770c8823",
+ "tok_hash": "6191566ec56b0703"
+}

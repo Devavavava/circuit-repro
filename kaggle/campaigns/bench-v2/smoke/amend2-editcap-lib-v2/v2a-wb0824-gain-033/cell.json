@@ -1,0 +1,375 @@
+{
+ "name": "v2a-wb0824-gain-033",
+ "seq": 33,
+ "g": "wb0824-gain",
+ "band": "wb0824",
+ "flavor": "gain",
+ "bt": "wideband",
+ "cid": "B0002-wb0824-gain-4",
+ "anchor": "a2",
+ "wl": "c03e1adb770c8823",
+ "tok": "6191566ec56b0703",
+ "script": [
+  {
+   "op": "add",
+   "t": "NMOS",
+   "name": "ZN1",
+   "nets": [
+    "VDD",
+    "n2",
+    "n1",
+    "VSS"
+   ],
+   "grp": 0
+  },
+  {
+   "op": "rw",
+   "name": "PM1",
+   "pin": 0,
+   "net": "x1",
+   "grp": 1,
+   "macro": "stk"
+  },
+  {
+   "op": "add",
+   "t": "PMOS",
+   "name": "ZP1",
+   "nets": [
+    "x1",
+    "n3",
+    "n2",
+    "VDD"
+   ],
+   "grp": 1,
+   "macro": "stk"
+  }
+ ],
+ "repairs": [],
+ "cls": "add:NMOS:dRAIL.gD.sG + stk:PMOS:PMOS.D:D.gG",
+ "label": "added-stage",
+ "edit_labels": [
+  {
+   "op": "add",
+   "name": "ZN1",
+   "label": "added-stage",
+   "tok": "NM3",
+   "inert": false
+  },
+  {
+   "op": "rw",
+   "name": "PM1",
+   "label": "gm-boost",
+   "tok": "PM1",
+   "inert": false
+  },
+  {
+   "op": "add",
+   "name": "ZP1",
+   "label": "gm-boost",
+   "tok": "PM3",
+   "inert": false
+  }
+ ],
+ "e": 0.6176784412319296,
+ "e_vs": "pre:cal:wb0824-noise:a2:s2",
+ "limits": {
+  "nf_max_db": 2.0294,
+  "s11_max_db": -9.0232,
+  "s21_db": 11.5907,
+  "s21_ripple_db": 1.1713,
+  "idd_ma": 7.1585
+ },
+ "tight_limits": {
+  "nf_max_db": 1.9888119999999998,
+  "s11_max_db": -9.203664,
+  "s21_db": 11.822514,
+  "s21_ripple_db": 1.147874,
+  "idd_ma": 7.0153300000000005
+ },
+ "spec": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/run/specs/v2a-wb0824-gain-033.yaml",
+ "tight_spec": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/run/specs/v2a-wb0824-gain-033__tight.yaml",
+ "witness_search_metrics": {
+  "s11_db": -14.2753,
+  "s11_max_db": -9.20374,
+  "s21_db": 11.8226,
+  "s21_min_db": 10.6956,
+  "idd_ma": 6.1778010000000005,
+  "nf_db": 1.549549,
+  "s22_db": -6.71389,
+  "s22_max_db": -5.70519,
+  "s12_db": -20.53,
+  "k_f0": 1.21082,
+  "k_min": 1.08357,
+  "mu_f0": 1.17295,
+  "mu_min": 1.06391,
+  "mu_src_f0": 1.3102,
+  "mu_src_min": 1.09398,
+  "delta_f0": 0.373052,
+  "delta_max": 0.411492,
+  "s21_ripple_db": 1.1478000000000002,
+  "nf_max_db": 1.98875
+ },
+ "planted_from": {
+  "nf_max_db": 1.98875,
+  "s11_max_db": -9.20374,
+  "s21_db": 11.8226,
+  "s21_ripple_db": 1.1478000000000002,
+  "idd_ma": 7.015282,
+  "mu_min": 1.05567
+ },
+ "metrics_seed2": {
+  "s11_db": -13.8775,
+  "s11_max_db": -9.26987,
+  "s21_db": 11.9222,
+  "s21_min_db": 10.8809,
+  "idd_ma": 7.015282,
+  "nf_db": 1.44648,
+  "s22_db": -6.65218,
+  "s22_max_db": -5.72906,
+  "s12_db": -20.4553,
+  "k_f0": 1.18251,
+  "k_min": 1.07093,
+  "mu_f0": 1.15068,
+  "mu_min": 1.05567,
+  "mu_src_f0": 1.26346,
+  "mu_src_min": 1.08207,
+  "delta_f0": 0.377638,
+  "delta_max": 0.41983,
+  "s21_ripple_db": 1.0801999999999996,
+  "nf_max_db": 1.787264
+ },
+ "atoms": [
+  [
+   0,
+   "add:NMOS:dRAIL.gD.sG"
+  ],
+  [
+   1,
+   "stk:PMOS:PMOS.D:D.gG"
+  ]
+ ],
+ "atoms_live": [
+  "add:NMOS:dRAIL.gD.sG",
+  "stk:PMOS:PMOS.D:D.gG"
+ ],
+ "inert_groups_search": [],
+ "floors": {
+  "s11_max_db": -9.0,
+  "s21_db": 10.0
+ },
+ "era_tag": "amendment-1",
+ "selectable": true,
+ "status": "validating",
+ "stages": {
+  "A1": {
+   "n_feasible": 2,
+   "pass": true,
+   "n_runs": 3
+  },
+  "F1": {
+   "pass": true,
+   "n_runs": 10
+  },
+  "A2": {
+   "pass": true,
+   "n_runs": 2
+  },
+  "A3": {
+   "pass": true,
+   "n_runs": 1
+  },
+  "F2": {
+   "pass": true,
+   "solving_edits": [],
+   "n_sized": 14,
+   "n_prereject": 10,
+   "n_runs": 24
+  }
+ },
+ "smoke": false,
+ "amend2": {
+  "action": "requeue",
+  "status_before": "skipped_dupwl",
+  "prefilter": {
+   "pass": true,
+   "why": [],
+   "group": [
+    "VIN1"
+   ]
+  }
+ },
+ "amend1_stages": {},
+ "f2_space_total": 179,
+ "f2_rt_fail": [
+  "del L L1 (n0 n1)"
+ ],
+ "f2_SMOKE_SUBSET": 12,
+ "f2_progress": 24,
+ "cls_search": "added-stage",
+ "label_search": "added-stage",
+ "core": {
+  "inert_groups": [],
+  "inert_toknames": [
+   "C3",
+   "L2"
+  ],
+  "atoms": [
+   [
+    0,
+    "add:NMOS:dRAIL.gD.sG"
+   ],
+   [
+    1,
+    "stk:PMOS:PMOS.D:D.gG"
+   ]
+  ],
+  "drop_one": [
+   [
+    0,
+    {
+     "essential": true,
+     "valid": true,
+     "why": null,
+     "runs": [
+      {
+       "seed": 1,
+       "jid": "4dc374b2c868e6c29581",
+       "feasible": false
+      },
+      {
+       "seed": 2,
+       "jid": "19666f17ee82495dc9c3",
+       "feasible": false
+      }
+     ]
+    }
+   ],
+   [
+    1,
+    {
+     "essential": true,
+     "valid": true,
+     "why": null,
+     "runs": [
+      {
+       "seed": 1,
+       "jid": "d0fdeff5a619919796c3",
+       "feasible": false
+      },
+      {
+       "seed": 2,
+       "jid": "b79e988ae74008bb14c9",
+       "feasible": false
+      }
+     ]
+    }
+   ]
+  ],
+  "greedy": [],
+  "essential_drop_one": [
+   0,
+   1
+  ],
+  "core_groups": [
+   0,
+   1
+  ],
+  "sig_groups": [
+   0,
+   1
+  ],
+  "signature": "add:NMOS:dRAIL.gD.sG + stk:PMOS:PMOS.D:D.gG",
+  "primary_atom": "add:NMOS:dRAIL.gD.sG",
+  "primary": {
+   "atom": "add:NMOS:dRAIL.gD.sG",
+   "grp": 0,
+   "loss": 0.547315,
+   "ranking": [
+    [
+     0.547315,
+     "add:NMOS:dRAIL.gD.sG",
+     0
+    ],
+    [
+     0.050287,
+     "stk:PMOS:PMOS.D:D.gG",
+     1
+    ]
+   ]
+  },
+  "core_drop": [
+   [
+    0,
+    {
+     "valid": true,
+     "why": null,
+     "feasible": false,
+     "runs": [
+      {
+       "seed": 1,
+       "jid": "4dc374b2c868e6c29581",
+       "feasible": false
+      },
+      {
+       "seed": 2,
+       "jid": "19666f17ee82495dc9c3",
+       "feasible": false
+      }
+     ]
+    }
+   ],
+   [
+    1,
+    {
+     "valid": true,
+     "why": null,
+     "feasible": false,
+     "runs": [
+      {
+       "seed": 1,
+       "jid": "d0fdeff5a619919796c3",
+       "feasible": false
+      },
+      {
+       "seed": 2,
+       "jid": "b79e988ae74008bb14c9",
+       "feasible": false
+      }
+     ]
+    }
+   ]
+  ],
+  "legacy_class": "added-stage",
+  "legacy_label": "added-stage",
+  "legacy_edit_labels": [
+   {
+    "op": "add",
+    "name": "ZN1",
+    "label": "added-stage",
+    "tok": "NM3",
+    "inert": false
+   },
+   {
+    "op": "rw",
+    "name": "PM1",
+    "label": "gm-boost",
+    "tok": "PM1",
+    "inert": false
+   },
+   {
+    "op": "add",
+    "name": "ZP1",
+    "label": "gm-boost",
+    "tok": "PM3",
+    "inert": false
+   }
+  ],
+  "flags": [],
+  "strip": {
+   "attempted": false,
+   "flag": "nothing_to_strip"
+  }
+ },
+ "primary_atom": "add:NMOS:dRAIL.gD.sG",
+ "legacy_class": "added-stage"
+}

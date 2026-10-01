@@ -2,6 +2,8 @@
 
 **Status:** user-ruled 2026-09-28 (rulings W1–W6 on the R4 loophole audit). This is the verifier that every RL reward, bench-v2 score and training-task label uses unless a newer `rl-vN` supersedes it.
 
+**Superseded for bench-v2 by `rl-v1.1`** (2026-10-01, PREREG-BENCH-V2 AMENDMENT 2): rl-v1 plus the input-port DC requirement. See the [rl-v1.1 section](#rl-v11--rl-v1--input-port-dc-requirement) at the end. Everything below still describes rl-v1 exactly, and rl-v1 results are unchanged.
+
 **Evidence:**
 - `kaggle/campaigns/rl-readiness/R4/`: the loophole audit and the guards.
 - `kaggle/campaigns/bench-v12-audit/S-1-stab-inloop/`: in-loop wide stability.
@@ -151,3 +153,56 @@ Other keys the result carries:
 - 16/32 runs are rejected pre-sizing: STRUCT catches dead MOS, dangling and vbnet; TOPO catches budget and inductor count.
 - 6 fail after sizing: wide µ ×3, W5 ×1, nb spec ×2.
 - The 10 still-feasible valid-but-useless add-ons each carry `n_inert_devices` ≥ 1, with the junk device on the list (W2 penalty).
+
+---
+
+## rl-v1.1 = rl-v1 + input-port DC requirement
+
+**Status:** PREREG-BENCH-V2 AMENDMENT 2 (commit `1a0413fb9`), user-approved 2026-10-01. This is the verifier for every bench-v2 cell and training task from that date. rl-v1 itself is unchanged.
+
+```python
+res = PREP.smoke_run(tokens, spec, seed, 2500, "bptm45", profile="rl-v1.1")
+```
+
+The profile is rl-v1's flags plus `VERIFY_PORT_DC=1`. In `result["verifier"]["flags"]`, `VERIFY_PORT_DC` is listed only when it has an effective value. rl-v1 and no-profile results are therefore byte-identical to before; see the tests.
+
+### Rule
+
+An LNA must work for **any source DC condition**: AC-coupled, DC-coupled or DC-grounded. Antennas, filters, baluns, switches and ESD networks are often DC-grounded. This is an interface requirement on the DUT. It says nothing about how a design meets it.
+
+1. **Pre-filter (structural, before sizing, 0 sims): `port_dc_prefilter`.**
+   - Build the DC graph of the proposal: R, L and a MOS channel (D–S) are DC edges, C is open.
+   - Grow the DC group of VIN1. Do not expand through a rail node, because the ideal source pins it.
+   - **Reject** if the group contains a MOS terminal (D/G/S/B) on a non-rail node, or the **positive** supply VDD. A harness bias-source net (VB\*/VCM\*/VREF\*, each driven by a positive dc source in `to_spice`) counts as positive supply.
+   - **VSS exception:** a DC path from VIN1 to VSS/ground alone is allowed, for example an input shunt inductor to ground, a common matching and ESD element. The behavioural check then decides.
+   - Reason: `port_dc_prefilter: ...`, with 0 evals.
+2. **Behavioural check (the authority): `port_dc_check`.**
+   - It runs on the final winner: the stability gate's rescan replacement if there is one, else the sizer winner. It runs only when that winner is otherwise feasible, and it runs last, after the stability gate and the R4 guards.
+   - It compares the DC operating point of the default testbench (`Vp1 p1 0 dc 0 ... z0 50` + `Cp1 p1 VIN1 10p`) against the same deck with VIN1 given an extra DC path to ground through **50 Ω** via a 1 H choke. The added path is DC-only; AC is unchanged.
+   - **Pass iff** every MOS |ΔV_gate| < 10 mV **and** |ΔI_dd|/I_dd < 1 %.
+   - On failure, `feasible = False` and `infeasible_reason` gets `port_dc_fail: ...`.
+   - `result["port_dc"]` holds `pass, dVG_max_V, dVG_max_dev, dIdd_pct, idd0_mA, idd1_mA, v_vin1_0_V, v_vin1_1_V, i_port_dc_mA, n_gates, error, rule`. It is `None` when the winner was already infeasible.
+   - `result["port_dc_prefilter"]` holds the pre-filter record of every sized call.
+   - Cost: 2 op-only decks, median 9 ms.
+3. **Pre-filter vs behavioural.** For a topology that passes the pre-filter, VIN1's DC group holds no MOS terminal and no positive rail. A DC path to ground at VIN1 therefore carries no current, and the behavioural check is a provable no-op: ΔV = 0 and ΔIdd = 0 in every test. The pre-filter is stricter in one direction. It also rejects designs that pass behaviourally, for example a common-gate input whose source sits at 0 V through an inductor.
+
+### Rationale and evidence
+
+- **The motif audit** (`kaggle/campaigns/bench-v2/motif-audit/`, e189abbbb) looked at 9 of the 11 bench-v2 cells accepted under amendment 1. All 9 contain an L from VIN1 to the input gate, placed across the DUT's own input DC block, and the sizer drives that block to its 51–325 fF floor.
+  - The design then relies on the testbench's 10 pF `Cp1` for DC isolation.
+  - With a DC-grounded source, the gate falls from 0.3 V to 0.1 V and Idd falls 65–73 %: 0/9 pass. The controls pass 2/2.
+- **rl-v1 cannot see this.** Every rl-v1 deck shares the DC-blocked port.
+- **Tests** (`kaggle/campaigns/bench-v2/port-dc-guard/`):
+  - the 9 cells: 9/9 rejected by both checks
+  - controls: 2/2 pass
+  - anchors: 5/5 pass
+  - shunt-L-to-VSS positive control: passes both checks
+  - shorted input DC block: 5/5 fail both checks
+  - cache-bridge exactness: 3/3
+  - rl-v1 byte-identity: 5/5 recorded rows
+  - no-profile byte-identity: 2/2
+
+### What it does not cover
+
+- **One condition only.** The check uses the typical corner and one source condition (DC path to ground through 50 Ω). It does not test a source that sits at a non-zero DC level.
+- **Output port.** The output port keeps relying on the harness `Cp2` DC block.

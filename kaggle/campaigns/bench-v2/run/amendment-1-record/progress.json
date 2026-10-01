@@ -1,0 +1,410 @@
+{
+ "ts": "2026-10-01T18:43:52",
+ "mode": "full",
+ "final": false,
+ "pid": 4146540,
+ "run_dir": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/run",
+ "era": {
+  "git": "78ccdf0b48e3c787bca90e1d5b186f97d60bd0d7",
+  "md5": {
+   "kaggle/bench_anchor_prep.py": "a43ccc256e",
+   "kaggle/campaigns/bench-v2/bv2.py": "aef04c30f2"
+  }
+ },
+ "elapsed_h": 55.791,
+ "load1": 9.46,
+ "proc_limit": 8,
+ "running": {
+  "search": 2,
+  "f2": 6
+ },
+ "pending": {
+  "f2": 5
+ },
+ "calls": {
+  "new_this_session": 9517,
+  "cached_total": 20705,
+  "extra_readonly_cache": 137,
+  "cpu_h_this_session": 220.03,
+  "last_hour": 361,
+  "median_secs_last_hour": 73.8
+ },
+ "calibration_done": true,
+ "search": {
+  "bench": {
+   "generation": 37,
+   "candidates": 2442,
+   "sized": 2442,
+   "feasible": 1036,
+   "confirm_fail": 505,
+   "confirmed": 531,
+   "rej_repair:missing_port": 162,
+   "rej_sample": 256,
+   "rej_repair:no_mos": 5,
+   "rej_max_inductors": 74,
+   "rej_repair:dangling_mos_pin": 57,
+   "rej_verifier_prescreen": 72,
+   "rej_dup": 526,
+   "rej_has_inductor": 6,
+   "rej_device_budget": 42,
+   "rej_repair:no_dc_path": 28,
+   "rej_equals_anchor": 8,
+   "rej_round_trip": 10,
+   "rej_in_single_edit_space": 4
+  },
+  "train": {
+   "generation": 41,
+   "candidates": 864,
+   "rej_max_inductors": 50,
+   "rej_repair:missing_port": 63,
+   "rej_verifier_prescreen": 34,
+   "rej_device_budget": 95,
+   "rej_repair:no_mos": 5,
+   "rej_repair:no_dc_path": 14,
+   "rej_has_inductor": 6,
+   "rej_repair:dangling_mos_pin": 39,
+   "sized": 864,
+   "feasible": 407,
+   "confirmed": 328,
+   "confirm_fail": 79,
+   "rej_sample": 153,
+   "rej_dup": 165,
+   "rej_equals_anchor": 5,
+   "rej_round_trip": 4,
+   "rej_in_single_edit_space": 3
+  }
+ },
+ "bench": {
+  "planted": 152,
+  "queued": 0,
+  "validating": {
+   "F2": 1
+  },
+  "status": {
+   "accepted": 18,
+   "killed": 112,
+   "skipped_dupwl": 11,
+   "skipped_parent_cap": 10,
+   "validating": 1
+  },
+  "accepted": 18,
+  "selectable": 2,
+  "era": "amendment-1",
+  "accepted_per_core_class": {
+   "rw:C:p:D>X + ser:L:C.p:IN": 1,
+   "add:L:IN-G + add:L:OUT-D + add:R:OUT-D + del:L:X-RAIL": 1,
+   "add:L:IN-G + add:R:IN-X + ser:C:L.p:RAIL": 1,
+   "add:L:IN-G + add:R:IN-X": 1,
+   "add:NMOS:dRAIL.gD.sG + stk:PMOS:PMOS.D:D.gG": 1,
+   "add:L:IN-G + add:NMOS:dIN.gRAIL.sG": 10,
+   "add:L:IN-G + add:R:IN-X + stk:NMOS:NMOS.D:D.gX": 1,
+   "add:C:IN-X + add:L:IN-G": 1,
+   "add:L:IN-G + add:R:OUT-D": 1
+  },
+  "accepted_per_parent": {
+   "a3": 17,
+   "a2": 1
+  },
+  "accepted_core_atom_hist": {
+   "rw:C:p:D>X": 1,
+   "ser:L:C.p:IN": 1,
+   "add:R:OUT-D": 2,
+   "add:L:IN-G": 16,
+   "del:L:X-RAIL": 1,
+   "add:L:OUT-D": 1,
+   "ser:C:L.p:RAIL": 1,
+   "add:R:IN-X": 3,
+   "stk:PMOS:PMOS.D:D.gG": 1,
+   "add:NMOS:dRAIL.gD.sG": 1,
+   "add:NMOS:dIN.gRAIL.sG": 10,
+   "stk:NMOS:NMOS.D:D.gX": 1,
+   "add:C:IN-X": 1
+  },
+  "accepted_per_band": {
+   "nb090": 1,
+   "wb0824": 7,
+   "wb0530": 5,
+   "wb1020": 5
+  },
+  "accepted_per_band_type": {
+   "narrowband": 1,
+   "wideband": 17
+  },
+  "class_rule_active": "signature",
+  "accepted_per_primary_atom": {
+   "ser:L:C.p:IN": 1,
+   "del:L:X-RAIL": 1,
+   "add:L:IN-G": 15,
+   "add:NMOS:dRAIL.gD.sG": 1
+  },
+  "accepted_atom_prevalence": {
+   "add:L:IN-G": {
+    "n": 16,
+    "frac": 0.889
+   },
+   "add:NMOS:dIN.gRAIL.sG": {
+    "n": 10,
+    "frac": 0.556
+   },
+   "add:R:IN-X": {
+    "n": 3,
+    "frac": 0.167
+   },
+   "add:R:OUT-D": {
+    "n": 2,
+    "frac": 0.111
+   },
+   "add:C:IN-X": {
+    "n": 1,
+    "frac": 0.056
+   },
+   "add:L:OUT-D": {
+    "n": 1,
+    "frac": 0.056
+   },
+   "add:NMOS:dRAIL.gD.sG": {
+    "n": 1,
+    "frac": 0.056
+   },
+   "del:L:X-RAIL": {
+    "n": 1,
+    "frac": 0.056
+   },
+   "rw:C:p:D>X": {
+    "n": 1,
+    "frac": 0.056
+   },
+   "ser:C:L.p:RAIL": {
+    "n": 1,
+    "frac": 0.056
+   },
+   "ser:L:C.p:IN": {
+    "n": 1,
+    "frac": 0.056
+   },
+   "stk:NMOS:NMOS.D:D.gX": {
+    "n": 1,
+    "frac": 0.056
+   },
+   "stk:PMOS:PMOS.D:D.gG": {
+    "n": 1,
+    "frac": 0.056
+   }
+  },
+  "selectable_a_signature": {
+   "n": 2,
+   "per_class": {
+    "add:NMOS:dRAIL.gD.sG + stk:PMOS:PMOS.D:D.gG": 1,
+    "rw:C:p:D>X + ser:L:C.p:IN": 1
+   },
+   "per_parent": {
+    "a2": 1,
+    "a3": 1
+   },
+   "per_band_type": {
+    "wideband": 1,
+    "narrowband": 1
+   }
+  },
+  "selectable_b_primary_atom": {
+   "n": 2,
+   "per_primary_atom": {
+    "add:NMOS:dRAIL.gD.sG": 1,
+    "ser:L:C.p:IN": 1
+   },
+   "per_parent": {
+    "a2": 1,
+    "a3": 1
+   },
+   "per_band_type": {
+    "wideband": 1,
+    "narrowband": 1
+   }
+  },
+  "selectable_per_core_class": {
+   "add:NMOS:dRAIL.gD.sG + stk:PMOS:PMOS.D:D.gG": 1,
+   "rw:C:p:D>X + ser:L:C.p:IN": 1
+  },
+  "selectable_per_parent": {
+   "a2": 1,
+   "a3": 1
+  },
+  "selectable_per_band": {
+   "wb1020": 1,
+   "nb090": 1
+  },
+  "selectable_per_band_type": {
+   "wideband": 1,
+   "narrowband": 1
+  },
+  "selection_without_nb_quota": 2,
+  "nb_quota_binding": false,
+  "quotas": {
+   "class_cap_frac": 0.25,
+   "class_rule": "signature",
+   "parent_cap_frac": 0.4,
+   "narrowband_min_frac": 0.25,
+   "target": 25,
+   "min": 20
+  },
+  "planted_per_band_type": {
+   "wideband": 60,
+   "narrowband": 92
+  },
+  "planted_per_parent": {
+   "a3": 47,
+   "a2": 15,
+   "a4": 9,
+   "a5": 6,
+   "a1": 75
+  },
+  "floor_rejects": {},
+  "strip": {
+   "nothing_to_strip": 5,
+   "strip_failed_reverify(original kept)": 2,
+   "stripped": 11
+  },
+  "steer": {
+   "gen": 37,
+   "m_nb": 2.571,
+   "point_w": {
+    "wb0530-noise": 0.1667,
+    "wb0530-power": 0.1667,
+    "wb0824-gain": 0.125,
+    "wb1020-noise": 0.1667,
+    "wb1020-power": 0.1667,
+    "nb090-gain": 1.2857,
+    "nb158-noise": 1.7143,
+    "nb158-power": 1.7143,
+    "nb240-gain": 2.5714,
+    "nb350-noise": 2.5714,
+    "nb350-power": 2.5714
+   },
+   "alloc": {
+    "wb0530-noise": 1,
+    "wb0530-power": 1,
+    "wb0824-gain": 1,
+    "wb1020-noise": 1,
+    "wb1020-power": 1,
+    "nb090-gain": 6,
+    "nb158-noise": 8,
+    "nb158-power": 8,
+    "nb240-gain": 13,
+    "nb350-noise": 13,
+    "nb350-power": 13
+   },
+   "parent_w": {
+    "wideband": {
+     "a2": 0.5,
+     "a3": 0.0,
+     "a5": 1.0
+    },
+    "narrowband": {
+     "a1": 0.6667,
+     "a2": 0.5,
+     "a3": 0.0,
+     "a4": 1.0,
+     "a5": 1.0
+    }
+   },
+   "counts": {
+    "band": {
+     "wb0530": 5.0,
+     "wb0824": 7.0,
+     "wb1020": 5.0,
+     "nb090": 1.0,
+     "nb158": 0.5
+    },
+    "band_type": {
+     "wideband": 17.0,
+     "narrowband": 1.5
+    },
+    "parent": {
+     "a3": 17.0,
+     "a2": 1.0,
+     "a1": 0.5
+    }
+   },
+   "capped_cores": [
+    "add:L:IN-G + add:NMOS:dIN.gRAIL.sG"
+   ]
+  },
+  "stage_started": {
+   "planted": 152,
+   "A1_started": 131,
+   "F1_started": 98,
+   "A23_started": 47,
+   "F2_started": 40
+  },
+  "kills": {
+   "prekill_F1_known_anchor_design": 370,
+   "killed:F1_library_solves": 51,
+   "killed:A2_tightened_fails": 5,
+   "killed:A1_witness_not_2of3": 33,
+   "killed:F2_single_edit_solves": 21,
+   "prekill_F2_known_single_edit_design": 9,
+   "accepted": 18,
+   "killed:A3_fresh_seeds_fail": 2
+  },
+  "bench_done": false,
+  "search_done": false
+ },
+ "pre_amendment": {
+  "cells": 110,
+  "status": {
+   "killed": 84,
+   "accepted": 10,
+   "skipped_dupwl": 16
+  },
+  "accepted": 10,
+  "selectable": 0,
+  "core_classes_done": 10,
+  "core_class_hist": {
+   "add:L:IN-G + add:R:IN-X": 4,
+   "add:C:OUT-X + add:L:IN-G + add:R:IN-X": 1,
+   "add:L:IN-G + add:L:OUT-D + add:R:OUT-D + del:L:X-RAIL": 1,
+   "add:L:IN-G + add:L:OUT-D + add:NMOS:dRAIL.gD.sOUT + del:L:X-RAIL": 1,
+   "add:L:IN-G + add:PMOS:dG.gX.sOUT + del:L:X-RAIL + rw:R:p:D>OUT": 1,
+   "add:L:IN-G + add:NMOS:dG.gG.sIN": 1,
+   "add:L:OUT-D + add:PMOS:dRAIL.gOUT.sIN + add:R:OUT-D": 1
+  },
+  "primary_atom_hist": {
+   "add:L:IN-G": 6,
+   "del:L:X-RAIL": 2,
+   "add:L:OUT-D": 2
+  },
+  "seed_topologies": 1657,
+  "seeds_used": 66
+ },
+ "train": {
+  "tasks": 320,
+  "ok": 290,
+  "labels": {
+   "library-solvable": 157,
+   "witness-only": 109,
+   "single-edit-solvable": 24
+  },
+  "per_grid": {
+   "wb0824-power": 29,
+   "wb1020-gain": 31,
+   "nb090-power": 29,
+   "nb158-gain": 28,
+   "nb240-noise": 30,
+   "wb0530-gain": 28,
+   "wb0824-noise": 25,
+   "nb090-noise": 28,
+   "nb240-power": 31,
+   "nb350-gain": 31
+  },
+  "search_done": true
+ },
+ "eta": {
+  "bench_cells_per_h": 0.646,
+  "bench_eta_h_to_target": 35.6,
+  "bench_elapsed_h_since_amendment": 27.876,
+  "bench_hard_stop_h": 44.1,
+  "train_tasks_per_h": 5.2,
+  "train_eta_h_to_target": 1.9,
+  "total_hard_stop_h": 62.2
+ }
+}

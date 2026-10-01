@@ -1,0 +1,191 @@
+{
+ "1_profile": {
+  "rows": 240,
+  "derived": 57,
+  "resized_or_new": 146,
+  "inproc": 37,
+  "bad": [],
+  "pass": true
+ },
+ "2_restore": {
+  "actions": {
+   "v2a-nb090-gain-007": "revalidate",
+   "v2a-wb0530-power-000": "tag",
+   "v2a-nb158-noise-149": "tag",
+   "v2a-nb090-gain-038": "revive",
+   "v2a-wb0824-gain-033": "requeue"
+  },
+  "status": {
+   "v2a-nb090-gain-007": "accepted",
+   "v2a-wb0530-power-000": "amend2-port-dc",
+   "v2a-nb158-noise-149": "amend2-port-dc",
+   "v2a-nb090-gain-038": "accepted",
+   "v2a-wb0824-gain-033": "accepted"
+  },
+  "outcomes": {
+   "v2a-nb090-gain-007": "accepted",
+   "v2a-wb0530-power-000": "amend2-port-dc",
+   "v2a-nb158-noise-149": "amend2-port-dc",
+   "v2a-nb090-gain-038": "accepted",
+   "v2a-wb0824-gain-033": "accepted"
+  },
+  "replanted": [
+   [
+    "v2b-nb090-gain-005",
+    "cancelled",
+    "F2:v2a-nb090-gain-038:add L VIN1-n1:s1"
+   ]
+  ],
+  "tagged_not_selectable": true,
+  "pass": true
+ },
+ "3_revalidate_control": {
+  "status": "accepted",
+  "outcome": "accepted",
+  "why": "all_filters_pass",
+  "n_stage_runs": 39,
+  "all_rl_v1_1": true,
+  "feasible_runs_with_port_dc": 4,
+  "feasible_runs": 4,
+  "port_dc_all_pass": true,
+  "primary_atom": "ser:L:C.p:IN",
+  "core": "rw:C:p:D>X + ser:L:C.p:IN",
+  "pass": true
+ },
+ "4_bridge": {
+  "checked": [
+   {
+    "jid": "db0b04b1bd5295f24fe7",
+    "kind": "A1",
+    "n_evals": 2500,
+    "byte_identical_excl_wide_secs": true
+   }
+  ],
+  "pass": true
+ },
+ "5_generation": {
+  "new_candidates": 11,
+  "prefilter_fail": [],
+  "gen_rejects_prefilter": {
+   "bench": 2,
+   "train": 6
+  },
+  "pass": true
+ },
+ "6_training": {
+  "t2-nb158-gain-0003": {
+   "status": "amend2-port-dc",
+   "amend2": {
+    "action": "tag",
+    "status_before": "ok",
+    "prefilter": {
+     "pass": false,
+     "why": [
+      "input DC group contains MOS terminal(s) NM1_G"
+     ],
+     "group": [
+      "C1_N",
+      "L1_N",
+      "VIN1"
+     ]
+    },
+    "label_before": "library-solvable",
+    "tag": "amend2-port-dc",
+    "outcome": "amend2-port-dc"
+   },
+   "witness": [
+    {
+     "seed": 1,
+     "jid": "a69c42972d02e2d59a18",
+     "feasible": true
+    },
+    {
+     "seed": 2,
+     "jid": "13d059fa13b6eaa741e3",
+     "feasible": true
+    }
+   ]
+  },
+  "t2-wb1020-gain-0001": {
+   "status": "ok",
+   "amend2": {
+    "action": "recheck",
+    "status_before": "ok",
+    "prefilter": {
+     "pass": true,
+     "why": [],
+     "group": [
+      "VIN1"
+     ]
+    },
+    "label_before": "witness-only",
+    "label_after": "witness-only",
+    "outcome": "ok"
+   },
+   "witness": [
+    {
+     "seed": 1,
+     "jid": "1976c0efcb448f7589ec",
+     "feasible": true,
+     "derived": false,
+     "infeasible_reason": null,
+     "port_dc": {
+      "pass": true,
+      "dVG_max_V": 0.0,
+      "dIdd_pct": 0.0
+     }
+    }
+   ]
+  },
+  "t2-nb090-noise-0012": {
+   "status": "ok",
+   "amend2": {
+    "action": "recheck",
+    "status_before": "ok",
+    "prefilter": {
+     "pass": true,
+     "why": [],
+     "group": [
+      "VIN1"
+     ]
+    },
+    "label_before": "single-edit-solvable",
+    "label_after": "witness-only",
+    "outcome": "ok (relabelled single-edit-solvable -> witness-only)"
+   },
+   "witness": [
+    {
+     "seed": 1,
+     "jid": "597f99cb45577bd849d0",
+     "feasible": true,
+     "derived": false,
+     "infeasible_reason": null,
+     "port_dc": {
+      "pass": true,
+      "dVG_max_V": 0.0,
+      "dIdd_pct": 0.0
+     }
+    }
+   ]
+  }
+ },
+ "6_training_pass": true,
+ "7_fence": {
+  "finalize_rc": 0,
+  "finalize_out": "Current recursion limit: 1000\nNew recursion limit: 9000\nfence_check: bench specs=8 (accepted in jsonl=3, post-amendment planted=8) bench witness tok=8 wl=8; training tasks=2; violations=0\n",
+  "negative_control_rc": 1,
+  "negative_out": "Current recursion limit: 1000\nNew recursion limit: 9000\nfence_check: bench specs=8 (accepted in jsonl=3, post-amendment planted=8) bench witness tok=8 wl=8; training tasks=1; violations=4\nVIOLATION neg-copy-of-tagged-cell witness token hash v2a-wb0530-power-000\nVIOLATION neg-copy-of-tagged-cell witness WL hash v2a-wb0530-power-000\nVIOLATION neg-copy-of-tagged-cell spec content v2a-wb0530-power-000\nVIOLATION neg-copy-of-tagged-cell witness netlist body v2a-wb0530-power-000\n",
+  "pass": true
+ },
+ "8_budget": {
+  "t_amend1": "2026-09-30T14:51:17",
+  "bench_end": "2026-10-03T14:51:17 IST",
+  "pass": true
+ },
+ "status_hist": {
+  "amend2-port-dc": 2,
+  "accepted": 3,
+  "cancelled": 3
+ },
+ "all_pass": true
+}

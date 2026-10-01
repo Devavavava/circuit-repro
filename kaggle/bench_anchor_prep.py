@@ -191,10 +191,18 @@ VERIFIER_PROFILES = {
         # via nf_max_db), VERIFY_BAND_METRICS (W6 is spec-level s11_max_db).
     },
 }
+# rl-v1.1 (PREREG-BENCH-V2 AMENDMENT 2, 2026-10-01) = rl-v1 + the input-port DC
+# requirement VERIFY_PORT_DC (see the "port-DC requirement" block below and
+# kaggle/VERIFIER-RL-V1.md "rl-v1.1"). Everything else is rl-v1 verbatim.
+VERIFIER_PROFILES["rl-v1.1"] = dict(VERIFIER_PROFILES["rl-v1"], VERIFY_PORT_DC="1")
 VERIFIER_FLAGS = ("STAB_WIDE_INLOOP", "STAB_WIDE_WINDOW", "VERIFY_TOPO_LIMITS",
                   "VERIFY_STRUCT", "VERIFY_FINITE", "VERIFY_BAND_METRICS",
                   "VERIFY_NF_BAND", "VERIFY_NO_INERT", "VERIFY_INERT_COUNT",
                   "VERIFY_ROBUST", "VERIFY_ROBUST_PCT", "VERIFY_ROBUST_MIN")
+# Flags added after rl-v1. They are resolved like VERIFIER_FLAGS, but recorded
+# in result["verifier"]["flags"] ONLY when they have an effective value, so an
+# rl-v1 (or no-profile) result is byte-identical to the pre-rl-v1.1 code.
+VERIFIER_FLAGS_EXT = ("VERIFY_PORT_DC",)
 
 
 def resolve_verifier(profile=None):
@@ -206,7 +214,7 @@ def resolve_verifier(profile=None):
                          f"{sorted(VERIFIER_PROFILES)}")
     base = VERIFIER_PROFILES.get(name, {})
     eff, over = {}, []
-    for k in VERIFIER_FLAGS:
+    for k in VERIFIER_FLAGS + VERIFIER_FLAGS_EXT:
         if k in os.environ:
             eff[k] = os.environ[k]
             if k in base and os.environ[k] != base[k]:
@@ -214,6 +222,15 @@ def resolve_verifier(profile=None):
         elif k in base:
             eff[k] = base[k]
     return name, eff, over
+
+
+def _verifier_record(name, eff, over, spec):
+    """result["verifier"] (rl-v1 layout; ext flags only when effective)."""
+    flags = {k: eff.get(k) for k in VERIFIER_FLAGS}
+    flags.update({k: eff[k] for k in VERIFIER_FLAGS_EXT if k in eff})
+    return {"profile": name, "flags": flags, "env_overrides": over,
+            "stab_gate_on": stab_gate_on(spec), "stab_window": list(stab_window()),
+            "spec_rl_v1_issues": rl_v1_issues(spec)}
 
 
 def rl_v1_issues(spec):
@@ -238,7 +255,8 @@ def smoke_run(tokens, spec_path, seed, budget, pdk, profile=None):
     them in result["verifier"]. No profile and no flag set -> exactly the
     historical _smoke_run call (byte-identical result)."""
     name, eff, over = resolve_verifier(profile)
-    if name is None and not any(k in os.environ for k in VERIFIER_FLAGS):
+    if name is None and not any(k in os.environ
+                                for k in VERIFIER_FLAGS + VERIFIER_FLAGS_EXT):
         return _smoke_run(tokens, spec_path, seed, budget, pdk)
     applied = [k for k in eff if k not in os.environ]
     for k in applied:
@@ -247,13 +265,7 @@ def smoke_run(tokens, spec_path, seed, budget, pdk, profile=None):
         res = _smoke_run(tokens, spec_path, seed, budget, pdk)
         if res is not None:
             spec = SZ._spec_for_sizing(spec_path, nf_gate=None, pdk=pdk)
-            res["verifier"] = {
-                "profile": name,
-                "flags": {k: eff.get(k) for k in VERIFIER_FLAGS},
-                "env_overrides": over,
-                "stab_gate_on": stab_gate_on(spec),
-                "stab_window": list(stab_window()),
-                "spec_rl_v1_issues": rl_v1_issues(spec)}
+            res["verifier"] = _verifier_record(name, eff, over, spec)
     finally:
         for k in applied:
             os.environ.pop(k, None)
@@ -308,6 +320,13 @@ def _smoke_run(tokens, spec_path, seed, budget, pdk):
             return _topo_reject({"criteria": {"structural": False},
                                  "failed": [f"{k}={v}" for k, v in struct_chk.items()]},
                                 key="structural_degeneracy", detail=struct_chk)
+    pdc_pre = None
+    if os.environ.get("VERIFY_PORT_DC") == "1":                # rl-v1.1, opt-in
+        pdc_pre = port_dc_prefilter(topo)
+        if not pdc_pre["pass"]:
+            return _topo_reject({"failed": pdc_pre["why"]}, key="port_dc_prefilter",
+                                detail=pdc_pre,
+                                reason="port_dc_prefilter: " + "; ".join(pdc_pre["why"]))
     prep = SZ.prepared_body(topo, inductor_q=INDUCTOR_Q, pdk=SZ._pdk_name(spec))
     if prep is None:
         return None
@@ -371,6 +390,9 @@ def _smoke_run(tokens, spec_path, seed, budget, pdk):
         res["structural_degeneracy"] = {}
     if any(os.environ.get(k) for k in _R4_POSTHOC_FLAGS):          # R4 guards, opt-in
         _r4_posthoc(res, spec, body, sizable, decode, bx, seed)
+    if pdc_pre is not None:                                         # rl-v1.1, opt-in
+        res["port_dc_prefilter"] = pdc_pre
+        _port_dc_posthoc(res, spec, body, decode, bx)
     return res
 
 
@@ -540,8 +562,10 @@ def topo_limits(spec, topo):
             "failed": [k for k, v in crit.items() if not v]}
 
 
-def _topo_reject(chk, key="topo_limits", detail=None):
-    """smoke_run-shaped INFEASIBLE result for a pre-sizing structural reject."""
+def _topo_reject(chk, key="topo_limits", detail=None, reason=None):
+    """smoke_run-shaped INFEASIBLE result for a pre-sizing structural reject.
+    `reason` (rl-v1.1 port-DC pre-filter) overrides the infeasible_reason text;
+    None keeps the historical text (byte-identical)."""
     res = {"feasible": False, "metrics": {}, "winner_reeval_ungated": False,
            "best_idd_ma": None, "best_s21_db": None, "best_conv_gain_db": None,
            "best_sds21_db": None, "n_evals": 0, "n_sim_fail": 0,
@@ -551,9 +575,266 @@ def _topo_reject(chk, key="topo_limits", detail=None):
                    infeasible_reason="topology limits violated: "
                                      + ", ".join(chk["failed"]))
     else:
-        res.update({key: detail, "infeasible_reason": "structural degeneracy: "
-                                                      + "; ".join(chk["failed"])})
+        res.update({key: detail, "infeasible_reason": reason or (
+            "structural degeneracy: " + "; ".join(chk["failed"]))})
     return res
+
+
+# ------------------------------------- port-DC requirement (rl-v1.1, opt-in)
+# PREREG-BENCH-V2 AMENDMENT 2 (user, 2026-10-01). Evidence:
+# kaggle/campaigns/bench-v2/motif-audit/ (e189abbbb). The testbench port
+# (lna/to_spice.py: `Vp1 p1 0 dc 0 ac 1 portnum 1 z0 50` + `Cp1 p1 VIN1 10p`)
+# carries its own 10 pF DC block, so a DUT that drops its OWN input DC block and
+# lets the gate bias sit on VIN1 still passes every rl-v1 check -- but collapses
+# (gate 0.3 -> 0.1 V, Idd -70 %) with any DC-coupled / DC-grounded source. A real
+# LNA must work for any source DC condition, so rl-v1.1 requires it:
+#
+#   PRE-FILTER (structural, 0 sims, before sizing; VERIFY_PORT_DC=1):
+#     DC graph of the proposal topology: R, L and a MOS channel (D-S) are DC
+#     edges, C is open, MOS gates/bulks are plain nodes. The DC group of the
+#     VIN1 node is grown WITHOUT expanding through a rail node (VDD/VSS: an
+#     ideal source pins it, nothing beyond it is DC-coupled to VIN1). Reject
+#     (`port_dc_prefilter`) iff the group contains
+#       - a MOS terminal (D/G/S/B) on a non-rail node, or
+#       - the POSITIVE supply VDD, or a harness DC bias-source net (VB*/VCM*/
+#         VREF*: to_spice drives each with a positive dc source, so it is a
+#         positive rail for this purpose).
+#     A DC path to VSS alone is allowed (e.g. an input shunt L to ground).
+#   BEHAVIOURAL CHECK (the authority; post-hoc on the FINAL winner = the stability
+#   gate's rescan replacement if any, else the sizer winner; only when that
+#   winner is otherwise feasible): DC operating point of the sized circuit with
+#   the default testbench (P0) vs the same deck with VIN1 given an extra DC path
+#   to ground through 50 ohm via a 1 H choke (P3; DC-only, AC unchanged). Pass
+#   iff every MOS |dV(gate)| < 10 mV AND |dIdd|/Idd < 1 %. Fail -> infeasible,
+#   `port_dc_fail`. result["port_dc"] records dVG max, dIdd %, both ops' VIN1 /
+#   Idd and the port DC current (None when the winner was already infeasible).
+PORT_DC_DVG_MAX_V = 0.010
+PORT_DC_DIDD_MAX_REL = 0.01
+PORT_DC_R_OHM = 50.0
+PORT_DC_CHOKE_H = 1.0
+_PORT_DC_SRC_PREFIX = ("VB", "VCM", "VREF")      # to_spice: V<n> <n> 0 dc {pVB}
+
+
+def port_dc_prefilter(topo):
+    """{'pass', 'why', 'group', 'mos_terminals', 'positive_supply',
+    'reaches_vss'} for a Topology (or token list)."""
+    from topology import base_of, PIN_RE
+    if not isinstance(topo, Topology):
+        topo = Topology(list(topo))
+    pin2node, node_nets = {}, {}
+    for root, members in topo.nodes.items():
+        nets = sorted(m for m in members if m in topo.nets)
+        name = nets[0] if nets else root
+        node_nets[name] = set(nets)
+        for m in members:
+            if PIN_RE.match(m):
+                pin2node[m] = name
+    devs = {}
+    for p, n in pin2node.items():
+        mm = PIN_RE.match(p)
+        devs.setdefault(mm.group("dev"), {})[mm.group("pin")] = n
+
+    def node_of(net):
+        return next((n for n, s in node_nets.items() if net in s), None)
+    vin, vdd, vss = node_of("VIN1"), node_of("VDD"), node_of("VSS")
+    srcs = {n for n, s in node_nets.items()
+            if any(x.startswith(_PORT_DC_SRC_PREFIX) for x in s)}
+    rails = ({vdd, vss} | srcs) - {None}
+    adj = {}
+    mos_on = {}
+    for d, pins in devs.items():
+        b = base_of(d)
+        if b in ("R", "L") and "P" in pins and "N" in pins:
+            a, c = pins["P"], pins["N"]
+        elif b in ("NM", "PM") and "D" in pins and "S" in pins:
+            a, c = pins["D"], pins["S"]
+        else:
+            a = c = None
+        if a is not None:
+            adj.setdefault(a, set()).add(c)
+            adj.setdefault(c, set()).add(a)
+        if b in ("NM", "PM"):
+            for pin, n in pins.items():
+                mos_on.setdefault(n, []).append(f"{d}_{pin}")
+    if vin is None:
+        return {"pass": False, "why": ["no VIN1 node"], "group": [],
+                "mos_terminals": [], "positive_supply": [], "reaches_vss": False}
+    seen, st = {vin}, [vin]
+    while st:
+        u = st.pop()
+        if u in rails and u != vin:
+            continue                       # an ideal source pins it: no expansion
+        for w in adj.get(u, ()):
+            if w not in seen:
+                seen.add(w)
+                st.append(w)
+    mos_t = sorted(t for n in seen if n not in rails for t in mos_on.get(n, []))
+    pos = sorted(n for n in seen if n in rails and n != vss)
+    why = []
+    if mos_t:
+        why.append("input DC group contains MOS terminal(s) " + ",".join(mos_t))
+    if pos:
+        why.append("input DC group reaches positive supply " + ",".join(pos))
+    return {"pass": not why, "why": why, "group": sorted(seen),
+            "mos_terminals": mos_t, "positive_supply": pos,
+            "reaches_vss": vss in seen}
+
+
+def _port_dc_op(body, params, spec):
+    """parse_op dict (+ 'idd_a') of an op-only deck, or None."""
+    import extract as E
+    import re as _re
+    supply = E._supply_name(body)
+    deck = "\n".join([body.rstrip()]
+                     + ([".param " + " ".join(f"{k}={v}" for k, v in params.items())]
+                        if params else [])
+                     + [".control", "op", f"let idd = -i({supply})", "print idd",
+                        *E.op_probe_lines(body), ".endc", ".end"]) + "\n"
+    out = E.run_deck(deck, "pdc_", "op.cir")
+    if not out:
+        return None
+    op = E.parse_op(out)
+    m = _re.search(r"^\s*idd\s*=\s*(\S+)", out, _re.M)
+    try:
+        op["idd_a"] = float(m.group(1)) if m else None
+    except ValueError:
+        op["idd_a"] = None
+    return op if op.get("nodes") else None
+
+
+def _mos_gates(body):
+    """{element name (lowercased): gate node} for every MOS line of a body."""
+    out = {}
+    for ln in body.splitlines():
+        t = ln.split()
+        if len(t) >= 5 and t[0][:1].upper() == "M":
+            out[t[0].lower()] = t[2]
+        elif len(t) >= 6 and t[0][:1].upper() == "X" and \
+                any(k in t[0].upper() for k in ("NM", "PM")):
+            out[t[0].lower()] = t[2]
+    return out
+
+
+def port_dc_check(spec, body, params):
+    """Behavioural port-DC check (see the block comment). Returns the record."""
+    import extract as E
+    rec = {"pass": False, "dVG_max_V": None, "dVG_max_dev": None,
+           "dIdd_pct": None, "idd0_mA": None, "idd1_mA": None,
+           "v_vin1_0_V": None, "v_vin1_1_V": None, "i_port_dc_mA": None,
+           "n_gates": None, "error": None,
+           "rule": {"dVG_max_V": PORT_DC_DVG_MAX_V,
+                    "dIdd_max_pct": 100.0 * PORT_DC_DIDD_MAX_REL,
+                    "probe": f"VIN1-{PORT_DC_CHOKE_H:g}H-{PORT_DC_R_OHM:g}ohm-gnd"}}
+    if E.osdi_lines_for(SZ._pdk_name(spec)):
+        rec["error"] = "osdi pdk unsupported"
+        return rec
+    anchor = "Cp1 p1 VIN1 10p"
+    if anchor not in body:
+        rec["error"] = "testbench port line not found"
+        return rec
+    probe = body.replace(anchor, anchor + "\nLportdcchk VIN1 nportdcchk "
+                         f"{PORT_DC_CHOKE_H:g}\nRportdcchk nportdcchk 0 "
+                         f"{PORT_DC_R_OHM:g}", 1)
+    p = _stab_params(spec, params)
+    o0, o1 = _port_dc_op(body, p, spec), _port_dc_op(probe, p, spec)
+    if o0 is None or o1 is None:
+        rec["error"] = "op failed: " + ("P0" if o0 is None else "P3")
+        return rec
+    gates = _mos_gates(body)
+    worst, who = 0.0, None
+    for dev, g in sorted(gates.items()):
+        gl = g.lower()
+        v0 = 0.0 if gl == "0" else o0["nodes"].get(gl)
+        v1 = 0.0 if gl == "0" else o1["nodes"].get(gl)
+        if v0 is None or v1 is None:
+            rec["error"] = f"gate node {g} of {dev} unresolved"
+            return rec
+        if abs(v1 - v0) >= worst:
+            worst, who = abs(v1 - v0), dev
+    i0, i1 = o0.get("idd_a"), o1.get("idd_a")
+    if not isinstance(i0, float) or not isinstance(i1, float) or i0 == 0.0:
+        rec["error"] = "supply current unresolved"
+        return rec
+    didd = abs(i1 - i0) / abs(i0)
+    vin0, vin1 = o0["nodes"].get("vin1"), o1["nodes"].get("vin1")
+    rec.update(dVG_max_V=worst, dVG_max_dev=who, dIdd_pct=100.0 * didd,
+               idd0_mA=1e3 * i0, idd1_mA=1e3 * i1, v_vin1_0_V=vin0, v_vin1_1_V=vin1,
+               i_port_dc_mA=(1e3 * o1["nodes"]["nportdcchk"] / PORT_DC_R_OHM
+                             if "nportdcchk" in o1["nodes"] else None),
+               n_gates=len(gates),
+               **{"pass": bool(worst < PORT_DC_DVG_MAX_V and didd < PORT_DC_DIDD_MAX_REL)})
+    return rec
+
+
+def _port_dc_posthoc(res, spec, body, decode, bx):
+    """rl-v1.1 behavioural check on the FINAL winner (runs last, after the
+    stability gate and the R4 guards; can only turn feasible -> infeasible)."""
+    rep = res.get("stab_replacement")
+    x = rep["x"] if (res.get("stab_winner_replaced") and rep) else bx
+    if not res["feasible"] or x is None:
+        res["port_dc"] = None
+        return
+    chk = port_dc_check(spec, body, decode(x))
+    res["port_dc"] = chk
+    if not chk["pass"]:
+        res["feasible"] = False
+        why = ("port_dc_fail: " + (chk["error"] or
+                                   f"dVG_max {chk['dVG_max_V']:.4g} V ({chk['dVG_max_dev']}), "
+                                   f"dIdd {chk['dIdd_pct']:.3g} %"))
+        res["infeasible_reason"] = (res["infeasible_reason"] + "; " + why
+                                    if res.get("infeasible_reason") else why)
+
+
+def derive_port_dc(res_v1, tokens, spec_path, seed, budget, pdk, profile="rl-v1.1"):
+    """Exact `profile` (rl-v1.1) result of (tokens, spec, seed, budget, pdk) from
+    the recorded rl-v1 result of the SAME call, when the port-DC requirement
+    cannot change the sizing outcome -- (True, result) -- or (False, None) when
+    only a re-size can tell (the rl-v1 winner was feasible: the behavioural
+    check needs the winner's sized values, which a result dict does not keep).
+
+      pre-sizing reject under rl-v1.1 (topo limits / structure / port-DC
+      pre-filter)   -> the verifier itself, in-process (0 evals, instant)
+      rl-v1 None    -> None (not sizable; nothing post-hoc runs)
+      rl-v1 infeasible -> the rl-v1 dict + port_dc_prefilter + port_dc None +
+                       the rl-v1.1 verifier record: the sizing run is identical
+                       (port-DC never enters the objective) and the behavioural
+                       check only runs on a feasible winner.
+    Exactness is tested (port-dc-guard/): derived == fresh, byte for byte."""
+    name, eff, over = resolve_verifier(profile)
+    if eff.get("VERIFY_PORT_DC") != "1":
+        raise ValueError(f"profile {profile!r} has no VERIFY_PORT_DC")
+    base = {k: v for k, v in eff.items() if k != "VERIFY_PORT_DC"}
+    if res_v1 is not None:
+        v = res_v1.get("verifier") or {}
+        if v.get("profile") != "rl-v1" or v.get("flags") != {
+                k: base.get(k) for k in VERIFIER_FLAGS}:
+            raise ValueError("source result is not an rl-v1 result under the same flags")
+    spec = SZ._spec_for_sizing(spec_path, nf_gate=None, pdk=pdk)
+    topo = Topology(list(tokens))
+    pre = None
+    if not (eff.get("VERIFY_TOPO_LIMITS") == "1" and not topo_limits(spec, topo)["ok"]) \
+            and not (eff.get("VERIFY_STRUCT") == "1" and structural_degeneracy(topo)):
+        pre = port_dc_prefilter(topo)
+    if pre is None or not pre["pass"]:
+        r = smoke_run(list(tokens), spec_path, seed, budget, pdk, profile=profile)
+        assert r is not None and r.get("n_evals") == 0, "derive: expected a pre-sizing reject"
+        return True, r
+    if res_v1 is None:
+        return True, None
+    if res_v1.get("feasible"):
+        return False, None
+    out = {k: v for k, v in res_v1.items() if k != "verifier"}
+    out["port_dc_prefilter"] = pre
+    out["port_dc"] = None
+    applied = [k for k in eff if k not in os.environ]      # as smoke_run: the record
+    for k in applied:                                      # (stab_window) reads the
+        os.environ[k] = eff[k]                             # profile's flags from env
+    try:
+        out["verifier"] = _verifier_record(name, eff, over, spec)
+    finally:
+        for k in applied:
+            os.environ.pop(k, None)
+    return True, out
 
 
 # ------------------------------------ structural-degeneracy guard (R4, opt-in)

@@ -1,0 +1,887 @@
+{
+ "verifier": "rl-v1.1",
+ "pdk": "bptm45",
+ "budget": 2500,
+ "tight_limits": {
+  "nf_max_db": 1.9888119999999998,
+  "s11_max_db": -9.203664,
+  "s21_db": 11.822514,
+  "s21_ripple_db": 1.147874,
+  "idd_ma": 7.0153300000000005
+ },
+ "limits": {
+  "nf_max_db": 2.0294,
+  "s11_max_db": -9.0232,
+  "s21_db": 11.5907,
+  "s21_ripple_db": 1.1713,
+  "idd_ma": 7.1585
+ },
+ "runs": {
+  "A1_seed1": {
+   "seed": 1,
+   "budget": 2500,
+   "spec": "spec.yaml",
+   "result": {
+    "feasible": false,
+    "metrics": {
+     "s11_db": -13.8649,
+     "s11_max_db": -9.06377,
+     "s21_db": 11.5277,
+     "s21_min_db": 10.4153,
+     "idd_ma": 6.941484,
+     "nf_db": 1.512032,
+     "s22_db": -6.21147,
+     "s22_max_db": -5.43341,
+     "s12_db": -20.6064,
+     "k_f0": 1.19137,
+     "k_min": 1.07176,
+     "mu_f0": 1.13984,
+     "mu_min": 1.05093,
+     "mu_src_f0": 1.25415,
+     "mu_src_min": 1.07542,
+     "delta_f0": 0.343732,
+     "delta_max": 0.38742,
+     "stab_band": [
+      800000000.0,
+      2400000000.0
+     ],
+     "s21_ripple_db": 1.1537000000000006,
+     "nf_max_db": 1.865143
+    },
+    "winner_reeval_ungated": true,
+    "best_idd_ma": 22.78629,
+    "best_s21_db": 13.4917,
+    "best_conv_gain_db": null,
+    "best_sds21_db": null,
+    "n_evals": 2500,
+    "n_sim_fail": 0,
+    "sim_error": null,
+    "spec_feasible": false,
+    "stab_window": [
+     10000000.0,
+     50000000000.0,
+     1001
+    ],
+    "stab_wide": {
+     "k_f0": 1.19138,
+     "k_min": 1.00271,
+     "mu_f0": 1.13982,
+     "mu_min": 1.00009,
+     "mu_src_f0": 1.25408,
+     "mu_src_min": 1.00019,
+     "delta_f0": 0.343665,
+     "delta_max": 0.999474,
+     "stab_band": [
+      10000000.0,
+      50000000000.0
+     ]
+    },
+    "mu_min_wide": 1.00009,
+    "k_min_wide": 1.00271,
+    "delta_max_wide": 0.999474,
+    "stab_wide_ok": true,
+    "stab_points_checked": 1,
+    "stab_winner_replaced": false,
+    "stab_replacement": null,
+    "stab_inloop": {
+     "n_wide": 2500,
+     "n_wide_viol": 2173,
+     "n_wide_none": 0,
+     "wide_secs": 50.419
+    },
+    "topo_limits_ok": true,
+    "topo_limits": {
+     "has_transistor": true,
+     "device_budget": true,
+     "has_ports": true,
+     "single_input": true,
+     "not_floating": true,
+     "max_inductors": true,
+     "match_plausible": true
+    },
+    "structural_degeneracy": {},
+    "nonfinite_metrics": [],
+    "inert_devices": null,
+    "n_inert_devices": null,
+    "port_dc_prefilter": {
+     "pass": true,
+     "why": [],
+     "group": [
+      "VIN1"
+     ],
+     "mos_terminals": [],
+     "positive_supply": [],
+     "reaches_vss": false
+    },
+    "port_dc": null,
+    "verifier": {
+     "profile": "rl-v1.1",
+     "flags": {
+      "STAB_WIDE_INLOOP": "1",
+      "STAB_WIDE_WINDOW": "1e7,5e10,1001",
+      "VERIFY_TOPO_LIMITS": "1",
+      "VERIFY_STRUCT": "1",
+      "VERIFY_FINITE": "1",
+      "VERIFY_BAND_METRICS": null,
+      "VERIFY_NF_BAND": null,
+      "VERIFY_NO_INERT": null,
+      "VERIFY_INERT_COUNT": "1",
+      "VERIFY_ROBUST": null,
+      "VERIFY_ROBUST_PCT": null,
+      "VERIFY_ROBUST_MIN": null,
+      "VERIFY_PORT_DC": "1"
+     },
+     "env_overrides": [],
+     "stab_gate_on": true,
+     "stab_window": [
+      10000000.0,
+      50000000000.0,
+      1001
+     ],
+     "spec_rl_v1_issues": []
+    }
+   },
+   "era": {
+    "git": "1a0413fb95c5ba33ecd8d78f93bb1342e923dfaa",
+    "md5": {
+     "kaggle/bench_anchor_prep.py": "a40dc59769",
+     "kaggle/campaigns/bench-v2/bv2.py": "3b6665e23d"
+    }
+   }
+  },
+  "A1_seed2": {
+   "seed": 2,
+   "budget": 2500,
+   "spec": "spec.yaml",
+   "result": {
+    "feasible": true,
+    "metrics": {
+     "s11_db": -12.801,
+     "s11_max_db": -9.1314,
+     "s21_db": 11.5931,
+     "s21_min_db": 10.9792,
+     "idd_ma": 6.436967,
+     "nf_db": 1.457786,
+     "s22_db": -7.52699,
+     "s22_max_db": -6.24961,
+     "s12_db": -20.1157,
+     "k_f0": 1.21273,
+     "k_min": 1.10142,
+     "mu_f0": 1.19131,
+     "mu_min": 1.08605,
+     "mu_src_f0": 1.28837,
+     "mu_src_min": 1.14296,
+     "delta_f0": 0.372046,
+     "delta_max": 0.418489,
+     "stab_band": [
+      800000000.0,
+      2400000000.0
+     ],
+     "s21_ripple_db": 0.6783999999999999,
+     "nf_max_db": 1.721478
+    },
+    "winner_reeval_ungated": true,
+    "best_idd_ma": 31.535559999999997,
+    "best_s21_db": 13.2866,
+    "best_conv_gain_db": null,
+    "best_sds21_db": null,
+    "n_evals": 2500,
+    "n_sim_fail": 0,
+    "sim_error": null,
+    "spec_feasible": true,
+    "stab_window": [
+     10000000.0,
+     50000000000.0,
+     1001
+    ],
+    "stab_wide": {
+     "k_f0": 1.21273,
+     "k_min": 1.0003,
+     "mu_f0": 1.19128,
+     "mu_min": 1.00014,
+     "mu_src_f0": 1.28835,
+     "mu_src_min": 1.00003,
+     "delta_f0": 0.371995,
+     "delta_max": 0.99942,
+     "stab_band": [
+      10000000.0,
+      50000000000.0
+     ]
+    },
+    "mu_min_wide": 1.00014,
+    "k_min_wide": 1.0003,
+    "delta_max_wide": 0.99942,
+    "stab_wide_ok": true,
+    "stab_points_checked": 1,
+    "stab_winner_replaced": false,
+    "stab_replacement": null,
+    "stab_inloop": {
+     "n_wide": 2500,
+     "n_wide_viol": 1093,
+     "n_wide_none": 0,
+     "wide_secs": 49.912
+    },
+    "topo_limits_ok": true,
+    "topo_limits": {
+     "has_transistor": true,
+     "device_budget": true,
+     "has_ports": true,
+     "single_input": true,
+     "not_floating": true,
+     "max_inductors": true,
+     "match_plausible": true
+    },
+    "structural_degeneracy": {},
+    "nonfinite_metrics": [],
+    "inert_devices": [
+     "pC3V",
+     "pL2V"
+    ],
+    "n_inert_devices": 2,
+    "port_dc_prefilter": {
+     "pass": true,
+     "why": [],
+     "group": [
+      "VIN1"
+     ],
+     "mos_terminals": [],
+     "positive_supply": [],
+     "reaches_vss": false
+    },
+    "port_dc": {
+     "pass": true,
+     "dVG_max_V": 0.0,
+     "dVG_max_dev": "mpm3",
+     "dIdd_pct": 0.0,
+     "idd0_mA": 6.436967,
+     "idd1_mA": 6.436967,
+     "v_vin1_0_V": 0.0,
+     "v_vin1_1_V": 0.0,
+     "i_port_dc_mA": 0.0,
+     "n_gates": 6,
+     "error": null,
+     "rule": {
+      "dVG_max_V": 0.01,
+      "dIdd_max_pct": 1.0,
+      "probe": "VIN1-1H-50ohm-gnd"
+     }
+    },
+    "verifier": {
+     "profile": "rl-v1.1",
+     "flags": {
+      "STAB_WIDE_INLOOP": "1",
+      "STAB_WIDE_WINDOW": "1e7,5e10,1001",
+      "VERIFY_TOPO_LIMITS": "1",
+      "VERIFY_STRUCT": "1",
+      "VERIFY_FINITE": "1",
+      "VERIFY_BAND_METRICS": null,
+      "VERIFY_NF_BAND": null,
+      "VERIFY_NO_INERT": null,
+      "VERIFY_INERT_COUNT": "1",
+      "VERIFY_ROBUST": null,
+      "VERIFY_ROBUST_PCT": null,
+      "VERIFY_ROBUST_MIN": null,
+      "VERIFY_PORT_DC": "1"
+     },
+     "env_overrides": [],
+     "stab_gate_on": true,
+     "stab_window": [
+      10000000.0,
+      50000000000.0,
+      1001
+     ],
+     "spec_rl_v1_issues": []
+    }
+   },
+   "era": {
+    "git": "1a0413fb95c5ba33ecd8d78f93bb1342e923dfaa",
+    "md5": {
+     "kaggle/bench_anchor_prep.py": "a40dc59769",
+     "kaggle/campaigns/bench-v2/bv2.py": "3b6665e23d"
+    }
+   }
+  },
+  "A1_seed3": {
+   "seed": 3,
+   "budget": 2500,
+   "spec": "spec.yaml",
+   "result": {
+    "feasible": true,
+    "metrics": {
+     "s11_db": -12.8855,
+     "s11_max_db": -9.06323,
+     "s21_db": 11.6516,
+     "s21_min_db": 10.8799,
+     "idd_ma": 7.072088,
+     "nf_db": 1.472393,
+     "s22_db": -6.84237,
+     "s22_max_db": -5.50337,
+     "s12_db": -20.5212,
+     "k_f0": 1.21826,
+     "k_min": 1.10115,
+     "mu_f0": 1.17969,
+     "mu_min": 1.07634,
+     "mu_src_f0": 1.29883,
+     "mu_src_min": 1.13921,
+     "delta_f0": 0.368722,
+     "delta_max": 0.415478,
+     "stab_band": [
+      800000000.0,
+      2400000000.0
+     ],
+     "s21_ripple_db": 0.8125,
+     "nf_max_db": 1.780453
+    },
+    "winner_reeval_ungated": true,
+    "best_idd_ma": 40.59695,
+    "best_s21_db": 14.4375,
+    "best_conv_gain_db": null,
+    "best_sds21_db": null,
+    "n_evals": 2500,
+    "n_sim_fail": 0,
+    "sim_error": null,
+    "spec_feasible": true,
+    "stab_window": [
+     10000000.0,
+     50000000000.0,
+     1001
+    ],
+    "stab_wide": {
+     "k_f0": 1.21826,
+     "k_min": 1.00137,
+     "mu_f0": 1.17966,
+     "mu_min": 1.00014,
+     "mu_src_f0": 1.29881,
+     "mu_src_min": 1.00013,
+     "delta_f0": 0.368667,
+     "delta_max": 0.999405,
+     "stab_band": [
+      10000000.0,
+      50000000000.0
+     ]
+    },
+    "mu_min_wide": 1.00014,
+    "k_min_wide": 1.00137,
+    "delta_max_wide": 0.999405,
+    "stab_wide_ok": true,
+    "stab_points_checked": 1,
+    "stab_winner_replaced": false,
+    "stab_replacement": null,
+    "stab_inloop": {
+     "n_wide": 2500,
+     "n_wide_viol": 1196,
+     "n_wide_none": 0,
+     "wide_secs": 50.683
+    },
+    "topo_limits_ok": true,
+    "topo_limits": {
+     "has_transistor": true,
+     "device_budget": true,
+     "has_ports": true,
+     "single_input": true,
+     "not_floating": true,
+     "max_inductors": true,
+     "match_plausible": true
+    },
+    "structural_degeneracy": {},
+    "nonfinite_metrics": [],
+    "inert_devices": [
+     "pC3V",
+     "pL2V"
+    ],
+    "n_inert_devices": 2,
+    "port_dc_prefilter": {
+     "pass": true,
+     "why": [],
+     "group": [
+      "VIN1"
+     ],
+     "mos_terminals": [],
+     "positive_supply": [],
+     "reaches_vss": false
+    },
+    "port_dc": {
+     "pass": true,
+     "dVG_max_V": 0.0,
+     "dVG_max_dev": "mpm3",
+     "dIdd_pct": 0.0,
+     "idd0_mA": 7.072088,
+     "idd1_mA": 7.072088,
+     "v_vin1_0_V": 0.0,
+     "v_vin1_1_V": 0.0,
+     "i_port_dc_mA": 0.0,
+     "n_gates": 6,
+     "error": null,
+     "rule": {
+      "dVG_max_V": 0.01,
+      "dIdd_max_pct": 1.0,
+      "probe": "VIN1-1H-50ohm-gnd"
+     }
+    },
+    "verifier": {
+     "profile": "rl-v1.1",
+     "flags": {
+      "STAB_WIDE_INLOOP": "1",
+      "STAB_WIDE_WINDOW": "1e7,5e10,1001",
+      "VERIFY_TOPO_LIMITS": "1",
+      "VERIFY_STRUCT": "1",
+      "VERIFY_FINITE": "1",
+      "VERIFY_BAND_METRICS": null,
+      "VERIFY_NF_BAND": null,
+      "VERIFY_NO_INERT": null,
+      "VERIFY_INERT_COUNT": "1",
+      "VERIFY_ROBUST": null,
+      "VERIFY_ROBUST_PCT": null,
+      "VERIFY_ROBUST_MIN": null,
+      "VERIFY_PORT_DC": "1"
+     },
+     "env_overrides": [],
+     "stab_gate_on": true,
+     "stab_window": [
+      10000000.0,
+      50000000000.0,
+      1001
+     ],
+     "spec_rl_v1_issues": []
+    }
+   },
+   "era": {
+    "git": "1a0413fb95c5ba33ecd8d78f93bb1342e923dfaa",
+    "md5": {
+     "kaggle/bench_anchor_prep.py": "a40dc59769",
+     "kaggle/campaigns/bench-v2/bv2.py": "3b6665e23d"
+    }
+   }
+  },
+  "A2_seed1": {
+   "seed": 1,
+   "budget": 2500,
+   "spec": "tightened (limits in results.json)",
+   "result": {
+    "feasible": false,
+    "metrics": {
+     "s11_db": -14.1078,
+     "s11_max_db": -9.21316,
+     "s21_db": 11.2706,
+     "s21_min_db": 10.3156,
+     "idd_ma": 7.010649,
+     "nf_db": 1.607669,
+     "s22_db": -7.0673,
+     "s22_max_db": -5.80766,
+     "s12_db": -20.2115,
+     "k_f0": 1.24947,
+     "k_min": 1.11063,
+     "mu_f0": 1.20595,
+     "mu_min": 1.08822,
+     "mu_src_f0": 1.35321,
+     "mu_src_min": 1.13416,
+     "delta_f0": 0.357801,
+     "delta_max": 0.420551,
+     "stab_band": [
+      800000000.0,
+      2400000000.0
+     ],
+     "s21_ripple_db": 0.9989000000000008,
+     "nf_max_db": 1.987406
+    },
+    "winner_reeval_ungated": true,
+    "best_idd_ma": 22.78629,
+    "best_s21_db": 13.6501,
+    "best_conv_gain_db": null,
+    "best_sds21_db": null,
+    "n_evals": 2500,
+    "n_sim_fail": 0,
+    "sim_error": null,
+    "spec_feasible": false,
+    "stab_window": [
+     10000000.0,
+     50000000000.0,
+     1001
+    ],
+    "stab_wide": {
+     "k_f0": 1.24947,
+     "k_min": 0.997946,
+     "mu_f0": 1.20592,
+     "mu_min": 0.998699,
+     "mu_src_f0": 1.35317,
+     "mu_src_min": 0.999825,
+     "delta_f0": 0.357753,
+     "delta_max": 0.999349,
+     "stab_band": [
+      10000000.0,
+      50000000000.0
+     ]
+    },
+    "mu_min_wide": 0.998699,
+    "k_min_wide": 0.997946,
+    "delta_max_wide": 0.999349,
+    "stab_wide_ok": false,
+    "stab_points_checked": 1,
+    "stab_winner_replaced": false,
+    "stab_replacement": null,
+    "stab_inloop": {
+     "n_wide": 2500,
+     "n_wide_viol": 1710,
+     "n_wide_none": 0,
+     "wide_secs": 51.929
+    },
+    "topo_limits_ok": true,
+    "topo_limits": {
+     "has_transistor": true,
+     "device_budget": true,
+     "has_ports": true,
+     "single_input": true,
+     "not_floating": true,
+     "max_inductors": true,
+     "match_plausible": true
+    },
+    "structural_degeneracy": {},
+    "nonfinite_metrics": [],
+    "inert_devices": null,
+    "n_inert_devices": null,
+    "port_dc_prefilter": {
+     "pass": true,
+     "why": [],
+     "group": [
+      "VIN1"
+     ],
+     "mos_terminals": [],
+     "positive_supply": [],
+     "reaches_vss": false
+    },
+    "port_dc": null,
+    "verifier": {
+     "profile": "rl-v1.1",
+     "flags": {
+      "STAB_WIDE_INLOOP": "1",
+      "STAB_WIDE_WINDOW": "1e7,5e10,1001",
+      "VERIFY_TOPO_LIMITS": "1",
+      "VERIFY_STRUCT": "1",
+      "VERIFY_FINITE": "1",
+      "VERIFY_BAND_METRICS": null,
+      "VERIFY_NF_BAND": null,
+      "VERIFY_NO_INERT": null,
+      "VERIFY_INERT_COUNT": "1",
+      "VERIFY_ROBUST": null,
+      "VERIFY_ROBUST_PCT": null,
+      "VERIFY_ROBUST_MIN": null,
+      "VERIFY_PORT_DC": "1"
+     },
+     "env_overrides": [],
+     "stab_gate_on": true,
+     "stab_window": [
+      10000000.0,
+      50000000000.0,
+      1001
+     ],
+     "spec_rl_v1_issues": []
+    }
+   },
+   "era": {
+    "git": "1a0413fb95c5ba33ecd8d78f93bb1342e923dfaa",
+    "md5": {
+     "kaggle/bench_anchor_prep.py": "a40dc59769",
+     "kaggle/campaigns/bench-v2/bv2.py": "3b6665e23d"
+    }
+   }
+  },
+  "A2_seed2": {
+   "seed": 2,
+   "budget": 2500,
+   "spec": "tightened (limits in results.json)",
+   "result": {
+    "feasible": true,
+    "metrics": {
+     "s11_db": -12.8537,
+     "s11_max_db": -9.20383,
+     "s21_db": 11.8457,
+     "s21_min_db": 11.1899,
+     "idd_ma": 6.981588,
+     "nf_db": 1.636386,
+     "s22_db": -7.14267,
+     "s22_max_db": -5.75689,
+     "s12_db": -21.789,
+     "k_f0": 1.31941,
+     "k_min": 1.1482,
+     "mu_f0": 1.23156,
+     "mu_min": 1.10009,
+     "mu_src_f0": 1.36403,
+     "mu_src_min": 1.18483,
+     "delta_f0": 0.291299,
+     "delta_max": 0.328857,
+     "stab_band": [
+      800000000.0,
+      2400000000.0
+     ],
+     "s21_ripple_db": 0.6760999999999999,
+     "nf_max_db": 1.969275
+    },
+    "winner_reeval_ungated": true,
+    "best_idd_ma": 26.0396,
+    "best_s21_db": 13.3108,
+    "best_conv_gain_db": null,
+    "best_sds21_db": null,
+    "n_evals": 2500,
+    "n_sim_fail": 0,
+    "sim_error": null,
+    "spec_feasible": true,
+    "stab_window": [
+     10000000.0,
+     50000000000.0,
+     1001
+    ],
+    "stab_wide": {
+     "k_f0": 1.31941,
+     "k_min": 1.00023,
+     "mu_f0": 1.23153,
+     "mu_min": 1.00011,
+     "mu_src_f0": 1.36397,
+     "mu_src_min": 1.00003,
+     "delta_f0": 0.29125,
+     "delta_max": 0.999297,
+     "stab_band": [
+      10000000.0,
+      50000000000.0
+     ]
+    },
+    "mu_min_wide": 1.00011,
+    "k_min_wide": 1.00023,
+    "delta_max_wide": 0.999297,
+    "stab_wide_ok": true,
+    "stab_points_checked": 1,
+    "stab_winner_replaced": false,
+    "stab_replacement": null,
+    "stab_inloop": {
+     "n_wide": 2500,
+     "n_wide_viol": 1826,
+     "n_wide_none": 0,
+     "wide_secs": 46.787
+    },
+    "topo_limits_ok": true,
+    "topo_limits": {
+     "has_transistor": true,
+     "device_budget": true,
+     "has_ports": true,
+     "single_input": true,
+     "not_floating": true,
+     "max_inductors": true,
+     "match_plausible": true
+    },
+    "structural_degeneracy": {},
+    "nonfinite_metrics": [],
+    "inert_devices": [],
+    "n_inert_devices": 0,
+    "port_dc_prefilter": {
+     "pass": true,
+     "why": [],
+     "group": [
+      "VIN1"
+     ],
+     "mos_terminals": [],
+     "positive_supply": [],
+     "reaches_vss": false
+    },
+    "port_dc": {
+     "pass": true,
+     "dVG_max_V": 0.0,
+     "dVG_max_dev": "mpm3",
+     "dIdd_pct": 0.0,
+     "idd0_mA": 6.981588,
+     "idd1_mA": 6.981588,
+     "v_vin1_0_V": 0.0,
+     "v_vin1_1_V": 0.0,
+     "i_port_dc_mA": 0.0,
+     "n_gates": 6,
+     "error": null,
+     "rule": {
+      "dVG_max_V": 0.01,
+      "dIdd_max_pct": 1.0,
+      "probe": "VIN1-1H-50ohm-gnd"
+     }
+    },
+    "verifier": {
+     "profile": "rl-v1.1",
+     "flags": {
+      "STAB_WIDE_INLOOP": "1",
+      "STAB_WIDE_WINDOW": "1e7,5e10,1001",
+      "VERIFY_TOPO_LIMITS": "1",
+      "VERIFY_STRUCT": "1",
+      "VERIFY_FINITE": "1",
+      "VERIFY_BAND_METRICS": null,
+      "VERIFY_NF_BAND": null,
+      "VERIFY_NO_INERT": null,
+      "VERIFY_INERT_COUNT": "1",
+      "VERIFY_ROBUST": null,
+      "VERIFY_ROBUST_PCT": null,
+      "VERIFY_ROBUST_MIN": null,
+      "VERIFY_PORT_DC": "1"
+     },
+     "env_overrides": [],
+     "stab_gate_on": true,
+     "stab_window": [
+      10000000.0,
+      50000000000.0,
+      1001
+     ],
+     "spec_rl_v1_issues": []
+    }
+   },
+   "era": {
+    "git": "1a0413fb95c5ba33ecd8d78f93bb1342e923dfaa",
+    "md5": {
+     "kaggle/bench_anchor_prep.py": "a40dc59769",
+     "kaggle/campaigns/bench-v2/bv2.py": "3b6665e23d"
+    }
+   }
+  },
+  "A3_seed4": {
+   "seed": 4,
+   "budget": 2500,
+   "spec": "spec.yaml",
+   "result": {
+    "feasible": true,
+    "metrics": {
+     "s11_db": -12.9376,
+     "s11_max_db": -9.08994,
+     "s21_db": 11.6053,
+     "s21_min_db": 10.881,
+     "idd_ma": 6.093192,
+     "nf_db": 1.526571,
+     "s22_db": -7.27685,
+     "s22_max_db": -6.1941,
+     "s12_db": -20.316,
+     "k_f0": 1.22073,
+     "k_min": 1.10001,
+     "mu_f0": 1.19031,
+     "mu_min": 1.08007,
+     "mu_src_f0": 1.29804,
+     "mu_src_min": 1.12896,
+     "delta_f0": 0.365608,
+     "delta_max": 0.398281,
+     "stab_band": [
+      800000000.0,
+      2400000000.0
+     ],
+     "s21_ripple_db": 0.7685999999999993,
+     "nf_max_db": 1.84824
+    },
+    "winner_reeval_ungated": true,
+    "best_idd_ma": 27.02024,
+    "best_s21_db": 14.1218,
+    "best_conv_gain_db": null,
+    "best_sds21_db": null,
+    "n_evals": 2500,
+    "n_sim_fail": 0,
+    "sim_error": null,
+    "spec_feasible": true,
+    "stab_window": [
+     10000000.0,
+     50000000000.0,
+     1001
+    ],
+    "stab_wide": {
+     "k_f0": 1.22073,
+     "k_min": 1.00031,
+     "mu_f0": 1.19029,
+     "mu_min": 1.00015,
+     "mu_src_f0": 1.29799,
+     "mu_src_min": 1.00003,
+     "delta_f0": 0.365553,
+     "delta_max": 0.999354,
+     "stab_band": [
+      10000000.0,
+      50000000000.0
+     ]
+    },
+    "mu_min_wide": 1.00015,
+    "k_min_wide": 1.00031,
+    "delta_max_wide": 0.999354,
+    "stab_wide_ok": true,
+    "stab_points_checked": 1,
+    "stab_winner_replaced": false,
+    "stab_replacement": null,
+    "stab_inloop": {
+     "n_wide": 2500,
+     "n_wide_viol": 1182,
+     "n_wide_none": 0,
+     "wide_secs": 53.909
+    },
+    "topo_limits_ok": true,
+    "topo_limits": {
+     "has_transistor": true,
+     "device_budget": true,
+     "has_ports": true,
+     "single_input": true,
+     "not_floating": true,
+     "max_inductors": true,
+     "match_plausible": true
+    },
+    "structural_degeneracy": {},
+    "nonfinite_metrics": [],
+    "inert_devices": [],
+    "n_inert_devices": 0,
+    "port_dc_prefilter": {
+     "pass": true,
+     "why": [],
+     "group": [
+      "VIN1"
+     ],
+     "mos_terminals": [],
+     "positive_supply": [],
+     "reaches_vss": false
+    },
+    "port_dc": {
+     "pass": true,
+     "dVG_max_V": 0.0,
+     "dVG_max_dev": "mpm3",
+     "dIdd_pct": 0.0,
+     "idd0_mA": 6.093192,
+     "idd1_mA": 6.093192,
+     "v_vin1_0_V": 0.0,
+     "v_vin1_1_V": 0.0,
+     "i_port_dc_mA": 0.0,
+     "n_gates": 6,
+     "error": null,
+     "rule": {
+      "dVG_max_V": 0.01,
+      "dIdd_max_pct": 1.0,
+      "probe": "VIN1-1H-50ohm-gnd"
+     }
+    },
+    "verifier": {
+     "profile": "rl-v1.1",
+     "flags": {
+      "STAB_WIDE_INLOOP": "1",
+      "STAB_WIDE_WINDOW": "1e7,5e10,1001",
+      "VERIFY_TOPO_LIMITS": "1",
+      "VERIFY_STRUCT": "1",
+      "VERIFY_FINITE": "1",
+      "VERIFY_BAND_METRICS": null,
+      "VERIFY_NF_BAND": null,
+      "VERIFY_NO_INERT": null,
+      "VERIFY_INERT_COUNT": "1",
+      "VERIFY_ROBUST": null,
+      "VERIFY_ROBUST_PCT": null,
+      "VERIFY_ROBUST_MIN": null,
+      "VERIFY_PORT_DC": "1"
+     },
+     "env_overrides": [],
+     "stab_gate_on": true,
+     "stab_window": [
+      10000000.0,
+      50000000000.0,
+      1001
+     ],
+     "spec_rl_v1_issues": []
+    }
+   },
+   "era": {
+    "git": "1a0413fb95c5ba33ecd8d78f93bb1342e923dfaa",
+    "md5": {
+     "kaggle/bench_anchor_prep.py": "a40dc59769",
+     "kaggle/campaigns/bench-v2/bv2.py": "3b6665e23d"
+    }
+   }
+  }
+ }
+}

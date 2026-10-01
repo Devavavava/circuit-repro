@@ -113,3 +113,37 @@ Changes (everything else in this pre-reg stands):
    for curricula) — its fence now also covers every post-amendment bench spec/witness.
 5. Cache reuse only where the exact (topology, spec, seed, budget, profile) repeats;
    pre-amendment topologies may seed the search.
+
+---
+
+## AMENDMENT 2 — 2026-10-01 (user: "go ahead with whatever you suggest")
+
+**Trigger:** at 23.8 h post-amendment-1, 9/11 accepted cells shared core atom
+`add:L:IN-G`. Physics audit (`kaggle/campaigns/bench-v2/motif-audit/`, e189abbbb):
+the L is a legitimate series input-match inductor, BUT the sizer drives the circuit's
+own input DC-block to its floor and the design relies on the testbench port's built-in
+10 pF DC block (`lna/to_spice.py` Cp1). With any DC-grounded source (antennas, filters,
+switches often are) the gate bias collapses (0/9 pass; controls 2/2). A real LNA must
+DC-isolate its own input — a missing interface requirement, not a hint about how to
+solve.
+
+Changes (everything else stands):
+
+1. **Verifier rl-v1.1 = rl-v1 + port-DC requirement.**
+   - *Behavioural check (authority):* on the sized winner, re-run the DC operating point
+     with the input port additionally given a DC path to ground through 50 Ω (AC
+     unchanged). Pass iff every MOS gate voltage moves < 10 mV and supply current moves
+     < 1%. Failing → infeasible (`port_dc_fail`).
+   - *Structural pre-filter (free, before sizing):* treating R, L and MOS channels as DC
+     paths and capacitors as open, reject a topology whose input-port DC group contains
+     a MOS terminal or the positive supply. (A DC path to ground alone is NOT rejected —
+     e.g. an input shunt inductor to VSS is legitimate and the behavioural check decides.)
+2. **Class rule for final selection = (b) primary atom:** no single primary core atom
+   (the ablation-essential edit whose removal causes the largest feasibility loss) in
+   > 25% of selected cells. Whole-signature and atom-prevalence stats still reported.
+3. **Re-evaluation:** every accepted / queued / validating cell and every training task
+   is re-checked under rl-v1.1; failures are tagged `amend2-port-dc` (kept on record,
+   not selectable / relabelled in the training pool).
+4. **Budget:** the bench end time is unchanged (amendment-1 resume + 72 h ≈ 2026-10-03
+   14:51 IST); the campaign stays within the user-approved 3–5 days. If the final count
+   is below 20, report the shortfall (no relaxation of criteria).

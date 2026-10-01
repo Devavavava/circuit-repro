@@ -1,0 +1,142 @@
+{
+ "res": {
+  "feasible": true,
+  "metrics": {
+   "s11_db": -9.79531,
+   "s11_max_db": -9.00993,
+   "s21_db": 11.3938,
+   "s21_min_db": 11.2958,
+   "idd_ma": 6.122237,
+   "nf_db": 1.913993,
+   "s22_db": -18.4212,
+   "s22_max_db": -17.0109,
+   "s12_db": -27.1974,
+   "k_f0": 2.77805,
+   "k_min": 2.75109,
+   "mu_f0": 2.90534,
+   "mu_min": 2.8126,
+   "mu_src_f0": 1.99635,
+   "mu_src_min": 1.91042,
+   "delta_f0": 0.141176,
+   "delta_max": 0.143715,
+   "stab_band": [
+    882000000.0,
+    918000000.0
+   ],
+   "s21_ripple_db": 0.17609999999999992,
+   "nf_method": "series_rs"
+  },
+  "winner_reeval_ungated": true,
+  "best_idd_ma": 13.27126,
+  "best_s21_db": 12.7759,
+  "best_conv_gain_db": null,
+  "best_sds21_db": null,
+  "n_evals": 2500,
+  "n_sim_fail": 0,
+  "sim_error": null,
+  "spec_feasible": true,
+  "stab_window": [
+   10000000.0,
+   50000000000.0,
+   1001
+  ],
+  "stab_wide": {
+   "k_f0": 2.77963,
+   "k_min": 2.54344,
+   "mu_f0": 2.89262,
+   "mu_min": 1.00003,
+   "mu_src_f0": 2.00344,
+   "mu_src_min": 1.00009,
+   "delta_f0": 0.143454,
+   "delta_max": 0.996494,
+   "stab_band": [
+    10000000.0,
+    50000000000.0
+   ]
+  },
+  "mu_min_wide": 1.00003,
+  "k_min_wide": 2.54344,
+  "delta_max_wide": 0.996494,
+  "stab_wide_ok": true,
+  "stab_points_checked": 1,
+  "stab_winner_replaced": false,
+  "stab_replacement": null,
+  "stab_inloop": {
+   "n_wide": 2500,
+   "n_wide_viol": 113,
+   "n_wide_none": 0,
+   "wide_secs": 35.166
+  },
+  "topo_limits_ok": true,
+  "topo_limits": {
+   "has_transistor": true,
+   "device_budget": true,
+   "has_ports": true,
+   "single_input": true,
+   "not_floating": true,
+   "has_inductor": true,
+   "max_inductors": true
+  },
+  "structural_degeneracy": {},
+  "nonfinite_metrics": [],
+  "inert_devices": [],
+  "n_inert_devices": 0,
+  "verifier": {
+   "profile": "rl-v1",
+   "flags": {
+    "STAB_WIDE_INLOOP": "1",
+    "STAB_WIDE_WINDOW": "1e7,5e10,1001",
+    "VERIFY_TOPO_LIMITS": "1",
+    "VERIFY_STRUCT": "1",
+    "VERIFY_FINITE": "1",
+    "VERIFY_BAND_METRICS": null,
+    "VERIFY_NF_BAND": null,
+    "VERIFY_NO_INERT": null,
+    "VERIFY_INERT_COUNT": "1",
+    "VERIFY_ROBUST": null,
+    "VERIFY_ROBUST_PCT": null,
+    "VERIFY_ROBUST_MIN": null
+   },
+   "env_overrides": [],
+   "stab_gate_on": true,
+   "stab_window": [
+    10000000.0,
+    50000000000.0,
+    1001
+   ],
+   "spec_rl_v1_issues": []
+  }
+ },
+ "params": {
+  "pNM1L": "45n",
+  "pVDD": "1.1",
+  "pVB": "0.5",
+  "pINDQ": "12",
+  "pINDW0": "1.25664e+10",
+  "pC1V": "9.99845e-12",
+  "pC2V": "2.92746e-12",
+  "pL1V": "1.5e-08",
+  "pL2V": "1.49999e-08",
+  "pNM1W": "0.0002",
+  "pR1V": "2479.92",
+  "pR2V": "117.817"
+ },
+ "body": "* Auto-generated from an AnalogGenie topology by lna/to_spice.py\n* Device values are placeholders exposed as .param for a sizing loop.\n\n.include /home/dpatni/circuit-repro/AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt\n\n\nVsup VDD 0 dc {pVDD}\n\n* port 1: RF input, DC-blocked so bias is not shorted to 50 ohm\nVp1 p1 0 dc 0 ac 1 portnum 1 z0 50\nCp1 p1 VIN1 10p\n* port 2: RF output\nCp2 VOUT1 p2 10p\nVp2 p2 0 dc 0 ac 0 portnum 2 z0 50\n\nCC1 n0 n3 {pC1V}\nCC2 n2 VOUT1 {pC2V}\nLL1 VDD nqL1 {pL1V}\nRQL1 nqL1 n2 {pINDW0*pL1V/pINDQ}\nLL2 n0 nqL2 {pL2V}\nRQL2 nqL2 VIN1 {pINDW0*pL2V/pINDQ}\nMNM1 n1 n3 0 0 nmos W={pNM1W} L={pNM1L} NF={max(1,ceil(pNM1W/2e-06))}\nRR1 n3 n1 {pR1V}\nRR2 n2 n1 {pR2V}\n\n* Dataset topologies are textbook schematics: they show the signal path\n* but omit biasing, so nodes reachable only through capacitors have no\n* DC path and the OP solve goes singular. rshunt ties every node to\n* ground through 1e12 ohm -- enough for a DC solution, negligible at RF.\n* Without it, 9 of 26 dataset LNAs fail to simulate at all.\n.option rshunt=1e12",
+ "sizable": {
+  "pC1V": "C",
+  "pC2V": "C",
+  "pL1V": "L",
+  "pL2V": "L",
+  "pNM1W": "W",
+  "pR1V": "R",
+  "pR2V": "R"
+ },
+ "fixed": {
+  "pNM1L": "45n",
+  "pVDD": "1.1",
+  "pVB": "0.5",
+  "pINDQ": "12",
+  "pINDW0": "1.25664e+10"
+ },
+ "secs": 75.5
+}

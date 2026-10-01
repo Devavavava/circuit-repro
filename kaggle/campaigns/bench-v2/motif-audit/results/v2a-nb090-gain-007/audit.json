@@ -1,0 +1,490 @@
+{
+ "cell": "v2a-nb090-gain-007",
+ "anchor": "a3",
+ "cls": "rw:C:p:D>X + ser:L:C.p:IN",
+ "script": [
+  {
+   "op": "rw",
+   "name": "C2",
+   "pin": 0,
+   "net": "n3",
+   "grp": 0
+  },
+  {
+   "op": "rw",
+   "name": "C1",
+   "pin": 0,
+   "net": "x1",
+   "grp": 1,
+   "macro": "ser"
+  },
+  {
+   "op": "add",
+   "t": "L",
+   "name": "ZL1",
+   "nets": [
+    "x1",
+    "VIN1"
+   ],
+   "grp": 1,
+   "macro": "ser"
+  }
+ ],
+ "repairs": [],
+ "rerun_feasible": true,
+ "stored_A1_feasible": true,
+ "rerun_matches_stored_A1": {
+  "s11_max_db": [
+   -9.00993,
+   -9.00993
+  ],
+  "s21_db": [
+   11.3938,
+   11.3938
+  ],
+  "idd_ma": [
+   6.122237,
+   6.122237
+  ],
+  "nf_max_db": [
+   null,
+   null
+  ]
+ },
+ "params": {
+  "pNM1L": "45n",
+  "pVDD": "1.1",
+  "pVB": "0.5",
+  "pINDQ": "12",
+  "pINDW0": "1.25664e+10",
+  "pC1V": "9.99845e-12",
+  "pC2V": "2.92746e-12",
+  "pL1V": "1.5e-08",
+  "pL2V": "1.49999e-08",
+  "pNM1W": "0.0002",
+  "pR1V": "2479.92",
+  "pR2V": "117.817"
+ },
+ "input_gate_net": "n3",
+ "ing_inductors": [],
+ "has_L_IN_G": false,
+ "reactance": {
+  "band_Hz": [
+   882000000.0,
+   900000000.0,
+   918000000.0
+  ],
+  "C1_F": 9.99845e-12,
+  "XC1_ohm": [
+   18.0475755025357,
+   17.686623992484982,
+   17.33982744361273
+  ],
+  "XCp1_10p_ohm": [
+   18.04477812833281,
+   17.683882565766147,
+   17.337139770358974
+  ]
+ },
+ "probe": {
+  "P0": {
+   "metrics": {
+    "s11_db": -9.79531,
+    "s11_max_db": -9.00993,
+    "s21_db": 11.3938,
+    "s21_min_db": 11.2958,
+    "idd_ma": 6.122237,
+    "nf_db": 1.913993,
+    "s22_db": -18.4212,
+    "s22_max_db": -17.0109,
+    "s12_db": -27.1974,
+    "k_f0": 2.77805,
+    "k_min": 2.75109,
+    "mu_f0": 2.90534,
+    "mu_min": 2.8126,
+    "mu_src_f0": 1.99635,
+    "mu_src_min": 1.91042,
+    "delta_f0": 0.141176,
+    "delta_max": 0.143715,
+    "stab_band": [
+     882000000.0,
+     918000000.0
+    ],
+    "s21_ripple_db": 0.17609999999999992,
+    "nf_method": "series_rs"
+   },
+   "op": {
+    "devices": {
+     "mnm1": {
+      "vgs": 0.2812896,
+      "vds": 0.2825283,
+      "id": 0.006121839,
+      "vth": 0.2724607,
+      "vov": 0.0088289,
+      "gm": 0.09280497,
+      "region": "sat"
+     }
+    },
+    "nodes": {
+     "n0": 0.0,
+     "n1": 0.2825283,
+     "n2": 1.003832,
+     "n3": 0.2812897,
+     "nql1": 1.1,
+     "nql2": 0.0,
+     "p1": 0.0,
+     "p2": 0.0,
+     "vdd": 1.1,
+     "vin1": 0.0,
+     "vout1": 0.0
+    },
+    "i_port1_dc_A": 0.0,
+    "i_vsup_A": -0.00612224,
+    "i_choke_note": "port DC current under P3 = V(VIN1)/50 (choke path)"
+   },
+   "spec_feasible": true,
+   "violations": {},
+   "tight_feasible": false,
+   "mu_min_wide": 1.00003,
+   "wide_ok": true,
+   "final_ok": true
+  },
+  "P1": {
+   "metrics": {
+    "s11_db": -15.55,
+    "s11_max_db": -14.0027,
+    "s21_db": 11.752,
+    "s21_min_db": 11.7024,
+    "idd_ma": 6.122237,
+    "nf_db": 1.943136,
+    "s22_db": -17.3516,
+    "s22_max_db": -16.531,
+    "s12_db": -26.8392,
+    "k_f0": 2.77805,
+    "k_min": 2.75109,
+    "mu_f0": 2.90534,
+    "mu_min": 2.8126,
+    "mu_src_f0": 2.71581,
+    "mu_src_min": 2.53341,
+    "delta_f0": 0.156283,
+    "delta_max": 0.163511,
+    "stab_band": [
+     882000000.0,
+     918000000.0
+    ],
+    "s21_ripple_db": 0.07929999999999993,
+    "nf_method": "series_rs"
+   },
+   "op": {
+    "devices": {
+     "mnm1": {
+      "vgs": 0.2812896,
+      "vds": 0.2825283,
+      "id": 0.006121839,
+      "vth": 0.2724607,
+      "vov": 0.0088289,
+      "gm": 0.09280497,
+      "region": "sat"
+     }
+    },
+    "nodes": {
+     "n0": 0.0,
+     "n1": 0.2825283,
+     "n2": 1.003832,
+     "n3": 0.2812897,
+     "nql1": 1.1,
+     "nql2": 0.0,
+     "p1": 0.0,
+     "p2": 0.0,
+     "vdd": 1.1,
+     "vin1": 0.0,
+     "vout1": 0.0
+    },
+    "i_port1_dc_A": 0.0,
+    "i_vsup_A": -0.00612224,
+    "i_choke_note": "port DC current under P3 = V(VIN1)/50 (choke path)"
+   },
+   "spec_feasible": true,
+   "violations": {},
+   "tight_feasible": false,
+   "mu_min_wide": 1.00003,
+   "wide_ok": true,
+   "final_ok": true
+  },
+  "P2": {
+   "metrics": {
+    "s11_db": -15.5501,
+    "s11_max_db": -14.0028,
+    "s21_db": 11.7519,
+    "s21_min_db": 11.7023,
+    "idd_ma": 6.122237,
+    "nf_db": 1.943202,
+    "s22_db": -17.3515,
+    "s22_max_db": -16.5309,
+    "s12_db": -26.8392,
+    "k_f0": 2.7781,
+    "k_min": 2.75114,
+    "mu_f0": 2.90536,
+    "mu_min": 2.81261,
+    "mu_src_f0": 2.71585,
+    "mu_src_min": 2.53344,
+    "delta_f0": 0.156279,
+    "delta_max": 0.163507,
+    "stab_band": [
+     882000000.0,
+     918000000.0
+    ],
+    "s21_ripple_db": 0.07929999999999993,
+    "nf_method": "series_rs"
+   },
+   "op": {
+    "devices": {
+     "mnm1": {
+      "vgs": 0.2812896,
+      "vds": 0.2825283,
+      "id": 0.006121839,
+      "vth": 0.2724607,
+      "vov": 0.0088289,
+      "gm": 0.09280497,
+      "region": "sat"
+     }
+    },
+    "nodes": {
+     "n0": 0.0,
+     "n1": 0.2825283,
+     "n2": 1.003832,
+     "n3": 0.2812897,
+     "nql1": 1.1,
+     "nql2": 0.0,
+     "p1": 0.0,
+     "p2": 0.0,
+     "vdd": 1.1,
+     "vin1": 0.0,
+     "vout1": 0.0
+    },
+    "i_port1_dc_A": 0.0,
+    "i_vsup_A": -0.00612224,
+    "i_choke_note": "port DC current under P3 = V(VIN1)/50 (choke path)"
+   },
+   "spec_feasible": true,
+   "violations": {},
+   "tight_feasible": false,
+   "mu_min_wide": 1.00003,
+   "wide_ok": true,
+   "final_ok": true
+  },
+  "P3": {
+   "metrics": {
+    "s11_db": -9.79531,
+    "s11_max_db": -9.00993,
+    "s21_db": 11.3938,
+    "s21_min_db": 11.2958,
+    "idd_ma": 6.122237,
+    "nf_db": 1.913993,
+    "s22_db": -18.4212,
+    "s22_max_db": -17.0109,
+    "s12_db": -27.1974,
+    "k_f0": 2.77805,
+    "k_min": 2.75109,
+    "mu_f0": 2.90534,
+    "mu_min": 2.8126,
+    "mu_src_f0": 1.99635,
+    "mu_src_min": 1.91042,
+    "delta_f0": 0.141176,
+    "delta_max": 0.143715,
+    "stab_band": [
+     882000000.0,
+     918000000.0
+    ],
+    "s21_ripple_db": 0.17609999999999992,
+    "nf_method": "series_rs"
+   },
+   "op": {
+    "devices": {
+     "mnm1": {
+      "vgs": 0.2812896,
+      "vds": 0.2825283,
+      "id": 0.006121839,
+      "vth": 0.2724607,
+      "vov": 0.0088289,
+      "gm": 0.09280497,
+      "region": "sat"
+     }
+    },
+    "nodes": {
+     "n0": 0.0,
+     "n1": 0.2825283,
+     "n2": 1.003832,
+     "n3": 0.2812897,
+     "naudchk": 0.0,
+     "nql1": 1.1,
+     "nql2": 0.0,
+     "p1": 0.0,
+     "p2": 0.0,
+     "vdd": 1.1,
+     "vin1": 0.0,
+     "vout1": 0.0
+    },
+    "i_port1_dc_A": 0.0,
+    "i_vsup_A": -0.00612224,
+    "i_choke_note": "port DC current under P3 = V(VIN1)/50 (choke path)"
+   },
+   "spec_feasible": true,
+   "violations": {},
+   "tight_feasible": false,
+   "mu_min_wide": 1.00003,
+   "wide_ok": true,
+   "final_ok": true
+  },
+  "parent_same_sizes": {
+   "metrics": {
+    "s11_db": -2.12648,
+    "s11_max_db": -2.11696,
+    "s21_db": 10.9361,
+    "s21_min_db": 10.8735,
+    "idd_ma": 6.122237,
+    "nf_db": 1.066597,
+    "s22_db": -4.37629,
+    "s22_max_db": -4.28448,
+    "s12_db": -27.655,
+    "k_f0": 0.486811,
+    "k_min": 0.478487,
+    "mu_f0": 0.795383,
+    "mu_min": 0.787307,
+    "mu_src_f0": 0.876943,
+    "mu_src_min": 0.872854,
+    "delta_f0": 0.346359,
+    "delta_max": 0.356503,
+    "stab_band": [
+     882000000.0,
+     918000000.0
+    ],
+    "s21_ripple_db": 0.12209999999999965,
+    "nf_method": "series_rs"
+   },
+   "op": {
+    "devices": {
+     "mnm1": {
+      "vgs": 0.2812896,
+      "vds": 0.2825283,
+      "id": 0.006121839,
+      "vth": 0.2724607,
+      "vov": 0.0088289,
+      "gm": 0.09280497,
+      "region": "sat"
+     }
+    },
+    "nodes": {
+     "n0": 0.2825283,
+     "n1": 1.003832,
+     "n2": 0.2812897,
+     "nql1": 1.1,
+     "p1": 0.0,
+     "p2": 0.0,
+     "vdd": 1.1,
+     "vin1": 0.0,
+     "vout1": 0.0
+    },
+    "i_port1_dc_A": 0.0,
+    "i_vsup_A": -0.00612224,
+    "i_choke_note": "port DC current under P3 = V(VIN1)/50 (choke path)"
+   },
+   "spec_feasible": false,
+   "violations": {
+    "s11_max_db": 0.7650406774769974,
+    "mu_min": 0.21269300000000002
+   },
+   "tight_feasible": false,
+   "mu_min_wide": 0.384151,
+   "wide_ok": false,
+   "final_ok": false,
+   "missing_params_defaulted": []
+  }
+ },
+ "resize": {
+  "P1": {
+   "feasible": true,
+   "spec_feasible": true,
+   "metrics": {
+    "s11_max_db": -9.0099,
+    "s21_db": 13.4652,
+    "s21_ripple_db": 0.06040000000000134,
+    "idd_ma": 6.122387,
+    "nf_max_db": null
+   },
+   "mu_min_wide": 1.00003,
+   "secs": 76.9,
+   "op_at_winner": {
+    "devices": {
+     "mnm1": {
+      "vgs": 0.2811654,
+      "vds": 0.2841429,
+      "id": 0.006121989,
+      "vth": 0.2724569,
+      "vov": 0.0087085,
+      "gm": 0.09282077,
+      "region": "sat"
+     }
+    },
+    "nodes": {
+     "n0": 0.0,
+     "n1": 0.2841429,
+     "n2": 1.00383,
+     "n3": 0.2811654,
+     "nql1": 1.1,
+     "nql2": 0.0,
+     "p1": 0.0,
+     "p2": 0.0,
+     "vdd": 1.1,
+     "vin1": 0.0,
+     "vout1": 0.0
+    },
+    "i_port1_dc_A": 0.0,
+    "i_vsup_A": -0.00612239,
+    "i_choke_note": "port DC current under P3 = V(VIN1)/50 (choke path)"
+   }
+  },
+  "P2": {
+   "feasible": true,
+   "spec_feasible": true,
+   "metrics": {
+    "s11_max_db": -9.0099,
+    "s21_db": 13.4666,
+    "s21_ripple_db": 0.05979999999999919,
+    "idd_ma": 6.122383,
+    "nf_max_db": null
+   },
+   "mu_min_wide": 1.00003,
+   "secs": 75.1,
+   "op_at_winner": {
+    "devices": {
+     "mnm1": {
+      "vgs": 0.2811653,
+      "vds": 0.2841435,
+      "id": 0.006121985,
+      "vth": 0.2724569,
+      "vov": 0.0087084,
+      "gm": 0.09282072,
+      "region": "sat"
+     }
+    },
+    "nodes": {
+     "n0": 0.0,
+     "n1": 0.2841435,
+     "n2": 1.00383,
+     "n3": 0.2811654,
+     "nql1": 1.1,
+     "nql2": 0.0,
+     "p1": 0.0,
+     "p2": 0.0,
+     "vdd": 1.1,
+     "vin1": 0.0,
+     "vout1": 0.0
+    },
+    "i_port1_dc_A": 0.0,
+    "i_vsup_A": -0.00612238,
+    "i_choke_note": "port DC current under P3 = V(VIN1)/50 (choke path)"
+   }
+  }
+ }
+}

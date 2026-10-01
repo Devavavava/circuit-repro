@@ -1,0 +1,148 @@
+{
+ "res": {
+  "feasible": false,
+  "metrics": {
+   "s11_db": -10.8349,
+   "s11_max_db": -6.71469,
+   "s21_db": -2.85081,
+   "s21_min_db": -3.54574,
+   "idd_ma": 0.05477751,
+   "nf_db": 6.943882,
+   "s22_db": -10.6394,
+   "s22_max_db": -6.61895,
+   "s12_db": -2.85077,
+   "k_f0": 1.00418,
+   "k_min": 1.0037,
+   "mu_f0": 1.00551,
+   "mu_min": 1.00513,
+   "mu_src_f0": 1.00556,
+   "mu_src_min": 1.00521,
+   "delta_f0": 0.458881,
+   "delta_max": 0.586788,
+   "stab_band": [
+    500000000.0,
+    3000000000.0
+   ],
+   "s21_ripple_db": 0.69678,
+   "nf_max_db": 7.829555
+  },
+  "winner_reeval_ungated": true,
+  "best_idd_ma": 7.826715999999999,
+  "best_s21_db": -2.72852,
+  "best_conv_gain_db": null,
+  "best_sds21_db": null,
+  "n_evals": 2500,
+  "n_sim_fail": 0,
+  "sim_error": null,
+  "spec_feasible": false,
+  "stab_window": [
+   10000000.0,
+   50000000000.0,
+   1001
+  ],
+  "stab_wide": {
+   "k_f0": 1.00418,
+   "k_min": 1.00361,
+   "mu_f0": 1.00551,
+   "mu_min": 1.00032,
+   "mu_src_f0": 1.00556,
+   "mu_src_min": 1.00514,
+   "delta_f0": 0.458902,
+   "delta_max": 0.994203,
+   "stab_band": [
+    10000000.0,
+    50000000000.0
+   ]
+  },
+  "mu_min_wide": 1.00032,
+  "k_min_wide": 1.00361,
+  "delta_max_wide": 0.994203,
+  "stab_wide_ok": true,
+  "stab_points_checked": 1,
+  "stab_winner_replaced": false,
+  "stab_replacement": null,
+  "stab_inloop": {
+   "n_wide": 2500,
+   "n_wide_viol": 0,
+   "n_wide_none": 0,
+   "wide_secs": 33.576
+  },
+  "topo_limits_ok": true,
+  "topo_limits": {
+   "has_transistor": true,
+   "device_budget": true,
+   "has_ports": true,
+   "single_input": true,
+   "not_floating": true,
+   "max_inductors": true,
+   "match_plausible": true
+  },
+  "structural_degeneracy": {},
+  "nonfinite_metrics": [],
+  "inert_devices": null,
+  "n_inert_devices": null,
+  "verifier": {
+   "profile": "rl-v1",
+   "flags": {
+    "STAB_WIDE_INLOOP": "1",
+    "STAB_WIDE_WINDOW": "1e7,5e10,1001",
+    "VERIFY_TOPO_LIMITS": "1",
+    "VERIFY_STRUCT": "1",
+    "VERIFY_FINITE": "1",
+    "VERIFY_BAND_METRICS": null,
+    "VERIFY_NF_BAND": null,
+    "VERIFY_NO_INERT": null,
+    "VERIFY_INERT_COUNT": "1",
+    "VERIFY_ROBUST": null,
+    "VERIFY_ROBUST_PCT": null,
+    "VERIFY_ROBUST_MIN": null
+   },
+   "env_overrides": [],
+   "stab_gate_on": true,
+   "stab_window": [
+    10000000.0,
+    50000000000.0,
+    1001
+   ],
+   "spec_rl_v1_issues": []
+  }
+ },
+ "params": {
+  "pNM1L": "45n",
+  "pVDD": "1.1",
+  "pVB": "0.5",
+  "pINDQ": "12",
+  "pINDW0": "1.25664e+10",
+  "pC1V": "6.03277e-14",
+  "pC2V": "1e-11",
+  "pC3V": "5.133e-14",
+  "pL1V": "1.78957e-09",
+  "pL2V": "3.99924e-09",
+  "pNM1W": "1.00823e-06",
+  "pR1V": "50",
+  "pR2V": "50.0001",
+  "pR3V": "50",
+  "pR4V": "19996.1"
+ },
+ "body": "* Auto-generated from an AnalogGenie topology by lna/to_spice.py\n* Device values are placeholders exposed as .param for a sizing loop.\n\n.include /home/dpatni/circuit-repro/AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt\n\n\nVsup VDD 0 dc {pVDD}\n\n* port 1: RF input, DC-blocked so bias is not shorted to 50 ohm\nVp1 p1 0 dc 0 ac 1 portnum 1 z0 50\nRp1dc p1 VIN1 1m\n* port 2: RF output\nCp2 VOUT1 p2 10p\nVp2 p2 0 dc 0 ac 0 portnum 2 z0 50\n\nCC1 VIN1 n0 {pC1V}\nCC2 n1 VOUT1 {pC2V}\nCC3 n2 VDD {pC3V}\nLL1 n2 nqL1 {pL1V}\nRQL1 nqL1 n3 {pINDW0*pL1V/pINDQ}\nLL2 VIN1 nqL2 {pL2V}\nRQL2 nqL2 n0 {pINDW0*pL2V/pINDQ}\nMNM1 n1 n0 0 0 nmos W={pNM1W} L={pNM1L} NF={max(1,ceil(pNM1W/2e-06))}\nRR1 n0 n1 {pR1V}\nRR2 n3 n1 {pR2V}\nRR3 n3 VIN1 {pR3V}\nRR4 n1 VDD {pR4V}\n\n* Dataset topologies are textbook schematics: they show the signal path\n* but omit biasing, so nodes reachable only through capacitors have no\n* DC path and the OP solve goes singular. rshunt ties every node to\n* ground through 1e12 ohm -- enough for a DC solution, negligible at RF.\n* Without it, 9 of 26 dataset LNAs fail to simulate at all.\n.option rshunt=1e12",
+ "sizable": {
+  "pC1V": "C",
+  "pC2V": "C",
+  "pC3V": "C",
+  "pL1V": "L",
+  "pL2V": "L",
+  "pNM1W": "W",
+  "pR1V": "R",
+  "pR2V": "R",
+  "pR3V": "R",
+  "pR4V": "R"
+ },
+ "fixed": {
+  "pNM1L": "45n",
+  "pVDD": "1.1",
+  "pVB": "0.5",
+  "pINDQ": "12",
+  "pINDW0": "1.25664e+10"
+ },
+ "secs": 69.6
+}

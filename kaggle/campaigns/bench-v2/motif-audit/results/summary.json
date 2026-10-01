@@ -1,0 +1,1315 @@
+{
+ "summary": {
+  "n_L_IN_G": 9,
+  "controls": [
+   "v2a-nb090-gain-007",
+   "v2a-wb1020-noise-003"
+  ],
+  "L_IN_G_P0_final_ok": 9,
+  "L_IN_G_P1_same_sizes_final_ok": 6,
+  "L_IN_G_P2_same_sizes_final_ok": 0,
+  "L_IN_G_P3_same_sizes_final_ok": 0,
+  "L_IN_G_noL_final_ok": 0,
+  "L_IN_G_resize_P1_feasible": 8,
+  "L_IN_G_resize_P2_feasible": 0,
+  "controls_all_variants_ok": {
+   "v2a-nb090-gain-007": {
+    "P0": true,
+    "P1": true,
+    "P2": true,
+    "P3": true,
+    "parent_same_sizes": false
+   },
+   "v2a-wb1020-noise-003": {
+    "P0": true,
+    "P1": true,
+    "P2": true,
+    "P3": true,
+    "parent_same_sizes": false
+   }
+  },
+  "controls_resize": {
+   "v2a-nb090-gain-007": {
+    "P1": true,
+    "P2": true
+   },
+   "v2a-wb1020-noise-003": {
+    "P1": true,
+    "P2": true
+   }
+  },
+  "guard_impact_current_accepted": {
+   "n_accepted": 11,
+   "n_removed": 9,
+   "removed": [
+    "v2a-wb0530-noise-082",
+    "v2a-wb0530-power-000",
+    "v2a-wb0530-power-084",
+    "v2a-wb0530-power-091",
+    "v2a-wb0824-gain-002",
+    "v2a-wb0824-gain-019",
+    "v2a-wb0824-gain-074",
+    "v2a-wb0824-gain-093",
+    "v2a-wb0824-gain-126"
+   ],
+   "kept": [
+    "v2a-nb090-gain-007",
+    "v2a-wb1020-noise-003"
+   ]
+  },
+  "guard_fail_by_status_era": {
+   "killed/pre-amendment": 29,
+   "accepted/pre-amendment": 10,
+   "skipped_dupwl/pre-amendment": 16,
+   "queued/amendment-1": 76,
+   "killed/amendment-1": 40,
+   "accepted/amendment-1": 9,
+   "skipped_dupwl/amendment-1": 9,
+   "skipped_parent_cap/amendment-1": 10
+  },
+  "cells_by_status_era": {
+   "killed/pre-amendment": 84,
+   "accepted/pre-amendment": 10,
+   "skipped_dupwl/pre-amendment": 16,
+   "queued/amendment-1": 142,
+   "killed/amendment-1": 100,
+   "accepted/amendment-1": 11,
+   "skipped_dupwl/amendment-1": 11,
+   "skipped_parent_cap/amendment-1": 10
+  }
+ },
+ "cells": {
+  "v2a-nb090-gain-007": {
+   "cls": "rw:C:p:D>X + ser:L:C.p:IN",
+   "has_L_IN_G": false,
+   "rerun_reproduces_stored_A1": true,
+   "L_IN_G_nH": null,
+   "XL_ohm_flo_f0_fhi": null,
+   "C1_fF": 9998.449999999999,
+   "XC1_ohm_flo_f0_fhi": [
+    18.0475755025357,
+    17.686623992484982,
+    17.33982744361273
+   ],
+   "L_ser_Cp1_resonance_GHz": null,
+   "band_GHz": [
+    0.882,
+    0.9,
+    0.918
+   ],
+   "dc": {
+    "P0": {
+     "VGS": 0.2812896,
+     "ID_A": 0.006121839,
+     "VDS": 0.2825283,
+     "region": "sat",
+     "V_VIN1": 0.0,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 6.122237
+    },
+    "parent_same_sizes": {
+     "VGS": 0.2812896,
+     "ID_A": 0.006121839,
+     "VDS": 0.2825283,
+     "region": "sat",
+     "V_VIN1": 0.0,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 6.122237
+    },
+    "P2": {
+     "VGS": 0.2812896,
+     "ID_A": 0.006121839,
+     "VDS": 0.2825283,
+     "region": "sat",
+     "V_VIN1": 0.0,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 6.122237
+    },
+    "P3": {
+     "VGS": 0.2812896,
+     "ID_A": 0.006121839,
+     "VDS": 0.2825283,
+     "region": "sat",
+     "V_VIN1": 0.0,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 6.122237
+    }
+   },
+   "final_ok_same_sizes": {
+    "P0": true,
+    "P1": true,
+    "P2": true,
+    "P3": true,
+    "parent_same_sizes": false
+   },
+   "P1_violations_same_sizes": {},
+   "resize_feasible": {
+    "P1": true,
+    "P2": true
+   },
+   "resize_metrics": {
+    "P1": {
+     "s11_max_db": -9.0099,
+     "s21_db": 13.4652,
+     "s21_ripple_db": 0.06040000000000134,
+     "idd_ma": 6.122387,
+     "nf_max_db": null
+    },
+    "P2": {
+     "s11_max_db": -9.0099,
+     "s21_db": 13.4666,
+     "s21_ripple_db": 0.05979999999999919,
+     "idd_ma": 6.122383,
+     "nf_max_db": null
+    }
+   },
+   "guard_G_PORT_DC_pass": true,
+   "sim_probe": {
+    "P3_dIdd_rel": 0.0,
+    "P3_dVgate_V": 0.0,
+    "P3_guard_pass": true,
+    "noC1_spec_feasible": false,
+    "noC1_metrics_delta": {
+     "s11_max_db": 9.0099,
+     "s21_db": -164.3038,
+     "s21_ripple_db": 0.0689,
+     "nf_max_db": null,
+     "idd_ma": 0.0
+    },
+    "C1_F": 9.99845e-12
+   }
+  },
+  "v2a-wb0530-noise-082": {
+   "cls": "add:L:IN-G + add:R:IN-X + stk:NMOS:NMOS.D:D.gX",
+   "has_L_IN_G": true,
+   "rerun_reproduces_stored_A1": true,
+   "L_IN_G_nH": 2.63756,
+   "XL_ohm_flo_f0_fhi": [
+    8.286139119402295,
+    20.29681278025036,
+    49.716834716413764
+   ],
+   "C1_fF": 59.9975,
+   "XC1_ohm_flo_f0_fhi": [
+    5305.385827472655,
+    2165.914694316919,
+    884.2309712454427
+   ],
+   "L_ser_Cp1_resonance_GHz": 0.9799839381500867,
+   "band_GHz": [
+    0.5,
+    1.2247448713915892,
+    3.0
+   ],
+   "dc": {
+    "P0": {
+     "VGS": 0.3087584,
+     "ID_A": 0.008811868,
+     "VDS": 0.2566397,
+     "region": "sat",
+     "V_VIN1": 0.3089504,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 8.812431
+    },
+    "noL": {
+     "VGS": 0.3040364,
+     "ID_A": 0.008488091,
+     "VDS": 0.2809631,
+     "region": "sat",
+     "V_VIN1": 1.084131,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 8.488622
+    },
+    "parent_same_sizes": {
+     "VGS": 0.3022298,
+     "ID_A": 0.008472435,
+     "VDS": 0.3025007,
+     "region": "sat",
+     "V_VIN1": 0.0,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 8.472953
+    },
+    "P2": {
+     "VGS": 0.1059297,
+     "ID_A": 0.0003634219,
+     "VDS": 0.8730124,
+     "region": "sub",
+     "V_VIN1": 0.1006174,
+     "I_port_dc_A": 0.002012308,
+     "idd_ma": 2.375749
+    },
+    "P3": {
+     "VGS": 0.105928,
+     "ID_A": 0.0003634074,
+     "VDS": 0.8730135,
+     "region": "sub",
+     "V_VIN1": 0.1006157,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 2.3757409999999997
+    }
+   },
+   "final_ok_same_sizes": {
+    "P0": true,
+    "P1": true,
+    "P2": false,
+    "P3": false,
+    "noL": false,
+    "parent_same_sizes": false
+   },
+   "P1_violations_same_sizes": {},
+   "resize_feasible": {
+    "P1": false,
+    "P2": false
+   },
+   "resize_metrics": {
+    "P1": {
+     "s11_max_db": -2.38523,
+     "s21_db": 8.93912,
+     "s21_ripple_db": 1.9612900000000009,
+     "idd_ma": 7.46697,
+     "nf_max_db": 5.754644
+    },
+    "P2": {
+     "s11_max_db": -6.74108,
+     "s21_db": -3.76567,
+     "s21_ripple_db": 0.5084500000000003,
+     "idd_ma": 0.1517789,
+     "nf_max_db": 8.807346
+    }
+   },
+   "guard_G_PORT_DC_pass": false,
+   "sim_probe": {
+    "P3_dIdd_rel": 0.7304102579640057,
+    "P3_dVgate_V": -0.2028312,
+    "P3_guard_pass": false,
+    "noC1_spec_feasible": false,
+    "noC1_metrics_delta": {
+     "s11_max_db": 0.0022,
+     "s21_db": 0.0003,
+     "s21_ripple_db": -0.0023,
+     "nf_max_db": -0.0006,
+     "idd_ma": 0.0
+    },
+    "C1_F": 5.99975e-14
+   }
+  },
+  "v2a-wb0530-power-000": {
+   "cls": "add:L:IN-G + add:R:IN-X + ser:C:L.p:RAIL",
+   "has_L_IN_G": true,
+   "rerun_reproduces_stored_A1": true,
+   "L_IN_G_nH": 4.436,
+   "XL_ohm_flo_f0_fhi": [
+    13.936105011324322,
+    34.136346279588174,
+    83.61663006794593
+   ],
+   "C1_fF": 51.806000000000004,
+   "XC1_ohm_flo_f0_fhi": [
+    6144.266806620674,
+    2508.3864199567493,
+    1024.0444677701125
+   ],
+   "L_ser_Cp1_resonance_GHz": 0.7556563964582155,
+   "band_GHz": [
+    0.5,
+    1.2247448713915892,
+    3.0
+   ],
+   "dc": {
+    "P0": {
+     "VGS": 0.312374,
+     "ID_A": 0.007845293,
+     "VDS": 0.3126152,
+     "region": "sat",
+     "V_VIN1": 0.3123742,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 7.84576
+    },
+    "noL": {
+     "VGS": 0.3123721,
+     "ID_A": 0.007845185,
+     "VDS": 0.3126261,
+     "region": "sat",
+     "V_VIN1": 0.3126261,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 7.845651999999999
+    },
+    "parent_same_sizes": {
+     "VGS": 0.1309548,
+     "ID_A": 0.0002021371,
+     "VDS": 0.1309664,
+     "region": "sub",
+     "V_VIN1": 0.0,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 0.2021642
+    },
+    "P2": {
+     "VGS": 0.1056573,
+     "ID_A": 0.0002895014,
+     "VDS": 0.8760706,
+     "region": "sub",
+     "V_VIN1": 0.09709144,
+     "I_port_dc_A": 0.00194179,
+     "idd_ma": 2.231306
+    },
+    "P3": {
+     "VGS": 0.1056557,
+     "ID_A": 0.00028949,
+     "VDS": 0.8760712,
+     "region": "sub",
+     "V_VIN1": 0.09708979,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 2.2313
+    }
+   },
+   "final_ok_same_sizes": {
+    "P0": true,
+    "P1": false,
+    "P2": false,
+    "P3": false,
+    "noL": false,
+    "parent_same_sizes": false
+   },
+   "P1_violations_same_sizes": {
+    "s11_max_db": 0.0594167193794321
+   },
+   "resize_feasible": {
+    "P1": true,
+    "P2": false
+   },
+   "resize_metrics": {
+    "P1": {
+     "s11_max_db": -9.01256,
+     "s21_db": 10.0125,
+     "s21_ripple_db": 1.8649500000000003,
+     "idd_ma": 6.6115949999999994,
+     "nf_max_db": 2.181287
+    },
+    "P2": {
+     "s11_max_db": -6.71469,
+     "s21_db": -2.85081,
+     "s21_ripple_db": 0.69678,
+     "idd_ma": 0.05477751,
+     "nf_max_db": 7.829555
+    }
+   },
+   "guard_G_PORT_DC_pass": false,
+   "sim_probe": {
+    "P3_dIdd_rel": 0.715604351904723,
+    "P3_dVgate_V": -0.2067193,
+    "P3_guard_pass": false,
+    "noC1_spec_feasible": true,
+    "noC1_metrics_delta": {
+     "s11_max_db": -0.0014,
+     "s21_db": 0.0045,
+     "s21_ripple_db": 0.0342,
+     "nf_max_db": -0.2082,
+     "idd_ma": 0.0
+    },
+    "C1_F": 5.1806e-14
+   }
+  },
+  "v2a-wb0530-power-084": {
+   "cls": "add:L:IN-G + add:NMOS:dIN.gRAIL.sG",
+   "has_L_IN_G": true,
+   "rerun_reproduces_stored_A1": true,
+   "L_IN_G_nH": 1.72222,
+   "XL_ohm_flo_f0_fhi": [
+    5.4105136998654135,
+    13.252997811008195,
+    32.46308219919248
+   ],
+   "C1_fF": 181.85500000000002,
+   "XC1_ohm_flo_f0_fhi": [
+    1750.3499281503982,
+    714.5773658809455,
+    291.72498802506635
+   ],
+   "L_ser_Cp1_resonance_GHz": 1.2127626615505043,
+   "band_GHz": [
+    0.5,
+    1.2247448713915892,
+    3.0
+   ],
+   "dc": {
+    "P0": {
+     "VGS": 0.2855845,
+     "ID_A": 0.006367625,
+     "VDS": 0.2608954,
+     "region": "sat",
+     "V_VIN1": 0.2856975,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 6.368047
+    },
+    "noL": {
+     "VGS": 0.2855538,
+     "ID_A": 0.00636592,
+     "VDS": 0.2610564,
+     "region": "sat",
+     "V_VIN1": 0.2919578,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 6.3663419999999995
+    },
+    "parent_same_sizes": {
+     "VGS": 0.2816081,
+     "ID_A": 0.006146288,
+     "VDS": 0.2818024,
+     "region": "sat",
+     "V_VIN1": 0.0,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 6.146688
+    },
+    "P2": {
+     "VGS": 0.1000042,
+     "ID_A": 0.0002974193,
+     "VDS": 0.8136557,
+     "region": "sub",
+     "V_VIN1": 0.09671885,
+     "I_port_dc_A": 0.001934338,
+     "idd_ma": 2.231774
+    },
+    "P3": {
+     "VGS": 0.1000026,
+     "ID_A": 0.0002974076,
+     "VDS": 0.8136565,
+     "region": "sub",
+     "V_VIN1": 0.09671723,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 2.2317690000000003
+    }
+   },
+   "final_ok_same_sizes": {
+    "P0": true,
+    "P1": false,
+    "P2": false,
+    "P3": false,
+    "noL": false,
+    "parent_same_sizes": false
+   },
+   "P1_violations_same_sizes": {
+    "s21_ripple_db": 0.00584307178631101
+   },
+   "resize_feasible": {
+    "P1": true,
+    "P2": false
+   },
+   "resize_metrics": {
+    "P1": {
+     "s11_max_db": -9.01404,
+     "s21_db": 10.0098,
+     "s21_ripple_db": 1.3028400000000016,
+     "idd_ma": 6.6699589999999995,
+     "nf_max_db": 1.955707
+    },
+    "P2": {
+     "s11_max_db": -9.01355,
+     "s21_db": 10.0097,
+     "s21_ripple_db": 1.85684,
+     "idd_ma": 9.667174000000001,
+     "nf_max_db": 2.739314
+    }
+   },
+   "guard_G_PORT_DC_pass": false,
+   "sim_probe": {
+    "P3_dIdd_rel": 0.6495363492135029,
+    "P3_dVgate_V": -0.18558250000000004,
+    "P3_guard_pass": false,
+    "noC1_spec_feasible": false,
+    "noC1_metrics_delta": {
+     "s11_max_db": 0.0093,
+     "s21_db": 0.0038,
+     "s21_ripple_db": 0.0167,
+     "nf_max_db": -0.0012,
+     "idd_ma": 0.0
+    },
+    "C1_F": 1.81855e-13
+   }
+  },
+  "v2a-wb0530-power-091": {
+   "cls": "add:L:IN-G + add:NMOS:dIN.gRAIL.sG",
+   "has_L_IN_G": true,
+   "rerun_reproduces_stored_A1": true,
+   "L_IN_G_nH": 1.51613,
+   "XL_ohm_flo_f0_fhi": [
+    4.763062869887094,
+    11.667073644019842,
+    28.578377219322558
+   ],
+   "C1_fF": 88.7043,
+   "XC1_ohm_flo_f0_fhi": [
+    3588.438059753481,
+    1464.97370332982,
+    598.0730099589135
+   ],
+   "L_ser_Cp1_resonance_GHz": 1.2925635685523624,
+   "band_GHz": [
+    0.5,
+    1.2247448713915892,
+    3.0
+   ],
+   "dc": {
+    "P0": {
+     "VGS": 0.2896058,
+     "ID_A": 0.006835215,
+     "VDS": 0.2705286,
+     "region": "sat",
+     "V_VIN1": 0.2896834,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 6.835659
+    },
+    "noL": {
+     "VGS": 0.2895934,
+     "ID_A": 0.006834477,
+     "VDS": 0.2705938,
+     "region": "sat",
+     "V_VIN1": 0.2929402,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 6.834921
+    },
+    "parent_same_sizes": {
+     "VGS": 0.2865122,
+     "ID_A": 0.006652094,
+     "VDS": 0.2867167,
+     "region": "sat",
+     "V_VIN1": 0.0,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 6.652519
+    },
+    "P2": {
+     "VGS": 0.1020694,
+     "ID_A": 0.0003168803,
+     "VDS": 0.8268893,
+     "region": "sub",
+     "V_VIN1": 0.0990947,
+     "I_port_dc_A": 0.001981854,
+     "idd_ma": 2.298753
+    },
+    "P3": {
+     "VGS": 0.1020678,
+     "ID_A": 0.0003168677,
+     "VDS": 0.82689,
+     "region": "sub",
+     "V_VIN1": 0.09909304,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 2.2987469999999997
+    }
+   },
+   "final_ok_same_sizes": {
+    "P0": true,
+    "P1": false,
+    "P2": false,
+    "P3": false,
+    "noL": false,
+    "parent_same_sizes": false
+   },
+   "P1_violations_same_sizes": {
+    "s21_ripple_db": 0.005989757292363302
+   },
+   "resize_feasible": {
+    "P1": true,
+    "P2": false
+   },
+   "resize_metrics": {
+    "P1": {
+     "s11_max_db": -9.01084,
+     "s21_db": 10.0107,
+     "s21_ripple_db": 1.4250100000000003,
+     "idd_ma": 6.524015,
+     "nf_max_db": 1.949038
+    },
+    "P2": {
+     "s11_max_db": -6.53485,
+     "s21_db": 9.98361,
+     "s21_ripple_db": 1.4576700000000002,
+     "idd_ma": 9.503805,
+     "nf_max_db": 2.448996
+    }
+   },
+   "guard_G_PORT_DC_pass": false,
+   "sim_probe": {
+    "P3_dIdd_rel": 0.6637124525960116,
+    "P3_dVgate_V": -0.18753880000000003,
+    "P3_guard_pass": false,
+    "noC1_spec_feasible": false,
+    "noC1_metrics_delta": {
+     "s11_max_db": 0.0064,
+     "s21_db": 0.0017,
+     "s21_ripple_db": 0.0068,
+     "nf_max_db": -0.0003,
+     "idd_ma": 0.0
+    },
+    "C1_F": 8.87043e-14
+   }
+  },
+  "v2a-wb0824-gain-002": {
+   "cls": "add:L:IN-G + add:R:IN-X",
+   "has_L_IN_G": true,
+   "rerun_reproduces_stored_A1": true,
+   "L_IN_G_nH": 3.15455,
+   "XL_ohm_flo_f0_fhi": [
+    15.856497768610689,
+    27.464259765336248,
+    47.569493305832076
+   ],
+   "C1_fF": 51.139900000000004,
+   "XC1_ohm_flo_f0_fhi": [
+    3890.1851365542207,
+    2245.99943578706,
+    1296.728378851407
+   ],
+   "L_ser_Cp1_resonance_GHz": 0.8960895731655004,
+   "band_GHz": [
+    0.8,
+    1.3856406460551018,
+    2.4
+   ],
+   "dc": {
+    "P0": {
+     "VGS": 0.3032985,
+     "ID_A": 0.007815153,
+     "VDS": 0.2245026,
+     "region": "sat",
+     "V_VIN1": 0.3039075,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 7.815674
+    },
+    "noL": {
+     "VGS": 0.2907032,
+     "ID_A": 0.007055275,
+     "VDS": 0.2909458,
+     "region": "sat",
+     "V_VIN1": 1.083092,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 7.05572
+    },
+    "parent_same_sizes": {
+     "VGS": 0.2907032,
+     "ID_A": 0.007055275,
+     "VDS": 0.2909458,
+     "region": "sat",
+     "V_VIN1": 0.0,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 7.05572
+    },
+    "P2": {
+     "VGS": 0.1057827,
+     "ID_A": 0.0003541185,
+     "VDS": 0.8566393,
+     "region": "sub",
+     "V_VIN1": 0.09995712,
+     "I_port_dc_A": 0.001999102,
+     "idd_ma": 2.353239
+    },
+    "P3": {
+     "VGS": 0.1057811,
+     "ID_A": 0.0003541045,
+     "VDS": 0.8566402,
+     "region": "sub",
+     "V_VIN1": 0.09995545,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 2.3532319999999998
+    }
+   },
+   "final_ok_same_sizes": {
+    "P0": true,
+    "P1": true,
+    "P2": false,
+    "P3": false,
+    "noL": false,
+    "parent_same_sizes": false
+   },
+   "P1_violations_same_sizes": {},
+   "resize_feasible": {
+    "P1": true,
+    "P2": false
+   },
+   "resize_metrics": {
+    "P1": {
+     "s11_max_db": -9.01144,
+     "s21_db": 10.1278,
+     "s21_ripple_db": 0.51539,
+     "idd_ma": 6.830211,
+     "nf_max_db": 1.867505
+    },
+    "P2": {
+     "s11_max_db": -10.5739,
+     "s21_db": 6.99753,
+     "s21_ripple_db": 0.5301499999999999,
+     "idd_ma": 8.327807,
+     "nf_max_db": 2.754839
+    }
+   },
+   "guard_G_PORT_DC_pass": false,
+   "sim_probe": {
+    "P3_dIdd_rel": 0.6989086289934815,
+    "P3_dVgate_V": -0.19751820000000003,
+    "P3_guard_pass": false,
+    "noC1_spec_feasible": true,
+    "noC1_metrics_delta": {
+     "s11_max_db": 0.0022,
+     "s21_db": 0.0004,
+     "s21_ripple_db": -0.0013,
+     "nf_max_db": -0.0022,
+     "idd_ma": 0.0
+    },
+    "C1_F": 5.11399e-14
+   }
+  },
+  "v2a-wb0824-gain-019": {
+   "cls": "add:L:IN-G + add:L:OUT-D + add:R:OUT-D + del:L:X-RAIL",
+   "has_L_IN_G": true,
+   "rerun_reproduces_stored_A1": true,
+   "L_IN_G_nH": 1.8625200000000002,
+   "XL_ohm_flo_f0_fhi": [
+    9.362046638662498,
+    16.215540440992875,
+    28.086139915987495
+   ],
+   "C1_fF": 93.5019,
+   "XC1_ohm_flo_f0_fhi": [
+    2127.696644291391,
+    1228.4262303354976,
+    709.2322147637968
+   ],
+   "L_ser_Cp1_resonance_GHz": 1.1661909293833421,
+   "band_GHz": [
+    0.8,
+    1.3856406460551018,
+    2.4
+   ],
+   "dc": {
+    "P0": {
+     "VGS": 0.2935996,
+     "ID_A": 0.007434767,
+     "VDS": 0.2938052,
+     "region": "sat",
+     "V_VIN1": 0.2935996,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 7.435232
+    },
+    "noL": {
+     "VGS": 0.2935996,
+     "ID_A": 0.007434767,
+     "VDS": 0.2938052,
+     "region": "sat",
+     "V_VIN1": 0.0,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 7.435232
+    },
+    "parent_same_sizes": {
+     "VGS": 0.3008336,
+     "ID_A": 0.008297949,
+     "VDS": 0.3010599,
+     "region": "sat",
+     "V_VIN1": 0.0,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 8.298458
+    },
+    "P2": {
+     "VGS": 0.1088529,
+     "ID_A": 0.0003757635,
+     "VDS": 0.8320661,
+     "region": "sub",
+     "V_VIN1": 0.1047656,
+     "I_port_dc_A": 0.00209527,
+     "idd_ma": 2.471054
+    },
+    "P3": {
+     "VGS": 0.1088512,
+     "ID_A": 0.0003757483,
+     "VDS": 0.832067,
+     "region": "sub",
+     "V_VIN1": 0.1047639,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 2.4710460000000003
+    }
+   },
+   "final_ok_same_sizes": {
+    "P0": true,
+    "P1": true,
+    "P2": false,
+    "P3": false,
+    "noL": false,
+    "parent_same_sizes": false
+   },
+   "P1_violations_same_sizes": {},
+   "resize_feasible": {
+    "P1": true,
+    "P2": false
+   },
+   "resize_metrics": {
+    "P1": {
+     "s11_max_db": -9.01008,
+     "s21_db": 10.8697,
+     "s21_ripple_db": 0.20679999999999943,
+     "idd_ma": 7.547185,
+     "nf_max_db": 1.334584
+    },
+    "P2": {
+     "s11_max_db": -7.62032,
+     "s21_db": -3.76219,
+     "s21_ripple_db": 0.41857999999999995,
+     "idd_ma": 0.05471691,
+     "nf_max_db": 8.634473
+    }
+   },
+   "guard_G_PORT_DC_pass": false,
+   "sim_probe": {
+    "P3_dIdd_rel": 0.6676571759966602,
+    "P3_dVgate_V": -0.184749,
+    "P3_guard_pass": false,
+    "noC1_spec_feasible": false,
+    "noC1_metrics_delta": {
+     "s11_max_db": 0.0029,
+     "s21_db": -0.0009,
+     "s21_ripple_db": -0.0057,
+     "nf_max_db": -0.0013,
+     "idd_ma": 0.0
+    },
+    "C1_F": 9.35019e-14
+   }
+  },
+  "v2a-wb0824-gain-074": {
+   "cls": "add:L:IN-G + add:NMOS:dIN.gRAIL.sG",
+   "has_L_IN_G": true,
+   "rerun_reproduces_stored_A1": true,
+   "L_IN_G_nH": 1.25288,
+   "XL_ohm_flo_f0_fhi": [
+    6.297661766127327,
+    10.90787014781648,
+    18.892985298381983
+   ],
+   "C1_fF": 146.004,
+   "XC1_ohm_flo_f0_fhi": [
+    1362.5906061811265,
+    786.6920532739287,
+    454.19686872704216
+   ],
+   "L_ser_Cp1_resonance_GHz": 1.4218880142532246,
+   "band_GHz": [
+    0.8,
+    1.3856406460551018,
+    2.4
+   ],
+   "dc": {
+    "P0": {
+     "VGS": 0.3038208,
+     "ID_A": 0.00848019,
+     "VDS": 0.2877737,
+     "region": "sat",
+     "V_VIN1": 0.303873,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 8.480715
+    },
+    "noL": {
+     "VGS": 0.3038142,
+     "ID_A": 0.008479727,
+     "VDS": 0.2878082,
+     "region": "sat",
+     "V_VIN1": 0.305873,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 8.480252
+    },
+    "parent_same_sizes": {
+     "VGS": 0.3011771,
+     "ID_A": 0.008296571,
+     "VDS": 0.3014318,
+     "region": "sat",
+     "V_VIN1": 0.0,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 8.29708
+    },
+    "P2": {
+     "VGS": 0.1045899,
+     "ID_A": 0.0003505406,
+     "VDS": 0.8751375,
+     "region": "sub",
+     "V_VIN1": 0.1020488,
+     "I_port_dc_A": 0.002040936,
+     "idd_ma": 2.391496
+    },
+    "P3": {
+     "VGS": 0.1045882,
+     "ID_A": 0.0003505262,
+     "VDS": 0.8751383,
+     "region": "sub",
+     "V_VIN1": 0.1020471,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 2.391489
+    }
+   },
+   "final_ok_same_sizes": {
+    "P0": true,
+    "P1": true,
+    "P2": false,
+    "P3": false,
+    "noL": false,
+    "parent_same_sizes": false
+   },
+   "P1_violations_same_sizes": {},
+   "resize_feasible": {
+    "P1": true,
+    "P2": false
+   },
+   "resize_metrics": {
+    "P1": {
+     "s11_max_db": -9.01729,
+     "s21_db": 11.7017,
+     "s21_ripple_db": 0.9078999999999997,
+     "idd_ma": 8.706837,
+     "nf_max_db": 1.424457
+    },
+    "P2": {
+     "s11_max_db": -5.93922,
+     "s21_db": 10.0337,
+     "s21_ripple_db": 1.1617800000000003,
+     "idd_ma": 9.438576000000001,
+     "nf_max_db": 2.296224
+    }
+   },
+   "guard_G_PORT_DC_pass": false,
+   "sim_probe": {
+    "P3_dIdd_rel": 0.7180085641363966,
+    "P3_dVgate_V": -0.1992335,
+    "P3_guard_pass": false,
+    "noC1_spec_feasible": false,
+    "noC1_metrics_delta": {
+     "s11_max_db": 0.0143,
+     "s21_db": 0.0031,
+     "s21_ripple_db": 0.0083,
+     "nf_max_db": -0.0056,
+     "idd_ma": 0.0
+    },
+    "C1_F": 1.46004e-13
+   }
+  },
+  "v2a-wb0824-gain-093": {
+   "cls": "add:L:IN-G + add:NMOS:dIN.gRAIL.sG",
+   "has_L_IN_G": true,
+   "rerun_reproduces_stored_A1": true,
+   "L_IN_G_nH": 1.36083,
+   "XL_ohm_flo_f0_fhi": [
+    6.8402776492553565,
+    11.847708426388083,
+    20.52083294776607
+   ],
+   "C1_fF": 272.412,
+   "XC1_ohm_flo_f0_fhi": [
+    730.3043877100465,
+    421.64143483476016,
+    243.43479590334883
+   ],
+   "L_ser_Cp1_resonance_GHz": 1.3643261213316797,
+   "band_GHz": [
+    0.8,
+    1.3856406460551018,
+    2.4
+   ],
+   "dc": {
+    "P0": {
+     "VGS": 0.3023753,
+     "ID_A": 0.00834312,
+     "VDS": 0.2861773,
+     "region": "sat",
+     "V_VIN1": 0.3024344,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 8.343638
+    },
+    "noL": {
+     "VGS": 0.3023613,
+     "ID_A": 0.00834216,
+     "VDS": 0.2862495,
+     "region": "sat",
+     "V_VIN1": 0.306606,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 8.342679
+    },
+    "parent_same_sizes": {
+     "VGS": 0.2997117,
+     "ID_A": 0.008160013,
+     "VDS": 0.2999603,
+     "region": "sat",
+     "V_VIN1": 0.0,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 8.160515
+    },
+    "P2": {
+     "VGS": 0.1050904,
+     "ID_A": 0.0003550762,
+     "VDS": 0.8699794,
+     "region": "sub",
+     "V_VIN1": 0.1022912,
+     "I_port_dc_A": 0.002045783,
+     "idd_ma": 2.400878
+    },
+    "P3": {
+     "VGS": 0.1050887,
+     "ID_A": 0.0003550617,
+     "VDS": 0.8699802,
+     "region": "sub",
+     "V_VIN1": 0.1022895,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 2.40087
+    }
+   },
+   "final_ok_same_sizes": {
+    "P0": true,
+    "P1": true,
+    "P2": false,
+    "P3": false,
+    "noL": false,
+    "parent_same_sizes": false
+   },
+   "P1_violations_same_sizes": {},
+   "resize_feasible": {
+    "P1": true,
+    "P2": false
+   },
+   "resize_metrics": {
+    "P1": {
+     "s11_max_db": -9.01155,
+     "s21_db": 10.7511,
+     "s21_ripple_db": 0.44179999999999886,
+     "idd_ma": 8.347017,
+     "nf_max_db": 1.43563
+    },
+    "P2": {
+     "s11_max_db": -8.6221,
+     "s21_db": 9.89065,
+     "s21_ripple_db": 0.3869600000000002,
+     "idd_ma": 11.82656,
+     "nf_max_db": 2.404262
+    }
+   },
+   "guard_G_PORT_DC_pass": false,
+   "sim_probe": {
+    "P3_dIdd_rel": 0.7122514183860806,
+    "P3_dVgate_V": -0.1972874,
+    "P3_guard_pass": false,
+    "noC1_spec_feasible": false,
+    "noC1_metrics_delta": {
+     "s11_max_db": 0.0223,
+     "s21_db": 0.0035,
+     "s21_ripple_db": 0.0039,
+     "nf_max_db": -0.0025,
+     "idd_ma": 0.0
+    },
+    "C1_F": 2.72412e-13
+   }
+  },
+  "v2a-wb0824-gain-126": {
+   "cls": "add:L:IN-G + add:NMOS:dIN.gRAIL.sG",
+   "has_L_IN_G": true,
+   "rerun_reproduces_stored_A1": true,
+   "L_IN_G_nH": 1.2447599999999999,
+   "XL_ohm_flo_f0_fhi": [
+    6.256846194371889,
+    10.837175503796088,
+    18.770538583115666
+   ],
+   "C1_fF": 324.54,
+   "XC1_ohm_flo_f0_fhi": [
+    613.0020301499636,
+    353.9168871208685,
+    204.33401004998788
+   ],
+   "L_ser_Cp1_resonance_GHz": 1.4265182090869877,
+   "band_GHz": [
+    0.8,
+    1.3856406460551018,
+    2.4
+   ],
+   "dc": {
+    "P0": {
+     "VGS": 0.3068631,
+     "ID_A": 0.008484326,
+     "VDS": 0.2909098,
+     "region": "sat",
+     "V_VIN1": 0.3069147,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 8.484847
+    },
+    "noL": {
+     "VGS": 0.3068542,
+     "ID_A": 0.008483713,
+     "VDS": 0.2909553,
+     "region": "sat",
+     "V_VIN1": 0.3095722,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 8.484234
+    },
+    "parent_same_sizes": {
+     "VGS": 0.3042126,
+     "ID_A": 0.008301786,
+     "VDS": 0.3044687,
+     "region": "sat",
+     "V_VIN1": 0.0,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 8.302290000000001
+    },
+    "P2": {
+     "VGS": 0.1040047,
+     "ID_A": 0.0003317278,
+     "VDS": 0.878907,
+     "region": "sub",
+     "V_VIN1": 0.1014768,
+     "I_port_dc_A": 0.002029496,
+     "idd_ma": 2.361242
+    },
+    "P3": {
+     "VGS": 0.104003,
+     "ID_A": 0.0003317141,
+     "VDS": 0.8789077,
+     "region": "sub",
+     "V_VIN1": 0.1014751,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 2.361235
+    }
+   },
+   "final_ok_same_sizes": {
+    "P0": true,
+    "P1": true,
+    "P2": false,
+    "P3": false,
+    "noL": false,
+    "parent_same_sizes": false
+   },
+   "P1_violations_same_sizes": {},
+   "resize_feasible": {
+    "P1": true,
+    "P2": false
+   },
+   "resize_metrics": {
+    "P1": {
+     "s11_max_db": -9.01428,
+     "s21_db": 11.7406,
+     "s21_ripple_db": 0.6676000000000002,
+     "idd_ma": 8.509283,
+     "nf_max_db": 1.485643
+    },
+    "P2": {
+     "s11_max_db": -5.73398,
+     "s21_db": 9.93655,
+     "s21_ripple_db": 1.10107,
+     "idd_ma": 9.804079999999999,
+     "nf_max_db": 2.261603
+    }
+   },
+   "guard_G_PORT_DC_pass": false,
+   "sim_probe": {
+    "P3_dIdd_rel": 0.7217115405852338,
+    "P3_dVgate_V": -0.202861,
+    "P3_guard_pass": false,
+    "noC1_spec_feasible": false,
+    "noC1_metrics_delta": {
+     "s11_max_db": 0.0247,
+     "s21_db": 0.005,
+     "s21_ripple_db": 0.0175,
+     "nf_max_db": -0.0143,
+     "idd_ma": 0.0
+    },
+    "C1_F": 3.2454e-13
+   }
+  },
+  "v2a-wb1020-noise-003": {
+   "cls": "add:NMOS:dRAIL.gD.sG + stk:PMOS:PMOS.D:D.gG",
+   "has_L_IN_G": false,
+   "rerun_reproduces_stored_A1": true,
+   "L_IN_G_nH": null,
+   "XL_ohm_flo_f0_fhi": null,
+   "C1_fF": 9908.92,
+   "XC1_ohm_flo_f0_fhi": [
+    16.061785047401266,
+    11.357397124978126,
+    8.030892523700633
+   ],
+   "L_ser_Cp1_resonance_GHz": null,
+   "band_GHz": [
+    1.0,
+    1.4142135623730951,
+    2.0
+   ],
+   "dc": {
+    "P0": {
+     "VGS": 0.3116958,
+     "ID_A": 0.004624386,
+     "VDS": 0.5045313,
+     "region": "sat",
+     "V_VIN1": 0.0,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 4.921494
+    },
+    "parent_same_sizes": {
+     "VGS": 0.1230463,
+     "ID_A": 0.0002650298,
+     "VDS": 1.097396,
+     "region": "sub",
+     "V_VIN1": 0.0,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 0.46766610000000003
+    },
+    "P2": {
+     "VGS": 0.3116958,
+     "ID_A": 0.004624386,
+     "VDS": 0.5045313,
+     "region": "sat",
+     "V_VIN1": 0.0,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 4.921494
+    },
+    "P3": {
+     "VGS": 0.3116958,
+     "ID_A": 0.004624386,
+     "VDS": 0.5045313,
+     "region": "sat",
+     "V_VIN1": 0.0,
+     "I_port_dc_A": 0.0,
+     "idd_ma": 4.921494
+    }
+   },
+   "final_ok_same_sizes": {
+    "P0": true,
+    "P1": true,
+    "P2": true,
+    "P3": true,
+    "parent_same_sizes": false
+   },
+   "P1_violations_same_sizes": {},
+   "resize_feasible": {
+    "P1": true,
+    "P2": true
+   },
+   "resize_metrics": {
+    "P1": {
+     "s11_max_db": -9.03777,
+     "s21_db": 11.3449,
+     "s21_ripple_db": 0.2905999999999995,
+     "idd_ma": 4.9260340000000005,
+     "nf_max_db": 1.500218
+    },
+    "P2": {
+     "s11_max_db": -9.05617,
+     "s21_db": 11.3205,
+     "s21_ripple_db": 0.2873000000000001,
+     "idd_ma": 4.725787,
+     "nf_max_db": 1.515329
+    }
+   },
+   "guard_G_PORT_DC_pass": true,
+   "sim_probe": {
+    "P3_dIdd_rel": 0.0,
+    "P3_dVgate_V": 0.0,
+    "P3_guard_pass": true,
+    "noC1_spec_feasible": false,
+    "noC1_metrics_delta": {
+     "s11_max_db": 9.285,
+     "s21_db": -159.0616,
+     "s21_ripple_db": 3.1007,
+     "nf_max_db": 158.6248,
+     "idd_ma": 0.0
+    },
+    "C1_F": 9.90892e-12
+   }
+  }
+ }
+}

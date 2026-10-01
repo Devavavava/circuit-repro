@@ -1,0 +1,420 @@
+{
+ "sources": {
+  "kaggle/campaigns/bench-v2/run/rtcache.jsonl": {
+   "lines": 5420,
+   "md5": "a2393fbd3db2ef6c8c36809100dcb0b3"
+  },
+  "kaggle/campaigns/bench-v2/run/pre-amendment/candidates.jsonl": {
+   "lines": 2716,
+   "md5": "bfb0f202a48a48acd9579fca1ec0c0c5"
+  },
+  "kaggle/campaigns/bench-v2/run/pre-amendment/cells.jsonl": {
+   "lines": 110,
+   "md5": "22c96ffc0b8690e760057cc014c4c58b"
+  },
+  "kaggle/campaigns/bench-v2/run/pre-amendment/train.jsonl": {
+   "lines": 269,
+   "md5": "08fbb6e796eee191a66e644616af3875"
+  },
+  "kaggle/campaigns/bench-v2/run/amendment-1-record/candidates.jsonl": {
+   "lines": 3306,
+   "md5": "290cf771613d777b5279a340817108f9"
+  },
+  "kaggle/campaigns/bench-v2/run/amendment-1-record/cells.jsonl": {
+   "lines": 413,
+   "md5": "bba65b2476071b90d81bff198c506daa"
+  },
+  "kaggle/campaigns/bench-v2/run/amendment-1-record/train.jsonl": {
+   "lines": 320,
+   "md5": "e4445adab9df059a971b685f5bf2e93d"
+  },
+  "kaggle/campaigns/bench-v2/run/candidates.jsonl": {
+   "lines": 66,
+   "md5": "1f260a1ecec939d8fa65a06f91b563cb"
+  },
+  "kaggle/campaigns/bench-v2/run/cells.jsonl": {
+   "lines": 284,
+   "md5": "4da22638b2b3b57a59f0210bc69e8fd8"
+  },
+  "kaggle/campaigns/bench-v2/run/train.jsonl": {
+   "lines": 203,
+   "md5": "7fd0af56f93665e7a64c2692426fc0e8"
+  },
+  "kaggle/campaigns/bench-v2/run/results.jsonl": {
+   "lines": 21660,
+   "md5": "4fd7f8894506689c83a6db65c4ff00b4"
+  },
+  "kaggle/campaigns/bench-v12-audit/E-c/candidates.jsonl": {
+   "lines": 272,
+   "md5": "e8aec6b8837253b3bafce5b070da7ea2"
+  },
+  "kaggle/campaigns/bench-v12-audit/E-d/cand.json": {
+   "bytes": 336141,
+   "md5": "53c6a102219c1e62d1d0f1636440870c"
+  },
+  "kaggle/campaigns/bench-v12-audit/E-c/results.jsonl": {
+   "lines": 2792,
+   "md5": "1a567fd39e7c55228c6884cbcee4a419"
+  },
+  "kaggle/campaigns/bench-v12-audit/E-d/score.jsonl": {
+   "lines": 978,
+   "md5": "79b24a850f3239d428bac0d2c2ac3d0f"
+  },
+  "kaggle/campaigns/rl-readiness/R1/results.jsonl": {
+   "lines": 3652,
+   "md5": "6a820c391455f06e32b7dc7b88ec9650"
+  },
+  "kaggle/campaigns/rl-readiness/R4/results.json": {
+   "bytes": 1577974,
+   "md5": "a53b8a705ad3b9d1c806d5032caba704"
+  },
+  "kaggle/campaigns/rl-readiness/verifier-rl-v1/results.json": {
+   "bytes": 821876,
+   "md5": "d334170f36575373198c9a6ff2bab53e"
+  },
+  "kaggle/campaigns/bench-v12-audit/S-1-stab-inloop/results.json": {
+   "bytes": 737140,
+   "md5": "0d838bcdef7b41499e492947871e90b7"
+  },
+  "kaggle/campaigns/bench-v12-audit/stability-gate/results.json": {
+   "bytes": 425416,
+   "md5": "dd4d51e221cba88ec18a442a3831097b"
+  }
+ },
+ "counts": {
+  "bv2_results_rows": 21660,
+  "bv2_accepted_cells_any_era": [
+   "v2-wb0530-noise-009",
+   "v2-wb0530-noise-026",
+   "v2-wb0530-noise-051",
+   "v2-wb0530-noise-141",
+   "v2-wb0530-power-010",
+   "v2-wb0530-power-102",
+   "v2-wb0530-power-144",
+   "v2-wb0824-gain-044",
+   "v2-wb0824-gain-192",
+   "v2-wb1020-noise-033",
+   "v2a-nb090-gain-007",
+   "v2a-wb0530-noise-082",
+   "v2a-wb0530-noise-107",
+   "v2a-wb0530-power-000",
+   "v2a-wb0530-power-084",
+   "v2a-wb0530-power-091",
+   "v2a-wb0824-gain-002",
+   "v2a-wb0824-gain-019",
+   "v2a-wb0824-gain-074",
+   "v2a-wb0824-gain-093",
+   "v2a-wb0824-gain-108",
+   "v2a-wb0824-gain-116",
+   "v2a-wb0824-gain-126",
+   "v2a-wb1020-noise-003",
+   "v2a-wb1020-noise-051",
+   "v2a-wb1020-noise-068",
+   "v2a-wb1020-noise-123",
+   "v2a-wb1020-noise-132"
+  ],
+  "dedupe_label_conflicts": 2,
+  "by_src_incl_reason": [
+   [
+    "E-c",
+    false,
+    "duplicate_(tok,spec,seed,budget)",
+    84
+   ],
+   [
+    "E-c",
+    false,
+    "fails_rl-v1.1_free_check:port_dc_prefilter",
+    231
+   ],
+   [
+    "E-c",
+    false,
+    "fails_rl-v1.1_free_check:structural_degeneracy",
+    72
+   ],
+   [
+    "E-c",
+    false,
+    "fails_rl-v1.1_free_check:topo_limits",
+    725
+   ],
+   [
+    "E-c",
+    false,
+    "not_sizable",
+    32
+   ],
+   [
+    "E-c",
+    true,
+    null,
+    1648
+   ],
+   [
+    "E-d",
+    false,
+    "duplicate_(tok,spec,seed,budget)",
+    19
+   ],
+   [
+    "E-d",
+    false,
+    "fails_rl-v1.1_free_check:port_dc_prefilter",
+    57
+   ],
+   [
+    "E-d",
+    false,
+    "fails_rl-v1.1_free_check:structural_degeneracy",
+    258
+   ],
+   [
+    "E-d",
+    false,
+    "fails_rl-v1.1_free_check:topo_limits",
+    135
+   ],
+   [
+    "E-d",
+    false,
+    "not_sizable",
+    9
+   ],
+   [
+    "E-d",
+    true,
+    null,
+    500
+   ],
+   [
+    "R1",
+    false,
+    "fails_rl-v1.1_free_check:port_dc_prefilter",
+    406
+   ],
+   [
+    "R1",
+    false,
+    "fails_rl-v1.1_free_check:structural_degeneracy",
+    254
+   ],
+   [
+    "R1",
+    false,
+    "fails_rl-v1.1_free_check:topo_limits",
+    784
+   ],
+   [
+    "R1",
+    true,
+    null,
+    2208
+   ],
+   [
+    "R4",
+    false,
+    "duplicate_(tok,spec,seed,budget)",
+    25
+   ],
+   [
+    "R4",
+    false,
+    "fails_rl-v1.1_free_check:port_dc_prefilter",
+    27
+   ],
+   [
+    "R4",
+    false,
+    "fails_rl-v1.1_free_check:structural_degeneracy",
+    4
+   ],
+   [
+    "R4",
+    false,
+    "fails_rl-v1.1_free_check:topo_limits",
+    25
+   ],
+   [
+    "R4",
+    false,
+    "special_config:reg/gate",
+    1
+   ],
+   [
+    "R4",
+    false,
+    "special_config:reg/inloop",
+    1
+   ],
+   [
+    "R4",
+    false,
+    "special_config:reg/lib",
+    1
+   ],
+   [
+    "R4",
+    false,
+    "special_config:reg/topo",
+    2
+   ],
+   [
+    "R4",
+    false,
+    "special_config:reg2/all",
+    2
+   ],
+   [
+    "R4",
+    false,
+    "special_config:reg2/gate",
+    1
+   ],
+   [
+    "R4",
+    false,
+    "special_config:reg2/inloop",
+    1
+   ],
+   [
+    "R4",
+    false,
+    "special_config:reg2/lib",
+    1
+   ],
+   [
+    "R4",
+    false,
+    "special_config:reg2/struct",
+    2
+   ],
+   [
+    "R4",
+    false,
+    "special_config:reg2/win50",
+    1
+   ],
+   [
+    "R4",
+    false,
+    "special_config:reg3/gate",
+    1
+   ],
+   [
+    "R4",
+    false,
+    "special_config:reg3/inloop",
+    1
+   ],
+   [
+    "R4",
+    false,
+    "special_config:reg3/lib",
+    1
+   ],
+   [
+    "R4",
+    false,
+    "special_config:win50/win50",
+    8
+   ],
+   [
+    "R4",
+    true,
+    null,
+    111
+   ],
+   [
+    "S-1",
+    false,
+    "no_tokens_recorded",
+    252
+   ],
+   [
+    "bench-v2",
+    false,
+    "derived_copy_of_rl-v1_twin",
+    495
+   ],
+   [
+    "bench-v2",
+    false,
+    "duplicate_(tok,spec,seed,budget)",
+    108
+   ],
+   [
+    "bench-v2",
+    false,
+    "port_dc_prefilter_fail_(free_reject_under_rl-v1.1)",
+    5418
+   ],
+   [
+    "bench-v2",
+    false,
+    "pre_sizing_reject_free",
+    2861
+   ],
+   [
+    "bench-v2",
+    true,
+    null,
+    12778
+   ],
+   [
+    "stability-gate",
+    false,
+    "no_tokens_recorded",
+    178
+   ],
+   [
+    "verifier-rl-v1",
+    false,
+    "fails_rl-v1.1_free_check:port_dc_prefilter",
+    3
+   ],
+   [
+    "verifier-rl-v1",
+    false,
+    "fails_rl-v1.1_free_check:structural_degeneracy",
+    8
+   ],
+   [
+    "verifier-rl-v1",
+    false,
+    "fails_rl-v1.1_free_check:topo_limits",
+    17
+   ],
+   [
+    "verifier-rl-v1",
+    false,
+    "special_config:reg/gate",
+    1
+   ],
+   [
+    "verifier-rl-v1",
+    false,
+    "special_config:reg/inloop",
+    1
+   ],
+   [
+    "verifier-rl-v1",
+    false,
+    "special_config:reg/lib",
+    3
+   ],
+   [
+    "verifier-rl-v1",
+    false,
+    "special_config:reg/rlv1env",
+    1
+   ],
+   [
+    "verifier-rl-v1",
+    true,
+    null,
+    100
+   ]
+  ]
+ }
+}

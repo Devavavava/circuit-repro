@@ -1,0 +1,67 @@
+band:
+  type: wideband
+  f0: 1224744871.3915892
+  f_lo: 500000000.0
+  f_hi: 3000000000.0
+constraints:
+  nf_max_db:
+    max: 2.6838
+  s11_max_db:
+    max: -7.844
+  s21_db:
+    min: 8.8315
+  s21_ripple_db:
+    max: 2.4089
+  idd_ma:
+    max: 6.4624
+  iip3_dbm:
+    min: 5
+    status: unsupported
+  mu_min:
+    min: 1.0
+description: bench-v2 planted cell (wideband wb0530, noise objective) from search
+  witness b0002-wb0530-noise-5
+name: v2-wb0530-noise-009
+objectives:
+- direction: min
+  metric: nf_max_db
+  weight: 1.0
+- direction: max
+  metric: s21_db
+  weight: 0.5
+- direction: min
+  metric: idd_ma
+  weight: 0.5
+pdk: bptm45
+ports:
+  input: VIN1
+  output: VOUT1
+  z0: 50
+process:
+  models: AutoCkt/repo/eval_engines/ngspice/ngspice_inputs/spice_models/45nm_bulk.txt
+  temp: 27
+  vdd: 1.1
+sizing:
+  c_f:
+  - 5.0e-14
+  - 1.0e-11
+  l_fixed: 4.5e-08
+  r_ohm:
+  - 50
+  - 20000.0
+  vb_v:
+  - 0.2
+  - 0.9
+  w_um:
+  - 1
+  - 200
+topology:
+  allow_inductorless: true
+  device_budget:
+  - 3
+  - 16
+  differential: false
+  l_max: 1.0e-08
+  l_min: 3.0e-10
+  max_inductors: 2
+  reject_floating: true

@@ -9,8 +9,9 @@ Status: **RUNNING under PRE-REG AMENDMENT 2** (verifier **rl-v1.1**). History:
 - launched 2026-09-29
 - stopped at 26.8 h, then resumed under AMENDMENT 1 on 2026-09-30
 - stopped 2026-10-01 18:43, then resumed under AMENDMENT 2 the same evening
+- **crashed 2026-10-02 14:41 IST** on a full shared disk (ENOSPC, filled by other users' jobs). It was made disk-robust, crash-resumed from its own amendment-2 state, and relaunched at 19:16 IST (pid 2394952). See A2-6 and D32–D36.
 
-The bench end time is unchanged: **2026-10-03 14:51 IST**.
+Bench end: **2026-10-03 19:26 IST**. This is the amendment-2 end (2026-10-03 14:51) plus the 4 h 35 min downtime, 14:41:15 → 19:16:24 (D35). The total budget ends **2026-10-04 13:31 IST**.
 
 **Read the "AMENDMENT 2" and then the "AMENDMENT 1" sections first.** Where they differ from the design sections below, the later amendment wins. Results sections are filled in when the run finalizes.
 
@@ -146,6 +147,79 @@ The smoke INDEX (`smoke/amend2-editcap-lib-v2/INDEX.json`) shows `verifier: rl-v
 - **D31: re-validated cells keep their amendment-1 witness record.** A re-validated or revived cell gets a fresh rl-v1.1 validation of its current witness, which is the stripped core when amendment 1 stripped it.
   - Fields moved: the amendment-1 stages, core and evidence move to `amend1_*`, and `witness_original` moves to `witness_original_amend1` (fenced).
   - If the new ABL strips again, the usual `witness/` + `witness/original/` layout applies.
+
+### A2-6 Crash on a full disk and crash-resume (2026-10-02)
+**Incident.** At 2026-10-02 ~14:41 IST the scheduler (pid 4111916) died with `OSError: [Errno 28] No space left on device` in `atomic_write` (writing `progress.json`). The shared NFS home (853 G) had been filled for a short time by other users' EDA jobs; this campaign uses about 12 GB. 85 GB were free again a few hours later. The last heartbeat was `progress.json` ts **2026-10-02T14:41:15**. At that moment:
+- 4 accepted cells (2 selectable)
+- 295 planted cells, 8 of them validating in F2, 73 queued
+- 421 training tasks (280 ok), and the training search had finished at gen 51
+- the bench search was in generation 55
+
+The 8 jobs in flight (5 F2, 3 search) could not write their results: `jobs/` held 0-byte `*.out.json.*.tmp` files. `results.jsonl` has **0 error rows**, so nothing wrong was cached. Every record file parses line by line.
+
+**What a plain restart would have done (confirmed in the code).** `Pipeline.__init__` rotates `candidates/events/cells/train.jsonl` and `sched.log` into `logs/prev-*`. `run()` then calls `restore_amend2()`, which rebuilds everything from the frozen amendment-1 record, so all amendment-2 state would have been dropped from the live run:
+- the 143 amendment-2 plantings, including 2 accepted cells
+- the 101 new training tasks
+- 19 bench and 10 training search generations: it would have restarted at generation 37/41, with steering re-derived from wall-clock order (D13)
+- the rl-v1.1 F1/F2 pool designs
+
+Only the sizing cache would have survived, and re-planting would have given different cell names.
+
+**Fix and test.** D32–D36 below.
+
+**Resume test.** The test ran on a copy of `run/` at `/tmp/cr-bv2-resumetest/run` (`--run-dir`, `--max-procs 4`). The copy was deleted afterwards.
+1. **`--dry-restore`** (nothing launched or written) reported:
+   - 4 accepted (2 selectable)
+   - 295 cells: 73 queued, plus **8 to re-admit**. These are exactly the 8 cells that were validating in F2 at the crash.
+   - 421 training tasks (280 ok), and no training re-check in flight
+   - next generation bench 56 / train 51 (last started 55 / 50); archive 2215 / 825
+   - 5 training confirmations without an outcome. They turned out to be quota-skipped plantings, which are now logged as `train_plant_skipped`.
+   - downtime 14:41:15 → resume
+2. **Real resume, 18 min.** An ENOSPC fault window was injected at +300–420 s, for both the scheduler and the workers, and a low-disk window at +600–700 s.
+   - The resume continued from the state: same 4 accepted cells, the 8 re-admitted cells back in F2, new jobs at bench gen 56, and the training search exhausted at gen 51 as before.
+   - There was no re-tagging and no restore churn.
+   - The scheduler did not crash:
+     - `DISK FULL ... pausing new launches` at the first failed write
+     - 7 failed writes, with 1 row held in memory
+     - `paused_enospc` in progress
+     - `DISK WRITABLE AGAIN after 390 s` once the back-off retry succeeded
+     - `LOW DISK ... pausing` / `DISK OK again after 90 s`
+     - `disk_pause` / `disk_resume` events
+   - Integrity afterwards: 29 new result rows = 29 calls; 0 error rows; 0 duplicate jids; 0 unparsable or torn lines in any record file.
+3. **Second restart (idempotency), 4 min.** It re-admitted the same 8 cells and continued at gen 57 / 52. There were 0 bad lines, and `start.json.resumes` has 2 entries.
+
+The real run was relaunched afterwards (`launch.sh full`).
+
+### Deviations / interpretations (crash-resume, 2026-10-02)
+- **D32: disk robustness.** No write can crash the scheduler on ENOSPC/EDQUOT any more:
+  - `atomic_write` fsyncs before the rename, so a deferred NFS error surfaces there. On ENOSPC it retries with a back-off of 5 s doubling to at most 5 min. The exception is `progress.json`, which is non-critical: that heartbeat is skipped and retried 30 s later.
+  - Every append handle (results, cells, train, candidates, events, rtcache, sched.log) is a `SafeAppender`. A row is written and fsynced at once. On failure the file is truncated back to its last good size, so there are no torn lines. The row stays in memory and is retried after the back-off.
+  - At exit, unwritten rows are retried for up to 10 min. Anything still unwritten is spilled to `$TMPDIR/bv2-spill/` on local disk and appended back at the next start.
+  - While a write is failing, or while the run-dir filesystem has < 5 GB free (checked every 30 s; `$TMPDIR` < 1 GB also counts), **no new jobs are launched**. Running jobs continue. `progress.json` shows `status: paused_low_disk` or `paused_enospc`, plus a `disk` block. `disk_pause` / `disk_resume` events and `sched.log` lines record each transition. Launches resume automatically.
+  - Workers retry writing their result file. A worker that dies without a result during disk trouble is re-queued (up to 3 times) and **never cached** as an error row. Timeout kills are suspended during disk trouble.
+  - The fault-injection hooks `BV2_INJECT_ENOSPC=t0:t1` and `BV2_INJECT_LOWDISK=t0:t1` (epoch seconds) exist for the test only.
+- **D33: `--run-dir` re-bases run-relative config paths.** `pre_amend_dir`, `restore_from`, and the cells' `spec`/`tight_spec` (when the file exists in the new dir) point into the given dir, so a copy never reads or writes the real run. New flags for tests: `--max-procs`, `--max-minutes`.
+- **D34: crash-resume of the amendment-2 phase (`resume_amend2`, `--dry-restore`).**
+  - **Trigger.** If the run dir already holds amendment-2 state (start.json `amend2_restored`, or the `amend2_restore` event), a restart resumes that state instead of running `restore_amend2` again. In this mode the record files are appended to, never rotated; a copy goes to `logs/prev-<stamp>-resume/`. The docstring has the details.
+  - **Rebuilt state.**
+    - Cells: the last record per name.
+    - Accepted cells and their class/atom/parent counters.
+    - The queue.
+    - The fence.
+    - Pools: the amendment-1 rows exactly as restore did, plus the rl-v1.1 F1/F2 rows named in each cell's stages.
+    - Search: the record archive/seen WLs plus every amendment-2 candidate.
+    - Training: record tasks overlaid by amendment-2 records.
+    - Bookkeeping counters: from the last `progress.json`. These are stats only; no decision depends on them, and they may lag the stop by < 30 s.
+  - **In-flight cells are re-admitted first.** These are cells with status validating, an `admit` event, or rl-v1.1 rows of their own. They re-run from A1, and every finished call is a cache hit on its exact key.
+  - **RNG position = generation index.** Each generation's RNG is seeded by stream seed : phase : grid point : gen. A resume continues at 1 + the last generation *started* (`steer` / new `gen_start` events). **The generation in flight at the stop is abandoned:** its unprocessed candidates are dropped, and their finished sizing rows stay cached. Processed feasible candidates with no confirmation or planting outcome are confirmed and planted (`resume:confirm`).
+  - **Orphan results.** `out.json` files of workers that finished after the scheduler died are ingested on their exact key, and stale job files are removed.
+  - **Idempotent.** A second restart sees everything the first resume appended. `start.json.resumes` lists every resume.
+- **D35: downtime extends the bench end and the total budget.** At each resume, `[last heartbeat, resume time]` is added to `start.json.downtime`; a restart that comes before a new heartbeat merges into the open interval. The budget clocks are:
+  - bench end = `t_amend1` + 72 h + downtime after `t_amend1`
+  - total budget = `t_start` + 118 h + downtime
+  - `progress.json` shows `bench_end`, `total_end`, `downtime` and `amendment2.bench_end_with_downtime`; `bench_end_unchanged` keeps the pre-crash value for the record.
+  - This interval was 2026-10-02T14:41:15 → the relaunch. This applies the user's instruction for this crash, and the same rule for any later scheduler outage. The campaign stays inside the approved 3–5 days.
+- **D36: disk pauses do not extend the end time.** A launch pause on a low or full disk (D32) keeps the scheduler alive and running jobs continue, so it is not counted as downtime. The pause intervals are recorded (`progress.disk.pauses_this_session`, `disk_pause`/`disk_resume` events). **Flagged for a user ruling** if a long pause happens.
 
 ## AMENDMENT 1 (2026-09-30) — what changed in the pipeline
 
@@ -427,6 +501,7 @@ Sizing box, process and topology fields are verbatim from bench-v1.2.
 - The scheduler reserves 3 slots for search and 1 for training whenever they have pending work.
 - Priority for the remaining slots: cal > validation (A/F1/ABL) > F2 > search > train.
 - **Resumable.** `run/results.jsonl` is the append-only cache of every sizing call, keyed by job id = hash(token hash, spec content, seed, budget, profile). A restart replays the deterministic generators through the cache. Event logs are rotated to `run/logs/prev-*`.
+- **Amendment-2 restarts resume** (D34): `launch.sh full` continues from the run dir's own amendment-2 state; `envrun.sh python kaggle/campaigns/bench-v2/bv2.py run --mode full --dry-restore` reports what a restart would restore without launching. A full disk pauses launches instead of crashing (D32).
 - The worker timeout is 1 h.
 
 ## Monitoring

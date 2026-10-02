@@ -43,6 +43,7 @@ pre-amendment rows kept and tagged, never selectable. See README "AMENDMENT 1".
 """
 import argparse
 import copy
+import errno
 import hashlib
 import itertools
 import json
@@ -291,6 +292,10 @@ def sha(s, n=16):
     return hashlib.sha1(s.encode() if isinstance(s, str) else s).hexdigest()[:n]
 
 
+def iso(t):
+    return time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(t)) if t else None
+
+
 def tokhash(tokens):
     return sha(json.dumps(list(tokens)))         # E-d / R1 key sha1(json(tokens))[:16]
 
@@ -299,11 +304,216 @@ def jdump(o):
     return json.dumps(o, default=repr, sort_keys=False)
 
 
-def atomic_write(path, text):
-    tmp = f"{path}.{os.getpid()}.tmp"
-    with open(tmp, "w") as fh:
-        fh.write(text)
-    os.replace(tmp, path)
+# ------------------------------------------------------------ disk robustness
+# D32 (2026-10-02): the scheduler crashed on ENOSPC when OTHER users' jobs filled
+# the shared NFS home. Every write of the scheduler (and of a worker's result
+# file) now survives a full disk: atomic writes and appends retry with a back-off
+# (up to 5 min) instead of raising, appended rows are kept in memory until they
+# are on disk, and the scheduler stops launching new jobs while the disk is full
+# or nearly full (< DISK_MIN_FREE_GB free on the run dir's filesystem).
+NOSPACE_ERRNOS = {errno.ENOSPC, errno.EDQUOT}
+DISK_MIN_FREE_GB = 5.0         # proactive pause below this (run dir filesystem)
+TMP_MIN_FREE_GB = 1.0          # ... and below this on $TMPDIR (ngspice scratch)
+DISK_BACKOFF_MAX_S = 300.0
+
+
+def is_nospace(e):
+    return isinstance(e, OSError) and e.errno in NOSPACE_ERRNOS
+
+
+def _env_window(name):
+    """test hook: env NAME='t0:t1' (epoch seconds) -> (t0, t1) or None."""
+    v = os.environ.get(name)
+    if not v:
+        return None
+    try:
+        a, b = v.split(":")
+        return float(a), float(b)
+    except ValueError:
+        return None
+
+
+_INJECT_ENOSPC = _env_window("BV2_INJECT_ENOSPC")    # fault injection (resume test)
+_INJECT_LOWDISK = _env_window("BV2_INJECT_LOWDISK")
+
+
+def _inject_nospace(where):
+    w = _INJECT_ENOSPC
+    if w and w[0] <= time.time() < w[1]:
+        raise OSError(errno.ENOSPC, "No space left on device (BV2_INJECT_ENOSPC test fault)",
+                      where)
+
+
+class DiskGuard:
+    """Process-wide disk state. `full` = a write failed with ENOSPC/EDQUOT and has
+    not yet succeeded again; `low` = the proactive free-space check is below its
+    threshold. While either holds, the scheduler launches no new jobs."""
+
+    def __init__(self):
+        self.log = lambda msg: print(time.strftime("%Y-%m-%dT%H:%M:%S ") + msg,
+                                     file=sys.stderr, flush=True)
+        self.full_since = None
+        self.delay = 5.0
+        self.backoff_until = 0.0
+        self.n_errors = 0
+        self.last_where = None
+        self.low = False
+        self.low_since = None
+        self.free_gb = None
+        self.tmp_free_gb = None
+        self.pauses = []               # [kind, t0, t1] closed pause intervals
+
+    def note_nospace(self, where, e=None):
+        now = time.time()
+        self.n_errors += 1
+        self.last_where = where
+        if self.full_since is None:
+            self.full_since = now
+            self.delay = 5.0
+            self.log(f"DISK FULL (ENOSPC) at {where}: {e} -- pausing new launches; "
+                     f"unwritten rows are kept in memory and retried with back-off "
+                     f"(<= {DISK_BACKOFF_MAX_S:.0f} s)")
+        else:
+            self.delay = min(DISK_BACKOFF_MAX_S, self.delay * 2)
+        self.backoff_until = now + self.delay
+
+    def backoff_active(self):
+        return time.time() < self.backoff_until
+
+    def clear(self):
+        if self.full_since is not None:
+            now = time.time()
+            self.pauses.append(["enospc", self.full_since, now])
+            self.log(f"DISK WRITABLE AGAIN after {now - self.full_since:.0f} s "
+                     f"({self.n_errors} failed writes so far); resuming launches")
+            self.full_since = None
+            self.delay = 5.0
+            self.backoff_until = 0.0
+
+    def paused(self):
+        return self.full_since is not None or self.low
+
+    def state(self):
+        return ("paused_enospc" if self.full_since is not None else
+                "paused_low_disk" if self.low else "ok")
+
+
+DISK = DiskGuard()
+
+
+def retry_nospace(fn, what, critical=True):
+    """call fn(); on ENOSPC/EDQUOT note it and retry with back-off (<= 5 min)
+    until it succeeds (critical) or return None (not critical)."""
+    while True:
+        try:
+            r = fn()
+            return r
+        except OSError as e:
+            if not is_nospace(e):
+                raise
+            DISK.note_nospace(what, e)
+            if not critical:
+                return None
+            time.sleep(DISK.delay)
+
+
+def atomic_write(path, text, critical=True):
+    """write-then-rename, fsync'd (on NFS a deferred ENOSPC surfaces here, before
+    the rename). ENOSPC: critical -> retry with back-off until it succeeds;
+    not critical (progress.json) -> give up this time, return False."""
+    def _do():
+        tmp = f"{path}.{os.getpid()}.tmp"
+        try:
+            _inject_nospace(path)
+            with open(tmp, "w") as fh:
+                fh.write(text)
+                fh.flush()
+                os.fsync(fh.fileno())
+            os.replace(tmp, path)
+        except OSError:
+            try:
+                os.remove(tmp)
+            except OSError:
+                pass
+            raise
+        return True
+    return bool(retry_nospace(_do, f"atomic_write {os.path.basename(path)}", critical))
+
+
+class SafeAppender:
+    """Append-only jsonl/log writer that never loses a row on ENOSPC. write()
+    queues the text and drains the queue at once (one write + fsync); on ENOSPC
+    the file is truncated back to its last good size (no torn line), the rows stay
+    queued in memory and the drain is retried after the back-off (`flush()` /
+    Pipeline.disk_tick). Drop-in for the file handles' write()/flush()."""
+
+    def __init__(self, path, dry=False):
+        self.path, self.dry = path, dry
+        self.q = []
+        self.fd = None
+        self.good = None
+
+    def write(self, s):
+        if self.dry:
+            return
+        self.q.append(s.encode() if isinstance(s, str) else s)
+        self.flush()
+
+    def flush(self):
+        if not self.q or self.dry:
+            return True
+        if DISK.backoff_active():
+            return False
+        try:
+            self._drain()
+        except OSError as e:
+            if not is_nospace(e):
+                raise
+            DISK.note_nospace(f"append {os.path.basename(self.path)}", e)
+            return False
+        return True
+
+    def _drain(self):
+        if self.fd is None:
+            self.fd = os.open(self.path, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o644)
+            self.good = os.fstat(self.fd).st_size
+            if self.good:
+                with open(self.path, "rb") as fh:
+                    fh.seek(self.good - 1)
+                    if fh.read(1) != b"\n":     # torn last line of an earlier crash
+                        self.q.insert(0, b"\n")
+        if os.fstat(self.fd).st_size != self.good:
+            os.ftruncate(self.fd, self.good)   # drop a torn tail of a failed drain
+        data = b"".join(self.q)
+        try:
+            _inject_nospace(self.path)
+            n = 0
+            while n < len(data):
+                n += os.write(self.fd, data[n:])
+            os.fsync(self.fd)
+        except OSError:
+            try:
+                os.ftruncate(self.fd, self.good)
+            except OSError:
+                pass
+            raise
+        self.good += len(data)
+        self.q = []
+
+    def pending(self):
+        return len(self.q)
+
+    def spill(self, spill_dir):
+        """last resort at exit: unwritten rows go to local disk ($TMPDIR); the next
+        start appends them back (Pipeline.ingest_spills)."""
+        if not self.q or self.dry:
+            return None
+        os.makedirs(spill_dir, exist_ok=True)
+        p = f"{spill_dir}/{os.path.basename(self.path)}.{os.getpid()}.{int(time.time())}"
+        with open(p, "wb") as fh:
+            fh.write(b"".join(self.q))
+        self.q = []
+        return p
 
 
 def era_stamp():
@@ -1134,12 +1344,24 @@ class Task:
 class Pipeline:
     CLS_PRIO = {"cal": 0, "val": 1, "f2": 2, "search": 3, "train": 4}
 
-    def __init__(self, mode, run_dir=None):
+    def __init__(self, mode, run_dir=None, dry=False, overrides=None):
         global CUR_PROFILE
         self.mode = mode
+        self.dry = bool(dry)             # --dry-restore: build the state, write nothing
         self.cfg = dict(CONFIGS[mode])
+        default_rd = self.cfg["run_dir"]
         if run_dir:
             self.cfg["run_dir"] = run_dir
+            # D33: a run dir given on the command line (e.g. a COPY of the full run
+            # for a resume test) also re-bases the config paths that live INSIDE
+            # the default run dir (pre-amendment snapshot, amendment-1 record)
+            if os.path.abspath(run_dir) != os.path.abspath(default_rd):
+                for k in ("pre_amend_dir", "restore_from"):
+                    v = self.cfg.get(k)
+                    if isinstance(v, str) and v.startswith(default_rd + "/"):
+                        self.cfg[k] = os.path.abspath(run_dir) + v[len(default_rd):]
+        self.cfg.update(overrides or {})
+        self.default_rd = default_rd
         self.rd = self.cfg["run_dir"]
         CUR_PROFILE = self.cfg["profile"]
         self.amend2 = bool(self.cfg.get("amend2"))
@@ -1147,9 +1369,16 @@ class Pipeline:
         if self.amend2 and not os.path.isdir(self.cfg["restore_from"]):
             raise SystemExit(f"AMENDMENT 2: frozen amendment-1 record missing: "
                              f"{self.cfg['restore_from']} (run: bv2.py amend2-snapshot)")
-        for d in ("specs", "jobs", "logs", "cells", "train"):
-            os.makedirs(f"{self.rd}/{d}", exist_ok=True)
+        if not self.dry:
+            for d in ("specs", "jobs", "logs", "cells", "train"):
+                os.makedirs(f"{self.rd}/{d}", exist_ok=True)
+            self.ingest_spills()
         self.era = era_stamp()
+        # D34: crash-resume of the amendment-2 phase. If this run dir already holds
+        # amendment-2 state (restore_amend2 ran: start.json marker or its
+        # amend2_restore event), RESUME from that state (resume_amend2) instead of
+        # restoring the amendment-1 record again, and do not rotate the records.
+        self.resume = self.amend2 and self.amend2_session_present()
         sp_ = f"{self.rd}/start.json"
         if os.path.exists(sp_):
             st0 = json.load(open(sp_))
@@ -1161,15 +1390,25 @@ class Pipeline:
             # AMENDMENT 1: the fresh 72 h bench budget runs from this (re)start
             st0["t_amend1"] = time.time()
             st0["era_amend1"] = self.era
-            atomic_write(sp_, json.dumps(st0))
+            if not self.dry:
+                atomic_write(sp_, json.dumps(st0))
         if self.amend2 and "t_amend2" not in st0:
             # AMENDMENT 2: recorded only -- the bench end time is UNCHANGED
             # (t_amend1 + bench_max_hours), so is the total budget (t_start)
             st0["t_amend2"] = time.time()
             st0["era_amend2"] = self.era
-            atomic_write(sp_, json.dumps(st0))
+            if not self.dry:
+                atomic_write(sp_, json.dumps(st0))
         self.t_amend = st0["t_amend1"]
         self.t_amend2 = st0.get("t_amend2")
+        # D35: downtime (scheduler not running between the last heartbeat of the
+        # previous session and this resume) extends the bench end and the total
+        # budget. Recorded in start.json "downtime" as [t_down, t_resume] pairs.
+        self.downtime_new = None
+        if self.resume:
+            self.downtime_new = self.record_downtime(st0, sp_)
+        self.downtime = [list(x) for x in st0.get("downtime", [])]
+        self.st0 = st0
         self.cache = {}
         self.res_path = f"{self.rd}/results.jsonl"
         # AMENDMENT 1 (5): reuse only on the exact (topology, spec content, seed,
@@ -1195,17 +1434,33 @@ class Pipeline:
                 self.cache[r["jid"]] = r
         # event logs are regenerated on every (re)start: the replay through the
         # result cache re-emits them; old copies are rotated, never deleted.
+        # D34: an amendment-2 RESUME keeps appending to them (they ARE the state it
+        # resumes from); a copy is taken to logs/prev-<stamp>-resume/ first.
         stamp = time.strftime("%Y%m%d-%H%M%S")
-        for f in ("candidates.jsonl", "events.jsonl", "cells.jsonl", "train.jsonl",
-                  "sched.log"):
-            p = f"{self.rd}/{f}"
-            if os.path.exists(p) and os.path.getsize(p):
-                os.makedirs(f"{self.rd}/logs/prev-{stamp}", exist_ok=True)
-                os.replace(p, f"{self.rd}/logs/prev-{stamp}/{f}")
-        self.fh = {f: open(f"{self.rd}/{f}", "a") for f in
+        rec_files = ("candidates.jsonl", "events.jsonl", "cells.jsonl", "train.jsonl",
+                     "sched.log")
+        if self.dry:
+            pass
+        elif self.resume:
+            import shutil
+            bdir = f"{self.rd}/logs/prev-{stamp}-resume"
+            os.makedirs(bdir, exist_ok=True)
+            for f in rec_files + ("progress.json", "start.json"):
+                p = f"{self.rd}/{f}"
+                if os.path.exists(p):
+                    retry_nospace(lambda p=p, f=f: shutil.copy2(p, f"{bdir}/{f}"),
+                                  f"resume backup {f}")
+        else:
+            for f in rec_files:
+                p = f"{self.rd}/{f}"
+                if os.path.exists(p) and os.path.getsize(p):
+                    os.makedirs(f"{self.rd}/logs/prev-{stamp}", exist_ok=True)
+                    os.replace(p, f"{self.rd}/logs/prev-{stamp}/{f}")
+        # D32: every append handle is a SafeAppender (no row lost on ENOSPC)
+        self.fh = {f: SafeAppender(f"{self.rd}/{f}", self.dry) for f in
                    ("candidates.jsonl", "events.jsonl", "cells.jsonl", "train.jsonl")}
-        self.logfh = open(f"{self.rd}/sched.log", "a")
-        self.res_fh = open(self.res_path, "a")
+        self.logfh = SafeAppender(f"{self.rd}/sched.log", self.dry)
+        self.res_fh = SafeAppender(self.res_path, self.dry)
         self.rtcache_path = f"{self.rd}/rtcache.jsonl"
         self.rtcache = {}
         if os.path.exists(self.rtcache_path):
@@ -1215,7 +1470,12 @@ class Pipeline:
                     self.rtcache[r["k"]] = r["v"]
                 except Exception:                                # noqa: BLE001
                     pass
-        self.rt_fh = open(self.rtcache_path, "a")
+        self.rt_fh = SafeAppender(self.rtcache_path, self.dry)
+        self.appenders = list(self.fh.values()) + [self.logfh, self.res_fh, self.rt_fh]
+        DISK.log = self.log
+        self.last_disk_check = 0.0
+        self.deadline = None
+        self.dry_spawned = []
         self.pending = []                 # [Job]
         self.running = {}                 # jid -> (Popen, Job, t0)
         self.waiters = defaultdict(list)  # jid -> [Task]
@@ -1284,17 +1544,145 @@ class Pipeline:
         self.amend1_cells = OrderedDict()     # restored amendment-1 record (name -> cell)
         if self.amend2:
             self.f2space_build()              # pools need the F2 edit tokens (port-DC)
-        self.load_pre_amendment()
+        self.load_pre_amendment(reemit=not self.resume)
+        self.n_orphans = self.ingest_orphans() if not self.dry else 0
         self.log(f"=== start mode={mode} run_dir={self.rd} era={self.era} "
                  f"profile={CUR_PROFILE} phase={self.phase} "
+                 f"{'RESUME(amendment-2 state) ' if self.resume else ''}"
+                 f"{'DRY ' if self.dry else ''}"
                  f"cached_results={len(self.cache)} (extra read-only {self.n_extra_cache}) "
                  f"{AMEND}: t_amend={time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(self.t_amend))} "
-                 f"bench end={time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(self.t_amend + 3600 * self.cfg['bench_max_hours']))} "
-                 f"pre-amendment cells={len(self.pre_cells)} seeds={len(self.pre_cands)}")
+                 f"bench end={iso(self.bench_end())} (downtime {self.downtime_s(self.t_amend) / 3600:.2f} h) "
+                 f"total end={iso(self.total_end())} "
+                 f"pre-amendment cells={len(self.pre_cells)} seeds={len(self.pre_cands)} "
+                 f"orphan results ingested={self.n_orphans}")
+
+    # ------------------------------------------- D34/D35: resume bookkeeping
+    def amend2_session_present(self):
+        """True iff restore_amend2 already ran in this run dir (so its state, not
+        the amendment-1 record, is what a restart must continue from)."""
+        try:
+            if json.load(open(f"{self.rd}/start.json")).get("amend2_restored"):
+                return True
+        except (OSError, ValueError):
+            pass
+        p = f"{self.rd}/events.jsonl"
+        if not os.path.exists(p):
+            return False
+        with open(p) as fh:
+            for ln in fh:
+                if '"amend2_restore"' in ln:
+                    return True
+        return False
+
+    def record_downtime(self, st0, sp_):
+        """[t_down, t_resume]: t_down = the previous session's last heartbeat (the
+        `ts` of a non-final progress.json, else its mtime). A restart that comes
+        before the previous resume wrote a heartbeat extends the open interval
+        (idempotent). Returns the interval (dry: the one that WOULD be recorded)."""
+        pj = f"{self.rd}/progress.json"
+        t_last = None
+        try:
+            p = json.load(open(pj))
+            if p.get("final"):
+                return None
+            t_last = time.mktime(time.strptime(p["ts"], "%Y-%m-%dT%H:%M:%S"))
+        except (OSError, ValueError, KeyError, TypeError):
+            if os.path.exists(pj):
+                t_last = os.path.getmtime(pj)
+        now = time.time()
+        if t_last is None or now - t_last < 60:
+            return None
+        dt = [list(x) for x in st0.get("downtime", [])]
+        if dt and t_last <= dt[-1][1]:
+            dt[-1][1] = now
+        else:
+            dt.append([t_last, now])
+        if self.dry:
+            return dt[-1]
+        st0["downtime"] = dt
+        st0["downtime_iso"] = [[iso(a), iso(b)] for a, b in dt]
+        st0["downtime_note"] = ("D35: scheduler-down intervals [last heartbeat, resume]; "
+                                "bench end = t_amend1 + bench_max_hours + downtime, total "
+                                "budget = t_start + total_max_hours + downtime")
+        atomic_write(sp_, json.dumps(st0))
+        return dt[-1]
+
+    def downtime_s(self, since):
+        now = time.time()
+        tot = 0.0
+        for a, b in (self.downtime or []):
+            a, b = max(a, since), min(b, now)
+            if b > a:
+                tot += b - a
+        return tot
+
+    def bench_end(self):
+        return self.t_amend + 3600 * self.cfg["bench_max_hours"] + self.downtime_s(self.t_amend)
+
+    def total_end(self):
+        return self.t_start + 3600 * self.cfg["total_max_hours"] + self.downtime_s(self.t_start)
+
+    def spill_dir(self):
+        return f"{os.environ.get('TMPDIR') or '/tmp'}/bv2-spill/{sha(os.path.abspath(self.rd), 12)}"
+
+    def ingest_spills(self):
+        """rows spilled to local disk at a previous exit (disk still full) are
+        appended back to their files before anything is read."""
+        d = self.spill_dir()
+        if not os.path.isdir(d):
+            return
+        for f in sorted(os.listdir(d)):
+            target = f.split(".jsonl.")[0] + ".jsonl" if ".jsonl." in f else f.split(".log.")[0] + ".log"
+            ap = SafeAppender(f"{self.rd}/{target}")
+            ap.write(open(f"{d}/{f}", "rb").read())
+            while ap.pending():
+                time.sleep(DISK.delay)
+                ap.flush()
+            os.remove(f"{d}/{f}")
+            print(f"ingested spill {d}/{f} -> {target}", file=sys.stderr)
+
+    def ingest_orphans(self):
+        """D34: results of workers that finished after the scheduler died (their
+        out.json was never reaped) enter the cache on their exact key; then the
+        stale job files of the dead session are removed (nothing runs yet)."""
+        jd = f"{self.rd}/jobs"
+        n = 0
+        if not os.path.isdir(jd):
+            return 0
+        for f in sorted(os.listdir(jd)):
+            if not f.endswith(".out.json"):
+                continue
+            jid = f[:-len(".out.json")]
+            try:
+                rec = json.load(open(f"{jd}/{f}"))
+                job = json.load(open(f"{jd}/{jid}.job.json"))
+            except (OSError, ValueError):
+                continue
+            if rec.get("jid") != jid or job.get("jid") != jid or jid in self.cache \
+                    or rec.get("res") is None and rec.get("error"):
+                continue
+            rec.update(kind="orphan", cls=None, seed=job["seed"], budget=job["budget"],
+                       spec=os.path.relpath(job["spec"], REPO), tok=tokhash(job["tokens"]),
+                       meta={"orphan_recovered": True}, era=self.era,
+                       profile=job.get("profile", PROFILE), phase=self.phase,
+                       ts=time.strftime("%Y-%m-%dT%H:%M:%S"))
+            self.res_fh.write(jdump(rec) + "\n")
+            self.cache[jid] = rec
+            n += 1
+        for f in os.listdir(jd):
+            try:
+                os.remove(f"{jd}/{f}")
+            except OSError:
+                pass
+        return n
 
     # ------------------------------------------------------------ utilities
     def log(self, msg):
         line = time.strftime("%Y-%m-%dT%H:%M:%S ") + msg
+        if self.dry:
+            print(line, file=sys.stderr, flush=True)
+            return
         self.logfh.write(line + "\n")
         self.logfh.flush()
 
@@ -1324,7 +1712,7 @@ class Pipeline:
         return v
 
     # ----------------------------------------------- AMENDMENT 1: pre-amendment
-    def load_pre_amendment(self):
+    def load_pre_amendment(self, reemit=True):
         """Pre-amendment record (snapshot taken at the 26.8 h stop): every cell is
         kept, tagged era_tag=pre-amendment, never selectable. Their recorded
         anchor / single-edit designs stay in the pre-kill pools, their accepted
@@ -1339,7 +1727,7 @@ class Pipeline:
         for n, c in cells.items():
             c = dict(c, era_tag=PRE, selectable=False)
             self.pre_cells[n] = c
-            if own:            # re-emit so this run's cells.jsonl is the full record
+            if own and reemit:  # re-emit so this run's cells.jsonl is the full record
                 self.write_cell(c)
             if c["status"] == "accepted":
                 self.fence_wl.add(c["wl"])
@@ -1395,6 +1783,10 @@ class Pipeline:
 
     # ------------------------------------------------------------ job engine
     def spawn(self, name, gen, cls):
+        if self.dry:                      # --dry-restore: report, never start
+            self.dry_spawned.append(name)
+            gen.close()
+            return None
         t = Task(name, gen, cls)
         self.tasks.append(t)
         self._advance(t, None)
@@ -1470,19 +1862,40 @@ class Pipeline:
         jf = f"{self.rd}/jobs/{j.jid}.job.json"
         of = f"{self.rd}/jobs/{j.jid}.out.json"
         ef = f"{self.rd}/jobs/{j.jid}.err"
-        atomic_write(jf, jdump({"jid": j.jid, "tokens": j.tokens, "spec": j.spec,
-                                "seed": j.seed, "budget": j.budget,
-                                "profile": j.profile}))
-        with open(ef, "w") as efh:
+        # D32: on a full disk the job goes back to the head of the queue (False)
+        try:
+            if not atomic_write(jf, jdump({"jid": j.jid, "tokens": j.tokens, "spec": j.spec,
+                                           "seed": j.seed, "budget": j.budget,
+                                           "profile": j.profile}), critical=False):
+                self.pending.insert(0, j)
+                return False
+            _inject_nospace(ef)
+            efh = open(ef, "w")
+        except OSError as e:
+            if not is_nospace(e):
+                raise
+            DISK.note_nospace("launch", e)
+            self.pending.insert(0, j)
+            return False
+        with efh:
             p = subprocess.Popen([sys.executable, os.path.abspath(__file__), "worker", jf,
                                   of], stdout=subprocess.DEVNULL, stderr=efh,
                                  start_new_session=True)
         self.running[j.jid] = (p, j, time.time())
+        return True
+
+    def _disk_trouble_recent(self, window=900.0):
+        return DISK.full_since is not None or bool(
+            DISK.pauses and DISK.pauses[-1][0] == "enospc"
+            and time.time() - DISK.pauses[-1][2] < window)
 
     def _reap(self):
         for jid, (p, j, t0) in list(self.running.items()):
             rc = p.poll()
-            if rc is None and time.time() - t0 < WORKER_TIMEOUT_S:
+            if rc is None and (time.time() - t0 < WORKER_TIMEOUT_S
+                               or self._disk_trouble_recent(600.0)):
+                # D32: no timeout kill while a worker may be waiting for disk
+                # space to write its result (it retries; the call itself is done)
                 continue
             if rc is None:
                 try:
@@ -1497,6 +1910,24 @@ class Pipeline:
                 rec = json.load(open(of))
             else:
                 err = open(ef).read()[-2000:] if os.path.exists(ef) else ""
+                torn = any(f.startswith(f"{jid}.out.json.") for f in os.listdir(f"{self.rd}/jobs"))
+                nreq = self.__dict__.setdefault("_disk_requeued", Counter())
+                if rc != -signal.SIGKILL and nreq[jid] < 3 and (
+                        torn or "No space left" in err or "Errno 28" in err
+                        or "Disk quota" in err or self._disk_trouble_recent()):
+                    # D32: a worker that died without a result while the disk was
+                    # full is NOT a sizing outcome: never cached, re-queued
+                    nreq[jid] += 1
+                    self.log(f"worker {jid} rc={rc} left no result during disk trouble: "
+                             f"re-queued ({nreq[jid]}/3), not cached")
+                    for f in os.listdir(f"{self.rd}/jobs"):
+                        if f.startswith(jid):
+                            try:
+                                os.remove(f"{self.rd}/jobs/{f}")
+                            except OSError:
+                                pass
+                    self.pending.insert(0, j)
+                    continue
                 rec = {"jid": jid, "secs": round(time.time() - t0, 2), "sizable": None,
                        "res": None, "error": f"worker rc={rc}: {err}"}
             rec.update(kind=j.kind, cls=j.cls, seed=j.seed, budget=j.budget,
@@ -1557,10 +1988,15 @@ class Pipeline:
         return bool(self.port_dc_on() and not self.prefilter(tokens)["pass"])
 
     # -------------------------------------------------------------- main loop
-    def run(self):
+    def run(self, max_minutes=None):
         signal.signal(signal.SIGTERM, self._sigterm)
         signal.signal(signal.SIGINT, self._sigterm)
-        if self.amend2:
+        if max_minutes:
+            self.deadline = time.time() + 60.0 * float(max_minutes)
+        if self.resume:
+            # D34: crash-resume of the amendment-2 phase from its own state
+            self.resume_amend2()
+        elif self.amend2:
             # AMENDMENT 2: restore the frozen amendment-1 state, re-evaluate it
             # under rl-v1.1 and continue (no generator replay: see restore_amend2)
             self.restore_amend2()
@@ -1571,17 +2007,24 @@ class Pipeline:
         while not self.stop:
             self._reap()
             self.control()
+            self.disk_tick()
             limit = self.cfg["max_procs"]
             if load1() > self.cfg["load_thresh"]:
-                limit = self.cfg["throttle_procs"]
+                limit = min(limit, self.cfg["throttle_procs"])
             self.cur_limit = limit
-            while len(self.running) < limit and self.pending:
-                j = self._pick()
-                if j is None:
-                    break
-                self._launch(j)
+            if not DISK.paused():          # D32: no new launches while disk full/low
+                while len(self.running) < limit and self.pending:
+                    j = self._pick()
+                    if j is None:
+                        break
+                    if not self._launch(j):
+                        break
             if time.time() - self.last_progress > 30:
                 self.progress()
+            if self.deadline and time.time() > self.deadline and not self.stop:
+                self.log("--max-minutes reached: stopping (test run)")
+                self._sigterm()
+                break
             if not self.running and not self.pending and all(t.done for t in self.tasks):
                 if self.finish_check():
                     break
@@ -1592,6 +2035,68 @@ class Pipeline:
             finalize(self.mode, self.rd)
             self.progress(final=True)
         self.log("scheduler exit")
+        self.close_appenders()
+
+    # ------------------------------------------------------ D32: disk guard
+    def disk_tick(self):
+        now = time.time()
+        if DISK.full_since is not None and not DISK.backoff_active():
+            ok = all([a.flush() for a in self.appenders])
+            if ok and not DISK.backoff_active() and atomic_write(
+                    f"{self.rd}/.disk_probe", f"{now}\n", critical=False):
+                t0 = DISK.full_since
+                DISK.clear()
+                self.event("disk_resume", pause="enospc", since=iso(t0),
+                           paused_s=round(now - t0, 1), failed_writes=DISK.n_errors)
+        if now - self.last_disk_check < 30:
+            return
+        self.last_disk_check = now
+
+        def free_gb(p):
+            try:
+                v = os.statvfs(p)
+                return v.f_bavail * v.f_frsize / 1e9
+            except OSError:
+                return None
+        DISK.free_gb = free_gb(self.rd)
+        DISK.free_gb = None if DISK.free_gb is None else round(DISK.free_gb, 2)
+        DISK.tmp_free_gb = free_gb(os.environ.get("TMPDIR") or "/tmp")
+        DISK.tmp_free_gb = None if DISK.tmp_free_gb is None else round(DISK.tmp_free_gb, 2)
+        w = _INJECT_LOWDISK
+        if w and w[0] <= now < w[1]:
+            DISK.free_gb = 0.0                     # test hook
+        thr = float(self.cfg.get("disk_min_free_gb", DISK_MIN_FREE_GB))
+        low = ((DISK.free_gb is not None and DISK.free_gb < thr) or
+               (DISK.tmp_free_gb is not None and DISK.tmp_free_gb < TMP_MIN_FREE_GB))
+        if low and not DISK.low:
+            DISK.low, DISK.low_since = True, now
+            self.log(f"LOW DISK: {DISK.free_gb} GB free on the run dir filesystem "
+                     f"(threshold {thr} GB; TMPDIR {DISK.tmp_free_gb} GB): pausing new "
+                     f"launches ({len(self.running)} running jobs continue)")
+            self.event("disk_pause", why="low_disk", free_gb=DISK.free_gb,
+                       tmp_free_gb=DISK.tmp_free_gb)
+        elif not low and DISK.low:
+            DISK.pauses.append(["low_disk", DISK.low_since, now])
+            self.log(f"DISK OK again ({DISK.free_gb} GB free) after "
+                     f"{now - DISK.low_since:.0f} s low: resuming launches")
+            self.event("disk_resume", pause="low_disk", since=iso(DISK.low_since),
+                       paused_s=round(now - DISK.low_since, 1), free_gb=DISK.free_gb)
+            DISK.low, DISK.low_since = False, None
+
+    def close_appenders(self, max_wait_s=600.0):
+        """exit: drain every queued row (retrying through a full disk for up to
+        max_wait_s), then spill whatever is left to local disk."""
+        if self.dry:
+            return
+        t_end = time.time() + max_wait_s
+        while any(a.pending() for a in self.appenders) and time.time() < t_end:
+            if not all([a.flush() for a in self.appenders]):
+                time.sleep(max(1.0, min(DISK.delay, t_end - time.time())))
+        for a in self.appenders:
+            p = a.spill(self.spill_dir())
+            if p:
+                print(f"DISK FULL AT EXIT: unwritten rows of {a.path} spilled to {p} "
+                      f"(appended back at the next start)", file=sys.stderr, flush=True)
 
     def _sigterm(self, *_a):
         self.log("SIGTERM: stopping (running workers killed; resume re-runs them)")
@@ -1607,11 +2112,13 @@ class Pipeline:
 
     # --------------------------------------------------------------- control
     def elapsed_h(self):
-        return (time.time() - self.t_start) / 3600.0
+        """budget clock (D35: recorded downtime does not count)."""
+        return (time.time() - self.t_start - self.downtime_s(self.t_start)) / 3600.0
 
     def bench_elapsed_h(self):
-        """AMENDMENT 1 (4): the bench hard stop is measured from the resume."""
-        return (time.time() - self.t_amend) / 3600.0
+        """AMENDMENT 1 (4): the bench hard stop is measured from the resume.
+        D35: recorded downtime does not count."""
+        return (time.time() - self.t_amend - self.downtime_s(self.t_amend)) / 3600.0
 
     # ------------------------------------------------ AMENDMENT 1: steering
     def steer_counts(self):
@@ -1725,6 +2232,7 @@ class Pipeline:
             self.val_queue.remove(best)
             self.active_val[best["name"]] = True
             best["status"] = "validating"
+            self.event("admit", cell=best["name"])     # D34: resume knows in-flight cells
             self.spawn("cell:" + best["name"], self.task_cell(best), "val")
 
     # ---------------------------------------------------------- calibration
@@ -2173,6 +2681,8 @@ class Pipeline:
                 break
             cands = self.make_generation(stream, gen)
             self.search_gen[stream] = gen
+            # D34: a resume continues at the generation after the last one started
+            self.event("gen_start", stream=stream, gen=gen, n=len(cands))
             if not cands:
                 empty += 1
                 if empty >= 3 or (stream == "train" and all(
@@ -2532,7 +3042,9 @@ class Pipeline:
         if c.get("witness_original"):
             self.fence_wl.add(c["wl"])
             self.fence_tok.add(c["tok"])
-        write_cell_dir(c, f"{self.rd}/cells/{c['name']}", self.anch[c["anchor"]], self.cache)
+        retry_nospace(lambda: write_cell_dir(c, f"{self.rd}/cells/{c['name']}",
+                                             self.anch[c["anchor"]], self.cache),
+                      f"cell dir {c['name']}")                   # D32
         if c.get("SMOKE_FORCED_would_kill"):
             c["smoke_forced"] = True
             return verdict("accepted", "SMOKE_FORCED(would kill: "
@@ -2822,7 +3334,38 @@ class Pipeline:
                 continue
         a1 = OrderedDict((n, c) for n, c in sorted(cells.items(), key=lambda kv: kv[1]["seq"])
                          if c.get("era_tag") == AMEND and (only_c is None or n in only_c))
-        # ---- pools (amendment-1 cached rows; pre-amendment rows: load_pre_amendment)
+        n_pool = self._restore_pools_amend1(cells)
+        gmax = self._restore_search_record(cands)
+        for s in gmax:
+            self.search_gen0[s] = gmax[s] + 1
+        self._restore_cells_amend1(a1, cells, cands, rf)
+        # ---- training tasks
+        for n, t0 in sorted(tasks.items(), key=lambda kv: kv[1]["seq"]):
+            if only_t is not None and n not in only_t:
+                continue
+            self._restore_train_task(n, t0)
+        revalidate = [c for c in self.cells.values()
+                      if (c.get("amend2") or {}).get("action") == "revalidate"]
+        requeue = [c for c in self.val_queue if isinstance(c.get("amend2"), dict)
+                   and c["amend2"].get("action") in ("requeue", "revive")]
+        self.log(f"AMENDMENT 2 restore from {rf}: cells={len(a1)} revalidate={len(revalidate)} "
+                 f"requeue/revive={len(requeue)} tagged={sum(1 for c in self.cells.values() if c['status'] == TAG_PDC)} "
+                 f"train={len(self.train_tasks)} recheck={sum(1 for t in self.train_tasks.values() if t['status'] == 'running')} "
+                 f"pool rows={dict(n_pool)} next gen={self.search_gen0} pdc={dict(self.pdc)}")
+        self.event("amend2_restore", restore_from=os.path.relpath(rf, REPO),
+                   cells=len(a1), next_gen=self.search_gen0, pdc=dict(self.pdc),
+                   revalidate=[c["name"] for c in revalidate],
+                   requeue=[[c["name"], c["amend2"]["action"]] for c in requeue])
+        if not self.dry:
+            # D34: from now on a restart RESUMES this state (resume_amend2)
+            self.st0["amend2_restored"] = iso(time.time())
+            atomic_write(f"{self.rd}/start.json", json.dumps(self.st0))
+        self.spawn("search:bench", self.task_search("bench"), "search")
+        self.spawn("search:train", self.task_search("train"), "train")
+
+    def _restore_pools_amend1(self, cells):
+        """pre-kill / label pools from the amendment-1 cached rows (port-DC
+        filtered in add_pool); pre-amendment rows come from load_pre_amendment."""
         n_pool = Counter()
         for r in list(self.cache.values()):
             if r.get("phase") != AMEND:
@@ -2850,7 +3393,11 @@ class Pipeline:
             except (KeyError, TypeError):
                 continue
         self.cal_done = True
-        # ---- search state
+        return n_pool
+
+    def _restore_search_record(self, cands):
+        """search state of the frozen amendment-1 record: seen WLs, archive (port-DC
+        pre-filter passing members only); returns the max generation per stream."""
         gmax = {"bench": -1, "train": -1}
         for c in cands:
             s = c.get("stream")
@@ -2867,9 +3414,11 @@ class Pipeline:
                 continue
             self.archive[s][g].append(c)
             self.pdc[f"archive_kept_{s}"] += 1
-        for s in gmax:
-            self.search_gen0[s] = gmax[s] + 1
-        # ---- cells
+        return gmax
+
+    def _restore_cells_amend1(self, a1, cells, cands, rf):
+        """amendment-1 cells: tag / re-validate / re-queue / revive, then the void
+        F2 pre-kills are re-planted (see restore_amend2)."""
         revalidate, requeue = [], []
         for n, c0 in a1.items():
             c = copy.deepcopy(c0)
@@ -2991,40 +3540,299 @@ class Pipeline:
                 self.pdc["cells_replanted_void_prekill"] += 1
             else:
                 self.pdc["replant_rejected_again"] += 1
-        # ---- training tasks
-        for n, t0 in sorted(tasks.items(), key=lambda kv: kv[1]["seq"]):
-            if only_t is not None and n not in only_t:
+
+    def _restore_train_task(self, n, t0):
+        """one amendment-1 training task: not ok -> kept; ok -> pre-filter fail
+        tagged amend2-port-dc, pass -> re-checked under rl-v1.1."""
+        t = copy.deepcopy(t0)
+        t["tokens"] = self.round_trip(t["netlist"])["tokens"]
+        self.train_tasks[n] = t
+        if t["status"] != "ok":
+            self.write_train(t)
+            return
+        pf = self.prefilter(t["tokens"])
+        pfs = {k: pf[k] for k in ("pass", "why", "group")}
+        if not pf["pass"]:
+            t["amend2"] = {"action": "tag", "status_before": "ok", "prefilter": pfs,
+                           "label_before": t.get("difficulty"), "tag": TAG_PDC,
+                           "outcome": TAG_PDC}
+            t["status"] = TAG_PDC
+            self.pdc[f"train_tagged_prefilter_{t.get('difficulty')}"] += 1
+            self.write_train(t)
+            return
+        t["amend2"] = {"action": "recheck", "status_before": "ok", "prefilter": pfs,
+                       "label_before": t.get("difficulty")}
+        t["status"] = "running"
+        self.spawn("train:" + n, self.task_train_recheck(t), "train")
+
+    # ------------------------------------- D34: crash-resume of amendment 2
+    def rebase(self, p):
+        """a record path inside the default run dir -> the same file in this run
+        dir (only differs for a --run-dir copy, e.g. the resume test)."""
+        if isinstance(p, str) and os.path.abspath(self.rd) != os.path.abspath(self.default_rd) \
+                and p.startswith(self.default_rd + "/"):
+            q = os.path.abspath(self.rd) + p[len(self.default_rd):]
+            if os.path.exists(q):
+                return q
+        return p
+
+    def resume_amend2(self):
+        """D34: restart of an amendment-2 run whose state is already in the run dir
+        (restore_amend2 ran, then the run went on: new cells, training tasks and
+        search generations). Re-running restore_amend2 would rebuild the state from
+        the frozen amendment-1 record and lose all of that (only the result cache
+        would survive). Instead the state is rebuilt from this phase's records:
+          pools     amendment-1 rows exactly as restore_amend2 (port-DC filtered)
+                    + the rl-v1.1 F1/F2 rows of every validation of this phase
+                    (by the jids in each cell's stages; in-flight cells re-add
+                    theirs when they re-run)
+          search    record candidates as restore_amend2 (seen WLs, archive) + every
+                    candidate of this phase (seen WL; archive if scored); the next
+                    generation per stream = 1 + the last one STARTED (steer /
+                    gen_start events, candidate gens). Each generation has its own
+                    RNG (stream seed : phase : grid point : gen), so the generation
+                    index is the RNG namespace position. A generation that was in
+                    flight at the stop is abandoned: its unprocessed candidates are
+                    dropped (their finished sizing rows stay cached); its processed
+                    feasible candidates whose seed-2 confirmation / planting had
+                    not happened are confirmed and planted now (resume:confirm)
+          cells     last record per name (post-amendment eras); accepted cells and
+                    their class / atom / parent counters; queued cells re-queued;
+                    cells that were being validated (status validating, an admit
+                    event, or rl-v1.1 rows of their own) are re-admitted first and
+                    re-run from A1 -- finished calls are cache hits on exact key
+          training  record tasks overlaid by this phase's last record per name;
+                    a record task this phase never wrote (re-check in flight) is
+                    re-checked as restore_amend2 would
+          fence     every planted cell (both witnesses) and spec, as before
+          steering  recomputed every generation from the cell counts (last steer
+                    event shown until then)
+          stats     counters of progress.json (bookkeeping only; may lag the stop
+                    by < 30 s) -- no decision depends on them
+        Idempotent: records are appended (never rotated) in this mode, so a second
+        restart sees everything the first resume added."""
+        rf = self.cfg["restore_from"]
+        rec_cells = load_jsonl_last(f"{rf}/cells.jsonl", "name")
+        rec_tasks = load_jsonl_last(f"{rf}/train.jsonl", "name")
+        rec_cands = read_jsonl(f"{rf}/candidates.jsonl")
+        n_pool = self._restore_pools_amend1(rec_cells)
+        gmax = self._restore_search_record(rec_cands)
+        cells = load_jsonl_last(f"{self.rd}/cells.jsonl", "name")
+        tasks = load_jsonl_last(f"{self.rd}/train.jsonl", "name")
+        cands = read_jsonl(f"{self.rd}/candidates.jsonl")
+        events = read_jsonl(f"{self.rd}/events.jsonl")
+        # ---- search
+        n_arch, n_seen = Counter(), Counter()
+        for c in cands:
+            s = c.get("stream")
+            if s not in gmax or not c.get("g"):
+                continue
+            g = tuple(c["g"].split("-"))
+            self.seen_wl[s][g].add(c["wl"])
+            n_seen[s] += 1
+            gmax[s] = max(gmax[s], int(c.get("gen", 0)))
+            if c.get("score") is not None:
+                self.archive[s][g].append(c)
+                n_arch[s] += 1
+        gstart = {"bench": -1, "train": -1}
+        steer = None
+        for e in events:
+            if e.get("kind") == "steer":
+                gstart["bench"] = max(gstart["bench"], int(e.get("gen", -1)))
+                steer = e
+            elif e.get("kind") == "gen_start" and e.get("stream") in gstart:
+                gstart[e["stream"]] = max(gstart[e["stream"]], int(e.get("gen", -1)))
+        for s in gmax:
+            last = max(gmax[s], gstart[s])
+            self.search_gen0[s] = last + 1
+            self.search_gen[s] = last
+        if steer:
+            self.steer_last = {k: v for k, v in steer.items() if k not in ("kind", "ts")}
+        # ---- cells
+        admitted = {e.get("cell") for e in events if e.get("kind") == "admit"}
+        own_rows = {r["meta"]["cell"] for r in self.cache.values()
+                    if r.get("phase") == AMEND2 and r.get("profile") == PROFILE_V11
+                    and not r.get("cache_source") and isinstance(r.get("meta"), dict)
+                    and r["meta"].get("cell")}
+        acc_order = [e.get("cell") for e in events
+                     if e.get("kind") == "cell_verdict" and e.get("status") == "accepted"]
+        post = sorted((c for c in cells.values() if c.get("era_tag") in POST_ERAS),
+                      key=lambda c: c["seq"])
+        inflight = []
+        for c0 in post:
+            c = copy.deepcopy(c0)
+            n = c["name"]
+            c["tokens"] = self.round_trip(c["netlist"])["tokens"]
+            for k in ("spec", "tight_spec"):
+                if c.get(k):
+                    c[k] = self.rebase(c[k])
+            for w in [c] + [c[k] for k in ("witness_original", "witness_original_amend1")
+                            if c.get(k)]:
+                self.fence_wl.add(w["wl"])
+                self.fence_tok.add(w["tok"])
+            if os.path.exists(c.get("spec", "")):
+                self.fence_spec.add(spec_sha(c["spec"]))
+            self.cells[n] = c
+            if c["status"] in ("queued", "validating"):
+                if c["status"] == "validating" or n in admitted or n in own_rows:
+                    inflight.append(c)
+                else:
+                    self.val_queue.append(c)
+        accepted = [n for n in acc_order if n in self.cells
+                    and self.cells[n]["status"] == "accepted"]
+        accepted = list(OrderedDict.fromkeys(accepted))
+        accepted += [c["name"] for c in post if c["status"] == "accepted"
+                     and c["name"] not in accepted]
+        for n in accepted:
+            c = self.cells[n]
+            self.accepted.append(n)
+            self.core_accepted[c["cls"]] += 1
+            self.primary_accepted[c.get("primary_atom")] += 1
+            self.core_atom_count.update(set(sig_atoms(c["cls"])))
+            self.parent_accepted[c["anchor"]] += 1
+        # ---- pools: rl-v1.1 F1 / F2 designs of this phase's validations
+        n_pool2 = Counter()
+        for n, c in self.cells.items():
+            st = c.get("stages") or {}
+            for x in (st.get("F1") or {}).get("runs", []) or []:
+                r = self.cache.get(x.get("jid"))
+                if not r or r.get("phase") != AMEND2 or x.get("anchor") not in self.anch:
+                    continue
+                self.add_pool(self.pool[c["band"]], r, f"F1:{n}:{x['anchor']}:s{x['seed']}",
+                              tokens=self.anch[x["anchor"]]["tokens"])
+                n_pool2["F1"] += 1
+            for x in (st.get("F2") or {}).get("runs", []) or []:
+                r = self.cache.get(x.get("jid"))
+                if not r or r.get("phase") != AMEND2 or x.get("inproc_reject"):
+                    continue
+                self.add_pool(self.pool_se[(c["band"], c["anchor"])], r,
+                              f"F2:{n}:{x.get('edit')}:s{x['seed']}",
+                              tokens=self.f2_edit_tokens(c["anchor"], {"edit": x.get("edit")}))
+                n_pool2["F2"] += 1
+        # ---- training
+        merged = OrderedDict()
+        for n, t in rec_tasks.items():
+            merged[n] = ("record", t)
+        for n, t in tasks.items():
+            merged[n] = ("phase", t)
+        train_redo, train_new = [], []
+        for n, (src, t0) in sorted(merged.items(), key=lambda kv: kv[1][1]["seq"]):
+            if src == "record":
+                train_redo.append((n, t0))        # re-check was in flight: redo
                 continue
             t = copy.deepcopy(t0)
             t["tokens"] = self.round_trip(t["netlist"])["tokens"]
+            if t.get("spec"):
+                t["spec"] = self.rebase(t["spec"])
+            if t["status"] == "running":          # never written so (defensive)
+                if (t.get("amend2") or {}).get("action") == "recheck" and n in rec_tasks:
+                    train_redo.append((n, rec_tasks[n]))
+                else:
+                    t["stages"] = {}
+                    self.train_tasks[n] = t
+                    train_new.append(t)
+                continue
             self.train_tasks[n] = t
-            if t["status"] != "ok":
-                self.write_train(t)
-                continue
-            pf = self.prefilter(t["tokens"])
-            pfs = {k: pf[k] for k in ("pass", "why", "group")}
-            if not pf["pass"]:
-                t["amend2"] = {"action": "tag", "status_before": "ok", "prefilter": pfs,
-                               "label_before": t.get("difficulty"), "tag": TAG_PDC,
-                               "outcome": TAG_PDC}
-                t["status"] = TAG_PDC
-                self.pdc[f"train_tagged_prefilter_{t.get('difficulty')}"] += 1
-                self.write_train(t)
-                continue
-            t["amend2"] = {"action": "recheck", "status_before": "ok", "prefilter": pfs,
-                           "label_before": t.get("difficulty")}
-            t["status"] = "running"
-            self.spawn("train:" + n, self.task_train_recheck(t), "train")
-        self.log(f"AMENDMENT 2 restore from {rf}: cells={len(a1)} revalidate={len(revalidate)} "
-                 f"requeue/revive={len(requeue)} tagged={sum(1 for c in self.cells.values() if c['status'] == TAG_PDC)} "
-                 f"train={len(self.train_tasks)} recheck={sum(1 for t in self.train_tasks.values() if t['status'] == 'running')} "
-                 f"pool rows={dict(n_pool)} next gen={self.search_gen0} pdc={dict(self.pdc)}")
-        self.event("amend2_restore", restore_from=os.path.relpath(rf, REPO),
-                   cells=len(a1), next_gen=self.search_gen0, pdc=dict(self.pdc),
-                   revalidate=[c["name"] for c in revalidate],
-                   requeue=[[c["name"], c["amend2"]["action"]] for c in requeue])
+            if t["status"] == "ok":
+                self.train_ok.append(n)
+        # ---- pending confirmations / plantings of processed candidates
+        outcome = {e.get("cid") for e in events if e.get("kind") in (
+            "planted", "prekill", "floor_reject", "confirm_fail", "train_fenced",
+            "train_plant_skipped")}
+        outcome |= {c.get("cid") for c in self.cells.values()}
+        outcome |= {t.get("cid") for t in self.train_tasks.values()}
+        outcome |= {t.get("cid") for _n, t in train_redo}
+        confirm = [c for c in cands if c.get("feasible") and c.get("cid") not in outcome
+                   and c.get("stream") in ("bench", "train")]
+        # ---- stats (bookkeeping only) from the last progress snapshot
+        restored_stats = self.restore_stats()
+        # ---- record + start
+        summary = {
+            "restore_from_record": os.path.relpath(rf, REPO),
+            "pool_rows_amend1": dict(n_pool), "pool_rows_amend2": dict(n_pool2),
+            "cells": len(self.cells), "status": dict(Counter(c["status"] for c in self.cells.values())),
+            "accepted": [[n, self.cells[n].get("primary_atom"), self.cells[n]["anchor"],
+                          self.cells[n]["band"]] for n in self.accepted],
+            "queued": len(self.val_queue), "readmit": [c["name"] for c in inflight],
+            "train_tasks": len(self.train_tasks) + len(train_redo),
+            "train_status": dict(Counter(t["status"] for t in self.train_tasks.values())),
+            "train_ok": len(self.train_ok), "train_redo_recheck": [n for n, _t in train_redo],
+            "next_gen": dict(self.search_gen0), "last_started_gen": dict(self.search_gen),
+            "archive": {s: sum(len(v) for v in self.archive[s].values()) for s in self.archive},
+            "archive_added_this_phase": dict(n_arch), "seen_wl_added_this_phase": dict(n_seen),
+            "confirm_pending": [c["cid"] for c in confirm],
+            "stats_from": restored_stats,
+            "downtime_recorded": [iso(x) for x in self.downtime_new] if self.downtime_new else None,
+            "bench_end": iso(self.bench_end()), "total_end": iso(self.total_end())}
+        self.resume_summary = summary
+        self.log(f"D34 RESUME of amendment 2 from {self.rd}: " + json.dumps(summary, default=repr))
+        self.event("amend2_resume", **summary)
+        if not self.dry:
+            st0 = self.st0
+            st0.setdefault("amend2_restored", "(before D34; detected by its amend2_restore event)")
+            st0.setdefault("resumes", []).append(
+                {"ts": iso(time.time()), "git": self.era["git"], "md5": self.era["md5"],
+                 "next_gen": dict(self.search_gen0), "readmit": len(inflight),
+                 "downtime": [iso(x) for x in self.downtime_new] if self.downtime_new else None})
+            atomic_write(f"{self.rd}/start.json", json.dumps(st0))
+        # ---- spawn: in-flight validations first, then training, confirmations, search
+        for c in inflight:
+            c["stages"] = {}
+            for k in ("evidence", "f2_progress", "f2_space_total", "f2_rt_fail",
+                      "f2_SMOKE_SUBSET", "cls_search", "label_search"):
+                c.pop(k, None)
+            c["status"] = "validating"
+            self.active_val[c["name"]] = True
+            self.write_cell(c)
+            self.event("admit", cell=c["name"], resume=True)
+            self.spawn("cell:" + c["name"], self.task_cell(c), "val")
+        for n, t0 in train_redo:
+            self._restore_train_task(n, t0)
+        for t in train_new:
+            self.spawn("train:" + t["name"], self.task_train(t), "train")
+        if confirm:
+            self.spawn("resume:confirm", self.task_resume_confirm(confirm), "search")
         self.spawn("search:bench", self.task_search("bench"), "search")
         self.spawn("search:train", self.task_search("train"), "train")
+        return summary
+
+    def restore_stats(self):
+        """bookkeeping counters from the last progress.json (D34)."""
+        try:
+            pr = json.load(open(f"{self.rd}/progress.json"))
+        except (OSError, ValueError):
+            return None
+        num = (int, float)
+        for s in ("bench", "train"):
+            ss = dict((pr.get("search") or {}).get(s) or {})
+            ss.pop("generation", None)
+            self.n_cand[s] = int(ss.pop("candidates", 0) or 0)
+            self.search_stats[s] = Counter({k: v for k, v in ss.items()
+                                            if isinstance(v, num) and not isinstance(v, bool)})
+        b = pr.get("bench") or {}
+        self.stage_counts = Counter(b.get("stage_started") or {})
+        self.kill_counts = Counter(b.get("kills") or {})
+        self.floor_rejects = Counter(b.get("floor_rejects") or {})
+        pdc = ((pr.get("amendment2") or {}).get("port_dc") or {})
+        self.pdc = Counter({k: v for k, v in pdc.items() if isinstance(v, num)
+                            and not isinstance(v, bool)
+                            and k not in ("cells_tagged", "train_tagged")})
+        return {"progress_ts": pr.get("ts"), "pid": pr.get("pid")}
+
+    def task_resume_confirm(self, cands):
+        """D34: seed-2 confirmation + planting of processed feasible candidates of
+        the generation that was in flight at the stop (as task_search does)."""
+        by = OrderedDict()
+        for c in cands:
+            by.setdefault(c["stream"], []).append(c)
+        for stream, lst in by.items():
+            cls = "search" if stream == "bench" else "train"
+            cj = [Job("confirm", cls, c["tokens"], self.probe[tuple(c["g"].split("-"))], 2,
+                      meta={"cid": c["cid"], "stream": stream}) for c in lst]
+            crecs = yield cj
+            for c, r in zip(lst, crecs):
+                self.plant(stream, c, r)
+        self.log(f"resume:confirm done ({len(cands)} candidates)")
 
     def write_train(self, t):
         self.fh["train.jsonl"].write(jdump({k: v for k, v in t.items() if k != "tokens"})
@@ -3109,9 +3917,11 @@ class Pipeline:
     def plant_train(self, c, g, bt):
         if len(self.train_ok) + sum(1 for t in self.train_tasks.values()
                                     if t["status"] == "running") >= self.cfg["train_target"]:
+            self.event("train_plant_skipped", cid=c["cid"], why="train_target")   # D34
             return
         have = self.train_have(g)
         if have >= self.cfg["train_quota_per_point"]:
+            self.event("train_plant_skipped", cid=c["cid"], why="point_quota")    # D34
             return
         # fence: accepted bench witnesses (both eras) + AMENDMENT 1: every
         # post-amendment planted bench witness (original and stripped) and spec
@@ -3234,7 +4044,23 @@ class Pipeline:
         pr = {
             "ts": time.strftime("%Y-%m-%dT%H:%M:%S"), "mode": self.mode,
             "final": final, "pid": os.getpid(), "run_dir": self.rd, "era": self.era,
-            "elapsed_h": round(eh, 3), "load1": load1(),
+            # D32: "running" | "paused_low_disk" | "paused_enospc" (no new launches)
+            "status": "final" if final else ("running" if DISK.state() == "ok" else DISK.state()),
+            "disk": {"state": DISK.state(), "free_gb": None if DISK.free_gb is None
+                     else round(DISK.free_gb, 1),
+                     "tmp_free_gb": None if DISK.tmp_free_gb is None
+                     else round(DISK.tmp_free_gb, 1),
+                     "min_free_gb": self.cfg.get("disk_min_free_gb", DISK_MIN_FREE_GB),
+                     "failed_writes": DISK.n_errors, "last_failed_at": DISK.last_where,
+                     "queued_rows": sum(a.pending() for a in self.appenders),
+                     "pauses_this_session": [[k, iso(a), iso(b)] for k, a, b in DISK.pauses]},
+            # D35: bench end = t_amend1 + 72 h + downtime; total = t_start + 118 h + downtime
+            "bench_end": iso(self.bench_end()), "total_end": iso(self.total_end()),
+            "downtime": [[iso(a), iso(b)] for a, b in self.downtime],
+            "downtime_h": round(self.downtime_s(self.t_start) / 3600, 3),
+            "resumed": bool(self.resume),
+            "elapsed_h": round(eh, 3), "wall_elapsed_h": round((now - self.t_start) / 3600, 3),
+            "load1": load1(),
             "proc_limit": getattr(self, "cur_limit", None),
             "running": dict(cls_run), "pending": dict(cls_pend),
             "calls": {"new_this_session": self.n_done_new,
@@ -3302,6 +4128,7 @@ class Pipeline:
                              if self.t_amend2 else None),
                 "bench_end_unchanged": time.strftime(
                     "%Y-%m-%dT%H:%M:%S", time.localtime(self.t_amend + 3600 * self.cfg["bench_max_hours"])),
+                "bench_end_with_downtime": iso(self.bench_end()),
                 "class_rule": self.cfg.get("class_rule"),
                 "port_dc": {
                     **dict(sorted(self.pdc.items())),
@@ -3324,7 +4151,9 @@ class Pipeline:
                       "search_done": self.train_search_done},
             "eta": eta,
         }
-        atomic_write(f"{self.rd}/progress.json", json.dumps(pr, indent=1, default=repr))
+        if not self.dry:     # D32: never blocks; a skipped heartbeat is retried in 30 s
+            atomic_write(f"{self.rd}/progress.json", json.dumps(pr, indent=1, default=repr),
+                         critical=False)
 
 
 # ================================================================ artifacts
@@ -3562,6 +4391,17 @@ def selection_report(cells, cfg, era="cfg"):
             "nb_quota_binding": len(sel_nonb) > len(sel)}, sel
 
 
+def read_jsonl(path):
+    out = []
+    if os.path.exists(path):
+        for ln in open(path):
+            try:
+                out.append(json.loads(ln))
+            except Exception:                                    # noqa: BLE001
+                continue
+    return out
+
+
 def load_jsonl_last(path, key):
     d = OrderedDict()
     if os.path.exists(path):
@@ -3683,14 +4523,45 @@ def main():
     ap.add_argument("args", nargs="*")
     ap.add_argument("--mode", default="full")
     ap.add_argument("--run-dir", default=None)
+    # D34: report what a restart would restore, without launching or writing
+    ap.add_argument("--dry-restore", action="store_true")
+    ap.add_argument("--max-procs", type=int, default=None)     # override (tests)
+    ap.add_argument("--max-minutes", type=float, default=None)  # graceful stop (tests)
     a = ap.parse_args()
     if a.cmd == "worker":
         worker(*a.args[:2])
+    elif a.cmd == "run" and a.dry_restore:
+        rd = a.run_dir or CONFIGS[a.mode]["run_dir"]
+        p = Pipeline(a.mode, rd, dry=True)
+        out = {"run_dir": rd, "resume": p.resume, "phase": p.phase,
+               "cached_results": len(p.cache),
+               "orphan_out_json": sum(1 for f in os.listdir(f"{rd}/jobs")
+                                      if f.endswith(".out.json")) if os.path.isdir(f"{rd}/jobs") else 0,
+               "bench_end_before_this_restart": iso(p.bench_end())}
+        if p.resume:
+            dt0 = p.downtime
+            if p.downtime_new:
+                p.downtime = [x for x in dt0 if x[0] != p.downtime_new[0]] + [p.downtime_new]
+            out["summary"] = p.resume_amend2()
+            out["would_spawn"] = dict(Counter(n.split(":")[0] for n in p.dry_spawned))
+            out["would_spawn_cells"] = [n for n in p.dry_spawned if n.startswith("cell:")]
+            out["accepted_n"] = len(p.accepted)
+            out["selectable_n"] = len(select_cells([p.cells[c] for c in p.accepted], p.cfg))
+        elif p.amend2:
+            out["would"] = f"restore_amend2 from {p.cfg['restore_from']} (first amendment-2 start)"
+        else:
+            out["would"] = "replay (pre-amendment-2 config)"
+        print(json.dumps(out, indent=1, default=repr))
     elif a.cmd == "run":
         rd = a.run_dir or CONFIGS[a.mode]["run_dir"]
         os.makedirs(rd, exist_ok=True)
         atomic_write(f"{rd}/sched.pid", str(os.getpid()))
-        Pipeline(a.mode, rd).run()
+        ov = {}
+        if a.max_procs:
+            ov["max_procs"] = a.max_procs
+            ov["throttle_procs"] = min(a.max_procs, CONFIGS[a.mode]["throttle_procs"])
+            ov["search_min_slots"] = min(a.max_procs - 1, CONFIGS[a.mode]["search_min_slots"])
+        Pipeline(a.mode, rd, overrides=ov).run(max_minutes=a.max_minutes)
     elif a.cmd == "finalize":
         finalize(a.mode, a.run_dir)
     elif a.cmd == "amend2-snapshot":

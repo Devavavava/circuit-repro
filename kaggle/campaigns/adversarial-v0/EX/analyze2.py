@@ -190,15 +190,31 @@ def main(out):
             row[k] = {"perf_within_2pct": sum(x[0] for x in f), "stable_mu>=1": sum(x[1] for x in f),
                       "both": sum(x[0] and x[1] for x in f)}
         row["all_4_corners"] = sum(all(frag(r)[k][0] and frag(r)[k][1] for k in CORNERS) for r in L)
+
+        def gross(r, k):
+            c = (((r.get("checks") or {}).get("Rde") or {}).get(k)) or {}
+            mw = c.get("mu_wide")
+            return ((c.get("perf_worst") if c.get("perf_worst") is not None else 1.0) > 0.10
+                    or not isinstance(mw, (int, float)) or mw < 0.98
+                    or not isinstance(c.get("mu_inband"), (int, float)) or c["mu_inband"] < 0.98)
+        row["gross_fail (perf viol>0.10 or mu<0.98)"] = {k: sum(gross(r, k) for r in L) for k in CORNERS}
+        row["gross_fail_any_corner"] = sum(any(gross(r, k) for k in CORNERS) for r in L)
         fr[grp] = row
-    res = {"search": st, "groups": grp_stats, "n_verifier_pass_checked": len(passing),
+    rs = {}
+    for f in sorted(glob.glob(f"{T}/raw/resize/*.io.json")):
+        x = json.load(open(f))
+        rs[os.path.basename(f)[:-8]] = {"feasible": x["feasible"], "reason": x.get("infeasible_reason")}
+    recov = {"n": len(rs), "feasible_after_resize": sum(v["feasible"] for v in rs.values()),
+             "reasons": dict(Counter((v["reason"] or "")[:50] for v in rs.values() if not v["feasible"])),
+             "rows": rs}
+    res = {"search": st, "G-CP1io_recoverability": recov, "groups": grp_stats, "n_verifier_pass_checked": len(passing),
            "classes": classes, "cp1_by_band": {k: f"{a}/{b}" for k, (a, b) in sorted(cp1_band.items())},
            "cp1_P1_worst_metric": dict(worst), "harness_diag": hdiag, "impact": impact,
            "impact_snapshot": {k: v for k, v in snap.items() if k != "reuse"},
            "Rc": {"n_mag_gt0": len(rc_mu), "max_mag": rc_max, "ids_gt0": rc_mu},
            "Rb_large_signal_only": ls, "fragility": fr}
     json.dump(res, open(out, "w"), indent=1, default=repr)
-    show = {k: res[k] for k in ("search", "groups", "n_verifier_pass_checked", "cp1_by_band",
+    show = {k: res[k] for k in ("search", "groups", "G-CP1io_recoverability", "n_verifier_pass_checked", "cp1_by_band",
                                 "cp1_P1_worst_metric", "harness_diag", "Rc")}
     print(json.dumps(show, indent=1))
     for c, v in classes.items():

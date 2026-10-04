@@ -1,0 +1,149 @@
+{
+ "prereg": "kaggle/PREREG-BENCH-V2.md AMENDMENT 3 (0d03751cc)",
+ "verifier": "rl-v1.2",
+ "ts": "2026-10-04T13:43:39",
+ "run_dir": "kaggle/campaigns/bench-v2/amend3/smoke",
+ "lib": "kaggle/campaigns/bench-v2/amend3/smoke/editcap-lib-v2",
+ "train_pool": "kaggle/campaigns/bench-v2/amend3/smoke/train-pool-v2",
+ "bench": {
+  "n_rechecked": 1,
+  "pass": [],
+  "tagged_amend3_cp1": {
+   "v2a-nb090-gain-007": {
+    "stage": "F1",
+    "why": "F1_library_solves"
+   }
+  },
+  "per_cell": {
+   "v2a-nb090-gain-007": {
+    "status": "fail",
+    "why": "F1_library_solves",
+    "stages": {
+     "A1": {
+      "pass": true,
+      "n_runs": 2,
+      "n_feasible": 2
+     },
+     "A2": {
+      "pass": true,
+      "n_runs": 1,
+      "n_feasible": 1
+     },
+     "A3": {
+      "pass": true,
+      "n_runs": 1,
+      "n_feasible": 1
+     },
+     "F1": {
+      "pass": false,
+      "n_runs": 10,
+      "n_feasible": 1
+     }
+    }
+   }
+  }
+ },
+ "selection": {
+  "n_selected": 0,
+  "names": [],
+  "shortfall_vs_20": 20,
+  "per_primary_atom": {},
+  "per_parent": {},
+  "per_band_type": {},
+  "nb_quota_binding": false,
+  "report": {
+   "class_rule_active": "primary_atom",
+   "selected": {
+    "n": 0,
+    "per_class": {},
+    "per_primary_atom": {},
+    "per_parent": {},
+    "per_band": {},
+    "per_band_type": {},
+    "atom_prevalence": {}
+   },
+   "selected_names": [],
+   "variants": {
+    "a_signature": {
+     "n": 0,
+     "per_class": {},
+     "per_primary_atom": {},
+     "per_parent": {},
+     "per_band": {},
+     "per_band_type": {},
+     "atom_prevalence": {}
+    },
+    "b_primary_atom": {
+     "n": 0,
+     "per_class": {},
+     "per_primary_atom": {},
+     "per_parent": {},
+     "per_band": {},
+     "per_band_type": {},
+     "atom_prevalence": {}
+    }
+   },
+   "variant_names": {
+    "signature": [],
+    "primary_atom": []
+   },
+   "without_nb_quota": {
+    "n": 0,
+    "per_class": {},
+    "per_primary_atom": {},
+    "per_parent": {},
+    "per_band": {},
+    "per_band_type": {},
+    "atom_prevalence": {}
+   },
+   "accepted": {
+    "n": 0,
+    "per_class": {},
+    "per_primary_atom": {},
+    "per_parent": {},
+    "per_band": {},
+    "per_band_type": {},
+    "atom_prevalence": {}
+   },
+   "quotas": {
+    "class_cap_frac": 0.25,
+    "class_rule": "primary_atom",
+    "parent_cap_frac": 0.4,
+    "narrowband_min_frac": 0.25,
+    "target": 25,
+    "min": 20
+   },
+   "shortfall_vs_min": 20,
+   "nb_quota_binding": false
+  }
+ },
+ "train": {
+  "n_rechecked": 2,
+  "status": {
+   "ok": 2
+  },
+  "witness_seed": {
+   "2": 1,
+   "1": 1
+  },
+  "label_hist_before": {
+   "library-solvable": 1,
+   "witness-only": 1
+  },
+  "label_hist_after": {
+   "library-solvable": 2
+  },
+  "relabel": {
+   "library-solvable->library-solvable": 1,
+   "witness-only->library-solvable": 1
+  },
+  "fenced_out": [],
+  "n_written": 2
+ },
+ "fence_check_rc": 0,
+ "compute": {
+  "sized_calls": 23,
+  "cpu_h": 0.43,
+  "error_rows": 0
+ }
+}

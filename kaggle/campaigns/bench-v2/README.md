@@ -5,15 +5,17 @@ The user approved **full size**: 20–25 bench cells plus about 300 training tas
 Verifier: `bench_anchor_prep.smoke_run(tokens, spec, seed, 2500, "bptm45", profile="rl-v1")` on rl-v1-form specs (`kaggle/VERIFIER-RL-V1.md`).
 Every result row carries the git era stamp (HEAD plus the md5 of `bench_anchor_prep.py` and `bv2.py`) and `result["verifier"]`.
 
-Status: **RUNNING under PRE-REG AMENDMENT 2** (verifier **rl-v1.1**). History:
+Status: **AMENDMENT 3 end-of-run re-check RUNNING** (verifier **rl-v1.2**, `amend3/`). The rl-v1.1 run FINISHED 2026-10-03 19:26 IST (12 accepted selectable cells, 3 in the quota-compliant selection; 280 ok training tasks). History:
 - launched 2026-09-29
 - stopped at 26.8 h, then resumed under AMENDMENT 1 on 2026-09-30
 - stopped 2026-10-01 18:43, then resumed under AMENDMENT 2 the same evening
 - **crashed 2026-10-02 14:41 IST** on a full shared disk (ENOSPC, filled by other users' jobs). It was made disk-robust, crash-resumed from its own amendment-2 state, and relaunched at 19:16 IST (pid 2394952). See A2-6 and D32–D36.
+- finished 2026-10-03 19:26 IST (bench end); finalized 19:42
+- **AMENDMENT 3** (2026-10-04): verifier rl-v1.2 (ideal port coupling) and a detached re-check of the 12 accepted cells and the training pool. See "AMENDMENT 3" and D37–D45.
 
 Bench end: **2026-10-03 19:26 IST**. This is the amendment-2 end (2026-10-03 14:51) plus the 4 h 35 min downtime, 14:41:15 → 19:16:24 (D35). The total budget ends **2026-10-04 13:31 IST**.
 
-**Read the "AMENDMENT 2" and then the "AMENDMENT 1" sections first.** Where they differ from the design sections below, the later amendment wins. Results sections are filled in when the run finalizes.
+**Read the "AMENDMENT 3", "AMENDMENT 2" and then the "AMENDMENT 1" sections first.** Where they differ from the design sections below, the later amendment wins. Results sections are filled in when the run finalizes.
 
 ## Files
 
@@ -31,10 +33,124 @@ Bench end: **2026-10-03 19:26 IST**. This is the amendment-2 end (2026-10-03 14:
 | `smoke_checks_a2.py` | AMENDMENT-2 smoke checks: rl-v1.1 profile on every row, restore actions, re-validation, cache-bridge exactness, generation pre-filter, training re-check, fence with a negative control, budget clock. |
 | `port-dc-guard/` | rl-v1.1 port-DC requirement tests (`test_port_dc.py`, `results.json`, README). |
 | `run/amendment-1-record/` | Frozen copy of the amendment-1 record at the 2026-10-01 18:43 stop (`bv2.py amend2-snapshot`, `MANIFEST.json` has md5s). AMENDMENT 2 restores from it. |
+| `amend3/` | AMENDMENT 3: `a3run.py` (re-check driver), `launch.sh`/`stop.sh`, `test_rl_v12.py` + `test_rl_v12.json` (rl-v1.2 tests), `summary.json` (written at finalize), `run/` (progress.json; raw rows not committed), `smoke/` and `smoke-force/` (smoke summaries). |
 
 Outputs at finalize:
 - `kaggle/editcap-lib-v2/<cell>/{spec.yaml, anchor.net, anchor.tokens.json, evidence.json, cell.json, witness/}` plus `INDEX.json`. `witness/` is **EVAL-ONLY**.
 - `kaggle/train-pool-v2/<task>/...` plus `INDEX.json`, with difficulty labels.
+
+## AMENDMENT 3 (2026-10-04) — end-of-run re-check under rl-v1.2
+
+Pre-reg: `kaggle/PREREG-BENCH-V2.md` § "AMENDMENT 3" (commit `0d03751cc`). User approval: 2026-10-04 (*"1 yes - 2 yes"*), and again on 2026-10-04 for this implementation and a detached re-check.
+
+**Why.** The verifier exploiter EX (`kaggle/campaigns/adversarial-v0/EX/`, `caaf1d5af`) found class **C-cp1**: 247 designs that pass rl-v1.1 build the testbench's fixed 10 pF port coupling caps into their matching network. The run had already **finished** under rl-v1.1 (2026-10-03 19:26), so AMENDMENT 3 is an end-of-run re-check. No new search or planting happens.
+
+### A3-1 Verifier rl-v1.2 / rl-v1.2-rl (`bench_anchor_prep.py`; `kaggle/VERIFIER-RL-V1.md` § rl-v1.2; tests in `amend3/test_rl_v12.py` → `amend3/test_rl_v12.json`)
+- **`rl-v1.2` = `rl-v1.1` + `VERIFY_CP_IDEAL`.** Each harness port block gets a 1 µF cap in parallel, written into the prepared body once. Every deck therefore sees ideal coupling: sizing sp and noise, in-loop and gate wide stability, the inert count, and the port-DC op decks.
+- **`rl-v1.2-rl` = `rl-v1.2` + `VERIFY_KICK`.** This adds a 50 Ω, 1 µA kick transient on the final winner (EX class C-osc50). It is used for the RL reward only, **not** for bench-v2.
+- **Tests:**
+  - **Byte-identity.** rl-v1.1 ×3, rl-v1 ×1 and no-profile ×1 are byte-identical to the recorded results.
+  - **Same as EX's G-CP1io.** rl-v1.2 gives EX's validated G-CP1io re-size bit for bit (6/6 D9 cases).
+  - **C-cp1.** 11/12 C-cp1 rl-v1.1 winners fail the rl-v1.2 bench without a re-size; 12/12 are feasible again after an rl-v1.2 re-size.
+  - **C-osc50.** All 6 pass rl-v1.2 and fail the kick.
+  - **Clean designs.** 3/3 pass both.
+  - **Anchors.** a2's rl-v1.1 winners still pass. **a1 becomes feasible at nb090 under rl-v1.2.**
+- **Cost.**
+  - `VERIFY_CP_IDEAL` adds no sims; sizing time is within ±2 % of rl-v1.1.
+  - The kick takes 8.3 s median per feasible winner.
+- `lna/` is unchanged.
+
+### A3-2 Re-check driver (`amend3/a3run.py`, `amend3/launch.sh`, `amend3/stop.sh`)
+A focused driver on bv2's infrastructure:
+- **Reused from bv2:** the `bv2.py worker` subprocess, `job_id`, `select_cells`, `make_evidence`, the F2 space (`Pipeline.f2space_build`, same code), the fence check, and the D32 disk robustness (`SafeAppender`, `atomic_write`, `DISK`, a launch pause on a full disk or < 5 GB free, and re-queuing of workers that leave no result).
+- **Throttle:** ≤ 8 workers, 4 when load1 > 22.
+- **Cache:** every call is cached in `amend3/run/results.jsonl` on `job_id(..., "rl-v1.2")`. A restart replays the deterministic stage generators through the cache.
+
+**Inputs (read-only).**
+- **Cells.** The 12 accepted, selectable cells of `run/cells.jsonl` (amendment-1 re-accepted plus amendment-2), with their archived witness `run/cells/<cell>/witness/witness.tokens.json` (token hash = the cell's `tok`) and their planted and tightened specs, **unchanged**.
+- **Training.** The 280 `ok` training tasks of `run/train.jsonl`. Witness tokens come from the candidate records; the token hash is checked.
+
+**Bench, per cell.** Stages run in this order, with an early kill on the first failure:
+1. **A1:** seeds 1 and 2 (+3 if they split), ≥ 2 feasible.
+2. **A2:** tightened-2 % spec, ≥ 1 of {1, 2, 3}.
+3. **A3:** ≥ 1 of {4, 5, 6}.
+4. **F1:** a1–a5 × seed 1, then seed 2. Any feasible run kills the cell.
+5. **F2:** every round-trip-valid single edit of the shown anchor (a1 144, a2 178, a3 67 edits) × seed 1, then seed 2. Chunks of 16, kill on the first feasible.
+
+Topology, structure and port-DC pre-filter rejects run in-process with 0 evals, as in bv2. A failing cell is tagged **`amend3-cp1`**: it stays on record and is not selectable.
+
+**Training, per task.**
+- **Witness:** seed 1, then seed 2 if needed. If both fail, one more re-size at seed 3 (D39). Still failing → tagged `amend3-cp1`.
+- **T-F1:** a1–a5 × seed 1 at the task spec for every re-proved task (D40).
+
+**Final** (automatic when the queue is empty; `a3run.py final` re-runs only this step from the cache):
+- **Labels.** Re-derived from rl-v1.2 rows only (D40).
+- **Selection.** Over the passing cells, with `bv2.select_cells`: class rule (b) primary atom ≤ 25 %, parent ≤ 40 %, narrowband ≥ 25 %, target 25. A shortfall against 20 is reported, not relaxed.
+- **Library.** `kaggle/editcap-lib-v2/` is rewritten with the selected cells (witnesses are EVAL-ONLY). Each cell gets rl-v1.2 `witness/results.json` and `evidence.json`; the rl-v1.1 versions are kept as `*_rl_v1_1.json` (D42). The `INDEX.json` records `verifier: rl-v1.2` and every cell's re-check verdict.
+- **Training pool.** `kaggle/train-pool-v2/` is rewritten: tagged tasks are left out, labels are updated, and evidence comes from the rl-v1.2 parent T-F1.
+- **Fence check:** `amend3/run/fence_check.txt`.
+- **Summary:** `amend3/summary.json` (per-cell stage outcomes, selection, training status, labels before and after, compute).
+
+**Monitoring.**
+- `amend3/run/progress.json` is rewritten every 30 s. It holds per-cell stage, F2 progress, training status, calls, CPU, disk state, and an ETA.
+- The ETA is an **upper bound**: it assumes every remaining stage passes.
+- Log: `amend3/run/sched.log`. Pid: `amend3/run/sched.pid`.
+- Stop: `amend3/stop.sh`. Resume: `amend3/launch.sh` (the same command).
+
+### A3-3 Smoke (`amend3/smoke/`, `amend3/smoke-force/`; summaries committed)
+**`launch.sh smoke`:** 1 cell (`v2a-nb090-gain-007`), F2 cut to the first 8 edits (SMOKE SUBSET), 2 training tasks; 23 sized calls, 5.5 min wall.
+- **The cell:**
+  - It passes A1 (2/2), A2 (seed 1) and A3 (seed 4) under rl-v1.2.
+  - It is then **killed at F1: anchor a1 is feasible at seed 2 under rl-v1.2** (it was infeasible under rl-v1.1). Tagged `amend3-cp1`.
+  - This matches the T4 finding: the 10 pF fixture had been *hurting* a1 at 0.9 GHz.
+- **Training:**
+  - Both tasks are re-proved: one at seed 1, one at seed 2.
+  - t2-wb1020-gain-0001 is relabelled `witness-only` → `library-solvable`, because a2 is feasible at seed 1 under rl-v1.2.
+- **Final:** selection empty (0/1 passing); training pool written (2 tasks); fence check rc 0.
+
+**`launch.sh smoke-force`:** the same cell with `--smoke-force` (SMOKE ONLY: a kill is recorded as `SMOKE_FORCED_would_kill` and the stages continue).
+- **What ran:**
+  - A1–F1 came from the smoke's rows (27 exact-key cache hits).
+  - F2 subset: 12 sized + 4 in-process pre-rejects, 0 feasible.
+  - Library write-out: 1 cell, with rl-v1.2 `results.json`/`evidence.json` and the rl-v1.1 versions kept.
+  - Fence check rc 0.
+- **Stop/resume test.** SIGTERM in the middle of F2, with 6 workers running:
+  - all workers were killed, and none of their rows was cached
+  - `progress.status = stopped`
+  - the relaunch replayed 29 cached rows and re-ran exactly the 6 killed calls plus the seed-2 chunk (12 new)
+
+### A3-4 Full re-check (launched 2026-10-04 13:48 IST, pid 2654595)
+Run dir `amend3/run/`. It reuses the smoke's rl-v1.2 rows on an exact key (`--extra-cache amend3/smoke/results.jsonl`).
+- **Size at launch:** 12 cells and 280 training tasks. The ETA upper bound is 4506 calls ≈ 15.7 h at 8 processes, i.e. 2026-10-05 ≈ 05:30 IST if no cell is killed early. Early F1 kills shorten it.
+- **Results** go to `amend3/summary.json` and the library INDEX at finalize. They are reported in the next commit.
+
+### Deviations / interpretations (AMENDMENT 3)
+- **D37: G-CP1 is a parallel 1 µF, applied kaggle-side.** Each harness block becomes 10 pF ∥ 1 µF = 1.00001 µF, written into the prepared body right after `SZ.prepared_body` (`cp_ideal_body`).
+  - The pre-reg says "1 µF ideal"; the 10 pF in parallel changes it by 10 ppm.
+  - Doing it this way keeps the port-DC anchor line, and the body is text-identical to EX's validated G-CP1io method (T0/T2).
+  - `lna/` is untouched, so no shared-core commit was needed.
+- **D38: the stage order is A1 → A2 → A3 → F1 → F2, sequential.** bv2 ran A1 → F1 → (A2 ∥ A3) → F2.
+  - The pass/fail criteria are unchanged.
+  - The sequential order spends nothing on A3 when A2 fails.
+  - The re-check order was given with the user-approved instructions.
+- **D39: training "re-sized once" means one extra fresh seed (3).** The seed-1 and seed-2 witness runs under rl-v1.2 are already re-sizes from scratch, so the single re-size attempt the pre-reg allows for failures is a third seed. A task is kept if any of {1, 2, 3} is feasible; the seed is recorded in `witness_seed`.
+- **D40: training labels come from rl-v1.2 evidence only, and T-F1 runs for every re-proved task.**
+  - Recorded rl-v1 and rl-v1.1 designs were measured through the 10 pF fixture, so they are not evidence under rl-v1.2. The smoke shows that anchors can gain as well as lose.
+  - **`library-solvable`:** the task's own T-F1 (a1–a5 × seed 1, run for every task so the result does not depend on order) is feasible, **or** some rl-v1.2 anchor design (bench F1 or any T-F1, same band) meets the limits with µ ≥ 1, wide-stable and port-DC OK.
+  - **`single-edit-solvable`:** an rl-v1.2 bench F2 design (same band) meets the limits. This evidence set is much smaller than the rl-v1.1 one, so the label is narrower than before ("where cheaply known").
+  - **`witness-only`:** otherwise.
+- **D41: classes are not re-derived.**
+  - A cell keeps its rl-v1.1 ABL core signature and primary atom; the pre-reg's AMENDMENT 3 item 2 lists A1–A3, F1 and F2 only.
+  - The re-checked witness is the cell's archived witness, i.e. the stripped core where amendment 1/2 stripped it.
+  - `witness/original/` keeps its rl-v1.1 record.
+- **D42: library layout.**
+  - Each selected cell's rl-v1.1 directory is copied, then `witness/results.json` and `evidence.json` are replaced by their rl-v1.2 versions. Evidence = the shown anchor's rl-v1.2 F1 runs.
+  - The rl-v1.1 files are kept as `witness/results_rl_v1_1.json` and `evidence_rl_v1_1.json`.
+  - `cell.json` gains an `amendment3` block.
+  - `kaggle/editcap-lib-v2/` and `kaggle/train-pool-v2/` are rewritten in full; earlier cell and task directories not in the new selection are removed.
+- **D43: bench and training share the worker pool.** Bench jobs have priority (A > F1 > F2 > training witness > T-F1), and training fills idle slots. Outcomes do not depend on this order (D40).
+- **D44: no ABL, no new cells, no validation of the 88 planted-but-unvalidated cells** (pre-reg AMENDMENT 3 item 5).
+- **D45: the quotas can empty the selection.** With the narrowband quota (≥ ⌈0.25·n⌉), every non-empty selection needs at least one narrowband cell. If all 3 nb090 cells fail F1 (as v2a-nb090-gain-007 did in the smoke: a1 solves it under rl-v1.2), the quota-compliant selection is **empty**, however many wideband cells pass. Per the pre-reg this is reported as a shortfall, not relaxed. `selection_report` also gives the selection without the narrowband quota, for the record.
 
 ## AMENDMENT 2 (2026-10-01) — what changed in the pipeline
 

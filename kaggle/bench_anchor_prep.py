@@ -195,6 +195,13 @@ VERIFIER_PROFILES = {
 # requirement VERIFY_PORT_DC (see the "port-DC requirement" block below and
 # kaggle/VERIFIER-RL-V1.md "rl-v1.1"). Everything else is rl-v1 verbatim.
 VERIFIER_PROFILES["rl-v1.1"] = dict(VERIFIER_PROFILES["rl-v1"], VERIFY_PORT_DC="1")
+# rl-v1.2 (PREREG-BENCH-V2 AMENDMENT 3, 2026-10-04) = rl-v1.1 + G-CP1
+# VERIFY_CP_IDEAL: both testbench port coupling caps made ideal (1 uF) IN-LOOP in
+# every deck (see the "ideal port coupling" block below). rl-v1.2-rl = rl-v1.2 +
+# VERIFY_KICK (50-ohm small-kick transient on the final winner, EX class C-osc50)
+# -- RL reward only, NOT the bench-v2 verifier. kaggle/VERIFIER-RL-V1.md "rl-v1.2".
+VERIFIER_PROFILES["rl-v1.2"] = dict(VERIFIER_PROFILES["rl-v1.1"], VERIFY_CP_IDEAL="1")
+VERIFIER_PROFILES["rl-v1.2-rl"] = dict(VERIFIER_PROFILES["rl-v1.2"], VERIFY_KICK="1")
 VERIFIER_FLAGS = ("STAB_WIDE_INLOOP", "STAB_WIDE_WINDOW", "VERIFY_TOPO_LIMITS",
                   "VERIFY_STRUCT", "VERIFY_FINITE", "VERIFY_BAND_METRICS",
                   "VERIFY_NF_BAND", "VERIFY_NO_INERT", "VERIFY_INERT_COUNT",
@@ -202,7 +209,7 @@ VERIFIER_FLAGS = ("STAB_WIDE_INLOOP", "STAB_WIDE_WINDOW", "VERIFY_TOPO_LIMITS",
 # Flags added after rl-v1. They are resolved like VERIFIER_FLAGS, but recorded
 # in result["verifier"]["flags"] ONLY when they have an effective value, so an
 # rl-v1 (or no-profile) result is byte-identical to the pre-rl-v1.1 code.
-VERIFIER_FLAGS_EXT = ("VERIFY_PORT_DC",)
+VERIFIER_FLAGS_EXT = ("VERIFY_PORT_DC", "VERIFY_CP_IDEAL", "VERIFY_KICK")
 
 
 def resolve_verifier(profile=None):
@@ -333,6 +340,9 @@ def _smoke_run(tokens, spec_path, seed, budget, pdk):
     body, sizable, fixed = prep
     if not sizable:
         return None
+    cp_rec = None
+    if os.environ.get("VERIFY_CP_IDEAL") == "1":               # rl-v1.2, opt-in
+        body, cp_rec = cp_ideal_body(body)
     points = []
     health = SZ.SimHealth()
     obj, names, decode, evaluate = SZ.make_objective(
@@ -393,6 +403,10 @@ def _smoke_run(tokens, spec_path, seed, budget, pdk):
     if pdc_pre is not None:                                         # rl-v1.1, opt-in
         res["port_dc_prefilter"] = pdc_pre
         _port_dc_posthoc(res, spec, body, decode, bx)
+    if cp_rec is not None:                                          # rl-v1.2, opt-in
+        res["cp_ideal"] = cp_rec
+    if os.environ.get("VERIFY_KICK") == "1":                        # rl-v1.2-rl, opt-in
+        _kick_posthoc(res, spec, body, decode, bx)
     return res
 
 
@@ -803,6 +817,9 @@ def derive_port_dc(res_v1, tokens, spec_path, seed, budget, pdk, profile="rl-v1.
     name, eff, over = resolve_verifier(profile)
     if eff.get("VERIFY_PORT_DC") != "1":
         raise ValueError(f"profile {profile!r} has no VERIFY_PORT_DC")
+    if eff.get("VERIFY_CP_IDEAL") or eff.get("VERIFY_KICK"):
+        # rl-v1.2 changes every deck (ideal port coupling): no rl-v1 row derives it
+        raise ValueError(f"profile {profile!r} is not derivable from an rl-v1 row")
     base = {k: v for k, v in eff.items() if k != "VERIFY_PORT_DC"}
     if res_v1 is not None:
         v = res_v1.get("verifier") or {}
@@ -835,6 +852,171 @@ def derive_port_dc(res_v1, tokens, spec_path, seed, budget, pdk, profile="rl-v1.
         for k in applied:
             os.environ.pop(k, None)
     return True, out
+
+
+# --------------------------- ideal port coupling G-CP1 (rl-v1.2, opt-in)
+# PREREG-BENCH-V2 AMENDMENT 3 (user, 2026-10-04). Evidence: verifier exploiter EX
+# (kaggle/campaigns/adversarial-v0/EX/, caaf1d5af), class C-cp1: the testbench's
+# fixed 10 pF port coupling caps (lna/to_spice.py `Cp1 p1 VIN1 10p`, `Cp2 VOUT1 p2
+# 10p`; 18-35 ohm at 0.5-0.9 GHz) were tuned into the DUT's matching by 247
+# rl-v1.1-passing designs. With VERIFY_CP_IDEAL=1 the PREPARED BODY is rewritten
+# once, right after SZ.prepared_body, so every deck built from it -- sizing sp +
+# noise (make_objective / evaluate), in-loop and gate wide stability, inert count,
+# port-DC op decks -- sees ideal coupling: each harness block gets a 1 uF cap in
+# PARALLEL (10 pF || 1 uF = 1.00001 uF, |Z| < 0.32 ohm above 0.5 GHz). Parallel,
+# not replaced, so (i) the port-DC check still finds its `Cp1 p1 VIN1 10p` anchor
+# and (ii) the body is text-identical to EX's validated G-CP1io re-size method
+# (EX/resize_cp1.py `tb(body, "io")`). DC is unchanged (caps are open at DC).
+# lna/ is untouched. Unset -> never reached (byte-identical).
+CP_IDEAL_VALUE = "1u"
+CP_PORT_LINES = (("Cp1 p1 VIN1 10p", "Cp1x p1 VIN1"),
+                 ("Cp2 VOUT1 p2 10p", "Cp2x VOUT1 p2"),
+                 ("Cp3 VOUT2 p3 10p", "Cp3x VOUT2 p3"))
+
+
+def cp_ideal_body(body):
+    """(body with every present harness port block in parallel with 1 uF,
+    record {'value', 'applied': [lines]})."""
+    applied = []
+    for line, par in CP_PORT_LINES:
+        if line in body:
+            body = body.replace(line, f"{line}\n{par} {CP_IDEAL_VALUE}", 1)
+            applied.append(line)
+    return body, {"value": CP_IDEAL_VALUE, "mode": "parallel", "applied": applied}
+
+
+# --------------------------- 50-ohm kick transient G-OSC50 (rl-v1.2-rl, opt-in)
+# EX class C-osc50: a design oscillating at ~20 GHz in the verifier's own 50 ohm
+# bench while mu >= 1 everywhere on the grid (AC/S-parameter analysis linearizes
+# around an unstable bias point and never checks the no-RHP-pole premise of the
+# Rollett/mu test). VERIFY_KICK=1 runs ONE transient on the FINAL winner
+# (stability replacement if any, else bx; only when otherwise feasible; last,
+# after port-DC): the R4/EX R-b method verbatim for the r50/r50 termination
+# (kaggle/campaigns/rl-readiness/R4/r4_sim.tran_deck: port sources -> 50 ohm
+# resistors behind the body's own port caps, 1 uA x 10 ps current kick into VIN1
+# and VOUT1 at 0.2 ns, trap, 2 ps step, 600 ns). FAIL (`kick_osc`) iff the late
+# window (540-545 ns) pp of v(VOUT1) >= 1 mV and >= 0.95x the mid (300-305 ns) window
+# (sustained/growing: r4_sim.tran_verdict "oscillates") OR it is still growing
+# (late > 1.02x mid, > 1 uV) -- EX's "linear R-b" criterion for one termination.
+# A failed transient counts as FAIL (`kick_error`: stability not certified).
+# RL reward only (rl-v1.2-rl); bench-v2 uses rl-v1.2 without it.
+KICK_A = 1e-6
+KICK_TSTOP = 600e-9
+KICK_TSTEP = 2e-12
+
+
+def kick_deck(body, params, kick=KICK_A, tstop=KICK_TSTOP, tstep=KICK_TSTEP,
+              method="trap"):
+    """r4_sim.tran_deck(body, params, 'r50', 'r50', tstop, tstep, kick, method),
+    text-identical (tested in bench-v2/amend3/test_rl_v12.py)."""
+    import extract as E
+    import re as _re
+    lines = []
+    for ln in body.splitlines():
+        low = ln.lower()
+        if "portnum" in low:
+            p = ln.split()[1]
+            if _re.search(r"portnum\s+1\b", low):
+                lines.append(f"Rterm1 {p} 0 50")
+                continue
+            if _re.search(r"portnum\s+2\b", low):
+                lines.append(f"Rterm2 {p} 0 50")
+                continue
+        lines.append(ln)
+    sup = E._supply_name(body)
+    kicks = [f"Ikick1 0 VIN1 pulse(0 {kick:g} 0.2n 5p 5p 10p)",
+             f"Ikick2 0 VOUT1 pulse(0 {kick:g} 0.2n 5p 5p 10p)"]
+    t1, t2, t3 = 0.3e-9, tstop * 0.5, tstop * 0.9
+    w = min(5e-9, tstop * 0.1)
+    meas = [f"meas tran idd0 avg i({sup}) from=0 to=0.15n",
+            f"meas tran iddl avg i({sup}) from={t3:g} to={t3 + w:g}"]
+    for tag, a in (("e", t1), ("m", t2), ("l", t3)):
+        meas += [f"meas tran {tag}out pp v(VOUT1) from={a:g} to={a + w:g}",
+                 f"meas tran {tag}in pp v(VIN1) from={a:g} to={a + w:g}",
+                 f"meas tran {tag}idd pp i({sup}) from={a:g} to={a + w:g}"]
+    ctrl = [".control", f"option method={method}",
+            f"tran {tstep:g} {tstop:g} 0 {tstep:g}"] + meas + [".endc", ".end"]
+    pl = ".param " + " ".join(f"{k}={v}" for k, v in params.items())
+    return "\n".join(["\n".join(lines).rstrip(), *kicks, pl,
+                      "\n".join(ctrl)]) + "\n"
+
+
+def _kick_verdict(r):
+    """r4_sim.tran_verdict verbatim."""
+    if not r or r.get("eout") is None or r.get("lout") is None:
+        return "error"
+    e, m, l = r["eout"], r["mout"] or 0.0, r["lout"]
+    if l >= 1e-3 and l >= 0.95 * m:
+        return "oscillates"
+    i0, il = r.get("idd0"), r.get("iddl")
+    if i0 is not None and il is not None and abs(il - i0) > 1e-2 * abs(i0) + 1e-6:
+        return "dc_shift"
+    if l < max(1e-3 * e, 1e-5):
+        return "decays"
+    if l < 0.95 * m:
+        return "ringing"
+    return "marginal"
+
+
+def kick_check(spec, body, params):
+    """{'pass', 'verdict', 'growing', 'amp', 'error', 'secs', 'rule'}."""
+    import extract as E
+    import re as _re
+    t0 = time.time()
+    rec = {"pass": False, "verdict": None, "growing": None, "amp": None, "error": None,
+           "secs": None,
+           "rule": {"term": "r50/r50", "kick_A": KICK_A, "tstop_s": KICK_TSTOP,
+                    "tstep_s": KICK_TSTEP, "method": "trap",
+                    "fail": "oscillates (late pp >= 1 mV and >= 0.95x mid) or growing "
+                            "(late > 1.02x mid, > 1 uV) or transient error"}}
+    if E.osdi_lines_for(SZ._pdk_name(spec)):
+        rec["error"] = "osdi pdk unsupported"
+        return rec
+    if "VIN1" not in body or "VOUT1" not in body:
+        rec["error"] = "no two-port"
+        return rec
+    out = E.run_deck(kick_deck(body, _stab_params(spec, params)), "kick_", "t.cir",
+                     timeout=600)
+    amp = None
+    if out is not None:
+        def g(name):
+            mm = _re.search(rf"^\s*{name}\s*=\s*([-\d.eE+]+)", out, _re.I | _re.M)
+            try:
+                return float(mm.group(1)) if mm else None
+            except ValueError:
+                return None
+        amp = {k: g(k) for k in ("eout", "ein", "eidd", "mout", "min", "midd",
+                                 "lout", "lin", "lidd", "idd0", "iddl")}
+        if amp["eout"] is None:
+            rec["error"] = (E.first_error_line(out) or out[-300:])
+    else:
+        rec["error"] = "transient failed"
+    v = _kick_verdict(amp)
+    grow = bool(amp and amp.get("lout") is not None and amp.get("mout") is not None
+                and amp["lout"] > 1.02 * amp["mout"] and amp["lout"] > 1e-6)
+    rec.update(verdict=v, growing=grow, amp=amp, secs=round(time.time() - t0, 2),
+               **{"pass": v not in ("oscillates", "error") and not grow})
+    return rec
+
+
+def _kick_posthoc(res, spec, body, decode, bx):
+    """rl-v1.2-rl kick on the FINAL winner (runs last; can only turn feasible ->
+    infeasible). result['kick'] is None when the winner was already infeasible."""
+    rep = res.get("stab_replacement")
+    x = rep["x"] if (res.get("stab_winner_replaced") and rep) else bx
+    if not res["feasible"] or x is None:
+        res["kick"] = None
+        return
+    chk = kick_check(spec, body, decode(x))
+    res["kick"] = chk
+    if not chk["pass"]:
+        res["feasible"] = False
+        why = ("kick_error: " + str(chk["error"]) if chk["verdict"] == "error" else
+               f"kick_osc: {chk['verdict']}{' growing' if chk['growing'] else ''} "
+               f"(late pp {((chk['amp'] or {}).get('lout') or 0):.3g} V, mid "
+               f"{((chk['amp'] or {}).get('mout') or 0):.3g} V)")
+        res["infeasible_reason"] = (res["infeasible_reason"] + "; " + why
+                                    if res.get("infeasible_reason") else why)
 
 
 # ------------------------------------ structural-degeneracy guard (R4, opt-in)

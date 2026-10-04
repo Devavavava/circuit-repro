@@ -147,3 +147,33 @@ Changes (everything else stands):
 4. **Budget:** the bench end time is unchanged (amendment-1 resume + 72 h ≈ 2026-10-03
    14:51 IST); the campaign stays within the user-approved 3–5 days. If the final count
    is below 20, report the shortfall (no relaxation of criteria).
+
+---
+
+## AMENDMENT 3 — 2026-10-04 (user: "1 yes - 2 yes")
+
+**Trigger:** verifier exploiter EX (`kaggle/campaigns/adversarial-v0/EX/`, caaf1d5af):
+exploit class C-cp1 — 247 rl-v1.1-passing designs (105 topologies) tune the testbench's
+fixed 10 pF port coupling capacitors (18–35 Ω at 0.5–0.9 GHz) into their matching; with
+ideal coupling they fail. Same family as port-DC: the measurement fixture used as part of
+the design. Re-sizing without the crutch recovered 34/41 sampled cases.
+
+Changes (run already FINISHED 2026-10-03 19:26 under rl-v1.1; this is an end-of-run
+re-check, everything else stands):
+
+1. **Verifier rl-v1.2 = rl-v1.1 + G-CP1:** both port coupling capacitors are ideal
+   (1 µF, transparent across the band) IN-LOOP (sizing, stability, noise and port-DC
+   decks), so a design cannot tune around fixture reactance. **rl-v1.2-rl** additionally
+   runs a 50 Ω kick transient (hidden internal oscillation, EX class C-osc50) — RL reward
+   only, NOT used for bench-v2.
+2. **Final re-check of all 12 accepted cells under rl-v1.2:** witness acceptance (A1 ≥2/3
+   seeds, A2 tightened, A3 fresh seeds — re-sizing the witness topology under rl-v1.2),
+   then F1 (library a1–a5, seeds {1,2}) and F2 (all single edits of the shown anchor,
+   seeds {1,2}) re-run under rl-v1.2 (anchors may also have leaned on the fixture caps).
+   Specs unchanged. Cells failing any stage are tagged `amend3-cp1` (kept, not selected).
+3. **Training pool:** every ok task's witness re-checked under rl-v1.2 (seed 1, seed 2
+   if needed); failures re-sized once; still-failing → tagged out; labels re-derived.
+4. **Selection:** final selection (class rule (b) primary atom, parent ≤40%, nb ≥25%)
+   over the cells that pass the re-check. Shortfall vs 20 reported, not relaxed.
+5. The 88 planted-but-unvalidated cells stay unvalidated (any further validation needs a
+   separate user decision).

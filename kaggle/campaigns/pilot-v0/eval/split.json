@@ -1,0 +1,579 @@
+{
+ "version": 1,
+ "prereg": "kaggle/PREREG-PILOT-V0.md (137ea060a)",
+ "created": "2026-10-05T16:22:53",
+ "source_index": "kaggle/train-pool-v2/INDEX.json",
+ "source_index_sha256": "8a0b201df824ddf86aa8f2880e0f07f1cca99e7b0091c5b9c7d3f8c837cad86d",
+ "verifier": "rl-v1.2",
+ "n_pool": 272,
+ "rule": "hold out exactly one wideband and one narrowband spec family (band x flavor grid point) whose task total is within [ceil(0.20 N), floor(0.25 N)]; among those pairs pick the one with the most tasks not labelled library-solvable in the rl-v1.2 pool INDEX (the eval needs T2/T3 items), ties -> more tasks -> lexicographic",
+ "range": [
+  55,
+  68
+ ],
+ "heldout_families": [
+  "wb1020-gain",
+  "nb090-noise"
+ ],
+ "heldout_frac": 0.2059,
+ "heldout_tasks": [
+  "t2-nb090-noise-0012",
+  "t2-nb090-noise-0013",
+  "t2-nb090-noise-0047",
+  "t2-nb090-noise-0068",
+  "t2-nb090-noise-0129",
+  "t2-nb090-noise-0143",
+  "t2-nb090-noise-0240",
+  "t2-nb090-noise-0254",
+  "t2-nb090-noise-0269",
+  "t2-nb090-noise-0286",
+  "t2-nb090-noise-0287",
+  "t2-nb090-noise-0291",
+  "t2-nb090-noise-0300",
+  "t2-nb090-noise-0307",
+  "t2-nb090-noise-0312",
+  "t2-nb090-noise-0322",
+  "t2-nb090-noise-0323",
+  "t2-nb090-noise-0349",
+  "t2-nb090-noise-0350",
+  "t2-nb090-noise-0351",
+  "t2-nb090-noise-0363",
+  "t2-nb090-noise-0375",
+  "t2-nb090-noise-0387",
+  "t2-nb090-noise-0397",
+  "t2-nb090-noise-0411",
+  "t2-wb1020-gain-0001",
+  "t2-wb1020-gain-0010",
+  "t2-wb1020-gain-0026",
+  "t2-wb1020-gain-0027",
+  "t2-wb1020-gain-0028",
+  "t2-wb1020-gain-0043",
+  "t2-wb1020-gain-0044",
+  "t2-wb1020-gain-0045",
+  "t2-wb1020-gain-0046",
+  "t2-wb1020-gain-0065",
+  "t2-wb1020-gain-0066",
+  "t2-wb1020-gain-0067",
+  "t2-wb1020-gain-0088",
+  "t2-wb1020-gain-0089",
+  "t2-wb1020-gain-0107",
+  "t2-wb1020-gain-0108",
+  "t2-wb1020-gain-0109",
+  "t2-wb1020-gain-0126",
+  "t2-wb1020-gain-0127",
+  "t2-wb1020-gain-0128",
+  "t2-wb1020-gain-0142",
+  "t2-wb1020-gain-0159",
+  "t2-wb1020-gain-0160",
+  "t2-wb1020-gain-0161",
+  "t2-wb1020-gain-0182",
+  "t2-wb1020-gain-0183",
+  "t2-wb1020-gain-0184",
+  "t2-wb1020-gain-0205",
+  "t2-wb1020-gain-0206",
+  "t2-wb1020-gain-0207",
+  "t2-wb1020-gain-0223"
+ ],
+ "train_families": [
+  "nb090-power",
+  "nb158-gain",
+  "nb240-noise",
+  "nb240-power",
+  "nb350-gain",
+  "wb0530-gain",
+  "wb0824-noise",
+  "wb0824-power"
+ ],
+ "train_tasks": [
+  "t2-nb090-power-0002",
+  "t2-nb090-power-0014",
+  "t2-nb090-power-0032",
+  "t2-nb090-power-0110",
+  "t2-nb090-power-0163",
+  "t2-nb090-power-0289",
+  "t2-nb090-power-0290",
+  "t2-nb090-power-0292",
+  "t2-nb090-power-0296",
+  "t2-nb090-power-0297",
+  "t2-nb090-power-0308",
+  "t2-nb090-power-0324",
+  "t2-nb090-power-0337",
+  "t2-nb090-power-0338",
+  "t2-nb090-power-0352",
+  "t2-nb090-power-0353",
+  "t2-nb090-power-0364",
+  "t2-nb090-power-0365",
+  "t2-nb090-power-0376",
+  "t2-nb090-power-0388",
+  "t2-nb090-power-0398",
+  "t2-nb090-power-0399",
+  "t2-nb090-power-0412",
+  "t2-nb090-power-0417",
+  "t2-nb090-power-0419",
+  "t2-nb158-gain-0016",
+  "t2-nb158-gain-0017",
+  "t2-nb158-gain-0033",
+  "t2-nb158-gain-0093",
+  "t2-nb158-gain-0112",
+  "t2-nb158-gain-0113",
+  "t2-nb158-gain-0164",
+  "t2-nb158-gain-0165",
+  "t2-nb158-gain-0208",
+  "t2-nb158-gain-0209",
+  "t2-nb158-gain-0265",
+  "t2-nb158-gain-0326",
+  "t2-nb158-gain-0339",
+  "t2-nb158-gain-0340",
+  "t2-nb158-gain-0354",
+  "t2-nb158-gain-0366",
+  "t2-nb158-gain-0367",
+  "t2-nb158-gain-0377",
+  "t2-nb158-gain-0378",
+  "t2-nb158-gain-0379",
+  "t2-nb158-gain-0389",
+  "t2-nb158-gain-0390",
+  "t2-nb158-gain-0400",
+  "t2-nb158-gain-0401",
+  "t2-nb158-gain-0402",
+  "t2-nb158-gain-0413",
+  "t2-nb240-noise-0004",
+  "t2-nb240-noise-0018",
+  "t2-nb240-noise-0034",
+  "t2-nb240-noise-0036",
+  "t2-nb240-noise-0053",
+  "t2-nb240-noise-0054",
+  "t2-nb240-noise-0073",
+  "t2-nb240-noise-0095",
+  "t2-nb240-noise-0115",
+  "t2-nb240-noise-0116",
+  "t2-nb240-noise-0148",
+  "t2-nb240-noise-0211",
+  "t2-nb240-noise-0226",
+  "t2-nb240-noise-0327",
+  "t2-nb240-noise-0328",
+  "t2-nb240-noise-0341",
+  "t2-nb240-noise-0342",
+  "t2-nb240-noise-0343",
+  "t2-nb240-noise-0357",
+  "t2-nb240-noise-0358",
+  "t2-nb240-noise-0368",
+  "t2-nb240-noise-0369",
+  "t2-nb240-noise-0380",
+  "t2-nb240-noise-0392",
+  "t2-nb240-noise-0403",
+  "t2-nb240-noise-0404",
+  "t2-nb240-noise-0405",
+  "t2-nb240-noise-0406",
+  "t2-nb240-power-0037",
+  "t2-nb240-power-0075",
+  "t2-nb240-power-0098",
+  "t2-nb240-power-0118",
+  "t2-nb240-power-0120",
+  "t2-nb240-power-0133",
+  "t2-nb240-power-0151",
+  "t2-nb240-power-0169",
+  "t2-nb240-power-0190",
+  "t2-nb240-power-0191",
+  "t2-nb240-power-0213",
+  "t2-nb240-power-0214",
+  "t2-nb240-power-0227",
+  "t2-nb240-power-0329",
+  "t2-nb240-power-0330",
+  "t2-nb240-power-0344",
+  "t2-nb240-power-0345",
+  "t2-nb240-power-0359",
+  "t2-nb240-power-0381",
+  "t2-nb240-power-0383",
+  "t2-nb240-power-0393",
+  "t2-nb240-power-0394",
+  "t2-nb240-power-0407",
+  "t2-nb240-power-0408",
+  "t2-nb240-power-0414",
+  "t2-nb240-power-0415",
+  "t2-nb240-power-0418",
+  "t2-nb240-power-0420",
+  "t2-nb350-gain-0039",
+  "t2-nb350-gain-0079",
+  "t2-nb350-gain-0080",
+  "t2-nb350-gain-0123",
+  "t2-nb350-gain-0134",
+  "t2-nb350-gain-0135",
+  "t2-nb350-gain-0137",
+  "t2-nb350-gain-0171",
+  "t2-nb350-gain-0172",
+  "t2-nb350-gain-0195",
+  "t2-nb350-gain-0216",
+  "t2-nb350-gain-0231",
+  "t2-nb350-gain-0232",
+  "t2-nb350-gain-0331",
+  "t2-nb350-gain-0332",
+  "t2-nb350-gain-0346",
+  "t2-nb350-gain-0347",
+  "t2-nb350-gain-0361",
+  "t2-nb350-gain-0371",
+  "t2-nb350-gain-0373",
+  "t2-nb350-gain-0384",
+  "t2-nb350-gain-0385",
+  "t2-nb350-gain-0386",
+  "t2-nb350-gain-0395",
+  "t2-nb350-gain-0396",
+  "t2-nb350-gain-0409",
+  "t2-nb350-gain-0416",
+  "t2-wb0530-gain-0006",
+  "t2-wb0530-gain-0059",
+  "t2-wb0530-gain-0083",
+  "t2-wb0530-gain-0103",
+  "t2-wb0530-gain-0175",
+  "t2-wb0530-gain-0197",
+  "t2-wb0530-gain-0217",
+  "t2-wb0530-gain-0233",
+  "t2-wb0530-gain-0250",
+  "t2-wb0530-gain-0255",
+  "t2-wb0530-gain-0256",
+  "t2-wb0530-gain-0266",
+  "t2-wb0530-gain-0267",
+  "t2-wb0530-gain-0274",
+  "t2-wb0530-gain-0284",
+  "t2-wb0530-gain-0288",
+  "t2-wb0530-gain-0293",
+  "t2-wb0530-gain-0298",
+  "t2-wb0530-gain-0302",
+  "t2-wb0530-gain-0303",
+  "t2-wb0530-gain-0304",
+  "t2-wb0530-gain-0305",
+  "t2-wb0530-gain-0313",
+  "t2-wb0530-gain-0314",
+  "t2-wb0530-gain-0317",
+  "t2-wb0530-gain-0318",
+  "t2-wb0530-gain-0320",
+  "t2-wb0530-gain-0348",
+  "t2-wb0824-noise-0007",
+  "t2-wb0824-noise-0024",
+  "t2-wb0824-noise-0040",
+  "t2-wb0824-noise-0041",
+  "t2-wb0824-noise-0060",
+  "t2-wb0824-noise-0061",
+  "t2-wb0824-noise-0084",
+  "t2-wb0824-noise-0085",
+  "t2-wb0824-noise-0086",
+  "t2-wb0824-noise-0104",
+  "t2-wb0824-noise-0124",
+  "t2-wb0824-noise-0138",
+  "t2-wb0824-noise-0154",
+  "t2-wb0824-noise-0155",
+  "t2-wb0824-noise-0177",
+  "t2-wb0824-noise-0178",
+  "t2-wb0824-noise-0198",
+  "t2-wb0824-noise-0218",
+  "t2-wb0824-noise-0219",
+  "t2-wb0824-noise-0234",
+  "t2-wb0824-noise-0235",
+  "t2-wb0824-noise-0236",
+  "t2-wb0824-noise-0251",
+  "t2-wb0824-noise-0268",
+  "t2-wb0824-noise-0321",
+  "t2-wb0824-power-0000",
+  "t2-wb0824-power-0008",
+  "t2-wb0824-power-0009",
+  "t2-wb0824-power-0025",
+  "t2-wb0824-power-0042",
+  "t2-wb0824-power-0063",
+  "t2-wb0824-power-0064",
+  "t2-wb0824-power-0087",
+  "t2-wb0824-power-0105",
+  "t2-wb0824-power-0106",
+  "t2-wb0824-power-0125",
+  "t2-wb0824-power-0139",
+  "t2-wb0824-power-0140",
+  "t2-wb0824-power-0141",
+  "t2-wb0824-power-0156",
+  "t2-wb0824-power-0157",
+  "t2-wb0824-power-0158",
+  "t2-wb0824-power-0179",
+  "t2-wb0824-power-0181",
+  "t2-wb0824-power-0202",
+  "t2-wb0824-power-0203",
+  "t2-wb0824-power-0204",
+  "t2-wb0824-power-0221",
+  "t2-wb0824-power-0237",
+  "t2-wb0824-power-0238",
+  "t2-wb0824-power-0239",
+  "t2-wb0824-power-0252",
+  "t2-wb0824-power-0253",
+  "t2-wb0824-power-0334"
+ ],
+ "extra_eval_cells": [
+  "v2b-wb0824-gain-188",
+  "v2b-wb1020-noise-217"
+ ],
+ "family_counts": {
+  "nb090-noise": {
+   "n": 25,
+   "n_not_library": 16,
+   "band_type": "narrowband"
+  },
+  "nb090-power": {
+   "n": 25,
+   "n_not_library": 14,
+   "band_type": "narrowband"
+  },
+  "nb158-gain": {
+   "n": 26,
+   "n_not_library": 4,
+   "band_type": "narrowband"
+  },
+  "nb240-noise": {
+   "n": 28,
+   "n_not_library": 3,
+   "band_type": "narrowband"
+  },
+  "nb240-power": {
+   "n": 28,
+   "n_not_library": 1,
+   "band_type": "narrowband"
+  },
+  "nb350-gain": {
+   "n": 27,
+   "n_not_library": 5,
+   "band_type": "narrowband"
+  },
+  "wb0530-gain": {
+   "n": 28,
+   "n_not_library": 20,
+   "band_type": "wideband"
+  },
+  "wb0824-noise": {
+   "n": 25,
+   "n_not_library": 16,
+   "band_type": "wideband"
+  },
+  "wb0824-power": {
+   "n": 29,
+   "n_not_library": 16,
+   "band_type": "wideband"
+  },
+  "wb1020-gain": {
+   "n": 31,
+   "n_not_library": 18,
+   "band_type": "wideband"
+  }
+ },
+ "candidates": [
+  {
+   "families": [
+    "wb0530-gain",
+    "nb090-noise"
+   ],
+   "n": 53,
+   "n_not_library": 36,
+   "in_range": false
+  },
+  {
+   "families": [
+    "wb0530-gain",
+    "nb090-power"
+   ],
+   "n": 53,
+   "n_not_library": 34,
+   "in_range": false
+  },
+  {
+   "families": [
+    "wb0530-gain",
+    "nb158-gain"
+   ],
+   "n": 54,
+   "n_not_library": 24,
+   "in_range": false
+  },
+  {
+   "families": [
+    "wb0530-gain",
+    "nb240-noise"
+   ],
+   "n": 56,
+   "n_not_library": 23,
+   "in_range": true
+  },
+  {
+   "families": [
+    "wb0530-gain",
+    "nb240-power"
+   ],
+   "n": 56,
+   "n_not_library": 21,
+   "in_range": true
+  },
+  {
+   "families": [
+    "wb0530-gain",
+    "nb350-gain"
+   ],
+   "n": 55,
+   "n_not_library": 25,
+   "in_range": true
+  },
+  {
+   "families": [
+    "wb0824-noise",
+    "nb090-noise"
+   ],
+   "n": 50,
+   "n_not_library": 32,
+   "in_range": false
+  },
+  {
+   "families": [
+    "wb0824-noise",
+    "nb090-power"
+   ],
+   "n": 50,
+   "n_not_library": 30,
+   "in_range": false
+  },
+  {
+   "families": [
+    "wb0824-noise",
+    "nb158-gain"
+   ],
+   "n": 51,
+   "n_not_library": 20,
+   "in_range": false
+  },
+  {
+   "families": [
+    "wb0824-noise",
+    "nb240-noise"
+   ],
+   "n": 53,
+   "n_not_library": 19,
+   "in_range": false
+  },
+  {
+   "families": [
+    "wb0824-noise",
+    "nb240-power"
+   ],
+   "n": 53,
+   "n_not_library": 17,
+   "in_range": false
+  },
+  {
+   "families": [
+    "wb0824-noise",
+    "nb350-gain"
+   ],
+   "n": 52,
+   "n_not_library": 21,
+   "in_range": false
+  },
+  {
+   "families": [
+    "wb0824-power",
+    "nb090-noise"
+   ],
+   "n": 54,
+   "n_not_library": 32,
+   "in_range": false
+  },
+  {
+   "families": [
+    "wb0824-power",
+    "nb090-power"
+   ],
+   "n": 54,
+   "n_not_library": 30,
+   "in_range": false
+  },
+  {
+   "families": [
+    "wb0824-power",
+    "nb158-gain"
+   ],
+   "n": 55,
+   "n_not_library": 20,
+   "in_range": true
+  },
+  {
+   "families": [
+    "wb0824-power",
+    "nb240-noise"
+   ],
+   "n": 57,
+   "n_not_library": 19,
+   "in_range": true
+  },
+  {
+   "families": [
+    "wb0824-power",
+    "nb240-power"
+   ],
+   "n": 57,
+   "n_not_library": 17,
+   "in_range": true
+  },
+  {
+   "families": [
+    "wb0824-power",
+    "nb350-gain"
+   ],
+   "n": 56,
+   "n_not_library": 21,
+   "in_range": true
+  },
+  {
+   "families": [
+    "wb1020-gain",
+    "nb090-noise"
+   ],
+   "n": 56,
+   "n_not_library": 34,
+   "in_range": true
+  },
+  {
+   "families": [
+    "wb1020-gain",
+    "nb090-power"
+   ],
+   "n": 56,
+   "n_not_library": 32,
+   "in_range": true
+  },
+  {
+   "families": [
+    "wb1020-gain",
+    "nb158-gain"
+   ],
+   "n": 57,
+   "n_not_library": 22,
+   "in_range": true
+  },
+  {
+   "families": [
+    "wb1020-gain",
+    "nb240-noise"
+   ],
+   "n": 59,
+   "n_not_library": 21,
+   "in_range": true
+  },
+  {
+   "families": [
+    "wb1020-gain",
+    "nb240-power"
+   ],
+   "n": 59,
+   "n_not_library": 19,
+   "in_range": true
+  },
+  {
+   "families": [
+    "wb1020-gain",
+    "nb350-gain"
+   ],
+   "n": 58,
+   "n_not_library": 23,
+   "in_range": true
+  }
+ ]
+}

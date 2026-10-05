@@ -1,0 +1,25 @@
+{
+ "rc": 0,
+ "n_examples": 23,
+ "violations": [],
+ "checks": [
+  "no held-out spec family",
+  "no bench-v2 witness WL/token hash (all planted cells, any status, incl. original/stripped)",
+  "no held-out task witness WL/token hash",
+  "no bench-v2 / held-out spec (content sha)"
+ ],
+ "negative_control": {
+  "heldout_task_as_example": [
+   "heldout_family",
+   "heldout_witness_hash",
+   "bench_or_heldout_spec"
+  ],
+  "strict_cell_witness_as_target": [
+   "bench_witness_hash"
+  ],
+  "pass": true
+ },
+ "n_bench_wl": 381,
+ "n_bench_tok": 382,
+ "n_bench_spec": 559
+}

@@ -1,0 +1,72 @@
+{
+ "prereg": "kaggle/PREREG-PILOT-V0.md (137ea060a)",
+ "verifier": "rl-v1.2",
+ "method": "E-c (kaggle/campaigns/bench-v12-audit/E-c): expected cost to the first feasible design for blind search in uniformly random order over SIZED calls (in-process pre-rejects cost 0 and are excluded); calls = (N-K)/(K+1)+1, SPICE-min = (sum_infeasible secs/(K+1) + mean_feasible secs)/60, stage-wise (a stage without a feasible call is paid in full). Seconds are smoke_run wall seconds under the shared load at run time (cached rows reused).",
+ "aggregate": {
+  "T1": {
+   "n": 1,
+   "median_calls": 3.0,
+   "median_spice_min": 3.75,
+   "mean_spice_min": 3.75
+  },
+  "T2": null
+ },
+ "items": {
+  "t2-nb090-noise-0012": {
+   "tier": "T3",
+   "search": ">F2 space",
+   "F2_space_exhausted": {
+    "calls": 6,
+    "spice_min": 7.55
+   },
+   "library_stage": {
+    "calls": 10,
+    "spice_min": 13.81
+   },
+   "exhaust_library_plus_f2_spice_min": 21.36
+  },
+  "t2-nb090-noise-0013": {
+   "tier": "T1",
+   "search": "random order over the library anchors' sizing calls (seed 1, then seed 2)",
+   "calls": 3.0,
+   "spice_min": 3.75,
+   "found": true,
+   "n_sized": 5,
+   "n_feasible": 1
+  },
+  "v2b-wb0824-gain-188": {
+   "tier": "T3",
+   "search": ">F2 space",
+   "F2_space_exhausted": {
+    "calls": 214,
+    "spice_min": 363.22,
+    "seeds": [
+     1,
+     2
+    ]
+   },
+   "library_stage": {
+    "calls": 6,
+    "spice_min": 7.5
+   },
+   "exhaust_library_plus_f2_spice_min": 370.72
+  },
+  "v2b-wb1020-noise-217": {
+   "tier": "T3",
+   "search": ">F2 space",
+   "F2_space_exhausted": {
+    "calls": 214,
+    "spice_min": 364.05,
+    "seeds": [
+     1,
+     2
+    ]
+   },
+   "library_stage": {
+    "calls": 6,
+    "spice_min": 7.63
+   },
+   "exhaust_library_plus_f2_spice_min": 371.67
+  }
+ }
+}

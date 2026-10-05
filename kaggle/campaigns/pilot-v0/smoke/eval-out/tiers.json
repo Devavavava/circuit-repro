@@ -1,0 +1,290 @@
+{
+ "prereg": "kaggle/PREREG-PILOT-V0.md (137ea060a)",
+ "verifier": "rl-v1.2",
+ "pdk": "bptm45",
+ "budget": 2500,
+ "split_sha256": "809d4bc7fd02dbe475622115ded95b7434cbb372249ba182b26b8a40e28d272e",
+ "partial": false,
+ "n_items": 4,
+ "tier_hist": {
+  "T3": 3,
+  "T1": 1
+ },
+ "per_family": {
+  "nb090-noise": {
+   "T3": 1,
+   "T1": 1
+  },
+  "wb0824-gain": {
+   "T3": 1
+  },
+  "wb1020-noise": {
+   "T3": 1
+  }
+ },
+ "definitions": {
+  "T1": "some library anchor a1-a5 is feasible at the task spec at seed 1 (AMENDMENT-3 T-F1 rows) or, if none, at seed 2",
+  "T2": "not T1; some single edit of the shown anchor is feasible at seed 1 (full enumeration) or at seed 2 (re-tried when its seed-1 worst margin incl. wide mu-1 is >= -0.1)",
+  "T3": "neither; a verified witness exists (EVAL-ONLY)"
+ },
+ "strict_cells_check": {
+  "v2b-wb0824-gain-188": {
+   "status_pass": true,
+   "rows_rl_v1_2_and_consistent": true,
+   "bad_rows": [],
+   "A1": true,
+   "A2": true,
+   "A3": true,
+   "F1_none_feasible_s1_s2": true,
+   "F2_none_feasible_s1_s2": true,
+   "witness_tok_matches": true,
+   "all_pass": true
+  },
+  "v2b-wb1020-noise-217": {
+   "status_pass": true,
+   "rows_rl_v1_2_and_consistent": true,
+   "bad_rows": [],
+   "A1": true,
+   "A2": true,
+   "A3": true,
+   "F1_none_feasible_s1_s2": true,
+   "F2_none_feasible_s1_s2": true,
+   "witness_tok_matches": true,
+   "all_pass": true
+  }
+ },
+ "items": {
+  "t2-nb090-noise-0012": {
+   "tier": "T3",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "parent_anchor": "a3",
+   "shown_anchor": "a3",
+   "pool_label_amend3": "single-edit-solvable",
+   "witness": {
+    "wl": "08327452626a2a92",
+    "tok": "1974f59296fbce5d",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-nb090-noise-0012/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.07356451703115388,
+     "secs": 74.29,
+     "inproc_reject": false,
+     "jid": "38e57b16b3fbab9fe937"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.163767,
+     "secs": 92.32,
+     "inproc_reject": false,
+     "jid": "ba2109c5007777797916"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.37403299999999995,
+     "secs": 65.97,
+     "inproc_reject": false,
+     "jid": "5752a8d013c18bc2c569"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.47374741834315004,
+     "secs": 74.13,
+     "inproc_reject": false,
+     "jid": "be7fb491945a4dfa6d15"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.4617206384823296,
+     "secs": 69.86,
+     "inproc_reject": false,
+     "jid": "d4d838fe393552f3aba6"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.07796185468985953,
+     "secs": 90.31,
+     "inproc_reject": false,
+     "jid": "fcb99e5334b4129b70cc"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.13891996196655282,
+     "secs": 107.11,
+     "inproc_reject": false,
+     "jid": "faa5d5d4d900a3a94742"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.322237,
+     "secs": 78.95,
+     "inproc_reject": false,
+     "jid": "22cd4bfa877eeeb2aa4b"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.9218250461435202,
+     "secs": 90.83,
+     "inproc_reject": false,
+     "jid": "77240ef5090f7487f435"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.5538436432250498,
+     "secs": 84.69,
+     "inproc_reject": false,
+     "jid": "c8ffe695ffa335a8cb1d"
+    }
+   ],
+   "f2_n_space": 8,
+   "f2_n_sized_s1": 6,
+   "f2_n_prereject": 2,
+   "f2_n_near_s2": 0,
+   "f2_solving": []
+  },
+  "t2-nb090-noise-0013": {
+   "tier": "T1",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "parent_anchor": "a1",
+   "shown_anchor": "a2",
+   "pool_label_amend3": "library-solvable",
+   "witness": {
+    "wl": "83cca6607dab707d",
+    "tok": "8a9b97b33d4afa06",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-nb090-noise-0013/witness/witness.net"
+   },
+   "library_solvers": [
+    "a1@s1"
+   ],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": true,
+     "worst": 1.2748597653775399e-06,
+     "secs": 74.46,
+     "inproc_reject": false,
+     "jid": "7f4680904a45dc510695"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.08429200000000003,
+     "secs": 92.69,
+     "inproc_reject": false,
+     "jid": "fccc4dcab165f1eef424"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.36034299999999997,
+     "secs": 65.18,
+     "inproc_reject": false,
+     "jid": "cef92c103d227f4798ed"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.2851389597144314,
+     "secs": 73.84,
+     "inproc_reject": false,
+     "jid": "1f3c912084964599f7f9"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6946376230942791,
+     "secs": 69.56,
+     "inproc_reject": false,
+     "jid": "f77a20ba07e819c7620f"
+    }
+   ]
+  },
+  "v2b-wb0824-gain-188": {
+   "tier": "T3",
+   "family": "wb0824-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a2",
+   "source": "bench-v2 strict cell",
+   "witness": {
+    "wl": "999bf945fe76372a",
+    "tok": "643274f4ddabb6aa",
+    "EVAL_ONLY": true,
+    "file": "kaggle/campaigns/bench-v2/run/cells/v2b-wb0824-gain-188/witness/witness.net"
+   },
+   "core_signature": "add:C:G-RAIL + add:R:G-X",
+   "primary_atom": "add:R:G-X",
+   "rl_v1_2_check": {
+    "status_pass": true,
+    "rows_rl_v1_2_and_consistent": true,
+    "bad_rows": [],
+    "A1": true,
+    "A2": true,
+    "A3": true,
+    "F1_none_feasible_s1_s2": true,
+    "F2_none_feasible_s1_s2": true,
+    "witness_tok_matches": true,
+    "all_pass": true
+   }
+  },
+  "v2b-wb1020-noise-217": {
+   "tier": "T3",
+   "family": "wb1020-noise",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a2",
+   "source": "bench-v2 strict cell",
+   "witness": {
+    "wl": "999bf945fe76372a",
+    "tok": "643274f4ddabb6aa",
+    "EVAL_ONLY": true,
+    "file": "kaggle/campaigns/bench-v2/run/cells/v2b-wb1020-noise-217/witness/witness.net"
+   },
+   "core_signature": "add:C:G-RAIL + add:R:G-X",
+   "primary_atom": "add:R:G-X",
+   "rl_v1_2_check": {
+    "status_pass": true,
+    "rows_rl_v1_2_and_consistent": true,
+    "bad_rows": [],
+    "A1": true,
+    "A2": true,
+    "A3": true,
+    "F1_none_feasible_s1_s2": true,
+    "F2_none_feasible_s1_s2": true,
+    "witness_tok_matches": true,
+    "all_pass": true
+   }
+  }
+ }
+}

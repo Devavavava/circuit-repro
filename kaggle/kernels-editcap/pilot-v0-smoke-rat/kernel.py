@@ -14,7 +14,7 @@ import sys
 # ============================ CONFIG ==========================================
 REPO_SLUG = "Devavavava/circuit-repro"
 REPO_BRANCH = "worktree-externals-gf180"
-REPO_SHA = "PIN_ME"
+REPO_SHA = "832426423d50982540b2c1d3606ad721e4ebf803"
 CFG = {
     "tag": "smoke-rat",
     "kind": "rat",

@@ -1,0 +1,48 @@
+{
+ "parent_anchor": "lna-a4-twostage",
+ "script": [
+  {
+   "op": "add",
+   "t": "R",
+   "name": "ZR1",
+   "nets": [
+    "n5",
+    "n2"
+   ],
+   "grp": 0
+  },
+  {
+   "op": "add",
+   "t": "C",
+   "name": "ZC1",
+   "nets": [
+    "VSS",
+    "n2"
+   ],
+   "grp": 1
+  },
+  {
+   "op": "rw",
+   "name": "ZC1",
+   "pin": 1,
+   "net": "x1",
+   "grp": 2,
+   "macro": "ser"
+  },
+  {
+   "op": "add",
+   "t": "C",
+   "name": "ZC2",
+   "nets": [
+    "x1",
+    "n2"
+   ],
+   "grp": 2,
+   "macro": "ser"
+  }
+ ],
+ "repairs": [],
+ "move_class": "input-match",
+ "wl_hash": "37d5ec2a59b0a2a3",
+ "tok_hash": "dc034f10a13643c3"
+}

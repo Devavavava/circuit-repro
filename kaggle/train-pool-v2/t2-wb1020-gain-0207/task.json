@@ -1,0 +1,208 @@
+{
+ "name": "t2-wb1020-gain-0207",
+ "seq": 207,
+ "g": "wb1020-gain",
+ "band": "wb1020",
+ "flavor": "gain",
+ "bt": "wideband",
+ "cid": "t0011-wb1020-gain-3",
+ "anchor": "a2",
+ "wl": "6d1aeb9f66174944",
+ "tok": "46fe7cbc2552d025",
+ "script": [
+  {
+   "op": "add",
+   "t": "R",
+   "name": "ZR1",
+   "nets": [
+    "n4",
+    "n3"
+   ],
+   "grp": 1
+  },
+  {
+   "op": "add",
+   "t": "PMOS",
+   "name": "ZP1",
+   "nets": [
+    "n3",
+    "n5",
+    "n4",
+    "VDD"
+   ],
+   "grp": 2
+  }
+ ],
+ "repairs": [],
+ "cls": "added-stage",
+ "label": "gm-boost",
+ "limits": {
+  "nf_max_db": 3.1937,
+  "s11_max_db": -7.8686,
+  "s21_db": 11.1542,
+  "s21_ripple_db": 0.7112,
+  "idd_ma": 5.8974
+ },
+ "spec": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/run/specs/t2-wb1020-gain-0207.yaml",
+ "status": "ok",
+ "stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "367244ad4d54bdda83d8",
+    "feasible": true,
+    "derived": false,
+    "infeasible_reason": null,
+    "port_dc": {
+     "pass": true,
+     "dVG_max_V": 0.0,
+     "dIdd_pct": 0.0
+    }
+   }
+  ]
+ },
+ "smoke": false,
+ "difficulty": "witness-only",
+ "difficulty_why": "no anchor feasible at seed 1; no known rl-v1.2 single edit",
+ "amend2": {
+  "action": "recheck",
+  "status_before": "ok",
+  "prefilter": {
+   "pass": true,
+   "why": [],
+   "group": [
+    "VIN1"
+   ]
+  },
+  "label_before": "witness-only",
+  "label_after": "witness-only",
+  "outcome": "ok"
+ },
+ "amend1_stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "476b85add23e38bc8ba0",
+    "feasible": true
+   },
+   {
+    "seed": 2,
+    "jid": "8400cbcb1c377a6841db",
+    "feasible": true
+   }
+  ],
+  "F1_seed1": [
+   {
+    "anchor": "a1",
+    "seed": 1,
+    "jid": "21808f8cf689a151ce46",
+    "feasible": false
+   },
+   {
+    "anchor": "a2",
+    "seed": 1,
+    "jid": "631615f01ef66c671f05",
+    "feasible": false
+   },
+   {
+    "anchor": "a3",
+    "seed": 1,
+    "jid": "5fa69aed3475b7ca5460",
+    "feasible": false
+   },
+   {
+    "anchor": "a4",
+    "seed": 1,
+    "jid": "bb586fdc162e9fb22d11",
+    "feasible": false
+   },
+   {
+    "anchor": "a5",
+    "seed": 1,
+    "jid": "6d1ac14a7d47c0bb6965",
+    "feasible": false
+   }
+  ]
+ },
+ "amend3": {
+  "verifier": "rl-v1.2",
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "74816416c2f11820271d",
+    "feasible": true,
+    "secs": 102.42,
+    "n_evals": 2500,
+    "mu_min_wide": 1.00033,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "resize_attempt": false
+   }
+  ],
+  "T-F1": [
+   {
+    "seed": 1,
+    "jid": "bc5a62ffaecb1f90a026",
+    "feasible": false,
+    "secs": 0.0,
+    "n_evals": 0,
+    "mu_min_wide": null,
+    "infeasible_reason": "topology limits violated: max_inductors",
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a1"
+   },
+   {
+    "seed": 1,
+    "jid": "0a11440eb645a24477be",
+    "feasible": false,
+    "secs": 91.44,
+    "n_evals": 2500,
+    "mu_min_wide": 0.987813,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a2"
+   },
+   {
+    "seed": 1,
+    "jid": "2f0db423b5a938a011c4",
+    "feasible": false,
+    "secs": 65.07,
+    "n_evals": 2500,
+    "mu_min_wide": 0.726113,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a3"
+   },
+   {
+    "seed": 1,
+    "jid": "ac0078351c498fb6ec7b",
+    "feasible": false,
+    "secs": 0.0,
+    "n_evals": 0,
+    "mu_min_wide": null,
+    "infeasible_reason": "topology limits violated: max_inductors",
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a4"
+   },
+   {
+    "seed": 1,
+    "jid": "1316b95591c46fdba250",
+    "feasible": false,
+    "secs": 69.39,
+    "n_evals": 2500,
+    "mu_min_wide": 0.937776,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a5"
+   }
+  ],
+  "label_before": "witness-only",
+  "label_after": "witness-only"
+ }
+}

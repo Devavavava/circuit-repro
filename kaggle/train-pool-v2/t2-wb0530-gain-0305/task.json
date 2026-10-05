@@ -1,0 +1,217 @@
+{
+ "name": "t2-wb0530-gain-0305",
+ "seq": 305,
+ "g": "wb0530-gain",
+ "band": "wb0530",
+ "flavor": "gain",
+ "bt": "wideband",
+ "cid": "t0030-wb0530-gain-3",
+ "anchor": "a2",
+ "wl": "d3740456516b0260",
+ "tok": "93bf18227750f2f8",
+ "script": [
+  {
+   "op": "rw",
+   "name": "NM3",
+   "pin": 2,
+   "net": "n4",
+   "grp": 4
+  },
+  {
+   "op": "add",
+   "t": "NMOS",
+   "name": "ZN1",
+   "nets": [
+    "n4",
+    "VDD",
+    "n1",
+    "VSS"
+   ],
+   "grp": 5
+  },
+  {
+   "op": "add",
+   "t": "NMOS",
+   "name": "ZN2",
+   "nets": [
+    "VDD",
+    "n4",
+    "VSS",
+    "VSS"
+   ],
+   "grp": 7
+  }
+ ],
+ "repairs": [],
+ "cls": "cascode",
+ "label": "cascode",
+ "limits": {
+  "nf_max_db": 3.0942,
+  "s11_max_db": -7.9206,
+  "s21_db": 10.0219,
+  "s21_ripple_db": 1.7243,
+  "idd_ma": 6.9653
+ },
+ "spec": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/run/specs/t2-wb0530-gain-0305.yaml",
+ "status": "ok",
+ "stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "f31ed04747f5e4f66d64",
+    "feasible": true,
+    "derived": false,
+    "infeasible_reason": null,
+    "port_dc": {
+     "pass": true,
+     "dVG_max_V": 0.0,
+     "dIdd_pct": 0.0
+    }
+   }
+  ]
+ },
+ "smoke": false,
+ "difficulty": "library-solvable",
+ "difficulty_why": "anchor(s) ['a2'] feasible at seed 1 (rl-v1.2)",
+ "amend2": {
+  "action": "recheck",
+  "status_before": "ok",
+  "prefilter": {
+   "pass": true,
+   "why": [],
+   "group": [
+    "VIN1"
+   ]
+  },
+  "label_before": "witness-only",
+  "label_after": "witness-only",
+  "outcome": "ok"
+ },
+ "amend1_stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "36dd33c016b364437c50",
+    "feasible": true
+   },
+   {
+    "seed": 2,
+    "jid": "224deb74c96356a44795",
+    "feasible": false
+   }
+  ],
+  "F1_seed1": [
+   {
+    "anchor": "a1",
+    "seed": 1,
+    "jid": "975a603abab28971b714",
+    "feasible": false
+   },
+   {
+    "anchor": "a2",
+    "seed": 1,
+    "jid": "489ba2b79c5a894e79a9",
+    "feasible": false
+   },
+   {
+    "anchor": "a3",
+    "seed": 1,
+    "jid": "2e8dca10b28715cc4686",
+    "feasible": false
+   },
+   {
+    "anchor": "a4",
+    "seed": 1,
+    "jid": "2ae2b74501a45d5400e4",
+    "feasible": false
+   },
+   {
+    "anchor": "a5",
+    "seed": 1,
+    "jid": "1fd4c0adb5625024094e",
+    "feasible": false
+   }
+  ]
+ },
+ "amend3": {
+  "verifier": "rl-v1.2",
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "d94b680838fe7bc1dffa",
+    "feasible": true,
+    "secs": 103.17,
+    "n_evals": 2500,
+    "mu_min_wide": 1.00007,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "resize_attempt": false
+   }
+  ],
+  "T-F1": [
+   {
+    "seed": 1,
+    "jid": "2a6473460449ded8a3f0",
+    "feasible": false,
+    "secs": 0.0,
+    "n_evals": 0,
+    "mu_min_wide": null,
+    "infeasible_reason": "topology limits violated: max_inductors",
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a1"
+   },
+   {
+    "seed": 1,
+    "jid": "d15094feadd4493877bc",
+    "feasible": true,
+    "secs": 95.0,
+    "n_evals": 2500,
+    "mu_min_wide": 1.00005,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "anchor": "a2"
+   },
+   {
+    "seed": 1,
+    "jid": "fc783c94807948c54cac",
+    "feasible": false,
+    "secs": 64.84,
+    "n_evals": 2500,
+    "mu_min_wide": 0.756358,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a3"
+   },
+   {
+    "seed": 1,
+    "jid": "ed85c934d53bc1e92e82",
+    "feasible": false,
+    "secs": 0.0,
+    "n_evals": 0,
+    "mu_min_wide": null,
+    "infeasible_reason": "topology limits violated: max_inductors",
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a4"
+   },
+   {
+    "seed": 1,
+    "jid": "c882a42cde6137ed5a1a",
+    "feasible": false,
+    "secs": 72.74,
+    "n_evals": 2500,
+    "mu_min_wide": 1.00039,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a5"
+   }
+  ],
+  "label_before": "witness-only",
+  "label_after": "library-solvable"
+ }
+}

@@ -1,0 +1,195 @@
+{
+ "name": "t2-nb090-power-0365",
+ "seq": 365,
+ "g": "nb090-power",
+ "band": "nb090",
+ "flavor": "power",
+ "bt": "narrowband",
+ "cid": "t0044-nb090-power-3",
+ "anchor": "a4",
+ "wl": "bdf454e8cd81d9ef",
+ "tok": "99d1091a10e60f5a",
+ "script": [
+  {
+   "op": "add",
+   "t": "C",
+   "name": "ZC1",
+   "nets": [
+    "VDD",
+    "n4"
+   ],
+   "grp": 1
+  },
+  {
+   "op": "add",
+   "t": "L",
+   "name": "ZL1",
+   "nets": [
+    "VSS",
+    "VIN1"
+   ],
+   "grp": 2
+  },
+  {
+   "op": "add",
+   "t": "R",
+   "name": "ZR2",
+   "nets": [
+    "VOUT1",
+    "VSS"
+   ],
+   "grp": 5
+  },
+  {
+   "op": "add",
+   "t": "C",
+   "name": "ZC2",
+   "nets": [
+    "VDD",
+    "n2"
+   ],
+   "grp": 6
+  }
+ ],
+ "repairs": [],
+ "cls": "L-match",
+ "label": "L-match",
+ "limits": {
+  "nf_db": 1.7394,
+  "s11_max_db": -7.86,
+  "s21_db": 17.6882,
+  "idd_ma": 4.0812
+ },
+ "spec": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/run/specs/t2-nb090-power-0365.yaml",
+ "status": "ok",
+ "stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "3d0b29f3dc61d71fa488",
+    "feasible": true
+   },
+   {
+    "seed": 2,
+    "jid": "a615df2f1fc24f7ab348",
+    "feasible": true
+   }
+  ],
+  "F1_seed1": [
+   {
+    "anchor": "a1",
+    "seed": 1,
+    "jid": "3f5bdc1cb2c4b860e2d3",
+    "feasible": false
+   },
+   {
+    "anchor": "a2",
+    "seed": 1,
+    "jid": "e170c777b074843f1ec4",
+    "feasible": false
+   },
+   {
+    "anchor": "a3",
+    "seed": 1,
+    "jid": "96c5cab498cb1de21847",
+    "feasible": false
+   },
+   {
+    "anchor": "a4",
+    "seed": 1,
+    "jid": "a43a2b19cf3560be1f96",
+    "feasible": false
+   },
+   {
+    "anchor": "a5",
+    "seed": 1,
+    "jid": "fe6d324943c062edf362",
+    "feasible": false
+   }
+  ]
+ },
+ "smoke": false,
+ "difficulty": "witness-only",
+ "difficulty_why": "no anchor feasible at seed 1; no known rl-v1.2 single edit",
+ "amend3": {
+  "verifier": "rl-v1.2",
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "dde8048fe8477bc7758e",
+    "feasible": true,
+    "secs": 75.46,
+    "n_evals": 2500,
+    "mu_min_wide": 1.01391,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "resize_attempt": false
+   }
+  ],
+  "T-F1": [
+   {
+    "seed": 1,
+    "jid": "bfb751e43db9be8b7167",
+    "feasible": false,
+    "secs": 76.79,
+    "n_evals": 2500,
+    "mu_min_wide": 1.00002,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a1"
+   },
+   {
+    "seed": 1,
+    "jid": "17c462527460e887ed40",
+    "feasible": false,
+    "secs": 95.43,
+    "n_evals": 2500,
+    "mu_min_wide": 0.835867,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a2"
+   },
+   {
+    "seed": 1,
+    "jid": "e45d8a093ee36e255bf8",
+    "feasible": false,
+    "secs": 67.63,
+    "n_evals": 2500,
+    "mu_min_wide": 0.644566,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a3"
+   },
+   {
+    "seed": 1,
+    "jid": "845f4bf54346f3f546b6",
+    "feasible": false,
+    "secs": 76.17,
+    "n_evals": 2500,
+    "mu_min_wide": 0.731947,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a4"
+   },
+   {
+    "seed": 1,
+    "jid": "72ce48e9688b1cc96afc",
+    "feasible": false,
+    "secs": 70.98,
+    "n_evals": 2500,
+    "mu_min_wide": 1.00002,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a5"
+   }
+  ],
+  "label_before": "witness-only",
+  "label_after": "witness-only"
+ }
+}

@@ -1,0 +1,31 @@
+{
+ "parent_anchor": "lna-a2-current-reuse",
+ "script": [
+  {
+   "op": "del",
+   "name": "R1",
+   "grp": 3
+  },
+  {
+   "op": "rw",
+   "name": "NM3",
+   "pin": 2,
+   "net": "n4",
+   "grp": 4
+  }
+ ],
+ "repairs": [
+  {
+   "repair": "dc_feed",
+   "name": "Rrep1",
+   "nets": [
+    "n5",
+    "VDD"
+   ],
+   "for": "NM3"
+  }
+ ],
+ "move_class": "other",
+ "wl_hash": "00bb7aa53ffced41",
+ "tok_hash": "4a0643c6ecd74047"
+}

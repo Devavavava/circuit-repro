@@ -1,181 +1,260 @@
 {
- "ts": "2026-10-01T20:01:51",
+ "ts": "2026-10-03T19:42:40",
  "mode": "full",
- "final": false,
- "pid": 4111916,
+ "final": true,
+ "pid": 2394952,
  "run_dir": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/run",
  "era": {
-  "git": "1a0413fb95c5ba33ecd8d78f93bb1342e923dfaa",
+  "git": "8d5ab5a47194775650d10d6f5dc6f90967f20ab0",
   "md5": {
    "kaggle/bench_anchor_prep.py": "a40dc59769",
-   "kaggle/campaigns/bench-v2/bv2.py": "3b6665e23d"
+   "kaggle/campaigns/bench-v2/bv2.py": "a6f784ab0d"
   }
  },
- "elapsed_h": 57.091,
- "load1": 13.94,
+ "status": "final",
+ "disk": {
+  "state": "ok",
+  "free_gb": 68.5,
+  "tmp_free_gb": 788.1,
+  "min_free_gb": 5.0,
+  "failed_writes": 0,
+  "last_failed_at": null,
+  "queued_rows": 0,
+  "pauses_this_session": []
+ },
+ "bench_end": "2026-10-03T19:26:27",
+ "total_end": "2026-10-04T13:31:33",
+ "downtime": [
+  [
+   "2026-10-02T14:41:15",
+   "2026-10-02T19:16:24"
+  ]
+ ],
+ "downtime_h": 4.586,
+ "resumed": true,
+ "elapsed_h": 100.185,
+ "wall_elapsed_h": 104.771,
+ "load1": 3.76,
  "proc_limit": 8,
- "running": {
-  "train": 2,
-  "val": 3,
-  "search": 3
- },
- "pending": {
-  "train": 210,
-  "search": 45,
-  "f2": 20,
-  "val": 5
- },
+ "running": {},
+ "pending": {},
  "calls": {
-  "new_this_session": 47,
-  "cached_total": 21600,
+  "new_this_session": 7575,
+  "cached_total": 38400,
   "extra_readonly_cache": 377,
-  "cpu_h_this_session": 1.33,
-  "last_hour": 47,
-  "median_secs_last_hour": 106.76
+  "cpu_h_this_session": 193.53,
+  "last_hour": 311,
+  "median_secs_last_hour": 96.38
  },
  "calibration_done": true,
  "search": {
   "bench": {
-   "generation": 37,
-   "candidates": 0,
-   "confirmed": 4,
-   "rej_sample": 15,
-   "rej_device_budget": 3,
-   "rej_max_inductors": 5,
-   "rej_repair:missing_port": 7,
-   "rej_repair:no_dc_path": 1,
-   "rej_verifier_prescreen": 2,
-   "rej_port_dc_prefilter": 10,
-   "rej_round_trip": 1,
-   "rej_dup": 12,
-   "rej_equals_anchor": 1,
-   "rej_repair:dangling_mos_pin": 2
+   "generation": 83,
+   "candidates": 3036,
+   "confirmed": 1222,
+   "rej_sample": 799,
+   "rej_device_budget": 108,
+   "rej_max_inductors": 150,
+   "rej_repair:missing_port": 299,
+   "rej_repair:no_dc_path": 48,
+   "rej_verifier_prescreen": 91,
+   "rej_port_dc_prefilter": 723,
+   "rej_round_trip": 12,
+   "rej_dup": 1458,
+   "rej_equals_anchor": 24,
+   "rej_repair:dangling_mos_pin": 217,
+   "sized": 3036,
+   "feasible": 1537,
+   "confirm_fail": 319,
+   "rej_in_single_edit_space": 52,
+   "rej_repair:no_mos": 18,
+   "rej_has_inductor": 8
   },
   "train": {
-   "generation": 41,
-   "candidates": 0,
-   "rej_device_budget": 6,
-   "rej_port_dc_prefilter": 3,
-   "rej_dup": 10,
-   "rej_max_inductors": 4,
-   "rej_verifier_prescreen": 1,
-   "rej_repair:missing_port": 1,
-   "rej_sample": 7,
-   "rej_has_inductor": 1
+   "generation": 51,
+   "candidates": 228,
+   "rej_device_budget": 12,
+   "rej_port_dc_prefilter": 28,
+   "rej_dup": 38,
+   "rej_max_inductors": 6,
+   "rej_verifier_prescreen": 19,
+   "rej_repair:missing_port": 14,
+   "rej_sample": 28,
+   "rej_has_inductor": 4,
+   "sized": 228,
+   "feasible": 135,
+   "confirmed": 112,
+   "confirm_fail": 28,
+   "rej_repair:dangling_mos_pin": 4,
+   "rej_in_single_edit_space": 4,
+   "rej_repair:no_dc_path": 3
   }
  },
  "bench": {
-  "planted": 155,
+  "planted": 452,
   "queued": 2,
-  "validating": {
-   "F1": 1,
-   "A2/A3": 2,
-   "A1": 3,
-   "F2": 2
-  },
+  "validating": {},
   "status": {
    "amend2-port-dc": 36,
-   "killed": 105,
-   "accepted": 2,
-   "skipped_dupwl": 2,
-   "validating": 8,
+   "killed": 293,
+   "accepted": 12,
+   "skipped_dupwl": 13,
+   "not_validated_bench_done": 88,
+   "cancelled": 8,
    "queued": 2
   },
-  "accepted": 2,
-  "selectable": 2,
+  "accepted": 12,
+  "selectable": 3,
   "era": "amendment-2",
   "accepted_per_core_class": {
    "rw:C:p:D>X + ser:L:C.p:IN": 1,
-   "add:NMOS:dRAIL.gD.sG + stk:PMOS:PMOS.D:D.gG": 1
+   "add:NMOS:dRAIL.gD.sG + stk:PMOS:PMOS.D:D.gG": 1,
+   "add:C:G-G + add:R:G-X": 1,
+   "stk:NMOS:PMOS.D:G.gD": 4,
+   "add:L:OUT-RAIL + add:NMOS:dD.gD.sIN + ser:C:NMOS.S:IN": 2,
+   "add:C:G-RAIL + add:R:G-X + rw:R:p:RAIL>G": 1,
+   "add:C:G-RAIL + add:R:G-X": 2
   },
   "accepted_per_parent": {
    "a3": 1,
-   "a2": 1
+   "a2": 9,
+   "a1": 2
   },
   "accepted_core_atom_hist": {
    "ser:L:C.p:IN": 1,
    "rw:C:p:D>X": 1,
    "stk:PMOS:PMOS.D:D.gG": 1,
-   "add:NMOS:dRAIL.gD.sG": 1
+   "add:NMOS:dRAIL.gD.sG": 1,
+   "add:C:G-G": 1,
+   "add:R:G-X": 4,
+   "stk:NMOS:PMOS.D:G.gD": 4,
+   "add:NMOS:dD.gD.sIN": 2,
+   "add:L:OUT-RAIL": 2,
+   "ser:C:NMOS.S:IN": 2,
+   "add:C:G-RAIL": 3,
+   "rw:R:p:RAIL>G": 1
   },
   "accepted_per_band": {
-   "nb090": 1,
-   "wb1020": 1
+   "nb090": 3,
+   "wb1020": 4,
+   "wb0530": 3,
+   "wb0824": 2
   },
   "accepted_per_band_type": {
-   "narrowband": 1,
-   "wideband": 1
+   "narrowband": 3,
+   "wideband": 9
   },
   "class_rule_active": "primary_atom",
   "accepted_per_primary_atom": {
    "ser:L:C.p:IN": 1,
-   "add:NMOS:dRAIL.gD.sG": 1
+   "add:NMOS:dRAIL.gD.sG": 1,
+   "add:R:G-X": 4,
+   "stk:NMOS:PMOS.D:G.gD": 4,
+   "add:NMOS:dD.gD.sIN": 2
   },
   "accepted_atom_prevalence": {
+   "add:R:G-X": {
+    "n": 4,
+    "frac": 0.333
+   },
+   "stk:NMOS:PMOS.D:G.gD": {
+    "n": 4,
+    "frac": 0.333
+   },
+   "add:C:G-RAIL": {
+    "n": 3,
+    "frac": 0.25
+   },
+   "add:L:OUT-RAIL": {
+    "n": 2,
+    "frac": 0.167
+   },
+   "add:NMOS:dD.gD.sIN": {
+    "n": 2,
+    "frac": 0.167
+   },
+   "ser:C:NMOS.S:IN": {
+    "n": 2,
+    "frac": 0.167
+   },
+   "add:C:G-G": {
+    "n": 1,
+    "frac": 0.083
+   },
    "add:NMOS:dRAIL.gD.sG": {
     "n": 1,
-    "frac": 0.5
+    "frac": 0.083
    },
    "rw:C:p:D>X": {
     "n": 1,
-    "frac": 0.5
+    "frac": 0.083
+   },
+   "rw:R:p:RAIL>G": {
+    "n": 1,
+    "frac": 0.083
    },
    "ser:L:C.p:IN": {
     "n": 1,
-    "frac": 0.5
+    "frac": 0.083
    },
    "stk:PMOS:PMOS.D:D.gG": {
     "n": 1,
-    "frac": 0.5
+    "frac": 0.083
    }
   },
   "selectable_a_signature": {
-   "n": 2,
+   "n": 3,
    "per_class": {
     "add:NMOS:dRAIL.gD.sG + stk:PMOS:PMOS.D:D.gG": 1,
-    "rw:C:p:D>X + ser:L:C.p:IN": 1
+    "rw:C:p:D>X + ser:L:C.p:IN": 1,
+    "add:L:OUT-RAIL + add:NMOS:dD.gD.sIN + ser:C:NMOS.S:IN": 1
    },
    "per_parent": {
     "a2": 1,
-    "a3": 1
+    "a3": 1,
+    "a1": 1
    },
    "per_band_type": {
     "wideband": 1,
-    "narrowband": 1
+    "narrowband": 2
    }
   },
   "selectable_b_primary_atom": {
-   "n": 2,
+   "n": 3,
    "per_primary_atom": {
     "add:NMOS:dRAIL.gD.sG": 1,
-    "ser:L:C.p:IN": 1
+    "ser:L:C.p:IN": 1,
+    "add:NMOS:dD.gD.sIN": 1
    },
    "per_parent": {
     "a2": 1,
-    "a3": 1
+    "a3": 1,
+    "a1": 1
    },
    "per_band_type": {
     "wideband": 1,
-    "narrowband": 1
+    "narrowband": 2
    }
   },
   "selectable_per_core_class": {
    "add:NMOS:dRAIL.gD.sG + stk:PMOS:PMOS.D:D.gG": 1,
-   "rw:C:p:D>X + ser:L:C.p:IN": 1
+   "rw:C:p:D>X + ser:L:C.p:IN": 1,
+   "add:L:OUT-RAIL + add:NMOS:dD.gD.sIN + ser:C:NMOS.S:IN": 1
   },
   "selectable_per_parent": {
    "a2": 1,
-   "a3": 1
+   "a3": 1,
+   "a1": 1
   },
   "selectable_per_band": {
    "wb1020": 1,
-   "nb090": 1
+   "nb090": 2
   },
   "selectable_per_band_type": {
    "wideband": 1,
-   "narrowband": 1
+   "narrowband": 2
   },
-  "selection_without_nb_quota": 2,
+  "selection_without_nb_quota": 3,
   "nb_quota_binding": false,
   "quotas": {
    "class_cap_frac": 0.25,
@@ -186,58 +265,60 @@
    "min": 20
   },
   "planted_per_band_type": {
-   "wideband": 60,
-   "narrowband": 95
+   "wideband": 192,
+   "narrowband": 260
   },
   "planted_per_parent": {
    "a3": 47,
-   "a2": 15,
-   "a4": 9,
-   "a5": 6,
-   "a1": 78
+   "a2": 148,
+   "a4": 13,
+   "a5": 11,
+   "a1": 233
   },
   "floor_rejects": {},
   "strip": {
-   "nothing_to_strip": 2
+   "nothing_to_strip": 6,
+   "stripped": 4,
+   "strip_failed_reverify(original kept)": 2
   },
   "steer": {
-   "gen": 37,
-   "m_nb": 2.714,
+   "gen": 83,
+   "m_nb": 1.857,
    "point_w": {
-    "wb0530-noise": 1.0,
-    "wb0530-power": 1.0,
-    "wb0824-gain": 1.0,
-    "wb1020-noise": 0.6667,
-    "wb1020-power": 0.6667,
-    "nb090-gain": 1.3571,
-    "nb158-noise": 2.7143,
-    "nb158-power": 2.7143,
-    "nb240-gain": 2.7143,
-    "nb350-noise": 2.7143,
-    "nb350-power": 2.7143
+    "wb0530-noise": 0.2,
+    "wb0530-power": 0.2,
+    "wb0824-gain": 0.25,
+    "wb1020-noise": 0.1667,
+    "wb1020-power": 0.1667,
+    "nb090-gain": 0.4127,
+    "nb158-noise": 1.8571,
+    "nb158-power": 1.8571,
+    "nb240-gain": 1.2381,
+    "nb350-noise": 1.8571,
+    "nb350-power": 1.8571
    },
    "alloc": {
-    "wb0530-noise": 4,
-    "wb0530-power": 4,
-    "wb0824-gain": 4,
-    "wb1020-noise": 2,
-    "wb1020-power": 2,
-    "nb090-gain": 5,
-    "nb158-noise": 9,
-    "nb158-power": 9,
-    "nb240-gain": 9,
-    "nb350-noise": 9,
-    "nb350-power": 9
+    "wb0530-noise": 2,
+    "wb0530-power": 1,
+    "wb0824-gain": 2,
+    "wb1020-noise": 1,
+    "wb1020-power": 1,
+    "nb090-gain": 3,
+    "nb158-noise": 12,
+    "nb158-power": 12,
+    "nb240-gain": 8,
+    "nb350-noise": 12,
+    "nb350-power": 12
    },
    "parent_w": {
     "wideband": {
-     "a2": 0.6667,
+     "a2": 0.0769,
      "a3": 0.5,
      "a5": 1.0
     },
     "narrowband": {
-     "a1": 1.0,
-     "a2": 0.6667,
+     "a1": 0.25,
+     "a2": 0.0769,
      "a3": 0.5,
      "a4": 1.0,
      "a5": 1.0
@@ -245,33 +326,43 @@
    },
    "counts": {
     "band": {
-     "wb1020": 0.5,
-     "nb090": 1.0
+     "wb1020": 5.0,
+     "nb090": 3.5,
+     "wb0530": 4.0,
+     "wb0824": 3.0,
+     "nb240": 0.5
     },
     "band_type": {
-     "wideband": 0.5,
-     "narrowband": 1.0
+     "wideband": 12.0,
+     "narrowband": 4.0
     },
     "parent": {
-     "a2": 0.5,
-     "a3": 1.0
+     "a2": 12.0,
+     "a3": 1.0,
+     "a1": 3.0
     }
    },
    "capped_cores": []
   },
   "stage_started": {
-   "A1_started": 10,
-   "F1_started": 7,
-   "A23_started": 6,
-   "F2_started": 4,
-   "planted": 3
+   "A1_started": 216,
+   "F1_started": 191,
+   "A23_started": 102,
+   "F2_started": 90,
+   "planted": 300
   },
   "kills": {
-   "accepted": 2,
-   "prekill_F2_known_single_edit_design": 1
+   "accepted": 12,
+   "prekill_F2_known_single_edit_design": 135,
+   "prekill_F1_known_anchor_design": 787,
+   "killed:F2_single_edit_solves": 63,
+   "killed:A3_fresh_seeds_fail": 2,
+   "killed:A1_witness_not_2of3": 25,
+   "killed:F1_library_solves": 89,
+   "killed:A2_tightened_fails": 9
   },
-  "bench_done": false,
-  "search_done": false
+  "bench_done": true,
+  "search_done": true
  },
  "pre_amendment": {
   "cells": 110,
@@ -292,87 +383,90 @@
   "profile": "rl-v1.1",
   "t_amend2": "2026-10-01T19:50:36",
   "bench_end_unchanged": "2026-10-03T14:51:17",
+  "bench_end_with_downtime": "2026-10-03T19:26:27",
   "class_rule": "primary_atom",
   "port_dc": {
    "archive_dropped_prefilter_bench": 1415,
    "archive_dropped_prefilter_train": 267,
    "archive_kept_bench": 1027,
    "archive_kept_train": 597,
-   "behavioural_checks": 32,
+   "behavioural_checks": 4130,
    "cells_f2_kill_stands": 8,
+   "cells_replant_killed_port_dc": 3,
    "cells_replanted_void_prekill": 3,
    "cells_requeue_queued": 2,
    "cells_revalidate_accepted": 2,
    "cells_revalidate_started": 2,
+   "cells_revive_killed_port_dc": 7,
    "cells_revive_queued": 7,
    "cells_revived_f2_kill_void": 7,
    "cells_tagged_prefilter_accepted": 16,
    "cells_tagged_prefilter_queued": 1,
    "cells_tagged_prefilter_skipped_dupwl": 9,
    "cells_tagged_prefilter_skipped_parent_cap": 10,
-   "derived_rows": 406,
-   "inproc_prefilter_rejects": 52,
+   "derived_rows": 577,
+   "inproc_prefilter_rejects": 1044,
    "pool_designs_pdc_fail": 715,
-   "pool_designs_pdc_ok": 6963,
+   "pool_designs_pdc_ok": 14295,
    "prekill_f2_stands": 5,
    "replant_rejected_again": 1,
    "restored_candidates_bench": 2442,
    "restored_candidates_train": 864,
-   "rl_v1_feasible_resized": 203,
-   "train_recheck_ok": 13,
-   "train_relabelled_witness-only->single-edit-solvable": 1,
+   "rl_v1_feasible_resized": 4,
+   "train_recheck_ok": 189,
+   "train_relabelled_witness-only->single-edit-solvable": 13,
    "train_tagged_prefilter_library-solvable": 74,
    "train_tagged_prefilter_single-edit-solvable": 11,
    "train_tagged_prefilter_witness-only": 16,
    "gen_rejects_prefilter": {
-    "bench": 10,
-    "train": 3
+    "bench": 723,
+    "train": 28
    },
    "cells_by_action_outcome": {
     "tag:amend2-port-dc": 36,
     "revalidate:accepted": 2,
     "requeue:skipped_dupwl": 2,
-    "revive:validating": 5,
-    "revive:queued": 2,
-    "replant:validating": 3
+    "revive:killed:F2_single_edit_solves": 7,
+    "replant:killed:F2_single_edit_solves": 3
    },
-   "cells_tagged": 36,
+   "cells_tagged": 46,
    "train_by_action_outcome": {
-    "recheck:ok": 12,
+    "recheck:ok": 176,
     "tag:amend2-port-dc": 101,
-    "recheck:ok (relabelled witness-only -> single-edit-solvable)": 1,
-    "recheck:running": 176
+    "recheck:ok (relabelled witness-only -> single-edit-solvable)": 13
    },
    "train_tagged": 101
   }
  },
  "train": {
-  "tasks": 320,
-  "ok": 13,
+  "tasks": 421,
+  "ok": 280,
   "labels": {
-   "witness-only": 3,
-   "single-edit-solvable": 2,
-   "library-solvable": 8
+   "library-solvable": 133,
+   "witness-only": 110,
+   "single-edit-solvable": 37
   },
   "per_grid": {
-   "wb1020-gain": 2,
-   "nb090-noise": 2,
-   "nb090-power": 2,
-   "wb0824-power": 3,
-   "nb240-noise": 1,
-   "wb0530-gain": 1,
-   "wb0824-noise": 1,
-   "nb158-gain": 1
+   "wb0824-power": 29,
+   "wb1020-gain": 31,
+   "nb090-power": 28,
+   "nb240-noise": 28,
+   "wb0530-gain": 28,
+   "wb0824-noise": 25,
+   "nb090-noise": 26,
+   "nb158-gain": 27,
+   "nb350-gain": 29,
+   "nb240-power": 29
   },
-  "search_done": false
+  "search_done": true
  },
  "eta": {
-  "bench_cells_per_h": 0.069,
-  "bench_eta_h_to_target": 335.5,
-  "bench_elapsed_h_since_amendment": 29.176,
-  "bench_hard_stop_h": 42.8,
-  "train_tasks_per_h": 0.23,
-  "train_eta_h_to_target": 1260.4,
-  "total_hard_stop_h": 60.9
+  "bench_cells_per_h": 0.166,
+  "bench_eta_h_to_target": 132.5,
+  "bench_elapsed_h_since_amendment": 72.27,
+  "bench_hard_stop_h": 0.0,
+  "train_tasks_per_h": 2.79,
+  "train_eta_h_to_target": 7.2,
+  "total_hard_stop_h": 17.8
  }
 }

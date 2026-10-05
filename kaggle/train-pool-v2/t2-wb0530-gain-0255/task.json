@@ -1,0 +1,229 @@
+{
+ "name": "t2-wb0530-gain-0255",
+ "seq": 255,
+ "g": "wb0530-gain",
+ "band": "wb0530",
+ "flavor": "gain",
+ "bt": "wideband",
+ "cid": "t0015-wb0530-gain-1",
+ "anchor": "a2",
+ "wl": "ff881c5b7edf0dff",
+ "tok": "569deccc30262186",
+ "script": [
+  {
+   "op": "del",
+   "name": "R1",
+   "grp": 3
+  },
+  {
+   "op": "rw",
+   "name": "NM3",
+   "pin": 2,
+   "net": "n4",
+   "grp": 4
+  },
+  {
+   "op": "rw",
+   "name": "PM1",
+   "pin": 2,
+   "net": "x1",
+   "grp": 5,
+   "macro": "stk"
+  },
+  {
+   "op": "add",
+   "t": "PMOS",
+   "name": "ZP1",
+   "nets": [
+    "VDD",
+    "n1",
+    "x1",
+    "VDD"
+   ],
+   "grp": 5,
+   "macro": "stk"
+  }
+ ],
+ "repairs": [
+  {
+   "repair": "dc_feed",
+   "name": "Rrep1",
+   "nets": [
+    "n5",
+    "VDD"
+   ],
+   "for": "NM3"
+  }
+ ],
+ "cls": "cascode",
+ "label": "cascode",
+ "limits": {
+  "nf_max_db": 3.2754,
+  "s11_max_db": -7.8671,
+  "s21_db": 10.5171,
+  "s21_ripple_db": 2.6969,
+  "idd_ma": 9.9393
+ },
+ "spec": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/run/specs/t2-wb0530-gain-0255.yaml",
+ "status": "ok",
+ "stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "ccfc26679747a9c8d969",
+    "feasible": true,
+    "derived": false,
+    "infeasible_reason": null,
+    "port_dc": {
+     "pass": true,
+     "dVG_max_V": 0.0,
+     "dIdd_pct": 0.0
+    }
+   }
+  ]
+ },
+ "smoke": false,
+ "difficulty": "witness-only",
+ "difficulty_why": "no anchor feasible at seed 1; no known rl-v1.2 single edit",
+ "amend2": {
+  "action": "recheck",
+  "status_before": "ok",
+  "prefilter": {
+   "pass": true,
+   "why": [],
+   "group": [
+    "VIN1"
+   ]
+  },
+  "label_before": "witness-only",
+  "label_after": "witness-only",
+  "outcome": "ok"
+ },
+ "amend1_stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "5293d6d974a4ef322d25",
+    "feasible": true
+   },
+   {
+    "seed": 2,
+    "jid": "e59209278293ffa53f25",
+    "feasible": true
+   }
+  ],
+  "F1_seed1": [
+   {
+    "anchor": "a1",
+    "seed": 1,
+    "jid": "01e52176b618c2e345fa",
+    "feasible": false
+   },
+   {
+    "anchor": "a2",
+    "seed": 1,
+    "jid": "7ec01e9ebd9f5c8ac8de",
+    "feasible": false
+   },
+   {
+    "anchor": "a3",
+    "seed": 1,
+    "jid": "1219663dcbc7e8e85ca7",
+    "feasible": false
+   },
+   {
+    "anchor": "a4",
+    "seed": 1,
+    "jid": "54b1b18ef7e8e3d7ee46",
+    "feasible": false
+   },
+   {
+    "anchor": "a5",
+    "seed": 1,
+    "jid": "af7ed61b49d9d07e6956",
+    "feasible": false
+   }
+  ]
+ },
+ "amend3": {
+  "verifier": "rl-v1.2",
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "0586bb6f9d42eeec6c14",
+    "feasible": true,
+    "secs": 107.24,
+    "n_evals": 2500,
+    "mu_min_wide": 1.0004,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "resize_attempt": false
+   }
+  ],
+  "T-F1": [
+   {
+    "seed": 1,
+    "jid": "7812b635cb31cfe362b9",
+    "feasible": false,
+    "secs": 0.0,
+    "n_evals": 0,
+    "mu_min_wide": null,
+    "infeasible_reason": "topology limits violated: max_inductors",
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a1"
+   },
+   {
+    "seed": 1,
+    "jid": "4823db793da0756f066f",
+    "feasible": false,
+    "secs": 92.74,
+    "n_evals": 2500,
+    "mu_min_wide": 0.982405,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a2"
+   },
+   {
+    "seed": 1,
+    "jid": "83c58d4168c025e53886",
+    "feasible": false,
+    "secs": 65.81,
+    "n_evals": 2500,
+    "mu_min_wide": 0.749906,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a3"
+   },
+   {
+    "seed": 1,
+    "jid": "5e41e487ed9db5d85037",
+    "feasible": false,
+    "secs": 0.0,
+    "n_evals": 0,
+    "mu_min_wide": null,
+    "infeasible_reason": "topology limits violated: max_inductors",
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a4"
+   },
+   {
+    "seed": 1,
+    "jid": "e3a1bca09dffaf12201f",
+    "feasible": false,
+    "secs": 69.57,
+    "n_evals": 2500,
+    "mu_min_wide": 1.00036,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a5"
+   }
+  ],
+  "label_before": "witness-only",
+  "label_after": "witness-only"
+ }
+}

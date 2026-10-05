@@ -1,0 +1,50 @@
+{
+ "parent_anchor": "lna-a3-shunt-feedback",
+ "script": [
+  {
+   "op": "add",
+   "t": "PMOS",
+   "name": "ZP1",
+   "nets": [
+    "VSS",
+    "n2",
+    "VOUT1",
+    "VDD"
+   ],
+   "grp": 0
+  },
+  {
+   "op": "rw",
+   "name": "R1",
+   "pin": 1,
+   "net": "x1",
+   "grp": 2,
+   "macro": "ser"
+  },
+  {
+   "op": "add",
+   "t": "C",
+   "name": "ZC1",
+   "nets": [
+    "x1",
+    "n2"
+   ],
+   "grp": 2,
+   "macro": "ser"
+  }
+ ],
+ "repairs": [
+  {
+   "repair": "dc_return",
+   "name": "Rrep1",
+   "nets": [
+    "VOUT1",
+    "VDD"
+   ],
+   "for": "ZP1"
+  }
+ ],
+ "move_class": "other",
+ "wl_hash": "08327452626a2a92",
+ "tok_hash": "1974f59296fbce5d"
+}

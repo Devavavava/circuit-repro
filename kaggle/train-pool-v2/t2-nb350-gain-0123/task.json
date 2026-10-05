@@ -1,0 +1,222 @@
+{
+ "name": "t2-nb350-gain-0123",
+ "seq": 123,
+ "g": "nb350-gain",
+ "band": "nb350",
+ "flavor": "gain",
+ "bt": "narrowband",
+ "cid": "t0006-nb350-gain-3",
+ "anchor": "a1",
+ "wl": "5ad181d972b4b32e",
+ "tok": "33d97833da3e1fe2",
+ "script": [
+  {
+   "op": "rw",
+   "name": "R2",
+   "pin": 1,
+   "net": "VSS",
+   "grp": 0
+  },
+  {
+   "op": "add",
+   "t": "R",
+   "name": "ZR1",
+   "nets": [
+    "n0",
+    "VIN1"
+   ],
+   "grp": 1
+  },
+  {
+   "op": "rw",
+   "name": "R2",
+   "pin": 0,
+   "net": "n0",
+   "grp": 2
+  },
+  {
+   "op": "del",
+   "name": "ZR1",
+   "grp": 3
+  }
+ ],
+ "repairs": [],
+ "cls": "input-match",
+ "label": "input-match",
+ "limits": {
+  "nf_db": 0.7967,
+  "s11_max_db": -7.8595,
+  "s21_db": 17.4513,
+  "idd_ma": 2.238
+ },
+ "spec": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/run/specs/t2-nb350-gain-0123.yaml",
+ "status": "ok",
+ "stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "c7a2ea4ec3ea7f82a962",
+    "feasible": false,
+    "derived": true,
+    "infeasible_reason": null,
+    "port_dc": null
+   },
+   {
+    "seed": 2,
+    "jid": "1f8fa534f476ce9ebdfd",
+    "feasible": true,
+    "derived": false,
+    "infeasible_reason": null,
+    "port_dc": {
+     "pass": true,
+     "dVG_max_V": 0.0,
+     "dIdd_pct": 0.0
+    }
+   }
+  ]
+ },
+ "smoke": false,
+ "difficulty": "library-solvable",
+ "difficulty_why": "anchor(s) ['a1'] feasible at seed 1 (rl-v1.2)",
+ "amend2": {
+  "action": "recheck",
+  "status_before": "ok",
+  "prefilter": {
+   "pass": true,
+   "why": [],
+   "group": [
+    "VIN1"
+   ]
+  },
+  "label_before": "library-solvable",
+  "label_after": "library-solvable",
+  "outcome": "ok"
+ },
+ "amend1_stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "4d0a5187f3152948c200",
+    "feasible": false
+   },
+   {
+    "seed": 2,
+    "jid": "1ee0076f87ee070301e7",
+    "feasible": true
+   }
+  ],
+  "F1_seed1": [
+   {
+    "anchor": "a1",
+    "seed": 1,
+    "jid": "85fc83ddc07ee06effc6",
+    "feasible": true
+   },
+   {
+    "anchor": "a2",
+    "seed": 1,
+    "jid": "8768127091f48141ef72",
+    "feasible": false
+   },
+   {
+    "anchor": "a3",
+    "seed": 1,
+    "jid": "b9bc1ad74106168d72e1",
+    "feasible": false
+   },
+   {
+    "anchor": "a4",
+    "seed": 1,
+    "jid": "b3447ec43152dbfab2c6",
+    "feasible": false
+   },
+   {
+    "anchor": "a5",
+    "seed": 1,
+    "jid": "b33d7574b87f89a93788",
+    "feasible": false
+   }
+  ]
+ },
+ "amend3": {
+  "verifier": "rl-v1.2",
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "94709a75803e598f5d89",
+    "feasible": true,
+    "secs": 74.37,
+    "n_evals": 2500,
+    "mu_min_wide": 1.0,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "resize_attempt": false
+   }
+  ],
+  "T-F1": [
+   {
+    "seed": 1,
+    "jid": "2ef88bd206e58ee5e9d6",
+    "feasible": true,
+    "secs": 76.98,
+    "n_evals": 2500,
+    "mu_min_wide": 1.0,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "anchor": "a1"
+   },
+   {
+    "seed": 1,
+    "jid": "681eeb2e5752b12f5843",
+    "feasible": false,
+    "secs": 142.14,
+    "n_evals": 2500,
+    "mu_min_wide": 0.447249,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a2"
+   },
+   {
+    "seed": 1,
+    "jid": "3ba64a6bed1ce95156b0",
+    "feasible": false,
+    "secs": 66.81,
+    "n_evals": 2500,
+    "mu_min_wide": 0.669216,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a3"
+   },
+   {
+    "seed": 1,
+    "jid": "1bfd47918a5e9e2eca88",
+    "feasible": false,
+    "secs": 118.6,
+    "n_evals": 2500,
+    "mu_min_wide": -1.0056,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a4"
+   },
+   {
+    "seed": 1,
+    "jid": "e08fb9cb310a59a03158",
+    "feasible": false,
+    "secs": 113.6,
+    "n_evals": 2500,
+    "mu_min_wide": 1.0,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a5"
+   }
+  ],
+  "label_before": "library-solvable",
+  "label_after": "library-solvable"
+ }
+}

@@ -1,0 +1,244 @@
+{
+ "name": "t2-nb240-noise-0034",
+ "seq": 34,
+ "g": "nb240-noise",
+ "band": "nb240",
+ "flavor": "noise",
+ "bt": "narrowband",
+ "cid": "t0002-nb240-noise-0",
+ "anchor": "a1",
+ "wl": "f8aa6b31cca7f37b",
+ "tok": "b8becdf6c4251345",
+ "script": [
+  {
+   "op": "rw",
+   "name": "NM3",
+   "pin": 2,
+   "net": "x1",
+   "grp": 0,
+   "macro": "stk"
+  },
+  {
+   "op": "add",
+   "t": "NMOS",
+   "name": "ZN1",
+   "nets": [
+    "x1",
+    "VDD",
+    "VSS",
+    "VSS"
+   ],
+   "grp": 0,
+   "macro": "stk"
+  },
+  {
+   "op": "rw",
+   "name": "ZN1",
+   "pin": 0,
+   "net": "x2",
+   "grp": 1,
+   "macro": "ser"
+  },
+  {
+   "op": "add",
+   "t": "C",
+   "name": "ZC1",
+   "nets": [
+    "x2",
+    "x1"
+   ],
+   "grp": 1,
+   "macro": "ser"
+  }
+ ],
+ "repairs": [
+  {
+   "repair": "dc_return",
+   "name": "Rrep1",
+   "nets": [
+    "x1",
+    "VSS"
+   ],
+   "for": "NM3"
+  },
+  {
+   "repair": "dc_feed",
+   "name": "Rrep2",
+   "nets": [
+    "x2",
+    "VDD"
+   ],
+   "for": "ZN1"
+  }
+ ],
+ "cls": "other",
+ "label": "other-active",
+ "limits": {
+  "nf_db": 0.8659,
+  "s11_max_db": -7.866,
+  "s21_db": 22.8632,
+  "idd_ma": 3.4386
+ },
+ "spec": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/run/specs/t2-nb240-noise-0034.yaml",
+ "status": "ok",
+ "stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "5bb602cae1ccd0db319e",
+    "feasible": true,
+    "derived": false,
+    "infeasible_reason": null,
+    "port_dc": {
+     "pass": true,
+     "dVG_max_V": 0.0,
+     "dIdd_pct": 0.0
+    }
+   }
+  ]
+ },
+ "smoke": false,
+ "difficulty": "library-solvable",
+ "difficulty_why": "anchor(s) ['a1'] feasible at seed 1 (rl-v1.2)",
+ "amend2": {
+  "action": "recheck",
+  "status_before": "ok",
+  "prefilter": {
+   "pass": true,
+   "why": [],
+   "group": [
+    "VIN1"
+   ]
+  },
+  "label_before": "library-solvable",
+  "label_after": "library-solvable",
+  "outcome": "ok"
+ },
+ "amend1_stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "c7a7379a0bc440b2fdf0",
+    "feasible": true
+   },
+   {
+    "seed": 2,
+    "jid": "a387dc24275bb9275a65",
+    "feasible": true
+   }
+  ],
+  "F1_seed1": [
+   {
+    "anchor": "a1",
+    "seed": 1,
+    "jid": "a22200b192d130943293",
+    "feasible": true
+   },
+   {
+    "anchor": "a2",
+    "seed": 1,
+    "jid": "5bc3427db3cbebdb5145",
+    "feasible": false
+   },
+   {
+    "anchor": "a3",
+    "seed": 1,
+    "jid": "4c18e6b6c2196ce393c5",
+    "feasible": false
+   },
+   {
+    "anchor": "a4",
+    "seed": 1,
+    "jid": "ae9968a9768b99dbc1fa",
+    "feasible": false
+   },
+   {
+    "anchor": "a5",
+    "seed": 1,
+    "jid": "a3ece79d7efecbd542cf",
+    "feasible": false
+   }
+  ]
+ },
+ "amend3": {
+  "verifier": "rl-v1.2",
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "1ceed2eed9059c146613",
+    "feasible": true,
+    "secs": 84.5,
+    "n_evals": 2500,
+    "mu_min_wide": 1.0,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "resize_attempt": false
+   }
+  ],
+  "T-F1": [
+   {
+    "seed": 1,
+    "jid": "5249e889ec3f2691f814",
+    "feasible": true,
+    "secs": 74.45,
+    "n_evals": 2500,
+    "mu_min_wide": 1.0,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "anchor": "a1"
+   },
+   {
+    "seed": 1,
+    "jid": "344d6258c3eb3914f4d3",
+    "feasible": false,
+    "secs": 93.14,
+    "n_evals": 2500,
+    "mu_min_wide": 0.629771,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a2"
+   },
+   {
+    "seed": 1,
+    "jid": "ad883379d85d47920819",
+    "feasible": false,
+    "secs": 65.17,
+    "n_evals": 2500,
+    "mu_min_wide": 0.630498,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a3"
+   },
+   {
+    "seed": 1,
+    "jid": "eea34a685d4c3deee918",
+    "feasible": false,
+    "secs": 74.6,
+    "n_evals": 2500,
+    "mu_min_wide": 0.665621,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a4"
+   },
+   {
+    "seed": 1,
+    "jid": "84955710a7ad677c66ee",
+    "feasible": false,
+    "secs": 70.18,
+    "n_evals": 2500,
+    "mu_min_wide": 1.0,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a5"
+   }
+  ],
+  "label_before": "library-solvable",
+  "label_after": "library-solvable"
+ }
+}

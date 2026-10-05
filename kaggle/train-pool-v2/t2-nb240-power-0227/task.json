@@ -1,0 +1,210 @@
+{
+ "name": "t2-nb240-power-0227",
+ "seq": 227,
+ "g": "nb240-power",
+ "band": "nb240",
+ "flavor": "power",
+ "bt": "narrowband",
+ "cid": "t0012-nb240-power-0",
+ "anchor": "a1",
+ "wl": "22d8b6eeb788f519",
+ "tok": "b045becce9dc2248",
+ "script": [
+  {
+   "op": "rw",
+   "name": "NM2",
+   "pin": 0,
+   "net": "x1",
+   "grp": 0,
+   "macro": "stk"
+  },
+  {
+   "op": "add",
+   "t": "PMOS",
+   "name": "ZP1",
+   "nets": [
+    "x1",
+    "VDD",
+    "n4",
+    "VDD"
+   ],
+   "grp": 0,
+   "macro": "stk"
+  },
+  {
+   "op": "add",
+   "t": "NMOS",
+   "name": "ZN1",
+   "nets": [
+    "n4",
+    "VOUT1",
+    "x1",
+    "VSS"
+   ],
+   "grp": 1
+  }
+ ],
+ "repairs": [],
+ "cls": "cascode",
+ "label": "cascode",
+ "limits": {
+  "nf_db": 2.1513,
+  "s11_max_db": -9.9866,
+  "s21_db": 12.3946,
+  "idd_ma": 1.8565
+ },
+ "spec": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/run/specs/t2-nb240-power-0227.yaml",
+ "status": "ok",
+ "stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "ca4de008a884a666c720",
+    "feasible": true,
+    "derived": false,
+    "infeasible_reason": null,
+    "port_dc": {
+     "pass": true,
+     "dVG_max_V": 0.0,
+     "dIdd_pct": 0.0
+    }
+   }
+  ]
+ },
+ "smoke": false,
+ "difficulty": "library-solvable",
+ "difficulty_why": "anchor(s) ['a1'] feasible at seed 1 (rl-v1.2)",
+ "amend2": {
+  "action": "recheck",
+  "status_before": "ok",
+  "prefilter": {
+   "pass": true,
+   "why": [],
+   "group": [
+    "VIN1"
+   ]
+  },
+  "label_before": "library-solvable",
+  "label_after": "library-solvable",
+  "outcome": "ok"
+ },
+ "amend1_stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "d56fe2a3e086053a61db",
+    "feasible": true
+   },
+   {
+    "seed": 2,
+    "jid": "8e2ac2580c4ef940c3d4",
+    "feasible": false
+   }
+  ]
+ },
+ "amend3": {
+  "verifier": "rl-v1.2",
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "97997c453174d8e35f4d",
+    "feasible": false,
+    "secs": 100.35,
+    "n_evals": 2500,
+    "mu_min_wide": 0.959594,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "resize_attempt": false
+   },
+   {
+    "seed": 2,
+    "jid": "abad2419fdb632493a41",
+    "feasible": false,
+    "secs": 100.88,
+    "n_evals": 2500,
+    "mu_min_wide": 0.949098,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "resize_attempt": false
+   },
+   {
+    "seed": 3,
+    "jid": "e8a5db4ec75d36df1317",
+    "feasible": true,
+    "secs": 95.53,
+    "n_evals": 2500,
+    "mu_min_wide": 1.00021,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "resize_attempt": true
+   }
+  ],
+  "T-F1": [
+   {
+    "seed": 1,
+    "jid": "a7572e7da9f63310caf1",
+    "feasible": true,
+    "secs": 77.42,
+    "n_evals": 2500,
+    "mu_min_wide": 1.0,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "anchor": "a1"
+   },
+   {
+    "seed": 1,
+    "jid": "b040e4f1fa0ec1aa00fd",
+    "feasible": false,
+    "secs": 96.64,
+    "n_evals": 2500,
+    "mu_min_wide": 0.992948,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a2"
+   },
+   {
+    "seed": 1,
+    "jid": "9f94c5b8ebadeb39d25b",
+    "feasible": false,
+    "secs": 68.07,
+    "n_evals": 2500,
+    "mu_min_wide": 0.64336,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a3"
+   },
+   {
+    "seed": 1,
+    "jid": "c731117776b41e61ea30",
+    "feasible": false,
+    "secs": 77.67,
+    "n_evals": 2500,
+    "mu_min_wide": 0.841592,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a4"
+   },
+   {
+    "seed": 1,
+    "jid": "0e658d22ea64915328e8",
+    "feasible": false,
+    "secs": 72.27,
+    "n_evals": 2500,
+    "mu_min_wide": 1.0,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a5"
+   }
+  ],
+  "label_before": "library-solvable",
+  "label_after": "library-solvable"
+ }
+}

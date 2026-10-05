@@ -1,0 +1,46 @@
+{
+ "parent_anchor": "lna-a4-twostage",
+ "script": [
+  {
+   "op": "add",
+   "t": "C",
+   "name": "ZC1",
+   "nets": [
+    "VDD",
+    "n4"
+   ],
+   "grp": 1
+  },
+  {
+   "op": "add",
+   "t": "L",
+   "name": "ZL1",
+   "nets": [
+    "VSS",
+    "VIN1"
+   ],
+   "grp": 2
+  },
+  {
+   "op": "add",
+   "t": "C",
+   "name": "ZC2",
+   "nets": [
+    "VDD",
+    "n2"
+   ],
+   "grp": 6
+  },
+  {
+   "op": "rw",
+   "name": "ZC1",
+   "pin": 1,
+   "net": "VSS",
+   "grp": 7
+  }
+ ],
+ "repairs": [],
+ "move_class": "L-match",
+ "wl_hash": "2e94072400c3699f",
+ "tok_hash": "47b742058814b69b"
+}

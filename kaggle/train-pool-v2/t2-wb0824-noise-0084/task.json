@@ -1,0 +1,203 @@
+{
+ "name": "t2-wb0824-noise-0084",
+ "seq": 84,
+ "g": "wb0824-noise",
+ "band": "wb0824",
+ "flavor": "noise",
+ "bt": "wideband",
+ "cid": "t0005-wb0824-noise-1",
+ "anchor": "a2",
+ "wl": "ec17fcedd54d600d",
+ "tok": "a3a1164731e33135",
+ "script": [
+  {
+   "op": "add",
+   "t": "R",
+   "name": "ZR1",
+   "nets": [
+    "n4",
+    "n3"
+   ],
+   "grp": 1
+  },
+  {
+   "op": "rw",
+   "name": "C2",
+   "pin": 0,
+   "net": "VIN1",
+   "grp": 2
+  }
+ ],
+ "repairs": [],
+ "cls": "input-match",
+ "label": "input-match",
+ "limits": {
+  "nf_max_db": 2.7221,
+  "s11_max_db": -10.2841,
+  "s21_db": 9.0848,
+  "s21_ripple_db": 0.5163,
+  "idd_ma": 4.7455
+ },
+ "spec": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/run/specs/t2-wb0824-noise-0084.yaml",
+ "status": "ok",
+ "stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "e4c3d8c52bd5fb810297",
+    "feasible": true,
+    "derived": false,
+    "infeasible_reason": null,
+    "port_dc": {
+     "pass": true,
+     "dVG_max_V": 0.0,
+     "dIdd_pct": 0.0
+    }
+   }
+  ]
+ },
+ "smoke": false,
+ "difficulty": "witness-only",
+ "difficulty_why": "no anchor feasible at seed 1; no known rl-v1.2 single edit",
+ "amend2": {
+  "action": "recheck",
+  "status_before": "ok",
+  "prefilter": {
+   "pass": true,
+   "why": [],
+   "group": [
+    "VIN1"
+   ]
+  },
+  "label_before": "witness-only",
+  "label_after": "witness-only",
+  "outcome": "ok"
+ },
+ "amend1_stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "33820d115f18bec6a80b",
+    "feasible": true
+   },
+   {
+    "seed": 2,
+    "jid": "1305dd9aa13c7f2c95fc",
+    "feasible": false
+   }
+  ],
+  "F1_seed1": [
+   {
+    "anchor": "a1",
+    "seed": 1,
+    "jid": "29c4040771b6c87b7520",
+    "feasible": false
+   },
+   {
+    "anchor": "a2",
+    "seed": 1,
+    "jid": "469e2a37e12e03ff68da",
+    "feasible": false
+   },
+   {
+    "anchor": "a3",
+    "seed": 1,
+    "jid": "dbadad76a9c3f54c13de",
+    "feasible": false
+   },
+   {
+    "anchor": "a4",
+    "seed": 1,
+    "jid": "52f260a97ecd27400392",
+    "feasible": false
+   },
+   {
+    "anchor": "a5",
+    "seed": 1,
+    "jid": "d830a9195b45049d90e6",
+    "feasible": false
+   }
+  ]
+ },
+ "amend3": {
+  "verifier": "rl-v1.2",
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "bcff384068f086845914",
+    "feasible": true,
+    "secs": 95.73,
+    "n_evals": 2500,
+    "mu_min_wide": 1.00004,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "resize_attempt": false
+   }
+  ],
+  "T-F1": [
+   {
+    "seed": 1,
+    "jid": "d9359837077837a4ca9e",
+    "feasible": false,
+    "secs": 0.0,
+    "n_evals": 0,
+    "mu_min_wide": null,
+    "infeasible_reason": "topology limits violated: max_inductors",
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a1"
+   },
+   {
+    "seed": 1,
+    "jid": "0f174efe51400ca84cd1",
+    "feasible": false,
+    "secs": 94.71,
+    "n_evals": 2500,
+    "mu_min_wide": 0.916553,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a2"
+   },
+   {
+    "seed": 1,
+    "jid": "e6e4731ce322177eafd9",
+    "feasible": false,
+    "secs": 66.56,
+    "n_evals": 2500,
+    "mu_min_wide": 0.824383,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a3"
+   },
+   {
+    "seed": 1,
+    "jid": "b4142aa6a4f58c2b530b",
+    "feasible": false,
+    "secs": 0.0,
+    "n_evals": 0,
+    "mu_min_wide": null,
+    "infeasible_reason": "topology limits violated: max_inductors",
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a4"
+   },
+   {
+    "seed": 1,
+    "jid": "605897f323cc19caf1a8",
+    "feasible": false,
+    "secs": 71.24,
+    "n_evals": 2500,
+    "mu_min_wide": 1.00008,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a5"
+   }
+  ],
+  "label_before": "witness-only",
+  "label_after": "witness-only"
+ }
+}

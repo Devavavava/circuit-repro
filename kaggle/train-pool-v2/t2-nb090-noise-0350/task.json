@@ -1,0 +1,207 @@
+{
+ "name": "t2-nb090-noise-0350",
+ "seq": 350,
+ "g": "nb090-noise",
+ "band": "nb090",
+ "flavor": "noise",
+ "bt": "narrowband",
+ "cid": "t0043-nb090-noise-2",
+ "anchor": "a4",
+ "wl": "bdf454e8cd81d9ef",
+ "tok": "99d1091a10e60f5a",
+ "script": [
+  {
+   "op": "add",
+   "t": "C",
+   "name": "ZC1",
+   "nets": [
+    "VDD",
+    "n4"
+   ],
+   "grp": 1
+  },
+  {
+   "op": "add",
+   "t": "L",
+   "name": "ZL1",
+   "nets": [
+    "VSS",
+    "VIN1"
+   ],
+   "grp": 2
+  },
+  {
+   "op": "add",
+   "t": "R",
+   "name": "ZR2",
+   "nets": [
+    "VOUT1",
+    "VSS"
+   ],
+   "grp": 5
+  },
+  {
+   "op": "add",
+   "t": "C",
+   "name": "ZC2",
+   "nets": [
+    "VDD",
+    "n2"
+   ],
+   "grp": 6
+  }
+ ],
+ "repairs": [],
+ "cls": "L-match",
+ "label": "L-match",
+ "limits": {
+  "nf_db": 1.1457,
+  "s11_max_db": -7.8471,
+  "s21_db": 22.832,
+  "idd_ma": 6.0984
+ },
+ "spec": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/run/specs/t2-nb090-noise-0350.yaml",
+ "status": "ok",
+ "stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "c15363317abf1e075d3f",
+    "feasible": true
+   },
+   {
+    "seed": 2,
+    "jid": "de9e1dcb24bb3c3c906c",
+    "feasible": false
+   }
+  ],
+  "F1_seed1": [
+   {
+    "anchor": "a1",
+    "seed": 1,
+    "jid": "9f163cfe1f6208d63d06",
+    "feasible": false
+   },
+   {
+    "anchor": "a2",
+    "seed": 1,
+    "jid": "c80f4e94127ff029f486",
+    "feasible": false
+   },
+   {
+    "anchor": "a3",
+    "seed": 1,
+    "jid": "49b4dd632563e5f5830f",
+    "feasible": false
+   },
+   {
+    "anchor": "a4",
+    "seed": 1,
+    "jid": "df20ad01c2b657381fd4",
+    "feasible": false
+   },
+   {
+    "anchor": "a5",
+    "seed": 1,
+    "jid": "20f15ee8753b4cbe099d",
+    "feasible": false
+   }
+  ]
+ },
+ "smoke": false,
+ "difficulty": "witness-only",
+ "difficulty_why": "no anchor feasible at seed 1; no known rl-v1.2 single edit",
+ "amend3": {
+  "verifier": "rl-v1.2",
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "5f51247314134aef1ae7",
+    "feasible": false,
+    "secs": 74.23,
+    "n_evals": 2500,
+    "mu_min_wide": 0.62456,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "resize_attempt": false
+   },
+   {
+    "seed": 2,
+    "jid": "5126a0b675c176dd5469",
+    "feasible": true,
+    "secs": 74.11,
+    "n_evals": 2500,
+    "mu_min_wide": 1.06206,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "resize_attempt": false
+   }
+  ],
+  "T-F1": [
+   {
+    "seed": 1,
+    "jid": "d50211b3aecc98a8bcfb",
+    "feasible": false,
+    "secs": 79.26,
+    "n_evals": 2500,
+    "mu_min_wide": 1.00003,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a1"
+   },
+   {
+    "seed": 1,
+    "jid": "f7e8f8726c119d452c93",
+    "feasible": false,
+    "secs": 100.57,
+    "n_evals": 2500,
+    "mu_min_wide": 0.904111,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a2"
+   },
+   {
+    "seed": 1,
+    "jid": "4aefea500c59093a61db",
+    "feasible": false,
+    "secs": 70.2,
+    "n_evals": 2500,
+    "mu_min_wide": 0.596609,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a3"
+   },
+   {
+    "seed": 1,
+    "jid": "c301b4b734365857ae9f",
+    "feasible": false,
+    "secs": 80.33,
+    "n_evals": 2500,
+    "mu_min_wide": 0.830015,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a4"
+   },
+   {
+    "seed": 1,
+    "jid": "7af6cd99ae37d6627e62",
+    "feasible": false,
+    "secs": 74.88,
+    "n_evals": 2500,
+    "mu_min_wide": 1.00002,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a5"
+   }
+  ],
+  "label_before": "witness-only",
+  "label_after": "witness-only"
+ }
+}

@@ -1,0 +1,211 @@
+{
+ "name": "t2-wb0824-noise-0138",
+ "seq": 138,
+ "g": "wb0824-noise",
+ "band": "wb0824",
+ "flavor": "noise",
+ "bt": "wideband",
+ "cid": "t0008-wb0824-noise-3",
+ "anchor": "a2",
+ "wl": "272121d41e73dd80",
+ "tok": "d4f81bd3e5626437",
+ "script": [
+  {
+   "op": "add",
+   "t": "R",
+   "name": "ZR1",
+   "nets": [
+    "n4",
+    "n3"
+   ],
+   "grp": 1
+  },
+  {
+   "op": "del",
+   "name": "R1",
+   "grp": 3
+  }
+ ],
+ "repairs": [
+  {
+   "repair": "dc_feed",
+   "name": "Rrep1",
+   "nets": [
+    "n5",
+    "VDD"
+   ],
+   "for": "NM3"
+  }
+ ],
+ "cls": "input-match",
+ "label": "input-match",
+ "limits": {
+  "nf_max_db": 2.462,
+  "s11_max_db": -8.8623,
+  "s21_db": 9.6259,
+  "s21_ripple_db": 0.5335,
+  "idd_ma": 5.5766
+ },
+ "spec": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/run/specs/t2-wb0824-noise-0138.yaml",
+ "status": "ok",
+ "stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "1eb5fdf8f78365e83812",
+    "feasible": true,
+    "derived": false,
+    "infeasible_reason": null,
+    "port_dc": {
+     "pass": true,
+     "dVG_max_V": 0.0,
+     "dIdd_pct": 0.0
+    }
+   }
+  ]
+ },
+ "smoke": false,
+ "difficulty": "witness-only",
+ "difficulty_why": "no anchor feasible at seed 1; no known rl-v1.2 single edit",
+ "amend2": {
+  "action": "recheck",
+  "status_before": "ok",
+  "prefilter": {
+   "pass": true,
+   "why": [],
+   "group": [
+    "VIN1"
+   ]
+  },
+  "label_before": "witness-only",
+  "label_after": "witness-only",
+  "outcome": "ok"
+ },
+ "amend1_stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "6cb762b7c26b3aceafb5",
+    "feasible": true
+   },
+   {
+    "seed": 2,
+    "jid": "56d27f3c83ee392b9acb",
+    "feasible": true
+   }
+  ],
+  "F1_seed1": [
+   {
+    "anchor": "a1",
+    "seed": 1,
+    "jid": "2a06190623b75b8fcd4f",
+    "feasible": false
+   },
+   {
+    "anchor": "a2",
+    "seed": 1,
+    "jid": "2a7f4df75c1b07ae8305",
+    "feasible": false
+   },
+   {
+    "anchor": "a3",
+    "seed": 1,
+    "jid": "556d6a8c1d73a4a022f3",
+    "feasible": false
+   },
+   {
+    "anchor": "a4",
+    "seed": 1,
+    "jid": "025885d430ae228e14b1",
+    "feasible": false
+   },
+   {
+    "anchor": "a5",
+    "seed": 1,
+    "jid": "94848405134d56136946",
+    "feasible": false
+   }
+  ]
+ },
+ "amend3": {
+  "verifier": "rl-v1.2",
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "7f458b88e90a753496ae",
+    "feasible": true,
+    "secs": 96.35,
+    "n_evals": 2500,
+    "mu_min_wide": 1.0009,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "resize_attempt": false
+   }
+  ],
+  "T-F1": [
+   {
+    "seed": 1,
+    "jid": "b83671cf2290d7f6af25",
+    "feasible": false,
+    "secs": 0.0,
+    "n_evals": 0,
+    "mu_min_wide": null,
+    "infeasible_reason": "topology limits violated: max_inductors",
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a1"
+   },
+   {
+    "seed": 1,
+    "jid": "98ca596f90befd9ac7ac",
+    "feasible": false,
+    "secs": 103.94,
+    "n_evals": 2500,
+    "mu_min_wide": 0.987739,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a2"
+   },
+   {
+    "seed": 1,
+    "jid": "5d8809694b72609ef53c",
+    "feasible": false,
+    "secs": 77.22,
+    "n_evals": 2500,
+    "mu_min_wide": 0.770517,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a3"
+   },
+   {
+    "seed": 1,
+    "jid": "05963b1a53b412588d43",
+    "feasible": false,
+    "secs": 0.0,
+    "n_evals": 0,
+    "mu_min_wide": null,
+    "infeasible_reason": "topology limits violated: max_inductors",
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a4"
+   },
+   {
+    "seed": 1,
+    "jid": "c252d2dbd375fa22eaa9",
+    "feasible": false,
+    "secs": 82.68,
+    "n_evals": 2500,
+    "mu_min_wide": 0.914704,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a5"
+   }
+  ],
+  "label_before": "witness-only",
+  "label_after": "witness-only"
+ }
+}

@@ -1,0 +1,173 @@
+{
+ "name": "t2-wb1020-gain-0026",
+ "seq": 26,
+ "g": "wb1020-gain",
+ "band": "wb1020",
+ "flavor": "gain",
+ "bt": "wideband",
+ "cid": "t0002-wb1020-gain-1",
+ "anchor": "a2",
+ "wl": "9df93c4eae8edac1",
+ "tok": "f1d8dcf92e076771",
+ "script": [
+  {
+   "op": "rw",
+   "name": "L1",
+   "pin": 1,
+   "net": "x1",
+   "grp": 1,
+   "macro": "ser"
+  },
+  {
+   "op": "add",
+   "t": "C",
+   "name": "ZC1",
+   "nets": [
+    "x1",
+    "n1"
+   ],
+   "grp": 1,
+   "macro": "ser"
+  }
+ ],
+ "repairs": [],
+ "cls": "L-match",
+ "label": "L-match",
+ "limits": {
+  "nf_max_db": 4.5812,
+  "s11_max_db": -7.8569,
+  "s21_db": 9.8816,
+  "s21_ripple_db": 0.8568,
+  "idd_ma": 8.3894
+ },
+ "spec": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/run/specs/t2-wb1020-gain-0026.yaml",
+ "status": "ok",
+ "stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "55eee83dfc2b6c3c39fd",
+    "feasible": true,
+    "derived": false,
+    "infeasible_reason": null,
+    "port_dc": {
+     "pass": true,
+     "dVG_max_V": 0.0,
+     "dIdd_pct": 0.0
+    }
+   }
+  ]
+ },
+ "smoke": false,
+ "difficulty": "library-solvable",
+ "difficulty_why": "anchor(s) ['a2'] feasible at seed 1 (rl-v1.2)",
+ "amend2": {
+  "action": "recheck",
+  "status_before": "ok",
+  "prefilter": {
+   "pass": true,
+   "why": [],
+   "group": [
+    "VIN1"
+   ]
+  },
+  "label_before": "library-solvable",
+  "label_after": "library-solvable",
+  "outcome": "ok"
+ },
+ "amend1_stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "570870b08d46281e8e8a",
+    "feasible": true
+   },
+   {
+    "seed": 2,
+    "jid": "b73fa9755958ab330448",
+    "feasible": true
+   }
+  ]
+ },
+ "amend3": {
+  "verifier": "rl-v1.2",
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "fa8b40426321c797358b",
+    "feasible": true,
+    "secs": 100.08,
+    "n_evals": 2500,
+    "mu_min_wide": 1.00198,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "resize_attempt": false
+   }
+  ],
+  "T-F1": [
+   {
+    "seed": 1,
+    "jid": "dba67e4cdb45b2de4e34",
+    "feasible": false,
+    "secs": 0.0,
+    "n_evals": 0,
+    "mu_min_wide": null,
+    "infeasible_reason": "topology limits violated: max_inductors",
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a1"
+   },
+   {
+    "seed": 1,
+    "jid": "d1b060f5821a7d5ccd2c",
+    "feasible": true,
+    "secs": 94.85,
+    "n_evals": 2500,
+    "mu_min_wide": 1.00029,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "anchor": "a2"
+   },
+   {
+    "seed": 1,
+    "jid": "e111e12456633115a080",
+    "feasible": false,
+    "secs": 67.43,
+    "n_evals": 2500,
+    "mu_min_wide": 0.709195,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a3"
+   },
+   {
+    "seed": 1,
+    "jid": "d31a84b3ccbae8adee13",
+    "feasible": false,
+    "secs": 0.0,
+    "n_evals": 0,
+    "mu_min_wide": null,
+    "infeasible_reason": "topology limits violated: max_inductors",
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a4"
+   },
+   {
+    "seed": 1,
+    "jid": "fb093656e64e0f2c3363",
+    "feasible": false,
+    "secs": 71.08,
+    "n_evals": 2500,
+    "mu_min_wide": 1.00003,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a5"
+   }
+  ],
+  "label_before": "library-solvable",
+  "label_after": "library-solvable"
+ }
+}

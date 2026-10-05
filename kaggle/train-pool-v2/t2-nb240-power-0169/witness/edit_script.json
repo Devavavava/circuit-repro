@@ -1,0 +1,38 @@
+{
+ "parent_anchor": "lna-a1-inddegen-cascode",
+ "script": [
+  {
+   "op": "rw",
+   "name": "R1",
+   "pin": 1,
+   "net": "x1",
+   "grp": 0,
+   "macro": "ser"
+  },
+  {
+   "op": "add",
+   "t": "C",
+   "name": "ZC1",
+   "nets": [
+    "x1",
+    "n5"
+   ],
+   "grp": 0,
+   "macro": "ser"
+  }
+ ],
+ "repairs": [
+  {
+   "repair": "dc_feed",
+   "name": "Rrep1",
+   "nets": [
+    "n5",
+    "VDD"
+   ],
+   "for": "NM3"
+  }
+ ],
+ "move_class": "input-match",
+ "wl_hash": "12c1102d34565a7a",
+ "tok_hash": "3b522095e6f98e67"
+}

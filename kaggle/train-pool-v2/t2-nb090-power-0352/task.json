@@ -1,0 +1,209 @@
+{
+ "name": "t2-nb090-power-0352",
+ "seq": 352,
+ "g": "nb090-power",
+ "band": "nb090",
+ "flavor": "power",
+ "bt": "narrowband",
+ "cid": "t0043-nb090-power-1",
+ "anchor": "a4",
+ "wl": "75dbab047b7172e5",
+ "tok": "fd26cce00f29d2cf",
+ "script": [
+  {
+   "op": "add",
+   "t": "C",
+   "name": "ZC1",
+   "nets": [
+    "VDD",
+    "n4"
+   ],
+   "grp": 1
+  },
+  {
+   "op": "add",
+   "t": "L",
+   "name": "ZL1",
+   "nets": [
+    "VSS",
+    "VIN1"
+   ],
+   "grp": 2
+  },
+  {
+   "op": "add",
+   "t": "PMOS",
+   "name": "ZP1",
+   "nets": [
+    "VOUT1",
+    "n5",
+    "n7",
+    "VDD"
+   ],
+   "grp": 3
+  }
+ ],
+ "repairs": [
+  {
+   "repair": "dc_feed",
+   "name": "Rrep1",
+   "nets": [
+    "VOUT1",
+    "VSS"
+   ],
+   "for": "ZP1"
+  }
+ ],
+ "cls": "added-stage",
+ "label": "gm-boost",
+ "limits": {
+  "nf_db": 2.2807,
+  "s11_max_db": -7.8544,
+  "s21_db": 18.3448,
+  "idd_ma": 4.0032
+ },
+ "spec": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/run/specs/t2-nb090-power-0352.yaml",
+ "status": "ok",
+ "stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "9e83046214d2f9717e92",
+    "feasible": true
+   },
+   {
+    "seed": 2,
+    "jid": "cebf68323991b62d510c",
+    "feasible": true
+   }
+  ],
+  "F1_seed1": [
+   {
+    "anchor": "a1",
+    "seed": 1,
+    "jid": "f8ec1bc6e5b62a85e692",
+    "feasible": false
+   },
+   {
+    "anchor": "a2",
+    "seed": 1,
+    "jid": "6c3bc4de846dfb561b27",
+    "feasible": false
+   },
+   {
+    "anchor": "a3",
+    "seed": 1,
+    "jid": "338bf81dcfce41165084",
+    "feasible": false
+   },
+   {
+    "anchor": "a4",
+    "seed": 1,
+    "jid": "010e10274962f51f6986",
+    "feasible": false
+   },
+   {
+    "anchor": "a5",
+    "seed": 1,
+    "jid": "11bf56e8bd456f85d331",
+    "feasible": false
+   }
+  ]
+ },
+ "smoke": false,
+ "difficulty": "witness-only",
+ "difficulty_why": "no anchor feasible at seed 1; no known rl-v1.2 single edit",
+ "amend3": {
+  "verifier": "rl-v1.2",
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "5e57184081d2facec0a7",
+    "feasible": false,
+    "secs": 92.83,
+    "n_evals": 2500,
+    "mu_min_wide": 0.922873,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "resize_attempt": false
+   },
+   {
+    "seed": 2,
+    "jid": "9ddf27250ebb25a27145",
+    "feasible": true,
+    "secs": 93.56,
+    "n_evals": 2500,
+    "mu_min_wide": 1.00064,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "resize_attempt": false
+   }
+  ],
+  "T-F1": [
+   {
+    "seed": 1,
+    "jid": "db99ea67c105a67bfafe",
+    "feasible": false,
+    "secs": 78.86,
+    "n_evals": 2500,
+    "mu_min_wide": 1.00003,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a1"
+   },
+   {
+    "seed": 1,
+    "jid": "7cf0126ab55615ffd100",
+    "feasible": false,
+    "secs": 106.94,
+    "n_evals": 2500,
+    "mu_min_wide": 0.798888,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a2"
+   },
+   {
+    "seed": 1,
+    "jid": "db06867676b8ff1cf3f3",
+    "feasible": false,
+    "secs": 69.99,
+    "n_evals": 2500,
+    "mu_min_wide": 0.754189,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a3"
+   },
+   {
+    "seed": 1,
+    "jid": "fe6cacdd48e38357a17c",
+    "feasible": false,
+    "secs": 83.55,
+    "n_evals": 2500,
+    "mu_min_wide": 0.713965,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a4"
+   },
+   {
+    "seed": 1,
+    "jid": "7ff6d07564d9de8c0eca",
+    "feasible": false,
+    "secs": 82.48,
+    "n_evals": 2500,
+    "mu_min_wide": 1.00002,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a5"
+   }
+  ],
+  "label_before": "witness-only",
+  "label_after": "witness-only"
+ }
+}

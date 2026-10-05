@@ -1,0 +1,143 @@
+{
+ "name": "t2-nb158-gain-0413",
+ "seq": 413,
+ "g": "nb158-gain",
+ "band": "nb158",
+ "flavor": "gain",
+ "bt": "narrowband",
+ "cid": "t0048-nb158-gain-3",
+ "anchor": "a4",
+ "wl": "8fe1b01e64312a68",
+ "tok": "ceec313555211e72",
+ "script": [
+  {
+   "op": "add",
+   "t": "R",
+   "name": "ZR2",
+   "nets": [
+    "VOUT1",
+    "VSS"
+   ],
+   "grp": 5
+  },
+  {
+   "op": "add",
+   "t": "C",
+   "name": "ZC2",
+   "nets": [
+    "VDD",
+    "n2"
+   ],
+   "grp": 6
+  }
+ ],
+ "repairs": [],
+ "cls": "input-match",
+ "label": "input-match",
+ "limits": {
+  "nf_db": 1.7254,
+  "s11_max_db": -7.9261,
+  "s21_db": 20.9578,
+  "idd_ma": 5.9044
+ },
+ "spec": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/run/specs/t2-nb158-gain-0413.yaml",
+ "status": "ok",
+ "stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "13b78ac165e2e8a0a823",
+    "feasible": true
+   },
+   {
+    "seed": 2,
+    "jid": "a05913a478fbf7c9155f",
+    "feasible": true
+   }
+  ]
+ },
+ "smoke": false,
+ "difficulty": "library-solvable",
+ "difficulty_why": "anchor(s) ['a1'] feasible at seed 1 (rl-v1.2)",
+ "amend3": {
+  "verifier": "rl-v1.2",
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "ee2cefb53aca85ed4d42",
+    "feasible": true,
+    "secs": 75.09,
+    "n_evals": 2500,
+    "mu_min_wide": 1.02405,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "resize_attempt": false
+   }
+  ],
+  "T-F1": [
+   {
+    "seed": 1,
+    "jid": "a45a575d53435b366bc4",
+    "feasible": true,
+    "secs": 85.63,
+    "n_evals": 2500,
+    "mu_min_wide": 1.0,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "anchor": "a1"
+   },
+   {
+    "seed": 1,
+    "jid": "a39234a98ca670e2a00e",
+    "feasible": false,
+    "secs": 100.83,
+    "n_evals": 2500,
+    "mu_min_wide": 0.974282,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a2"
+   },
+   {
+    "seed": 1,
+    "jid": "8d5516baf9a87e401da9",
+    "feasible": false,
+    "secs": 70.59,
+    "n_evals": 2500,
+    "mu_min_wide": 0.693984,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a3"
+   },
+   {
+    "seed": 1,
+    "jid": "66fb3ab49259c794eac2",
+    "feasible": false,
+    "secs": 81.54,
+    "n_evals": 2500,
+    "mu_min_wide": 0.78043,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a4"
+   },
+   {
+    "seed": 1,
+    "jid": "7ebdd4d9bfc0d1059389",
+    "feasible": false,
+    "secs": 76.52,
+    "n_evals": 2500,
+    "mu_min_wide": 1.0,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a5"
+   }
+  ],
+  "label_before": "library-solvable",
+  "label_after": "library-solvable"
+ }
+}

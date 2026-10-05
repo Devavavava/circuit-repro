@@ -1,0 +1,31 @@
+{
+ "parent_anchor": "lna-a2-current-reuse",
+ "script": [
+  {
+   "op": "add",
+   "t": "R",
+   "name": "ZR1",
+   "nets": [
+    "n2",
+    "x1"
+   ],
+   "grp": 1
+  },
+  {
+   "op": "rw",
+   "name": "L2",
+   "pin": 1,
+   "net": "x1",
+   "grp": 2
+  }
+ ],
+ "repairs": [
+  {
+   "repair": "prune",
+   "name": "C2"
+  }
+ ],
+ "move_class": "tank-load",
+ "wl_hash": "c0f9c3becf1b0f2f",
+ "tok_hash": "e58f3453bd83f347"
+}

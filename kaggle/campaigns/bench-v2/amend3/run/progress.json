@@ -1,0 +1,128 @@
+{
+ "ts": "2026-10-04T21:40:02",
+ "pid": 2654595,
+ "run_dir": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/amend3/run",
+ "profile": "rl-v1.2",
+ "phase": "amendment-3",
+ "era": {
+  "git": "0d03751ccec66d043a527baeca567e0e3ff48077",
+  "md5": {
+   "kaggle/bench_anchor_prep.py": "55531fc868",
+   "kaggle/campaigns/bench-v2/bv2.py": "a6f784ab0d"
+  }
+ },
+ "status": "final",
+ "started": "2026-10-04T13:48:06",
+ "elapsed_h": 7.866,
+ "load1": 4.46,
+ "proc_limit": 8,
+ "running": 0,
+ "pending": 0,
+ "calls": {
+  "new_this_session": 2497,
+  "cache_rows_at_start": 27,
+  "cpu_h_this_session": 61.85,
+  "median_secs_last_hour": 78.8
+ },
+ "disk": {
+  "state": "ok",
+  "free_gb": 43.22,
+  "tmp_free_gb": 788.13,
+  "failed_writes": 0,
+  "pauses": []
+ },
+ "bench": {
+  "n_cells": 12,
+  "status": {
+   "fail": 10,
+   "pass": 2
+  },
+  "cells": {
+   "v2a-wb1020-noise-003": {
+    "status": "fail",
+    "stage": "F2",
+    "why": "F2_single_edit_solves",
+    "f2_progress": "107/214"
+   },
+   "v2a-nb090-gain-007": {
+    "status": "fail",
+    "stage": "F1",
+    "why": "F1_library_solves",
+    "f2_progress": null
+   },
+   "v2b-wb0530-noise-155": {
+    "status": "fail",
+    "stage": "F2",
+    "why": "F2_single_edit_solves",
+    "f2_progress": "96/214"
+   },
+   "v2b-nb090-gain-160": {
+    "status": "fail",
+    "stage": "F2",
+    "why": "F2_single_edit_solves",
+    "f2_progress": "96/246"
+   },
+   "v2b-wb0530-noise-166": {
+    "status": "fail",
+    "stage": "F2",
+    "why": "F2_single_edit_solves",
+    "f2_progress": "107/214"
+   },
+   "v2b-wb1020-noise-177": {
+    "status": "fail",
+    "stage": "A3",
+    "why": "A3_fresh_seeds_fail",
+    "f2_progress": null
+   },
+   "v2b-wb0824-gain-188": {
+    "status": "pass",
+    "stage": "done",
+    "why": "all_filters_pass_rl_v1_2",
+    "f2_progress": "214/214"
+   },
+   "v2b-wb0530-power-201": {
+    "status": "fail",
+    "stage": "F2",
+    "why": "F2_single_edit_solves",
+    "f2_progress": "107/214"
+   },
+   "v2b-wb1020-noise-217": {
+    "status": "pass",
+    "stage": "done",
+    "why": "all_filters_pass_rl_v1_2",
+    "f2_progress": "214/214"
+   },
+   "v2b-nb090-gain-239": {
+    "status": "fail",
+    "stage": "F2",
+    "why": "F2_single_edit_solves",
+    "f2_progress": "96/246"
+   },
+   "v2b-wb0824-gain-250": {
+    "status": "fail",
+    "stage": "A1",
+    "why": "A1_witness_not_2of3",
+    "f2_progress": null
+   },
+   "v2b-wb1020-noise-251": {
+    "status": "fail",
+    "stage": "A1",
+    "why": "A1_witness_not_2of3",
+    "f2_progress": null
+   }
+  }
+ },
+ "train": {
+  "n_tasks": 280,
+  "status": {
+   "ok": 272,
+   "amend3-cp1": 8
+  },
+  "witness_done": 280
+ },
+ "eta": {
+  "remaining_calls_est": 0,
+  "hours_est": 0.0,
+  "finish_est": "2026-10-04T21:40:02"
+ }
+}

@@ -1,0 +1,82 @@
+{
+ "spec": "t2-nb350-gain-0039",
+ "band": {
+  "type": "narrowband",
+  "f0": 3500000000.0,
+  "f_lo": 3430000000.0,
+  "f_hi": 3570000000.0
+ },
+ "pdk": "bptm45",
+ "anchor_family": "shunt-feedback",
+ "feasible": false,
+ "worst_margin": [
+  "nf_db",
+  -0.603655
+ ],
+ "margins": {
+  "nf_db": {
+   "achieved": 1.561455,
+   "margin": -0.603655,
+   "supported": true
+  },
+  "s11_max_db": {
+   "achieved": -7.82802,
+   "margin": -0.001922709132868294,
+   "supported": true
+  },
+  "s21_db": {
+   "achieved": 9.65548,
+   "margin": -0.2593389228538772,
+   "supported": true
+  },
+  "idd_ma": {
+   "achieved": 6.60071,
+   "margin": -0.07815981183234784,
+   "supported": true
+  },
+  "mu_min": {
+   "achieved": 0.999402,
+   "margin": -0.0005979999999999874,
+   "supported": true
+  },
+  "mu_min_wide_0.01-50GHz": {
+   "achieved": 0.642888,
+   "margin": -0.357112,
+   "supported": true
+  }
+ },
+ "metrics": {
+  "s11_db": -7.8951,
+  "s11_max_db": -7.82802,
+  "s21_db": 9.65548,
+  "s21_min_db": 9.64039,
+  "idd_ma": 6.60071,
+  "nf_db": 1.561455,
+  "s22_db": -10.7335,
+  "s22_max_db": -10.7066,
+  "s12_db": -17.1589,
+  "k_f0": 1.00701,
+  "k_min": 0.999417,
+  "mu_f0": 1.00721,
+  "mu_min": 0.999402,
+  "mu_src_f0": 1.00605,
+  "mu_src_min": 0.999499,
+  "delta_f0": 0.309514,
+  "delta_max": 0.309838,
+  "stab_band": [
+   3430000000.0,
+   3570000000.0
+  ],
+  "s21_ripple_db": 0.02923999999999971,
+  "nf_method": "series_rs"
+ },
+ "total_evals": 2500,
+ "verifier": "rl-v1.2",
+ "seeds": [
+  1
+ ],
+ "best_seed": 1,
+ "stab_wide_ok": false,
+ "mu_min_wide": 0.642888,
+ "infeasible_reason": null
+}

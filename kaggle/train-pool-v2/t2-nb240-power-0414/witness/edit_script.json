@@ -1,0 +1,36 @@
+{
+ "parent_anchor": "lna-a4-twostage",
+ "script": [
+  {
+   "op": "add",
+   "t": "C",
+   "name": "ZC2",
+   "nets": [
+    "VDD",
+    "n2"
+   ],
+   "grp": 6
+  },
+  {
+   "op": "rw",
+   "name": "R1",
+   "pin": 1,
+   "net": "VOUT1",
+   "grp": 7
+  }
+ ],
+ "repairs": [
+  {
+   "repair": "dc_feed",
+   "name": "Rrep1",
+   "nets": [
+    "n7",
+    "VDD"
+   ],
+   "for": "NM3"
+  }
+ ],
+ "move_class": "input-match",
+ "wl_hash": "b440d6366d2a61ec",
+ "tok_hash": "d926a682d3ba985c"
+}

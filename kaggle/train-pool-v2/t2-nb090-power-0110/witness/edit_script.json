@@ -1,0 +1,54 @@
+{
+ "parent_anchor": "lna-a1-inddegen-cascode",
+ "script": [
+  {
+   "op": "add",
+   "t": "PMOS",
+   "name": "ZP1",
+   "nets": [
+    "n5",
+    "n1",
+    "VDD",
+    "VDD"
+   ],
+   "grp": 0
+  },
+  {
+   "op": "rw",
+   "name": "NM3",
+   "pin": 0,
+   "net": "x1",
+   "grp": 2,
+   "macro": "stk"
+  },
+  {
+   "op": "add",
+   "t": "NMOS",
+   "name": "ZN1",
+   "nets": [
+    "n5",
+    "n0",
+    "x1",
+    "VSS"
+   ],
+   "grp": 2,
+   "macro": "stk"
+  },
+  {
+   "op": "add",
+   "t": "PMOS",
+   "name": "ZP2",
+   "nets": [
+    "x1",
+    "VSS",
+    "n5",
+    "VDD"
+   ],
+   "grp": 3
+  }
+ ],
+ "repairs": [],
+ "move_class": "cascode",
+ "wl_hash": "cad3f1974055071c",
+ "tok_hash": "beb4f9f272905896"
+}

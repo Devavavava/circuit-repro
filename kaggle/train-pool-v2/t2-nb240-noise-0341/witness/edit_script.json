@@ -1,0 +1,43 @@
+{
+ "parent_anchor": "lna-a2-current-reuse",
+ "script": [
+  {
+   "op": "del",
+   "name": "PM2",
+   "grp": 0
+  },
+  {
+   "op": "rw",
+   "name": "NM1",
+   "pin": 0,
+   "net": "x1",
+   "grp": 1,
+   "macro": "ser"
+  },
+  {
+   "op": "add",
+   "t": "L",
+   "name": "ZL1",
+   "nets": [
+    "x1",
+    "n2"
+   ],
+   "grp": 1,
+   "macro": "ser"
+  },
+  {
+   "op": "add",
+   "t": "C",
+   "name": "ZC1",
+   "nets": [
+    "n1",
+    "VIN1"
+   ],
+   "grp": 2
+  }
+ ],
+ "repairs": [],
+ "move_class": "added-stage",
+ "wl_hash": "22b3efd022fb9113",
+ "tok_hash": "40ac39bad0f48d1a"
+}

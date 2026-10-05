@@ -1,0 +1,214 @@
+{
+ "name": "t2-wb0530-gain-0175",
+ "seq": 175,
+ "g": "wb0530-gain",
+ "band": "wb0530",
+ "flavor": "gain",
+ "bt": "wideband",
+ "cid": "t0010-wb0530-gain-3",
+ "anchor": "a2",
+ "wl": "e807ee707723abd1",
+ "tok": "75538c0733ddad9a",
+ "script": [
+  {
+   "op": "add",
+   "t": "R",
+   "name": "ZR1",
+   "nets": [
+    "n4",
+    "n3"
+   ],
+   "grp": 1
+  },
+  {
+   "op": "add",
+   "t": "C",
+   "name": "ZC1",
+   "nets": [
+    "n5",
+    "n0"
+   ],
+   "grp": 2
+  }
+ ],
+ "repairs": [],
+ "cls": "input-match",
+ "label": "input-match",
+ "limits": {
+  "nf_max_db": 2.919,
+  "s11_max_db": -7.8454,
+  "s21_db": 10.9935,
+  "s21_ripple_db": 1.7234,
+  "idd_ma": 6.3052
+ },
+ "spec": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/run/specs/t2-wb0530-gain-0175.yaml",
+ "status": "ok",
+ "stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "b7699ebb9fc9fa5a57c4",
+    "feasible": false,
+    "derived": true,
+    "infeasible_reason": null,
+    "port_dc": null
+   },
+   {
+    "seed": 2,
+    "jid": "f63bec27a2fb1eb00c88",
+    "feasible": true,
+    "derived": false,
+    "infeasible_reason": null,
+    "port_dc": {
+     "pass": true,
+     "dVG_max_V": 0.0,
+     "dIdd_pct": 0.0
+    }
+   }
+  ]
+ },
+ "smoke": false,
+ "difficulty": "witness-only",
+ "difficulty_why": "no anchor feasible at seed 1; no known rl-v1.2 single edit",
+ "amend2": {
+  "action": "recheck",
+  "status_before": "ok",
+  "prefilter": {
+   "pass": true,
+   "why": [],
+   "group": [
+    "VIN1"
+   ]
+  },
+  "label_before": "witness-only",
+  "label_after": "witness-only",
+  "outcome": "ok"
+ },
+ "amend1_stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "fbf3f3369682b27b7caf",
+    "feasible": false
+   },
+   {
+    "seed": 2,
+    "jid": "d592296741a2578b9df8",
+    "feasible": true
+   }
+  ],
+  "F1_seed1": [
+   {
+    "anchor": "a1",
+    "seed": 1,
+    "jid": "35aad0bbf28ea96e816e",
+    "feasible": false
+   },
+   {
+    "anchor": "a2",
+    "seed": 1,
+    "jid": "2d07ae9aee67f6e8da79",
+    "feasible": false
+   },
+   {
+    "anchor": "a3",
+    "seed": 1,
+    "jid": "cf8f2bc3b6ed72431f2e",
+    "feasible": false
+   },
+   {
+    "anchor": "a4",
+    "seed": 1,
+    "jid": "1e238c72cd6db0713e29",
+    "feasible": false
+   },
+   {
+    "anchor": "a5",
+    "seed": 1,
+    "jid": "464fb65dc21926219939",
+    "feasible": false
+   }
+  ]
+ },
+ "amend3": {
+  "verifier": "rl-v1.2",
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "5f61a643a925e6edcac7",
+    "feasible": true,
+    "secs": 96.87,
+    "n_evals": 2500,
+    "mu_min_wide": 1.0005,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "resize_attempt": false
+   }
+  ],
+  "T-F1": [
+   {
+    "seed": 1,
+    "jid": "6b9c4ae0448269109b4b",
+    "feasible": false,
+    "secs": 0.0,
+    "n_evals": 0,
+    "mu_min_wide": null,
+    "infeasible_reason": "topology limits violated: max_inductors",
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a1"
+   },
+   {
+    "seed": 1,
+    "jid": "327d63af8a152008eb38",
+    "feasible": false,
+    "secs": 89.58,
+    "n_evals": 2500,
+    "mu_min_wide": 0.950229,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a2"
+   },
+   {
+    "seed": 1,
+    "jid": "a5f85d128d0152dc0059",
+    "feasible": false,
+    "secs": 64.7,
+    "n_evals": 2500,
+    "mu_min_wide": 0.758835,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a3"
+   },
+   {
+    "seed": 1,
+    "jid": "59998eed5246e1c24c11",
+    "feasible": false,
+    "secs": 0.0,
+    "n_evals": 0,
+    "mu_min_wide": null,
+    "infeasible_reason": "topology limits violated: max_inductors",
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a4"
+   },
+   {
+    "seed": 1,
+    "jid": "84f72ffa9d0111c7fb98",
+    "feasible": false,
+    "secs": 68.84,
+    "n_evals": 2500,
+    "mu_min_wide": 1.0004,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a5"
+   }
+  ],
+  "label_before": "witness-only",
+  "label_after": "witness-only"
+ }
+}

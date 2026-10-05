@@ -1,0 +1,226 @@
+{
+ "name": "t2-nb090-noise-0012",
+ "seq": 12,
+ "g": "nb090-noise",
+ "band": "nb090",
+ "flavor": "noise",
+ "bt": "narrowband",
+ "cid": "t0001-nb090-noise-1",
+ "anchor": "a3",
+ "wl": "08327452626a2a92",
+ "tok": "1974f59296fbce5d",
+ "script": [
+  {
+   "op": "add",
+   "t": "PMOS",
+   "name": "ZP1",
+   "nets": [
+    "VSS",
+    "n2",
+    "VOUT1",
+    "VDD"
+   ],
+   "grp": 0
+  },
+  {
+   "op": "rw",
+   "name": "R1",
+   "pin": 1,
+   "net": "x1",
+   "grp": 2,
+   "macro": "ser"
+  },
+  {
+   "op": "add",
+   "t": "C",
+   "name": "ZC1",
+   "nets": [
+    "x1",
+    "n2"
+   ],
+   "grp": 2,
+   "macro": "ser"
+  }
+ ],
+ "repairs": [
+  {
+   "repair": "dc_return",
+   "name": "Rrep1",
+   "nets": [
+    "VOUT1",
+    "VDD"
+   ],
+   "for": "ZP1"
+  }
+ ],
+ "cls": "other",
+ "label": "cg-input",
+ "limits": {
+  "nf_db": 1.7879,
+  "s11_max_db": -7.8438,
+  "s21_db": 9.8045,
+  "idd_ma": 6.1177
+ },
+ "spec": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/run/specs/t2-nb090-noise-0012.yaml",
+ "status": "ok",
+ "stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "597f99cb45577bd849d0",
+    "feasible": true,
+    "derived": false,
+    "infeasible_reason": null,
+    "port_dc": {
+     "pass": true,
+     "dVG_max_V": 0.0,
+     "dIdd_pct": 0.0
+    }
+   }
+  ]
+ },
+ "smoke": false,
+ "difficulty": "single-edit-solvable",
+ "difficulty_why": "recorded rl-v1.2 single edit F2:v2b-nb090-gain-160:add C VDD-n1:s1",
+ "amend2": {
+  "action": "recheck",
+  "status_before": "ok",
+  "prefilter": {
+   "pass": true,
+   "why": [],
+   "group": [
+    "VIN1"
+   ]
+  },
+  "label_before": "single-edit-solvable",
+  "label_after": "single-edit-solvable",
+  "outcome": "ok"
+ },
+ "amend1_stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "eee8d0131ef28e50ff53",
+    "feasible": true
+   },
+   {
+    "seed": 2,
+    "jid": "2518eb9b8bd95bfc8963",
+    "feasible": true
+   }
+  ],
+  "F1_seed1": [
+   {
+    "anchor": "a1",
+    "seed": 1,
+    "jid": "2fdb4ae8ff89ce7e9c6a",
+    "feasible": false
+   },
+   {
+    "anchor": "a2",
+    "seed": 1,
+    "jid": "3593472074ee3021a90c",
+    "feasible": false
+   },
+   {
+    "anchor": "a3",
+    "seed": 1,
+    "jid": "e1c41bd8f9237c2edcc6",
+    "feasible": false
+   },
+   {
+    "anchor": "a4",
+    "seed": 1,
+    "jid": "ddfa2ac13972deca2ffd",
+    "feasible": false
+   },
+   {
+    "anchor": "a5",
+    "seed": 1,
+    "jid": "63ba7dcb59da73909f57",
+    "feasible": false
+   }
+  ]
+ },
+ "amend3": {
+  "verifier": "rl-v1.2",
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "7fb2b2284467b414db30",
+    "feasible": true,
+    "secs": 90.66,
+    "n_evals": 2500,
+    "mu_min_wide": 1.0724,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "resize_attempt": false
+   }
+  ],
+  "T-F1": [
+   {
+    "seed": 1,
+    "jid": "38e57b16b3fbab9fe937",
+    "feasible": false,
+    "secs": 74.29,
+    "n_evals": 2500,
+    "mu_min_wide": 1.00003,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a1"
+   },
+   {
+    "seed": 1,
+    "jid": "ba2109c5007777797916",
+    "feasible": false,
+    "secs": 92.32,
+    "n_evals": 2500,
+    "mu_min_wide": 0.836233,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a2"
+   },
+   {
+    "seed": 1,
+    "jid": "5752a8d013c18bc2c569",
+    "feasible": false,
+    "secs": 65.97,
+    "n_evals": 2500,
+    "mu_min_wide": 0.625967,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a3"
+   },
+   {
+    "seed": 1,
+    "jid": "be7fb491945a4dfa6d15",
+    "feasible": false,
+    "secs": 74.13,
+    "n_evals": 2500,
+    "mu_min_wide": 0.931031,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a4"
+   },
+   {
+    "seed": 1,
+    "jid": "d4d838fe393552f3aba6",
+    "feasible": false,
+    "secs": 69.86,
+    "n_evals": 2500,
+    "mu_min_wide": 1.00002,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a5"
+   }
+  ],
+  "label_before": "single-edit-solvable",
+  "label_after": "single-edit-solvable"
+ }
+}

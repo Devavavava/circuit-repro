@@ -1,0 +1,45 @@
+{
+ "parent_anchor": "lna-a1-inddegen-cascode",
+ "script": [
+  {
+   "op": "rw",
+   "name": "R2",
+   "pin": 1,
+   "net": "VSS",
+   "grp": 0
+  },
+  {
+   "op": "add",
+   "t": "R",
+   "name": "ZR2",
+   "nets": [
+    "VIN1",
+    "VSS"
+   ],
+   "grp": 2
+  },
+  {
+   "op": "rw",
+   "name": "ZR2",
+   "pin": 0,
+   "net": "x1",
+   "grp": 3,
+   "macro": "ser"
+  },
+  {
+   "op": "add",
+   "t": "C",
+   "name": "ZC1",
+   "nets": [
+    "x1",
+    "VIN1"
+   ],
+   "grp": 3,
+   "macro": "ser"
+  }
+ ],
+ "repairs": [],
+ "move_class": "input-match",
+ "wl_hash": "4d7b7a4fb7f7cb74",
+ "tok_hash": "b7601d0522fe7643"
+}

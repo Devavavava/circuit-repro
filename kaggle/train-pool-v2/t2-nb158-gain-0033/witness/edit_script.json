@@ -1,0 +1,38 @@
+{
+ "parent_anchor": "lna-a2-current-reuse",
+ "script": [
+  {
+   "op": "rw",
+   "name": "PM2",
+   "pin": 2,
+   "net": "x1",
+   "grp": 2,
+   "macro": "ser"
+  },
+  {
+   "op": "add",
+   "t": "C",
+   "name": "ZC1",
+   "nets": [
+    "x1",
+    "VDD"
+   ],
+   "grp": 2,
+   "macro": "ser"
+  }
+ ],
+ "repairs": [
+  {
+   "repair": "dc_return",
+   "name": "Rrep1",
+   "nets": [
+    "x1",
+    "VDD"
+   ],
+   "for": "PM2"
+  }
+ ],
+ "move_class": "degeneration",
+ "wl_hash": "f076acfb2dbdaf99",
+ "tok_hash": "4e0aef534d9b6552"
+}

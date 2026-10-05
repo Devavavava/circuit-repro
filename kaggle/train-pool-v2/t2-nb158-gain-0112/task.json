@@ -1,0 +1,202 @@
+{
+ "name": "t2-nb158-gain-0112",
+ "seq": 112,
+ "g": "nb158-gain",
+ "band": "nb158",
+ "flavor": "gain",
+ "bt": "narrowband",
+ "cid": "t0006-nb158-gain-2",
+ "anchor": "a1",
+ "wl": "d58df2ef365af98d",
+ "tok": "5f6b4fa7214df28d",
+ "script": [
+  {
+   "op": "rw",
+   "name": "NM3",
+   "pin": 0,
+   "net": "x1",
+   "grp": 2,
+   "macro": "stk"
+  },
+  {
+   "op": "add",
+   "t": "NMOS",
+   "name": "ZN1",
+   "nets": [
+    "n5",
+    "n0",
+    "x1",
+    "VSS"
+   ],
+   "grp": 2,
+   "macro": "stk"
+  },
+  {
+   "op": "add",
+   "t": "R",
+   "name": "ZR1",
+   "nets": [
+    "n0",
+    "VDD"
+   ],
+   "grp": 3
+  },
+  {
+   "op": "add",
+   "t": "R",
+   "name": "ZR2",
+   "nets": [
+    "x1",
+    "n0"
+   ],
+   "grp": 4
+  }
+ ],
+ "repairs": [],
+ "cls": "added-stage",
+ "label": "gm-boost",
+ "limits": {
+  "nf_db": 2.1327,
+  "s11_max_db": -7.9239,
+  "s21_db": 25.7303,
+  "idd_ma": 4.6223
+ },
+ "spec": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/run/specs/t2-nb158-gain-0112.yaml",
+ "status": "ok",
+ "stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "0f74650eb802f2bbb7fc",
+    "feasible": false,
+    "derived": true,
+    "infeasible_reason": null,
+    "port_dc": null
+   },
+   {
+    "seed": 2,
+    "jid": "91d4bb8b207923d7301e",
+    "feasible": true,
+    "derived": false,
+    "infeasible_reason": null,
+    "port_dc": {
+     "pass": true,
+     "dVG_max_V": 0.0,
+     "dIdd_pct": 0.0
+    }
+   }
+  ]
+ },
+ "smoke": false,
+ "difficulty": "library-solvable",
+ "difficulty_why": "anchor(s) ['a1'] feasible at seed 1 (rl-v1.2)",
+ "amend2": {
+  "action": "recheck",
+  "status_before": "ok",
+  "prefilter": {
+   "pass": true,
+   "why": [],
+   "group": [
+    "VIN1"
+   ]
+  },
+  "label_before": "library-solvable",
+  "label_after": "library-solvable",
+  "outcome": "ok"
+ },
+ "amend1_stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "95001a56e5ad6745b0ed",
+    "feasible": false
+   },
+   {
+    "seed": 2,
+    "jid": "6478830a852835da510e",
+    "feasible": true
+   }
+  ]
+ },
+ "amend3": {
+  "verifier": "rl-v1.2",
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "fdbb106ce3b82c40d5af",
+    "feasible": true,
+    "secs": 79.05,
+    "n_evals": 2500,
+    "mu_min_wide": 1.0,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "resize_attempt": false
+   }
+  ],
+  "T-F1": [
+   {
+    "seed": 1,
+    "jid": "babbe16de8512bbd4de9",
+    "feasible": true,
+    "secs": 103.64,
+    "n_evals": 2500,
+    "mu_min_wide": 1.0,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "anchor": "a1"
+   },
+   {
+    "seed": 1,
+    "jid": "b7a28ae92215bf283846",
+    "feasible": false,
+    "secs": 103.03,
+    "n_evals": 2500,
+    "mu_min_wide": 1.00054,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a2"
+   },
+   {
+    "seed": 1,
+    "jid": "559888270bbaa9aad88b",
+    "feasible": false,
+    "secs": 68.79,
+    "n_evals": 2500,
+    "mu_min_wide": 0.774265,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a3"
+   },
+   {
+    "seed": 1,
+    "jid": "6265a7d17419e192ddce",
+    "feasible": false,
+    "secs": 75.9,
+    "n_evals": 2500,
+    "mu_min_wide": 0.606576,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a4"
+   },
+   {
+    "seed": 1,
+    "jid": "abd85e147ebddc85cb5d",
+    "feasible": false,
+    "secs": 70.84,
+    "n_evals": 2500,
+    "mu_min_wide": 1.0,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a5"
+   }
+  ],
+  "label_before": "library-solvable",
+  "label_after": "library-solvable"
+ }
+}

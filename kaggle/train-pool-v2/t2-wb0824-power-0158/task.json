@@ -1,0 +1,236 @@
+{
+ "name": "t2-wb0824-power-0158",
+ "seq": 158,
+ "g": "wb0824-power",
+ "band": "wb0824",
+ "flavor": "power",
+ "bt": "wideband",
+ "cid": "t0009-wb0824-power-3",
+ "anchor": "a2",
+ "wl": "6542ec1ad2c8e1ea",
+ "tok": "756ef20976d6420e",
+ "script": [
+  {
+   "op": "rw",
+   "name": "PM2",
+   "pin": 0,
+   "net": "x1",
+   "grp": 0,
+   "macro": "stk"
+  },
+  {
+   "op": "add",
+   "t": "PMOS",
+   "name": "ZP1",
+   "nets": [
+    "x1",
+    "n0",
+    "n6",
+    "VDD"
+   ],
+   "grp": 0,
+   "macro": "stk"
+  },
+  {
+   "op": "rw",
+   "name": "ZP1",
+   "pin": 1,
+   "net": "n1",
+   "grp": 2
+  },
+  {
+   "op": "add",
+   "t": "C",
+   "name": "ZC1",
+   "nets": [
+    "n0",
+    "n3"
+   ],
+   "grp": 3
+  }
+ ],
+ "repairs": [],
+ "cls": "added-stage",
+ "label": "gm-boost",
+ "limits": {
+  "nf_max_db": 4.0775,
+  "s11_max_db": -7.8492,
+  "s21_db": 8.6551,
+  "s21_ripple_db": 1.1321,
+  "idd_ma": 4.3347
+ },
+ "spec": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/run/specs/t2-wb0824-power-0158.yaml",
+ "status": "ok",
+ "stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "807f307a227f7ec691a4",
+    "feasible": true,
+    "derived": false,
+    "infeasible_reason": null,
+    "port_dc": {
+     "pass": true,
+     "dVG_max_V": 0.0,
+     "dIdd_pct": 0.0
+    }
+   }
+  ]
+ },
+ "smoke": false,
+ "difficulty": "library-solvable",
+ "difficulty_why": "anchor(s) ['a2'] feasible at seed 1 (rl-v1.2)",
+ "amend2": {
+  "action": "recheck",
+  "status_before": "ok",
+  "prefilter": {
+   "pass": true,
+   "why": [],
+   "group": [
+    "VIN1"
+   ]
+  },
+  "label_before": "witness-only",
+  "label_after": "witness-only",
+  "outcome": "ok"
+ },
+ "amend1_stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "1f7e9f1c26ba67d71659",
+    "feasible": true
+   },
+   {
+    "seed": 2,
+    "jid": "a4b5cbfab551d67b9338",
+    "feasible": false
+   }
+  ],
+  "F1_seed1": [
+   {
+    "anchor": "a1",
+    "seed": 1,
+    "jid": "7a49abdfe38f0f1eae66",
+    "feasible": false
+   },
+   {
+    "anchor": "a2",
+    "seed": 1,
+    "jid": "16dbb12bd517ca5d5614",
+    "feasible": false
+   },
+   {
+    "anchor": "a3",
+    "seed": 1,
+    "jid": "6e5895cd846687d65260",
+    "feasible": false
+   },
+   {
+    "anchor": "a4",
+    "seed": 1,
+    "jid": "aefc763001558f21dc40",
+    "feasible": false
+   },
+   {
+    "anchor": "a5",
+    "seed": 1,
+    "jid": "e79d42c680e63afa7526",
+    "feasible": false
+   }
+  ]
+ },
+ "amend3": {
+  "verifier": "rl-v1.2",
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "c1a375e9c41885760cda",
+    "feasible": false,
+    "secs": 102.86,
+    "n_evals": 2500,
+    "mu_min_wide": 0.914092,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "resize_attempt": false
+   },
+   {
+    "seed": 2,
+    "jid": "81b5136593aac9e8b84f",
+    "feasible": true,
+    "secs": 104.82,
+    "n_evals": 2500,
+    "mu_min_wide": 1.00508,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "resize_attempt": false
+   }
+  ],
+  "T-F1": [
+   {
+    "seed": 1,
+    "jid": "20d41e4f612b8b75098e",
+    "feasible": false,
+    "secs": 0.0,
+    "n_evals": 0,
+    "mu_min_wide": null,
+    "infeasible_reason": "topology limits violated: max_inductors",
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a1"
+   },
+   {
+    "seed": 1,
+    "jid": "80349c2000ec05e17ada",
+    "feasible": true,
+    "secs": 99.44,
+    "n_evals": 2500,
+    "mu_min_wide": 1.00069,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "anchor": "a2"
+   },
+   {
+    "seed": 1,
+    "jid": "02b6b6d81f222c441be6",
+    "feasible": false,
+    "secs": 69.66,
+    "n_evals": 2500,
+    "mu_min_wide": 0.714466,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a3"
+   },
+   {
+    "seed": 1,
+    "jid": "f9174cc5c3f9bb631d75",
+    "feasible": false,
+    "secs": 0.0,
+    "n_evals": 0,
+    "mu_min_wide": null,
+    "infeasible_reason": "topology limits violated: max_inductors",
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a4"
+   },
+   {
+    "seed": 1,
+    "jid": "b9dff716368ed3c95126",
+    "feasible": false,
+    "secs": 74.0,
+    "n_evals": 2500,
+    "mu_min_wide": 1.00008,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a5"
+   }
+  ],
+  "label_before": "witness-only",
+  "label_after": "library-solvable"
+ }
+}

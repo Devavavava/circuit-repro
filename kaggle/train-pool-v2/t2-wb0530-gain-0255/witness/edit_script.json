@@ -1,0 +1,52 @@
+{
+ "parent_anchor": "lna-a2-current-reuse",
+ "script": [
+  {
+   "op": "del",
+   "name": "R1",
+   "grp": 3
+  },
+  {
+   "op": "rw",
+   "name": "NM3",
+   "pin": 2,
+   "net": "n4",
+   "grp": 4
+  },
+  {
+   "op": "rw",
+   "name": "PM1",
+   "pin": 2,
+   "net": "x1",
+   "grp": 5,
+   "macro": "stk"
+  },
+  {
+   "op": "add",
+   "t": "PMOS",
+   "name": "ZP1",
+   "nets": [
+    "VDD",
+    "n1",
+    "x1",
+    "VDD"
+   ],
+   "grp": 5,
+   "macro": "stk"
+  }
+ ],
+ "repairs": [
+  {
+   "repair": "dc_feed",
+   "name": "Rrep1",
+   "nets": [
+    "n5",
+    "VDD"
+   ],
+   "for": "NM3"
+  }
+ ],
+ "move_class": "cascode",
+ "wl_hash": "ff881c5b7edf0dff",
+ "tok_hash": "569deccc30262186"
+}

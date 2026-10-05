@@ -1,0 +1,47 @@
+{
+ "parent_anchor": "lna-a2-current-reuse",
+ "script": [
+  {
+   "op": "rw",
+   "name": "PM2",
+   "pin": 0,
+   "net": "x1",
+   "grp": 0,
+   "macro": "stk"
+  },
+  {
+   "op": "add",
+   "t": "PMOS",
+   "name": "ZP1",
+   "nets": [
+    "x1",
+    "n0",
+    "n6",
+    "VDD"
+   ],
+   "grp": 0,
+   "macro": "stk"
+  },
+  {
+   "op": "rw",
+   "name": "ZP1",
+   "pin": 1,
+   "net": "n1",
+   "grp": 2
+  },
+  {
+   "op": "add",
+   "t": "R",
+   "name": "ZR1",
+   "nets": [
+    "VSS",
+    "n2"
+   ],
+   "grp": 3
+  }
+ ],
+ "repairs": [],
+ "move_class": "added-stage",
+ "wl_hash": "889dc0f65a930e2b",
+ "tok_hash": "605a2f346acd467d"
+}

@@ -1,0 +1,225 @@
+{
+ "name": "t2-nb240-noise-0116",
+ "seq": 116,
+ "g": "nb240-noise",
+ "band": "nb240",
+ "flavor": "noise",
+ "bt": "narrowband",
+ "cid": "t0006-nb240-noise-2",
+ "anchor": "a1",
+ "wl": "705a73e239b26612",
+ "tok": "511d65d703def446",
+ "script": [
+  {
+   "op": "rw",
+   "name": "R2",
+   "pin": 1,
+   "net": "VSS",
+   "grp": 0
+  },
+  {
+   "op": "add",
+   "t": "R",
+   "name": "ZR1",
+   "nets": [
+    "n0",
+    "VIN1"
+   ],
+   "grp": 1
+  },
+  {
+   "op": "rw",
+   "name": "R2",
+   "pin": 0,
+   "net": "n0",
+   "grp": 2
+  },
+  {
+   "op": "rw",
+   "name": "ZR1",
+   "pin": 0,
+   "net": "VSS",
+   "grp": 3
+  }
+ ],
+ "repairs": [],
+ "cls": "input-match",
+ "label": "input-match",
+ "limits": {
+  "nf_db": 1.0183,
+  "s11_max_db": -7.9054,
+  "s21_db": 19.8504,
+  "idd_ma": 2.3504
+ },
+ "spec": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/run/specs/t2-nb240-noise-0116.yaml",
+ "status": "ok",
+ "stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "8514cc985d98e1a92519",
+    "feasible": false,
+    "derived": true,
+    "infeasible_reason": null,
+    "port_dc": null
+   },
+   {
+    "seed": 2,
+    "jid": "fb9288b3d89d4b598908",
+    "feasible": true,
+    "derived": false,
+    "infeasible_reason": null,
+    "port_dc": {
+     "pass": true,
+     "dVG_max_V": 0.0,
+     "dIdd_pct": 0.0
+    }
+   }
+  ]
+ },
+ "smoke": false,
+ "difficulty": "library-solvable",
+ "difficulty_why": "anchor(s) ['a1'] feasible at seed 1 (rl-v1.2)",
+ "amend2": {
+  "action": "recheck",
+  "status_before": "ok",
+  "prefilter": {
+   "pass": true,
+   "why": [],
+   "group": [
+    "VIN1",
+    "VSS"
+   ]
+  },
+  "label_before": "library-solvable",
+  "label_after": "library-solvable",
+  "outcome": "ok"
+ },
+ "amend1_stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "37ab09efa6ab7d6f51de",
+    "feasible": false
+   },
+   {
+    "seed": 2,
+    "jid": "5541e2cd36560ce89369",
+    "feasible": true
+   }
+  ],
+  "F1_seed1": [
+   {
+    "anchor": "a1",
+    "seed": 1,
+    "jid": "bb72e21b8d476a79732c",
+    "feasible": true
+   },
+   {
+    "anchor": "a2",
+    "seed": 1,
+    "jid": "75ee1e8ae27044bd3730",
+    "feasible": false
+   },
+   {
+    "anchor": "a3",
+    "seed": 1,
+    "jid": "15e1cd35f160d1738a00",
+    "feasible": false
+   },
+   {
+    "anchor": "a4",
+    "seed": 1,
+    "jid": "834a712f06b85f234475",
+    "feasible": false
+   },
+   {
+    "anchor": "a5",
+    "seed": 1,
+    "jid": "947c0e506f8ede07d05b",
+    "feasible": false
+   }
+  ]
+ },
+ "amend3": {
+  "verifier": "rl-v1.2",
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "49d95916250863273de7",
+    "feasible": true,
+    "secs": 74.39,
+    "n_evals": 2500,
+    "mu_min_wide": 1.0,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "resize_attempt": false
+   }
+  ],
+  "T-F1": [
+   {
+    "seed": 1,
+    "jid": "04674cde41d332cc26d3",
+    "feasible": true,
+    "secs": 207.47,
+    "n_evals": 2500,
+    "mu_min_wide": 1.0,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "anchor": "a1"
+   },
+   {
+    "seed": 1,
+    "jid": "8ab6b5a29fecac3ea511",
+    "feasible": false,
+    "secs": 312.4,
+    "n_evals": 2500,
+    "mu_min_wide": 0.541969,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a2"
+   },
+   {
+    "seed": 1,
+    "jid": "1c2b208239165075edf5",
+    "feasible": false,
+    "secs": 207.89,
+    "n_evals": 2500,
+    "mu_min_wide": 0.645974,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a3"
+   },
+   {
+    "seed": 1,
+    "jid": "e1c7c653e10dffabadb7",
+    "feasible": false,
+    "secs": 266.72,
+    "n_evals": 2500,
+    "mu_min_wide": 0.656534,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a4"
+   },
+   {
+    "seed": 1,
+    "jid": "ba25ae85d17990866392",
+    "feasible": false,
+    "secs": 269.5,
+    "n_evals": 2500,
+    "mu_min_wide": 1.0,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a5"
+   }
+  ],
+  "label_before": "library-solvable",
+  "label_after": "library-solvable"
+ }
+}

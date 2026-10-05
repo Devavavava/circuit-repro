@@ -1,0 +1,175 @@
+{
+ "name": "t2-wb0824-power-0334",
+ "seq": 334,
+ "g": "wb0824-power",
+ "band": "wb0824",
+ "flavor": "power",
+ "bt": "wideband",
+ "cid": "t0042-wb0824-power-1",
+ "anchor": "a2",
+ "wl": "b0ec87138b6ce56a",
+ "tok": "724835e5a48d9bad",
+ "script": [
+  {
+   "op": "rw",
+   "name": "NM3",
+   "pin": 2,
+   "net": "n4",
+   "grp": 4
+  },
+  {
+   "op": "add",
+   "t": "PMOS",
+   "name": "ZP1",
+   "nets": [
+    "n0",
+    "n0",
+    "VDD",
+    "VDD"
+   ],
+   "grp": 7
+  }
+ ],
+ "repairs": [],
+ "cls": "other",
+ "label": "other-active",
+ "limits": {
+  "nf_max_db": 2.4141,
+  "s11_max_db": -7.8505,
+  "s21_db": 8.9376,
+  "s21_ripple_db": 0.5413,
+  "idd_ma": 4.5526
+ },
+ "spec": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/run/specs/t2-wb0824-power-0334.yaml",
+ "status": "ok",
+ "stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "49786b8b8049c40aeb81",
+    "feasible": true
+   },
+   {
+    "seed": 2,
+    "jid": "0e36fe7a7ae30f48f06e",
+    "feasible": true
+   }
+  ],
+  "F1_seed1": [
+   {
+    "anchor": "a1",
+    "seed": 1,
+    "jid": "d43eded73119cdd18f8d",
+    "feasible": false
+   },
+   {
+    "anchor": "a2",
+    "seed": 1,
+    "jid": "ff58e927c6148cc4dddd",
+    "feasible": false
+   },
+   {
+    "anchor": "a3",
+    "seed": 1,
+    "jid": "3082ea490c016c61f618",
+    "feasible": false
+   },
+   {
+    "anchor": "a4",
+    "seed": 1,
+    "jid": "96ac42216e9ee3fe98d2",
+    "feasible": false
+   },
+   {
+    "anchor": "a5",
+    "seed": 1,
+    "jid": "1b9c46f0609a7d233b69",
+    "feasible": false
+   }
+  ]
+ },
+ "smoke": false,
+ "difficulty": "witness-only",
+ "difficulty_why": "no anchor feasible at seed 1; no known rl-v1.2 single edit",
+ "amend3": {
+  "verifier": "rl-v1.2",
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "30d4c73e123d6f82d7f2",
+    "feasible": true,
+    "secs": 94.7,
+    "n_evals": 2500,
+    "mu_min_wide": 1.00055,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "resize_attempt": false
+   }
+  ],
+  "T-F1": [
+   {
+    "seed": 1,
+    "jid": "a078c079122ef332a0c4",
+    "feasible": false,
+    "secs": 0.0,
+    "n_evals": 0,
+    "mu_min_wide": null,
+    "infeasible_reason": "topology limits violated: max_inductors",
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a1"
+   },
+   {
+    "seed": 1,
+    "jid": "645af661a349f0cfcebe",
+    "feasible": false,
+    "secs": 98.45,
+    "n_evals": 2500,
+    "mu_min_wide": 0.942887,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a2"
+   },
+   {
+    "seed": 1,
+    "jid": "0e90033f91660611dfda",
+    "feasible": false,
+    "secs": 68.45,
+    "n_evals": 2500,
+    "mu_min_wide": 0.760415,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a3"
+   },
+   {
+    "seed": 1,
+    "jid": "68a6d6aba67d86b0f772",
+    "feasible": false,
+    "secs": 0.0,
+    "n_evals": 0,
+    "mu_min_wide": null,
+    "infeasible_reason": "topology limits violated: max_inductors",
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a4"
+   },
+   {
+    "seed": 1,
+    "jid": "60052cbe88ff5417f4ed",
+    "feasible": false,
+    "secs": 73.38,
+    "n_evals": 2500,
+    "mu_min_wide": 1.00008,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a5"
+   }
+  ],
+  "label_before": "witness-only",
+  "label_after": "witness-only"
+ }
+}

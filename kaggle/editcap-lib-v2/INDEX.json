@@ -1,0 +1,200 @@
+{
+ "prereg": "kaggle/PREREG-BENCH-V2.md (+ AMENDMENT 1, AMENDMENT 2, AMENDMENT 3)",
+ "verifier": "rl-v1.2",
+ "pdk": "bptm45",
+ "budget": 2500,
+ "mode": "amend3-recheck",
+ "n_rechecked": 12,
+ "n_pass_rl_v1_2": 2,
+ "n_selected": 0,
+ "shortfall": 20,
+ "floors": {
+  "s11_max_db": {
+   "side": "max",
+   "limit": -9.0
+  },
+  "s21_db": {
+   "side": "min",
+   "limit": 10.0
+  }
+ },
+ "selection": {
+  "class_rule_active": "primary_atom",
+  "selected": {
+   "n": 0,
+   "per_class": {},
+   "per_primary_atom": {},
+   "per_parent": {},
+   "per_band": {},
+   "per_band_type": {},
+   "atom_prevalence": {}
+  },
+  "selected_names": [],
+  "variants": {
+   "a_signature": {
+    "n": 0,
+    "per_class": {},
+    "per_primary_atom": {},
+    "per_parent": {},
+    "per_band": {},
+    "per_band_type": {},
+    "atom_prevalence": {}
+   },
+   "b_primary_atom": {
+    "n": 0,
+    "per_class": {},
+    "per_primary_atom": {},
+    "per_parent": {},
+    "per_band": {},
+    "per_band_type": {},
+    "atom_prevalence": {}
+   }
+  },
+  "variant_names": {
+   "signature": [],
+   "primary_atom": []
+  },
+  "without_nb_quota": {
+   "n": 1,
+   "per_class": {
+    "add:C:G-RAIL + add:R:G-X": 1
+   },
+   "per_primary_atom": {
+    "add:R:G-X": 1
+   },
+   "per_parent": {
+    "a2": 1
+   },
+   "per_band": {
+    "wb0824": 1
+   },
+   "per_band_type": {
+    "wideband": 1
+   },
+   "atom_prevalence": {
+    "add:C:G-RAIL": {
+     "n": 1,
+     "frac": 1.0
+    },
+    "add:R:G-X": {
+     "n": 1,
+     "frac": 1.0
+    }
+   }
+  },
+  "accepted": {
+   "n": 2,
+   "per_class": {
+    "add:C:G-RAIL + add:R:G-X": 2
+   },
+   "per_primary_atom": {
+    "add:R:G-X": 2
+   },
+   "per_parent": {
+    "a2": 2
+   },
+   "per_band": {
+    "wb0824": 1,
+    "wb1020": 1
+   },
+   "per_band_type": {
+    "wideband": 2
+   },
+   "atom_prevalence": {
+    "add:C:G-RAIL": {
+     "n": 2,
+     "frac": 1.0
+    },
+    "add:R:G-X": {
+     "n": 2,
+     "frac": 1.0
+    }
+   }
+  },
+  "quotas": {
+   "class_cap_frac": 0.25,
+   "class_rule": "primary_atom",
+   "parent_cap_frac": 0.4,
+   "narrowband_min_frac": 0.25,
+   "target": 25,
+   "min": 20
+  },
+  "shortfall_vs_min": 20,
+  "nb_quota_binding": true
+ },
+ "recheck": {
+  "v2a-wb1020-noise-003": {
+   "status": "fail",
+   "why": "F2_single_edit_solves",
+   "failed_stage": "F2",
+   "tag": "amend3-cp1"
+  },
+  "v2a-nb090-gain-007": {
+   "status": "fail",
+   "why": "F1_library_solves",
+   "failed_stage": "F1",
+   "tag": "amend3-cp1"
+  },
+  "v2b-wb0530-noise-155": {
+   "status": "fail",
+   "why": "F2_single_edit_solves",
+   "failed_stage": "F2",
+   "tag": "amend3-cp1"
+  },
+  "v2b-nb090-gain-160": {
+   "status": "fail",
+   "why": "F2_single_edit_solves",
+   "failed_stage": "F2",
+   "tag": "amend3-cp1"
+  },
+  "v2b-wb0530-noise-166": {
+   "status": "fail",
+   "why": "F2_single_edit_solves",
+   "failed_stage": "F2",
+   "tag": "amend3-cp1"
+  },
+  "v2b-wb1020-noise-177": {
+   "status": "fail",
+   "why": "A3_fresh_seeds_fail",
+   "failed_stage": "A3",
+   "tag": "amend3-cp1"
+  },
+  "v2b-wb0824-gain-188": {
+   "status": "pass",
+   "why": "all_filters_pass_rl_v1_2",
+   "failed_stage": null,
+   "tag": null
+  },
+  "v2b-wb0530-power-201": {
+   "status": "fail",
+   "why": "F2_single_edit_solves",
+   "failed_stage": "F2",
+   "tag": "amend3-cp1"
+  },
+  "v2b-wb1020-noise-217": {
+   "status": "pass",
+   "why": "all_filters_pass_rl_v1_2",
+   "failed_stage": null,
+   "tag": null
+  },
+  "v2b-nb090-gain-239": {
+   "status": "fail",
+   "why": "F2_single_edit_solves",
+   "failed_stage": "F2",
+   "tag": "amend3-cp1"
+  },
+  "v2b-wb0824-gain-250": {
+   "status": "fail",
+   "why": "A1_witness_not_2of3",
+   "failed_stage": "A1",
+   "tag": "amend3-cp1"
+  },
+  "v2b-wb1020-noise-251": {
+   "status": "fail",
+   "why": "A1_witness_not_2of3",
+   "failed_stage": "A1",
+   "tag": "amend3-cp1"
+  }
+ },
+ "cells": {}
+}

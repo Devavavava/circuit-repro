@@ -1,0 +1,174 @@
+{
+ "name": "t2-nb158-gain-0400",
+ "seq": 400,
+ "g": "nb158-gain",
+ "band": "nb158",
+ "flavor": "gain",
+ "bt": "narrowband",
+ "cid": "t0047-nb158-gain-0",
+ "anchor": "a4",
+ "wl": "b896a519c392ce0a",
+ "tok": "06bae0652f0a7c85",
+ "script": [
+  {
+   "op": "rw",
+   "name": "NM1",
+   "pin": 0,
+   "net": "x1",
+   "grp": 0,
+   "macro": "ser"
+  },
+  {
+   "op": "add",
+   "t": "R",
+   "name": "ZR1",
+   "nets": [
+    "x1",
+    "n2"
+   ],
+   "grp": 0,
+   "macro": "ser"
+  }
+ ],
+ "repairs": [],
+ "cls": "added-stage",
+ "label": "gm-boost",
+ "limits": {
+  "nf_db": 1.3889,
+  "s11_max_db": -7.9292,
+  "s21_db": 28.8383,
+  "idd_ma": 6.1123
+ },
+ "spec": "/home/dpatni/circuit-repro/.claude/worktrees/externals-gf180/kaggle/campaigns/bench-v2/run/specs/t2-nb158-gain-0400.yaml",
+ "status": "ok",
+ "stages": {
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "7926b565cc5417928c1d",
+    "feasible": true
+   },
+   {
+    "seed": 2,
+    "jid": "1c7839c830e4e9067113",
+    "feasible": false
+   }
+  ],
+  "F1_seed1": [
+   {
+    "anchor": "a1",
+    "seed": 1,
+    "jid": "55f118f6c724d060fb2f",
+    "feasible": false
+   },
+   {
+    "anchor": "a2",
+    "seed": 1,
+    "jid": "0dcbc7aa4ea6f1614ef2",
+    "feasible": false
+   },
+   {
+    "anchor": "a3",
+    "seed": 1,
+    "jid": "c66d3c631f19252b018f",
+    "feasible": false
+   },
+   {
+    "anchor": "a4",
+    "seed": 1,
+    "jid": "429cbc7ec7eb52ae37fa",
+    "feasible": false
+   },
+   {
+    "anchor": "a5",
+    "seed": 1,
+    "jid": "7cde231ba83863aca545",
+    "feasible": false
+   }
+  ]
+ },
+ "smoke": false,
+ "difficulty": "witness-only",
+ "difficulty_why": "no anchor feasible at seed 1; no known rl-v1.2 single edit",
+ "amend3": {
+  "verifier": "rl-v1.2",
+  "witness": [
+   {
+    "seed": 1,
+    "jid": "6690705f689d9470013a",
+    "feasible": true,
+    "secs": 74.53,
+    "n_evals": 2500,
+    "mu_min_wide": 1.0,
+    "infeasible_reason": null,
+    "port_dc_pass": true,
+    "error": null,
+    "resize_attempt": false
+   }
+  ],
+  "T-F1": [
+   {
+    "seed": 1,
+    "jid": "b435067ff016ba9430a3",
+    "feasible": false,
+    "secs": 79.95,
+    "n_evals": 2500,
+    "mu_min_wide": 1.0,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a1"
+   },
+   {
+    "seed": 1,
+    "jid": "e5beadde7a441b8d092a",
+    "feasible": false,
+    "secs": 100.73,
+    "n_evals": 2500,
+    "mu_min_wide": 0.784015,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a2"
+   },
+   {
+    "seed": 1,
+    "jid": "441c078cf3d9c2ac1611",
+    "feasible": false,
+    "secs": 71.01,
+    "n_evals": 2500,
+    "mu_min_wide": 0.614283,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a3"
+   },
+   {
+    "seed": 1,
+    "jid": "a3d232083f98b4498a2f",
+    "feasible": false,
+    "secs": 81.07,
+    "n_evals": 2500,
+    "mu_min_wide": 0.781411,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a4"
+   },
+   {
+    "seed": 1,
+    "jid": "a056539ebf6a1d228ecd",
+    "feasible": false,
+    "secs": 76.37,
+    "n_evals": 2500,
+    "mu_min_wide": 1.0,
+    "infeasible_reason": null,
+    "port_dc_pass": null,
+    "error": null,
+    "anchor": "a5"
+   }
+  ],
+  "label_before": "witness-only",
+  "label_after": "witness-only"
+ }
+}

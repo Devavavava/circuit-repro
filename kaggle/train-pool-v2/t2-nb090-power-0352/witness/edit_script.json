@@ -1,0 +1,51 @@
+{
+ "parent_anchor": "lna-a4-twostage",
+ "script": [
+  {
+   "op": "add",
+   "t": "C",
+   "name": "ZC1",
+   "nets": [
+    "VDD",
+    "n4"
+   ],
+   "grp": 1
+  },
+  {
+   "op": "add",
+   "t": "L",
+   "name": "ZL1",
+   "nets": [
+    "VSS",
+    "VIN1"
+   ],
+   "grp": 2
+  },
+  {
+   "op": "add",
+   "t": "PMOS",
+   "name": "ZP1",
+   "nets": [
+    "VOUT1",
+    "n5",
+    "n7",
+    "VDD"
+   ],
+   "grp": 3
+  }
+ ],
+ "repairs": [
+  {
+   "repair": "dc_feed",
+   "name": "Rrep1",
+   "nets": [
+    "VOUT1",
+    "VSS"
+   ],
+   "for": "ZP1"
+  }
+ ],
+ "move_class": "added-stage",
+ "wl_hash": "75dbab047b7172e5",
+ "tok_hash": "fd26cce00f29d2cf"
+}

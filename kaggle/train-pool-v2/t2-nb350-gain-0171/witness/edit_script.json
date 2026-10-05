@@ -1,0 +1,56 @@
+{
+ "parent_anchor": "lna-a2-current-reuse",
+ "script": [
+  {
+   "op": "rw",
+   "name": "L2",
+   "pin": 1,
+   "net": "x1",
+   "grp": 0,
+   "macro": "ser"
+  },
+  {
+   "op": "add",
+   "t": "R",
+   "name": "ZR1",
+   "nets": [
+    "x1",
+    "n4"
+   ],
+   "grp": 0,
+   "macro": "ser"
+  },
+  {
+   "op": "del",
+   "name": "R1",
+   "grp": 1
+  },
+  {
+   "op": "del",
+   "name": "L2",
+   "grp": 2
+  }
+ ],
+ "repairs": [
+  {
+   "repair": "prune",
+   "name": "ZR1"
+  },
+  {
+   "repair": "prune",
+   "name": "C2"
+  },
+  {
+   "repair": "dc_feed",
+   "name": "Rrep1",
+   "nets": [
+    "n5",
+    "VDD"
+   ],
+   "for": "NM3"
+  }
+ ],
+ "move_class": "other",
+ "wl_hash": "62c26d4f1913dbf9",
+ "tok_hash": "3d21556a4450edf4"
+}

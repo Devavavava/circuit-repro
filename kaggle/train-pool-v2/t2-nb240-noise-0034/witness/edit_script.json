@@ -1,0 +1,68 @@
+{
+ "parent_anchor": "lna-a1-inddegen-cascode",
+ "script": [
+  {
+   "op": "rw",
+   "name": "NM3",
+   "pin": 2,
+   "net": "x1",
+   "grp": 0,
+   "macro": "stk"
+  },
+  {
+   "op": "add",
+   "t": "NMOS",
+   "name": "ZN1",
+   "nets": [
+    "x1",
+    "VDD",
+    "VSS",
+    "VSS"
+   ],
+   "grp": 0,
+   "macro": "stk"
+  },
+  {
+   "op": "rw",
+   "name": "ZN1",
+   "pin": 0,
+   "net": "x2",
+   "grp": 1,
+   "macro": "ser"
+  },
+  {
+   "op": "add",
+   "t": "C",
+   "name": "ZC1",
+   "nets": [
+    "x2",
+    "x1"
+   ],
+   "grp": 1,
+   "macro": "ser"
+  }
+ ],
+ "repairs": [
+  {
+   "repair": "dc_return",
+   "name": "Rrep1",
+   "nets": [
+    "x1",
+    "VSS"
+   ],
+   "for": "NM3"
+  },
+  {
+   "repair": "dc_feed",
+   "name": "Rrep2",
+   "nets": [
+    "x2",
+    "VDD"
+   ],
+   "for": "ZN1"
+  }
+ ],
+ "move_class": "other",
+ "wl_hash": "f8aa6b31cca7f37b",
+ "tok_hash": "b8becdf6c4251345"
+}

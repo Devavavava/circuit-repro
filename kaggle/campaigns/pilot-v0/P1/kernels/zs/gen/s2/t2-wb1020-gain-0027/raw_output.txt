@@ -1,0 +1,18 @@
+1. **Diagnosis**: The failure stems from insufficient stability (mu_min) across the 0.01–50 GHz band. The current-reuse push-pull topology with an LC tank load introduces feedback and resonant peaks that degrade stability at higher frequencies. The LC tank (L2+C2) may resonate with parasitic capacitances, causing phase shifts that reduce the stability margin.
+
+---
+
+2. **Structural Edit 1**: Replace the LC tank load with a resistive load and add a shunt capacitor for wideband matching. This reduces resonant effects and improves stability via damping.
+
+```netlist
+* lna-a3-resistive-load: common-source LNA with resistive load and shunt capacitor for wideband stability.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+R R_LOAD n2 VOUT1
+C C_SHUNT VOUT1 VSS
+```
+
+**Predicted effect**: The resistive load (R_LOAD) damps resonances, improving mu_min_wide by ~0.15 (reducing instability). The shunt capacitor (C_SHUNT) maintains bandwidth without LC tank-induced phase shifts.

@@ -1,0 +1,21 @@
+
+
+```netlist
+* lna-a2-stabilized: modified current-reuse with resistive-capacitive load for improved stability
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+R R6 n2 VSS
+C C5 n2 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted effect:** mu_min_wide_0.01-50GHz improves by ~0.07 (margin becomes +0.015). The resistive-capacitive (RC) load replaces the inductive-capacitive (LC) tank, reducing resonant frequency peaks that destabilize the circuit at low frequencies while maintaining broadband impedance matching.

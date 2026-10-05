@@ -1,0 +1,19 @@
+The failure is due to poor input matching (high S11), likely caused by the gate bias resistor (R2) creating a high-impedance path at the input. The structural change replaces the input capacitor (C1) with a series inductor and capacitor to improve impedance matching at f0=900 MHz.
+
+```netlist
+L L0 VIN1 n1
+C C1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+Predicted effect: s11_max_db improves by ~2.5 dB (from -3.93 dB to ~-6.4 dB), bringing it closer to the -7.86 dB requirement.

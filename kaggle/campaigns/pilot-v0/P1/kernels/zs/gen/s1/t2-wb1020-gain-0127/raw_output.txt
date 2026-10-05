@@ -1,0 +1,13 @@
+
+
+```netlist
+* lna-cg-resistive: common-gate LNA with resistive load and shunt capacitor.
+C C4 VIN1 n0
+R R1 n0 n1
+NMOS NM1 n1 n2 VSS VSS
+C C1 n2 VSS
+R R2 n2 VOUT1
+C C2 VOUT1 VSS
+```
+
+Predicted direction and magnitude: The push-pull configuration's interstage coupling likely caused phase shifts reducing mu_min. Switching to a common-gate topology with resistive load improves stability by eliminating feedback paths that destabilize wideband operation. mu_min_wide_0.01-50GHz should improve by ~0.002 (crossing the margin threshold).

@@ -1,0 +1,13 @@
+The failure is due to insufficient stability (mu_min) across the wideband (0.01-50 GHz). The current shunt-peaked load (L1+R2) and resistive feedback (R1) may introduce resonant effects or phase shifts that degrade stability at certain frequencies, even though local metrics (e.g., mu_min at f0) are met.
+
+```netlist
+* lna-a3-series-feedback: series-feedback CS LNA with series-peaked load.
+C C1 VIN1 n1
+R R1 n1 VSS
+NMOS NM1 n1 n2 VDD VSS
+L L1 n2 n3
+R R2 n3 VOUT1
+C C2 n2 VOUT1
+```
+
+**Predicted effect**: The series feedback (R1) and series-peaked load (L1+R2) should improve stability across the wideband by reducing resonant interactions, potentially increasing `mu_min_wide_0.01-50GHz` by ~0.2–0.4 (normalizing from -0.35 to ~+0.05–+0.05). The feedback topology now directly controls gate voltage with a resistor to ground, while the series inductor (L1) and resistor (R2) in the output path provide a more predictable impedance profile.

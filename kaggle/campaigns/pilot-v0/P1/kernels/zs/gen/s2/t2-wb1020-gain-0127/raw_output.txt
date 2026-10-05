@@ -1,0 +1,13 @@
+The failure is due to instability in the wideband phase margin (mu_min_wide) caused by the push-pull topology's feedback interactions and the tuned LC load's resonance. The current-reuse configuration introduces phase shifts that compromise stability across 0.01-50 GHz, even though other metrics are met.
+
+```netlist
+* lna-a3-cascode: cascode NMOS LNA with shunt peaking inductor for wideband stability.
+C C4 VIN1 n0
+NMOS NM1 n0 n1 VSS VSS
+R R1 n1 VDD
+NMOS NM2 n1 n2 VSS VSS
+L L1 n2 VOUT1
+C C1 n2 VSS
+```
+
+**Predicted effect**: mu_min_wide improves by ~0.002 (overcomes the -0.0018 margin failure) by eliminating push-pull feedback interactions and using a cascode structure with shunt peaking to stabilize phase response.

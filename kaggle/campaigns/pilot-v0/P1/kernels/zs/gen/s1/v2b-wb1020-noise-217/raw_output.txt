@@ -1,0 +1,22 @@
+The failure is due to poor input matching (S11), where the LNA's input impedance is not sufficiently matched to the source, leading to excessive reflection. The current topology relies on a capacitive input coupling (C4) and an inductor (L1) for impedance transformation, but this configuration likely results in a high input impedance at the target frequency, exacerbating the mismatch. The NMOS transistor NM1 is in a common-source configuration, which inherently has a high input impedance, further worsening the S11.
+
+```netlist
+* lna-a2-current-reuse-modified: input common-gate stage to lower input impedance.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+NMOS NM4 VIN1 n0 VSS VSS
+```
+
+**Predicted effect**: Adding NM4 as a common-gate transistor in parallel with C4 provides a resistive path for AC signals, lowering the input impedance. This should improve S11 by ~2–3 dB, bringing it closer to the required -9.03 dB.

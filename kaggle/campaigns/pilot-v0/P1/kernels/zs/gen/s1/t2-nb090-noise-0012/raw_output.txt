@@ -1,0 +1,13 @@
+The failure is due to insufficient phase margin in the wideband stability factor (mu_min_wide), caused by the shunt-peaked load (L1+R2) and feedback resistor R1 creating a resonant pole-zero pair that destabilizes the circuit at frequencies outside the narrowband center frequency (900 MHz). The shunt feedback and peaking network create a phase lag that reduces stability margins across the 0.01-50 GHz range.
+
+```netlist
+* lna-a3-series-feedback: series feedback CS LNA with series-peaked load
+C C1 VIN1 n1
+R R1 n2 VIN1
+NMOS NM1 n1 n2 VSS VSS
+L L1 n2 VDD
+R R2 VDD n3
+C C2 n3 VOUT1
+```
+
+Predicted effect: The series feedback (R1) and series peaking (L1) will reduce the resonant peaking in the load network, improving phase margin and increasing mu_min_wide by ~0.4 (from -0.37 to +0.03).

@@ -1,0 +1,3 @@
+The failure is primarily due to poor input matching (S11), which is too high (not sufficiently negative) due to the absence of an explicit input matching network. The first stage's input is only a capacitor (C1) to the gate of NM1, lacking inductive or resistive tuning to achieve a low impedance at 900 MHz. This results in a high reflection coefficient (S11) at the input, violating the s11_max_db constraint.
+
+---

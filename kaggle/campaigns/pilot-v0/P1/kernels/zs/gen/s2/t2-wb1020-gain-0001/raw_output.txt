@@ -1,0 +1,14 @@
+The failure is due to insufficient stability margin (mu_min) across the wideband, likely caused by the shunt-peaked load (L1 + R2) and resistive feedback (R1), which may induce phase shifts or gain peaking in certain frequency ranges, degrading stability.
+
+```netlist
+* lna-a3-cascode-feedback: cascode configuration with feedback resistor and series-peaked load.
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+NMOS NM2 n2 VDD VSS VSS
+L L1 VDD n3
+R R2 n3 n2
+C C2 n2 VOUT1
+```
+
+Predicted effect: The cascode structure (NM2) increases output impedance and isolates the feedback path, improving stability (mu_min_wide_0.01-50GHz) by ~0.5–0.7 units. The series inductor L1 and resistor R2 in the load may reduce phase shifts in the wideband.

@@ -1,0 +1,13 @@
+The failure is due to insufficient stability (mu_min) across the 0.01–50 GHz range, likely caused by the shunt-peaked load (L1+R2) and resistive feedback (R1) creating phase lag that destabilizes the circuit at lower frequencies. The feedback resistor R1 also limits gain and may not provide enough phase margin.
+
+```netlist
+* lna-a3-series-feedback: series-feedback CS LNA with series-peaked load.
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+L L1 n2 n3
+R R2 n3 VDD
+C C2 n3 VOUT1
+```
+
+**Predicted effect**: The series feedback (R1) and series-peaked load (L1+R2) will improve phase margin at lower frequencies, increasing mu_min_wide by ~0.3–0.5 (normalizing from 0.706 to ~1.0–1.2). The gain may slightly decrease due to series feedback, but S21 should remain above the target.

@@ -1,0 +1,20 @@
+The failure is due to poor input matching (high S11), likely caused by the first stage's gate being inadequately impedance-matched to the input signal. The current topology uses a capacitor-only input (C1) without a series inductor to achieve proper impedance transformation at 900 MHz, leading to excessive reflection.
+
+```netlist
+* lna-a4-twostage-mod1: modified input matching with series inductor
+C C1 VIN1 n1
+L L4 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+**Predicted effect**: Adding a series inductor L4 in parallel with C1 improves input impedance matching by providing a resonant network at 900 MHz. This should reduce S11 by ~3–4 dB, bringing it closer to the required -7.8686 dB.

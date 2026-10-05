@@ -1,0 +1,14 @@
+The failure stems from insufficient stability (mu_min) across the wideband range, likely due to the shunt-peaked load (L1+R2) and single-stage CS topology introducing resonances or insufficient phase margin at high frequencies. The feedback resistor (R1) may not adequately stabilize the circuit over the entire 0.01–50 GHz range, especially when combined with the inductive load.
+
+```netlist
+* lna-a3-cascode-feedback: cascode CS LNA with series feedback and inductive load.
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+NMOS NM2 n2 VDD VDD VSS
+L L1 VDD n3
+R R2 n3 n2
+C C2 n2 VOUT1
+```
+
+**Predicted effect**: mu_min_wide_0.01-50GHz improves by ~0.3–0.5 (normalizes margin from -0.29 to +0.1–0.2). The cascode stage (NM2) enhances output impedance and reduces Miller capacitance, while maintaining the feedback resistor (R1) to stabilize the input stage. The inductive load (L1) remains but is decoupled from the cascode node (n2), reducing high-frequency resonances.

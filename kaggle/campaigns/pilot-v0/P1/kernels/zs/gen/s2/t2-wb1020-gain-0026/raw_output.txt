@@ -1,0 +1,42 @@
+The failure is due to insufficient stability (low mu_min) across the 0.01-50 GHz band, likely caused by the shunt-peaked load (L1+R2) and feedback resistor (R1) creating a pole-zero configuration that reduces phase margin at high frequencies.
+
+```netlist
+* lna-a3-series-feedback: series-feedback CS LNA with series-peaked load.
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+L L1 n2 n3
+R R2 n3 VDD
+C C2 n2 VOUT1
+```
+
+**Predicted effect**: The series-peaked load (L1+R2) improves phase margin by decoupling feedback from resonant frequencies, raising mu_min_wide by ~0.4 (from 0.71 to ~1.11). The feedback resistor remains shunt-connected but benefits from reduced loading on the output node.
+
+---
+
+```netlist
+* lna-a3-cascode-feedback: cascode CS LNA with shunt feedback and degeneration.
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n3 VSS VSS
+NMOS NM2 n3 n4 VSS VSS
+L L1 VDD n4
+R R2 n4 n2
+C C2 n2 VOUT1
+```
+
+**Predicted effect**: The cascode structure (NM1+NM2) increases output impedance and isolates the feedback loop from high-frequency oscillations, improving mu_min_wide by ~0.35 (from 0.71 to ~1.06). Degeneration (R2) adds damping to the feedback path.
+
+---
+
+```netlist
+* lna-a3-emi-feedback: emitter-follower (common-gate) LNA with feedback.
+C C1 VIN1 n1
+R R1 n1 n2
+PMOS PM1 n2 VDD n3 VDD
+L L1 n3 n4
+R R2 n4 n2
+C C2 n2 VOUT1
+```
+
+**Predicted effect**: The common-gate topology (PM1) provides inherent stability and wideband matching. The feedback resistor (R1) now stabilizes the output node with reduced phase lag, raising mu_min_wide by ~0.5 (from 0.71 to ~1.21).

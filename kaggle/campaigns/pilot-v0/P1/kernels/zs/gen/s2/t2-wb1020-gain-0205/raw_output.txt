@@ -1,0 +1,12 @@
+```netlist
+* lna-a3-shunt-feedback-modified: resistive shunt-feedback with added feedback capacitor for phase lead.
+C C1 VIN1 n1
+C C3 n1 n2
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n3
+R R2 n3 n2
+C C2 n2 VOUT1
+```
+
+**Predicted effect:** mu_min_wide_0.01-50GHz improves by ~0.3 (normalized margin increases from -0.27 to ~0.03). The added feedback capacitor (C3) introduces a phase lead at high frequencies, stabilizing the wideband operation by counteracting the phase lag from the shunt peaking inductor (L1).

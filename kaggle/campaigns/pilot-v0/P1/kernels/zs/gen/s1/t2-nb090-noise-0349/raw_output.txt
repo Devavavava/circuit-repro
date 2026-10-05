@@ -1,0 +1,20 @@
+The failure is due to poor input impedance matching (s11_max_db), causing excessive signal reflection. The current topology lacks an explicit input matching network, relying only on a capacitor (C1) and bias resistor (R2) for impedance transformation at 900 MHz. This results in a mismatch between the source impedance (assumed 50 Ω) and the LNA's input impedance, leading to a return loss of -2.83 dB (vs. required -7.84 dB).
+
+```netlist
+* lna-a4-twostage-mod1: input-series inductor for impedance transformation
+C C1 VIN1 n1
+L L4 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+**Predicted change**: s11_max_db improves by ~3–4 dB (e.g., from -2.83 dB to -6.5–7.5 dB) by introducing a series inductor (L4) at the input, enabling better impedance matching at f0=900 MHz. The inductor provides a low-impedance path at f0 while blocking DC, improving input reflection.

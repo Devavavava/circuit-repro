@@ -1,0 +1,12 @@
+The failure is due to insufficient stability (mu_min) over the wideband, likely caused by the shunt-peaked load (L1+R2) and resistive feedback (R1) creating phase shifts that destabilize the circuit at high frequencies. The topology lacks sufficient phase margin across the 0.01–50 GHz range.
+
+```netlist
+* lna-a4-common-gate: common-gate LNA with series inductor input and shunt capacitor load.
+C C1 VIN1 n1
+L L1 n1 n2
+NMOS NM1 n2 VOUT1 VSS VSS
+C C2 VOUT1 VDD
+R R1 VDD n2
+```
+
+**Predicted effect**: The common-gate topology improves stability (mu_min) by ~0.3–0.5 (normalized margin) by reducing feedback phase inversion and using a shunt capacitor (C2) for broadband stability. The series inductor (L1) provides high-frequency impedance matching.

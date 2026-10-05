@@ -1,0 +1,40 @@
+1. **Diagnosis**: The binding constraint failure stems from poor input matching (S11_max_db). The first stage's gate is directly connected to the input via a capacitor (C1), lacking a series inductor to resonate with the input impedance. This results in insufficient impedance matching at 900 MHz, leading to a higher-than-allowed S11 value (-3.02 dB vs. required -7.86 dB). The absence of an input inductor prevents the necessary LC resonance to achieve the required matching.
+
+2. **Structural Edit 1: Add input inductor for impedance matching**  
+```netlist
+* lna-a4-twostage-mod1: Add input inductor L4 in series with C1 for improved S11.
+C C1 n8 n1
+L L4 VIN1 n8
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+**Predicted effect**: S11_max_db improves by ~4–5 dB (e.g., -7.5 dB to -8.0 dB), meeting the specification. The added inductor L4 forms an LC network with C1, enabling resonance to match the input impedance.
+
+---
+
+3. **Structural Edit 2: Replace LC interstage with series LC for better isolation**  
+```netlist
+* lna-a4-twostage-mod2: Replace interstage LC with series LC to improve isolation and matching.
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+L L4 n5 n7
+```
+**Predicted effect**: S11_max_db improves by ~3 dB (e.g., -5.5 dB to -6.5 dB). The series inductor L4 between stage 2 and bias network reduces parasitic coupling, improving input reflection and isolation.

@@ -1,0 +1,20 @@
+The failure is due to insufficient stability (mu_min_wide) across the wideband. The current-reuse push-pull topology with a resonant LC load creates stability issues at certain frequencies, likely due to phase shifts in the resonant circuit and insufficient damping.
+
+```netlist
+* lna-a2-resistive-load: Single-ended CS LNA with resistive load for improved stability
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+R R6 n2 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+Predicted effect: mu_min_wide improves by ~0.25 (reaches ~1.07) by replacing the resonant LC load with a resistor, which reduces feedback and phase shifts causing instability.

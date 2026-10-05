@@ -1,0 +1,20 @@
+The failure is due to insufficient stability (mu_min) over the wideband, likely caused by the output network's reactive components (L2 and C2) creating a low-impedance path that destabilizes the amplifier at certain frequencies. The LC tank's resonant behavior may not provide sufficient phase margin across the 0.01–50 GHz range, especially when combined with the current-reuse topology.
+
+```netlist
+* lna-a2-current-reuse-modified: replaced LC output tank with resistive load for improved stability.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+R R6 n2 VOUT1
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted effect**: Replacing the LC tank with a resistive load (R6) increases the output impedance's real part, improving stability. This should raise `mu_min_wide_0.01-50GHz` by ~0.05–0.1 (from 0.93 to ~1.0–1.05), resolving the binding constraint.

@@ -1,0 +1,12 @@
+The failure is due to insufficient stability margin (mu_min) across the wideband (0.01-50 GHz), likely caused by phase shifts from the shunt-peaked inductor (L1) and resistive feedback (R1) creating instability at certain frequencies. The original topology lacks sufficient phase compensation for wideband stability.
+
+```netlist
+* lna-a3-shunt-feedback-mod: series feedback with inductive peaking for wideband stability
+C C1 VIN1 n1
+L L1 n1 n2
+NMOS NM1 n2 VOUT1 VSS VSS
+R R1 VDD n2
+C C2 n2 VOUT1
+```
+
+Predicted effect: mu_min_wide_0.01-50GHz improves by ~0.5 (normalizes to margin >0), as series inductive feedback and capacitive peaking provide better phase control across the band.

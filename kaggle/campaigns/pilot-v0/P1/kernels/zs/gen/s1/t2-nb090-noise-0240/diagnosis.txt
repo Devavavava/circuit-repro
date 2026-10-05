@@ -1,0 +1,6 @@
+### Diagnosis:
+The failure stems from insufficient stability margin (`mu_min_wide_0.01-50GHz`) across a broad frequency range, likely due to resonant feedback through the tuned load (L2+C2) or parasitic coupling in the push-pull topology. The current-reuse configuration amplifies gain but may introduce phase shifts that destabilize the circuit at off-band frequencies, even though on-band metrics (e.g., `s21_db`, `mu_min`) appear acceptable.
+
+---
+
+### Edit 1: Replace tuned load with resistive load + shunt capacitor (dampen resonance)

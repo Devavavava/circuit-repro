@@ -1,0 +1,5 @@
+1. **Diagnosis**: The binding constraint `mu_min_wide_0.01-50GHz` fails due to insufficient transconductance gain at lower frequencies. The current-reuse push-pull topology splits the transconductance between NMOS and PMOS stages, reducing the effective `mu` at low frequencies. The tuned load (L2+C2) may also introduce phase shifts that degrade stability and transconductance performance in the wideband range.
+
+---
+
+2. **Structural Edit**: Replace the push-pull current-reuse topology with a **single-ended common-source stage with a cascode** to enhance transconductance and stabilize `mu` across the band.

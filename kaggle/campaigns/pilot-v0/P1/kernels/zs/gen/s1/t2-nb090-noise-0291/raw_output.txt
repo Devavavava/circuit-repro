@@ -1,0 +1,56 @@
+The failure is due to poor input impedance matching (S11_max_db), caused by the input capacitor C1 directly coupling VIN1 to NM1's gate without impedance tuning. The high input reactance at 900 MHz is not resonated, leading to poor reflection coefficient.
+
+```netlist
+* lna-a4-twostage-mod1: input-series-LC for improved S11
+C C1 n1 n2
+L L4 VIN1 n1
+NMOS NM1 n2 n3 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+Predicted improvement: s11_db improves by ~2.5 dB through input-series-LC resonance tuning.
+
+```netlist
+* lna-a4-twostage-mod2: common-gate first stage with input inductor
+L L4 VIN1 n1
+NMOS NM1 n1 VSS n2 VSS
+C C1 n2 n3
+NMOS NM2 n3 n4 VSS VSS
+L L1 VDD n3
+C C2 n3 n5
+L L2 n5 n6
+NMOS NM3 n7 n6 VSS VSS
+L L3 VDD n7
+C C3 n7 VOUT1
+R R1 VDD n8
+NMOS NM4 n8 n8 VSS VSS
+R R2 n8 n2
+R R3 n8 n6
+```
+Predicted improvement: s11_db improves by ~4 dB through common-gate input impedance transformation.
+
+```netlist
+* lna-a4-twostage-mod3: folded cascode with shared inductor
+L L4 VIN1 n1
+NMOS NM1 n1 n2 VSS VSS
+C C1 n2 n3
+NMOS NM2 n3 n4 VSS VSS
+L L1 VDD n3
+C C2 n3 n5
+L L2 n5 n6
+NMOS NM3 n6 n7 VSS VSS
+C C3 n7 VOUT1
+R R1 VDD n8
+NMOS NM4 n8 n8 VSS VSS
+R R2 n8 n2
+R R3 n8 n6
+```
+Predicted improvement: s11_db improves by ~3.2 dB through folded cascode impedance matching.

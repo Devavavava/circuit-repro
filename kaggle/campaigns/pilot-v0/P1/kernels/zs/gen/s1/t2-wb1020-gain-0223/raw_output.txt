@@ -1,0 +1,13 @@
+The failure is due to insufficient stability (mu_min) over the wideband (0.01–50 GHz), likely caused by the shunt feedback and shunt-peaked load configuration, which introduces phase shifts that reduce stability margins at higher frequencies.
+
+```netlist
+* lna-a3-series-feedback: series-feedback CS LNA with series-peaked load.
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+L L1 n2 n3
+R R2 n3 VDD
+C C2 n2 VOUT1
+```
+
+**Predicted change**: mu_min_wide_0.01-50GHz improves by ~0.5–0.7 (reaches ~0.15–0.35 margin). Series feedback and series-peaked load reduce high-frequency phase shifts, improving stability.

@@ -1,0 +1,15 @@
+
+
+```netlist
+* lna-a2-single-stage: common-source LNA with resistive load and shunt peaking.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n1 n2 VSS VSS
+R R1 n2 VDD
+C C1 n2 n3
+PMOS PM1 n3 VDD VDD
+C C2 n3 VOUT1
+R R2 n3 VSS
+```
+
+**Predicted change**: The mu_min_wide_0.01-50GHz metric should improve by ~0.15 (normalized) due to reduced feedback-induced phase shifts in the single-stage topology, enhancing stability over wideband frequencies.

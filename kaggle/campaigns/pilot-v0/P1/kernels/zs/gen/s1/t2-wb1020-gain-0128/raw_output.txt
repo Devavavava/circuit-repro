@@ -1,0 +1,16 @@
+The failure stems from instability in the wideband range (0.01-50 GHz), where the stability factor `mu_min_wide` dips below the threshold. The current topology's push-pull configuration with a tuned load (L2+C2) and current-reuse network introduces resonances and phase shifts that destabilize the circuit across the band. The tuned load (L2+C2) likely creates a narrowband resonance that degrades phase margin in the wideband, while the push-pull structure exacerbates feedback issues.
+
+```netlist
+* lna-a2-cascode-stabilized: cascode NMOS CS LNA with resistive load for wideband stability.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+R R1 n2 VOUT1
+NMOS NM2 VOUT1 n2 VSS VSS
+R R2 VOUT1 VSS
+R R3 n2 VDD
+```
+
+**Predicted effect**: The cascode NM2 and resistive load (R1+R2) replace the tuned load, damping resonances and improving phase margin. This should increase `mu_min_wide_0.01-50GHz` by ~0.1–0.2 (normalized), restoring stability while maintaining gain via the resistive load.

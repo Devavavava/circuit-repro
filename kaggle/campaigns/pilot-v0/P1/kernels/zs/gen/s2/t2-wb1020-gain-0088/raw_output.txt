@@ -1,0 +1,13 @@
+The failure is due to insufficient stability margin (mu_min) across the wideband (0.01–50 GHz). The shunt-feedback topology with a resistive feedback path (R1) and shunt-peaked load (L1+R2) may introduce phase lag or resonance in certain frequency bands, degrading stability. The current structure prioritizes gain and noise figure but lacks sufficient phase compensation for wideband stability.
+
+```netlist
+* lna-a3-serial-feedback: serial-feedback CS LNA with series-peaked load.
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+L L1 n2 n3
+R R2 n3 VDD
+C C2 n2 VOUT1
+```
+
+**Predicted effect**: The serial feedback (R1) and series inductor (L1) will introduce a zero in the feedback path, improving phase margin across the wideband. This should increase `mu_min_wide_0.01-50GHz` by ~0.3–0.5 (normalizing from -0.28 to +0.2–+0.3).

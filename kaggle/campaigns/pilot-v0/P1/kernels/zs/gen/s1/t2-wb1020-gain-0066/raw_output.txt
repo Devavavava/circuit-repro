@@ -1,0 +1,20 @@
+The failure is due to insufficient stability (mu_min) over the wideband (0.01-50 GHz), likely caused by resonant LC loads (L2+C2) creating phase shifts that destabilize the amplifier at certain frequencies. The current-reuse push-pull topology lacks sufficient damping for wideband stability.
+
+```netlist
+* lna-a2-current-reuse-stabilized: Replace tuned load with resistor for wideband stability
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+R R6 n2 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted impact**: mu_min_wide_0.01-50GHz improves by ~0.03 (resistor replaces resonant LC load, reducing phase shifts that destabilize wideband operation). S21_db may decrease slightly (~0.2 dB) due to reduced gain from resistor load vs LC tank.

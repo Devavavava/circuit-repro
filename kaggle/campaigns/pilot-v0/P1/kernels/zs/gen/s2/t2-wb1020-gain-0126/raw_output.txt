@@ -1,0 +1,27 @@
+1. The failure stems from insufficient stability (mu_min) across the 0.01-50 GHz band. The shunt-feedback topology with a shunt-peaked load (L1+R2) creates a narrowband stability trade-off, causing the stability factor to dip below 1.0 at certain frequencies. The shunt peaking enhances bandwidth but destabilizes the circuit at high frequencies due to phase shifts in the feedback path and load network.
+
+```netlist
+* lna-a3-series-feedback: series-feedback CS LNA with series-peaked load.
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+L L1 n2 n3
+R R2 n3 VOUT1
+C C2 n3 VSS
+```
+
+Predicted improvement: mu_min_wide_0.01-50GHz improves by ~0.3–0.5 (reaches ~1.0–1.2), as series feedback and series peaking reduce phase shifts at high frequencies while maintaining wideband stability.
+
+---
+
+```netlist
+* lna-a3-cascode-shunt-feedback: cascode CS LNA with shunt feedback and resistive load.
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+NMOS NM2 n2 VOUT1 VSS VSS
+R R2 VOUT1 VSS
+C C2 n2 VSS
+```
+
+Predicted improvement: mu_min_wide_0.01-50GHz improves by ~0.2–0.4 (reaches ~0.9–1.1), as cascoding isolates the feedback network and reduces Miller effect-induced phase shifts.

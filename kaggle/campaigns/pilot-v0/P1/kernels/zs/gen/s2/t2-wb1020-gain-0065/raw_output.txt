@@ -1,0 +1,15 @@
+The failure is due to insufficient stability margin (mu_min) across the wideband frequency range, likely caused by the current-reuse push-pull topology's feedback and phase interactions. The push-pull configuration may introduce parasitic feedback paths or insufficient phase margin at high frequencies, reducing stability.
+
+```netlist
+* lna-a2-cascode: cascode NMOS LNA with resistive load for improved stability
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n3 VDD VDD
+R R1 n3 n4
+NMOS NM2 n4 n5 VSS VSS
+C C2 n5 VOUT1
+```
+
+**Predicted impact:** mu_min_wide_0.01-50GHz improves by ~0.15 (reaches ~0.94), as the cascode configuration increases output impedance and reduces feedback-induced instability.

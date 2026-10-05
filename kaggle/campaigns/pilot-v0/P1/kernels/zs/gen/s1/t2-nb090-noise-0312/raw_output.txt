@@ -1,0 +1,64 @@
+The failure is primarily due to poor input matching (S11), which is too high (not sufficiently negative) due to the absence of an explicit input matching network. The first stage's input is only a capacitor (C1) to the gate of NM1, lacking inductive or resistive tuning to achieve a low impedance at 900 MHz. This results in a high reflection coefficient (S11) at the input, violating the s11_max_db constraint.
+
+---
+
+```netlist
+* lna-a4-twostage-mod1: input series inductor added for improved S11
+C C1 n8 n1
+L L4 VIN1 n8
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+**Predicted effect**: s11_max_db improves by ~2.5–3.5 dB (becomes more negative), addressing the binding constraint.
+
+---
+
+```netlist
+* lna-a4-twostage-mod2: input shunt inductor added for improved S11
+L L4 VIN1 VSS
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+**Predicted effect**: s11_max_db improves by ~2.0–3.0 dB, with a more stable impedance match at the input.
+
+---
+
+```netlist
+* lna-a4-twostage-mod3: common-gate first stage for improved input matching
+PMOS PM1 n2 VIN1 VSS VSS
+C C1 n2 n1
+NMOS NM1 n3 n1 VSS VSS
+L L1 VDD n3
+C C2 n3 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+**Predicted effect**: s11_max_db improves by ~4.0–5.0 dB due to the common-gate stage's low input impedance and better matching.

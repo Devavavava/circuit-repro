@@ -1,0 +1,14 @@
+The failure is due to insufficient stability (mu_min) across the 0.01–50 GHz band. The shunt-feedback topology with a resistive feedback path (R1) and shunt-peaked inductor (L1) introduces phase shifts that degrade stability at certain frequencies, even though the DC bias and small-signal gain appear acceptable. The stability margin is compromised by the interaction between the feedback network and the inductive peaking, which causes resonant instability over the wideband.
+
+```netlist
+* lna-a3-series-feedback: series-feedback CS LNA with series-peaked load.
+* Replaces shunt feedback with series feedback and modifies peaking topology.
+C C1 VIN1 n1
+R R1 n2 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 n2 n3
+R R2 n3 VDD
+C C2 n2 VOUT1
+```
+
+**Predicted effect**: Stability margin (mu_min_wide_0.01-50GHz) improves by ~0.3–0.5, shifting the binding constraint from failure to marginally feasible. Series feedback provides better phase control at high frequencies, while the series inductor (L1) replaces the shunt peaking to reduce resonant instability.

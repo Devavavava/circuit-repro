@@ -1,0 +1,20 @@
+The failure stems from insufficient stability (mu_min_wide_0.01-50GHz) due to the tuned load (L2+C2) creating resonant phase shifts that degrade stability across the wideband. The current-reuse push-pull topology lacks inherent phase compensation, and the resonant load exacerbates instability in the 0.01-50 GHz range.
+
+```netlist
+* lna-a2-current-reuse-modified: replaced tuned load with resistive load for stability
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+R R6 n2 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted Impact:** Replacing the resonant load (L2+C2) with a resistor (R6) eliminates destabilizing phase shifts from resonance, improving `mu_min_wide_0.01-50GHz` by ~0.2 (from 0.817 to ~1.0).

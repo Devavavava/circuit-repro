@@ -1,0 +1,20 @@
+The failure is due to inadequate input impedance matching in the first stage, causing the S11 (input return loss) to be too high (i.e., the circuit is not properly absorbing the input signal). The lack of source degeneration in the first stage (NM1) and the direct connection to ground (VSS) likely creates a low-impedance input path, degrading the reflection coefficient at the desired frequency. The LC interstage network and second stage do not sufficiently compensate for this mismatch.
+
+```netlist
+* lna-a4-twostage-mod1: modified first-stage source degeneration with inductor
+C C1 VIN1 n1
+NMOS NM1 n2 n1 n8 VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+L L4 n8 VSS
+```
+
+**Predicted effect:** Adding a source degeneration inductor (L4) to NM1's source (n8) increases the input impedance of the first stage, improving S11 by ~2.5 dB (moving closer to the required -7.8 dB). This should reduce the S11_max_db margin deficit by ~0.5–0.8 (making it less negative).

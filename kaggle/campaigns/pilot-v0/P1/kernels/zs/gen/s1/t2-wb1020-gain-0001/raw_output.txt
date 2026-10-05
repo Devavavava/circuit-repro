@@ -1,0 +1,45 @@
+1. **Diagnosis**: The failure stems from insufficient stability (mu_min) over the wideband (0.01-50 GHz). The current topology's shunt feedback and shunt-peaked load (L1+R2) may not provide sufficient phase margin or impedance matching at higher frequencies, leading to a stability factor (mu_min) below the required threshold.
+
+2. **Structural Edit 1**: Replace the resistive shunt feedback with a capacitive shunt feedback and add a series inductor for input peaking to enhance stability. This topology improves phase margin and broadband stability.
+
+```netlist
+C C1 VIN1 n1
+C C3 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n3
+R R2 n3 n2
+C C2 n2 VOUT1
+```
+
+**Predicted effect**: The capacitive feedback (C3) reduces low-frequency instability, while the existing inductor L1 provides peaking. This should increase mu_min_wide_0.01-50GHz by ~0.2–0.3 (normalized margin improvement). 
+
+---
+
+3. **Structural Edit 2**: Switch to a common-gate (CG) topology with a shunt feedback resistor. The CG configuration inherently improves stability by isolating the input from the output.
+
+```netlist
+C C1 VIN1 n1
+R R1 n1 VSS
+PMOS PM1 n1 VOUT1 VDD VDD
+L L1 VDD n3
+R R2 n3 n1
+C C2 n1 VSS
+```
+
+**Predicted effect**: The CG topology increases stability (mu_min) by ~0.4–0.5 due to inherent phase shift and reduced feedback coupling. 
+
+---
+
+4. **Structural Edit 3**: Introduce a cascode stage with a shunt feedback resistor to increase output impedance and improve stability over a wideband.
+
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+NMOS NM2 n2 VOUT1 VSS VSS
+L L1 VDD n3
+R R2 n3 n2
+C C2 n2 VOUT1
+```
+
+**Predicted effect**: The cascode stage raises output impedance, reducing instability. This should improve mu_min_wide_0.01-50GHz by ~0.3–0.4.

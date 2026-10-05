@@ -1,0 +1,48 @@
+```netlist
+* lna-a4-twostage-mod1: input series inductor added for improved matching
+C C1 VIN1 n1
+L L4 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+**Predicted effect:** s11_db improves by ~2.5 dB by adding a series inductor at the input to enhance impedance matching.
+
+```netlist
+* lna-a4-twostage-mod2: interstage LC replaced with series resonator
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+NMOS NM2 n6 n4 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n6
+```
+
+**Predicted effect:** s11_db improves by ~1.8 dB by eliminating the interstage inductor and directly coupling stages for better impedance transformation.
+
+```netlist
+* lna-a4-twostage-mod3: single-stage with enhanced input matching
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+```
+
+**Predicted effect:** s11_db improves by ~3.2 dB by simplifying to a single stage with direct input-output coupling and optimized biasing.

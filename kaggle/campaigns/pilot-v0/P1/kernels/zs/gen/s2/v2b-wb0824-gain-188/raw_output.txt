@@ -1,0 +1,23 @@
+The failure is due to the noise figure (NF) being too high, primarily driven by the input transistor NM1 and the current-reuse configuration. The current-reuse topology introduces additional noise contributions from the PMOS transistor PM1 and may not optimally suppress thermal noise from the input stage. The tuned load (L2+C2) may also not adequately suppress noise at the target frequency.
+
+```netlist
+* lna-a3-cascode: cascode NMOS LNA with resistive degeneration for noise suppression.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n1 n2 VSS VSS
+R R_deg n1 n3
+NMOS NM_cas n3 n2 VSS VSS
+C C1 n2 n4
+PMOS PM1 n2 n4 VDD VDD
+L L2 n2 n5
+C C2 n5 VSS
+C C3 n2 VOUT1
+R R1 VDD n6
+NMOS NM3 n6 n6 VSS VSS
+R R2 n6 n1
+PMOS PM2 n7 n7 VDD VDD
+R R4 n7 VSS
+R R5 n7 n4
+```
+
+Predicted change: nf_max_db improves by ~0.3 dB by reducing input transistor noise through cascode degeneration and suppressing current-reuse noise contributions.

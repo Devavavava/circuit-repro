@@ -1,0 +1,20 @@
+The failure is due to insufficient stability (mu_min_wide < 1.0) across the wideband, likely caused by resonant feedback through the tuned load (L2+C2) and push-pull topology. The current structure's output network and feedback paths create phase shifts that destabilize the circuit at certain frequencies.
+
+```netlist
+* lna-a2-stabilized: common-gate NMOS LNA with resistive-damped output load
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+R Rload n2 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted effect:** mu_min_wide improves by ~0.15 (reaches ~1.10) by replacing the resonant L2+C2 load with a resistive Rload, eliminating feedback-induced phase shifts that destabilize the wideband response.

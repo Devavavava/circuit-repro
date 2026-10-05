@@ -1,0 +1,9 @@
+* lna-cs-cascode: Single-ended CS LNA with cascode for improved mu.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n1 n2 VSS VSS
+C C1 n1 n3
+PMOS PM1 n3 VDD VDD
+C C2 n3 n4
+NMOS NM2 n4 n2 VSS VDD
+C C3 n2 VOUT1

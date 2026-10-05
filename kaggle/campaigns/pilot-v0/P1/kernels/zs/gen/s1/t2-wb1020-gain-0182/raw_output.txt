@@ -1,0 +1,27 @@
+The failure is due to insufficient phase margin (mu_min) across the wideband, likely caused by the shunt-peaked inductor (L1) and resistive feedback (R1) creating phase shifts that destabilize the amplifier at certain frequencies. The resistive feedback and inductive peaking may not provide adequate damping or phase compensation over the full 0.01–50 GHz range.
+
+```netlist
+* lna-a3-series-feedback: series-feedback CS LNA with series-peaked load.
+C C1 VIN1 n1
+C C3 n1 n2
+NMOS NM1 n2 n3 VSS VSS
+L L1 n3 VDD
+R R2 n3 VOUT1
+C C2 VOUT1 VDD
+```
+
+**Predicted effect**: mu_min_wide_0.01-50GHz improves by ~0.3–0.5 (stabilizes the phase margin) by replacing the shunt peaking with series peaking and changing feedback to capacitive, which alters the phase response to avoid destabilizing resonances.
+
+---
+
+```netlist
+* lna-a3-cascode-shunt: cascode CS LNA with shunt feedback and resistive load.
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n3 VSS VSS
+NMOS NM2 n3 VDD VSS VSS
+R R2 n3 VOUT1
+C C2 VOUT1 VDD
+```
+
+**Predicted effect**: mu_min_wide_0.01-50GHz improves by ~0.2–0.4 by adding a cascode transistor (NM2) to isolate the output and reduce Miller effect, thereby improving phase margin and stability across the wideband.

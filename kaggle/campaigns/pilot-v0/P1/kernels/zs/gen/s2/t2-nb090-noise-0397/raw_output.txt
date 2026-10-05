@@ -1,0 +1,20 @@
+The LNA's failure stems from poor input impedance matching, leading to excessive return loss (s11_max_db). The first stage's input is a simple capacitor (C1) coupling the signal to NM1's gate, without a resonant network to match the input impedance at 900 MHz. This mismatch causes the input return loss to fall far below the required -7.8686 dB.
+
+```netlist
+* lna-a4-twostage-mod1: revised topology with input series LC matching.
+C C1 VIN1 n1
+L L4 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+**Predicted change:** s11_max_db improves by ~4.5 dB by adding a series inductor L4 to form an input LC resonant circuit, enhancing impedance matching at 900 MHz.

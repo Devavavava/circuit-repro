@@ -1,0 +1,57 @@
+The failure is due to poor input matching (S11 too high). The first stage's input is DC-blocked by C1 but lacks a series inductor to tune the input impedance. The two-stage CS topology with LC loads creates a mismatch at the input, leading to excessive reflection.
+
+```netlist
+* lna-a4-twostage-mod1: Add input series inductor for impedance tuning
+C C1 VIN1 n1
+L L4 VIN1 n2
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+Predicted effect: s11_db improves by ~2.5 dB (reaches -5.3 dB) by adding a series inductor L4 at the input to tune the impedance.
+
+---
+
+```netlist
+* lna-a4-common-gate: Replace second stage with common-gate for better input match
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+PMOS PM2 n5 VSS n6 VDD
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+Predicted effect: s11_db improves by ~3.5 dB (reaches -6.3 dB) by replacing the second stage with a common-gate topology, which has lower input impedance and better matching.
+
+---
+
+```netlist
+* lna-a4-single-stage: Simplify to single stage with enhanced matching network
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n3
+L L2 n3 VSS
+C C3 n3 VOUT1
+R R1 VDD n4
+NMOS NM3 n4 n4 VSS VSS
+R R2 n4 n1
+```
+
+Predicted effect: s11_db improves by ~4.0 dB (reaches -6.8 dB) by eliminating the second stage and using a single-stage amplifier with an enhanced LC matching network.

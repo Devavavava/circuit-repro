@@ -1,0 +1,6 @@
+1. **Diagnosis**: The failure stems from insufficient stability (mu_min) over the wideband frequency range (0.01-50 GHz). The current-reuse push-pull topology introduces feedback paths and resonances (e.g., L2+C2) that degrade phase margin and stability, particularly at low frequencies. The tuned load (L2+C2) and push-pull configuration exacerbate impedance mismatches and phase shifts, causing mu_min to drop below 1.0.
+
+---
+
+2. **Proposed Structural Edit**  
+Replace the push-pull topology with a **common-source LNA with source degeneration and a resistive load** to improve stability. This reduces feedback-induced phase shifts and provides damping.

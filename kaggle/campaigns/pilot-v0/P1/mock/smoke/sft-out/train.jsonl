@@ -1,0 +1,11 @@
+{"phase": "start", "n_rows": 23, "hparams": {"model": "unsloth/Qwen3-14B-unsloth-bnb-4bit", "epochs": 1, "lr": 0.0002, "grad_accum": 4, "warmup": 10, "clip": 1.0, "seed": 3407, "max_seq": 8192, "lora_r": 16, "lora_alpha": 16, "lora_dropout": 0, "targets": ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"], "optimizer": "AdamW8bit", "weight_decay": 0.0, "batch": 1, "autocast": "fp16+GradScaler"}, "t": 1791202029.9}
+{"phase": "tokens", "n": 23, "dropped_over_max_seq": 0, "seq_mean": 1932.1, "seq_max": 2073, "seq_min": 1758, "prompt_mean": 1533.6, "completion_mean": 398.5, "completion_max": 469, "t": 1791202135.5}
+{"phase": "load", "trainable": 64225280, "mem_gib": 10.64, "total_opt_steps": 6, "t": 1791202135.5}
+{"phase": "step", "step": 0, "epoch": 0, "micro": 4, "loss": 1.0425, "lr": 2e-05, "grad_norm": 0.3488, "scale": 65536.0, "peak_gib": 11.69, "elapsed_min": 0.85, "t": 1791202186.5}
+{"phase": "step", "step": 1, "epoch": 0, "micro": 8, "loss": 0.8599, "lr": 4e-05, "grad_norm": 0.2565, "scale": 65536.0, "peak_gib": 11.82, "elapsed_min": 1.42, "t": 1791202220.9}
+{"phase": "step", "step": 2, "epoch": 0, "micro": 12, "loss": 0.9732, "lr": 6.000000000000001e-05, "grad_norm": 0.3015, "scale": 65536.0, "peak_gib": 11.82, "elapsed_min": 2.01, "t": 1791202256.0}
+{"phase": "step", "step": 3, "epoch": 0, "micro": 16, "loss": 0.9105, "lr": 8e-05, "grad_norm": 0.2593, "scale": 65536.0, "peak_gib": 11.82, "elapsed_min": 2.61, "t": 1791202292.2}
+{"phase": "step", "step": 4, "epoch": 0, "micro": 20, "loss": 0.7279, "lr": 0.0001, "grad_norm": 0.224, "scale": 65536.0, "peak_gib": 11.82, "elapsed_min": 3.26, "t": 1791202331.4}
+{"phase": "step", "step": 5, "epoch": 0, "micro": 23, "loss": 0.8261, "lr": 0.00012000000000000002, "grad_norm": 0.201, "scale": 65536.0, "peak_gib": 11.82, "elapsed_min": 3.73, "t": 1791202359.0}
+{"phase": "epoch_saved", "epoch": 0, "step": 6, "t": 1791202359.9}
+{"phase": "done", "steps": 6, "micro": 23, "truncated": false, "minutes": 3.75, "s_per_micro": 9.79, "t": 1791202360.7}

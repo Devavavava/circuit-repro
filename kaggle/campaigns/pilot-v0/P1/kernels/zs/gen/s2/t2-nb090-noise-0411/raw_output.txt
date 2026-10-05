@@ -1,0 +1,41 @@
+The failure is due to poor input impedance matching (high S11), likely caused by the input capacitor (C1) and lack of inductive elements to resonate with the gate input impedance of NM1. The current topology lacks a series inductor to match the input impedance at 900 MHz.
+
+```netlist
+* lna-a4-twostage-mod1: modified input matching with series inductor
+C C1 VIN1 n1
+L L4 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+**Predicted impact**: s11_max_db improves by ~3.5 dB (reaches ~-5.3 dB, still slightly below target but closer). Adding L4 in series with C1 creates a resonant circuit to better match the input impedance.
+
+---
+
+```netlist
+* lna-a4-twostage-mod2: replaced input capacitor with series LC network
+L L4 VIN1 n1
+C C1 n1 n2
+NMOS NM1 n2 n3 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n3
+R R3 n7 n5
+```
+
+**Predicted impact**: s11_max_db improves by ~5 dB (reaches ~-6.8 dB). Replacing C1 with an LC series network directly addresses input impedance mismatch through resonant matching.

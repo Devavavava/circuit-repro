@@ -1,0 +1,26 @@
+1. **Diagnosis**: The failure stems from insufficient stability margin (mu_min_wide) due to the current-reuse push-pull topology's inherent feedback and phase shifts. The PMOS/NMOS push-pull output stage creates a low-impedance path that destabilizes the circuit at wideband frequencies, especially when combined with the resonant load (L2+C2). The lack of a resistive component in the output path exacerbates this by allowing excessive phase shift and gain at critical frequencies.
+
+---
+
+2. **Structural Edit 1**: Replace the output capacitor (C3) with a resistor-capacitor (RC) series network to dampen resonant effects and improve stability. This changes the output coupling to a resistive-dominant path, reducing phase shift.
+
+```netlist
+* lna-a2-current-reuse-modified: RC output coupling for stability.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+R R3 n2 n5
+C C3 n5 VOUT1
+R R1 VDD n6
+NMOS NM3 n6 n6 VSS VSS
+R R2 n6 n1
+PMOS PM2 n7 n7 VDD VDD
+R R4 n7 VSS
+R R5 n7 n3
+```
+
+**Predicted Impact**: The RC output network (R3+C3) will improve the stability margin (`mu_min_wide`) by ~0.005 (normalized), reducing resonance and phase shift in the output path.

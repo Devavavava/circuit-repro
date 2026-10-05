@@ -1,0 +1,27 @@
+The failure stems from insufficient stability (mu_min_wide_0.01-50GHz = 0.7111 < 1.0) across the wideband range. The current shunt-feedback topology with R1 and shunt-peaked load (L1+R2) creates phase shifts that destabilize the circuit at certain frequencies. The resistive feedback and inductive load lack sufficient phase margin over 0.01–50 GHz.
+
+```netlist
+* lna-a3-serial-feedback: serial feedback CS LNA with series peaking and input matching
+C C1 VIN1 n1
+C C2 n1 n2
+NMOS NM1 n2 VOUT1 VSS VSS
+L L1 n2 VDD
+R R1 VDD n1
+```
+
+**Predicted change**: mu_min_wide_0.01-50GHz improves by ~0.3 (reaches ~1.0). The serial feedback (R1) and series inductor (L1) provide better phase margin and stability across the wideband compared to the shunt configuration.
+
+---
+
+```netlist
+* lna-a3-cascode-feedback: cascode CS LNA with shunt feedback and inductive peaking
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n3 VSS VSS
+NMOS NM2 n3 VOUT1 VSS VSS
+L L1 VDD n4
+R R2 n4 n2
+C C2 n2 VOUT1
+```
+
+**Predicted change**: mu_min_wide_0.01-50GHz improves by ~0.4 (reaches ~1.1). The cascode topology increases output impedance and isolates the feedback network, enhancing stability across the wideband.

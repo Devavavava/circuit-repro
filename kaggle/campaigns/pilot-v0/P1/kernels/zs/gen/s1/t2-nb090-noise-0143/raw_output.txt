@@ -1,0 +1,19 @@
+The failure is due to excessive noise contribution from the PMOS transistor (PM1) and resistive components (R2, R5) in the current-reuse biasing network. The current-reuse topology amplifies the PMOS's noise floor, and the resistive biasing network adds thermal noise, degrading the noise figure beyond the specification.
+
+```netlist
+* lna-a2-cascode: cascode NMOS LNA with PMOS current source for reduced noise.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+NMOS NM2 n3 n2 VSS VSS
+C C2 n3 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM1 n6 n6 VDD VDD
+R R4 n6 VSS
+```
+
+Predicted impact: nf_db improves by ~0.15 dB (reduces noise contribution from PMOS and eliminates resistive biasing network).

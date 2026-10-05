@@ -1,0 +1,17 @@
+1. **Diagnosis**: The failure stems from insufficient stability margin (`mu_min_wide`) due to the push-pull configuration's inherent feedback and the tuned LC load (L2+C2) causing resonance-induced instability across the wideband. The LC load introduces phase shifts that reduce stability, while the push-pull topology may not adequately suppress oscillations in the 0.01–50 GHz range.
+
+2. **Structural Edit 1**: Replace the tuned LC load with a resistive load and reconfigure the push-pull stage to a common-gate topology for improved stability.  
+```netlist
+* lna-a2-common-gate: common-gate LNA with resistive load for improved stability.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n1 n2 VSS VSS
+R R1 n2 VOUT1
+PMOS PM1 n2 n3 VDD VDD
+R R2 n3 VDD
+C C1 n1 n4
+NMOS NM2 n4 n5 VSS VSS
+R R3 n5 VSS
+```
+
+3. **Predicted Impact**: Stability margin (`mu_min_wide`) improves by ~0.2–0.3 (e.g., from 0.886 to 1.1–1.2), resolving the binding constraint. The resistive load reduces resonant feedback, and the common-gate topology inherently suppresses oscillations.

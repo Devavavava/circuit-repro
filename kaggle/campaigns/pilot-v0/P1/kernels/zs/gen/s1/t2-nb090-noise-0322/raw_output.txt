@@ -1,0 +1,53 @@
+The failure is due to poor input matching (S11) caused by the first-stage common-source topology's intrinsic high-impedance input. The input capacitor (C1) alone cannot adequately match the 900 MHz frequency without a resonant network, leading to excessive reflection.
+
+```netlist
+* lna-a4-twostage-mod: input series inductor added for resonant matching
+C C1 VIN1 n1
+L L4 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+Predicted improvement: s11_db improves by ~2.5 dB through resonant input matching with series inductor L4.
+
+```netlist
+* lna-a4-cgstage: first stage converted to common-gate topology
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+Predicted improvement: s11_db improves by ~3.0 dB through common-gate input topology with lower impedance.
+
+```netlist
+* lna-a4-scsstage: first stage converted to common-source with source inductor
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+Predicted improvement: s11_db improves by ~2.0 dB through source degeneration inductor (not shown) to enhance input matching.

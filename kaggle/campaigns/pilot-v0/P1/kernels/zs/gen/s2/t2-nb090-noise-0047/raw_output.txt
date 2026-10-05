@@ -1,0 +1,13 @@
+The failure is due to insufficient stability margin (mu_min_wide) over 0.01-50 GHz. The shunt-peaked load (L1+R2) and resistive shunt feedback (R1) create resonant poles that reduce stability at high frequencies. The feedback resistor R1 also introduces phase lag, exacerbating instability.
+
+```netlist
+* lna-a4-series-feedback: series-feedback CS LNA with series-peaked load.
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+L L1 n2 n3
+R R2 n3 VDD
+C C2 n2 VOUT1
+```
+
+**Predicted impact**: mu_min_wide improves by ~0.4 (reaches ~0.7-0.8), with slight degradation in S21 (9.3 dB → 9.1 dB) due to series inductor loading. The series feedback and peaked load reduce resonant instability while maintaining gain.

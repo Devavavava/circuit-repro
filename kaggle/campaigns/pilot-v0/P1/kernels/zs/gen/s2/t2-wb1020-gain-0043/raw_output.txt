@@ -1,0 +1,39 @@
+```netlist
+* lna-a3-series-feedback: series-feedback CS LNA with series-peaked load.
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n3 VSS VSS
+L L1 n3 VDD
+R R2 n3 n2
+C C2 n2 VOUT1
+```
+
+Predicted effect: mu_min_wide_0.01-50GHz improves by ~0.4 (moves margin from -0.36 to +0.04). The series-feedback configuration reduces feedback phase shift at high frequencies, while the series inductor L1 provides broadband impedance boosting without resonant peaking that destabilizes the wideband mu.
+
+---
+
+```netlist
+* lna-a3-cascode: cascode-degenerate CS LNA with shunt feedback.
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n3 VSS VSS
+NMOS NM2 n3 VDD VSS VSS
+R R2 n3 n2
+C C2 n2 VOUT1
+```
+
+Predicted effect: mu_min_wide_0.01-50GHz improves by ~0.3 (moves margin from -0.36 to +0.04). The cascode stage (NM2) increases output impedance and suppresses Miller feedback, improving stability across the wideband while maintaining the shunt feedback's broadband input matching.
+
+---
+
+```netlist
+* lna-a3-boosted-source: source-boosted CS LNA with series feedback.
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n3 VDD VSS
+L L1 n3 VDD
+R R2 n3 n2
+C C2 n2 VOUT1
+```
+
+Predicted effect: mu_min_wide_0.01-50GHz improves by ~0.25 (moves margin from -0.36 to +0.09). The source-boosted topology (NM1's source connected to VDD through L1) provides intrinsic stability by reducing feedback gain at high frequencies, while the series feedback R1 improves phase margin over the anchor's shunt feedback.

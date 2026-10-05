@@ -1,0 +1,16 @@
+The failure is due to excessive noise figure (nf_db), which is primarily dominated by the input transistor (NM1) and biasing network noise. The current-reuse push-pull topology introduces noise from the PMOS stage (PM1) and resistive bias components (R2, R5), which are amplified in the noise budget. The LC load (L2+C2) is not the issue as S21 is met, but the noise contributions from the biasing network and input transistor are too high.
+
+```netlist
+* lna-a3-common-gate: common-gate input stage with cascode and current-source load.
+C C4 VIN1 n0
+C C1 n0 n1
+NMOS NM1 n1 n2 VSS VSS
+PMOS PM1 n2 n3 VDD VDD
+R R1 VDD n4
+NMOS NM2 n4 n5 VSS VSS
+R R2 n5 n1
+C C2 n3 VSS
+C C3 n2 VOUT1
+```
+
+Predicted direction: nf_db improves by ~0.15 dB (reduces noise from input transistor and removes high-noise PMOS stage).

@@ -21,9 +21,9 @@ CFG = {
     "rows": "kaggle/campaigns/pilot-v0/P1/sft-data/sft-300.jsonl",
     "model_id": "qwen3-14b-sft300-q4km",
     "samples": 2,
-    "train_deadline_min": 240.0,     # training stops (LoRA saved, truncation recorded) here
-    "start_deadline_min": 520.0,     # no held-out completion starts past this wall minute
-    "hard_wall_min": 540.0,
+    "train_deadline_min": 180.0,     # training stops (LoRA saved, truncation recorded) here
+    "start_deadline_min": 380.0,     # no held-out completion starts past this wall minute
+    "hard_wall_min": 400.0,
     "repo_slug": REPO_SLUG,
     "repo_branch": REPO_BRANCH,
 }

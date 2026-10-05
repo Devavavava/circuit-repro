@@ -1,0 +1,13 @@
+The failure is due to insufficient phase margin across the 0.01-50 GHz band, causing instability (mu_min_wide < 1.0). The original shunt-feedback topology with a resistive load lacks sufficient phase compensation at high frequencies, leading to instability despite meeting local stability (mu_min=1.14). A series inductor in the feedback path can introduce a zero to improve phase margin.
+
+```netlist
+* lna-a3-series-inductor-feedback: series inductor in feedback path for phase margin improvement
+C C1 VIN1 n1
+L L1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+L L2 VDD n3
+R R2 n3 n2
+C C2 n2 VOUT1
+```
+
+Predicted improvement: mu_min_wide increases by ~0.2 (reaches ~1.14 → 1.34), stabilizing the wideband constraint.

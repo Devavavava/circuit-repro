@@ -1,0 +1,9 @@
+* lna-a3-series-feedback: series-feedback CS LNA with series-peaked load.
+* Structural change: feedback topology (shunt → series), load configuration (shunt → series).
+* Series feedback provides different phase characteristics, potentially improving wideband stability.
+C C1 VIN1 n1
+R R1 n2 n1
+NMOS NM1 n1 VDD n2 VSS
+L L1 n2 VDD
+R R2 n1 VOUT1
+C C2 VOUT1 n2

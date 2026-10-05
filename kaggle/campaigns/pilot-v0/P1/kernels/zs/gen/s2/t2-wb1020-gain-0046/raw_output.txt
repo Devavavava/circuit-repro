@@ -1,0 +1,64 @@
+The LNA fails due to insufficient stability margin (mu_min), likely caused by the resonant LC load (L2+C2) and/or feedback paths in the current-reuse topology. The LC load introduces high Q resonance, which may create phase shifts that reduce stability, while the current-reuse configuration could exacerbate feedback effects.
+
+```netlist
+* lna-a2-damped-load: replace resonant LC load with series RLC to improve mu_min via damping.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+R RL n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted effect**: mu_min improves by ~0.15 (reduces negative margin) by damping resonant LC load with series resistor RL, reducing Q and stabilizing phase response.
+
+---
+
+```netlist
+* lna-a2-single-ended: switch to single-ended CS LNA with resistor load to eliminate push-pull feedback.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n1 n2 VSS VSS
+R RL n2 VOUT1
+C C1 n1 n3
+PMOS PM1 n3 VDD VDD
+R R1 VDD n4
+NMOS NM3 n4 n4 VSS VSS
+R R2 n4 n1
+PMOS PM2 n5 n5 VDD VDD
+R R4 n5 VSS
+R R5 n5 n3
+```
+
+**Predicted effect**: mu_min improves by ~0.20 by eliminating push-pull feedback and using resistor load, reducing phase inversion and feedback loops.
+
+---
+
+```netlist
+* lna-a2-rlc-shunt: replace LC load with RLC shunt to control resonance and improve stability.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+R RL n4 VSS
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted effect**: mu_min improves by ~0.18 by replacing resonant LC with RLC shunt, which damps oscillations and increases phase margin.

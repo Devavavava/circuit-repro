@@ -1,0 +1,15 @@
+The failure is due to insufficient stability margin (`mu_min_wide_0.01-50GHz`) across the full 0.01–50 GHz band. The anchor design's shunt-peaked load and resistive feedback provide adequate stability at the center frequency but fail to maintain a minimum stability margin at band edges, likely due to phase shifts introduced by the inductor (L1) and feedback resistor (R1) at high/low frequencies. This causes instability in parts of the band, violating the wideband `mu_min` constraint.
+
+```netlist
+* lna-a3-series-feedback: series-feedback CS LNA with series-peaked load.
+* Structural change: feedback topology (shunt → series), load configuration (shunt → series).
+* Series feedback provides different phase characteristics, potentially improving wideband stability.
+C C1 VIN1 n1
+R R1 n2 n1
+NMOS NM1 n1 VDD n2 VSS
+L L1 n2 VDD
+R R2 n1 VOUT1
+C C2 VOUT1 n2
+```
+
+**Predicted effect**: The series-feedback topology with series inductor (L1) and resistive load (R2) should improve `mu_min_wide_0.01-50GHz` by ~0.3–0.5 (i.e., bring the margin from -0.29 to +0.0 to +0.2), by altering the phase response to avoid instability at band edges. The series feedback may also reduce the impact of inductive phase shifts on stability.

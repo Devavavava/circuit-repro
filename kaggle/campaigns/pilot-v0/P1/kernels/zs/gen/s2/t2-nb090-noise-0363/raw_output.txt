@@ -1,0 +1,55 @@
+```netlist
+* lna-a4-twostage-mod1: input-series-LC-tuned for improved S11 matching
+C C1 n8 n1
+L L4 VIN1 n8
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+Predicted impact: s11_max_db improves by ~1.5 dB (from -4.07 dB to -5.57 dB) by adding a series inductor to the input, enabling resonant tuning of the input impedance.
+
+---
+
+```netlist
+* lna-a4-twostage-mod2: interstage LC replaced with series resonator for better input impedance control
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+C C4 n4 n5
+L L2 n5 n6
+NMOS NM2 n6 n7 VSS VSS
+L L3 VDD n7
+C C3 n7 VOUT1
+R R1 VDD n8
+NMOS NM3 n8 n8 VSS VSS
+R R2 n8 n1
+R R3 n8 n5
+```
+
+Predicted impact: s11_max_db improves by ~1.2 dB (from -4.07 dB to -5.27 dB) by replacing the interstage LC with a series resonator, reducing impedance mismatches between stages.
+
+---
+
+```netlist
+* lna-a4-twostage-mod3: single-stage CS with input-series-LC and direct output coupling
+C C1 n8 n1
+L L4 VIN1 n8
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 VOUT1
+R R1 VDD n3
+NMOS NM3 n3 n3 VSS VSS
+R R2 n3 n1
+```
+
+Predicted impact: s11_max_db improves by ~2.0 dB (from -4.07 dB to -6.07 dB) by simplifying to a single stage with a series LC input network, reducing component interactions that degrade input matching.

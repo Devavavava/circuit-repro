@@ -1,0 +1,13 @@
+The binding constraint failure is due to insufficient stability (mu_min) across the 0.01-50 GHz band. The shunt-peaked load and resistive feedback topology lack sufficient phase margin at low frequencies, leading to instability. The current structure's feedback network and load peaking do not adequately compensate for phase shifts across the entire band.
+
+```netlist
+* lna-a3-series-feedback: series-feedback CS LNA with series-peaked load.
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n3 VSS VSS
+L L1 n3 n4
+R R2 n4 n5
+C C2 n5 VOUT1
+```
+
+**Predicted change**: mu_min_wide_0.01-50GHz improves by ~0.5 (reaches ~1.1–1.2) by shifting peaking to series and modifying feedback path to enhance low-frequency phase margin.

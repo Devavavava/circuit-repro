@@ -1,0 +1,20 @@
+The failure stems from poor input impedance matching (S11 too high), likely due to the absence of an explicit input matching network. The first stage's gate is coupled via a capacitor (C1) without inductive tuning, leading to insufficient impedance transformation at 900 MHz. The LC interstage network (C2-L2) may also introduce resonant peaking that degrades S11.
+
+```netlist
+* lna-a4-twostage-mod: input-matched two-stage LNA with series inductor at input.
+C C1 VIN1 n1
+L L4 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+**Predicted effect**: Adding a series inductor (L4) at the input provides tunable impedance matching, improving S11 by ~2–3 dB (reducing S11_max_db toward -7.85 dB).

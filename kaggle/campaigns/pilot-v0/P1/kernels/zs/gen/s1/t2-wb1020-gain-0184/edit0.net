@@ -1,0 +1,9 @@
+* lna-a3-cascode: cascode NMOS LNA with resistive load
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n1 n2 VSS VSS
+R R1 n2 n3
+NMOS NM2 n3 n4 VSS VSS
+C C1 n4 VDD
+PMOS PM1 n4 VDD VDD VDD
+C C3 n2 VOUT1

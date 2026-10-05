@@ -1,0 +1,10 @@
+* lna-a2-cascode-stabilized: cascode NMOS CS LNA with resistive load for wideband stability.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+R R1 n2 VOUT1
+NMOS NM2 VOUT1 n2 VSS VSS
+R R2 VOUT1 VSS
+R R3 n2 VDD

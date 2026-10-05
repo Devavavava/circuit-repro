@@ -1,0 +1,13 @@
+The failure is due to insufficient stability margin (mu_min) over the wideband range, likely caused by the push-pull output stage's phase response and resonant load interactions. The current-reuse topology with tuned load may create phase shifts and gain peaking that destabilize the circuit at certain frequencies.
+
+```netlist
+* lna-a2-single-ended: single-ended NMOS CS LNA with resistive load and shunt capacitor.
+C C4 VIN1 n0
+NMOS NM1 n0 n1 VSS VSS
+R R1 n1 VDD
+C C1 n1 n2
+NMOS NM2 n2 n3 VSS VSS
+C C2 n3 VOUT1
+```
+
+Predicted effect: mu_min_wide_0.01-50GHz improves by ~0.2 (normalized margin increases from -0.12 to +0.08). The single-ended topology with resistive load reduces phase shift and gain peaking compared to the push-pull configuration, improving stability margin.

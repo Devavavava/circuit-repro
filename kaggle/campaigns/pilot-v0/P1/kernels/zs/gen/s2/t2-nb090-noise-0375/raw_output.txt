@@ -1,0 +1,27 @@
+### Diagnosis
+The primary failure is in the input return loss (S11), which is too high (i.e., poor impedance matching at the input port). The current structure uses a simple DC-block capacitor (C1) at the input, but this does not provide sufficient impedance tuning at 900 MHz. The first stage's input impedance is likely too high, leading to poor reflection coefficient (S11) and failing the -7.84 dB constraint. The LC tank in the first stage's drain (L1) and the interstage LC network (C2, L2) are not adequately shaping the input impedance.
+
+---
+
+### Proposed Structural Change (Edit 1)
+Replace the first-stage input capacitor (C1) with a **series LC network** to explicitly tune the input impedance. This adds a resonant circuit at 900 MHz, improving impedance matching. The topology now includes a new inductor (L4) in series with C1.
+
+```netlist
+* lna-a4-twostage-mod1: two-stage tuned common-source LNA with modified input LC network
+L L4 VIN1 n1
+C C1 n1 n2
+NMOS NM1 n2 n3 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n2
+R R3 n7 n5
+```
+
+**Predicted effect**:  
+s11_max_db improves by ~2.5 dB (moves closer to -7.84 dB) by better tuning the input impedance with the added LC network.

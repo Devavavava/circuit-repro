@@ -1,0 +1,37 @@
+The failure is due to poor input matching, causing the S11 (reflection coefficient) to be too high (i.e., the input impedance is not properly matched to 50 Ω). The current topology lacks an explicit input matching network, relying only on the gate capacitance of NM1 and the LC interstage network, which are insufficient for narrowband matching at 900 MHz. The LC interstage (L2, C2) and drain inductors (L1, L3) do not contribute to input matching, leading to a mismatch and excessive S11.
+
+```netlist
+* lna-a4-twostage-mod1: input-matched two-stage LNA with explicit input inductor.
+C C1 VIN1 n1
+L L0 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+**Prediction:** Adding an input inductor `L0` in series with C1 creates a parallel LC tank at the input, improving impedance matching. This should reduce S11_max_db by ~3–4 dB, bringing it closer to the required -7.9 dB.
+
+---
+
+```netlist
+* lna-a4-twostage-mod2: single-stage LNA with input/output matching and resonant load.
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n3
+L L2 n3 VDD
+C C3 n3 VOUT1
+R R1 VDD n4
+NMOS NM3 n4 n4 VSS VSS
+R R2 n4 n1
+```
+
+**Prediction:** Removing the second stage and optimizing the single-stage resonant load (L1, C2, L2) with explicit input/output capacitors improves S11 by eliminating interstage impedance mismatches. S11_max_db should improve by ~5–6 dB.

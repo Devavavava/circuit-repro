@@ -1,0 +1,22 @@
+The failure is due to insufficient stability (mu_min) across the 0.01-50 GHz band. The current-reuse push-pull topology with tuned load (L2+C2) creates resonant impedance mismatches at extreme frequencies, reducing phase margin. The output capacitor C3 and input capacitor C4 lack broadband impedance control, exacerbating stability issues.
+
+```netlist
+* lna-a2-rlc-doubler: double LC resonator with resistive load for wideband stability
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+R R3 n4 VOUT1
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted impact**: mu_min_wide_0.01-50GHz improves by ~0.15 (reaches ~1.10). Replacing tuned load (L2+C2) with resistive load (R3) and adding second capacitor (C3) provides more consistent impedance across frequencies, enhancing phase margin.

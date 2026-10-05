@@ -1,0 +1,10 @@
+[p1 zs    0.0m] preflight OK: ['gh token', 'ngspice cache', 'llamacpp cache']
+[p1 zs    0.0m] $ (stream) bash /tmp/circuit-repro/kaggle/bootstrap.sh
+[p1 zs    0.6m] $ cp -r /kaggle/input/datasets/devavratpatni/circuit-repro-llamacpp-cuda/llamacpp/llamacpp /kaggle/working
+[p1 zs    0.6m] $ chmod +x /kaggle/working/llamacpp/bin/* || true
+[p1 zs    3.0m] GGUF 9001752960 bytes in 133s sha256 500a8806e85ee9c83f3ae08420295592451379b4f8cf2d0f41c15dffeb6b81f0
+[p1 zs    3.0m] launching: /kaggle/working/llamacpp/bin/llama-server -m /tmp/p1/Qwen3-14B-Q4_K_M.gguf --host 127.0.0.1 --port 8080 --n-gpu-layers 999 --split-mode layer -c 16384 --parallel 1
+[p1 zs    3.1m] llama-server healthy after 6.0s
+[p1 zs    3.2m] two-phase probe: {"template_tail": " 17*23? Think step by step.<|im_end|>\n<|im_start|>assistant\n", "p1_head": "<think>\nOkay, so I need to figure out what 17 multiplied by 23 is. Let me think about how to approach this. I remember t", "p1_tokens": 64, "p1_stop": "limit", "p2_head": "To calculate $ 17 \\times 23 $, let's break it down step by step using the **distributive property**:\n\n### Step 1: Break down 23 into 20 and 3  \n$$\n17 \\times 23 = 17 \\times (20 + 3)\n$$\n\n### Step 2: App", "p2_tokens": 128}
+[p1 zs    3.2m] $ (stream) bash -c source /kaggle/working/env-kaggle.sh && exec /usr/bin/python3 /tmp/circuit-repro/kaggle/campaigns/pilot-v0/P1/p1_gen.py heldout --prompts /tmp/circuit-repro/kaggle/campaigns/pilot-v0/P1/prompts --out /kaggle/working/p1/gen --samples 2 --model-id qwen3-14b-q4km --llm-url http://127.0.0.1:8080/v1 --deadline-epoch 1791213252
+[p1 zs  118.0m] EVENT {"step": "eval", "model_id": "qwen3-14b-q4km", "rc": 0, "minutes": 114.8, "out": "/kaggle/working/p1/gen", "n_completions": 116, "n_valid": 111, "gpu_min": 113.72, "kind": "eval_done", "t_min": 118.03}

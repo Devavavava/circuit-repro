@@ -1,0 +1,13 @@
+The failure stems from insufficient stability (mu_min) over the 0.01-50 GHz band. The shunt-feedback topology with a shunt-peaked load may introduce resonant poles/zeros and phase shifts that reduce stability margins, particularly at high frequencies. The feedback resistor (R1) and inductive peaking (L1+R2) likely create a phase lag that destabilizes the circuit.
+
+```netlist
+* lna-a3-series-feedback: series-feedback CS LNA with series-peaked load.
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n3 VDD VSS
+L L1 n3 n4
+R R2 n4 n2
+C C2 n2 VOUT1
+```
+
+**Predicted change:** mu_min_wide_0.01-50GHz improves by ~0.3–0.5 (normalizes to meet the 1.0 minimum). The series-feedback topology (R1 in series with gate) and series-peaked load (L1+R2 in series) should reduce resonant phase shifts and improve stability via better impedance matching and phase margin.

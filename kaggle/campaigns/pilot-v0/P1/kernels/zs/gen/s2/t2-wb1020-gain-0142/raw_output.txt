@@ -1,0 +1,44 @@
+The failure stems from insufficient stability (mu_min) over the wideband (0.01-50 GHz), likely due to the output network (C3) and load (L2+C2) not adequately maintaining impedance matching and feedback control across frequencies. The current topology's output matching and load network lack sufficient wideband stabilization elements.
+
+```netlist
+* lna-a2-optimized-1: Replaced output capacitor with series inductor for wideband stability
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+L L3 n2 n5
+C C3 n5 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+Predicted effect: Introducing a series inductor (L3) in the output path improves wideband impedance matching, likely increasing `mu_min_wide_0.01-50GHz` by ~0.15 (reducing negative margin). The inductor provides reactance to counteract capacitive loading at high frequencies, stabilizing the gain and phase margin across the band.
+
+---
+
+```netlist
+* lna-a2-optimized-2: Replaced tuned load with series resonant LC network
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+C C2 n2 n4
+L L2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+Predicted effect: Replacing the parallel (L2+C2) load with a series resonant (C2+L2) network enhances wideband stability by providing a more controlled impedance across frequencies. This should improve `mu_min_wide_0.01-50GHz` by ~0.20, addressing the frequency-dependent stability shortfall.

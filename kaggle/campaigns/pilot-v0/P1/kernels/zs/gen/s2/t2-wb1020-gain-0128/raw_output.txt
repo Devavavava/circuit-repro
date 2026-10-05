@@ -1,0 +1,32 @@
+The failure stems from insufficient stability (mu_min) over the wideband, likely due to the current-reuse push-pull topology's feedback and load configuration causing phase shifts that reduce stability margins at certain frequencies. The tuned load (L2+C2) may also introduce resonant peaks or phase inversions that degrade stability.
+
+```netlist
+* lna-a3-cascode: cascode NMOS LNA with resistive feedback for improved stability.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+R Rload n2 VOUT1
+R Rfb n3 n1
+NMOS NMfb n6 n3 VSS VSS
+R Rbias VDD n6
+```
+
+**Predicted change:** mu_min_wide_0.01-50GHz improves by ~0.15 (normalized margin), as resistive feedback and cascode structure reduce phase shifts and improve stability over wideband.
+
+---
+
+```netlist
+* lna-a4-common-gate: common-gate NMOS LNA with resistive source degeneration.
+C C4 VIN1 n0
+L L1 n0 n1
+PMOS PM1 n1 n2 VDD VDD
+NMOS NM1 n2 n3 VSS VSS
+R Rdeg n3 n4
+C Cload n4 VOUT1
+R Rbias VDD n5
+NMOS NMbias n5 n2 VSS VSS
+```
+
+**Predicted change:** mu_min_wide_0.01-50GHz improves by ~0.12 (normalized margin), as common-gate topology inherently provides higher stability and resistive degeneration suppresses oscillations.

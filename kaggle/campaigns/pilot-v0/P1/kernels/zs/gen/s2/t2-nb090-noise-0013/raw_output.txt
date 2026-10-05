@@ -1,0 +1,40 @@
+The failure is due to insufficient unconditional stability (mu_min_wide_0.01-50GHz < 1.0) caused by the inductive output load (L2) and the push-pull current-reuse topology, which creates a resonant feedback path across wide frequencies. The current structure's stability margin degrades at higher frequencies due to phase shifts from L2 and the push-pull configuration's symmetry.
+
+```netlist
+* lna-a2-cascode: cascode NMOS LNA with resistive load for improved stability.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n3 n3 VDD VDD
+NMOS NM2 n3 n2 VSS VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+Predicted improvement: mu_min_wide_0.01-50GHz improves by ~0.15 (reaches ~1.07) by replacing the inductive load with a resistive cascode structure, which eliminates resonant feedback paths and adds damping to the output stage.
+
+---
+
+```netlist
+* lna-a2-common_gate: common-gate NMOS LNA with inductive peaking for stability.
+C C4 VIN1 n0
+L L1 n0 n1
+PMOS PM1 n1 n2 VDD VDD
+NMOS NM1 n2 n3 VSS VSS
+C C1 n3 n4
+C C3 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+Predicted improvement: mu_min_wide_0.01-50GHz improves by ~0.12 (reaches ~1.04) by switching to a common-gate topology with inductive peaking, which inherently improves stability by breaking symmetry and reducing feedback across wide frequencies.

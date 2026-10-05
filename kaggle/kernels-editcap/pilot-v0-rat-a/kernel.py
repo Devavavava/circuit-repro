@@ -22,8 +22,8 @@ CFG = {
     "examples": "kaggle/campaigns/pilot-v0/P1/rat/rat-input-a.jsonl",
     "parallel": 4,
     "attempts": 3,
-    "start_deadline_min": 300.0,    # no rationalize call starts past this wall minute
-    "hard_wall_min": 320.0,
+    "start_deadline_min": 150.0,    # no rationalize call starts past this wall minute
+    "hard_wall_min": 165.0,
     "repo_slug": REPO_SLUG,
     "repo_branch": REPO_BRANCH,
 }

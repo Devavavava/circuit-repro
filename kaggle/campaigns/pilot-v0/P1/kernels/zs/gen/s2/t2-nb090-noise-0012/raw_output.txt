@@ -1,0 +1,42 @@
+The failure is due to insufficient wideband stability (mu_min_wide) caused by the shunt-feedback topology's resonance with the shunt-peaked inductor (L1) and resistor (R2). The feedback resistor (R1) and shunt peaking create a narrow stability band, failing at higher frequencies.
+
+```netlist
+* lna-a3-series-feedback: series-feedback CS LNA with series-peaked load.
+C C1 VIN1 n1
+R R1 n2 VSS
+NMOS NM1 n1 n2 VDD VSS
+L L1 n2 n3
+R R2 n3 VOUT1
+C C2 n3 VDD
+```
+
+Predicted change: mu_min_wide improves by ~0.5 (stability factor increases by ~0.5 over wideband). The series-feedback topology with series peaking avoids resonance issues while maintaining input match.
+
+---
+
+```netlist
+* lna-a3-common-gate: common-gate LNA with source degeneration and inductive peaking.
+C C1 VIN1 n1
+R R1 n1 VSS
+NMOS NM1 VSS n1 VDD VSS
+L L1 n1 n2
+R R2 n2 VOUT1
+C C2 n2 VDD
+```
+
+Predicted change: mu_min_wide improves by ~0.7 (stability factor increases by ~0.7 over wideband). Common-gate topology inherently provides higher stability factors due to its negative feedback mechanism.
+
+---
+
+```netlist
+* lna-a3-cascode: cascode LNA with inductive peaking and resistive feedback.
+C C1 VIN1 n1
+R R1 n1 VSS
+NMOS NM1 n1 n2 VDD VSS
+NMOS NM2 n2 VOUT1 VDD VSS
+L L1 n2 n3
+R R2 n3 VDD
+C C2 n3 VOUT1
+```
+
+Predicted change: mu_min_wide improves by ~0.6 (stability factor increases by ~0.6 over wideband). Cascode structure suppresses Miller effect and improves stability across wide frequencies.

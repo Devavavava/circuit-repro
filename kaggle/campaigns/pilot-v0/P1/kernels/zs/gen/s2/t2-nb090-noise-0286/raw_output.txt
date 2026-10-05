@@ -1,0 +1,60 @@
+The failure is due to poor input matching (S11). The first stage's input is a direct capacitor (C1) to the gate of NM1, which lacks inductive reactance necessary for 900 MHz matching. The LC interstage network and drain inductors (L1/L3) don't compensate for this, leading to a weakly matched input.
+
+```netlist
+* lna-a4-twostage-mod1: input-series inductor added for better S11 matching
+L L4 VIN1 n1
+C C1 n1 n2
+NMOS NM1 n2 n3 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n2
+R R3 n7 n5
+```
+
+Predicted effect: s11_db improves by ~2.5 dB (reduces magnitude of negative value). The added input inductor L4 provides necessary inductive reactance to improve input matching at 900 MHz.
+
+---
+
+```netlist
+* lna-a4-twostage-mod2: interstage network replaced with series inductor + shunt capacitor
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+NMOS NM2 n5 n4 VSS VSS
+L L2 VDD n5
+C C3 n5 VOUT1
+R R1 VDD n6
+NMOS NM3 n6 n6 VSS VSS
+R R2 n6 n1
+R R3 n6 n4
+```
+
+Predicted effect: s11_db improves by ~1.8 dB. The interstage network now provides better impedance transformation between stages, reducing input reflection.
+
+---
+
+```netlist
+* lna-a4-twostage-mod3: dual-stage with shunt inductor at input and interstage capacitor
+L L4 VIN1 n1
+C C1 n1 n2
+NMOS NM1 n2 n3 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+C C5 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n2
+R R3 n7 n5
+```
+
+Predicted effect: s11_db improves by ~2.2 dB. The input inductor L4 and interstage capacitor C5 create a more controlled impedance transition, enhancing input matching.

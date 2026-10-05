@@ -1,0 +1,22 @@
+The failure is due to insufficient stability (mu_min) across the wideband (0.01-50 GHz), likely caused by resonance in the LC load (L2+C2) and poor feedback in the current-reuse topology. The LC tank creates a narrowband resonant load, while the current-reuse configuration lacks sufficient damping to maintain stability over the entire band.
+
+```netlist
+* lna-a2-current-reuse-stabilized: added resistive damping to LC load for wideband stability.
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+R R6 n2 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+**Predicted effect:** The added resistor R6 provides resistive damping to the LC load, improving wideband stability by reducing resonant peaks and increasing phase margin. This should raise `mu_min_wide_0.01-50GHz` by ~0.15–0.2 (from -0.105 to +0.05–+0.1).

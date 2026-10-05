@@ -1,0 +1,1 @@
+The failure is due to poor input matching (s11_max_db), likely caused by the first stage's high input impedance and lack of explicit input impedance tuning. The current topology relies on C1 and the NMOS gate capacitance for AC coupling, but lacks a dedicated series inductor to resonate with the input capacitance, leading to poor impedance matching at 900 MHz.

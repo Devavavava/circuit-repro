@@ -1,0 +1,15 @@
+The failure is due to insufficient gain (s21_db) in the current-reuse push-pull topology. The push-pull configuration likely limits transconductance and introduces phase shifts, while the tuned load (L2+C2) may not provide optimal impedance matching at the target wideband frequency (1.414 GHz). The current-reuse scheme also appears to restrict the available signal swing and gain.
+
+```netlist
+* lna-a3-cascode: cascode NMOS LNA with resistive load
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n1 n2 VSS VSS
+R R1 n2 n3
+NMOS NM2 n3 n4 VSS VSS
+C C1 n4 VDD
+PMOS PM1 n4 VDD VDD VDD
+C C3 n2 VOUT1
+```
+
+Predicted direction: s21_db improves by ~3.5 dB. The cascode topology increases output impedance and transconductance, while the resistive load (R1) provides broadband stability and avoids frequency-dependent tuning issues.

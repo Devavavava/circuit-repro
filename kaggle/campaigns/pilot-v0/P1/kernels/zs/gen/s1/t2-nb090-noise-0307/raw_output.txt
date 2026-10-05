@@ -1,0 +1,20 @@
+The failure is due to inadequate input impedance matching (S11 too high). The anchor design lacks an explicit input inductor, relying solely on C1 to couple the signal. This results in poor impedance transformation at 900 MHz, causing the S11 constraint to fail.
+
+```netlist
+* lna-a4-twostage-mod: two-stage with input inductor for improved S11
+C C1 n8 n1
+L L4 VIN1 n8
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+PREDICTION: Adding an input inductor (L4) will improve S11 by ~2.5 dB by better matching the input impedance to 50 Ω.

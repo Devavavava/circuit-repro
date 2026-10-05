@@ -1,0 +1,20 @@
+The failure is due to poor input matching (high S11) caused by the input capacitor (C1) alone, which cannot adequately match the 50Ω system impedance at 900 MHz. The first-stage input lacks a reactive component to tune the impedance, leading to insufficient reflection coefficient suppression.
+
+```netlist
+* lna-a4-twostage-mod1: modified input with series inductor for improved matching
+C C1 VIN1 n1
+L L_input n1 n2
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+Predicted effect: s11_max_db improves by ~2.5 dB (reduces magnitude) by adding a series inductor (L_input) to create a resonant input network that better matches the 50Ω system impedance.

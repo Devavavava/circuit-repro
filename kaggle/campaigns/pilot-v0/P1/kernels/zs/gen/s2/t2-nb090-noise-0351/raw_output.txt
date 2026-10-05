@@ -1,0 +1,69 @@
+The LNA's primary failure is due to poor input impedance matching, causing the S11 (return loss) to be too high (only -3.46 dB instead of the required -7.91 dB). The input network (C1) is insufficient for 50-Ω matching at 900 MHz, and the first stage's gate is directly coupled without inductive tuning. The LC interstage network also likely degrades input impedance by introducing reactive loading. Additionally, the second stage's gain (S21 = 14.24 dB) is below the required 19.18 dB, suggesting insufficient amplification from the two-stage structure.
+
+---
+
+### Edit 1: Replace first stage with common-gate topology for better input matching
+```netlist
+C C1 VIN1 n1
+PMOS PM1 n1 VSS n2 VDD
+L L1 n2 VDD
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+**Predicted effect**:  
+- **S11_max_db improves by ~4–5 dB** (due to the common-gate stage's lower input impedance and better impedance transformation).  
+- **S21_db improves by ~3 dB** (common-gate stage provides higher gain and better isolation).  
+
+---
+
+### Edit 2: Add input inductor to form a parallel LC tank at VIN1
+```netlist
+L L0 VIN1 n1
+C C1 n1 n2
+NMOS NM1 n2 n3 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n2
+R R3 n7 n5
+```
+
+**Predicted effect**:  
+- **S11_max_db improves by ~3–4 dB** (input LC tank matches 50-Ω at 900 MHz).  
+- **S21_db improves by ~2 dB** (better input impedance reduces signal reflection).  
+
+---
+
+### Edit 3: Replace second stage with cascode topology for higher gain and stability
+```netlist
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+NMOS NM4 n6 VDD n6 VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+**Predicted effect**:  
+- **S11_max_db improves by ~2 dB** (cascode stage improves input impedance).  
+- **S21_db improves by ~5–6 dB** (cascode stage provides higher gain and better stability).

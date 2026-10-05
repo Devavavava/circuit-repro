@@ -1,0 +1,35 @@
+The failure stems from poor input matching (S11), where the first-stage's input impedance is not sufficiently matched to the source. The existing topology relies on a single capacitor (C1) for AC coupling, but lacks explicit inductive tuning to adjust the input impedance at 900 MHz. The LC interstage network (C2-L2) introduces parasitic effects that degrade S11 further.
+
+```netlist
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+**Edit 1:** Replace the second stage's common-source topology with a common-gate stage to improve input matching while preserving gain.
+
+```netlist
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n5 VSS VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+**Predicted effect:** s11_db improves by ~2.5 dB by reducing input impedance mismatch via the common-gate stage's low-input-impedance characteristic.

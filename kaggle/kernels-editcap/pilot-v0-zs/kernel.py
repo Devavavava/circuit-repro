@@ -14,7 +14,7 @@ import sys
 # ============================ CONFIG ==========================================
 REPO_SLUG = "Devavavava/circuit-repro"
 REPO_BRANCH = "worktree-externals-gf180"
-REPO_SHA = "PIN_ME"
+REPO_SHA = "3166a95667d28b4a89a9f455ff3a87edc88fb439"
 CFG = {
     "tag": "zs",
     "kind": "eval",

@@ -4,7 +4,7 @@ Pre-registered in `kaggle/PREREG-PILOT-V0.md` § P1 (frozen, commit `137ea060a`)
 User approval: **~30 Kaggle GPU-h total (hard cap)**, 2026-10-05. Ledger below.
 Verifier for every score: rl-v1.2, bptm45, 2500 evals, seeds 1, 2, 3 (`kaggle/VERIFIER-RL-V1.md`).
 
-Status: see "Status / ETA" at the end.
+Status (2026-10-05 21:00): baseline `zs` run + scored; pipeline smokes passed; rat/sft kernels staged (unpinned) until P0b writes `data/` (P0 status ETA ~2026-10-06 13:00). See "Launch procedure".
 
 ## Pieces
 
@@ -87,10 +87,67 @@ shuffle `Random(3407 + epoch)`, max seq 8192. Target = Qwen3 thinking-mode turn
 - **D-Q10 kernel/llama-server scope.** As R2, `EDITCAP_RECOVER_REASONING=1` (an empty answer falls back to the
   think text) in every held-out run.
 
-## GPU-h ledger (cap 30 GPU-h; session wall time, rounded up to 0.05 h)
+## Results so far: zero-shot baseline (P1.2)
 
-| kernel | version | pinned commit | start (IST) | wall | GPU-h | note |
+`zs` (pinned `3166a9566`, 118 min in-kernel): 116 completions (58 prompts × 2 samples), scored locally
+(`score/`, 106 unique (task, tokens) × seeds 1–3 = 318 rl-v1.2 calls, 2 exact-key cache hits, 0 missing).
+Tiers are not applied yet (P0 tiering still running; `p1_summarize.py` picks `eval/tiers.json` up automatically).
+
+| group | tasks | solved (any sample, ≥ 1 seed) | ≥ 2/3 seeds | validity | shown-anchor repeats | SPICE-min to 1st feasible (median / mean, solved) | GPU-min / completion (mean / median) | GPU-min total |
+|---|---|---|---|---|---|---|---|---|
+| all 58 | 58 | **5** | **3** | 95.7 % (111/116) | 2 | 3.9 / 5.5 | 0.98 / 0.95 | 113.7 |
+| wb1020-gain (31) | 31 | 5 | 3 | | | | | |
+| nb090-noise (25) | 25 | 0 | 0 | | | | | |
+| strict cells (2, T3) | 2 | 0 | 0 | 75 % (3/4) | 0 | – | 0.96 | 3.9 |
+
+Solved: `t2-wb1020-gain-0046` (both samples, seeds 1+2), `-0066` (both; P0: T1 via a2@s2), `-0067` (sample 2,
+seeds 2+3), `-0108` (sample 2, seed 3 only), `-0207` (sample 2, seed 1 only). At the time of scoring P0 had
+tiered 24/56 (23 T1); 4 of the 5 solved tasks were not T1 (still in F2). Invalid: 5 parse errors (MOS line
+without a name). CAP: 113/116 completions hit the 1024-token think cap (`think_stop=limit`). Per-task rows:
+`score/summary.json`, table: `score/tables.md`.
+
+## Launch procedure for the remaining kernels (data-dependent; exact commands)
+
+Prereq: P0b finished = `kaggle/campaigns/pilot-v0/data/manifest.json` exists (and `eval/tiers.json`).
+`E=/tmp/crp1/er.sh` = an env wrapper with the crenv vars (copy of `bench-v12-audit/E-d/envrun.sh`, own TMPDIR).
+
+1. Rationalize inputs + launch (2 sessions):
+   ```
+   $E python kaggle/campaigns/pilot-v0/P1/build_sft.py rat-input --data kaggle/campaigns/pilot-v0/data
+   git add kaggle/campaigns/pilot-v0/P1/rat ; git commit -m "..." -- kaggle/campaigns/pilot-v0/P1/rat ; git push origin worktree-externals-gf180
+   # set REPO_SHA in kaggle/kernels-editcap/pilot-v0-rat-a/kernel.py and -rat-b/kernel.py to that commit; commit; push
+   kaggle kernels push -p kaggle/kernels-editcap/pilot-v0-rat-a -t 10800
+   kaggle kernels push -p kaggle/kernels-editcap/pilot-v0-rat-b -t 10800
+   ```
+2. SFT data (after both rat kernels): download `kaggle kernels output devavratpatni/circuit-repro-pilot-v0-rat-a -p /tmp/... --file-pattern '^p1/(rat/|KERNEL|kernel)'`
+   (same for b), copy `p1/rat/` + manifest to `P1/kernels/rat-{a,b}/`, then
+   ```
+   $E python kaggle/campaigns/pilot-v0/P1/build_sft.py sft --data kaggle/campaigns/pilot-v0/data --rat kaggle/campaigns/pilot-v0/P1/kernels/rat-a/rat,kaggle/campaigns/pilot-v0/P1/kernels/rat-b/rat
+   # commit P1/sft-data + P1/kernels/rat-*; push; pin REPO_SHA in pilot-v0-sft100/300/1000; commit; push
+   kaggle kernels push -p kaggle/kernels-editcap/pilot-v0-sft1000 -t 36000
+   kaggle kernels push -p kaggle/kernels-editcap/pilot-v0-sft100 -t 16200
+   kaggle kernels push -p kaggle/kernels-editcap/pilot-v0-sft300 -t 24600     # when sft100 has finished (2-session limit)
+   ```
+3. Score each SFT model: `kaggle kernels output devavratpatni/circuit-repro-pilot-v0-sftN -p /tmp/... --file-pattern '^p1/(?!lora)'`
+   (the ~250 MB LoRA stays on Kaggle), copy `p1/gen` + manifest + `kernel.log` + `train.jsonl` to `P1/kernels/sftN/`, then
+   ```
+   $E python kaggle/campaigns/pilot-v0/P1/p1_score.py enumerate sftN kaggle/campaigns/pilot-v0/P1/kernels/sftN/gen
+   $E python kaggle/campaigns/pilot-v0/P1/p1_score.py run 4 sftN
+   $E python kaggle/campaigns/pilot-v0/P1/p1_summarize.py zs sft100 sft300 sft1000
+   ```
+4. Prompt equality with P0: `$E python kaggle/campaigns/pilot-v0/P1/build_prompts.py compare` once
+   `eval/prompts/` exists → `prompts/COMPARE-eval_prompts.json`.
+
+Projected GPU time (from the smokes: rationalize ~11 s/example with 4 slots; SFT 9.8 s/micro-step at ~1.9k tokens,
+merge + f16 + Q4_K_M 25 min; held-out run ~118 min): rat-a + rat-b ~3.4 h, sft100 ~3.1 h, sft300 ~4.1 h,
+sft1000 ~8.0 h → ~18.6 h more, **~21.5 h total** of the 30 h cap. The `-t` caps sum to ~27 h for the remaining
+kernels (worst case ~30 h with the 2.9 h spent).
+
+## GPU-h ledger (cap 30 GPU-h; Kaggle session wall time, rounded up to 0.05 h)
+
+| kernel | version | pinned commit | start (IST) | end | GPU-h | note |
 |---|---|---|---|---|---|---|
-| zs | 1 | `3166a9566` | 2026-10-05 17:19 | running | | `-t 13800` |
-| smoke-rat | 1 | `832426423` | 2026-10-05 17:24 | ~8 min | 0.15 | 23/23 kept, 26 calls, 4.3 min generation |
-| smoke-sft | 1 | `880eef0fc` | 2026-10-05 17:34 | running | | `-t 7200` |
+| zs | 1 | `3166a9566` | 2026-10-05 17:19 | 19:23 | 2.05 | 118 min in-kernel, 116 completions |
+| smoke-rat | 1 | `832426423` | 2026-10-05 17:24 | 17:32 | 0.15 | 23/23 kept in 26 calls (3 leak-phrase retries), reasoning 206–323 tokens |
+| smoke-sft | 1 | `880eef0fc` | 2026-10-05 17:34 | 18:14 | 0.70 | install route A (E-e pins + torch 2.11.0), 23 micro-steps 9.8 s, peak 11.8 GiB, GGUF Q4_K_M served, 4/4 valid |
+| **total** | | | | | **2.90** | |

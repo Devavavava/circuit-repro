@@ -311,8 +311,9 @@ def run_eval(clone, model_id, out_dir, deadline_min, hard_min):
     prompts = os.path.join(clone, "kaggle", "campaigns", "pilot-v0", "P1", "prompts")
     deadline = T0 + deadline_min * 60
     inner = ("source %s && exec %s %s heldout --prompts %s --out %s --samples %d --model-id %s "
-             "--llm-url http://127.0.0.1:%d/v1 --deadline-epoch %.0f"
-             % (ENV_SH, PY, gen, prompts, out_dir, CFG.get("samples", 2), model_id, PORT, deadline))
+             "--llm-url http://127.0.0.1:%d/v1 --deadline-epoch %.0f --limit %d"
+             % (ENV_SH, PY, gen, prompts, out_dir, CFG.get("samples", 2), model_id, PORT, deadline,
+                CFG.get("prompt_limit", 0)))
     t = time.time()
     rc = stream(["bash", "-c", inner], os.path.join(OUT, "gen-%s.log" % CFG["tag"]), env=env,
                 timeout=max(60, hard_min * 60 - (time.time() - T0)))
@@ -356,20 +357,37 @@ def main_rat(tok, clone, head):
     par = CFG.get("parallel", 4)
     proc = launch_server(gguf, parallel=par, ctx=4096 * par, tag="rat")
     try:
-        env = gen_env(clone)
-        gen = os.path.join(clone, "kaggle", "campaigns", "pilot-v0", "P1", "p1_gen.py")
-        exs = os.path.join(clone, CFG["examples"])
-        deadline = T0 + CFG["start_deadline_min"] * 60
-        inner = ("source %s && exec %s %s rationalize --examples %s --out %s --attempts %d "
-                 "--parallel %d --model-id %s --llm-url http://127.0.0.1:%d/v1 --deadline-epoch %.0f"
-                 % (ENV_SH, PY, gen, exs, os.path.join(OUT, "rat"), CFG.get("attempts", 3), par,
-                    CFG["model_id"], PORT, deadline))
-        t = time.time()
-        rc = stream(["bash", "-c", inner], os.path.join(OUT, "rat.log"), env=env,
-                    timeout=max(60, CFG["hard_wall_min"] * 60 - (time.time() - T0)))
-        event("rat_done", rc=rc, minutes=round((time.time() - t) / 60, 1))
+        run_rat(clone)
     finally:
         stop_server(proc)
+
+
+def run_rat(clone):
+    par = CFG.get("parallel", 4)
+    env = gen_env(clone)
+    gen = os.path.join(clone, "kaggle", "campaigns", "pilot-v0", "P1", "p1_gen.py")
+    exs = os.path.join(clone, CFG["examples"])
+    deadline = T0 + CFG["start_deadline_min"] * 60
+    inner = ("source %s && exec %s %s rationalize --examples %s --out %s --attempts %d "
+             "--parallel %d --model-id %s --llm-url http://127.0.0.1:%d/v1 --deadline-epoch %.0f"
+             % (ENV_SH, PY, gen, exs, os.path.join(OUT, "rat"), CFG.get("attempts", 3), par,
+                CFG["model_id"], PORT, deadline))
+    t = time.time()
+    rc = stream(["bash", "-c", inner], os.path.join(OUT, "rat.log"), env=env,
+                timeout=max(60, CFG["hard_wall_min"] * 60 - (time.time() - T0)))
+    rows = []
+    rp = os.path.join(OUT, "rat", "rationalize.jsonl")
+    if os.path.exists(rp):
+        rows = [json.loads(l) for l in open(rp) if l.strip()]
+    n_in = sum(1 for l in open(exs) if l.strip())
+    rec = {"step": "rationalize", "rc": rc, "minutes": round((time.time() - t) / 60, 1),
+           "n_examples": n_in, "n_calls": len(rows), "n_kept": len({r["id"] for r in rows if r.get("ok")}),
+           "gpu_min_sum_requests": round(sum(((r.get("timings") or {}).get("prompt_ms") or 0)
+                                             + ((r.get("timings") or {}).get("predicted_ms") or 0)
+                                             for r in rows) / 60000, 2)}
+    MAN["runs"].append(rec)
+    event("rat_done", **rec)
+    return rec
 
 
 # ---------------------------------------------------------------- sft

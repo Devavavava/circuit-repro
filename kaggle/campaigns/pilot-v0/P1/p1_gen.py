@@ -104,6 +104,8 @@ def cmd_eval(a):
     files = sorted(f for f in glob.glob(os.path.join(a.prompts, "*.json"))
                    if not os.path.basename(f).startswith(("INDEX", "COMPARE")))
     prompts = [json.load(open(f)) for f in files]
+    if a.limit:                         # pipeline smoke only
+        prompts = prompts[: a.limit]
     assert prompts and all(p["arm"] == "B" and p["k"] == 1 and not p["fewshot"] for p in prompts)
     os.makedirs(a.out, exist_ok=True)
     res_path = os.path.join(a.out, "results.jsonl")
@@ -196,6 +198,8 @@ def n_tokens(root, text):
 
 def check_trace(root, content, target_tokens):
     """-> dict(pass, why, reasoning, netlist, reasoning_tokens, ...)."""
+    # an empty Qwen3 think block may be left in `content` by the server under /no_think
+    content = re.sub(r"<think>.*?</think>", "", content, flags=re.S).strip()
     blocks = ER._parse_edits_from_raw(content)
     out = {"n_blocks": len(blocks), "reasoning": None, "netlist": None, "reasoning_tokens": None,
            "rt_ok": None, "tok_match": None, "wl_match": None, "leak": None, "tail_chars": None}

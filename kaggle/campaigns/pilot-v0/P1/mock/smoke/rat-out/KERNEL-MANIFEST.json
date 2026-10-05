@@ -1,0 +1,73 @@
+{
+  "runs": [
+    {
+      "step": "rationalize",
+      "rc": 0,
+      "minutes": 4.3,
+      "n_examples": 23,
+      "n_calls": 26,
+      "n_kept": 23,
+      "gpu_min_sum_requests": 16.04
+    }
+  ],
+  "events": [
+    {
+      "step": "rationalize",
+      "rc": 0,
+      "minutes": 4.3,
+      "n_examples": 23,
+      "n_calls": 26,
+      "n_kept": 23,
+      "gpu_min_sum_requests": 16.04,
+      "kind": "rat_done",
+      "t_min": 7.19
+    }
+  ],
+  "kernel": "smoke-rat",
+  "clone_head": "832426423d50982540b2c1d3606ad721e4ebf803",
+  "prereg": "kaggle/PREREG-PILOT-V0.md (137ea060a) P1",
+  "server_caps": {
+    "version": "version: 0.3.0-dev (build 1, commit 4d19b28)\nbuilt with GNU 11.4.0 for Linux x86_64"
+  },
+  "gguf": {
+    "source": "download",
+    "url": "https://huggingface.co/Qwen/Qwen3-14B-GGUF/resolve/main/Qwen3-14B-Q4_K_M.gguf",
+    "bytes": 9001752960,
+    "sha256": "500a8806e85ee9c83f3ae08420295592451379b4f8cf2d0f41c15dffeb6b81f0",
+    "verified": true
+  },
+  "server": [
+    {
+      "tag": "rat",
+      "cmd": [
+        "-m",
+        "/tmp/p1/Qwen3-14B-Q4_K_M.gguf",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8080",
+        "--n-gpu-layers",
+        "999",
+        "--split-mode",
+        "layer",
+        "-c",
+        "16384",
+        "--parallel",
+        "4"
+      ]
+    }
+  ],
+  "wall_minutes": 7.2,
+  "cfg": {
+    "tag": "smoke-rat",
+    "kind": "rat",
+    "model_id": "qwen3-14b-q4km",
+    "examples": "kaggle/campaigns/pilot-v0/P1/mock/smoke/rat-input-a.jsonl",
+    "parallel": 4,
+    "attempts": 3,
+    "start_deadline_min": 40.0,
+    "hard_wall_min": 50.0,
+    "repo_slug": "Devavavava/circuit-repro",
+    "repo_branch": "worktree-externals-gf180"
+  }
+}

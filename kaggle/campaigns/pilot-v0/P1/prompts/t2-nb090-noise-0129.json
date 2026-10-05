@@ -1,0 +1,106 @@
+{
+ "task": "t2-nb090-noise-0129",
+ "kind": "held-out training-pool task",
+ "family": "nb090-noise",
+ "band_type": "narrowband",
+ "spec_file": "specs/t2-nb090-noise-0129.yaml",
+ "spec_sha": "0a1fee1febbd4918",
+ "shown_anchor": "a2",
+ "shown_anchor_family": "lna-a2-current-reuse",
+ "arm": "B",
+ "k": 1,
+ "fewshot": false,
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an analog IC designer repairing a low-noise amplifier (LNA) that FAILED its specification after full SPICE sizing. You reason about the failure and propose STRUCTURAL (topology) changes. You output TOPOLOGY ONLY as a small line-oriented netlist; a downstream deterministic tool inserts biasing and sizes every device with a SPICE optimizer. Never invent device values, DC sources, or bias networks -- only the connectivity."
+  },
+  {
+   "role": "user",
+   "content": "=== SPEC (t2-nb090-noise-0129) ===\ndescription: train-pool-v2 planted task (nb090, noise objective) from search witness t0007-nb090-noise-2\nband: narrowband, f0=900000000.0 Hz\ngated constraints:\n  nf_db      max 2.2943\n  s11_max_db max -7.8436\n  s21_db     min 13.7333\n  idd_ma     max 6.1224\n  mu_min     min 1.0\n\n=== ANCHOR NETLIST (the failed circuit, dialect form) ===\n```netlist\n* lna-a2-current-reuse: current-reuse NMOS/PMOS push-pull CS LNA.\n* Lineage: Karanicolas, \"A 2.7-V 900-MHz CMOS LNA and Mixer\", JSSC 1996 /\n* inverter-LNA (current-reuse) lineage. Bench-v1 anchor; verbatim of the\n* proven v0.2 external c3 (round-1 external, wl 226544590d47717b, 6/24 gf180\n* topology credit). Structure-only, ZERO component values. Published BIAS\n* NETWORKS in-topology: NMOS gate via mirror ref R1 -> diode NM3 through R2;\n* PMOS gate via diode PM2 (current set by R4) through R5; tuned load L2+C2\n* off the shared DC path; input DC-blocked (C4).\n* Approved 2026-09-14 (bench round 1, \"approve all\").\nC C4 VIN1 n0\nL L1 n0 n1\nNMOS NM1 n2 n1 VSS VSS\nC C1 n1 n3\nPMOS PM1 n2 n3 VDD VDD\nL L2 n2 n4\nC C2 n4 VSS\nC C3 n2 VOUT1\nR R1 VDD n5\nNMOS NM3 n5 n5 VSS VSS\nR R2 n5 n1\nPMOS PM2 n6 n6 VDD VDD\nR R4 n6 VSS\nR R5 n6 n3\n```\n\n=== FAILURE EVIDENCE (this circuit was sized and MISSED) ===\nbinding (worst) constraint: nf_db  margin=-0.0729294 (normalized; negative == failing)\nfeasible: False   total sizing evals spent: 2500\n\nper-constraint margins (achieved vs gate, normalized margin):\n  metric     achieved       margin         supported\n  nf_db      2.46162        -0.0729294     True\n  s11_max_db -7.84281       -0.000100719   True\n  s21_db     13.7347        0.000101942    True\n  idd_ma     6.12215        4.0507e-05     True\n  mu_min     1.00105        0.00105        True\n  mu_min_wide_0.01-50GHz 0.999986       -1.4e-05       True\n\nIdd: achieved 6.12215 mA (normalized margin 4.050699072259669e-05 vs the idd_ma cap; negative == over budget).\n\nfull sized-best metrics (verbatim):\n{\n  \"s11_db\": -8.30442,\n  \"s11_max_db\": -7.84281,\n  \"s21_db\": 13.7347,\n  \"s21_min_db\": 13.7179,\n  \"idd_ma\": 6.122152,\n  \"nf_db\": 2.461622,\n  \"s22_db\": -3.97791,\n  \"s22_max_db\": -3.92853,\n  \"s12_db\": -25.8059,\n  \"k_f0\": 1.00359,\n  \"k_min\": 1.00255,\n  \"mu_f0\": 1.00149,\n  \"mu_min\": 1.00105,\n  \"mu_src_f0\": 1.00256,\n  \"mu_src_min\": 1.00172,\n  \"delta_f0\": 0.218995,\n  \"delta_max\": 0.220542,\n  \"stab_band\": [\n    882000000.0,\n    918000000.0\n  ],\n  \"s21_ripple_db\": 0.029500000000000526,\n  \"nf_method\": \"series_rs\"\n}\n\nYOUR TASK (arm B):\n1. DIAGNOSE the failure in words: what is physically limiting the binding constraint in the circuit above?\n2. Propose EXACTLY 1 STRUCTURAL edits as FULL netlists in the dialect below. Each edit is a complete netlist (not a diff), each structurally DIFFERENT from the anchor and from the other edits.\n3. After EACH edit, state a PREDICTED direction AND magnitude for the binding metric (e.g. 's11_db improves by ~3 dB').\n\nEmit each edit in its OWN fenced ```netlist block.\n\nNETLIST DIALECT (obey exactly, one device per line):\n  TYPE name node1 node2 [node3 node4]\n  TYPE in {NMOS, PMOS, R, C, L}.\n  NMOS/PMOS take 4 nodes in order D G S B; R/C/L take 2 nodes P N.\n  Nets: VIN1 (input), VOUT1 (output), VDD, VSS (ground); any internal node name otherwise. NO device values. NO V sources. NO bias networks."
+  }
+ ],
+ "prompt_text": "You are an analog IC designer repairing a low-noise amplifier (LNA) that FAILED its specification after full SPICE sizing. You reason about the failure and propose STRUCTURAL (topology) changes. You output TOPOLOGY ONLY as a small line-oriented netlist; a downstream deterministic tool inserts biasing and sizes every device with a SPICE optimizer. Never invent device values, DC sources, or bias networks -- only the connectivity.\n\n=== SPEC (t2-nb090-noise-0129) ===\ndescription: train-pool-v2 planted task (nb090, noise objective) from search witness t0007-nb090-noise-2\nband: narrowband, f0=900000000.0 Hz\ngated constraints:\n  nf_db      max 2.2943\n  s11_max_db max -7.8436\n  s21_db     min 13.7333\n  idd_ma     max 6.1224\n  mu_min     min 1.0\n\n=== ANCHOR NETLIST (the failed circuit, dialect form) ===\n```netlist\n* lna-a2-current-reuse: current-reuse NMOS/PMOS push-pull CS LNA.\n* Lineage: Karanicolas, \"A 2.7-V 900-MHz CMOS LNA and Mixer\", JSSC 1996 /\n* inverter-LNA (current-reuse) lineage. Bench-v1 anchor; verbatim of the\n* proven v0.2 external c3 (round-1 external, wl 226544590d47717b, 6/24 gf180\n* topology credit). Structure-only, ZERO component values. Published BIAS\n* NETWORKS in-topology: NMOS gate via mirror ref R1 -> diode NM3 through R2;\n* PMOS gate via diode PM2 (current set by R4) through R5; tuned load L2+C2\n* off the shared DC path; input DC-blocked (C4).\n* Approved 2026-09-14 (bench round 1, \"approve all\").\nC C4 VIN1 n0\nL L1 n0 n1\nNMOS NM1 n2 n1 VSS VSS\nC C1 n1 n3\nPMOS PM1 n2 n3 VDD VDD\nL L2 n2 n4\nC C2 n4 VSS\nC C3 n2 VOUT1\nR R1 VDD n5\nNMOS NM3 n5 n5 VSS VSS\nR R2 n5 n1\nPMOS PM2 n6 n6 VDD VDD\nR R4 n6 VSS\nR R5 n6 n3\n```\n\n=== FAILURE EVIDENCE (this circuit was sized and MISSED) ===\nbinding (worst) constraint: nf_db  margin=-0.0729294 (normalized; negative == failing)\nfeasible: False   total sizing evals spent: 2500\n\nper-constraint margins (achieved vs gate, normalized margin):\n  metric     achieved       margin         supported\n  nf_db      2.46162        -0.0729294     True\n  s11_max_db -7.84281       -0.000100719   True\n  s21_db     13.7347        0.000101942    True\n  idd_ma     6.12215        4.0507e-05     True\n  mu_min     1.00105        0.00105        True\n  mu_min_wide_0.01-50GHz 0.999986       -1.4e-05       True\n\nIdd: achieved 6.12215 mA (normalized margin 4.050699072259669e-05 vs the idd_ma cap; negative == over budget).\n\nfull sized-best metrics (verbatim):\n{\n  \"s11_db\": -8.30442,\n  \"s11_max_db\": -7.84281,\n  \"s21_db\": 13.7347,\n  \"s21_min_db\": 13.7179,\n  \"idd_ma\": 6.122152,\n  \"nf_db\": 2.461622,\n  \"s22_db\": -3.97791,\n  \"s22_max_db\": -3.92853,\n  \"s12_db\": -25.8059,\n  \"k_f0\": 1.00359,\n  \"k_min\": 1.00255,\n  \"mu_f0\": 1.00149,\n  \"mu_min\": 1.00105,\n  \"mu_src_f0\": 1.00256,\n  \"mu_src_min\": 1.00172,\n  \"delta_f0\": 0.218995,\n  \"delta_max\": 0.220542,\n  \"stab_band\": [\n    882000000.0,\n    918000000.0\n  ],\n  \"s21_ripple_db\": 0.029500000000000526,\n  \"nf_method\": \"series_rs\"\n}\n\nYOUR TASK (arm B):\n1. DIAGNOSE the failure in words: what is physically limiting the binding constraint in the circuit above?\n2. Propose EXACTLY 1 STRUCTURAL edits as FULL netlists in the dialect below. Each edit is a complete netlist (not a diff), each structurally DIFFERENT from the anchor and from the other edits.\n3. After EACH edit, state a PREDICTED direction AND magnitude for the binding metric (e.g. 's11_db improves by ~3 dB').\n\nEmit each edit in its OWN fenced ```netlist block.\n\nNETLIST DIALECT (obey exactly, one device per line):\n  TYPE name node1 node2 [node3 node4]\n  TYPE in {NMOS, PMOS, R, C, L}.\n  NMOS/PMOS take 4 nodes in order D G S B; R/C/L take 2 nodes P N.\n  Nets: VIN1 (input), VOUT1 (output), VDD, VSS (ground); any internal node name otherwise. NO device values. NO V sources. NO bias networks.",
+ "evidence": {
+  "spec": "t2-nb090-noise-0129",
+  "band": {
+   "type": "narrowband",
+   "f0": 900000000.0,
+   "f_lo": 882000000.0,
+   "f_hi": 918000000.0
+  },
+  "pdk": "bptm45",
+  "anchor_family": "current-reuse",
+  "feasible": false,
+  "worst_margin": [
+   "nf_db",
+   -0.07292943381423547
+  ],
+  "margins": {
+   "nf_db": {
+    "achieved": 2.461622,
+    "margin": -0.07292943381423547,
+    "supported": true
+   },
+   "s11_max_db": {
+    "achieved": -7.84281,
+    "margin": -0.00010071905757564007,
+    "supported": true
+   },
+   "s21_db": {
+    "achieved": 13.7347,
+    "margin": 0.00010194199500486335,
+    "supported": true
+   },
+   "idd_ma": {
+    "achieved": 6.122152,
+    "margin": 4.050699072259669e-05,
+    "supported": true
+   },
+   "mu_min": {
+    "achieved": 1.00105,
+    "margin": 0.0010499999999999954,
+    "supported": true
+   },
+   "mu_min_wide_0.01-50GHz": {
+    "achieved": 0.999986,
+    "margin": -1.399999999995849e-05,
+    "supported": true
+   }
+  },
+  "metrics": {
+   "s11_db": -8.30442,
+   "s11_max_db": -7.84281,
+   "s21_db": 13.7347,
+   "s21_min_db": 13.7179,
+   "idd_ma": 6.122152,
+   "nf_db": 2.461622,
+   "s22_db": -3.97791,
+   "s22_max_db": -3.92853,
+   "s12_db": -25.8059,
+   "k_f0": 1.00359,
+   "k_min": 1.00255,
+   "mu_f0": 1.00149,
+   "mu_min": 1.00105,
+   "mu_src_f0": 1.00256,
+   "mu_src_min": 1.00172,
+   "delta_f0": 0.218995,
+   "delta_max": 0.220542,
+   "stab_band": [
+    882000000.0,
+    918000000.0
+   ],
+   "s21_ripple_db": 0.029500000000000526,
+   "nf_method": "series_rs"
+  },
+  "total_evals": 2500,
+  "verifier": "rl-v1.2",
+  "seeds": [
+   1
+  ],
+  "best_seed": 1,
+  "stab_wide_ok": false,
+  "mu_min_wide": 0.999986,
+  "infeasible_reason": null
+ }
+}

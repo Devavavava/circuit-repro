@@ -1,0 +1,106 @@
+{
+ "task": "t2-nb090-noise-0363",
+ "kind": "held-out training-pool task",
+ "family": "nb090-noise",
+ "band_type": "narrowband",
+ "spec_file": "specs/t2-nb090-noise-0363.yaml",
+ "spec_sha": "e3ebe2286ae0aa0b",
+ "shown_anchor": "a4",
+ "shown_anchor_family": "lna-a4-twostage",
+ "arm": "B",
+ "k": 1,
+ "fewshot": false,
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an analog IC designer repairing a low-noise amplifier (LNA) that FAILED its specification after full SPICE sizing. You reason about the failure and propose STRUCTURAL (topology) changes. You output TOPOLOGY ONLY as a small line-oriented netlist; a downstream deterministic tool inserts biasing and sizes every device with a SPICE optimizer. Never invent device values, DC sources, or bias networks -- only the connectivity."
+  },
+  {
+   "role": "user",
+   "content": "=== SPEC (t2-nb090-noise-0363) ===\ndescription: train-pool-v2 planted task (nb090, noise objective) from search witness t0044-nb090-noise-2\nband: narrowband, f0=900000000.0 Hz\ngated constraints:\n  nf_db      max 1.6719\n  s11_max_db max -7.9123\n  s21_db     min 13.0879\n  idd_ma     max 5.9941\n  mu_min     min 1.0\n\n=== ANCHOR NETLIST (the failed circuit, dialect form) ===\n```netlist\n* lna-a4-twostage: two-stage tuned common-source LNA with LC interstage.\n* Lineage: Cha & Lee, \"A CMOS 1.9-GHz two-stage LNA / inter-stage-resonance\n* narrowband LNA\" (JSSC 2003 two-stage tuned-CS family). Bench-v1 anchor,\n* NEW transcription for the tightened 17-22 dB gain tiers. Structure-only,\n* ZERO component values. Approved family form: ~3 FETs + 3 L + mirror bias\n* (kaggle/EXTERNALS-BENCH-CANDIDATES.md L-A4).\n* Structure: stage-1 CS NM1 (input DC-blocked C1 straight to the gate);\n* tuned drain load L1 to VDD; LC interstage (DC-block C2 + series L2) to\n* stage-2 CS NM2 gate; stage-2 tuned drain load L3 to VDD; output DC-blocked\n* C3 to VOUT1. Published in-topology BIAS NETWORK: one current-mirror\n* reference (R1 -> diode NM3) biases BOTH gates through series feed\n* resistors (R2 -> NM1 gate, R3 -> NM2 gate).\n* TRANSCRIPTION NOTE (logged): the first draft carried 5 inductors (extra\n* input-match L + source-degeneration L); the LNA bench screen\n* (max_inductors: 4) flagged it, and the approved family form is 3 L -- the\n* draft was trimmed BACK to the approved/published form, not adapted beyond it.\n* Approved 2026-09-14 (bench round 1, \"approve all\").\nC C1 VIN1 n1\nNMOS NM1 n2 n1 VSS VSS\nL L1 VDD n2\nC C2 n2 n4\nL L2 n4 n5\nNMOS NM2 n6 n5 VSS VSS\nL L3 VDD n6\nC C3 n6 VOUT1\nR R1 VDD n7\nNMOS NM3 n7 n7 VSS VSS\nR R2 n7 n1\nR R3 n7 n5\n```\n\n=== FAILURE EVIDENCE (this circuit was sized and MISSED) ===\nbinding (worst) constraint: s11_max_db  margin=-0.485004 (normalized; negative == failing)\nfeasible: False   total sizing evals spent: 2500\n\nper-constraint margins (achieved vs gate, normalized margin):\n  metric     achieved       margin         supported\n  nf_db      1.67205        -8.73258e-05   True\n  s11_max_db -4.0748        -0.485004      True\n  s21_db     13.0846        -0.000252141   True\n  idd_ma     5.99376        5.6222e-05     True\n  mu_min     2.3185         1.3185         True\n  mu_min_wide_0.01-50GHz 0.827862       -0.172138      True\n\nIdd: achieved 5.99376 mA (normalized margin 5.622195158573125e-05 vs the idd_ma cap; negative == over budget).\n\nfull sized-best metrics (verbatim):\n{\n  \"s11_db\": -4.12725,\n  \"s11_max_db\": -4.0748,\n  \"s21_db\": 13.0846,\n  \"s21_min_db\": 12.8427,\n  \"idd_ma\": 5.993763,\n  \"nf_db\": 1.672046,\n  \"s22_db\": -7.5209,\n  \"s22_max_db\": -7.36394,\n  \"s12_db\": -58.9437,\n  \"k_f0\": 49.8158,\n  \"k_min\": 46.5437,\n  \"mu_f0\": 2.35925,\n  \"mu_min\": 2.3185,\n  \"mu_src_f0\": 1.59901,\n  \"mu_src_min\": 1.59018,\n  \"delta_f0\": 0.266629,\n  \"delta_max\": 0.272551,\n  \"stab_band\": [\n    882000000.0,\n    918000000.0\n  ],\n  \"s21_ripple_db\": 0.4557000000000002,\n  \"nf_method\": \"series_rs\"\n}\n\nYOUR TASK (arm B):\n1. DIAGNOSE the failure in words: what is physically limiting the binding constraint in the circuit above?\n2. Propose EXACTLY 1 STRUCTURAL edits as FULL netlists in the dialect below. Each edit is a complete netlist (not a diff), each structurally DIFFERENT from the anchor and from the other edits.\n3. After EACH edit, state a PREDICTED direction AND magnitude for the binding metric (e.g. 's11_db improves by ~3 dB').\n\nEmit each edit in its OWN fenced ```netlist block.\n\nNETLIST DIALECT (obey exactly, one device per line):\n  TYPE name node1 node2 [node3 node4]\n  TYPE in {NMOS, PMOS, R, C, L}.\n  NMOS/PMOS take 4 nodes in order D G S B; R/C/L take 2 nodes P N.\n  Nets: VIN1 (input), VOUT1 (output), VDD, VSS (ground); any internal node name otherwise. NO device values. NO V sources. NO bias networks."
+  }
+ ],
+ "prompt_text": "You are an analog IC designer repairing a low-noise amplifier (LNA) that FAILED its specification after full SPICE sizing. You reason about the failure and propose STRUCTURAL (topology) changes. You output TOPOLOGY ONLY as a small line-oriented netlist; a downstream deterministic tool inserts biasing and sizes every device with a SPICE optimizer. Never invent device values, DC sources, or bias networks -- only the connectivity.\n\n=== SPEC (t2-nb090-noise-0363) ===\ndescription: train-pool-v2 planted task (nb090, noise objective) from search witness t0044-nb090-noise-2\nband: narrowband, f0=900000000.0 Hz\ngated constraints:\n  nf_db      max 1.6719\n  s11_max_db max -7.9123\n  s21_db     min 13.0879\n  idd_ma     max 5.9941\n  mu_min     min 1.0\n\n=== ANCHOR NETLIST (the failed circuit, dialect form) ===\n```netlist\n* lna-a4-twostage: two-stage tuned common-source LNA with LC interstage.\n* Lineage: Cha & Lee, \"A CMOS 1.9-GHz two-stage LNA / inter-stage-resonance\n* narrowband LNA\" (JSSC 2003 two-stage tuned-CS family). Bench-v1 anchor,\n* NEW transcription for the tightened 17-22 dB gain tiers. Structure-only,\n* ZERO component values. Approved family form: ~3 FETs + 3 L + mirror bias\n* (kaggle/EXTERNALS-BENCH-CANDIDATES.md L-A4).\n* Structure: stage-1 CS NM1 (input DC-blocked C1 straight to the gate);\n* tuned drain load L1 to VDD; LC interstage (DC-block C2 + series L2) to\n* stage-2 CS NM2 gate; stage-2 tuned drain load L3 to VDD; output DC-blocked\n* C3 to VOUT1. Published in-topology BIAS NETWORK: one current-mirror\n* reference (R1 -> diode NM3) biases BOTH gates through series feed\n* resistors (R2 -> NM1 gate, R3 -> NM2 gate).\n* TRANSCRIPTION NOTE (logged): the first draft carried 5 inductors (extra\n* input-match L + source-degeneration L); the LNA bench screen\n* (max_inductors: 4) flagged it, and the approved family form is 3 L -- the\n* draft was trimmed BACK to the approved/published form, not adapted beyond it.\n* Approved 2026-09-14 (bench round 1, \"approve all\").\nC C1 VIN1 n1\nNMOS NM1 n2 n1 VSS VSS\nL L1 VDD n2\nC C2 n2 n4\nL L2 n4 n5\nNMOS NM2 n6 n5 VSS VSS\nL L3 VDD n6\nC C3 n6 VOUT1\nR R1 VDD n7\nNMOS NM3 n7 n7 VSS VSS\nR R2 n7 n1\nR R3 n7 n5\n```\n\n=== FAILURE EVIDENCE (this circuit was sized and MISSED) ===\nbinding (worst) constraint: s11_max_db  margin=-0.485004 (normalized; negative == failing)\nfeasible: False   total sizing evals spent: 2500\n\nper-constraint margins (achieved vs gate, normalized margin):\n  metric     achieved       margin         supported\n  nf_db      1.67205        -8.73258e-05   True\n  s11_max_db -4.0748        -0.485004      True\n  s21_db     13.0846        -0.000252141   True\n  idd_ma     5.99376        5.6222e-05     True\n  mu_min     2.3185         1.3185         True\n  mu_min_wide_0.01-50GHz 0.827862       -0.172138      True\n\nIdd: achieved 5.99376 mA (normalized margin 5.622195158573125e-05 vs the idd_ma cap; negative == over budget).\n\nfull sized-best metrics (verbatim):\n{\n  \"s11_db\": -4.12725,\n  \"s11_max_db\": -4.0748,\n  \"s21_db\": 13.0846,\n  \"s21_min_db\": 12.8427,\n  \"idd_ma\": 5.993763,\n  \"nf_db\": 1.672046,\n  \"s22_db\": -7.5209,\n  \"s22_max_db\": -7.36394,\n  \"s12_db\": -58.9437,\n  \"k_f0\": 49.8158,\n  \"k_min\": 46.5437,\n  \"mu_f0\": 2.35925,\n  \"mu_min\": 2.3185,\n  \"mu_src_f0\": 1.59901,\n  \"mu_src_min\": 1.59018,\n  \"delta_f0\": 0.266629,\n  \"delta_max\": 0.272551,\n  \"stab_band\": [\n    882000000.0,\n    918000000.0\n  ],\n  \"s21_ripple_db\": 0.4557000000000002,\n  \"nf_method\": \"series_rs\"\n}\n\nYOUR TASK (arm B):\n1. DIAGNOSE the failure in words: what is physically limiting the binding constraint in the circuit above?\n2. Propose EXACTLY 1 STRUCTURAL edits as FULL netlists in the dialect below. Each edit is a complete netlist (not a diff), each structurally DIFFERENT from the anchor and from the other edits.\n3. After EACH edit, state a PREDICTED direction AND magnitude for the binding metric (e.g. 's11_db improves by ~3 dB').\n\nEmit each edit in its OWN fenced ```netlist block.\n\nNETLIST DIALECT (obey exactly, one device per line):\n  TYPE name node1 node2 [node3 node4]\n  TYPE in {NMOS, PMOS, R, C, L}.\n  NMOS/PMOS take 4 nodes in order D G S B; R/C/L take 2 nodes P N.\n  Nets: VIN1 (input), VOUT1 (output), VDD, VSS (ground); any internal node name otherwise. NO device values. NO V sources. NO bias networks.",
+ "evidence": {
+  "spec": "t2-nb090-noise-0363",
+  "band": {
+   "type": "narrowband",
+   "f0": 900000000.0,
+   "f_lo": 882000000.0,
+   "f_hi": 918000000.0
+  },
+  "pdk": "bptm45",
+  "anchor_family": "twostage",
+  "feasible": false,
+  "worst_margin": [
+   "s11_max_db",
+   -0.48500436029978644
+  ],
+  "margins": {
+   "nf_db": {
+    "achieved": 1.672046,
+    "margin": -8.73257969974158e-05,
+    "supported": true
+   },
+   "s11_max_db": {
+    "achieved": -4.0748,
+    "margin": -0.48500436029978644,
+    "supported": true
+   },
+   "s21_db": {
+    "achieved": 13.0846,
+    "margin": -0.0002521412908105513,
+    "supported": true
+   },
+   "idd_ma": {
+    "achieved": 5.993763,
+    "margin": 5.622195158573125e-05,
+    "supported": true
+   },
+   "mu_min": {
+    "achieved": 2.3185,
+    "margin": 1.3184999999999998,
+    "supported": true
+   },
+   "mu_min_wide_0.01-50GHz": {
+    "achieved": 0.827862,
+    "margin": -0.172138,
+    "supported": true
+   }
+  },
+  "metrics": {
+   "s11_db": -4.12725,
+   "s11_max_db": -4.0748,
+   "s21_db": 13.0846,
+   "s21_min_db": 12.8427,
+   "idd_ma": 5.993763,
+   "nf_db": 1.672046,
+   "s22_db": -7.5209,
+   "s22_max_db": -7.36394,
+   "s12_db": -58.9437,
+   "k_f0": 49.8158,
+   "k_min": 46.5437,
+   "mu_f0": 2.35925,
+   "mu_min": 2.3185,
+   "mu_src_f0": 1.59901,
+   "mu_src_min": 1.59018,
+   "delta_f0": 0.266629,
+   "delta_max": 0.272551,
+   "stab_band": [
+    882000000.0,
+    918000000.0
+   ],
+   "s21_ripple_db": 0.4557000000000002,
+   "nf_method": "series_rs"
+  },
+  "total_evals": 2500,
+  "verifier": "rl-v1.2",
+  "seeds": [
+   1
+  ],
+  "best_seed": 1,
+  "stab_wide_ok": false,
+  "mu_min_wide": 0.827862,
+  "infeasible_reason": null
+ }
+}

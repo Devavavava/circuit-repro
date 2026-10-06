@@ -1,0 +1,9 @@
+[p1 rat-b    0.0m] preflight OK: ['gh token', 'ngspice cache', 'llamacpp cache']
+[p1 rat-b    0.0m] $ (stream) bash /tmp/circuit-repro/kaggle/bootstrap.sh
+[p1 rat-b    0.5m] $ cp -r /kaggle/input/datasets/devavratpatni/circuit-repro-llamacpp-cuda/llamacpp/llamacpp /kaggle/working
+[p1 rat-b    0.5m] $ chmod +x /kaggle/working/llamacpp/bin/* || true
+[p1 rat-b    2.8m] GGUF 9001752960 bytes in 133s sha256 500a8806e85ee9c83f3ae08420295592451379b4f8cf2d0f41c15dffeb6b81f0
+[p1 rat-b    2.8m] launching: /kaggle/working/llamacpp/bin/llama-server -m /tmp/p1/Qwen3-14B-Q4_K_M.gguf --host 127.0.0.1 --port 8080 --n-gpu-layers 999 --split-mode layer -c 16384 --parallel 4
+[p1 rat-b    2.9m] llama-server healthy after 6.0s
+[p1 rat-b    2.9m] $ (stream) bash -c source /kaggle/working/env-kaggle.sh && exec /usr/bin/python3 /tmp/circuit-repro/kaggle/campaigns/pilot-v0/P1/p1_gen.py rationalize --examples /tmp/circuit-repro/kaggle/campaigns/pilot-v0/P1/rat/rat-input-b.jsonl --out /kaggle/working/p1/rat --attempts 3 --parallel 4 --model-id qwen3-14b-q4km --llm-url http://127.0.0.1:8080/v1 --deadline-epoch 1791331964
+[p1 rat-b  105.2m] EVENT {"step": "rationalize", "rc": 0, "minutes": 102.3, "n_examples": 500, "n_calls": 593, "n_kept": 499, "gpu_min_sum_requests": 403.57, "kind": "rat_done", "t_min": 105.25}

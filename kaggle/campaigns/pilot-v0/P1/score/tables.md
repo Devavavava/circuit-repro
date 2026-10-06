@@ -1,6 +1,7 @@
 | model | group | tasks | solved | >=2/3 seeds | validity | anchor repeats | SPICE-min to 1st feasible (median / mean, solved) | search bar median (same tasks / all found) | GPU-min/compl (mean / median) | GPU-min total |
 |---|---|---|---|---|---|---|---|---|---|---|
-| zs | all | 58 | 5 | 3 | 0.957 (111/116) | 2 | 3.9 / 5.49 | None / None | 0.98 / 0.95 | 113.7 |
-| zs | T3 | 2 | 0 | 0 | 0.75 (3/4) | 0 | None / None | None / None | 0.96 / 0.97 | 3.9 |
-| zs | untiered | 56 | 5 | 3 | 0.964 (108/112) | 2 | 3.9 / 5.49 | None / None | 0.98 / 0.95 | 109.9 |
+| zs | all | 58 | 5 | 3 | 0.957 (111/116) | 2 | 3.9 / 5.49 | 4.28 / 5.43 | 0.98 / 0.95 | 113.7 |
+| zs | T1 | 23 | 1 | 1 | 0.978 (45/46) | 1 | 1.63 / 1.63 | 6.68 / 2.8 | 0.95 / 0.93 | 43.8 |
+| zs | T2 | 32 | 4 | 2 | 0.953 (61/64) | 1 | 4.03 / 6.45 | 3.65 / 27.17 | 1.0 / 0.96 | 64.1 |
+| zs | T3 | 3 | 0 | 0 | 0.833 (5/6) | 0 | None / None | None / None | 0.97 / 0.97 | 5.8 |
 | zs | strict | 2 | 0 | 0 | 0.75 (3/4) | 0 | None / None | None / None | 0.96 / 0.97 | 3.9 |

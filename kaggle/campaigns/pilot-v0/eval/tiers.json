@@ -1,0 +1,6048 @@
+{
+ "prereg": "kaggle/PREREG-PILOT-V0.md (137ea060a)",
+ "verifier": "rl-v1.2",
+ "pdk": "bptm45",
+ "budget": 2500,
+ "split_sha256": "809d4bc7fd02dbe475622115ded95b7434cbb372249ba182b26b8a40e28d272e",
+ "partial": false,
+ "n_items": 58,
+ "tier_hist": {
+  "T3": 3,
+  "T1": 23,
+  "T2": 32
+ },
+ "per_family": {
+  "nb090-noise": {
+   "T3": 1,
+   "T1": 9,
+   "T2": 15
+  },
+  "wb1020-gain": {
+   "T1": 14,
+   "T2": 17
+  },
+  "wb0824-gain": {
+   "T3": 1
+  },
+  "wb1020-noise": {
+   "T3": 1
+  }
+ },
+ "definitions": {
+  "T1": "some library anchor a1-a5 is feasible at the task spec at seed 1 (AMENDMENT-3 T-F1 rows) or, if none, at seed 2",
+  "T2": "not T1; some single edit of the shown anchor is feasible at seed 1 (full enumeration) or at seed 2 (re-tried when its seed-1 worst margin incl. wide mu-1 is >= -0.1)",
+  "T3": "neither; a verified witness exists (EVAL-ONLY)"
+ },
+ "strict_cells_check": {
+  "v2b-wb0824-gain-188": {
+   "status_pass": true,
+   "rows_rl_v1_2_and_consistent": true,
+   "bad_rows": [],
+   "A1": true,
+   "A2": true,
+   "A3": true,
+   "F1_none_feasible_s1_s2": true,
+   "F2_none_feasible_s1_s2": true,
+   "witness_tok_matches": true,
+   "all_pass": true
+  },
+  "v2b-wb1020-noise-217": {
+   "status_pass": true,
+   "rows_rl_v1_2_and_consistent": true,
+   "bad_rows": [],
+   "A1": true,
+   "A2": true,
+   "A3": true,
+   "F1_none_feasible_s1_s2": true,
+   "F2_none_feasible_s1_s2": true,
+   "witness_tok_matches": true,
+   "all_pass": true
+  }
+ },
+ "items": {
+  "t2-nb090-noise-0012": {
+   "tier": "T3",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "parent_anchor": "a3",
+   "shown_anchor": "a3",
+   "pool_label_amend3": "single-edit-solvable",
+   "witness": {
+    "wl": "08327452626a2a92",
+    "tok": "1974f59296fbce5d",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-nb090-noise-0012/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.07356451703115388,
+     "secs": 74.29,
+     "inproc_reject": false,
+     "jid": "38e57b16b3fbab9fe937"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.163767,
+     "secs": 92.32,
+     "inproc_reject": false,
+     "jid": "ba2109c5007777797916"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.37403299999999995,
+     "secs": 65.97,
+     "inproc_reject": false,
+     "jid": "5752a8d013c18bc2c569"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.47374741834315004,
+     "secs": 74.13,
+     "inproc_reject": false,
+     "jid": "be7fb491945a4dfa6d15"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.4617206384823296,
+     "secs": 69.86,
+     "inproc_reject": false,
+     "jid": "d4d838fe393552f3aba6"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.07796185468985953,
+     "secs": 90.31,
+     "inproc_reject": false,
+     "jid": "fcb99e5334b4129b70cc"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.13891996196655282,
+     "secs": 107.11,
+     "inproc_reject": false,
+     "jid": "faa5d5d4d900a3a94742"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.322237,
+     "secs": 78.95,
+     "inproc_reject": false,
+     "jid": "22cd4bfa877eeeb2aa4b"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.9218250461435202,
+     "secs": 90.83,
+     "inproc_reject": false,
+     "jid": "77240ef5090f7487f435"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.5538436432250498,
+     "secs": 84.69,
+     "inproc_reject": false,
+     "jid": "c8ffe695ffa335a8cb1d"
+    }
+   ],
+   "f2_n_space": 67,
+   "f2_n_sized_s1": 56,
+   "f2_n_prereject": 11,
+   "f2_n_near_s2": 2,
+   "f2_solving": []
+  },
+  "t2-nb090-noise-0013": {
+   "tier": "T1",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "parent_anchor": "a1",
+   "shown_anchor": "a2",
+   "pool_label_amend3": "library-solvable",
+   "witness": {
+    "wl": "83cca6607dab707d",
+    "tok": "8a9b97b33d4afa06",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-nb090-noise-0013/witness/witness.net"
+   },
+   "library_solvers": [
+    "a1@s1"
+   ],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": true,
+     "worst": 1.2748597653775399e-06,
+     "secs": 74.46,
+     "inproc_reject": false,
+     "jid": "7f4680904a45dc510695"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.08429200000000003,
+     "secs": 92.69,
+     "inproc_reject": false,
+     "jid": "fccc4dcab165f1eef424"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.36034299999999997,
+     "secs": 65.18,
+     "inproc_reject": false,
+     "jid": "cef92c103d227f4798ed"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.2851389597144314,
+     "secs": 73.84,
+     "inproc_reject": false,
+     "jid": "1f3c912084964599f7f9"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6946376230942791,
+     "secs": 69.56,
+     "inproc_reject": false,
+     "jid": "f77a20ba07e819c7620f"
+    }
+   ]
+  },
+  "t2-nb090-noise-0047": {
+   "tier": "T1",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a3",
+   "pool_label_amend3": "library-solvable",
+   "witness": {
+    "wl": "924b89ea98f3005c",
+    "tok": "7a7482c386ffb058",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-nb090-noise-0047/witness/witness.net"
+   },
+   "library_solvers": [
+    "a1@s1",
+    "a2@s1"
+   ],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": true,
+     "worst": 1.999999999990898e-05,
+     "secs": 75.57,
+     "inproc_reject": false,
+     "jid": "4cbf0890a40bad3a4212"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": true,
+     "worst": 0.00024713795563406323,
+     "secs": 105.0,
+     "inproc_reject": false,
+     "jid": "76f6c9c63994b16b0749"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.317418,
+     "secs": 70.13,
+     "inproc_reject": false,
+     "jid": "b2333497248e69d0fae7"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.35533000000000003,
+     "secs": 85.31,
+     "inproc_reject": false,
+     "jid": "f3dff2f06d55c2713d0b"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.5472288143230496,
+     "secs": 80.36,
+     "inproc_reject": false,
+     "jid": "a5b8248272077ff26c92"
+    }
+   ]
+  },
+  "t2-nb090-noise-0068": {
+   "tier": "T1",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "parent_anchor": "a1",
+   "shown_anchor": "a2",
+   "pool_label_amend3": "library-solvable",
+   "witness": {
+    "wl": "0dcc28c5b5138991",
+    "tok": "6a7328ade766e29e",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-nb090-noise-0068/witness/witness.net"
+   },
+   "library_solvers": [
+    "a1@s1"
+   ],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": true,
+     "worst": 1.999999999990898e-05,
+     "secs": 75.21,
+     "inproc_reject": false,
+     "jid": "0e4898e8df9c14dd7a19"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.12619000000000002,
+     "secs": 93.05,
+     "inproc_reject": false,
+     "jid": "04903490c9e1f20c5473"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.38759939152788947,
+     "secs": 65.89,
+     "inproc_reject": false,
+     "jid": "816fb63e86e1556d92c9"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.2778512166120858,
+     "secs": 74.95,
+     "inproc_reject": false,
+     "jid": "392f81b73b9413c24989"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6992679735088779,
+     "secs": 69.78,
+     "inproc_reject": false,
+     "jid": "b4e2cae27b42bcd9635e"
+    }
+   ]
+  },
+  "t2-nb090-noise-0129": {
+   "tier": "T1",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "parent_anchor": "a1",
+   "shown_anchor": "a2",
+   "pool_label_amend3": "library-solvable",
+   "witness": {
+    "wl": "8fb52de78712c6c6",
+    "tok": "71693a36c172b1ec",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-nb090-noise-0129/witness/witness.net"
+   },
+   "library_solvers": [
+    "a1@s1"
+   ],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": true,
+     "worst": 1.999999999990898e-05,
+     "secs": 71.32,
+     "inproc_reject": false,
+     "jid": "62e289e089ba7d17f1de"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.07292943381423547,
+     "secs": 87.33,
+     "inproc_reject": false,
+     "jid": "193f36bf85beadb796e4"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.380452,
+     "secs": 62.22,
+     "inproc_reject": false,
+     "jid": "2802ae0ca9322c1f7d26"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.7823789999999999,
+     "secs": 71.28,
+     "inproc_reject": false,
+     "jid": "341589d20506f6e010e8"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.671906970647987,
+     "secs": 66.85,
+     "inproc_reject": false,
+     "jid": "c165c8c3f4c00b4a6605"
+    }
+   ]
+  },
+  "t2-nb090-noise-0143": {
+   "tier": "T1",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "parent_anchor": "a1",
+   "shown_anchor": "a2",
+   "pool_label_amend3": "library-solvable",
+   "witness": {
+    "wl": "bf15ea9502b13e51",
+    "tok": "bad78164293bda92",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-nb090-noise-0143/witness/witness.net"
+   },
+   "library_solvers": [
+    "a1@s1"
+   ],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": true,
+     "worst": 2.999999999997449e-05,
+     "secs": 83.95,
+     "inproc_reject": false,
+     "jid": "743c98cbcd662f935871"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.10983954179783152,
+     "secs": 100.25,
+     "inproc_reject": false,
+     "jid": "f53c84f73f58889c0e7d"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.370028,
+     "secs": 72.23,
+     "inproc_reject": false,
+     "jid": "64b65e5a6e0ea88137f8"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.36878951662247605,
+     "secs": 81.57,
+     "inproc_reject": false,
+     "jid": "039745b60c349bfe80a4"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6791260133693642,
+     "secs": 75.68,
+     "inproc_reject": false,
+     "jid": "f23fbd3ad211e7677477"
+    }
+   ]
+  },
+  "t2-nb090-noise-0240": {
+   "tier": "T1",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "parent_anchor": "a1",
+   "shown_anchor": "a2",
+   "pool_label_amend3": "library-solvable",
+   "witness": {
+    "wl": "6c0820001bd61c4b",
+    "tok": "aba4634a88184035",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-nb090-noise-0240/witness/witness.net"
+   },
+   "library_solvers": [
+    "a1@s1"
+   ],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": true,
+     "worst": 8.92435967719501e-06,
+     "secs": 73.73,
+     "inproc_reject": false,
+     "jid": "c1a304b7fd18ed75652a"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.20698799999999995,
+     "secs": 91.51,
+     "inproc_reject": false,
+     "jid": "bc111e9ecaa8c7cf66e9"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.37840166847731327,
+     "secs": 64.57,
+     "inproc_reject": false,
+     "jid": "e3bf576ab0521161d515"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.2936853780741232,
+     "secs": 73.53,
+     "inproc_reject": false,
+     "jid": "4ec271a677a258eb076e"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6965067932778068,
+     "secs": 69.25,
+     "inproc_reject": false,
+     "jid": "a5112dc644101ed6a5d7"
+    }
+   ]
+  },
+  "t2-nb090-noise-0254": {
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "parent_anchor": "a4",
+   "shown_anchor": "a4",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "85bd02938c15534b",
+    "tok": "2bceabc3dd44dc10",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-nb090-noise-0254/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.546271091400316,
+     "secs": 74.09,
+     "inproc_reject": false,
+     "jid": "c583217285533e5342c2"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.3325726926679554,
+     "secs": 92.16,
+     "inproc_reject": false,
+     "jid": "25eedb45a00072f2e97d"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.49859497379277357,
+     "secs": 64.61,
+     "inproc_reject": false,
+     "jid": "62cad33583be6301dccd"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6124356425549268,
+     "secs": 73.72,
+     "inproc_reject": false,
+     "jid": "c60fc0b9c97bb447427b"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.7270841222073858,
+     "secs": 68.85,
+     "inproc_reject": false,
+     "jid": "8a36409fa0c88b8cf1cb"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.38538639955140946,
+     "secs": 117.49,
+     "inproc_reject": false,
+     "jid": "da195a834ec5f1cbd288"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.6941791487468485,
+     "secs": 138.83,
+     "inproc_reject": false,
+     "jid": "33a8e77755b8cad4a93d"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.5271145146182514,
+     "secs": 108.08,
+     "inproc_reject": false,
+     "jid": "a4ddd1755181ce7be833"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.630859713513789,
+     "secs": 118.05,
+     "inproc_reject": false,
+     "jid": "8b31a6e2ec5a0f37de23"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.7417083524323893,
+     "secs": 112.66,
+     "inproc_reject": false,
+     "jid": "f5a9350f7c1d64763100"
+    }
+   ],
+   "f2_n_space": 147,
+   "f2_n_sized_s1": 126,
+   "f2_n_prereject": 21,
+   "f2_n_near_s2": 1,
+   "f2_solving": [
+    "add C VDD-n4@s1",
+    "add C VSS-n4@s1"
+   ]
+  },
+  "t2-nb090-noise-0269": {
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "parent_anchor": "a4",
+   "shown_anchor": "a4",
+   "pool_label_amend3": "single-edit-solvable",
+   "witness": {
+    "wl": "121c16b4a622480a",
+    "tok": "54fdc8a1e49b54c8",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-nb090-noise-0269/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.12302624687190837,
+     "secs": 78.87,
+     "inproc_reject": false,
+     "jid": "2b657ee26db4472bb2e0"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.17839300000000002,
+     "secs": 98.28,
+     "inproc_reject": false,
+     "jid": "64fee3b5e078e82948e4"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.38429199999999997,
+     "secs": 68.86,
+     "inproc_reject": false,
+     "jid": "dc7436803890f5b8e8c8"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.49946315213657816,
+     "secs": 77.48,
+     "inproc_reject": false,
+     "jid": "b171ba2d3e3322462219"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.573035574102384,
+     "secs": 73.05,
+     "inproc_reject": false,
+     "jid": "6d92c5c8edcaad378578"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.0986969679334226,
+     "secs": 105.29,
+     "inproc_reject": false,
+     "jid": "c84850d723a6681356f6"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.09043182214979922,
+     "secs": 125.54,
+     "inproc_reject": false,
+     "jid": "3cacc793389fa0992881"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.38428799999999996,
+     "secs": 94.94,
+     "inproc_reject": false,
+     "jid": "3117df0f3a7de7b0eb85"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": -1.0000448117325265,
+     "secs": 106.09,
+     "inproc_reject": false,
+     "jid": "b6df5530d7d69e6ca586"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.618927405693509,
+     "secs": 100.47,
+     "inproc_reject": false,
+     "jid": "956056c2ac1d487b05a7"
+    }
+   ],
+   "f2_n_space": 147,
+   "f2_n_sized_s1": 126,
+   "f2_n_prereject": 21,
+   "f2_n_near_s2": 4,
+   "f2_solving": [
+    "add C VDD-n2@s1",
+    "add R VOUT1-n7@s1",
+    "add C VSS-n2@s1",
+    "add C VDD-n4@s2",
+    "add C VSS-n4@s2"
+   ]
+  },
+  "t2-nb090-noise-0286": {
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "parent_anchor": "a4",
+   "shown_anchor": "a4",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "41d786acaa310d60",
+    "tok": "f912f7c64077d8df",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-nb090-noise-0286/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.2751242829827915,
+     "secs": 73.96,
+     "inproc_reject": false,
+     "jid": "6bade48d8e3459fd8ce2"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.3109096708475239,
+     "secs": 91.85,
+     "inproc_reject": false,
+     "jid": "983d42cfd97473ca0d4f"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.4943882538147321,
+     "secs": 65.37,
+     "inproc_reject": false,
+     "jid": "92657dbf61a16cc0b2dc"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.5308043339706819,
+     "secs": 74.16,
+     "inproc_reject": false,
+     "jid": "7f81baaf3e725d85c352"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.7596600438321209,
+     "secs": 69.74,
+     "inproc_reject": false,
+     "jid": "1a176e282a57e6c1c59a"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.27136010197578075,
+     "secs": 83.95,
+     "inproc_reject": false,
+     "jid": "c0a86d9e3032469a2ab5"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.3064698679891757,
+     "secs": 100.71,
+     "inproc_reject": false,
+     "jid": "9a79a1c51e3191f46a0a"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.5124684892323205,
+     "secs": 73.29,
+     "inproc_reject": false,
+     "jid": "103f96341e317f4e74ae"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.5548285532186106,
+     "secs": 83.65,
+     "inproc_reject": false,
+     "jid": "7d01b5e93c84cb6985f2"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.7740680529689574,
+     "secs": 76.79,
+     "inproc_reject": false,
+     "jid": "0b5219d5df845880fd1d"
+    }
+   ],
+   "f2_n_space": 147,
+   "f2_n_sized_s1": 126,
+   "f2_n_prereject": 21,
+   "f2_n_near_s2": 0,
+   "f2_solving": [
+    "add R VOUT1-n7@s1"
+   ]
+  },
+  "t2-nb090-noise-0287": {
+   "tier": "T1",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "parent_anchor": "a4",
+   "shown_anchor": "a4",
+   "pool_label_amend3": "library-solvable",
+   "witness": {
+    "wl": "d361fdb6f792370b",
+    "tok": "400750f77abab227",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-nb090-noise-0287/witness/witness.net"
+   },
+   "library_solvers": [
+    "a1@s1"
+   ],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": true,
+     "worst": 1.999999999990898e-05,
+     "secs": 74.74,
+     "inproc_reject": false,
+     "jid": "4adee1a0397bde6d4298"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.03885799999999995,
+     "secs": 93.13,
+     "inproc_reject": false,
+     "jid": "31a7c5e1e1eb77082812"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.32169499999999995,
+     "secs": 65.71,
+     "inproc_reject": false,
+     "jid": "762670751de9af69de60"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.37345522606603093,
+     "secs": 74.92,
+     "inproc_reject": false,
+     "jid": "09c18301c54499270b01"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6199511276281626,
+     "secs": 70.22,
+     "inproc_reject": false,
+     "jid": "085290232196939bde1b"
+    }
+   ]
+  },
+  "t2-nb090-noise-0291": {
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "parent_anchor": "a4",
+   "shown_anchor": "a4",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "7837661b23f01eda",
+    "tok": "c83c0d64454bdeb2",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-nb090-noise-0291/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6126879271070614,
+     "secs": 77.22,
+     "inproc_reject": false,
+     "jid": "0bbee947039ddd9f744f"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.2655146296525087,
+     "secs": 98.35,
+     "inproc_reject": false,
+     "jid": "f95df06ff2c6d62ddf11"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.46804574485800077,
+     "secs": 68.46,
+     "inproc_reject": false,
+     "jid": "a855e4feaeb81b420e5e"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.5463907871424954,
+     "secs": 78.33,
+     "inproc_reject": false,
+     "jid": "8597187331dbe14c0346"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.7067118600366346,
+     "secs": 73.47,
+     "inproc_reject": false,
+     "jid": "c01305863bef8d809b3d"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.3053872437357631,
+     "secs": 76.93,
+     "inproc_reject": false,
+     "jid": "f53dd59496a40273f1d0"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.521475575803594,
+     "secs": 93.34,
+     "inproc_reject": false,
+     "jid": "10dc2f2e5de61f27d5b8"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.4960711849293361,
+     "secs": 66.75,
+     "inproc_reject": false,
+     "jid": "78691962f97b9253b165"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.7071430000000001,
+     "secs": 75.81,
+     "inproc_reject": false,
+     "jid": "21a757f56d097e1ee689"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.7634814651676219,
+     "secs": 70.68,
+     "inproc_reject": false,
+     "jid": "ced5183de60489f22cec"
+    }
+   ],
+   "f2_n_space": 147,
+   "f2_n_sized_s1": 126,
+   "f2_n_prereject": 21,
+   "f2_n_near_s2": 2,
+   "f2_solving": [
+    "add C VDD-n2@s1",
+    "add C VDD-n4@s1",
+    "add C VSS-n2@s1",
+    "add C VSS-n4@s1"
+   ]
+  },
+  "t2-nb090-noise-0300": {
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "parent_anchor": "a4",
+   "shown_anchor": "a4",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "735f03d643694cbe",
+    "tok": "15eae345c7510612",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-nb090-noise-0300/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.4574619650943877,
+     "secs": 72.75,
+     "inproc_reject": false,
+     "jid": "93a77c31fca862956e94"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.29324720518045944,
+     "secs": 90.53,
+     "inproc_reject": false,
+     "jid": "9aeb3c458004dad22bbf"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.46462378350191824,
+     "secs": 64.15,
+     "inproc_reject": false,
+     "jid": "136722f68ce55ff1ab00"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6156948048643972,
+     "secs": 73.04,
+     "inproc_reject": false,
+     "jid": "fba0bea435feb7aa60ef"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.7104210453503035,
+     "secs": 69.09,
+     "inproc_reject": false,
+     "jid": "7e23231ee646c1f84e35"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.36288734544344375,
+     "secs": 73.71,
+     "inproc_reject": false,
+     "jid": "a657a0eda1097173b9f0"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.5111069134869665,
+     "secs": 90.93,
+     "inproc_reject": false,
+     "jid": "0cc8f11076a15bbf6cbb"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.49527448027796556,
+     "secs": 64.58,
+     "inproc_reject": false,
+     "jid": "46beba0e6a4e98fdcd17"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.619587340355162,
+     "secs": 74.55,
+     "inproc_reject": false,
+     "jid": "8c8c8d317b213c3da8ae"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.7090812346690647,
+     "secs": 69.46,
+     "inproc_reject": false,
+     "jid": "ee8d6b1d97818f5431aa"
+    }
+   ],
+   "f2_n_space": 147,
+   "f2_n_sized_s1": 126,
+   "f2_n_prereject": 21,
+   "f2_n_near_s2": 2,
+   "f2_solving": [
+    "add R VOUT1-n7@s1"
+   ]
+  },
+  "t2-nb090-noise-0307": {
+   "tier": "T1",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "parent_anchor": "a4",
+   "shown_anchor": "a4",
+   "pool_label_amend3": "library-solvable",
+   "witness": {
+    "wl": "d2412aef8ca32abd",
+    "tok": "f0aa7df719ce39b4",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-nb090-noise-0307/witness/witness.net"
+   },
+   "library_solvers": [
+    "a1@s1"
+   ],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": true,
+     "worst": 1.999999999990898e-05,
+     "secs": 73.59,
+     "inproc_reject": false,
+     "jid": "ec07afbd00c981c55d9c"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.10053299999999998,
+     "secs": 90.8,
+     "inproc_reject": false,
+     "jid": "fa9d2231ab00e8d4595f"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.32211999999999996,
+     "secs": 64.56,
+     "inproc_reject": false,
+     "jid": "5405496e505160749045"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.3706078024036808,
+     "secs": 73.63,
+     "inproc_reject": false,
+     "jid": "519453ed5b9f8650d375"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6494692607003891,
+     "secs": 68.81,
+     "inproc_reject": false,
+     "jid": "8a37054816b996ae2685"
+    }
+   ]
+  },
+  "t2-nb090-noise-0312": {
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "parent_anchor": "a4",
+   "shown_anchor": "a4",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "37d5ec2a59b0a2a3",
+    "tok": "dc034f10a13643c3",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-nb090-noise-0312/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.46019436024148563,
+     "secs": 79.11,
+     "inproc_reject": false,
+     "jid": "2142c29c81d57f0647e5"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.3331289609432572,
+     "secs": 94.68,
+     "inproc_reject": false,
+     "jid": "7b6dcf3a937e2b19688f"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.4665042036631923,
+     "secs": 67.47,
+     "inproc_reject": false,
+     "jid": "0306ffe13d852e6beadf"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.601869730239193,
+     "secs": 77.38,
+     "inproc_reject": false,
+     "jid": "6188db097fa320a660da"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.7082035774031656,
+     "secs": 72.46,
+     "inproc_reject": false,
+     "jid": "e7304d852df746dfd8ce"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.3803500012736582,
+     "secs": 74.88,
+     "inproc_reject": false,
+     "jid": "a18d91872e1ec6f57774"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.3388091378039794,
+     "secs": 92.6,
+     "inproc_reject": false,
+     "jid": "952b3517f5443d3d66ce"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.4914071548063313,
+     "secs": 65.71,
+     "inproc_reject": false,
+     "jid": "a7fbdee286687a1bd9ad"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.6276320146725425,
+     "secs": 74.97,
+     "inproc_reject": false,
+     "jid": "6bcdc377d71cc29999ea"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.7216311714494059,
+     "secs": 70.53,
+     "inproc_reject": false,
+     "jid": "16c74ca2d2a375924b65"
+    }
+   ],
+   "f2_n_space": 147,
+   "f2_n_sized_s1": 126,
+   "f2_n_prereject": 21,
+   "f2_n_near_s2": 0,
+   "f2_solving": [
+    "add R VOUT1-n7@s1"
+   ]
+  },
+  "t2-nb090-noise-0322": {
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "parent_anchor": "a4",
+   "shown_anchor": "a4",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "f00125fbf3343312",
+    "tok": "fc570011d604a839",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-nb090-noise-0322/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6195453218415607,
+     "secs": 75.63,
+     "inproc_reject": false,
+     "jid": "69fa7aa1480290ca9308"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.265945,
+     "secs": 93.55,
+     "inproc_reject": false,
+     "jid": "8ebd543409cea07aa439"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.4662263409035358,
+     "secs": 66.09,
+     "inproc_reject": false,
+     "jid": "2076dc2a4b155d8a083e"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6019382846117718,
+     "secs": 75.34,
+     "inproc_reject": false,
+     "jid": "9931e99291e0471b7ac0"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.7074444456252591,
+     "secs": 70.74,
+     "inproc_reject": false,
+     "jid": "fcd2ace65e11ea9b7b3b"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.38312664221068526,
+     "secs": 73.37,
+     "inproc_reject": false,
+     "jid": "434bb16d7ebbeee55c8b"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.3462413407821229,
+     "secs": 89.34,
+     "inproc_reject": false,
+     "jid": "04e8288b05bce28642f8"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.49669861950965494,
+     "secs": 63.71,
+     "inproc_reject": false,
+     "jid": "ba86613852ad7dae2795"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.6355872608877775,
+     "secs": 72.42,
+     "inproc_reject": false,
+     "jid": "cdd448eec0a660469574"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.7100433595119929,
+     "secs": 68.0,
+     "inproc_reject": false,
+     "jid": "ea955a1b9a73d46e66db"
+    }
+   ],
+   "f2_n_space": 147,
+   "f2_n_sized_s1": 126,
+   "f2_n_prereject": 21,
+   "f2_n_near_s2": 2,
+   "f2_solving": [
+    "add C n2-n7@s1",
+    "add R VOUT1-n7@s2"
+   ]
+  },
+  "t2-nb090-noise-0323": {
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "parent_anchor": "a4",
+   "shown_anchor": "a4",
+   "pool_label_amend3": "single-edit-solvable",
+   "witness": {
+    "wl": "73ec378542a42983",
+    "tok": "fa86f6476857dba8",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-nb090-noise-0323/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.025284333315331947,
+     "secs": 76.37,
+     "inproc_reject": false,
+     "jid": "5165dcb2ea85bb0370b5"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.06980342388075829,
+     "secs": 94.58,
+     "inproc_reject": false,
+     "jid": "955ef37baafd3e4027de"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.38401399999999997,
+     "secs": 67.26,
+     "inproc_reject": false,
+     "jid": "e478bc2a1be9aae64f4c"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.4590119276448948,
+     "secs": 76.28,
+     "inproc_reject": false,
+     "jid": "d9ac68508d00b11372f4"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.5931668844841357,
+     "secs": 71.64,
+     "inproc_reject": false,
+     "jid": "81fde3c72e09ecbfd9cf"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.018787600583247924,
+     "secs": 72.57,
+     "inproc_reject": false,
+     "jid": "74172a386956edaa9e55"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.048090403413079956,
+     "secs": 90.83,
+     "inproc_reject": false,
+     "jid": "5f99dfc1e24b3fc09aba"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.321526,
+     "secs": 63.88,
+     "inproc_reject": false,
+     "jid": "0804c4ab26bebf4b579b"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.8080871631473782,
+     "secs": 73.12,
+     "inproc_reject": false,
+     "jid": "8fa96018832b4be27dfb"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.5947533217164017,
+     "secs": 69.97,
+     "inproc_reject": false,
+     "jid": "0ca787d1ca7293e913d5"
+    }
+   ],
+   "f2_n_space": 147,
+   "f2_n_sized_s1": 126,
+   "f2_n_prereject": 21,
+   "f2_n_near_s2": 4,
+   "f2_solving": [
+    "add C VDD-n2@s1",
+    "add C VDD-n4@s1",
+    "add R VOUT1-n5@s1",
+    "add R VOUT1-n7@s1",
+    "add C VSS-n2@s1",
+    "add C VSS-n4@s1",
+    "add C n2-n7@s1"
+   ]
+  },
+  "t2-nb090-noise-0349": {
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "parent_anchor": "a4",
+   "shown_anchor": "a4",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "9b9211208fc2eb77",
+    "tok": "3d322338287dbb38",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-nb090-noise-0349/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6605379565300529,
+     "secs": 88.02,
+     "inproc_reject": false,
+     "jid": "3b63c3d57c48a4144688"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.28095800000000004,
+     "secs": 107.22,
+     "inproc_reject": false,
+     "jid": "02c79b2af5ad666ab3fc"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.467820932112496,
+     "secs": 76.57,
+     "inproc_reject": false,
+     "jid": "9764b15c7b3738a079ec"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6390107718783861,
+     "secs": 87.61,
+     "inproc_reject": false,
+     "jid": "81d07cd7779b78db21df"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.7093253517480411,
+     "secs": 81.87,
+     "inproc_reject": false,
+     "jid": "e7c8ef32033a54eeca9b"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.46361782140353114,
+     "secs": 76.07,
+     "inproc_reject": false,
+     "jid": "b6bea9dc2bd61fbb8b6b"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.4208721021920832,
+     "secs": 93.72,
+     "inproc_reject": false,
+     "jid": "dc760d26a1548f29fc14"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.49837268649382627,
+     "secs": 66.05,
+     "inproc_reject": false,
+     "jid": "7479d1bd33871e72d488"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.6306482248709286,
+     "secs": 74.87,
+     "inproc_reject": false,
+     "jid": "44ca1079ed938654a9ff"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.7315392378043948,
+     "secs": 70.38,
+     "inproc_reject": false,
+     "jid": "cca4ae85a7a0b49c934c"
+    }
+   ],
+   "f2_n_space": 147,
+   "f2_n_sized_s1": 126,
+   "f2_n_prereject": 21,
+   "f2_n_near_s2": 1,
+   "f2_solving": [
+    "add C VDD-n2@s1",
+    "add C VDD-n4@s1",
+    "add R VOUT1-n7@s1",
+    "add C VSS-n2@s1",
+    "add C VSS-n4@s1"
+   ]
+  },
+  "t2-nb090-noise-0350": {
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "parent_anchor": "a4",
+   "shown_anchor": "a4",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "bdf454e8cd81d9ef",
+    "tok": "99d1091a10e60f5a",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-nb090-noise-0350/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.8596551592307986,
+     "secs": 79.26,
+     "inproc_reject": false,
+     "jid": "d50211b3aecc98a8bcfb"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6414157283756656,
+     "secs": 100.57,
+     "inproc_reject": false,
+     "jid": "f7e8f8726c119d452c93"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.5593728100911003,
+     "secs": 70.2,
+     "inproc_reject": false,
+     "jid": "4aefea500c59093a61db"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.7060442711320105,
+     "secs": 80.33,
+     "inproc_reject": false,
+     "jid": "c301b4b734365857ae9f"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.7674978100911003,
+     "secs": 74.88,
+     "inproc_reject": false,
+     "jid": "7af6cd99ae37d6627e62"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.5185482534949217,
+     "secs": 74.16,
+     "inproc_reject": false,
+     "jid": "fa97fdf733f66f9c987d"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.5442966191331831,
+     "secs": 94.56,
+     "inproc_reject": false,
+     "jid": "bbd4f65b14de5e701711"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.5845974947442186,
+     "secs": 65.98,
+     "inproc_reject": false,
+     "jid": "de96559609de4055efd2"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.7135285646926891,
+     "secs": 75.74,
+     "inproc_reject": false,
+     "jid": "0a941c52571dbdb45904"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.7826835143658023,
+     "secs": 71.0,
+     "inproc_reject": false,
+     "jid": "bc2115286a3357184a23"
+    }
+   ],
+   "f2_n_space": 147,
+   "f2_n_sized_s1": 126,
+   "f2_n_prereject": 21,
+   "f2_n_near_s2": 1,
+   "f2_solving": [
+    "add C n6-n7@s1"
+   ]
+  },
+  "t2-nb090-noise-0351": {
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "parent_anchor": "a4",
+   "shown_anchor": "a4",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "dc750ae74115a0ad",
+    "tok": "2f6f9f75c69c85ac",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-nb090-noise-0351/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.3227832590103462,
+     "secs": 86.9,
+     "inproc_reject": false,
+     "jid": "b4d133f08bdf8d20f0a7"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.3096593575025806,
+     "secs": 106.55,
+     "inproc_reject": false,
+     "jid": "b8f02bd4aadd5e465590"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.4783800973860094,
+     "secs": 75.82,
+     "inproc_reject": false,
+     "jid": "9538c5b856eb89a992f0"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.5628431384934119,
+     "secs": 88.66,
+     "inproc_reject": false,
+     "jid": "c5bc3c4daba83a0b4a5c"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -2.0844122776421345,
+     "secs": 82.3,
+     "inproc_reject": false,
+     "jid": "dfa3fa087b6142180231"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.33207973824833564,
+     "secs": 76.47,
+     "inproc_reject": false,
+     "jid": "a96498e442048f0380b7"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.27809487268922223,
+     "secs": 95.67,
+     "inproc_reject": false,
+     "jid": "98105b0d331a40a519ce"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.5078737735514613,
+     "secs": 67.17,
+     "inproc_reject": false,
+     "jid": "f37116e7395b9cebe141"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.874402,
+     "secs": 76.38,
+     "inproc_reject": false,
+     "jid": "73386775c05cb7817d87"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.7276903667094164,
+     "secs": 71.34,
+     "inproc_reject": false,
+     "jid": "77070ad5e6ec7b4c7afa"
+    }
+   ],
+   "f2_n_space": 147,
+   "f2_n_sized_s1": 126,
+   "f2_n_prereject": 21,
+   "f2_n_near_s2": 0,
+   "f2_solving": [
+    "add R VOUT1-n7@s1"
+   ]
+  },
+  "t2-nb090-noise-0363": {
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "parent_anchor": "a4",
+   "shown_anchor": "a4",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "ebcd2c0f1772477b",
+    "tok": "c67a81c6d65f7261",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-nb090-noise-0363/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.13666786291046124,
+     "secs": 77.04,
+     "inproc_reject": false,
+     "jid": "6d1393d905960afd990c"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.1293833363239428,
+     "secs": 96.89,
+     "inproc_reject": false,
+     "jid": "bb53d20e3bf3efc48a51"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.31840500000000005,
+     "secs": 68.52,
+     "inproc_reject": false,
+     "jid": "597d74782c17e4343bdd"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.48500436029978644,
+     "secs": 77.17,
+     "inproc_reject": false,
+     "jid": "9febd336260414d3a61e"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6390161905271281,
+     "secs": 72.03,
+     "inproc_reject": false,
+     "jid": "8fc53dd8c1ab9794b98b"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.13535558346791082,
+     "secs": 76.83,
+     "inproc_reject": false,
+     "jid": "27259b0442a007fa4033"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.14860099999999998,
+     "secs": 97.37,
+     "inproc_reject": false,
+     "jid": "23683058460df39c6b0a"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.37168,
+     "secs": 68.46,
+     "inproc_reject": false,
+     "jid": "9cca69081e4a284a6855"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": -1.0907978946109216,
+     "secs": 77.44,
+     "inproc_reject": false,
+     "jid": "5cebe053e4075d8ead6a"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.6609868657309422,
+     "secs": 72.93,
+     "inproc_reject": false,
+     "jid": "bdfe2b567834ac39f0d7"
+    }
+   ],
+   "f2_n_space": 147,
+   "f2_n_sized_s1": 126,
+   "f2_n_prereject": 21,
+   "f2_n_near_s2": 4,
+   "f2_solving": [
+    "add C VDD-n4@s1",
+    "add R VOUT1-n7@s1",
+    "add C VSS-n4@s1"
+   ]
+  },
+  "t2-nb090-noise-0375": {
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "parent_anchor": "a4",
+   "shown_anchor": "a4",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "a71ead3ea4b10a13",
+    "tok": "665115910319e4f5",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-nb090-noise-0375/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6575103575753714,
+     "secs": 75.76,
+     "inproc_reject": false,
+     "jid": "18386cce21b8b6f8e286"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.474939245191921,
+     "secs": 96.13,
+     "inproc_reject": false,
+     "jid": "055f3fa29691110a42a9"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.42587070916688996,
+     "secs": 67.3,
+     "inproc_reject": false,
+     "jid": "ee4eab73d827c276a72a"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6900847727707311,
+     "secs": 76.29,
+     "inproc_reject": false,
+     "jid": "ffa82fc3105cc91b2516"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6901888793236147,
+     "secs": 71.89,
+     "inproc_reject": false,
+     "jid": "8cb5e315965ee162e64a"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.4436777359933712,
+     "secs": 76.93,
+     "inproc_reject": false,
+     "jid": "72d0c0af64a8439e0fcf"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.6635400599145899,
+     "secs": 98.27,
+     "inproc_reject": false,
+     "jid": "04813ad49f518331d568"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.45885475162910555,
+     "secs": 68.3,
+     "inproc_reject": false,
+     "jid": "519226652e3a4e840196"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.6515137994773409,
+     "secs": 78.4,
+     "inproc_reject": false,
+     "jid": "45766b3f39938a262fd8"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.7208348773966238,
+     "secs": 73.76,
+     "inproc_reject": false,
+     "jid": "7cdbf263a513806f340d"
+    }
+   ],
+   "f2_n_space": 147,
+   "f2_n_sized_s1": 126,
+   "f2_n_prereject": 21,
+   "f2_n_near_s2": 0,
+   "f2_solving": [
+    "add C VDD-n2@s1",
+    "add R VOUT1-n7@s1",
+    "add C VSS-n2@s1",
+    "add C n2-n7@s1",
+    "add C n6-n7@s1"
+   ]
+  },
+  "t2-nb090-noise-0387": {
+   "tier": "T1",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "parent_anchor": "a4",
+   "shown_anchor": "a4",
+   "pool_label_amend3": "library-solvable",
+   "witness": {
+    "wl": "6dfd8cdcab114a46",
+    "tok": "ea2c4a070edc67c6",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-nb090-noise-0387/witness/witness.net"
+   },
+   "library_solvers": [
+    "a1@s1"
+   ],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": true,
+     "worst": 1.999999999990898e-05,
+     "secs": 77.37,
+     "inproc_reject": false,
+     "jid": "f902adce14e54f214c1a"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.10962400000000005,
+     "secs": 97.42,
+     "inproc_reject": false,
+     "jid": "d727376d8a8cbb931b27"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.370669,
+     "secs": 68.12,
+     "inproc_reject": false,
+     "jid": "75456609978fef8b17c8"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.3624159021406728,
+     "secs": 78.82,
+     "inproc_reject": false,
+     "jid": "c55b4e9af44a8ea2f663"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6763180651939309,
+     "secs": 73.56,
+     "inproc_reject": false,
+     "jid": "c7552815d1c8d49a2cbe"
+    }
+   ]
+  },
+  "t2-nb090-noise-0397": {
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "parent_anchor": "a4",
+   "shown_anchor": "a4",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "8fe1b01e64312a68",
+    "tok": "ceec313555211e72",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-nb090-noise-0397/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.5868400986198308,
+     "secs": 79.83,
+     "inproc_reject": false,
+     "jid": "30560ef1afaee6239a09"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.26767300000000005,
+     "secs": 100.46,
+     "inproc_reject": false,
+     "jid": "6014e1904a31d6ac0c42"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.40125599999999995,
+     "secs": 70.41,
+     "inproc_reject": false,
+     "jid": "bd6d38a219f864d182b1"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6599992374755357,
+     "secs": 80.27,
+     "inproc_reject": false,
+     "jid": "0bd5a1cd3f8f69d471ae"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6697744196499071,
+     "secs": 75.18,
+     "inproc_reject": false,
+     "jid": "4c62afaa1efc68870da2"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.40652593854052815,
+     "secs": 77.96,
+     "inproc_reject": false,
+     "jid": "97e5d663de3648ca04f9"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.7234311059146481,
+     "secs": 98.56,
+     "inproc_reject": false,
+     "jid": "28787ff1e4ce48ea4daf"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.4257358389718298,
+     "secs": 68.26,
+     "inproc_reject": false,
+     "jid": "b9998ed21fe1e27cbd9e"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.6744262003405942,
+     "secs": 77.78,
+     "inproc_reject": false,
+     "jid": "09aabb9a76732c21fcac"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.6756957519952381,
+     "secs": 72.96,
+     "inproc_reject": false,
+     "jid": "1aca65ac9e074f09676f"
+    }
+   ],
+   "f2_n_space": 147,
+   "f2_n_sized_s1": 126,
+   "f2_n_prereject": 21,
+   "f2_n_near_s2": 0,
+   "f2_solving": [
+    "add C VDD-n2@s1",
+    "add R VOUT1-n7@s1",
+    "add C VSS-n2@s1",
+    "add C n6-n7@s1"
+   ]
+  },
+  "t2-nb090-noise-0411": {
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "parent_anchor": "a4",
+   "shown_anchor": "a4",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "ccdb01ab21a05069",
+    "tok": "affa416ed73cda57",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-nb090-noise-0411/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.8777827591432613,
+     "secs": 78.66,
+     "inproc_reject": false,
+     "jid": "5f6883bdd2383890a07e"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.5766909981814509,
+     "secs": 103.69,
+     "inproc_reject": false,
+     "jid": "0c04b9a021d82da40603"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.5389039195601346,
+     "secs": 69.85,
+     "inproc_reject": false,
+     "jid": "f47ce7c634c32817f8cb"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.7665349060416246,
+     "secs": 91.97,
+     "inproc_reject": false,
+     "jid": "7aa4a1aaf6774d33ab6a"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.7515831201223685,
+     "secs": 85.71,
+     "inproc_reject": false,
+     "jid": "413fabeb57c588f4e64e"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.8235489492826833,
+     "secs": 77.94,
+     "inproc_reject": false,
+     "jid": "c234f56544f063ba5b06"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.6116041740360807,
+     "secs": 98.4,
+     "inproc_reject": false,
+     "jid": "a4f516231d488a981cbb"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.5654997864062508,
+     "secs": 68.91,
+     "inproc_reject": false,
+     "jid": "9a8d1f6456760942f4ff"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.762683117801576,
+     "secs": 78.39,
+     "inproc_reject": false,
+     "jid": "6a4d99e62c9618f2b405"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.7648567084514223,
+     "secs": 73.76,
+     "inproc_reject": false,
+     "jid": "1f142786b8b5db00bd6f"
+    }
+   ],
+   "f2_n_space": 147,
+   "f2_n_sized_s1": 126,
+   "f2_n_prereject": 21,
+   "f2_n_near_s2": 3,
+   "f2_solving": [
+    "add C n6-n7@s1"
+   ]
+  },
+  "t2-wb1020-gain-0001": {
+   "tier": "T1",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a3",
+   "pool_label_amend3": "library-solvable",
+   "witness": {
+    "wl": "6d512460270ff3da",
+    "tok": "4c9608c68e60a9ff",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0001/witness/witness.net"
+   },
+   "library_solvers": [
+    "a2@s1"
+   ],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "4820d6d66afd203de385"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": true,
+     "worst": 8.000000000008001e-05,
+     "secs": 74.12,
+     "inproc_reject": false,
+     "jid": "0f29d15c847287176663"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.363615,
+     "secs": 55.47,
+     "inproc_reject": false,
+     "jid": "cc140bdc5e1e68b15435"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "34b49c6f2aec2508e7b9"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6548402200632096,
+     "secs": 58.98,
+     "inproc_reject": false,
+     "jid": "e54ff78e9750a5124388"
+    }
+   ]
+  },
+  "t2-wb1020-gain-0010": {
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a2",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "fa88dc57a86df8c5",
+    "tok": "a8728e0a1b2ad740",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0010/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "94c2ec3c5c859cb69554"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.18263200000000002,
+     "secs": 93.49,
+     "inproc_reject": false,
+     "jid": "fb507ed6f385284d5c05"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.28170399999999995,
+     "secs": 66.09,
+     "inproc_reject": false,
+     "jid": "7b1f38fa75d9c598096b"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "a1f37fdd05ec7ee0bad6"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.5902237671084075,
+     "secs": 70.81,
+     "inproc_reject": false,
+     "jid": "a2ab0d8a97686844da3f"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "a5b5026c8f06730880cc"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.04771099999999995,
+     "secs": 97.51,
+     "inproc_reject": false,
+     "jid": "39ae924969accf72a179"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.27830600000000005,
+     "secs": 68.41,
+     "inproc_reject": false,
+     "jid": "376967850f67ae8349b1"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "93de3c8df029d7031903"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.616251176768774,
+     "secs": 72.59,
+     "inproc_reject": false,
+     "jid": "825f9eb2e9e0ef00efda"
+    }
+   ],
+   "f2_n_space": 178,
+   "f2_n_sized_s1": 107,
+   "f2_n_prereject": 71,
+   "f2_n_near_s2": 55,
+   "f2_solving": [
+    "add R VDD-n0@s1",
+    "add C VDD-n3@s1",
+    "add R VDD-n4@s1",
+    "add C VDD-n5@s1",
+    "add R VDD-n6@s1",
+    "add C VDD-n6@s1",
+    "add C VIN1-n5@s1",
+    "add R VOUT1-n5@s1",
+    "add C VOUT1-n5@s1",
+    "add R VOUT1-n6@s1",
+    "add C VOUT1-n6@s1",
+    "add R VSS-n0@s1",
+    "add C VSS-n3@s1",
+    "add C VSS-n5@s1",
+    "add C VSS-n6@s1",
+    "add R n0-n1@s1",
+    "add C n0-n1@s1",
+    "add R n0-n3@s1",
+    "add C n0-n3@s1",
+    "add R n0-n5@s1",
+    "add C n0-n5@s1",
+    "add R n0-n6@s1",
+    "add C n0-n6@s1",
+    "add R n1-n2@s1",
+    "add R n1-n4@s1",
+    "add C n1-n5@s1",
+    "add R n2-n4@s1",
+    "add R n2-n6@s1",
+    "add R n3-n4@s1",
+    "add C n3-n5@s1",
+    "add R n4-n5@s1",
+    "add C n4-n5@s1",
+    "add R n4-n6@s1",
+    "add R VDD-VOUT1@s2",
+    "add C VDD-n1@s2",
+    "add R VOUT1-VSS@s2",
+    "add C VSS-n1@s2",
+    "add R n0-n4@s2",
+    "add R n2-n3@s2",
+    "add C n2-n5@s2",
+    "add C n2-n6@s2",
+    "add R n3-n6@s2",
+    "add C n3-n6@s2",
+    "add C n4-n6@s2"
+   ]
+  },
+  "t2-wb1020-gain-0026": {
+   "tier": "T1",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a3",
+   "pool_label_amend3": "library-solvable",
+   "witness": {
+    "wl": "9df93c4eae8edac1",
+    "tok": "f1d8dcf92e076771",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0026/witness/witness.net"
+   },
+   "library_solvers": [
+    "a2@s1"
+   ],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "dba67e4cdb45b2de4e34"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": true,
+     "worst": 0.00028999999999990145,
+     "secs": 94.85,
+     "inproc_reject": false,
+     "jid": "d1b060f5821a7d5ccd2c"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.290805,
+     "secs": 67.43,
+     "inproc_reject": false,
+     "jid": "e111e12456633115a080"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "d31a84b3ccbae8adee13"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6806549546632125,
+     "secs": 71.08,
+     "inproc_reject": false,
+     "jid": "fb093656e64e0f2c3363"
+    }
+   ]
+  },
+  "t2-wb1020-gain-0027": {
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a2",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "6db1e7d1e6a44b0c",
+    "tok": "0d7c9d0c397deea4",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0027/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "5031a89c3a4a9dbdef87"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.12009199999999998,
+     "secs": 94.81,
+     "inproc_reject": false,
+     "jid": "994739f80929a9aa3c39"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.28027,
+     "secs": 66.16,
+     "inproc_reject": false,
+     "jid": "b852dec1512e897606ec"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "8acc672740e5eeb8d579"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6009047510398933,
+     "secs": 71.57,
+     "inproc_reject": false,
+     "jid": "0d3cbec9cffcfb968860"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "54da070c8f65e30a83bb"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.06720599999999999,
+     "secs": 97.51,
+     "inproc_reject": false,
+     "jid": "7fbba625aa1bf8c215b5"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.33598300000000003,
+     "secs": 68.14,
+     "inproc_reject": false,
+     "jid": "8fa49df555b951204705"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "ea1b29c2825764b79d01"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.6004106920336276,
+     "secs": 71.42,
+     "inproc_reject": false,
+     "jid": "e22737dbf311096764d8"
+    }
+   ],
+   "f2_n_space": 178,
+   "f2_n_sized_s1": 107,
+   "f2_n_prereject": 71,
+   "f2_n_near_s2": 69,
+   "f2_solving": [
+    "add C VDD-n5@s1",
+    "add C VDD-n6@s1",
+    "add R VIN1-VSS@s1",
+    "add C VIN1-n5@s1",
+    "add R VOUT1-n5@s1",
+    "add C VSS-n5@s1",
+    "add C VSS-n6@s1",
+    "add R n0-n3@s1",
+    "add R n0-n6@s1",
+    "add C n0-n6@s1",
+    "add R n1-n4@s1",
+    "add C n1-n6@s1",
+    "add R n3-n4@s1",
+    "add R n4-n5@s1",
+    "add C n4-n5@s1",
+    "add R n4-n6@s1",
+    "add R VDD-VOUT1@s2",
+    "add C VDD-n1@s2",
+    "add C VDD-n3@s2",
+    "add C VIN1-n3@s2",
+    "add R VOUT1-VSS@s2",
+    "add C VOUT1-n6@s2",
+    "add C VSS-n1@s2",
+    "add C VSS-n3@s2",
+    "add R n0-n1@s2",
+    "add C n0-n3@s2",
+    "add R n0-n5@s2",
+    "add C n0-n5@s2",
+    "add C n1-n5@s2",
+    "add C n3-n5@s2",
+    "add C n4-n6@s2"
+   ]
+  },
+  "t2-wb1020-gain-0028": {
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a2",
+   "pool_label_amend3": "single-edit-solvable",
+   "witness": {
+    "wl": "83513a9433664999",
+    "tok": "7c9f1e0bd3a18a3d",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0028/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "0ff933fdb43bd71b326d"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.09689141811899807,
+     "secs": 93.71,
+     "inproc_reject": false,
+     "jid": "d40e311625fbbd8bd066"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.288755,
+     "secs": 65.79,
+     "inproc_reject": false,
+     "jid": "fbd79a2b6910b64eaa17"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "495dacfd7ec05957442d"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.7657034703521162,
+     "secs": 70.29,
+     "inproc_reject": false,
+     "jid": "bfef222ca28a0b8a5dc3"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "b8d0598622b4bfe96002"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.06999949189573693,
+     "secs": 95.04,
+     "inproc_reject": false,
+     "jid": "bc22752458c16a011fcd"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.33607,
+     "secs": 67.08,
+     "inproc_reject": false,
+     "jid": "4867e7d7adb2c74bd355"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "d5badc51802e706db1f3"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.7197459478685025,
+     "secs": 71.31,
+     "inproc_reject": false,
+     "jid": "b3ea038fe91faf6c0f46"
+    }
+   ],
+   "f2_n_space": 178,
+   "f2_n_sized_s1": 107,
+   "f2_n_prereject": 71,
+   "f2_n_near_s2": 46,
+   "f2_solving": [
+    "add R VOUT1-n5@s1",
+    "add R n3-n4@s1",
+    "add R n4-n5@s1",
+    "add R n4-n6@s1",
+    "add C n4-n6@s1",
+    "add R n1-n4@s2"
+   ]
+  },
+  "t2-wb1020-gain-0043": {
+   "tier": "T1",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a3",
+   "pool_label_amend3": "library-solvable",
+   "witness": {
+    "wl": "5394d07b72646ef5",
+    "tok": "6fe8266b495cccd9",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0043/witness/witness.net"
+   },
+   "library_solvers": [
+    "a2@s1"
+   ],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "72e48a14248b0162e90d"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": true,
+     "worst": 0.00039999999999995595,
+     "secs": 95.56,
+     "inproc_reject": false,
+     "jid": "3eaef9d1ea2fa7773f1e"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.358961,
+     "secs": 66.78,
+     "inproc_reject": false,
+     "jid": "25095acd9545e32f6f28"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "28276894e2b75c63f446"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.746311808327583,
+     "secs": 71.52,
+     "inproc_reject": false,
+     "jid": "4f1ebc63fb378ca342a0"
+    }
+   ]
+  },
+  "t2-wb1020-gain-0044": {
+   "tier": "T1",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a3",
+   "pool_label_amend3": "library-solvable",
+   "witness": {
+    "wl": "ab9d033222bfe9ae",
+    "tok": "af3949e7146d4245",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0044/witness/witness.net"
+   },
+   "library_solvers": [
+    "a2@s1"
+   ],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "62b6518d266f449a6fdf"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": true,
+     "worst": 0.00015999999999993797,
+     "secs": 95.35,
+     "inproc_reject": false,
+     "jid": "1fb98245a963e52445ae"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.288899,
+     "secs": 67.22,
+     "inproc_reject": false,
+     "jid": "94bf4db294b9b4e1b1bd"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "64121b69ad5e5e3ebbc3"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6112284764782858,
+     "secs": 71.74,
+     "inproc_reject": false,
+     "jid": "aa53116e9b4bf333c139"
+    }
+   ]
+  },
+  "t2-wb1020-gain-0045": {
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a2",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "1a1c471e11457d5e",
+    "tok": "c2da1823e15ad1ed",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0045/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "aa9ab249ce9a3ed52757"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.02646499999999996,
+     "secs": 94.58,
+     "inproc_reject": false,
+     "jid": "85b3ce1c36a6fd7dddf6"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.291797,
+     "secs": 66.66,
+     "inproc_reject": false,
+     "jid": "32592d720b85a8897f28"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "f8d48f169e0f2c512d8c"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.7199678764006272,
+     "secs": 71.0,
+     "inproc_reject": false,
+     "jid": "3052ce23f41aea52f566"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "7fcace993ff13b5bb286"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.005323999999999995,
+     "secs": 94.22,
+     "inproc_reject": false,
+     "jid": "b9902cb31f101a8d90c3"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.291797,
+     "secs": 65.71,
+     "inproc_reject": false,
+     "jid": "449c5c0d52feded6b388"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "3c9f031fc0444c87c71d"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.7037561665838082,
+     "secs": 70.7,
+     "inproc_reject": false,
+     "jid": "278bb4d4aa7c6b75a917"
+    }
+   ],
+   "f2_n_space": 178,
+   "f2_n_sized_s1": 107,
+   "f2_n_prereject": 71,
+   "f2_n_near_s2": 59,
+   "f2_solving": [
+    "add C VDD-VSS@s1",
+    "add R VDD-n0@s1",
+    "add C VDD-n1@s1",
+    "add R VDD-n2@s1",
+    "add C VDD-n3@s1",
+    "add R VDD-n4@s1",
+    "add C VDD-n6@s1",
+    "add R VIN1-VSS@s1",
+    "add C VIN1-n3@s1",
+    "add C VIN1-n5@s1",
+    "add C VIN1-n6@s1",
+    "add R VOUT1-n0@s1",
+    "add R VOUT1-n4@s1",
+    "add R VOUT1-n6@s1",
+    "add R VSS-n0@s1",
+    "add C VSS-n1@s1",
+    "add C VSS-n3@s1",
+    "add R VSS-n4@s1",
+    "add C VSS-n6@s1",
+    "add R n0-n1@s1",
+    "add R n0-n3@s1",
+    "add C n0-n3@s1",
+    "add R n0-n5@s1",
+    "add C n0-n5@s1",
+    "add R n0-n6@s1",
+    "add C n0-n6@s1",
+    "add R n1-n4@s1",
+    "add R n1-n5@s1",
+    "add C n1-n5@s1",
+    "add C n1-n6@s1",
+    "add R n2-n4@s1",
+    "add R n3-n4@s1",
+    "add C n3-n5@s1",
+    "add R n4-n5@s1",
+    "add R n4-n6@s1",
+    "del PMOS PM2 (n6 n6 VDD VDD)@s1",
+    "add R n1-n2@s2",
+    "add C n2-n5@s2",
+    "add C n3-n6@s2",
+    "add C n4-n5@s2",
+    "add C n4-n6@s2"
+   ]
+  },
+  "t2-wb1020-gain-0046": {
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a2",
+   "pool_label_amend3": "single-edit-solvable",
+   "witness": {
+    "wl": "fa49a36c82826afe",
+    "tok": "1488a976895ec48c",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0046/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "49d47e8e7a2f27b26b0b"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.11492500000000005,
+     "secs": 94.88,
+     "inproc_reject": false,
+     "jid": "ac496ad71e535dc1e76f"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.291096,
+     "secs": 66.78,
+     "inproc_reject": false,
+     "jid": "1e257f18ce4ac5406fb0"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "9224531ca302e18274f5"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.5678530240042913,
+     "secs": 71.2,
+     "inproc_reject": false,
+     "jid": "f8595bed73f300851391"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "2b5964711c9319450bc6"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.0012280000000000069,
+     "secs": 94.9,
+     "inproc_reject": false,
+     "jid": "34d2525f41b8a163f7c4"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.29354100000000005,
+     "secs": 65.55,
+     "inproc_reject": false,
+     "jid": "b4a34bef561dcc56e89b"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "3b0ae573e22e9790424c"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.66887220061687,
+     "secs": 71.72,
+     "inproc_reject": false,
+     "jid": "6636cca1c5a9b40e1ac5"
+    }
+   ],
+   "f2_n_space": 178,
+   "f2_n_sized_s1": 107,
+   "f2_n_prereject": 71,
+   "f2_n_near_s2": 33,
+   "f2_solving": [
+    "add C VDD-VIN1@s1",
+    "add R VDD-VOUT1@s1",
+    "add C VDD-VSS@s1",
+    "add R VDD-n0@s1",
+    "add C VDD-n0@s1",
+    "add C VDD-n1@s1",
+    "add R VDD-n2@s1",
+    "add R VDD-n3@s1",
+    "add C VDD-n3@s1",
+    "add R VDD-n4@s1",
+    "add R VDD-n5@s1",
+    "add C VDD-n5@s1",
+    "add R VIN1-VSS@s1",
+    "add C VIN1-VSS@s1",
+    "add C VIN1-n3@s1",
+    "add C VIN1-n5@s1",
+    "add C VIN1-n6@s1",
+    "add R VOUT1-VSS@s1",
+    "add R VOUT1-n1@s1",
+    "add R VOUT1-n2@s1",
+    "add R VOUT1-n3@s1",
+    "add R VOUT1-n4@s1",
+    "add C VOUT1-n4@s1",
+    "add R VOUT1-n5@s1",
+    "add R VOUT1-n6@s1",
+    "add R VSS-n0@s1",
+    "add C VSS-n0@s1",
+    "add R VSS-n1@s1",
+    "add C VSS-n1@s1",
+    "add R VSS-n2@s1",
+    "add C VSS-n3@s1",
+    "add R VSS-n4@s1",
+    "add R VSS-n5@s1",
+    "add C VSS-n5@s1",
+    "add R VSS-n6@s1",
+    "add R n0-n1@s1",
+    "add C n0-n1@s1",
+    "add R n0-n2@s1",
+    "add R n0-n3@s1",
+    "add C n0-n3@s1",
+    "add R n0-n4@s1",
+    "add R n0-n5@s1",
+    "add R n0-n6@s1",
+    "add R n1-n2@s1",
+    "add R n1-n3@s1",
+    "add R n1-n4@s1",
+    "add R n1-n5@s1",
+    "add C n1-n6@s1",
+    "add R n2-n3@s1",
+    "add R n2-n4@s1",
+    "add R n2-n5@s1",
+    "add C n2-n5@s1",
+    "add R n2-n6@s1",
+    "add C n2-n6@s1",
+    "add R n3-n4@s1",
+    "add R n4-n5@s1",
+    "add R n4-n6@s1",
+    "add C n4-n6@s1",
+    "add C n5-n6@s1",
+    "del R R5 (n6 n3)@s1",
+    "add R VDD-n6@s2",
+    "add C VDD-n6@s2",
+    "add C VIN1-n0@s2",
+    "add C VOUT1-n2@s2",
+    "add R VSS-n3@s2",
+    "add C VSS-n6@s2",
+    "add C n0-n6@s2",
+    "add C n1-n5@s2",
+    "add C n3-n5@s2",
+    "add R n3-n6@s2",
+    "add C n3-n6@s2",
+    "add C n4-n5@s2",
+    "del R R2 (n5 n1)@s2"
+   ]
+  },
+  "t2-wb1020-gain-0065": {
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a2",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "b38d7f20ba72bd3a",
+    "tok": "75cabbcf1d5953a9",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0065/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "f94bc62fdc8ff157603e"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.11377599999999999,
+     "secs": 95.08,
+     "inproc_reject": false,
+     "jid": "1e7dc1203b398f3e38ce"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.28493900000000005,
+     "secs": 66.89,
+     "inproc_reject": false,
+     "jid": "4032a8d6a57f14cbad39"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "4ca695f3aefa098542ce"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.5665212939436459,
+     "secs": 71.56,
+     "inproc_reject": false,
+     "jid": "4986d49ad0eb53603292"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "1e57e73946e73b3a81c1"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.0030369999999999564,
+     "secs": 96.02,
+     "inproc_reject": false,
+     "jid": "63354ee1f982bfd7db4c"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.34506400000000004,
+     "secs": 67.27,
+     "inproc_reject": false,
+     "jid": "3702bfb8865a27086a5d"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "22a8c2164e53cd919f82"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.5894772270469111,
+     "secs": 72.46,
+     "inproc_reject": false,
+     "jid": "ee9704740abb1502a370"
+    }
+   ],
+   "f2_n_space": 178,
+   "f2_n_sized_s1": 107,
+   "f2_n_prereject": 71,
+   "f2_n_near_s2": 25,
+   "f2_solving": [
+    "add R VDD-VOUT1@s1",
+    "add C VDD-VOUT1@s1",
+    "add R VDD-n0@s1",
+    "add C VDD-n0@s1",
+    "add R VDD-n1@s1",
+    "add C VDD-n1@s1",
+    "add R VDD-n2@s1",
+    "add R VDD-n3@s1",
+    "add C VDD-n3@s1",
+    "add R VDD-n4@s1",
+    "add R VDD-n5@s1",
+    "add C VDD-n5@s1",
+    "add C VDD-n6@s1",
+    "add R VIN1-VSS@s1",
+    "add C VIN1-n0@s1",
+    "add C VIN1-n6@s1",
+    "add R VOUT1-VSS@s1",
+    "add C VOUT1-VSS@s1",
+    "add R VOUT1-n1@s1",
+    "add R VOUT1-n2@s1",
+    "add R VOUT1-n3@s1",
+    "add R VOUT1-n4@s1",
+    "add C VOUT1-n4@s1",
+    "add R VOUT1-n5@s1",
+    "add R VOUT1-n6@s1",
+    "add C VOUT1-n6@s1",
+    "add R VSS-n0@s1",
+    "add C VSS-n0@s1",
+    "add C VSS-n1@s1",
+    "add R VSS-n2@s1",
+    "add R VSS-n3@s1",
+    "add C VSS-n3@s1",
+    "add R VSS-n4@s1",
+    "add R VSS-n5@s1",
+    "add C VSS-n5@s1",
+    "add R VSS-n6@s1",
+    "add C VSS-n6@s1",
+    "add R n0-n1@s1",
+    "add C n0-n1@s1",
+    "add R n0-n3@s1",
+    "add R n0-n4@s1",
+    "add R n0-n5@s1",
+    "add C n0-n5@s1",
+    "add R n0-n6@s1",
+    "add C n0-n6@s1",
+    "add R n1-n2@s1",
+    "add R n1-n3@s1",
+    "add R n1-n4@s1",
+    "add R n1-n5@s1",
+    "add C n1-n5@s1",
+    "add R n1-n6@s1",
+    "add C n1-n6@s1",
+    "add R n2-n3@s1",
+    "add R n2-n4@s1",
+    "add R n2-n5@s1",
+    "add C n2-n5@s1",
+    "add R n2-n6@s1",
+    "add C n2-n6@s1",
+    "add R n3-n4@s1",
+    "add C n3-n5@s1",
+    "add C n3-n6@s1",
+    "add R n4-n5@s1",
+    "add C n4-n5@s1",
+    "add R n4-n6@s1",
+    "add R n5-n6@s1",
+    "del R R5 (n6 n3)@s1",
+    "add C VDD-VIN1@s2",
+    "add R VDD-VSS@s2",
+    "add C VDD-VSS@s2",
+    "add C VIN1-VSS@s2",
+    "add C VIN1-n5@s2",
+    "add C VOUT1-n2@s2",
+    "add R VSS-n1@s2",
+    "add C n2-n4@s2",
+    "add R n3-n5@s2",
+    "add R n3-n6@s2",
+    "add C n4-n6@s2"
+   ]
+  },
+  "t2-wb1020-gain-0066": {
+   "tier": "T1",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a2",
+   "pool_label_amend3": "library-solvable",
+   "witness": {
+    "wl": "1ca3125aa7cdfde8",
+    "tok": "65c7057884054c84",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0066/witness/witness.net"
+   },
+   "library_solvers": [
+    "a2@s2"
+   ],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "e5e2d8fee21be81c6e0c"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.018105000000000038,
+     "secs": 95.31,
+     "inproc_reject": false,
+     "jid": "71b4705ffa6e7396875d"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.29015500000000005,
+     "secs": 67.52,
+     "inproc_reject": false,
+     "jid": "fc90d43988a58fb75fb4"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "56b83253eb5777b57652"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.572844021407011,
+     "secs": 72.06,
+     "inproc_reject": false,
+     "jid": "9f1729aceee1fd2e9123"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "6e73a03cc9ba4f107f80"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": true,
+     "worst": 0.0005800000000000249,
+     "secs": 96.01,
+     "inproc_reject": false,
+     "jid": "c5a46015737a7efed2a9"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.35775100000000004,
+     "secs": 67.09,
+     "inproc_reject": false,
+     "jid": "d3049562c7274377b134"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "70fe48023718be1fe3f3"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.5740134441954778,
+     "secs": 72.37,
+     "inproc_reject": false,
+     "jid": "b4cbcca77dfd4ae6edac"
+    }
+   ]
+  },
+  "t2-wb1020-gain-0067": {
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a2",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "7407f7ad614c83ca",
+    "tok": "ec4bda31840cdf17",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0067/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "3620fa60b3e50c6fe6e3"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.049024999999999985,
+     "secs": 95.81,
+     "inproc_reject": false,
+     "jid": "f73194ae36419ef3f3ff"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.291517,
+     "secs": 67.17,
+     "inproc_reject": false,
+     "jid": "6647bcf149d48d755c85"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "1a2c747a651e12c177f2"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.7180129663888934,
+     "secs": 71.13,
+     "inproc_reject": false,
+     "jid": "69d7e1cfb5c52da4eb95"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "018cb174af65723c3d86"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.036044999999999994,
+     "secs": 100.23,
+     "inproc_reject": false,
+     "jid": "00d539f8e806d29d5714"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.29152199999999995,
+     "secs": 68.62,
+     "inproc_reject": false,
+     "jid": "9e3be880e77d2064cdb0"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "9a09e28ab708c9da65b9"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.6939080892585255,
+     "secs": 88.47,
+     "inproc_reject": false,
+     "jid": "31f1648a0f181dc2f418"
+    }
+   ],
+   "f2_n_space": 178,
+   "f2_n_sized_s1": 107,
+   "f2_n_prereject": 71,
+   "f2_n_near_s2": 26,
+   "f2_solving": [
+    "add C VDD-VIN1@s1",
+    "add R VDD-VOUT1@s1",
+    "add C VDD-VSS@s1",
+    "add R VDD-n0@s1",
+    "add C VDD-n0@s1",
+    "add R VDD-n1@s1",
+    "add C VDD-n1@s1",
+    "add R VDD-n3@s1",
+    "add C VDD-n3@s1",
+    "add R VDD-n4@s1",
+    "add C VDD-n4@s1",
+    "add C VDD-n5@s1",
+    "add C VDD-n6@s1",
+    "add R VIN1-VSS@s1",
+    "add C VIN1-VSS@s1",
+    "add C VIN1-n5@s1",
+    "add C VIN1-n6@s1",
+    "add R VOUT1-VSS@s1",
+    "add R VOUT1-n0@s1",
+    "add R VOUT1-n1@s1",
+    "add R VOUT1-n2@s1",
+    "add R VOUT1-n3@s1",
+    "add R VOUT1-n4@s1",
+    "add C VOUT1-n4@s1",
+    "add R VOUT1-n5@s1",
+    "add R VSS-n0@s1",
+    "add C VSS-n0@s1",
+    "add C VSS-n1@s1",
+    "add C VSS-n3@s1",
+    "add R VSS-n4@s1",
+    "add C VSS-n4@s1",
+    "add C VSS-n5@s1",
+    "add C VSS-n6@s1",
+    "add R n0-n1@s1",
+    "add R n0-n2@s1",
+    "add R n0-n3@s1",
+    "add C n0-n3@s1",
+    "add R n0-n4@s1",
+    "add R n0-n5@s1",
+    "add C n0-n5@s1",
+    "add R n0-n6@s1",
+    "add C n0-n6@s1",
+    "add C n1-n3@s1",
+    "add R n1-n4@s1",
+    "add R n1-n5@s1",
+    "add C n1-n5@s1",
+    "add R n1-n6@s1",
+    "add C n1-n6@s1",
+    "add R n2-n3@s1",
+    "add R n2-n4@s1",
+    "add C n2-n4@s1",
+    "add R n2-n5@s1",
+    "add C n2-n5@s1",
+    "add R n2-n6@s1",
+    "add C n2-n6@s1",
+    "add R n3-n4@s1",
+    "add R n3-n5@s1",
+    "add C n3-n6@s1",
+    "add R n4-n5@s1",
+    "add C n4-n5@s1",
+    "add R n4-n6@s1",
+    "add C n4-n6@s1",
+    "add R n5-n6@s1",
+    "add C n5-n6@s1",
+    "del R R5 (n6 n3)@s1",
+    "add C VDD-VOUT1@s2",
+    "add R VDD-VSS@s2",
+    "add R VDD-n2@s2",
+    "add C VDD-n2@s2",
+    "add R VDD-n5@s2",
+    "add R VDD-n6@s2",
+    "add C VIN1-n0@s2",
+    "add C VOUT1-VSS@s2",
+    "add C VOUT1-n2@s2",
+    "add R VOUT1-n6@s2",
+    "add C VSS-n2@s2",
+    "add R VSS-n5@s2",
+    "add R n1-n3@s2",
+    "add C n3-n5@s2",
+    "add R n3-n6@s2"
+   ]
+  },
+  "t2-wb1020-gain-0088": {
+   "tier": "T1",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a3",
+   "pool_label_amend3": "library-solvable",
+   "witness": {
+    "wl": "25aca5b9df1342e2",
+    "tok": "09ab08c9e467ff0f",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0088/witness/witness.net"
+   },
+   "library_solvers": [
+    "a2@s1"
+   ],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "23a71d685a4a808cba2a"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": true,
+     "worst": 0.00032999999999994145,
+     "secs": 95.6,
+     "inproc_reject": false,
+     "jid": "7a42e354391208dd54ee"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.284455,
+     "secs": 67.35,
+     "inproc_reject": false,
+     "jid": "0443e292d9cc7a18fa8f"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "7bb6b6641941efc75e75"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6177820530438367,
+     "secs": 71.66,
+     "inproc_reject": false,
+     "jid": "0ce0a468471bfe276064"
+    }
+   ]
+  },
+  "t2-wb1020-gain-0089": {
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a2",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "bcdd45716af8ca40",
+    "tok": "1850309b78569ba8",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0089/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "dfc9be7c1090103eeafa"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.04615400000000003,
+     "secs": 93.72,
+     "inproc_reject": false,
+     "jid": "0ad1a5fc93b89a8f7d53"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.284763,
+     "secs": 66.58,
+     "inproc_reject": false,
+     "jid": "b418bd91fbc7eb55e1dc"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "3a35c9e5bf9383001288"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.5996447354386656,
+     "secs": 70.39,
+     "inproc_reject": false,
+     "jid": "c249fa6019a19a413d9d"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "b44a6155b80070303f1e"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.032802,
+     "secs": 126.58,
+     "inproc_reject": false,
+     "jid": "78460cadf4e69e55d9b5"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.284763,
+     "secs": 92.66,
+     "inproc_reject": false,
+     "jid": "7e4516bc27a495977e80"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "e56877f8b86113823092"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.7456461630606904,
+     "secs": 100.48,
+     "inproc_reject": false,
+     "jid": "7ffad2fd28fd420ad660"
+    }
+   ],
+   "f2_n_space": 178,
+   "f2_n_sized_s1": 107,
+   "f2_n_prereject": 71,
+   "f2_n_near_s2": 65,
+   "f2_solving": [
+    "add R VDD-n0@s1",
+    "add C VDD-n3@s1",
+    "add R VDD-n4@s1",
+    "add C VIN1-n3@s1",
+    "add C VIN1-n5@s1",
+    "add R VOUT1-n3@s1",
+    "add C VOUT1-n4@s1",
+    "add C VOUT1-n5@s1",
+    "add R VOUT1-n6@s1",
+    "add C VSS-n3@s1",
+    "add R n0-n1@s1",
+    "add R n0-n3@s1",
+    "add R n0-n5@s1",
+    "add C n0-n5@s1",
+    "add R n0-n6@s1",
+    "add C n0-n6@s1",
+    "add R n1-n4@s1",
+    "add R n3-n4@s1",
+    "add R n4-n5@s1",
+    "add R n4-n6@s1",
+    "add C VDD-n1@s2",
+    "add C VIN1-n6@s2",
+    "add C VSS-n1@s2",
+    "add C n1-n5@s2",
+    "add C n1-n6@s2",
+    "add C n4-n5@s2"
+   ]
+  },
+  "t2-wb1020-gain-0107": {
+   "tier": "T1",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a3",
+   "pool_label_amend3": "library-solvable",
+   "witness": {
+    "wl": "c0f9c3becf1b0f2f",
+    "tok": "e58f3453bd83f347",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0107/witness/witness.net"
+   },
+   "library_solvers": [
+    "a2@s1"
+   ],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "08e5391a5d98559456a7"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": true,
+     "worst": 1.781646495883493e-05,
+     "secs": 97.29,
+     "inproc_reject": false,
+     "jid": "e5187b17cb3c228acce7"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.285736,
+     "secs": 68.71,
+     "inproc_reject": false,
+     "jid": "258e11b1f470b59b1fe7"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "4e5193b3ac7e70851e9b"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.5744389295495546,
+     "secs": 72.63,
+     "inproc_reject": false,
+     "jid": "12feb0d6c3138509f41a"
+    }
+   ]
+  },
+  "t2-wb1020-gain-0108": {
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a2",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "6be597a66884d314",
+    "tok": "0f2d04e4a1ff1e25",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0108/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "6f4516e7978443bf790e"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.002858000000000027,
+     "secs": 121.02,
+     "inproc_reject": false,
+     "jid": "6dba1c9dce7f576f6633"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.289864,
+     "secs": 66.83,
+     "inproc_reject": false,
+     "jid": "a40ad94164f5b333f90c"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "6d551f227e2eef3362d0"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6440270405526249,
+     "secs": 90.53,
+     "inproc_reject": false,
+     "jid": "d0218b83cd86fcc9f91b"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "f0072f807c290ca31dfe"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.019391000000000047,
+     "secs": 127.21,
+     "inproc_reject": false,
+     "jid": "3dc8b17901c6988aa277"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.28987399999999997,
+     "secs": 81.9,
+     "inproc_reject": false,
+     "jid": "e308574e99cbfdc132da"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "01f0d65a7fc403fdb193"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.6422459410456884,
+     "secs": 79.23,
+     "inproc_reject": false,
+     "jid": "0b65a66a43db4d703060"
+    }
+   ],
+   "f2_n_space": 178,
+   "f2_n_sized_s1": 107,
+   "f2_n_prereject": 71,
+   "f2_n_near_s2": 51,
+   "f2_solving": [
+    "add R VDD-VOUT1@s1",
+    "add C VDD-VSS@s1",
+    "add R VDD-n0@s1",
+    "add C VDD-n1@s1",
+    "add R VDD-n2@s1",
+    "add C VDD-n3@s1",
+    "add R VDD-n4@s1",
+    "add C VDD-n6@s1",
+    "add R VIN1-VSS@s1",
+    "add C VIN1-n3@s1",
+    "add C VIN1-n5@s1",
+    "add C VIN1-n6@s1",
+    "add R VOUT1-VSS@s1",
+    "add C VOUT1-n4@s1",
+    "add R VOUT1-n5@s1",
+    "add R VOUT1-n6@s1",
+    "add C VOUT1-n6@s1",
+    "add R VSS-n0@s1",
+    "add C VSS-n1@s1",
+    "add C VSS-n3@s1",
+    "add C VSS-n6@s1",
+    "add R n0-n1@s1",
+    "add R n0-n3@s1",
+    "add R n0-n4@s1",
+    "add R n0-n5@s1",
+    "add C n0-n5@s1",
+    "add R n0-n6@s1",
+    "add C n0-n6@s1",
+    "add R n1-n2@s1",
+    "add R n1-n4@s1",
+    "add R n1-n5@s1",
+    "add C n1-n5@s1",
+    "add C n1-n6@s1",
+    "add R n2-n3@s1",
+    "add R n2-n4@s1",
+    "add R n2-n5@s1",
+    "add C n2-n5@s1",
+    "add R n2-n6@s1",
+    "add C n2-n6@s1",
+    "add R n3-n4@s1",
+    "add C n3-n6@s1",
+    "add R n4-n5@s1",
+    "add R n4-n6@s1",
+    "add C VDD-n2@s2",
+    "add C VIN1-n0@s2",
+    "add R VSS-n2@s2",
+    "add C VSS-n2@s2",
+    "add R n0-n2@s2",
+    "add C n1-n3@s2",
+    "add C n3-n5@s2",
+    "add C n5-n6@s2"
+   ]
+  },
+  "t2-wb1020-gain-0109": {
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a2",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "48a8c0d3eb413b60",
+    "tok": "c7c7213716385e74",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0109/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "b079b4521575348786b1"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.07837000000000005,
+     "secs": 100.16,
+     "inproc_reject": false,
+     "jid": "2c7a53919b112b77d4dc"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.288219,
+     "secs": 69.67,
+     "inproc_reject": false,
+     "jid": "447713e0a0d720454a8d"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "5e6a0562d8059de08008"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.60804074267905,
+     "secs": 74.68,
+     "inproc_reject": false,
+     "jid": "f8cfdea8058042fdc376"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "5777cef2075b8a0bb133"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.07521500000000003,
+     "secs": 120.17,
+     "inproc_reject": false,
+     "jid": "ab8c9b1924048c2f5203"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.341021,
+     "secs": 77.14,
+     "inproc_reject": false,
+     "jid": "b223a5ff5deb3712e175"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "9115b6af60323e3f3c59"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.7243628098076128,
+     "secs": 99.79,
+     "inproc_reject": false,
+     "jid": "32b394762fbf85b60df0"
+    }
+   ],
+   "f2_n_space": 178,
+   "f2_n_sized_s1": 107,
+   "f2_n_prereject": 71,
+   "f2_n_near_s2": 61,
+   "f2_solving": [
+    "add C VDD-n3@s1",
+    "add C VDD-n5@s1",
+    "add C VIN1-n5@s1",
+    "add C VSS-n3@s1",
+    "add C VSS-n5@s1",
+    "add R n0-n1@s1",
+    "add R n0-n3@s1",
+    "add C n0-n5@s1",
+    "add R n0-n6@s1",
+    "add C n0-n6@s1",
+    "add C n1-n6@s1",
+    "add R n3-n4@s1",
+    "add C n4-n5@s1",
+    "add R n2-n4@s2"
+   ]
+  },
+  "t2-wb1020-gain-0126": {
+   "tier": "T1",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a3",
+   "pool_label_amend3": "library-solvable",
+   "witness": {
+    "wl": "0fc956247cfdfe6e",
+    "tok": "187dc3cb81063d91",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0126/witness/witness.net"
+   },
+   "library_solvers": [
+    "a2@s1"
+   ],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "a4e57480b4842165a64f"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": true,
+     "worst": 2.999999999997449e-05,
+     "secs": 94.03,
+     "inproc_reject": false,
+     "jid": "bfebe9047610e60cea09"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.29602799999999996,
+     "secs": 68.11,
+     "inproc_reject": false,
+     "jid": "8d0f00acb314bd4c5652"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "549103b54e0d60b231da"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.735228086384109,
+     "secs": 72.68,
+     "inproc_reject": false,
+     "jid": "5df62731276ef5dfc818"
+    }
+   ]
+  },
+  "t2-wb1020-gain-0127": {
+   "tier": "T1",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a2",
+   "pool_label_amend3": "single-edit-solvable",
+   "witness": {
+    "wl": "77552e95bd44fafd",
+    "tok": "b66e597d6e3f95a4",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0127/witness/witness.net"
+   },
+   "library_solvers": [
+    "a2@s2"
+   ],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "cc150f410a2c133429fa"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.0018000000000000238,
+     "secs": 88.89,
+     "inproc_reject": false,
+     "jid": "f307a193a503d158bc77"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.296258,
+     "secs": 64.14,
+     "inproc_reject": false,
+     "jid": "540516273d6a42f576bf"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "1e24d18547b96d3bc388"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.5896712694877505,
+     "secs": 67.6,
+     "inproc_reject": false,
+     "jid": "c99e1e3989443267b277"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "f135d408199de72014e6"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": true,
+     "worst": 0.0001247216035635002,
+     "secs": 150.11,
+     "inproc_reject": false,
+     "jid": "cf4b2153f9c84b5dae3a"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.29630199999999995,
+     "secs": 101.39,
+     "inproc_reject": false,
+     "jid": "f53fdff25254e1ae83d0"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "35f9c44a1c1f06c8eaa2"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.6138984409799555,
+     "secs": 112.43,
+     "inproc_reject": false,
+     "jid": "05213ac0785b7603c07b"
+    }
+   ]
+  },
+  "t2-wb1020-gain-0128": {
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a2",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "63fc7d367b52aa17",
+    "tok": "70501bc64b6f7524",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0128/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "65d8cc5dc63aef41a354"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.08288200000000001,
+     "secs": 87.54,
+     "inproc_reject": false,
+     "jid": "61cbccac2837a65aefc5"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.28603999999999996,
+     "secs": 62.94,
+     "inproc_reject": false,
+     "jid": "25ab871b7e8532e5fd42"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "ccfa68fa218ac5a21db5"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6110699240454305,
+     "secs": 66.7,
+     "inproc_reject": false,
+     "jid": "11f59353bc51e4cc237d"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "939351c89fe44f76e8f1"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.07486899999999996,
+     "secs": 154.45,
+     "inproc_reject": false,
+     "jid": "bf20e7248342521ce68a"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.28620900000000005,
+     "secs": 104.49,
+     "inproc_reject": false,
+     "jid": "177e900211de5ac2ca0a"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "0587136ed9f80543e150"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.7455506113512959,
+     "secs": 109.56,
+     "inproc_reject": false,
+     "jid": "75bfa539f3d975dbb049"
+    }
+   ],
+   "f2_n_space": 178,
+   "f2_n_sized_s1": 107,
+   "f2_n_prereject": 71,
+   "f2_n_near_s2": 69,
+   "f2_solving": [
+    "add R VOUT1-n5@s1",
+    "add R n0-n3@s1",
+    "add R n0-n6@s1",
+    "add C n0-n6@s1",
+    "add C VIN1-n5@s2",
+    "add R VOUT1-n4@s2"
+   ]
+  },
+  "t2-wb1020-gain-0142": {
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a2",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "48fda45f4cefac89",
+    "tok": "d5877e84dcc1236b",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0142/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "fa3c57acdbffc0b3e111"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.10531800000000002,
+     "secs": 91.19,
+     "inproc_reject": false,
+     "jid": "0b3caf4205d8faa57b61"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.32035311211236184,
+     "secs": 65.25,
+     "inproc_reject": false,
+     "jid": "9a8f82041de15429879b"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "1e0e1d54cf8ed81e1141"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6328610006310815,
+     "secs": 67.38,
+     "inproc_reject": false,
+     "jid": "c3ecea8cfaefd3323cc7"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "eae2f35a559ccccf24d1"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.10031299999999999,
+     "secs": 124.45,
+     "inproc_reject": false,
+     "jid": "41a576c6642c6172b8d6"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.32035311211236184,
+     "secs": 90.29,
+     "inproc_reject": false,
+     "jid": "eb800c2b50c1b5da0113"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "e5345676a25706438bdb"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.7723131338333064,
+     "secs": 81.53,
+     "inproc_reject": false,
+     "jid": "c28ed0cd99bc3a5a6c96"
+    }
+   ],
+   "f2_n_space": 178,
+   "f2_n_sized_s1": 107,
+   "f2_n_prereject": 71,
+   "f2_n_near_s2": 56,
+   "f2_solving": [
+    "add C VDD-n3@s1",
+    "add C VIN1-n6@s1",
+    "add C VSS-n3@s1",
+    "add C VOUT1-n4@s2"
+   ]
+  },
+  "t2-wb1020-gain-0159": {
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a2",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "56abf825da41df02",
+    "tok": "737f51f7fdeb4f86",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0159/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "137d0b64ff001c59bb84"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.06824799999999998,
+     "secs": 89.28,
+     "inproc_reject": false,
+     "jid": "74fedd7b3fc74a2fe530"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.286559,
+     "secs": 64.01,
+     "inproc_reject": false,
+     "jid": "e2a57adde014c005dcee"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "5ff94987e4ccecf8d7f7"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.5871768982229402,
+     "secs": 68.23,
+     "inproc_reject": false,
+     "jid": "8eebbaeab96dddacee09"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "a98c8caafabc12b510ed"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.20259700000000003,
+     "secs": 98.83,
+     "inproc_reject": false,
+     "jid": "b2ca4bc42ac87f2801c0"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.28688400000000003,
+     "secs": 69.11,
+     "inproc_reject": false,
+     "jid": "748d1fa8d447d56114c0"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "2f472a31ea9666f23fa1"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.7330339256865913,
+     "secs": 72.95,
+     "inproc_reject": false,
+     "jid": "42de485c2ce5cd98f6be"
+    }
+   ],
+   "f2_n_space": 178,
+   "f2_n_sized_s1": 107,
+   "f2_n_prereject": 71,
+   "f2_n_near_s2": 59,
+   "f2_solving": [
+    "add C VDD-n1@s1",
+    "add C VDD-n3@s1",
+    "add C VIN1-n3@s1",
+    "add C VIN1-n5@s1",
+    "add C VIN1-n6@s1",
+    "add C VSS-n1@s1",
+    "add C VSS-n3@s1",
+    "add R n0-n3@s1",
+    "add R n0-n5@s1",
+    "add R n0-n6@s1",
+    "add C n0-n6@s1",
+    "add R n2-n4@s1",
+    "add R n3-n4@s1",
+    "add C n3-n5@s1",
+    "add C n4-n5@s1",
+    "add R n4-n6@s1",
+    "add C VDD-n5@s2",
+    "add C VSS-n5@s2",
+    "add R n0-n1@s2"
+   ]
+  },
+  "t2-wb1020-gain-0160": {
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a2",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "ac8d18f3d40f1b10",
+    "tok": "4ff75166a51f9dd6",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0160/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "07bc26d9f0c2ae958847"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.05495799999999995,
+     "secs": 100.3,
+     "inproc_reject": false,
+     "jid": "568d7a33386c26c26a94"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.282598,
+     "secs": 69.89,
+     "inproc_reject": false,
+     "jid": "6e8712351ffe40de25eb"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "fdc4198d180faa9c25c7"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6438181890420754,
+     "secs": 74.45,
+     "inproc_reject": false,
+     "jid": "e9d991591a99e444c184"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "2066044474d865088086"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.06358600000000003,
+     "secs": 95.96,
+     "inproc_reject": false,
+     "jid": "c7b2090bc484ed42e280"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.28198900000000005,
+     "secs": 67.37,
+     "inproc_reject": false,
+     "jid": "4daa36ecda352b2a65f4"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "7748daf41fcadbf3e0f7"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.6417593070841113,
+     "secs": 71.24,
+     "inproc_reject": false,
+     "jid": "dc5192ce0c7d8addfc93"
+    }
+   ],
+   "f2_n_space": 178,
+   "f2_n_sized_s1": 107,
+   "f2_n_prereject": 71,
+   "f2_n_near_s2": 69,
+   "f2_solving": [
+    "add C VDD-n1@s1",
+    "add C VDD-n5@s1",
+    "add C VIN1-n3@s1",
+    "add C VIN1-n6@s1",
+    "add C VSS-n1@s1",
+    "add C VSS-n5@s1",
+    "add R n0-n3@s1",
+    "add C n0-n3@s1",
+    "add C n0-n5@s1",
+    "add R n0-n6@s1",
+    "add C n0-n6@s1",
+    "add C n3-n6@s1",
+    "add R n4-n5@s1",
+    "add C VDD-n3@s2",
+    "add C VDD-n6@s2",
+    "add C VIN1-n5@s2",
+    "add C VOUT1-n4@s2",
+    "add C VSS-n3@s2",
+    "add C VSS-n6@s2",
+    "add R n0-n1@s2",
+    "add R n0-n4@s2",
+    "add C n1-n5@s2",
+    "add C n3-n5@s2"
+   ]
+  },
+  "t2-wb1020-gain-0161": {
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a2",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "272c81bafe195040",
+    "tok": "b4ab60f95cd3c7d7",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0161/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "5588976e46a5dcdc6844"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.104518,
+     "secs": 89.36,
+     "inproc_reject": false,
+     "jid": "abf08eb7f6502151afee"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.28941700000000004,
+     "secs": 63.12,
+     "inproc_reject": false,
+     "jid": "93509ad6f63f8aaa3fde"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "b28f229a3dcd55ff133a"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.7137155185698875,
+     "secs": 68.33,
+     "inproc_reject": false,
+     "jid": "aa54d35299a7ad46d4f9"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "0a2c42a3507708a3ee7b"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.029131000000000018,
+     "secs": 94.89,
+     "inproc_reject": false,
+     "jid": "d8634f8889c1cd1cf103"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.289415,
+     "secs": 66.45,
+     "inproc_reject": false,
+     "jid": "7dd77df288dc83a12c2b"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "e7eb71875c706ca55c1d"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.7136584989983047,
+     "secs": 70.69,
+     "inproc_reject": false,
+     "jid": "f96d4b12fbe093d2c691"
+    }
+   ],
+   "f2_n_space": 178,
+   "f2_n_sized_s1": 107,
+   "f2_n_prereject": 71,
+   "f2_n_near_s2": 63,
+   "f2_solving": [
+    "add R VDD-VOUT1@s1",
+    "add R VDD-n0@s1",
+    "add C VDD-n1@s1",
+    "add C VDD-n3@s1",
+    "add C VIN1-n5@s1",
+    "add C VIN1-n6@s1",
+    "add R VOUT1-VSS@s1",
+    "add R VOUT1-n4@s1",
+    "add C VOUT1-n4@s1",
+    "add R VOUT1-n6@s1",
+    "add R VSS-n0@s1",
+    "add C VSS-n1@s1",
+    "add C VSS-n3@s1",
+    "add R n0-n1@s1",
+    "add R n0-n3@s1",
+    "add C n0-n3@s1",
+    "add R n0-n4@s1",
+    "add R n0-n5@s1",
+    "add R n0-n6@s1",
+    "add C n0-n6@s1",
+    "add R n1-n4@s1",
+    "add C n1-n5@s1",
+    "add C n1-n6@s1",
+    "add R n2-n4@s1",
+    "add C n2-n6@s1",
+    "add R n3-n4@s1",
+    "add C n3-n6@s1",
+    "add R n4-n5@s1",
+    "add R n5-n6@s1",
+    "add C VDD-n5@s2",
+    "add C VDD-n6@s2",
+    "add C VSS-n5@s2",
+    "add C VSS-n6@s2",
+    "add C n0-n5@s2",
+    "add C n3-n5@s2",
+    "add R n4-n6@s2"
+   ]
+  },
+  "t2-wb1020-gain-0182": {
+   "tier": "T1",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a3",
+   "pool_label_amend3": "library-solvable",
+   "witness": {
+    "wl": "b8178095a6e7ffb1",
+    "tok": "0a345baa75b56469",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0182/witness/witness.net"
+   },
+   "library_solvers": [
+    "a2@s1"
+   ],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "dba67e4cdb45b2de4e34"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": true,
+     "worst": 0.00028999999999990145,
+     "secs": 94.85,
+     "inproc_reject": false,
+     "jid": "d1b060f5821a7d5ccd2c"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.290805,
+     "secs": 67.43,
+     "inproc_reject": false,
+     "jid": "e111e12456633115a080"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "d31a84b3ccbae8adee13"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6806549546632125,
+     "secs": 71.08,
+     "inproc_reject": false,
+     "jid": "fb093656e64e0f2c3363"
+    }
+   ]
+  },
+  "t2-wb1020-gain-0183": {
+   "tier": "T1",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a3",
+   "pool_label_amend3": "library-solvable",
+   "witness": {
+    "wl": "d7de51facf4f40b5",
+    "tok": "f59fb43faffb2cce",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0183/witness/witness.net"
+   },
+   "library_solvers": [
+    "a2@s1"
+   ],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "17af325c060e3e9a74e1"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": true,
+     "worst": 0.000220000000000109,
+     "secs": 92.58,
+     "inproc_reject": false,
+     "jid": "578b098b2181cd375138"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.293419,
+     "secs": 64.9,
+     "inproc_reject": false,
+     "jid": "0112c3103252b016d440"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "82c0d9bb23ae4e2fd9c1"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6954283340257581,
+     "secs": 69.76,
+     "inproc_reject": false,
+     "jid": "f708c517c63d390c47f4"
+    }
+   ]
+  },
+  "t2-wb1020-gain-0184": {
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a2",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "e807ee707723abd1",
+    "tok": "75538c0733ddad9a",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0184/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "59143be79ed940dc28b6"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.1764215904042648,
+     "secs": 92.24,
+     "inproc_reject": false,
+     "jid": "b0246a31281143e43a62"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.28276599999999996,
+     "secs": 65.09,
+     "inproc_reject": false,
+     "jid": "5be36f223303c4fd53a2"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "f3e411e64eefae228170"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6435298597448753,
+     "secs": 69.85,
+     "inproc_reject": false,
+     "jid": "e4f31976f978c1fee8e7"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "a1cef79a349fcc23f5b1"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.09072000000000002,
+     "secs": 94.57,
+     "inproc_reject": false,
+     "jid": "6f8ab26ac8bb88744716"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.28276999999999997,
+     "secs": 66.16,
+     "inproc_reject": false,
+     "jid": "ced4c63443adc04d3173"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "66ca9ea0d2c8637f2dfb"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.6578298533984897,
+     "secs": 71.11,
+     "inproc_reject": false,
+     "jid": "6a25bec49f2ebbf4812a"
+    }
+   ],
+   "f2_n_space": 178,
+   "f2_n_sized_s1": 107,
+   "f2_n_prereject": 71,
+   "f2_n_near_s2": 65,
+   "f2_solving": [
+    "add C VDD-n1@s1",
+    "add C VIN1-n3@s1",
+    "add C VOUT1-n4@s1",
+    "add C VSS-n1@s1",
+    "add R n0-n3@s1",
+    "add R n0-n5@s1",
+    "add R n0-n6@s1",
+    "add R n2-n4@s1",
+    "add C VDD-n3@s2",
+    "add C VDD-n5@s2",
+    "add C VIN1-n6@s2",
+    "add C VSS-n3@s2",
+    "add C VSS-n5@s2",
+    "add C n0-n5@s2",
+    "add C n0-n6@s2",
+    "add R n4-n6@s2"
+   ]
+  },
+  "t2-wb1020-gain-0205": {
+   "tier": "T1",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a3",
+   "pool_label_amend3": "library-solvable",
+   "witness": {
+    "wl": "37c918b4a6555eb0",
+    "tok": "07b7d594fb1b2fba",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0205/witness/witness.net"
+   },
+   "library_solvers": [
+    "a2@s1"
+   ],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "e948be5488a4e7dc8d4b"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": true,
+     "worst": 0.0005900000000000905,
+     "secs": 92.51,
+     "inproc_reject": false,
+     "jid": "10ab5127db4d0fd8f650"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.269537,
+     "secs": 66.73,
+     "inproc_reject": false,
+     "jid": "cbea4016ee2716250515"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "0880c9a601a349607bbe"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.6548732556085497,
+     "secs": 69.51,
+     "inproc_reject": false,
+     "jid": "17676d4b053e461840cd"
+    }
+   ]
+  },
+  "t2-wb1020-gain-0206": {
+   "tier": "T1",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a3",
+   "pool_label_amend3": "library-solvable",
+   "witness": {
+    "wl": "9c7fb149b2f582f5",
+    "tok": "42b9a4fd085d1c24",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0206/witness/witness.net"
+   },
+   "library_solvers": [
+    "a2@s1"
+   ],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "2a164d2c44172ee28d23"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": true,
+     "worst": 0.0009999999999998899,
+     "secs": 92.85,
+     "inproc_reject": false,
+     "jid": "0591353beff7492c2cbb"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.337317,
+     "secs": 65.59,
+     "inproc_reject": false,
+     "jid": "7bbdf216f2cfadc1bbec"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "b512e4c64cda0e130274"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.5441597453518277,
+     "secs": 69.54,
+     "inproc_reject": false,
+     "jid": "e1a2153f747c5bce26a4"
+    }
+   ]
+  },
+  "t2-wb1020-gain-0207": {
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a2",
+   "pool_label_amend3": "witness-only",
+   "witness": {
+    "wl": "6d1aeb9f66174944",
+    "tok": "46fe7cbc2552d025",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0207/witness/witness.net"
+   },
+   "library_solvers": [],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "bc5a62ffaecb1f90a026"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.012186999999999948,
+     "secs": 91.44,
+     "inproc_reject": false,
+     "jid": "0a11440eb645a24477be"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.273887,
+     "secs": 65.07,
+     "inproc_reject": false,
+     "jid": "2f0db423b5a938a011c4"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "ac0078351c498fb6ec7b"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.92955537464383,
+     "secs": 69.39,
+     "inproc_reject": false,
+     "jid": "1316b95591c46fdba250"
+    },
+    {
+     "anchor": "a1",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "a8d3dd30640cdcaa8756"
+    },
+    {
+     "anchor": "a2",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.011012000000000022,
+     "secs": 94.79,
+     "inproc_reject": false,
+     "jid": "07484810499fcee2564d"
+    },
+    {
+     "anchor": "a3",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.329469,
+     "secs": 65.87,
+     "inproc_reject": false,
+     "jid": "3acf7e094ca075abc3b8"
+    },
+    {
+     "anchor": "a4",
+     "seed": 2,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "0d4dbb80f9d3179a0b58"
+    },
+    {
+     "anchor": "a5",
+     "seed": 2,
+     "feasible": false,
+     "worst": -0.6163543777231895,
+     "secs": 70.54,
+     "inproc_reject": false,
+     "jid": "1dc0c86ea5e485474eeb"
+    }
+   ],
+   "f2_n_space": 178,
+   "f2_n_sized_s1": 107,
+   "f2_n_prereject": 71,
+   "f2_n_near_s2": 43,
+   "f2_solving": [
+    "add C VDD-VIN1@s1",
+    "add R VDD-VOUT1@s1",
+    "add R VDD-n0@s1",
+    "add C VDD-n1@s1",
+    "add C VDD-n3@s1",
+    "add R VDD-n4@s1",
+    "add C VDD-n5@s1",
+    "add R VIN1-VSS@s1",
+    "add C VIN1-VSS@s1",
+    "add C VIN1-n5@s1",
+    "add R VOUT1-VSS@s1",
+    "add R VOUT1-n1@s1",
+    "add R VOUT1-n3@s1",
+    "add R VOUT1-n6@s1",
+    "add C VSS-n1@s1",
+    "add R VSS-n3@s1",
+    "add C VSS-n3@s1",
+    "add R VSS-n4@s1",
+    "add C VSS-n5@s1",
+    "add R VSS-n6@s1",
+    "add R n0-n1@s1",
+    "add R n0-n3@s1",
+    "add C n0-n3@s1",
+    "add R n0-n5@s1",
+    "add C n0-n5@s1",
+    "add R n0-n6@s1",
+    "add R n1-n2@s1",
+    "add R n1-n4@s1",
+    "add C n1-n6@s1",
+    "add R n2-n3@s1",
+    "add R n2-n5@s1",
+    "add R n2-n6@s1",
+    "add R n3-n4@s1",
+    "add C n3-n6@s1",
+    "add R n4-n5@s1",
+    "add C n4-n5@s1",
+    "add C VDD-n6@s2",
+    "add C VIN1-n6@s2",
+    "add C VOUT1-n2@s2",
+    "add R VOUT1-n4@s2",
+    "add C VOUT1-n6@s2",
+    "add R VSS-n0@s2",
+    "add C VSS-n6@s2",
+    "add R n0-n4@s2",
+    "add C n1-n5@s2",
+    "add R n4-n6@s2",
+    "del R R5 (n6 n3)@s2"
+   ]
+  },
+  "t2-wb1020-gain-0223": {
+   "tier": "T1",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a3",
+   "pool_label_amend3": "library-solvable",
+   "witness": {
+    "wl": "4baee62058475c69",
+    "tok": "6d00804259ab44d8",
+    "EVAL_ONLY": true,
+    "file": "kaggle/train-pool-v2/t2-wb1020-gain-0223/witness/witness.net"
+   },
+   "library_solvers": [
+    "a2@s1"
+   ],
+   "tf1_calls": [
+    {
+     "anchor": "a1",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "fc35fa44b2ef3d8da05c"
+    },
+    {
+     "anchor": "a2",
+     "seed": 1,
+     "feasible": true,
+     "worst": 7.00000000000145e-05,
+     "secs": 95.46,
+     "inproc_reject": false,
+     "jid": "1fe70d2741b08e622f61"
+    },
+    {
+     "anchor": "a3",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.34720399999999996,
+     "secs": 66.92,
+     "inproc_reject": false,
+     "jid": "ba083ac2e7d9a1af6c9e"
+    },
+    {
+     "anchor": "a4",
+     "seed": 1,
+     "feasible": false,
+     "worst": null,
+     "secs": 0.0,
+     "inproc_reject": true,
+     "jid": "fb2f9de27cb8b7f9bb28"
+    },
+    {
+     "anchor": "a5",
+     "seed": 1,
+     "feasible": false,
+     "worst": -0.5279850672760584,
+     "secs": 72.0,
+     "inproc_reject": false,
+     "jid": "08dcc4e137fdc81e98c0"
+    }
+   ]
+  },
+  "v2b-wb0824-gain-188": {
+   "tier": "T3",
+   "family": "wb0824-gain",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a2",
+   "source": "bench-v2 strict cell",
+   "witness": {
+    "wl": "999bf945fe76372a",
+    "tok": "643274f4ddabb6aa",
+    "EVAL_ONLY": true,
+    "file": "kaggle/campaigns/bench-v2/run/cells/v2b-wb0824-gain-188/witness/witness.net"
+   },
+   "core_signature": "add:C:G-RAIL + add:R:G-X",
+   "primary_atom": "add:R:G-X",
+   "rl_v1_2_check": {
+    "status_pass": true,
+    "rows_rl_v1_2_and_consistent": true,
+    "bad_rows": [],
+    "A1": true,
+    "A2": true,
+    "A3": true,
+    "F1_none_feasible_s1_s2": true,
+    "F2_none_feasible_s1_s2": true,
+    "witness_tok_matches": true,
+    "all_pass": true
+   }
+  },
+  "v2b-wb1020-noise-217": {
+   "tier": "T3",
+   "family": "wb1020-noise",
+   "band_type": "wideband",
+   "parent_anchor": "a2",
+   "shown_anchor": "a2",
+   "source": "bench-v2 strict cell",
+   "witness": {
+    "wl": "999bf945fe76372a",
+    "tok": "643274f4ddabb6aa",
+    "EVAL_ONLY": true,
+    "file": "kaggle/campaigns/bench-v2/run/cells/v2b-wb1020-noise-217/witness/witness.net"
+   },
+   "core_signature": "add:C:G-RAIL + add:R:G-X",
+   "primary_atom": "add:R:G-X",
+   "rl_v1_2_check": {
+    "status_pass": true,
+    "rows_rl_v1_2_and_consistent": true,
+    "bad_rows": [],
+    "A1": true,
+    "A2": true,
+    "A3": true,
+    "F1_none_feasible_s1_s2": true,
+    "F2_none_feasible_s1_s2": true,
+    "witness_tok_matches": true,
+    "all_pass": true
+   }
+  }
+ }
+}

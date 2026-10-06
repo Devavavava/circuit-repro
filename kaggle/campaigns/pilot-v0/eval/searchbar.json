@@ -1,0 +1,755 @@
+{
+ "prereg": "kaggle/PREREG-PILOT-V0.md (137ea060a)",
+ "verifier": "rl-v1.2",
+ "method": "E-c (kaggle/campaigns/bench-v12-audit/E-c): expected cost to the first feasible design for blind search in uniformly random order over SIZED calls (in-process pre-rejects cost 0 and are excluded); calls = (N-K)/(K+1)+1, SPICE-min = (sum_infeasible secs/(K+1) + mean_feasible secs)/60, stage-wise (a stage without a feasible call is paid in full). Seconds are smoke_run wall seconds under the shared load at run time (cached rows reused).",
+ "aggregate": {
+  "T1": {
+   "n": 23,
+   "median_calls": 2.0,
+   "median_spice_min": 2.8,
+   "mean_spice_min": 3.48
+  },
+  "T2": {
+   "n": 32,
+   "median_calls": 19.585,
+   "median_spice_min": 27.174999999999997,
+   "mean_spice_min": 37.43
+  }
+ },
+ "items": {
+  "t2-nb090-noise-0012": {
+   "tier": "T3",
+   "search": ">F2 space",
+   "F2_space_exhausted": {
+    "calls": 58,
+    "spice_min": 71.33
+   },
+   "library_stage": {
+    "calls": 10,
+    "spice_min": 13.81
+   },
+   "exhaust_library_plus_f2_spice_min": 85.13
+  },
+  "t2-nb090-noise-0013": {
+   "tier": "T1",
+   "search": "random order over the library anchors' sizing calls (seed 1, then seed 2)",
+   "calls": 3.0,
+   "spice_min": 3.75,
+   "found": true,
+   "n_sized": 5,
+   "n_feasible": 1
+  },
+  "t2-nb090-noise-0047": {
+   "tier": "T1",
+   "search": "random order over the library anchors' sizing calls (seed 1, then seed 2)",
+   "calls": 2.0,
+   "spice_min": 2.81,
+   "found": true,
+   "n_sized": 5,
+   "n_feasible": 2
+  },
+  "t2-nb090-noise-0068": {
+   "tier": "T1",
+   "search": "random order over the library anchors' sizing calls (seed 1, then seed 2)",
+   "calls": 3.0,
+   "spice_min": 3.78,
+   "found": true,
+   "n_sized": 5,
+   "n_feasible": 1
+  },
+  "t2-nb090-noise-0129": {
+   "tier": "T1",
+   "search": "random order over the library anchors' sizing calls (seed 1, then seed 2)",
+   "calls": 3.0,
+   "spice_min": 3.59,
+   "found": true,
+   "n_sized": 5,
+   "n_feasible": 1
+  },
+  "t2-nb090-noise-0143": {
+   "tier": "T1",
+   "search": "random order over the library anchors' sizing calls (seed 1, then seed 2)",
+   "calls": 3.0,
+   "spice_min": 4.15,
+   "found": true,
+   "n_sized": 5,
+   "n_feasible": 1
+  },
+  "t2-nb090-noise-0240": {
+   "tier": "T1",
+   "search": "random order over the library anchors' sizing calls (seed 1, then seed 2)",
+   "calls": 3.0,
+   "spice_min": 3.72,
+   "found": true,
+   "n_sized": 5,
+   "n_feasible": 1
+  },
+  "t2-nb090-noise-0254": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 42.33,
+   "spice_min": 56.65,
+   "found": true,
+   "n_sized": 127,
+   "n_feasible_s1": 2,
+   "n_feasible_s2": 0,
+   "incl_failed_library_stage": {
+    "calls": 52.33,
+    "spice_min": 72.8
+   },
+   "exhaust_library_plus_f2_spice_min": 185.93
+  },
+  "t2-nb090-noise-0269": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 31.75,
+   "spice_min": 40.54,
+   "found": true,
+   "n_sized": 130,
+   "n_feasible_s1": 3,
+   "n_feasible_s2": 2,
+   "incl_failed_library_stage": {
+    "calls": 41.75,
+    "spice_min": 56.02
+   },
+   "exhaust_library_plus_f2_spice_min": 181.47
+  },
+  "t2-nb090-noise-0286": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 63.5,
+   "spice_min": 83.06,
+   "found": true,
+   "n_sized": 126,
+   "n_feasible_s1": 1,
+   "n_feasible_s2": 0,
+   "incl_failed_library_stage": {
+    "calls": 73.5,
+    "spice_min": 96.28
+   },
+   "exhaust_library_plus_f2_spice_min": 178.06
+  },
+  "t2-nb090-noise-0287": {
+   "tier": "T1",
+   "search": "random order over the library anchors' sizing calls (seed 1, then seed 2)",
+   "calls": 3.0,
+   "spice_min": 3.78,
+   "found": true,
+   "n_sized": 5,
+   "n_feasible": 1
+  },
+  "t2-nb090-noise-0291": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 25.4,
+   "spice_min": 34.94,
+   "found": true,
+   "n_sized": 128,
+   "n_feasible_s1": 4,
+   "n_feasible_s2": 0,
+   "incl_failed_library_stage": {
+    "calls": 35.4,
+    "spice_min": 47.93
+   },
+   "exhaust_library_plus_f2_spice_min": 188.9
+  },
+  "t2-nb090-noise-0300": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 63.5,
+   "spice_min": 113.66,
+   "found": true,
+   "n_sized": 128,
+   "n_feasible_s1": 1,
+   "n_feasible_s2": 0,
+   "incl_failed_library_stage": {
+    "calls": 73.5,
+    "spice_min": 126.03
+   },
+   "exhaust_library_plus_f2_spice_min": 239.39
+  },
+  "t2-nb090-noise-0307": {
+   "tier": "T1",
+   "search": "random order over the library anchors' sizing calls (seed 1, then seed 2)",
+   "calls": 3.0,
+   "spice_min": 3.71,
+   "found": true,
+   "n_sized": 5,
+   "n_feasible": 1
+  },
+  "t2-nb090-noise-0312": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 63.5,
+   "spice_min": 100.79,
+   "found": true,
+   "n_sized": 126,
+   "n_feasible_s1": 1,
+   "n_feasible_s2": 0,
+   "incl_failed_library_stage": {
+    "calls": 73.5,
+    "spice_min": 113.62
+   },
+   "exhaust_library_plus_f2_spice_min": 212.83
+  },
+  "t2-nb090-noise-0322": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 63.5,
+   "spice_min": 83.07,
+   "found": true,
+   "n_sized": 128,
+   "n_feasible_s1": 1,
+   "n_feasible_s2": 1,
+   "incl_failed_library_stage": {
+    "calls": 73.5,
+    "spice_min": 95.54
+   },
+   "exhaust_library_plus_f2_spice_min": 179.85
+  },
+  "t2-nb090-noise-0323": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 15.88,
+   "spice_min": 20.44,
+   "found": true,
+   "n_sized": 130,
+   "n_feasible_s1": 7,
+   "n_feasible_s2": 0,
+   "incl_failed_library_stage": {
+    "calls": 25.88,
+    "spice_min": 33.05
+   },
+   "exhaust_library_plus_f2_spice_min": 179.95
+  },
+  "t2-nb090-noise-0349": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 21.17,
+   "spice_min": 27.65,
+   "found": true,
+   "n_sized": 127,
+   "n_feasible_s1": 5,
+   "n_feasible_s2": 0,
+   "incl_failed_library_stage": {
+    "calls": 31.17,
+    "spice_min": 41.36
+   },
+   "exhaust_library_plus_f2_spice_min": 179.53
+  },
+  "t2-nb090-noise-0350": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 63.5,
+   "spice_min": 108.92,
+   "found": true,
+   "n_sized": 127,
+   "n_feasible_s1": 1,
+   "n_feasible_s2": 0,
+   "incl_failed_library_stage": {
+    "calls": 73.5,
+    "spice_min": 122.03
+   },
+   "exhaust_library_plus_f2_spice_min": 231.03
+  },
+  "t2-nb090-noise-0351": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 63.5,
+   "spice_min": 110.86,
+   "found": true,
+   "n_sized": 126,
+   "n_feasible_s1": 1,
+   "n_feasible_s2": 0,
+   "incl_failed_library_stage": {
+    "calls": 73.5,
+    "spice_min": 124.65
+   },
+   "exhaust_library_plus_f2_spice_min": 234.03
+  },
+  "t2-nb090-noise-0363": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 31.75,
+   "spice_min": 40.44,
+   "found": true,
+   "n_sized": 130,
+   "n_feasible_s1": 3,
+   "n_feasible_s2": 0,
+   "incl_failed_library_stage": {
+    "calls": 41.75,
+    "spice_min": 53.52
+   },
+   "exhaust_library_plus_f2_spice_min": 178.58
+  },
+  "t2-nb090-noise-0375": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 21.17,
+   "spice_min": 26.7,
+   "found": true,
+   "n_sized": 126,
+   "n_feasible_s1": 5,
+   "n_feasible_s2": 0,
+   "incl_failed_library_stage": {
+    "calls": 31.17,
+    "spice_min": 39.75
+   },
+   "exhaust_library_plus_f2_spice_min": 172.05
+  },
+  "t2-nb090-noise-0387": {
+   "tier": "T1",
+   "search": "random order over the library anchors' sizing calls (seed 1, then seed 2)",
+   "calls": 3.0,
+   "spice_min": 3.94,
+   "found": true,
+   "n_sized": 5,
+   "n_feasible": 1
+  },
+  "t2-nb090-noise-0397": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 25.4,
+   "spice_min": 31.32,
+   "found": true,
+   "n_sized": 126,
+   "n_feasible_s1": 4,
+   "n_feasible_s2": 0,
+   "incl_failed_library_stage": {
+    "calls": 35.4,
+    "spice_min": 44.69
+   },
+   "exhaust_library_plus_f2_spice_min": 168.75
+  },
+  "t2-nb090-noise-0411": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 63.5,
+   "spice_min": 78.18,
+   "found": true,
+   "n_sized": 129,
+   "n_feasible_s1": 1,
+   "n_feasible_s2": 0,
+   "incl_failed_library_stage": {
+    "calls": 73.5,
+    "spice_min": 91.97
+   },
+   "exhaust_library_plus_f2_spice_min": 172.68
+  },
+  "t2-wb1020-gain-0001": {
+   "tier": "T1",
+   "search": "random order over the library anchors' sizing calls (seed 1, then seed 2)",
+   "calls": 2.0,
+   "spice_min": 2.19,
+   "found": true,
+   "n_sized": 3,
+   "n_feasible": 1
+  },
+  "t2-wb1020-gain-0010": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 3.18,
+   "spice_min": 5.43,
+   "found": true,
+   "n_sized": 162,
+   "n_feasible_s1": 33,
+   "n_feasible_s2": 11,
+   "incl_failed_library_stage": {
+    "calls": 9.18,
+    "spice_min": 13.24
+   },
+   "exhaust_library_plus_f2_spice_min": 317.49
+  },
+  "t2-wb1020-gain-0026": {
+   "tier": "T1",
+   "search": "random order over the library anchors' sizing calls (seed 1, then seed 2)",
+   "calls": 2.0,
+   "spice_min": 2.74,
+   "found": true,
+   "n_sized": 3,
+   "n_feasible": 1
+  },
+  "t2-wb1020-gain-0027": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 6.35,
+   "spice_min": 11.0,
+   "found": true,
+   "n_sized": 176,
+   "n_feasible_s1": 16,
+   "n_feasible_s2": 15,
+   "incl_failed_library_stage": {
+    "calls": 12.35,
+    "spice_min": 18.83
+   },
+   "exhaust_library_plus_f2_spice_min": 355.88
+  },
+  "t2-wb1020-gain-0028": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 18.0,
+   "spice_min": 30.9,
+   "found": true,
+   "n_sized": 153,
+   "n_feasible_s1": 5,
+   "n_feasible_s2": 1,
+   "incl_failed_library_stage": {
+    "calls": 24.0,
+    "spice_min": 38.62
+   },
+   "exhaust_library_plus_f2_spice_min": 318.19
+  },
+  "t2-wb1020-gain-0043": {
+   "tier": "T1",
+   "search": "random order over the library anchors' sizing calls (seed 1, then seed 2)",
+   "calls": 2.0,
+   "spice_min": 2.75,
+   "found": true,
+   "n_sized": 3,
+   "n_feasible": 1
+  },
+  "t2-wb1020-gain-0044": {
+   "tier": "T1",
+   "search": "random order over the library anchors' sizing calls (seed 1, then seed 2)",
+   "calls": 2.0,
+   "spice_min": 2.75,
+   "found": true,
+   "n_sized": 3,
+   "n_feasible": 1
+  },
+  "t2-wb1020-gain-0045": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 2.92,
+   "spice_min": 5.08,
+   "found": true,
+   "n_sized": 166,
+   "n_feasible_s1": 36,
+   "n_feasible_s2": 5,
+   "incl_failed_library_stage": {
+    "calls": 8.92,
+    "spice_min": 12.79
+   },
+   "exhaust_library_plus_f2_spice_min": 366.45
+  },
+  "t2-wb1020-gain-0046": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 1.77,
+   "spice_min": 3.02,
+   "found": true,
+   "n_sized": 140,
+   "n_feasible_s1": 60,
+   "n_feasible_s2": 13,
+   "incl_failed_library_stage": {
+    "calls": 7.77,
+    "spice_min": 10.77
+   },
+   "exhaust_library_plus_f2_spice_min": 286.93
+  },
+  "t2-wb1020-gain-0065": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 1.61,
+   "spice_min": 2.82,
+   "found": true,
+   "n_sized": 132,
+   "n_feasible_s1": 66,
+   "n_feasible_s2": 11,
+   "incl_failed_library_stage": {
+    "calls": 7.61,
+    "spice_min": 10.64
+   },
+   "exhaust_library_plus_f2_spice_min": 241.89
+  },
+  "t2-wb1020-gain-0066": {
+   "tier": "T1",
+   "search": "random order over the library anchors' sizing calls (seed 1, then seed 2)",
+   "calls": 5.0,
+   "spice_min": 6.68,
+   "found": true,
+   "n_sized": 6,
+   "n_feasible": 1
+  },
+  "t2-wb1020-gain-0067": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 1.64,
+   "spice_min": 2.86,
+   "found": true,
+   "n_sized": 133,
+   "n_feasible_s1": 65,
+   "n_feasible_s2": 15,
+   "incl_failed_library_stage": {
+    "calls": 7.64,
+    "spice_min": 11.05
+   },
+   "exhaust_library_plus_f2_spice_min": 239.26
+  },
+  "t2-wb1020-gain-0088": {
+   "tier": "T1",
+   "search": "random order over the library anchors' sizing calls (seed 1, then seed 2)",
+   "calls": 2.0,
+   "spice_min": 2.75,
+   "found": true,
+   "n_sized": 3,
+   "n_feasible": 1
+  },
+  "t2-wb1020-gain-0089": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 5.14,
+   "spice_min": 9.01,
+   "found": true,
+   "n_sized": 172,
+   "n_feasible_s1": 20,
+   "n_feasible_s2": 6,
+   "incl_failed_library_stage": {
+    "calls": 11.14,
+    "spice_min": 18.18
+   },
+   "exhaust_library_plus_f2_spice_min": 308.77
+  },
+  "t2-wb1020-gain-0107": {
+   "tier": "T1",
+   "search": "random order over the library anchors' sizing calls (seed 1, then seed 2)",
+   "calls": 2.0,
+   "spice_min": 2.8,
+   "found": true,
+   "n_sized": 3,
+   "n_feasible": 1
+  },
+  "t2-wb1020-gain-0108": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 2.45,
+   "spice_min": 4.28,
+   "found": true,
+   "n_sized": 158,
+   "n_feasible_s1": 43,
+   "n_feasible_s2": 8,
+   "incl_failed_library_stage": {
+    "calls": 8.45,
+    "spice_min": 13.73
+   },
+   "exhaust_library_plus_f2_spice_min": 284.68
+  },
+  "t2-wb1020-gain-0109": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 7.71,
+   "spice_min": 13.57,
+   "found": true,
+   "n_sized": 168,
+   "n_feasible_s1": 13,
+   "n_feasible_s2": 1,
+   "incl_failed_library_stage": {
+    "calls": 13.71,
+    "spice_min": 22.59
+   },
+   "exhaust_library_plus_f2_spice_min": 303.44
+  },
+  "t2-wb1020-gain-0126": {
+   "tier": "T1",
+   "search": "random order over the library anchors' sizing calls (seed 1, then seed 2)",
+   "calls": 2.0,
+   "spice_min": 2.74,
+   "found": true,
+   "n_sized": 3,
+   "n_feasible": 1
+  },
+  "t2-wb1020-gain-0127": {
+   "tier": "T1",
+   "search": "random order over the library anchors' sizing calls (seed 1, then seed 2)",
+   "calls": 5.0,
+   "spice_min": 7.96,
+   "found": true,
+   "n_sized": 6,
+   "n_feasible": 1
+  },
+  "t2-wb1020-gain-0128": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 21.6,
+   "spice_min": 38.09,
+   "found": true,
+   "n_sized": 176,
+   "n_feasible_s1": 4,
+   "n_feasible_s2": 2,
+   "incl_failed_library_stage": {
+    "calls": 27.6,
+    "spice_min": 47.85
+   },
+   "exhaust_library_plus_f2_spice_min": 318.01
+  },
+  "t2-wb1020-gain-0142": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 27.0,
+   "spice_min": 47.47,
+   "found": true,
+   "n_sized": 163,
+   "n_feasible_s1": 3,
+   "n_feasible_s2": 1,
+   "incl_failed_library_stage": {
+    "calls": 33.0,
+    "spice_min": 56.13
+   },
+   "exhaust_library_plus_f2_spice_min": 293.38
+  },
+  "t2-wb1020-gain-0159": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 6.35,
+   "spice_min": 11.11,
+   "found": true,
+   "n_sized": 166,
+   "n_feasible_s1": 16,
+   "n_feasible_s2": 3,
+   "incl_failed_library_stage": {
+    "calls": 12.35,
+    "spice_min": 18.81
+   },
+   "exhaust_library_plus_f2_spice_min": 301.13
+  },
+  "t2-wb1020-gain-0160": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 7.71,
+   "spice_min": 17.31,
+   "found": true,
+   "n_sized": 176,
+   "n_feasible_s1": 13,
+   "n_feasible_s2": 10,
+   "incl_failed_library_stage": {
+    "calls": 13.71,
+    "spice_min": 25.29
+   },
+   "exhaust_library_plus_f2_spice_min": 367.89
+  },
+  "t2-wb1020-gain-0161": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 3.6,
+   "spice_min": 13.98,
+   "found": true,
+   "n_sized": 170,
+   "n_feasible_s1": 29,
+   "n_feasible_s2": 7,
+   "incl_failed_library_stage": {
+    "calls": 9.6,
+    "spice_min": 21.53
+   },
+   "exhaust_library_plus_f2_spice_min": 532.25
+  },
+  "t2-wb1020-gain-0182": {
+   "tier": "T1",
+   "search": "random order over the library anchors' sizing calls (seed 1, then seed 2)",
+   "calls": 2.0,
+   "spice_min": 2.74,
+   "found": true,
+   "n_sized": 3,
+   "n_feasible": 1
+  },
+  "t2-wb1020-gain-0183": {
+   "tier": "T1",
+   "search": "random order over the library anchors' sizing calls (seed 1, then seed 2)",
+   "calls": 2.0,
+   "spice_min": 2.67,
+   "found": true,
+   "n_sized": 3,
+   "n_feasible": 1
+  },
+  "t2-wb1020-gain-0184": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 12.0,
+   "spice_min": 19.82,
+   "found": true,
+   "n_sized": 172,
+   "n_feasible_s1": 8,
+   "n_feasible_s2": 8,
+   "incl_failed_library_stage": {
+    "calls": 18.0,
+    "spice_min": 27.47
+   },
+   "exhaust_library_plus_f2_spice_min": 296.53
+  },
+  "t2-wb1020-gain-0205": {
+   "tier": "T1",
+   "search": "random order over the library anchors' sizing calls (seed 1, then seed 2)",
+   "calls": 2.0,
+   "spice_min": 2.68,
+   "found": true,
+   "n_sized": 3,
+   "n_feasible": 1
+  },
+  "t2-wb1020-gain-0206": {
+   "tier": "T1",
+   "search": "random order over the library anchors' sizing calls (seed 1, then seed 2)",
+   "calls": 2.0,
+   "spice_min": 2.67,
+   "found": true,
+   "n_sized": 3,
+   "n_feasible": 1
+  },
+  "t2-wb1020-gain-0207": {
+   "tier": "T2",
+   "search": "random order over the shown anchor's single edits (seed 1; then seed 2 over the near-feasible ones), E-c method",
+   "calls": 2.92,
+   "spice_min": 4.76,
+   "found": true,
+   "n_sized": 150,
+   "n_feasible_s1": 36,
+   "n_feasible_s2": 11,
+   "incl_failed_library_stage": {
+    "calls": 8.92,
+    "spice_min": 12.38
+   },
+   "exhaust_library_plus_f2_spice_min": 255.39
+  },
+  "t2-wb1020-gain-0223": {
+   "tier": "T1",
+   "search": "random order over the library anchors' sizing calls (seed 1, then seed 2)",
+   "calls": 2.0,
+   "spice_min": 2.75,
+   "found": true,
+   "n_sized": 3,
+   "n_feasible": 1
+  },
+  "v2b-wb0824-gain-188": {
+   "tier": "T3",
+   "search": ">F2 space",
+   "F2_space_exhausted": {
+    "calls": 214,
+    "spice_min": 363.22,
+    "seeds": [
+     1,
+     2
+    ]
+   },
+   "library_stage": {
+    "calls": 6,
+    "spice_min": 7.5
+   },
+   "exhaust_library_plus_f2_spice_min": 370.72
+  },
+  "v2b-wb1020-noise-217": {
+   "tier": "T3",
+   "search": ">F2 space",
+   "F2_space_exhausted": {
+    "calls": 214,
+    "spice_min": 364.05,
+    "seeds": [
+     1,
+     2
+    ]
+   },
+   "library_stage": {
+    "calls": 6,
+    "spice_min": 7.63
+   },
+   "exhaust_library_plus_f2_spice_min": 371.67
+  }
+ }
+}

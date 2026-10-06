@@ -1,0 +1,111 @@
+{
+ "task": "t2-wb1020-gain-0206",
+ "kind": "held-out training-pool task",
+ "family": "wb1020-gain",
+ "band_type": "wideband",
+ "spec_file": "specs/t2-wb1020-gain-0206.yaml",
+ "spec_sha": "fc8bbc316d9b5a53",
+ "shown_anchor": "a3",
+ "shown_anchor_family": "lna-a3-shunt-feedback",
+ "arm": "B",
+ "k": 1,
+ "fewshot": false,
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an analog IC designer repairing a low-noise amplifier (LNA) that FAILED its specification after full SPICE sizing. You reason about the failure and propose STRUCTURAL (topology) changes. You output TOPOLOGY ONLY as a small line-oriented netlist; a downstream deterministic tool inserts biasing and sizes every device with a SPICE optimizer. Never invent device values, DC sources, or bias networks -- only the connectivity."
+  },
+  {
+   "role": "user",
+   "content": "=== SPEC (t2-wb1020-gain-0206) ===\ndescription: train-pool-v2 planted task (wb1020, gain objective) from search witness t0011-wb1020-gain-2\nband: wideband, f0=1414213562.373095 Hz\ngated constraints:\n  nf_max_db  max 3.5184\n  s11_max_db max -7.8444\n  s21_db     min 9.4876\n  s21_ripple_db max 0.9818\n  idd_ma     max 6.8268\n  mu_min     min 1.0\n\n=== ANCHOR NETLIST (the failed circuit, dialect form) ===\n```netlist\n* lna-a3-shunt-feedback: resistive shunt-feedback CS LNA with shunt-peaked load.\n* Lineage: Bruccoleri/Klumperink/Nauta wideband-LNA lineage + Mohan et al.,\n* \"Bandwidth extension in CMOS with optimized on-chip inductors\", JSSC 2000\n* (shunt peaking). Bench-v1 anchor; verbatim of the proven v0.2 external c4\n* (round-1 external, wl a6122feb26e8d4dc). Structure-only, ZERO component\n* values. Broadband real input match via R1 feedback; self-biased CS front\n* (feedback R sets the gate DC); input DC-blocked (C1); shunt-peaked load L1+R2.\n* Approved 2026-09-14 (bench round 1, \"approve all\").\nC C1 VIN1 n1\nR R1 n1 n2\nNMOS NM1 n2 n1 VSS VSS\nL L1 VDD n3\nR R2 n3 n2\nC C2 n2 VOUT1\n```\n\n=== FAILURE EVIDENCE (this circuit was sized and MISSED) ===\nbinding (worst) constraint: mu_min_wide_0.01-50GHz  margin=-0.337317 (normalized; negative == failing)\nfeasible: False   total sizing evals spent: 2500\n\nper-constraint margins (achieved vs gate, normalized margin):\n  metric     achieved       margin         supported\n  nf_max_db  1.6143         0.541183       True\n  s11_max_db -7.84442       2.54959e-06    True\n  s21_db     9.4876         0              True\n  s21_ripple_db 0.22712        0.75468        True\n  idd_ma     6.8268         1.46482e-07    True\n  mu_min     1.14072        0.14072        True\n  mu_min_wide_0.01-50GHz 0.662683       -0.337317      True\n\nIdd: achieved 6.8268 mA (normalized margin 1.4648151418350565e-07 vs the idd_ma cap; negative == over budget).\n\nfull sized-best metrics (verbatim):\n{\n  \"s11_db\": -8.80474,\n  \"s11_max_db\": -7.84442,\n  \"s21_db\": 9.4876,\n  \"s21_min_db\": 9.31357,\n  \"idd_ma\": 6.826798999999999,\n  \"nf_db\": 1.545525,\n  \"s22_db\": -11.2407,\n  \"s22_max_db\": -10.202,\n  \"s12_db\": -18.4316,\n  \"k_f0\": 1.23435,\n  \"k_min\": 1.12485,\n  \"mu_f0\": 1.24454,\n  \"mu_min\": 1.14072,\n  \"mu_src_f0\": 1.20671,\n  \"mu_src_min\": 1.10869,\n  \"delta_f0\": 0.297351,\n  \"delta_max\": 0.330628,\n  \"stab_band\": [\n    1000000000.0,\n    2000000000.0\n  ],\n  \"s21_ripple_db\": 0.22711999999999932,\n  \"nf_max_db\": 1.614302\n}\n\nYOUR TASK (arm B):\n1. DIAGNOSE the failure in words: what is physically limiting the binding constraint in the circuit above?\n2. Propose EXACTLY 1 STRUCTURAL edits as FULL netlists in the dialect below. Each edit is a complete netlist (not a diff), each structurally DIFFERENT from the anchor and from the other edits.\n3. After EACH edit, state a PREDICTED direction AND magnitude for the binding metric (e.g. 's11_db improves by ~3 dB').\n\nEmit each edit in its OWN fenced ```netlist block.\n\nNETLIST DIALECT (obey exactly, one device per line):\n  TYPE name node1 node2 [node3 node4]\n  TYPE in {NMOS, PMOS, R, C, L}.\n  NMOS/PMOS take 4 nodes in order D G S B; R/C/L take 2 nodes P N.\n  Nets: VIN1 (input), VOUT1 (output), VDD, VSS (ground); any internal node name otherwise. NO device values. NO V sources. NO bias networks."
+  }
+ ],
+ "prompt_text": "You are an analog IC designer repairing a low-noise amplifier (LNA) that FAILED its specification after full SPICE sizing. You reason about the failure and propose STRUCTURAL (topology) changes. You output TOPOLOGY ONLY as a small line-oriented netlist; a downstream deterministic tool inserts biasing and sizes every device with a SPICE optimizer. Never invent device values, DC sources, or bias networks -- only the connectivity.\n\n=== SPEC (t2-wb1020-gain-0206) ===\ndescription: train-pool-v2 planted task (wb1020, gain objective) from search witness t0011-wb1020-gain-2\nband: wideband, f0=1414213562.373095 Hz\ngated constraints:\n  nf_max_db  max 3.5184\n  s11_max_db max -7.8444\n  s21_db     min 9.4876\n  s21_ripple_db max 0.9818\n  idd_ma     max 6.8268\n  mu_min     min 1.0\n\n=== ANCHOR NETLIST (the failed circuit, dialect form) ===\n```netlist\n* lna-a3-shunt-feedback: resistive shunt-feedback CS LNA with shunt-peaked load.\n* Lineage: Bruccoleri/Klumperink/Nauta wideband-LNA lineage + Mohan et al.,\n* \"Bandwidth extension in CMOS with optimized on-chip inductors\", JSSC 2000\n* (shunt peaking). Bench-v1 anchor; verbatim of the proven v0.2 external c4\n* (round-1 external, wl a6122feb26e8d4dc). Structure-only, ZERO component\n* values. Broadband real input match via R1 feedback; self-biased CS front\n* (feedback R sets the gate DC); input DC-blocked (C1); shunt-peaked load L1+R2.\n* Approved 2026-09-14 (bench round 1, \"approve all\").\nC C1 VIN1 n1\nR R1 n1 n2\nNMOS NM1 n2 n1 VSS VSS\nL L1 VDD n3\nR R2 n3 n2\nC C2 n2 VOUT1\n```\n\n=== FAILURE EVIDENCE (this circuit was sized and MISSED) ===\nbinding (worst) constraint: mu_min_wide_0.01-50GHz  margin=-0.337317 (normalized; negative == failing)\nfeasible: False   total sizing evals spent: 2500\n\nper-constraint margins (achieved vs gate, normalized margin):\n  metric     achieved       margin         supported\n  nf_max_db  1.6143         0.541183       True\n  s11_max_db -7.84442       2.54959e-06    True\n  s21_db     9.4876         0              True\n  s21_ripple_db 0.22712        0.75468        True\n  idd_ma     6.8268         1.46482e-07    True\n  mu_min     1.14072        0.14072        True\n  mu_min_wide_0.01-50GHz 0.662683       -0.337317      True\n\nIdd: achieved 6.8268 mA (normalized margin 1.4648151418350565e-07 vs the idd_ma cap; negative == over budget).\n\nfull sized-best metrics (verbatim):\n{\n  \"s11_db\": -8.80474,\n  \"s11_max_db\": -7.84442,\n  \"s21_db\": 9.4876,\n  \"s21_min_db\": 9.31357,\n  \"idd_ma\": 6.826798999999999,\n  \"nf_db\": 1.545525,\n  \"s22_db\": -11.2407,\n  \"s22_max_db\": -10.202,\n  \"s12_db\": -18.4316,\n  \"k_f0\": 1.23435,\n  \"k_min\": 1.12485,\n  \"mu_f0\": 1.24454,\n  \"mu_min\": 1.14072,\n  \"mu_src_f0\": 1.20671,\n  \"mu_src_min\": 1.10869,\n  \"delta_f0\": 0.297351,\n  \"delta_max\": 0.330628,\n  \"stab_band\": [\n    1000000000.0,\n    2000000000.0\n  ],\n  \"s21_ripple_db\": 0.22711999999999932,\n  \"nf_max_db\": 1.614302\n}\n\nYOUR TASK (arm B):\n1. DIAGNOSE the failure in words: what is physically limiting the binding constraint in the circuit above?\n2. Propose EXACTLY 1 STRUCTURAL edits as FULL netlists in the dialect below. Each edit is a complete netlist (not a diff), each structurally DIFFERENT from the anchor and from the other edits.\n3. After EACH edit, state a PREDICTED direction AND magnitude for the binding metric (e.g. 's11_db improves by ~3 dB').\n\nEmit each edit in its OWN fenced ```netlist block.\n\nNETLIST DIALECT (obey exactly, one device per line):\n  TYPE name node1 node2 [node3 node4]\n  TYPE in {NMOS, PMOS, R, C, L}.\n  NMOS/PMOS take 4 nodes in order D G S B; R/C/L take 2 nodes P N.\n  Nets: VIN1 (input), VOUT1 (output), VDD, VSS (ground); any internal node name otherwise. NO device values. NO V sources. NO bias networks.",
+ "evidence": {
+  "spec": "t2-wb1020-gain-0206",
+  "band": {
+   "type": "wideband",
+   "f0": 1414213562.373095,
+   "f_lo": 1000000000.0,
+   "f_hi": 2000000000.0
+  },
+  "pdk": "bptm45",
+  "anchor_family": "shunt-feedback",
+  "feasible": false,
+  "worst_margin": [
+   "mu_min_wide_0.01-50GHz",
+   -0.337317
+  ],
+  "margins": {
+   "nf_max_db": {
+    "achieved": 1.614302,
+    "margin": 0.5411829240563893,
+    "supported": true
+   },
+   "s11_max_db": {
+    "achieved": -7.84442,
+    "margin": 2.5495895161046126e-06,
+    "supported": true
+   },
+   "s21_db": {
+    "achieved": 9.4876,
+    "margin": 0.0,
+    "supported": true
+   },
+   "s21_ripple_db": {
+    "achieved": 0.22711999999999932,
+    "margin": 0.7546800000000007,
+    "supported": true
+   },
+   "idd_ma": {
+    "achieved": 6.826798999999999,
+    "margin": 1.4648151418350565e-07,
+    "supported": true
+   },
+   "mu_min": {
+    "achieved": 1.14072,
+    "margin": 0.14071999999999996,
+    "supported": true
+   },
+   "mu_min_wide_0.01-50GHz": {
+    "achieved": 0.662683,
+    "margin": -0.337317,
+    "supported": true
+   }
+  },
+  "metrics": {
+   "s11_db": -8.80474,
+   "s11_max_db": -7.84442,
+   "s21_db": 9.4876,
+   "s21_min_db": 9.31357,
+   "idd_ma": 6.826798999999999,
+   "nf_db": 1.545525,
+   "s22_db": -11.2407,
+   "s22_max_db": -10.202,
+   "s12_db": -18.4316,
+   "k_f0": 1.23435,
+   "k_min": 1.12485,
+   "mu_f0": 1.24454,
+   "mu_min": 1.14072,
+   "mu_src_f0": 1.20671,
+   "mu_src_min": 1.10869,
+   "delta_f0": 0.297351,
+   "delta_max": 0.330628,
+   "stab_band": [
+    1000000000.0,
+    2000000000.0
+   ],
+   "s21_ripple_db": 0.22711999999999932,
+   "nf_max_db": 1.614302
+  },
+  "total_evals": 2500,
+  "verifier": "rl-v1.2",
+  "seeds": [
+   1
+  ],
+  "best_seed": 1,
+  "stab_wide_ok": false,
+  "mu_min_wide": 0.662683,
+  "infeasible_reason": null
+ }
+}

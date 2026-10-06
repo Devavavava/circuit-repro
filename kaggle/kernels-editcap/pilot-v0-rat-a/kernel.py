@@ -14,7 +14,7 @@ import sys
 # ============================ CONFIG ==========================================
 REPO_SLUG = "Devavavava/circuit-repro"
 REPO_BRANCH = "worktree-externals-gf180"
-REPO_SHA = "PIN_ME"
+REPO_SHA = "0d72ef2ddb3e30a78a279220d44f5d4cc58a46a4"
 CFG = {
     "tag": "rat-a",
     "kind": "rat",

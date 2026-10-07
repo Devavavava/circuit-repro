@@ -1,0 +1,3 @@
+The failure is due to insufficient stability margin (mu_min_wide_0.01-50GHz), which indicates the circuit is unstable at some frequencies within the wideband range. This is likely caused by poor phase compensation and inadequate feedback mechanisms in the current-reuse topology, particularly in the shared DC path and the output stage, leading to phase inversion and oscillation risks.
+
+To address this, I added a compensation capacitor (ZC1) between the output node (n2) and an internal node (n6), which helps to stabilize the feedback loop and improve phase margin across the wideband. This structural change introduces a low-impedance path for high-frequency signals, reducing phase lag and ensuring stability.

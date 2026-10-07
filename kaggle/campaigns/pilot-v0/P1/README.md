@@ -4,7 +4,7 @@ Pre-registered in `kaggle/PREREG-PILOT-V0.md` § P1 (frozen, commit `137ea060a`)
 User approval: **~30 Kaggle GPU-h total (hard cap)**, 2026-10-05. Ledger below.
 Verifier for every score: rl-v1.2, bptm45, 2500 evals, seeds 1, 2, 3 (`kaggle/VERIFIER-RL-V1.md`).
 
-Status (2026-10-05 21:00): baseline `zs` run + scored; pipeline smokes passed; rat/sft kernels staged (unpinned) until P0b writes `data/` (P0 status ETA ~2026-10-06 13:00). See "Launch procedure".
+Status (2026-10-07 13:00): **DONE.** All P1 kernels ran and were scored; decision rule evaluated (below). GPU: 17.90 of 30 GPU-h.
 
 ## Pieces
 
@@ -66,8 +66,8 @@ shuffle `Random(3407 + epoch)`, max seq 8192. Target = Qwen3 thinking-mode turn
 
 ## Deviations / interpretations (D-Q*)
 
-- **D-Q1 prompts built early.** Generated from the frozen split by pv0's own functions before P0 finished
-  (byte-identical where comparable; the full comparison is recorded when P0 writes `eval/prompts/`).
+- **D-Q1 prompts built early.** Generated from the frozen split by pv0's own functions before P0 finished;
+  58/58 byte-identical to P0's `eval/prompts/` (closed).
 - **D-Q2 rationale placement.** The ≤ 512-token reasoning is the SFT target's `<think>` block and the answer is the
   verified fenced netlist alone (no prose prediction). At eval, CAP-1024 leaves room for it.
 - **D-Q3 extra trace filters.** Besides the pre-registered round-trip filter: exactly one fenced block, ≤ 512 reasoning
@@ -84,27 +84,53 @@ shuffle `Random(3407 + epoch)`, max seq 8192. Target = Qwen3 thinking-mode turn
   kernels; their outputs are pipeline checks only.
 - **D-Q9 SPICE-min to first feasible (model).** Calls in user order: seed 1 (sample 1, 2), then seed 2, then
   seed 3; invalid samples and repeats cost 0; smoke_run wall seconds under the shared load (as P0's search bar).
+- **D-Q11 sft-N sizes.** 6 nested-1000 examples had no kept trace, so the models trained on 99 / 298 / 994
+  examples (not 100 / 300 / 1000).
+- **D-Q12 slope reading.** `p1_summarize.py` codes "positive" as solved(1000) > solved(100); the pre-reg's
+  "curve's slope" is reported per segment (100 → 300 positive, 300 → 1000 flat).
 - **D-Q10 kernel/llama-server scope.** As R2, `EDITCAP_RECOVER_REASONING=1` (an empty answer falls back to the
   think text) in every held-out run.
 
-## Results so far: zero-shot baseline (P1.2)
+## RESULT (P1.2 + P1.3) — held-out eval, rl-v1.2, seeds 1–3 × 2500, tiers from P0 `eval/tiers.json`
 
-`zs` (pinned `3166a9566`, 118 min in-kernel): 116 completions (58 prompts × 2 samples), scored locally
-(`score/`, 106 unique (task, tokens) × seeds 1–3 = 318 rl-v1.2 calls, 2 exact-key cache hits, 0 missing).
-Tiers are not applied yet (P0 tiering still running; `p1_summarize.py` picks `eval/tiers.json` up automatically).
+58 held-out items (T1 23 / T2 32 / T3 3, the T3s include the 2 strict cells), 2 samples each; every model ran the
+identical driver and llama-server flags (CAP-1024 thinking, arm B, k=1, no few-shot). 1305 rl-v1.2 sizing calls
+in total (`score/score.jsonl`, 0 missing rows); tables `score/tables.md`, per-task rows `score/summary.json`.
 
-| group | tasks | solved (any sample, ≥ 1 seed) | ≥ 2/3 seeds | validity | shown-anchor repeats | SPICE-min to 1st feasible (median / mean, solved) | GPU-min / completion (mean / median) | GPU-min total |
-|---|---|---|---|---|---|---|---|---|
-| all 58 | 58 | **5** | **3** | 95.7 % (111/116) | 2 | 3.9 / 5.5 | 0.98 / 0.95 | 113.7 |
-| wb1020-gain (31) | 31 | 5 | 3 | | | | | |
-| nb090-noise (25) | 25 | 0 | 0 | | | | | |
-| strict cells (2, T3) | 2 | 0 | 0 | 75 % (3/4) | 0 | – | 0.96 | 3.9 |
+| model | train ex. | solved (any sample, ≥ 1 seed) | ≥ 2/3 seeds | T1 /23 | T2 /32 | T3 /3 | validity | SPICE-min to 1st feasible, median (mean) | GPU-min / completion, mean | held-out GPU-min total |
+|---|---|---|---|---|---|---|---|---|---|---|
+| zs (Qwen3-14B Q4_K_M) | 0 | 5 | 3 | 1 | 4 | 0 | 95.7 % | 3.90 (5.49) | 0.98 | 113.7 |
+| sft100 | 99 | 9 | 6 | 3 | 6 | 0 | 96.6 % | 1.21 (1.99) | 0.28 | 32.8 |
+| sft300 | 298 | **28** | **24** | 10 | 18 | 0 | 99.1 % | 1.23 (1.76) | 0.30 | 34.5 |
+| sft1000 | 994 | **28** | **24** | 19 | 8 | **1** | 99.1 % | 1.19 (1.70) | 0.20 | 23.1 |
 
-Solved: `t2-wb1020-gain-0046` (both samples, seeds 1+2), `-0066` (both; P0: T1 via a2@s2), `-0067` (sample 2,
-seeds 2+3), `-0108` (sample 2, seed 3 only), `-0207` (sample 2, seed 1 only). At the time of scoring P0 had
-tiered 24/56 (23 T1); 4 of the 5 solved tasks were not T1 (still in F2). Invalid: 5 parse errors (MOS line
-without a name). CAP: 113/116 completions hit the 1024-token think cap (`think_stop=limit`). Per-task rows:
-`score/summary.json`, table: `score/tables.md`.
+Per tier, ≥ 2/3 seeds: zs 1/2/0, sft100 2/4/0, sft300 9/15/0, sft1000 16/7/1 (T1/T2/T3).
+Search bar (P0 E-c, blind random order, same solved tasks, median SPICE-min): T1 2.75–6.68, T2 3.65–28.8;
+all-found medians T1 2.80, T2 27.17. The SFT models reach the first feasible design in ~1.2 SPICE-min median
+(usually the first call: sample 1 at seed 1) on the tasks they solve.
+
+**Decision rule (pre-registered): useful fine-tune = YES.** sft1000 − zs = **+23 solved** (+21 at ≥ 2/3 seeds),
+≥ 3 required; validity 99.1 % ≥ 95.7 %. **Curve 100 → 300 → 1000: 9 → 28 → 28.** `p1_summarize.py` labels the
+slope "positive" (1000 > 100), but the gain is entirely 100 → 300; **300 → 1000 is flat in solve count**
+(0 difference, below the 3-task noise floor), while its composition shifted: T1 10 → 19, T2 18 → 8, and the
+first T3 solve. By the pre-reg's wording the 300 → 1000 segment is "flat" → change approach rather than only
+scale data; the 100 → 300 segment says data helps up to ~300.
+
+Observations (not pre-registered, for interpretation):
+- **Sampling variance is large.** sft300 and sft1000 solve only 11 tasks in common; their union is 45/58.
+  Two samples per task under-resolve per-task skill. Two zs-solved tasks are not solved by sft1000
+  (`t2-wb1020-gain-0046`, `-0207`; sft300 solves both).
+- **Novelty vs retrieval.** Valid outputs whose WL equals a training target: zs 1/111, sft100 2/112, sft300 3/115,
+  **sft1000 46/115** (67 distinct WLs vs 113 for sft300). sft1000 moved toward reproducing training topologies,
+  which fits its T1 (library) gains and T2 losses.
+- **Strict cell solved.** sft1000 solved `v2b-wb0824-gain-188` (bench-v2 strict cell, T3; both samples feasible at
+  seed 1, sample 1 also at seed 3) with WLs `71b5fb50…` / `e80a332a…`, neither the cell's witness (`999bf945…`)
+  nor any training target.
+- **Thinking.** The SFT models close their think naturally (`think_stop=word`, ~240 tokens), so they use 0.2–0.3
+  GPU-min per completion vs 0.98 for zs (113/116 zs completions hit the 1024 cap).
+- **No held-out family in training** (fence 0 hits, `data/fence_check.json`; wb1020 is absent from training entirely).
+- Training loss (mean over an optimizer step, first → last): sft100 0.82 → 0.37, sft300 0.96 → 0.28,
+  sft1000 0.94 → 0.32; sequences ~1.98k tokens (max 2180), nothing dropped; s/micro-step 10.7 / 12.2 / 10.1.
 
 ## Prompt equality with P0 (D-Q1 closed)
 
@@ -120,42 +146,16 @@ leak phrase. Reasoning 130–383 tokens (mean 260). Every kept trace re-verified
 example's `target_tok`, 0 failures); fence re-checked (0 hits). SFT sets (`sft-data/`, nested, same order as
 `subsets.json`): **sft-100 = 99, sft-300 = 298, sft-1000 = 994** examples (`sft-data/STATS.json`).
 
-## Launch procedure for the remaining kernels (data-dependent; exact commands)
+## Reproduce the scoring
 
-Prereq: P0b finished = `kaggle/campaigns/pilot-v0/data/manifest.json` exists (and `eval/tiers.json`).
-`E=/tmp/crp1/er.sh` = an env wrapper with the crenv vars (copy of `bench-v12-audit/E-d/envrun.sh`, own TMPDIR).
-
-1. Rationalize inputs + launch (2 sessions):
-   ```
-   $E python kaggle/campaigns/pilot-v0/P1/build_sft.py rat-input --data kaggle/campaigns/pilot-v0/data
-   git add kaggle/campaigns/pilot-v0/P1/rat ; git commit -m "..." -- kaggle/campaigns/pilot-v0/P1/rat ; git push origin worktree-externals-gf180
-   # set REPO_SHA in kaggle/kernels-editcap/pilot-v0-rat-a/kernel.py and -rat-b/kernel.py to that commit; commit; push
-   kaggle kernels push -p kaggle/kernels-editcap/pilot-v0-rat-a -t 10800
-   kaggle kernels push -p kaggle/kernels-editcap/pilot-v0-rat-b -t 10800
-   ```
-2. SFT data (after both rat kernels): download `kaggle kernels output devavratpatni/circuit-repro-pilot-v0-rat-a -p /tmp/... --file-pattern '^p1/(rat/|KERNEL|kernel)'`
-   (same for b), copy `p1/rat/` + manifest to `P1/kernels/rat-{a,b}/`, then
-   ```
-   $E python kaggle/campaigns/pilot-v0/P1/build_sft.py sft --data kaggle/campaigns/pilot-v0/data --rat kaggle/campaigns/pilot-v0/P1/kernels/rat-a/rat,kaggle/campaigns/pilot-v0/P1/kernels/rat-b/rat
-   # commit P1/sft-data + P1/kernels/rat-*; push; pin REPO_SHA in pilot-v0-sft100/300/1000; commit; push
-   kaggle kernels push -p kaggle/kernels-editcap/pilot-v0-sft1000 -t 36000
-   kaggle kernels push -p kaggle/kernels-editcap/pilot-v0-sft100 -t 16200
-   kaggle kernels push -p kaggle/kernels-editcap/pilot-v0-sft300 -t 24600     # when sft100 has finished (2-session limit)
-   ```
-3. Score each SFT model: `kaggle kernels output devavratpatni/circuit-repro-pilot-v0-sftN -p /tmp/... --file-pattern '^p1/(?!lora)'`
-   (the ~250 MB LoRA stays on Kaggle), copy `p1/gen` + manifest + `kernel.log` + `train.jsonl` to `P1/kernels/sftN/`, then
-   ```
-   $E python kaggle/campaigns/pilot-v0/P1/p1_score.py enumerate sftN kaggle/campaigns/pilot-v0/P1/kernels/sftN/gen
-   $E python kaggle/campaigns/pilot-v0/P1/p1_score.py run 4 sftN
-   $E python kaggle/campaigns/pilot-v0/P1/p1_summarize.py zs sft100 sft300 sft1000
-   ```
-4. Prompt equality with P0: `$E python kaggle/campaigns/pilot-v0/P1/build_prompts.py compare` once
-   `eval/prompts/` exists → `prompts/COMPARE-eval_prompts.json`.
-
-Projected GPU time (from the smokes: rationalize ~11 s/example with 4 slots; SFT 9.8 s/micro-step at ~1.9k tokens,
-merge + f16 + Q4_K_M 25 min; held-out run ~118 min): rat-a + rat-b ~3.4 h, sft100 ~3.1 h, sft300 ~4.1 h,
-sft1000 ~8.0 h → ~18.6 h more, **~21.5 h total** of the 30 h cap. The `-t` caps sum to ~27 h for the remaining
-kernels (worst case ~30 h with the 2.9 h spent).
+```
+E=<env wrapper with the crenv vars>   # e.g. a copy of kaggle/campaigns/bench-v12-audit/E-d/envrun.sh
+$E python kaggle/campaigns/pilot-v0/P1/p1_score.py enumerate <label> kaggle/campaigns/pilot-v0/P1/kernels/<label>/gen
+$E python kaggle/campaigns/pilot-v0/P1/p1_score.py run 4 <label>
+$E python kaggle/campaigns/pilot-v0/P1/p1_summarize.py zs sft100 sft300 sft1000
+```
+Kernel outputs archived in `kernels/<label>/` (gen/, manifest, kernel.log, train.jsonl; the LoRA adapters
+(~250 MB each) stay in the Kaggle kernel outputs `devavratpatni/circuit-repro-pilot-v0-sft{100,300,1000}`, `p1/lora-*`).
 
 ## GPU-h ledger (cap 30 GPU-h; Kaggle session wall time, rounded up to 0.05 h)
 
@@ -166,6 +166,7 @@ kernels (worst case ~30 h with the 2.9 h spent).
 | smoke-sft | 1 | `880eef0fc` | 2026-10-05 17:34 | 18:14 | 0.70 | install route A (E-e pins + torch 2.11.0), 23 micro-steps 9.8 s, peak 11.8 GiB, GGUF Q4_K_M served, 4/4 valid |
 | rat-a | 1 | `0d72ef2dd` | 2026-10-07 03:12 | 04:58 | 1.80 | 500 examples, 599 calls, 495 kept, 104.6 min |
 | rat-b | 1 | `0d72ef2dd` | 2026-10-07 03:12 | 04:58 | 1.80 | 500 examples, 593 calls, 499 kept, 105.3 min |
-| sft1000 | 1 | `1685ec6e0` | 2026-10-07 05:01 | running | | `-t 36000` |
-| sft100 | 1 | `1685ec6e0` | 2026-10-07 05:01 | running | | `-t 16200` |
-| **total (finished)** | | | | | **6.50** | |
+| sft100 | 1 | `1685ec6e0` | 2026-10-07 05:01 | 06:43 | 1.70 | 99 ex., 50 opt steps, 37 min train; GGUF 26 min; held-out 33.6 min |
+| sft300 | 1 | `1685ec6e0` | 2026-10-07 06:48 | 09:56 | 3.15 | 298 ex., 149 steps, 123 min train; held-out 35.3 min |
+| sft1000 | 1 | `1685ec6e0` | 2026-10-07 05:01 | 11:33 | 6.55 | 994 ex., 497 steps, 337 min train (not truncated); held-out 23.9 min |
+| **total** | | | | | **17.90** | of the 30 GPU-h cap |

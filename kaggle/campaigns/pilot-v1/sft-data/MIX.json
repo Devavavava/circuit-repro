@@ -1,0 +1,84 @@
+{
+ "prereg": "kaggle/PREREG-PILOT-V1.md (e46157ccf) M1",
+ "n": 458,
+ "n_tasks": 455,
+ "selection": {
+  "n_A": 275,
+  "L_cap": 183,
+  "lib_alloc": {
+   "narrowband": 141,
+   "wideband": 42
+  },
+  "lib_got": {
+   "narrowband": 141,
+   "wideband": 42
+  },
+  "lib_moved": {},
+  "n_B": 183
+ },
+ "library_solvable_share": 0.3996,
+ "by_difficulty": {
+  "witness-only": 263,
+  "single-edit-solvable": 12,
+  "library-solvable": 183
+ },
+ "by_band_type": {
+  "narrowband": 257,
+  "wideband": 201
+ },
+ "by_stratum": {
+  "narrowband/witness-only": 116,
+  "wideband/single-edit-solvable": 12,
+  "wideband/witness-only": 147,
+  "narrowband/library-solvable": 141,
+  "wideband/library-solvable": 42
+ },
+ "by_source": {
+  "witness": 453,
+  "single-edit": 5
+ },
+ "by_family": {
+  "nb240-noise": 64,
+  "nb090-power": 55,
+  "nb350-gain": 49,
+  "nb158-gain": 51,
+  "nb240-power": 38,
+  "wb0530-gain": 78,
+  "wb0824-noise": 66,
+  "wb0824-power": 57
+ },
+ "distinct_target_wl": 346,
+ "max_per_target_wl": 3,
+ "per_wl_hist": {
+  "3": 40,
+  "1": 274,
+  "2": 32
+ },
+ "anchor_target_examples": 0,
+ "reuse_rationale": 455,
+ "new_rationalized": 3,
+ "overlap_with_sft1000": 455,
+ "sft1000_ref": {
+  "n": 994,
+  "distinct_target_wl": 453,
+  "max_per_target_wl": 261,
+  "library_solvable_share": 0.7193
+ },
+ "unavailable_no_trace": [
+  "t2-nb240-noise-0004:1",
+  "t2-nb240-noise-0405:2",
+  "t2-nb240-power-0383:2",
+  "t2-nb350-gain-1224:1",
+  "t2-wb0530-gain-1379:1",
+  "t2-wb0824-power-1073:1"
+ ],
+ "rat_dirs": [
+  "kaggle/campaigns/pilot-v0/P1/kernels/rat-a/rat",
+  "kaggle/campaigns/pilot-v0/P1/kernels/rat-b/rat",
+  "kaggle/campaigns/pilot-v1/kernels/rat-mix/rat"
+ ],
+ "sft_file": "kaggle/campaigns/pilot-v1/sft-data/sft-458.jsonl",
+ "sft_sha256": "2fae055646593b9360e830f11efc4d471d0cdae8330eceb39a48364a830ca56a",
+ "fence": "build_sft.py sft asserts: no held-out family/task/strict cell; target WL / token hash not in pv0's fence set (bench-v2 planted cells any status + held-out witnesses)",
+ "feasible_size_note": "WL cap alone bounds any mix from train-all at 602 examples"
+}

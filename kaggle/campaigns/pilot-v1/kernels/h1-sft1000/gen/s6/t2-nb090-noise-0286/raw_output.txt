@@ -1,0 +1,18 @@
+
+
+The binding constraint is the input return loss (s11_max_db), which is too high (achieved -3.68 dB, failing by ~0.53 dB). This indicates that the input impedance is not sufficiently matched to the source, likely due to the lack of a direct path for the input signal to couple to the first-stage transistor. In the anchor netlist, the first-stage gate is directly driven by a capacitor (C1) from the input, but there is no direct connection from the input to the drain or other nodes that could help shape the input impedance. This lack of a second coupling path limits the ability to tune the input impedance effectively, especially in a narrowband design.
+
+To address this, I added a direct coupling path from the input (VIN1) to the first-stage drain node (n2) via an inductor (L1), which allows for additional impedance tuning at the input. Additionally, I introduced a source degeneration inductor (L3) to the second stage, which helps stabilize the gain and improve the input impedance. These changes provide more control over the input impedance and help meet the s11_max_db constraint. The addition of a capacitor (C2) from the drain of the first stage to VDD provides a second tuning point for the input impedance, enhancing the matching.
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n3 VSS
+L L2 n3 VSS
+NMOS NM2 n4 VDD n2 VSS
+L L3 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+```

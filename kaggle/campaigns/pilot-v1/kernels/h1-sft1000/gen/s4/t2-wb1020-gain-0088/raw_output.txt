@@ -1,0 +1,19 @@
+
+
+```netlist
+C C4 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n3
+R R2 n3 n2
+C C2 n2 VOUT1
+C C5 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+L L3 n5 n1
+NMOS NM2 n6 n3 VSS VSS
+L L4 VDD n6
+C C6 n6 VOUT1
+R R4 n7 VSS
+R R5 n7 n3
+PMOS PM1 x1 n7 n2 VDD
+C ZC1 x1 n3
+```

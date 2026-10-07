@@ -1,0 +1,23 @@
+
+
+The failure is primarily due to the noise figure (nf_db) being too high, which is likely caused by the lack of a noise-canceling or noise-shaping mechanism in the current-reuse topology. The noise contribution from the input transistor (NM1) and the biasing network is not sufficiently suppressed, especially due to the absence of a feedback or noise-canceling element that could help lower the noise floor.
+
+To address this, I added a PMOS transistor (ZP1) connected between the internal node n3 (which is the drain of PM1 and the source of NM3) and the drain of PM2 (n6), with its gate tied to n2 (the drain of NM1). This PMOS transistor acts as a noise-canceling element, effectively creating a local feedback path that helps reduce the noise contribution from the bias network and the input transistor. This change introduces a structural modification that enhances noise suppression without disrupting the current-reuse or gain characteristics of the LNA.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+PMOS ZP1 n3 n6 n2 VDD
+```

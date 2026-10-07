@@ -1,0 +1,28 @@
+[p1 h1-sft300    0.0m] preflight OK: ['gh token', 'ngspice cache', 'llamacpp cache']
+[p1 h1-sft300    0.0m] $ nvidia-smi; free -g; nproc; df -h / /tmp /kaggle/working
+[p1 h1-sft300    0.0m] $ /usr/bin/python3 -c import importlib.metadata as m
+for p in ('torch','torchvision','torchaudio'):
+  try: print(p+'=='+m.version(p))
+  except Exception: pass
+[p1 h1-sft300    0.0m] $ /usr/bin/python3 -m pip install -q -c /tmp/p1/constraints.txt --only-binary=xformers unsloth==2026.9.11 unsloth_zoo==2026.9.7 transformers==5.5.0 trl==0.24.0 peft==0.21.0 bitsandbytes==0.50.2 accelerate==1.15.0 datasets==4.3.0
+[p1 h1-sft300    0.9m] $ /usr/bin/python3 -c import torch, transformers, peft, trl, bitsandbytes, accelerate, unsloth, unsloth_zoo
+import importlib.metadata as m, json
+v={p:m.version(p) for p in ['unsloth','unsloth_zoo','torch','transformers','peft','trl','bitsandbytes','accelerate','datasets']}
+print('VERSIONS_JSON='+json.dumps(v))
+
+[p1 h1-sft300    1.9m] EVENT {"route": "A", "rc": 0, "versions": {"unsloth": "2026.9.11", "unsloth_zoo": "2026.9.7", "torch": "2.11.0+cu128", "transformers": "5.5.0", "peft": "0.21.0", "trl": "0.24.0", "bitsandbytes": "0.50.2", "accelerate": "1.15.0", "datasets": "4.3.0"}, "kind": "install", "t_min": 1.93}
+[p1 h1-sft300    1.9m] $ pip freeze
+[p1 h1-sft300    2.1m] EVENT {"src": "/kaggle/input/notebooks/devavratpatni/circuit-repro-pilot-v0-sft300/p1/lora-sft300", "files": ["README.md", "adapter_config.json", "adapter_model.safetensors", "chat_template.jinja", "tokenizer.json", "tokenizer_config.json"], "adapter_sha256": "dc996c22b37c95efe5d18b779f778814e1df13917ada1b5b2632c45ee8502340", "adapter_bytes": 256976504, "kind": "lora", "t_min": 2.07}
+[p1 h1-sft300    2.1m] $ /usr/bin/python3 /tmp/circuit-repro/kaggle/campaigns/pilot-v0/P1/sft_merge.py /tmp/p1/lora-sft300 /tmp/p1/merged-h1-sft300
+[p1 h1-sft300   11.2m] $ /usr/bin/python3 /tmp/llama.cpp/convert_hf_to_gguf.py /tmp/p1/merged-h1-sft300 --outtype f16 --outfile /tmp/p1/h1-sft300-f16.gguf
+[p1 h1-sft300   15.7m] $ /tmp/llama.cpp/build/bin/llama-quantize /tmp/p1/h1-sft300-f16.gguf /tmp/p1/h1-sft300-Q4_K_M.gguf Q4_K_M 4
+[p1 h1-sft300   29.4m] EVENT {"merged_bytes": 29548141883, "merge_s": 546.9, "convert_outtype": "f16", "convert_s": 273.5, "quantize_s": 786.5, "q4_bytes": 9001753440, "q4_sha256": "33f9ed4b085fadb5a155ad3736acec9e65a833d0b54277a30f6f2278c70c6664", "kind": "gguf_ready", "t_min": 29.42}
+[p1 h1-sft300   29.4m] EVENT {"expect": "ba756db74efddedcf823d8ce63e2dd62f544f434bc2b1da4fc8a644635f4a820", "got": "33f9ed4b085fadb5a155ad3736acec9e65a833d0b54277a30f6f2278c70c6664", "identical": false, "kind": "gguf_vs_pilot_v0", "t_min": 29.42}
+[p1 h1-sft300   29.4m] $ (stream) bash /tmp/circuit-repro/kaggle/bootstrap.sh
+[p1 h1-sft300   29.9m] $ cp -r /kaggle/input/datasets/devavratpatni/circuit-repro-llamacpp-cuda/llamacpp/llamacpp /kaggle/working
+[p1 h1-sft300   29.9m] $ chmod +x /kaggle/working/llamacpp/bin/* || true
+[p1 h1-sft300   30.0m] launching: /kaggle/working/llamacpp/bin/llama-server -m /tmp/p1/h1-sft300-Q4_K_M.gguf --host 127.0.0.1 --port 8080 --n-gpu-layers 999 --split-mode layer -c 16384 --parallel 1
+[p1 h1-sft300   30.1m] llama-server healthy after 6.0s
+[p1 h1-sft300   30.2m] two-phase probe: {"template_tail": " 17*23? Think step by step.<|im_end|>\n<|im_start|>assistant\n", "p1_head": "<think>\nThe user is asking for the result of multiplying 17 by 23. I need to compute this step by step. Let me start by ", "p1_tokens": 64, "p1_stop": "limit", "p2_head": "To calculate **17 \u00d7 23** step by step:\n\n1. **Break down 23 into 20 + 3**:\n   $$\n   17 \\times 23 = 17 \\times (20 + 3)\n   $$\n\n2. **Distribute the multiplication**:\n   $$\n   17 \\times 20 + 17 \\times 3\n  ", "p2_tokens": 128}
+[p1 h1-sft300   30.2m] $ (stream) bash -c source /kaggle/working/env-kaggle.sh && exec /usr/bin/python3 /tmp/circuit-repro/kaggle/campaigns/pilot-v0/P1/p1_gen.py heldout --prompts /tmp/circuit-repro/kaggle/campaigns/pilot-v0/P1/prompts --out /kaggle/working/p1/gen --samples 8 --model-id qwen3-14b-sft300-q4km --llm-url http://127.0.0.1:8080/v1 --deadline-epoch 1791375086 --limit 0
+[p1 h1-sft300  168.7m] EVENT {"step": "eval", "model_id": "qwen3-14b-sft300-q4km", "rc": 0, "minutes": 138.5, "out": "/kaggle/working/p1/gen", "n_completions": 464, "n_valid": 460, "gpu_min": 135.47, "kind": "eval_done", "t_min": 168.73}

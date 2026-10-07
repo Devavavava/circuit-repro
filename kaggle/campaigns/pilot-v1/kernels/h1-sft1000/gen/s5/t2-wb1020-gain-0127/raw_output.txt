@@ -1,0 +1,25 @@
+
+
+The binding constraint is the stability margin (`mu_min_wide_0.01-50GHz`), which is failing by a small margin (normalized margin = -0.0018). This indicates that the circuit is on the edge of instability in the wideband range, likely due to poor phase or gain behavior at certain frequencies. The failure suggests that the feedback and phase characteristics of the current-reuse topology are insufficient to maintain unconditional stability across the entire band. The shared DC path and the current-reuse configuration may be contributing to this instability by introducing parasitic feedback paths or insufficient phase margin.
+
+To address this, I propose a structural change that introduces a dedicated feedback path to improve stability and phase margin. This is achieved by adding a resistor and capacitor in parallel to the output, which helps to dampen oscillations and ensure a more controlled phase response across the band. Additionally, a new node and capacitor are added to the input side to isolate the input from parasitic effects and improve impedance matching.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 n4 VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+C ZC1 VDD n2
+R ZR1 n0 VSS
+C ZC2 x1 n6
+```

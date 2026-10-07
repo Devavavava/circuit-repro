@@ -60,10 +60,19 @@ def train_wls(sft_file):
     return {ex[r["id"]] for r in rj(sft_file)}
 
 
+def all_train_wls():
+    return {e["target_wl"] for e in rj(os.path.join(PV0, "data", "train-all.jsonl"))}
+
+
 def copy_rate(comps, wls):
+    """own = the model's own training targets (decision rule); any = any of pilot-v0's 1013
+    training targets (the pilot-v0 README convention: zs 1/111 ... sft1000 46/115)."""
     v = [c for c in comps if c.get("valid")]
     n = sum(1 for c in v if c.get("wl") in wls)
+    aw = all_train_wls()
+    na = sum(1 for c in v if c.get("wl") in aw)
     return OrderedDict(copies=n, valid=len(v), rate=round(n / len(v), 4) if v else None,
+                       copies_any_train=na, rate_any_train=round(na / len(v), 4) if v else None,
                        distinct_wl=len({c.get("wl") for c in v}))
 
 
@@ -235,14 +244,15 @@ def m1(label):
                       groups=rows, copy=copies, decision=dec, overlap_solved=ov,
                       missing_score_rows=missing, per_task=per)
     json.dump(res, open(os.path.join(SC, "m1-summary.json"), "w"), indent=1)
-    L = ["| model | train ex. | solved | >= 2/3 seeds | T1 /23 | T2 /32 | T3 /3 | T1/T2/T3 >= 2/3 | validity | copy rate (valid outputs = own training target) |",
-         "|---|---|---|---|---|---|---|---|---|---|"]
+    L = ["| model | train ex. | solved | >= 2/3 seeds | T1 /23 | T2 /32 | T3 /3 | T1/T2/T3 >= 2/3 | validity | copy rate: own training targets | copy: any pilot-v0 training target | distinct WLs |",
+         "|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for lab, ntr, gg in (("sft300", 298, G["sft300"]), ("sft1000", 994, G["sft1000"]), (label, mix["n"], rows)):
         cp = copies[lab]
-        L.append("| %s | %d | %d | %d | %d | %d | %d | %d/%d/%d | %s | %d/%d = %s |" % (
+        L.append("| %s | %d | %d | %d | %d | %d | %d | %d/%d/%d | %s | %d/%d = %s | %d/%d | %d |" % (
             lab, ntr, gg["all"]["solved"], gg["all"]["solved_2of3"], gg["T1"]["solved"], gg["T2"]["solved"],
             gg["T3"]["solved"], gg["T1"]["solved_2of3"], gg["T2"]["solved_2of3"], gg["T3"]["solved_2of3"],
-            gg["all"]["validity"], cp["copies"], cp["valid"], cp["rate"]))
+            gg["all"]["validity"], cp["copies"], cp["valid"], cp["rate"], cp["copies_any_train"], cp["valid"],
+            cp["distinct_wl"]))
     L.append("")
     L.append("Decision: " + json.dumps(dec))
     L.append("Solved overlap: " + json.dumps(ov))

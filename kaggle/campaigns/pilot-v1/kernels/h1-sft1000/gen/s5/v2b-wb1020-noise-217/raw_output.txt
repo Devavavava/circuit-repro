@@ -1,0 +1,27 @@
+
+
+The binding constraint, `s11_max_db`, is failing due to poor input impedance matching at the input port. The input network in the anchor netlist uses a simple coupling capacitor `C4` and inductor `L1` to block DC and provide a low-impedance path for RF signals. However, the lack of additional impedance tuning at the input port results in a mismatch, leading to a higher-than-allowed return loss (`s11_max_db`), which is the limiting factor.
+
+To address this, I introduce a new PMOS transistor `ZP1` in a feedback configuration from the output node `n2` to the input node `n0`, providing a controlled impedance path that enhances input matching. This additional transistor helps to stabilize and tune the input impedance, reducing the return loss and improving the overall matching at the input port.
+
+Additionally, I introduce a resistor `Rrep1` from an internal node `n5` to the output node `n2`, which helps in stabilizing the output impedance and further contributing to improved input matching by providing a controlled feedback path.
+
+These structural changes modify the original topology to include impedance tuning and feedback mechanisms that enhance input matching and reduce return loss, directly addressing the failing constraint.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+R Rrep1 n5 n2
+PMOS ZP1 n0 n0 n4 VDD
+```

@@ -106,6 +106,20 @@ tiered 24/56 (23 T1); 4 of the 5 solved tasks were not T1 (still in F2). Invalid
 without a name). CAP: 113/116 completions hit the 1024-token think cap (`think_stop=limit`). Per-task rows:
 `score/summary.json`, table: `score/tables.md`.
 
+## Prompt equality with P0 (D-Q1 closed)
+
+`build_prompts.py compare` against P0's `eval/prompts/` (written 2026-10-06): **58/58 byte-identical**,
+0 different, 0 absent (`prompts/COMPARE-eval_prompts.json`).
+
+## Rationalization result (P1.1)
+
+`rat-a` + `rat-b` (pinned `0d72ef2dd`): the 1000 examples of the nested-1000 subset of `data/` (1013 examples,
+`train-all.jsonl` sha256 `86b5cf02…`). **994/1000 kept** in 1192 calls (kept at attempt 1/2/3: 835/138/21);
+every rejection was a leak phrase (198 calls); the 6 examples without a kept trace failed all 3 attempts on a
+leak phrase. Reasoning 130–383 tokens (mean 260). Every kept trace re-verified locally (token hash == the
+example's `target_tok`, 0 failures); fence re-checked (0 hits). SFT sets (`sft-data/`, nested, same order as
+`subsets.json`): **sft-100 = 99, sft-300 = 298, sft-1000 = 994** examples (`sft-data/STATS.json`).
+
 ## Launch procedure for the remaining kernels (data-dependent; exact commands)
 
 Prereq: P0b finished = `kaggle/campaigns/pilot-v0/data/manifest.json` exists (and `eval/tiers.json`).
@@ -150,4 +164,8 @@ kernels (worst case ~30 h with the 2.9 h spent).
 | zs | 1 | `3166a9566` | 2026-10-05 17:19 | 19:23 | 2.05 | 118 min in-kernel, 116 completions |
 | smoke-rat | 1 | `832426423` | 2026-10-05 17:24 | 17:32 | 0.15 | 23/23 kept in 26 calls (3 leak-phrase retries), reasoning 206–323 tokens |
 | smoke-sft | 1 | `880eef0fc` | 2026-10-05 17:34 | 18:14 | 0.70 | install route A (E-e pins + torch 2.11.0), 23 micro-steps 9.8 s, peak 11.8 GiB, GGUF Q4_K_M served, 4/4 valid |
-| **total** | | | | | **2.90** | |
+| rat-a | 1 | `0d72ef2dd` | 2026-10-07 03:12 | 04:58 | 1.80 | 500 examples, 599 calls, 495 kept, 104.6 min |
+| rat-b | 1 | `0d72ef2dd` | 2026-10-07 03:12 | 04:58 | 1.80 | 500 examples, 593 calls, 499 kept, 105.3 min |
+| sft1000 | 1 | `1685ec6e0` | 2026-10-07 05:01 | running | | `-t 36000` |
+| sft100 | 1 | `1685ec6e0` | 2026-10-07 05:01 | running | | `-t 16200` |
+| **total (finished)** | | | | | **6.50** | |

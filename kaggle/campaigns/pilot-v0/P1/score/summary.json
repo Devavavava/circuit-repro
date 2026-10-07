@@ -1,6 +1,7 @@
 {
  "labels": [
-  "zs"
+  "zs",
+  "sft100"
  ],
  "tiers_source": "pilot-v0/eval/tiers.json",
  "missing_score_rows": 0,
@@ -85,6 +86,88 @@
     "gpu_min_per_completion_mean": 0.96,
     "gpu_min_per_completion_median": 0.97,
     "gpu_min_total": 3.9
+   }
+  },
+  "sft100": {
+   "all": {
+    "n_tasks": 58,
+    "solved": 9,
+    "solved_2of3": 6,
+    "completions": 116,
+    "valid": 112,
+    "validity": 0.966,
+    "shown_anchor_repeats": 2,
+    "spice_min_first_feasible_median": 1.21,
+    "spice_min_first_feasible_mean": 1.99,
+    "searchbar_median_same_tasks": 9.01,
+    "searchbar_median_all_found": 5.43,
+    "gpu_min_per_completion_mean": 0.28,
+    "gpu_min_per_completion_median": 0.28,
+    "gpu_min_total": 32.8
+   },
+   "T1": {
+    "n_tasks": 23,
+    "solved": 3,
+    "solved_2of3": 2,
+    "completions": 46,
+    "valid": 46,
+    "validity": 1.0,
+    "shown_anchor_repeats": 1,
+    "spice_min_first_feasible_median": 1.19,
+    "spice_min_first_feasible_mean": 1.18,
+    "searchbar_median_same_tasks": 3.78,
+    "searchbar_median_all_found": 2.8,
+    "gpu_min_per_completion_mean": 0.26,
+    "gpu_min_per_completion_median": 0.27,
+    "gpu_min_total": 12.0
+   },
+   "T2": {
+    "n_tasks": 32,
+    "solved": 6,
+    "solved_2of3": 4,
+    "completions": 64,
+    "valid": 60,
+    "validity": 0.938,
+    "shown_anchor_repeats": 1,
+    "spice_min_first_feasible_median": 2.45,
+    "spice_min_first_feasible_mean": 2.4,
+    "searchbar_median_same_tasks": 17.21,
+    "searchbar_median_all_found": 27.17,
+    "gpu_min_per_completion_mean": 0.3,
+    "gpu_min_per_completion_median": 0.29,
+    "gpu_min_total": 18.9
+   },
+   "T3": {
+    "n_tasks": 3,
+    "solved": 0,
+    "solved_2of3": 0,
+    "completions": 6,
+    "valid": 6,
+    "validity": 1.0,
+    "shown_anchor_repeats": 0,
+    "spice_min_first_feasible_median": null,
+    "spice_min_first_feasible_mean": null,
+    "searchbar_median_same_tasks": null,
+    "searchbar_median_all_found": null,
+    "gpu_min_per_completion_mean": 0.31,
+    "gpu_min_per_completion_median": 0.3,
+    "gpu_min_total": 1.9
+   },
+   "strict": {
+    "n_tasks": 2,
+    "solved": 0,
+    "solved_2of3": 0,
+    "completions": 4,
+    "valid": 4,
+    "validity": 1.0,
+    "shown_anchor_repeats": 0,
+    "spice_min_first_feasible_median": null,
+    "spice_min_first_feasible_mean": null,
+    "searchbar_median_same_tasks": null,
+    "searchbar_median_all_found": null,
+    "gpu_min_per_completion_mean": 0.35,
+    "gpu_min_per_completion_median": 0.35,
+    "gpu_min_total": 1.4
    }
   }
  },
@@ -2166,6 +2249,2103 @@
     "think_tokens": [
      1024,
      1024
+    ]
+   }
+  },
+  "sft100": {
+   "t2-nb090-noise-0012": {
+    "tier": "T3",
+    "family": "nb090-noise",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 2.45,
+    "searchbar_spice_min": null,
+    "searchbar_found": null,
+    "gpu_min": [
+     0.214,
+     0.262
+    ],
+    "think_tokens": [
+     282,
+     246
+    ]
+   },
+   "t2-nb090-noise-0013": {
+    "tier": "T1",
+    "family": "nb090-noise",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      true,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": true,
+    "solved_2of3": false,
+    "spice_min_first_feasible": 1.14,
+    "first_feasible_at": {
+     "seed": 1,
+     "sample": 1
+    },
+    "spice_min_all_calls": 7.06,
+    "searchbar_spice_min": 3.75,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.24,
+     0.296
+    ],
+    "think_tokens": [
+     169,
+     231
+    ]
+   },
+   "t2-nb090-noise-0047": {
+    "tier": "T1",
+    "family": "nb090-noise",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 3.27,
+    "searchbar_spice_min": 2.81,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.261,
+     0.243
+    ],
+    "think_tokens": [
+     269,
+     233
+    ]
+   },
+   "t2-nb090-noise-0068": {
+    "tier": "T1",
+    "family": "nb090-noise",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      true,
+      false,
+      true
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": true,
+    "solved_2of3": true,
+    "spice_min_first_feasible": 1.19,
+    "first_feasible_at": {
+     "seed": 1,
+     "sample": 1
+    },
+    "spice_min_all_calls": 7.18,
+    "searchbar_spice_min": 3.78,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.256,
+     0.325
+    ],
+    "think_tokens": [
+     182,
+     275
+    ]
+   },
+   "t2-nb090-noise-0129": {
+    "tier": "T1",
+    "family": "nb090-noise",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 3.63,
+    "searchbar_spice_min": 3.59,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.269,
+     0.401
+    ],
+    "think_tokens": [
+     204,
+     368
+    ]
+   },
+   "t2-nb090-noise-0143": {
+    "tier": "T1",
+    "family": "nb090-noise",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 0.0,
+    "searchbar_spice_min": 4.15,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.295,
+     0.363
+    ],
+    "think_tokens": [
+     244,
+     356
+    ]
+   },
+   "t2-nb090-noise-0240": {
+    "tier": "T1",
+    "family": "nb090-noise",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 3.48,
+    "searchbar_spice_min": 3.72,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.304,
+     0.287
+    ],
+    "think_tokens": [
+     215,
+     228
+    ]
+   },
+   "t2-nb090-noise-0254": {
+    "tier": "T2",
+    "family": "nb090-noise",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 1,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 2.78,
+    "searchbar_spice_min": 56.65,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.301,
+     0.398
+    ],
+    "think_tokens": [
+     241,
+     398
+    ]
+   },
+   "t2-nb090-noise-0269": {
+    "tier": "T2",
+    "family": "nb090-noise",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 5.92,
+    "searchbar_spice_min": 40.54,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.276,
+     0.292
+    ],
+    "think_tokens": [
+     228,
+     230
+    ]
+   },
+   "t2-nb090-noise-0286": {
+    "tier": "T2",
+    "family": "nb090-noise",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 5.93,
+    "searchbar_spice_min": 83.06,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.276,
+     0.277
+    ],
+    "think_tokens": [
+     231,
+     221
+    ]
+   },
+   "t2-nb090-noise-0287": {
+    "tier": "T1",
+    "family": "nb090-noise",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 2.82,
+    "searchbar_spice_min": 3.78,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.254,
+     0.265
+    ],
+    "think_tokens": [
+     191,
+     214
+    ]
+   },
+   "t2-nb090-noise-0291": {
+    "tier": "T2",
+    "family": "nb090-noise",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 5.64,
+    "searchbar_spice_min": 34.94,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.261,
+     0.266
+    ],
+    "think_tokens": [
+     188,
+     205
+    ]
+   },
+   "t2-nb090-noise-0300": {
+    "tier": "T2",
+    "family": "nb090-noise",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 5.63,
+    "searchbar_spice_min": 113.66,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.301,
+     0.374
+    ],
+    "think_tokens": [
+     256,
+     355
+    ]
+   },
+   "t2-nb090-noise-0307": {
+    "tier": "T1",
+    "family": "nb090-noise",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 0.0,
+    "searchbar_spice_min": 3.71,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.31,
+     0.267
+    ],
+    "think_tokens": [
+     270,
+     217
+    ]
+   },
+   "t2-nb090-noise-0312": {
+    "tier": "T2",
+    "family": "nb090-noise",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 5.6,
+    "searchbar_spice_min": 100.79,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.25,
+     0.274
+    ],
+    "think_tokens": [
+     173,
+     217
+    ]
+   },
+   "t2-nb090-noise-0322": {
+    "tier": "T2",
+    "family": "nb090-noise",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 2.81,
+    "searchbar_spice_min": 83.07,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.242,
+     0.321
+    ],
+    "think_tokens": [
+     180,
+     286
+    ]
+   },
+   "t2-nb090-noise-0323": {
+    "tier": "T2",
+    "family": "nb090-noise",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      true,
+      true,
+      true
+     ]
+    },
+    "solved": true,
+    "solved_2of3": true,
+    "spice_min_first_feasible": 1.91,
+    "first_feasible_at": {
+     "seed": 1,
+     "sample": 2
+    },
+    "spice_min_all_calls": 5.74,
+    "searchbar_spice_min": 20.44,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.118,
+     0.286
+    ],
+    "think_tokens": [
+     128,
+     235
+    ]
+   },
+   "t2-nb090-noise-0349": {
+    "tier": "T2",
+    "family": "nb090-noise",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 1,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 2.87,
+    "searchbar_spice_min": 27.65,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.349,
+     0.295
+    ],
+    "think_tokens": [
+     293,
+     250
+    ]
+   },
+   "t2-nb090-noise-0350": {
+    "tier": "T2",
+    "family": "nb090-noise",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 2.87,
+    "searchbar_spice_min": 108.92,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.282,
+     0.282
+    ],
+    "think_tokens": [
+     234,
+     229
+    ]
+   },
+   "t2-nb090-noise-0351": {
+    "tier": "T2",
+    "family": "nb090-noise",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      true,
+      true,
+      false
+     ]
+    },
+    "solved": true,
+    "solved_2of3": true,
+    "spice_min_first_feasible": 0.96,
+    "first_feasible_at": {
+     "seed": 1,
+     "sample": 2
+    },
+    "spice_min_all_calls": 2.87,
+    "searchbar_spice_min": 110.86,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.336,
+     0.298
+    ],
+    "think_tokens": [
+     270,
+     255
+    ]
+   },
+   "t2-nb090-noise-0363": {
+    "tier": "T2",
+    "family": "nb090-noise",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 2.89,
+    "searchbar_spice_min": 40.44,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.29,
+     0.297
+    ],
+    "think_tokens": [
+     250,
+     241
+    ]
+   },
+   "t2-nb090-noise-0375": {
+    "tier": "T2",
+    "family": "nb090-noise",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 6.01,
+    "searchbar_spice_min": 26.7,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.258,
+     0.28
+    ],
+    "think_tokens": [
+     204,
+     225
+    ]
+   },
+   "t2-nb090-noise-0387": {
+    "tier": "T1",
+    "family": "nb090-noise",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 5.71,
+    "searchbar_spice_min": 3.94,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.307,
+     0.29
+    ],
+    "think_tokens": [
+     264,
+     240
+    ]
+   },
+   "t2-nb090-noise-0397": {
+    "tier": "T2",
+    "family": "nb090-noise",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 5.65,
+    "searchbar_spice_min": 31.32,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.289,
+     0.281
+    ],
+    "think_tokens": [
+     230,
+     218
+    ]
+   },
+   "t2-nb090-noise-0411": {
+    "tier": "T2",
+    "family": "nb090-noise",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 5.78,
+    "searchbar_spice_min": 78.18,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.29,
+     0.313
+    ],
+    "think_tokens": [
+     242,
+     258
+    ]
+   },
+   "t2-wb1020-gain-0001": {
+    "tier": "T1",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 4.99,
+    "searchbar_spice_min": 2.19,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.166,
+     0.212
+    ],
+    "think_tokens": [
+     130,
+     198
+    ]
+   },
+   "t2-wb1020-gain-0010": {
+    "tier": "T2",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 0.0,
+    "searchbar_spice_min": 5.43,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.259,
+     0.309
+    ],
+    "think_tokens": [
+     168,
+     242
+    ]
+   },
+   "t2-wb1020-gain-0026": {
+    "tier": "T1",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 2.68,
+    "searchbar_spice_min": 2.74,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.226,
+     0.29
+    ],
+    "think_tokens": [
+     200,
+     282
+    ]
+   },
+   "t2-wb1020-gain-0027": {
+    "tier": "T2",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 0.0,
+    "searchbar_spice_min": 11.0,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.318,
+     0.38
+    ],
+    "think_tokens": [
+     252,
+     357
+    ]
+   },
+   "t2-wb1020-gain-0028": {
+    "tier": "T2",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 1,
+    "n_any_anchor": 1,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 4.3,
+    "searchbar_spice_min": 30.9,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.291,
+     0.326
+    ],
+    "think_tokens": [
+     272,
+     287
+    ]
+   },
+   "t2-wb1020-gain-0043": {
+    "tier": "T1",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 3.34,
+    "searchbar_spice_min": 2.75,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.354,
+     0.269
+    ],
+    "think_tokens": [
+     364,
+     265
+    ]
+   },
+   "t2-wb1020-gain-0044": {
+    "tier": "T1",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 0.0,
+    "searchbar_spice_min": 2.75,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.23,
+     0.247
+    ],
+    "think_tokens": [
+     212,
+     246
+    ]
+   },
+   "t2-wb1020-gain-0045": {
+    "tier": "T2",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      true,
+      false
+     ],
+     "2": [
+      false,
+      true,
+      false
+     ]
+    },
+    "solved": true,
+    "solved_2of3": false,
+    "spice_min_first_feasible": 3.63,
+    "first_feasible_at": {
+     "seed": 2,
+     "sample": 1
+    },
+    "spice_min_all_calls": 7.21,
+    "searchbar_spice_min": 5.08,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.279,
+     0.337
+    ],
+    "think_tokens": [
+     201,
+     300
+    ]
+   },
+   "t2-wb1020-gain-0046": {
+    "tier": "T2",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 7.17,
+    "searchbar_spice_min": 3.02,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.267,
+     0.278
+    ],
+    "think_tokens": [
+     195,
+     209
+    ]
+   },
+   "t2-wb1020-gain-0065": {
+    "tier": "T2",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 0.0,
+    "searchbar_spice_min": 2.82,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.325,
+     0.288
+    ],
+    "think_tokens": [
+     257,
+     216
+    ]
+   },
+   "t2-wb1020-gain-0066": {
+    "tier": "T1",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 0.0,
+    "searchbar_spice_min": 6.68,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.271,
+     0.244
+    ],
+    "think_tokens": [
+     203,
+     161
+    ]
+   },
+   "t2-wb1020-gain-0067": {
+    "tier": "T2",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 1,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 0.0,
+    "searchbar_spice_min": 2.86,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.276,
+     0.313
+    ],
+    "think_tokens": [
+     195,
+     247
+    ]
+   },
+   "t2-wb1020-gain-0088": {
+    "tier": "T1",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 2.57,
+    "searchbar_spice_min": 2.75,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.236,
+     0.23
+    ],
+    "think_tokens": [
+     228,
+     224
+    ]
+   },
+   "t2-wb1020-gain-0089": {
+    "tier": "T2",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      true,
+      true,
+      true
+     ]
+    },
+    "solved": true,
+    "solved_2of3": true,
+    "spice_min_first_feasible": 2.99,
+    "first_feasible_at": {
+     "seed": 1,
+     "sample": 2
+    },
+    "spice_min_all_calls": 8.4,
+    "searchbar_spice_min": 9.01,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.295,
+     0.272
+    ],
+    "think_tokens": [
+     236,
+     197
+    ]
+   },
+   "t2-wb1020-gain-0107": {
+    "tier": "T1",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 5.3,
+    "searchbar_spice_min": 2.8,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.237,
+     0.248
+    ],
+    "think_tokens": [
+     239,
+     250
+    ]
+   },
+   "t2-wb1020-gain-0108": {
+    "tier": "T2",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 1,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 0.0,
+    "searchbar_spice_min": 4.28,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.318,
+     0.283
+    ],
+    "think_tokens": [
+     246,
+     202
+    ]
+   },
+   "t2-wb1020-gain-0109": {
+    "tier": "T2",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 0.0,
+    "searchbar_spice_min": 13.57,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.276,
+     0.31
+    ],
+    "think_tokens": [
+     199,
+     294
+    ]
+   },
+   "t2-wb1020-gain-0126": {
+    "tier": "T1",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 0.0,
+    "searchbar_spice_min": 2.74,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.265,
+     0.281
+    ],
+    "think_tokens": [
+     272,
+     254
+    ]
+   },
+   "t2-wb1020-gain-0127": {
+    "tier": "T1",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 1,
+    "n_any_anchor": 1,
+    "seeds_feasible": {
+     "1": [
+      true,
+      false,
+      true
+     ],
+     "2": [
+      false,
+      true,
+      true
+     ]
+    },
+    "solved": true,
+    "solved_2of3": true,
+    "spice_min_first_feasible": 1.21,
+    "first_feasible_at": {
+     "seed": 1,
+     "sample": 1
+    },
+    "spice_min_all_calls": 8.82,
+    "searchbar_spice_min": 7.96,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.272,
+     0.384
+    ],
+    "think_tokens": [
+     203,
+     372
+    ]
+   },
+   "t2-wb1020-gain-0128": {
+    "tier": "T2",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      true
+     ]
+    },
+    "solved": true,
+    "solved_2of3": false,
+    "spice_min_first_feasible": 3.7,
+    "first_feasible_at": {
+     "seed": 3,
+     "sample": 2
+    },
+    "spice_min_all_calls": 3.7,
+    "searchbar_spice_min": 38.09,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.247,
+     0.294
+    ],
+    "think_tokens": [
+     155,
+     225
+    ]
+   },
+   "t2-wb1020-gain-0142": {
+    "tier": "T2",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 3.64,
+    "searchbar_spice_min": 47.47,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.276,
+     0.305
+    ],
+    "think_tokens": [
+     200,
+     242
+    ]
+   },
+   "t2-wb1020-gain-0159": {
+    "tier": "T2",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 0.0,
+    "searchbar_spice_min": 11.11,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.329,
+     0.282
+    ],
+    "think_tokens": [
+     277,
+     201
+    ]
+   },
+   "t2-wb1020-gain-0160": {
+    "tier": "T2",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 3.6,
+    "searchbar_spice_min": 17.31,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.28,
+     0.331
+    ],
+    "think_tokens": [
+     197,
+     289
+    ]
+   },
+   "t2-wb1020-gain-0161": {
+    "tier": "T2",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      true,
+      false,
+      true
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": true,
+    "solved_2of3": true,
+    "spice_min_first_feasible": 1.21,
+    "first_feasible_at": {
+     "seed": 1,
+     "sample": 1
+    },
+    "spice_min_all_calls": 3.64,
+    "searchbar_spice_min": 13.98,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.313,
+     0.338
+    ],
+    "think_tokens": [
+     252,
+     352
+    ]
+   },
+   "t2-wb1020-gain-0182": {
+    "tier": "T1",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 6.1,
+    "searchbar_spice_min": 2.74,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.192,
+     0.3
+    ],
+    "think_tokens": [
+     159,
+     315
+    ]
+   },
+   "t2-wb1020-gain-0183": {
+    "tier": "T1",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 2.6,
+    "searchbar_spice_min": 2.67,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.086,
+     0.257
+    ],
+    "think_tokens": [
+     5,
+     254
+    ]
+   },
+   "t2-wb1020-gain-0184": {
+    "tier": "T2",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 3.84,
+    "searchbar_spice_min": 19.82,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.351,
+     0.346
+    ],
+    "think_tokens": [
+     301,
+     325
+    ]
+   },
+   "t2-wb1020-gain-0205": {
+    "tier": "T1",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 0.0,
+    "searchbar_spice_min": 2.68,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.289,
+     0.24
+    ],
+    "think_tokens": [
+     246,
+     206
+    ]
+   },
+   "t2-wb1020-gain-0206": {
+    "tier": "T1",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 2.7,
+    "searchbar_spice_min": 2.67,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.204,
+     0.199
+    ],
+    "think_tokens": [
+     175,
+     197
+    ]
+   },
+   "t2-wb1020-gain-0207": {
+    "tier": "T2",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 3.6,
+    "searchbar_spice_min": 4.76,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.29,
+     0.278
+    ],
+    "think_tokens": [
+     219,
+     212
+    ]
+   },
+   "t2-wb1020-gain-0223": {
+    "tier": "T1",
+    "family": "wb1020-gain",
+    "strict": false,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 2.78,
+    "searchbar_spice_min": 2.75,
+    "searchbar_found": true,
+    "gpu_min": [
+     0.303,
+     0.075
+    ],
+    "think_tokens": [
+     303,
+     70
+    ]
+   },
+   "v2b-wb0824-gain-188": {
+    "tier": "T3",
+    "family": "wb0824-gain",
+    "strict": true,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 3.38,
+    "searchbar_spice_min": null,
+    "searchbar_found": null,
+    "gpu_min": [
+     0.287,
+     0.398
+    ],
+    "think_tokens": [
+     226,
+     373
+    ]
+   },
+   "v2b-wb1020-noise-217": {
+    "tier": "T3",
+    "family": "wb1020-noise",
+    "strict": true,
+    "n_completions": 2,
+    "n_valid": 2,
+    "n_shown_anchor": 0,
+    "n_any_anchor": 0,
+    "seeds_feasible": {
+     "1": [
+      false,
+      false,
+      false
+     ],
+     "2": [
+      false,
+      false,
+      false
+     ]
+    },
+    "solved": false,
+    "solved_2of3": false,
+    "spice_min_first_feasible": null,
+    "first_feasible_at": null,
+    "spice_min_all_calls": 0.0,
+    "searchbar_spice_min": null,
+    "searchbar_found": null,
+    "gpu_min": [
+     0.315,
+     0.383
+    ],
+    "think_tokens": [
+     246,
+     317
     ]
    }
   }

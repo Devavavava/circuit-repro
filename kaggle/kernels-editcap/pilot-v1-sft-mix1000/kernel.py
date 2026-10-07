@@ -14,11 +14,11 @@ import sys
 # ============================ CONFIG ==========================================
 REPO_SLUG = "Devavavava/circuit-repro"
 REPO_BRANCH = "worktree-externals-gf180"
-REPO_SHA = "PIN"
+REPO_SHA = "833313861f53211df94553946074cc3ad1a209da"
 CFG = {
     "tag": "sft-mix1000",
     "kind": "sft",
-    "rows": "ROWS",
+    "rows": "kaggle/campaigns/pilot-v1/sft-data/sft-458.jsonl",
     "model_id": "qwen3-14b-sft-mix1000-q4km",
     "samples": 2,
     "train_deadline_min": 215.0,     # training stops (LoRA saved, truncation recorded) here

@@ -14,7 +14,7 @@ import sys
 # ============================ CONFIG ==========================================
 REPO_SLUG = "Devavavava/circuit-repro"
 REPO_BRANCH = "worktree-externals-gf180"
-REPO_SHA = "__PIN__"
+REPO_SHA = "da29e48915ab300105f9b7e30a6caaaac3d5ac3b"
 CFG = {
     "tag": "gen-sft300",
     "kind": "gen",

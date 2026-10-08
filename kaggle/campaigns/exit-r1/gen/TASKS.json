@@ -1,0 +1,5844 @@
+{
+ "prereg": "kaggle/PREREG-EXIT-R1.md (573a21a89) step 1",
+ "data": "kaggle/campaigns/pilot-v0/data/train-all.jsonl",
+ "data_sha256": "86b5cf02fdfe8d050982953557e844cfe181866b76420f4bdbf8acdf5a49f414",
+ "heldout_families_excluded": [
+  "nb090-noise",
+  "wb1020-gain"
+ ],
+ "order_seed": 20261008,
+ "n_tasks": 641,
+ "n_ok_training_side": 677,
+ "ok_without_prompt": [
+  "t2-nb090-power-0289",
+  "t2-nb090-power-0290",
+  "t2-nb090-power-0296",
+  "t2-nb090-power-0297",
+  "t2-nb090-power-0337",
+  "t2-nb090-power-0338",
+  "t2-nb090-power-0353",
+  "t2-nb090-power-0365",
+  "t2-nb090-power-0388",
+  "t2-nb090-power-0412",
+  "t2-nb090-power-0417",
+  "t2-nb158-gain-0265",
+  "t2-nb158-gain-0379",
+  "t2-nb240-noise-0369",
+  "t2-nb240-noise-0380",
+  "t2-nb240-noise-0392",
+  "t2-nb240-power-0393",
+  "t2-nb350-gain-0386",
+  "t2-nb350-gain-0396",
+  "t2-wb0530-gain-0006",
+  "t2-wb0530-gain-0083",
+  "t2-wb0530-gain-0175",
+  "t2-wb0824-noise-0024",
+  "t2-wb0824-noise-0040",
+  "t2-wb0824-noise-0041",
+  "t2-wb0824-noise-0060",
+  "t2-wb0824-noise-0085",
+  "t2-wb0824-noise-0124",
+  "t2-wb0824-power-0008",
+  "t2-wb0824-power-0042",
+  "t2-wb0824-power-0064",
+  "t2-wb0824-power-0087",
+  "t2-wb0824-power-0106",
+  "t2-wb0824-power-0125",
+  "t2-wb0824-power-0141",
+  "t2-wb0824-power-0181"
+ ],
+ "by_family": {
+  "nb240-power": 76,
+  "nb350-gain": 84,
+  "nb090-power": 71,
+  "wb0530-gain": 83,
+  "wb0824-power": 79,
+  "nb240-noise": 84,
+  "wb0824-noise": 82,
+  "nb158-gain": 82
+ },
+ "by_band_type": {
+  "narrowband": 397,
+  "wideband": 244
+ },
+ "by_difficulty": {
+  "library-solvable": 364,
+  "witness-only": 268,
+  "single-edit-solvable": 9
+ },
+ "by_origin": {
+  "pilot-v0": 461,
+  "train-pool-v2": 180
+ },
+ "tasks": [
+  {
+   "task": "t2-nb240-power-1292",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "c94be44318c81e9f",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-0172",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "7456f591cba05be7",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb090-power-1454",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "e3423c12311cbbb7",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-0293",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "0aa03b710e065c24",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb350-gain-0416",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "8fbc084ccf115bdc",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1458",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "97c519cb7385f795",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-1384",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "2c2b575ca2dc35e0",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-1068",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "fe5a8ae526791a5f",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-1250",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "600a9168957df571",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-wb0824-power-1319",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "fb9ae5a783db3c71",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-1072",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "4a7c6650afb2e675",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-0371",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "8009be6f44feb209",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-0197",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "831bbe0df3d897cb",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1406",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "1e9eb774fc8d405c",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1140",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "90c7d913d84b5bf6",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-1170",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "fdc702a9984cd55d",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-1382",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "f0290a3643622b0d",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1413",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "27dfe607c319379c",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb090-power-0419",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "42b6261a0f85b2ae",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-1120",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "4f1816321da9c52e",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-wb0530-gain-0288",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "d734da639bb6cd1f",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1001",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "069bd0eff1369fea",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-1287",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "00b1f66db9c4924d",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-1201",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "c345b6b525ece997",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-1303",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "cc094f44a47b949c",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-0235",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "22a0b9b8b48ef4c3",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-0054",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "a2c5185fe346f611",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-1118",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "51308a954f870bc5",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-0405",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "b01da49e75313b4d",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-1339",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "db62334dcc57a78e",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1083",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "1e3aab5057855773",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-0135",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "e76dbd96d78d211a",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-1215",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "abe43926d56a0ee5",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-1138",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "723b440b7bfa8de2",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-wb0824-power-0158",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "a7e02339f6b5fde9",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-1412",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "b067249f375c6822",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-1160",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "f99a2da3da399609",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-1476",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "252da23762e8eb42",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-0347",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "14e759cb4441a132",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-0400",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "46733adb938fe994",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-0313",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "b38cc89e4d880dd2",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1434",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "f40dcbb985487343",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-1336",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "39ea634a2e6448fa",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1415",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "a7403b73f6631880",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1443",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "9ff62322187fac2a",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1423",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "64e06ff31f0de24c",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-1478",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "79cad078afaa35c2",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-1176",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "40dac4b411239c45",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb350-gain-1331",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "22c38e5c7efc4682",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-1359",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "a1e85cf990b39bc8",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-1500",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "a1520130ef729d41",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-0418",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "cb0fbe5aa6fa987d",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-0103",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "single-edit-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "2057c20c8e71581f",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1491",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "9351f89fde2d549b",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-1277",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "f7815f9def185228",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-1101",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "1d7e3eeaa513a171",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-1242",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "977139db0d6710b7",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-1095",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "483937db6ae0e413",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-0016",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "2e0053aa71a1f154",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-0116",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "e7b3e18794a81b57",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-1188",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "f3829123c2d8ee34",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-0268",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "aeb5f337e4b3984f",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-0157",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "a7e530772d8a2e01",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb090-power-0324",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "e1bdaf1b1e3518da",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1404",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "dd39b9c29b1fb405",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb158-gain-1436",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "0a189806bb948cce",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1064",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "4c763a51c5666e53",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-1378",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "ceb715ea98ad26f6",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1119",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "3f1756881eca7a1b",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-1148",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "313dd68ec4fbac06",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-1243",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "16b00bb68e386e90",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-1047",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "2efff91e9569158a",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-1114",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "c4f82e910ec96388",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-1122",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "e4e94f2b4e6704c0",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-0231",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "4aa7ab2b59633375",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-1399",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "5f686f18837e9f66",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-1332",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "beeb3be3b31a5069",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1299",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "4a5b4e6e6d2a3e61",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-0414",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "d6035a9b0c07e22b",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-1152",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "81dd59fa1c190dfc",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-1075",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "50c19119c216e781",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-1070",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "a9f738f2e1a6afbb",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-1253",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "bf0411b1a3735d19",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-0404",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "bb60bff2d9c0ad95",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-1345",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "492f3dd4917eee74",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-1211",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "a0bbee3df9497934",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-0093",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "c2cdf5b425c2d600",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-1017",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "6a1679b6ff86568e",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-1186",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "7e64392edf87f64b",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-1349",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "35595568b130bc94",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-1037",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "804fca3f941a7747",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-0401",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "322a6da8af2a0177",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-0113",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "437c7eb825c5c5eb",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-1227",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "eb2ab654ea865fa1",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1041",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "2b87515a6062a003",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-1016",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "362e39da6432e2a0",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-1077",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "d2a9e3f34cde859f",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-1084",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "3cef728f953b444c",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-1035",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "0c1a4fc52a785738",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-1275",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "82e3c09c0e210f7c",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1435",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "7fe2ce26f7405e47",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb240-noise-1358",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "ba1c68637c2c0ee1",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-0115",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "8ef64f9e81f52a35",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-1149",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "f89c83a2589f2c19",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-0202",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "6d23add26bb9e03d",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-1480",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "2d2b0b2b4c615c96",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-1408",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "8d165e792a72864e",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1010",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "9ba4179bba2f3853",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1233",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "cf98a8c5b39868ea",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1286",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "c94a82732839b8b2",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-1029",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "34f4f4617b1547f8",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-1305",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "98302e31d923be25",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-1003",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "d96fd7ef1ed86127",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-0169",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "35e077fb0a190e04",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb090-power-1267",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "40d5d8e88a0a0309",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1474",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "20fc5993da1e69fc",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1076",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "d3def75dd2dccbcc",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1006",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "814acecc02d770b0",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-1222",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "d984839e2b64407a",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-0238",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "ac1f1fc08798fcf1",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-1181",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "3365c8c2b2d2bcf6",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb090-power-1481",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "69229f10f6c75405",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-1053",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "0b6422474b21a038",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-1302",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "aa2dbb2ee766895f",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1503",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "9d2bb65e525f044f",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1304",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "a8e572c19c672461",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-0000",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "390397b0a9a102cd",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-1410",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "54d827116d0e32a1",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-1022",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "93f1ba1fa5c3ca0d",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1043",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "fcb1dc10aa9af6d0",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-1024",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "80fa620cb78b37e4",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-1113",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "237cd233e7f897fe",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-1052",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "single-edit-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "7db26ffae0166c3b",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-1265",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "9ed1dc089fdca3b4",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-0018",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "eb9159533c4cfce9",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb090-power-1356",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "0f0a0e6c3d419dc9",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-1258",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "b7fb513a5690e3a1",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1460",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "44164de0d2aca45b",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-1251",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "3ba9995075d6d81e",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-1263",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "b7264ff939065f50",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1340",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "1cbe901aedfc2aea",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1294",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "8a39e8d4850b808b",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-0227",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "0908ed00ef3d10c6",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-0368",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "1baa39c8f79ddd0f",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-wb0824-noise-1335",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "ffd8fc2a583aa2c7",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1483",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "8147432de8ce1aa1",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-1401",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "606535415e7999ec",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-wb0530-gain-1156",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "1a06204a0352bfa1",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1000",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "20361056729123b0",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-0236",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "266925d61a35baea",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1451",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "77e709ed3cb229d6",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-1282",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "70044672ff9812a1",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb090-power-1285",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "50d35d0ab535288f",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-0342",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "68c6020a7fa444ec",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-1033",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "f5c723231df86847",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-1129",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "ae302d2922726c3b",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-1238",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "934be457e425ecfc",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1447",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "b1c52eda6f52bc64",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1105",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "c076030059086c10",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1255",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "142b144e4ff9d035",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-0061",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "b56a2a01aad76097",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb090-power-1442",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "e9c167f4abb10818",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-1244",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "46dce7f1fd299ed4",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-0233",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "b5a66a7baeb3eaa5",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb350-gain-1414",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "dd6198e76d38c57a",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-1467",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "0744a210747b0059",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-0361",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "dcaa894e59f49d7e",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-1485",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "b1730a9e9681f225",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-1468",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "3ac849f9f82de8c5",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1089",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "6026995545e9c9c5",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-0156",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "27b75a7384daad70",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-0002",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "167f22ca6d6bd729",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb090-power-1040",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "6c033992de5a3796",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-0217",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "35945184ce947a1b",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1482",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "e4486a03166200d1",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-0139",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "566d81439d9bc2eb",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1229",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "b74e905f743532d5",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-1497",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "672badc889f8ba3c",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1246",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "7636287cfd2494c0",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-0359",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "66185b8f0f85c00e",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-wb0824-noise-1054",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "36766f84cf8ee35c",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-1323",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "1335f5fbb051de09",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-1038",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "907c2de405073cf8",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-1090",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "716dd36c122dd182",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-0216",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "4f420fa61c5882d0",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-0219",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "73d4697891bbcd4c",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-1370",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "d0afc773ecda70cf",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-1190",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "1f3e0d9514eeec83",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1372",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "dd40b029d4c43ee5",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-1353",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "28c4f1bd8cd84818",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-1373",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "8c470979e44591b3",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-1059",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "f121b3a123f5ca21",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-0137",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "e077c94c5e6d7c56",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-0354",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "4115bf720945596c",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-0317",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "9d3b946674bdb5d5",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-1154",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "c0680394583a9797",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1262",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "eb3c24834144f4fd",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1462",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "42f91642b9e9b986",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-1126",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "b81cbc0ac4464d21",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-1061",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "031f10501b7d47ec",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-wb0824-power-1368",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "d932f0d73c3e01d2",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-0383",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "557038051b41a10e",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-0007",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "6fa904f157acfddf",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-1379",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "d1fb52cc77cfaaea",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb090-power-1448",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "c60bb4e93d50320b",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-0140",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "daf479abc24e6987",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-0014",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "dfb0d1142670a50c",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-wb0824-noise-0155",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "a0dee69a77d5f71d",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1421",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "1fc8736f3c5a34d7",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-wb0824-noise-0138",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "d94645a92fb852e0",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1228",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "256c318d3736f0fb",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-1004",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "3aa87ce60d36af8a",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-1295",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "59f2ff15f85a14f6",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-1056",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "81918660d5764fcc",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1314",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "eda1b6a75b5d5748",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-0345",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "abdec541f063cf5c",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-0154",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "681885d0f31279aa",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1432",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "ed0f9b6d540c2cef",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb240-noise-1288",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "e3e7f6f4b9f8e875",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-0266",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "8dc6e8d39c57a6b1",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-1385",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "25672b74b8d95be3",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-1069",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "1933d8bf9f74b47b",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-1049",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "d40fdfcf16eae55b",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-1343",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "a24ea71e556e47b5",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1274",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "e264c161daf60cfe",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-1196",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "71297b10f625177b",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-0118",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "45352abd4955942d",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-0178",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "fa38324f50732ba6",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-0059",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "single-edit-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "fcfc8860107fff8d",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-0253",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "da660dc5a88caac1",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-1298",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "c463c570708a6c82",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1380",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "f87b0acb66e7ca1e",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-0213",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "2c9568a569fc7042",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-0204",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "dd3c4fbf69a2b9cb",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1471",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "c6121ebeffa23326",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb350-gain-0385",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "02d087e319de7375",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-0377",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "164f666cb6b6473c",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-0339",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "3c055c9777332cfe",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1361",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "ad135cc98ee752e2",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-1313",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "d0c89b2ca0561551",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1145",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "690bd6cac203515d",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-1195",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "01718b738ed40f30",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-1383",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "ead523d983aa0725",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-1216",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "fcaee73bdeb773f2",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-1173",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "87e2d6ca11dd4cb7",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-0373",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "b4052717590eb16c",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb240-noise-1424",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "2129d2ebf3365256",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-1257",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "0b62c8c71623c3de",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-0334",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "a4ed31fd3b2bfad3",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1182",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "6acc5b2891e68f66",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-1278",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "2a9b1269bde7145f",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-0177",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "e81111d85256b863",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-1097",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "beb53b9c1d2c6b4b",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-1355",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "5c834da6aedb00aa",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1200",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "0ed164b8125573ea",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-1066",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "ad4c81ed9a0e87af",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-0053",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "346f3069de9a25dd",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-1207",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "7be04cc29e577a08",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-0034",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "98c4c06f91230c13",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-1330",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "a17b0fea98deac35",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-1078",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "89e846c29c7697bd",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1489",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "b9975c40dfe6f8e9",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-0063",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "358c3a28113ee2f1",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-1039",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "31a72ed394839012",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1065",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "e69e0d03319e41bc",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-1062",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "6e66b90a9e5a8efa",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-1179",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "d1f6dfd05adf5568",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-0209",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "4df3ae44d556c026",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-1031",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "92b6383dbfa98679",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-0314",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "180f480e7479a9d5",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-wb0824-power-1247",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "43296f140a062028",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-0120",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "c674b60581b924f1",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-0218",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "c231e6a23fd8f2a8",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-1015",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "348b760912272a1e",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-0395",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "5e0975be65b7e2cc",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-1050",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "f74ffe972e4e7be0",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb090-power-1430",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "b56546b687679275",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-0104",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "2c2248a8499945ef",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-0343",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "b3785a5545e38c7a",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-0195",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "505ce499bfdafa6c",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb090-power-0376",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "b925d6e546aca84b",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1074",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "65a3d60633738a7e",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-0348",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "cc300ce312681a32",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1167",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "752726f1c7251f84",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1124",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "6317879ddfcf1a90",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-1487",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "49900a4fa7749c29",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-0214",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "e2f7cac48a2c8b4e",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb090-power-1439",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "7743d62f78a1727b",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb240-noise-1183",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "7a763449c67e65de",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-1213",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "c356d9606401159f",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb090-power-1445",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "fface8c94fa6e3e2",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1342",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "b6d8a280fba832e1",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-1226",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "7d29eb714170b847",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-1301",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "3ed161239233250f",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb090-power-1111",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "46626cbdef0529f6",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1204",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "29d6fb309e6d2484",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-1117",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "d135238beb493592",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-0080",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "8cecb3c720df3226",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-1308",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "8d1177963f2ee233",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-1143",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "4d2d071c758c8737",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-0415",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "96f44a371b7f959e",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1044",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "764b75ba82798d69",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-1495",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "e3323923b2acb772",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-0408",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "ddebcc67194e6aa9",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb090-power-1163",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "b1aa9f39d8668a66",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-1245",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "1eabc2beff1e2b9c",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb090-power-1386",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "3a6dcbe616833917",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-1046",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "ed9231c8b437a203",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-1021",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "a89316ac85df76e9",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1018",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "43febe0768779620",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-wb0530-gain-0303",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "f3b509e824927973",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1005",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "ef0bac25444012cd",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1248",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "a0f8136c15301145",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-0165",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "55f1e744b20739bd",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-1208",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "b03bf3fd1bca713b",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-1236",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "38b7c606bd4d04df",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-1300",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "0387e660abf84672",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-0302",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "single-edit-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "ad6956efc5962dcb",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-1174",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "d5cab9b1106db2f1",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-1177",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "f04736a78f17285f",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1284",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "daa8d390846ffc5a",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-1032",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "254b9ff84209cfd8",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-wb0824-noise-1071",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "052d958f6d5d1544",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-0110",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "2fd4113446b0c0a3",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-0226",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "74586d951b1d5a20",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-0086",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "421bda46f5ab5e93",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-0256",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "single-edit-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "b120ef01a327bd30",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-1141",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "b63b515ad89c6990",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-1271",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "cad7e08ebdfd85d4",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-1169",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "d10f727c83d816f6",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-1350",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "4fb4d773f99406bb",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1365",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "14509d7d1111d86a",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1444",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "58750e5b492e32a1",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-1194",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "fe02710e5e3a1b32",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1452",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "de79c4061dc13b06",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-0327",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "77b7956600cbbcfc",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-1479",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "4d123eb1814aa9ef",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-1312",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "single-edit-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "9d7041956476b05d",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-1115",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "1826abbef23231fd",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-0255",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "fb1bb932ee5e5444",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-0413",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "c12c6bde401dc6e7",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1093",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "45f0d619d5fa936f",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-0164",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "012d1988f35666fe",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-0344",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "4b4ef5c2f31a1dc5",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb090-power-0364",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "be1853ed56befa7e",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-0234",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "f1f56e38512ac3bc",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-1393",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "cfdd21567c27c11c",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-1137",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "1921118133af852d",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1042",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "3c5de306615997b9",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb090-power-0308",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "cab149022ced6308",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-1260",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "0932a1740425621e",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-1030",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "129a4775f790a6d0",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-1023",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "1b861ae759b79c37",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-0331",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "0298260f6927c197",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-wb0530-gain-1007",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "da99b5b09643e53b",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-0004",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "b484a66865673064",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb240-noise-0406",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "2036bf3cd479ceaf",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1475",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "e084033c777ed16d",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-1094",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "4da4552e53dea927",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1123",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "5723bb4b15a9714b",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-1133",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "52f271c82e487533",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1109",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "b46babc2467e019d",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-0420",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "806b6f26abf138a3",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-1264",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "a5e2b369ba8f54de",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-0211",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "c9c513fa1a27884b",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-1283",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "3ab0702e76275850",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-1322",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "e6f47f9f7250a26d",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-0095",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "e51d3b2e091888bf",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-1012",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "1aa04e6cd5de6a89",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1192",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "39051e23c0942682",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-1297",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "bc6a2ab2ef6258d3",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb240-power-1240",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "93afa4bcabdcd9c1",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-1206",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "29885c469cf43ff1",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-0123",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "898a146351e3661d",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-0381",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "7f80c7898f2ee129",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-1377",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "36b982bf29e36dc0",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-0341",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "06ede34978e1e2cb",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb350-gain-1293",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "59a3c4e0254bc062",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-1087",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "f4a78d212c274978",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-1220",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "ea8da75ab5e036a2",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-1281",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "55666e1f7c5d0231",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-1394",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "ec249eac9cad06b9",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-1081",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "9703b90345deac40",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1407",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "ad9196e09d0e8baf",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1067",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "86881d3f2e3d33ab",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-1391",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "e6766e87b412d39d",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-0148",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "9003b695f40c0223",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-0332",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "2e38242745bc0432",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb240-noise-1237",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "c7f242fd4442206a",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1498",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "24a6933613b85cb8",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-0267",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "c7891242ec991f7b",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1347",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "6c015bda0b938a45",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb090-power-1409",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "78d944f22b36b460",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-1028",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "6665bfc446ef7b0c",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-1082",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "31f83442eb4342d9",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-1020",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "e71860bfcb26e889",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb350-gain-1102",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "307fd9a9fe15eb57",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-1103",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "b86553de12759888",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-1360",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "091db2193369f8a8",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb240-noise-1426",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "b162f120854e7491",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-1289",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "010a9cf40412ce68",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-1218",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "ab7a8556de031d84",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-1106",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "ebfbbda2479e2953",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1456",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "e300bd56bb7913c7",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-1025",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "d1cb4f9759ad0b3d",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-1130",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "1b2d0fdc8b1bbe3e",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1387",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "c1fb8889ee1b4ca6",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-1231",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "c2b6295d15fbd4e1",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-1252",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "556eb6ca3aa4ff71",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1128",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "c5c3d64d3f8baa60",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-1428",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "93f18a0587a59d5f",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1193",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "dc54941c976735d9",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-1420",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "be07e68e669854e4",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-1400",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "4fae31fe4ecafba7",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1051",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "bfe23b7b30e6dce4",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-0389",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "57739680a81e05d7",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-1325",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "ce1669f7fb615645",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb090-power-1453",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "43e2004c75e05189",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-1171",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "d52c0f301ca36242",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1014",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "deb1e04210e6028a",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-1388",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "cc09ca9eb24d4e83",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1146",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "48728d941fb3c618",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-0298",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "single-edit-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "f1f013b43e083116",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb090-power-1438",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "d5024358dff724e7",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-1484",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "c8cc71d4147a59b0",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-0203",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "e31c414b4c667aee",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-0221",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "a6dc76e38826cfc2",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-0304",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "84971fd5142181e2",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1502",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "bb542ae4920a9d68",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-1477",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "5234b429e074f0c4",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-1189",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "e681ea8822bfb14a",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb240-noise-0358",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "f1b31af10892080a",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-1217",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "5adbdec30c1dfa84",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-0326",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "fe3f8c8a430f80c8",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1088",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "b7f68b61bd51377b",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-1142",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "0be76e19064075b9",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-0251",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "3fcf6dad4785f466",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1367",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "81a8e18dc4d4c272",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-1402",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "d56f47fc76a8bab1",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-1473",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "32b9efa3d6ffcad0",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-0033",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "c781ee60b3c5b145",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-wb0530-gain-1121",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "67f233325a71d195",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb350-gain-1203",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "7b1b313d5fe23413",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-1161",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "022f2afe384898b0",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-1341",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "d8b78d95411f1376",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-0274",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "362511879a418e0d",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-0357",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "afd906d3c5765cb9",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-1112",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "5004a99bda1c1d6f",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-0171",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "c1f70021307bd831",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-wb0824-noise-1396",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "4e6cddd4ad849342",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1490",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "b8ebccc6ca8575e4",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-0329",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "278b282a77daef4e",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-0084",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "f064bd854566c7e1",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-1493",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "945963f21c8800a0",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-wb0824-noise-1158",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "272aaae2057de6e0",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1134",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "b86ed06dd99f4913",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-1318",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "c7835f0c38f160fa",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1034",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "7c1ba865dd38a61e",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1157",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "97b85673d41609c7",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-1073",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "ba7d07c9f1607477",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1310",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "dc8d78ee9ac769f0",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-1223",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "61d7afd6ca5296c2",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-1209",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "a5fa3ef6cc89fd9b",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-1375",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "667514d6466e1d1e",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb090-power-1092",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "d92f5ce0ae85175b",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-0037",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "61ef0640a7a92863",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-1011",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "cc5ccf9b9f3134d4",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-1392",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "d09508dd4a019014",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-1197",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "868e4c9d87e671f5",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-0151",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "82887f7d216be11e",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb090-power-0398",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "0bdc84e90f39bfd5",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-1351",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "a2e60635d7261c43",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1418",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "1e5d0fdf7578b73b",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1329",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "d8077796f8a084df",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-1168",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "cf8a860d24d0f457",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb350-gain-0384",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "8300155d32d9a74b",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-0328",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "13d689c5b014c051",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-1470",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "30e8c070adbc1b32",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-1499",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "58d13d9926f2a915",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-1354",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "235aed2bc419226d",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-0239",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "5ffa62c7eb6e4195",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1269",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "e9571f1fc285483f",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1027",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "22124370374e075c",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-1178",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "ccb7fe0af296961b",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-0098",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "b8cf5463d458bb76",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1381",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "5ce1ef7195c5f59f",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-1397",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "d06fd3bfea013f3a",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-1279",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "d5a3fcdf9dad1ab9",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-1108",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "e0ba90ade0f1923c",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-0402",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "625acd0fcdbe9a4a",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-0321",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "3a84572505a0c9e6",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1346",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "07da939f4510ccb3",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-1254",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "44baddc46effa33f",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-0250",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "1a3b9d0ab8af7ef5",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-1369",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "7430ddc5a6eeed85",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1234",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "d61b5551791f6420",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-1104",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "a391f84671bcac5c",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-1210",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "34c090b1481fea69",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-1363",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "1a0b2429366d3203",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-0032",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "1598a39af94d859e",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-1429",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "3ade21589c57072c",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-1100",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "6cc039cfa5595a67",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb090-power-1320",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "220facaa35123b14",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-wb0824-power-1337",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "472a3e4a4ca1dfa7",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-0390",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "975b2015aee85289",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1464",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "870aecc7849ec851",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-0179",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "57038eb94e5aab1c",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-1276",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "47247502b421b6ff",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1159",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "b5bfdcaba604cc1b",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-1496",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "3818d28cb97ff7a4",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1110",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "c84873e3f9eb7c6c",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-1125",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "b5dc7f71bfc899fe",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-1469",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "4cfc2152396d8bc3",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-0009",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "8bf0b23bb8d3842b",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-1241",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "2e14f16065f0a87e",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-1364",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "single-edit-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "5d81abab108e572f",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-1422",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "872920b30b330a33",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-1184",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "16885b489c3327cb",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-1427",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "71055e66f9179eff",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-1107",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "1ff4cbf3f7a52d54",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-0079",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "aa20605bd36c506a",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-1290",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "41a154adb43885c2",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-0073",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "58360790fe28a0a8",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-0320",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "ff27dd9acf76e220",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-wb0530-gain-1008",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "5088bb595f225ca1",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb158-gain-1466",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "f78c6be7d3a7c753",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-1306",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "23633cc83467bc90",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb240-power-0407",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "5466c1fd5fa24851",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-1465",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "a30c3e0c8d357b21",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-1311",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "70672dedbdff23c6",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-1389",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "f51d904cb71ff8d6",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-0198",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "f14a30680bfb6880",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-1036",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "69277f6c974d2e37",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1315",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "b4c0f284f97aff69",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-1259",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "0ff8308415fddf4e",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-0399",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "d228bba690b3471b",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1058",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "b21007af617cea75",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1136",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "50266a9ed8ae4a0b",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1416",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "5d09c4369234b653",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-1162",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "2c42ba07bbe439ad",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-1261",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "0bae94b717285bbc",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1461",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "2d3cea58085ef9c3",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-1239",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "5a1f8a4c195d9379",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-0025",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "59f1a101c6afb6ff",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-0039",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "6333b424b60267be",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-1291",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "9cd165f7462903e5",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1352",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "5c6441732d075ce9",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1249",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "c6ed9a5bbe566278",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1019",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "196c78950b38598b",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-0075",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "b3ec266b4e9732f3",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-noise-1230",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "3973c2ec54001b3a",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-1048",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "d2745a50eeb37230",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-1338",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "f1fc7ec7e5ba49f5",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-0163",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "fc673edac7d89995",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-1063",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "35720c194ab63368",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-0237",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "ac2d1141799a208a",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-0330",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "31b5c64886a4a63c",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb090-power-1013",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "f65eb3fce43c435f",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1419",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "6ee324ea69fb819d",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-1098",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "8207fe5f297ac4c5",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-1374",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "0d42538a28b7bbeb",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-wb0530-gain-1492",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "adf8f002d96f1647",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-1116",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "fd764fed1e74e006",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-0191",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "fbcf46e2665e1f47",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb090-power-1431",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "7aebf1790b0bb278",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1256",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "e2d89b54ff06efcb",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-1214",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "5fdce55ccd7990db",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1224",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "5f0ae6554e44de56",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-1232",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "e634505a9c7a1c66",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-1376",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "9074f4fa14aef79e",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-0112",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "ee1da5db48f1ee03",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-1191",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "71b6e6f65392bec6",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-0346",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "0135946b7f756033",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb240-noise-1060",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "40ff535cc91ef34f",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1433",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "89478f774e1d8886",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-1175",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "850d20dfe12fef69",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb090-power-1437",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "07b4f52c41aeb749",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb158-gain-1045",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "17ecb7257c2f0053",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0530-gain-1155",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "e8123f16a4552c4f",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-0366",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "bf76645f10cfca5a",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1280",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "6a71bb17f9178741",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-0017",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "c90eaf70af7c7eb9",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb090-power-1164",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "2167a7e8dbdb2432",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-1139",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "f75eb1d10cb3a4a9",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1334",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "14769bfe8abca5a6",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1026",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "4d4f0f077bc9e4ca",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb158-gain-1127",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "6240fa51cc317037",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-1266",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "96791b562758a9eb",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-0292",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "dc1c4925fe4f61b3",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-1131",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "cbe3166a0c0352e1",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-0367",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "da4c8f038dbdf388",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-0403",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "e8cdd1f731981bdd",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb240-power-0394",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "52f58e18382652d7",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-1219",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "a001526bdc2195f8",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-1328",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "17c0f5ebc1356163",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-1235",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "443df22e4f751e18",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-0340",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "d4a4eb232843aa7f",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1449",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "8335b06234ef770d",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-1135",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "5d79bbfd4eed5500",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-1357",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "18068f1aed55d165",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-0232",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "9d3524e1666d7a04",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb090-power-1501",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "2f5ec0f21861ec75",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1316",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "a45a08559ca7b8fa",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-1057",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "2734ad82c957163d",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb350-gain-0409",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "a9520305a244c636",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1463",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "3da05835e2525430",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1055",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "f398aa4cef2fe973",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-0208",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "5881639a230c5233",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-1153",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "0dec00830ba4a5e4",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb090-power-0352",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "6e0050feae0e7d95",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1457",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "c5fde869d8d8b169",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-1395",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "0a8b07459d3f49c6",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-1405",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "49f5481ed86ed6a4",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-noise-1086",
+   "family": "wb0824-noise",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "c92cb3cf026ea867",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-0305",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "446e8bdb7963c596",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb240-power-1309",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "7c2af8a2564b35b5",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-wb0824-power-0105",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "1004b36a53dae08c",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-1002",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "b7d6cb80d690c42f",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-noise-1150",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "d950d04584e1abaf",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1459",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "1cdb15be2cc2a155",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-1296",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "539f017929d4cd66",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-1272",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "8953d289657197e7",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-power-0133",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "05d582e81caa7380",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-1425",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "0e04c3ef9aa31726",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-1273",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "a7616ba5179d9ead",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-0284",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "single-edit-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "a4f9205fb74e975f",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb090-power-1212",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "983ecd1da30283ec",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-wb0530-gain-1494",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "67215944a2f1b5ed",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0824-power-0252",
+   "family": "wb0824-power",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "ec0ab46cf0a8aa0e",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb158-gain-1268",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "323ac5fab97a702e",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-wb0530-gain-0318",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "5f9997fafdaf88d0",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-nb240-noise-1398",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "9f390156e11ab286",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb350-gain-0134",
+   "family": "nb350-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "180319e3937498d3",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-1344",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "b53fc995dcd2aada",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb158-gain-0378",
+   "family": "nb158-gain",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "8576a91fc74fe590",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-1221",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "e51f922edb138d04",
+   "n_examples": 2
+  },
+  {
+   "task": "t2-nb240-noise-0036",
+   "family": "nb240-noise",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "da17017abcf5c1a5",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-0190",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "train-pool-v2",
+   "messages_sha": "cb82e3a7c997a478",
+   "n_examples": 3
+  },
+  {
+   "task": "t2-wb0530-gain-1225",
+   "family": "wb0530-gain",
+   "band_type": "wideband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "dc3075a9e3782630",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb090-power-1441",
+   "family": "nb090-power",
+   "band_type": "narrowband",
+   "difficulty": "witness-only",
+   "task_origin": "pilot-v0",
+   "messages_sha": "72cc05bf0ec99d40",
+   "n_examples": 1
+  },
+  {
+   "task": "t2-nb240-power-1326",
+   "family": "nb240-power",
+   "band_type": "narrowband",
+   "difficulty": "library-solvable",
+   "task_origin": "pilot-v0",
+   "messages_sha": "bef71f44855d20f3",
+   "n_examples": 2
+  }
+ ]
+}

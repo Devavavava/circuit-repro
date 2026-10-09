@@ -1,0 +1,18 @@
+
+
+The failure is due to the poor stability margin (`mu_min_wide_0.01-50GHz`), which is negative by -2.01447, indicating instability over a wide frequency range. This is likely caused by the second stage's gate being driven through a long RC path (via R3 from the current mirror to NM2's gate), which introduces phase lag and reduces the phase margin at high frequencies. The interstage LC network (L2 and C2) also contributes to resonance and potential feedback paths that degrade stability.
+
+To address this, I restructured the second stage to eliminate the long RC path from the bias network to the gate of NM2. Instead, the second stage is now directly connected to the output of the first stage, with its gate tied to the LC interstage network. The current mirror is now used only to bias the first stage, and the second stage is driven directly from the LC network. This change reduces the phase lag in the feedback path and improves stability.
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n3 VSS
+L L2 n3 VSS
+NMOS NM2 n4 VDD n2 VSS
+L L3 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+```

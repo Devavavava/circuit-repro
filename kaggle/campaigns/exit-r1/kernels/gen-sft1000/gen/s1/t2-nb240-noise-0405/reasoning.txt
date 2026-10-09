@@ -1,0 +1,4 @@
+语句
+The failure is due to the inadequate stability margin (mu_min_wide_0.01-50GHz) caused by the interstage LC network and the second-stage load inductor, which introduce resonances that destabilize the amplifier over a wide frequency range. The two-stage structure with LC loads creates multiple feedback paths that reduce the phase margin, especially at frequencies beyond the design band, leading to a negative mu_min_wide margin.
+
+To address this, I modified the topology by removing the LC interstage network and replacing it with a direct connection between the stages, which reduces feedback-induced instability. I also removed the second-stage tuned load inductor and replaced it with a simple inductor to the VDD, simplifying the second-stage load and reducing resonant feedback paths. Finally, I restructured the bias network to eliminate unnecessary components that could contribute to instability.

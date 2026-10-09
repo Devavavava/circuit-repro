@@ -1,0 +1,4 @@
+语句
+The binding constraint is the minimum phase margin (mu_min_wide_0.01-50GHz), which is negative, indicating instability in the wideband range. The failure likely stems from the lack of a dedicated stability-enhancing component in the feedback path, leading to poor phase margin across frequencies. The original topology relies on LC resonances for tuning and gain, but this may not sufficiently suppress feedback-induced oscillations over a wideband.
+
+To address this, I added a resistor (ZR1) in parallel with the interstage LC network (L2 and C2), providing a controlled damping path that enhances phase margin without significantly affecting gain or noise. This resistor introduces a small resistive feedback path that stabilizes the amplifier across the wideband, directly addressing the phase margin issue.

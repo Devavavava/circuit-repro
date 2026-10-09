@@ -1,0 +1,23 @@
+
+
+The binding constraint is the input return loss (s11_max_db), which is failing by ~0.05 dB. This indicates that the input impedance mismatch is too large, likely due to the lack of a controlled input impedance network. The anchor netlist lacks a dedicated input impedance tuning element, and the input is only DC-blocked by C4, with no reactive or resistive elements to shape the impedance at the operating frequency. This results in a poor match at the input, causing the s11_max_db to fall short of the specification.
+
+To address this, I added a series inductor (ZL1) between the input node (n0) and the bias node (n6). This introduces a tunable inductive reactance at the operating frequency, allowing for impedance matching at the input port. The inductor provides a low-impedance path at DC (due to its short-circuit behavior) while offering a controlled reactance at RF frequencies, thereby improving the input impedance match and reducing the return loss.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+L ZL1 n0 n6
+```

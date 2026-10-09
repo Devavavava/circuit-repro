@@ -1,0 +1,23 @@
+
+
+The failure is primarily due to the noise figure (nf_max_db) being slightly above the specification limit. This is likely caused by the noise contribution from the input transistor NM1 and the biasing network, particularly the diode-connected NM3 and the resistive divider (R1-R2). These components add noise to the signal path, especially at the high frequency (f0 = 1.22 GHz), which is exacerbated by the current-reuse topology and the shared DC path. The noise from the bias network is not adequately suppressed, causing the overall noise figure to exceed the target.
+
+To address this, the structural change involves reconfiguring the bias network to isolate the noise-sensitive input path from the biasing circuitry. This is achieved by connecting the gate of NM3 (the diode-connected transistor) to the signal node n1 instead of n0, and adding a new NMOS transistor (ZN1) to provide a low-noise, stable bias current path to n5. This isolates the biasing from the input signal path, reducing noise coupling and improving the noise figure.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n0 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+NMOS ZN1 VDD n5 n4 VSS
+```

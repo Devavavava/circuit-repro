@@ -1,0 +1,18 @@
+
+
+The binding constraint is the stability metric `mu_min_wide_0.01-50GHz`, which is negative by -0.320267, indicating the LNA is unstable over a wide frequency range. This instability likely arises from poor feedback and resonance coupling between the stages, exacerbated by the LC interstage network and the lack of damping in the second stage. The second stage's output is directly connected to a DC-blocked capacitor, which may allow for undesirable phase shifts or resonances that reduce stability margins.
+
+To address this, I replace the second stage's configuration from a common-source (CS) NMOS with a common-gate (CG) NMOS, which provides better feedback and stability at high frequencies. Additionally, I remove the LC interstage network and replace it with a direct inductive coupling from the first stage's drain to the second stage's source, which improves phase and amplitude stability. The output capacitor is repositioned to provide better DC blocking and impedance matching.
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n3 VSS
+L L2 n3 VSS
+NMOS NM2 n4 VDD n2 VSS
+L L3 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+```

@@ -1,0 +1,5 @@
+语句中存在一些问题，需要调整以符合要求。以下是修改后的版本：
+
+The failure is due to the insufficient stability margin (mu_min_wide_0.01-50GHz), which is negative, indicating that the circuit is unstable over a wide frequency range. This is likely caused by the lack of proper feedback or damping in the interstage LC network, leading to potential oscillations or excessive phase shifts that reduce stability.
+
+To address this, I added a resistor (ZR1) between the output node (VOUT1) and ground (VSS), and another resistor (ZR2) between the output node (VOUT1) and the DC bias node (n7). These resistors provide additional damping and help stabilize the circuit by reducing the gain at higher frequencies and preventing oscillations.

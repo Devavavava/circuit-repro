@@ -1,0 +1,22 @@
+
+
+The binding constraint `mu_min_wide_0.01-50GHz` is failing due to insufficient stability across the wide frequency range, likely caused by the interstage LC network and the lack of a feedback mechanism to suppress oscillations or parasitic feedback paths. The structure as is allows for resonant peaks and phase shifts that reduce the stability margin at off-band frequencies, particularly due to the LC interstage and the lack of a source degeneration or feedback element in the second stage.
+
+To address this, I introduce a source degeneration inductors and a feedback path to improve stability. Specifically, I add an inductor `L2` between the source of the first stage and ground, and a resistor `R2` between VDD and the drain of the second stage. Additionally, I add a capacitor `ZC1` between the interstage node and the source of the second stage to provide a low-impedance path for high-frequency noise and prevent unwanted feedback. These changes help dampen resonances and improve the stability margin over the wide frequency range.
+
+```netlist
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+R ZR2 VDD n2
+C ZC1 n4 n5
+```

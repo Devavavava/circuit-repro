@@ -1,0 +1,5 @@
+The failure is primarily due to the noise figure (nf_db) being too high, exceeding the specification by approximately 0.18 dB. This is likely caused by the noise contribution from the input transistor NM1 being exacerbated by the current-reuse topology and the shared DC path. The current-reuse structure, while beneficial for power efficiency, may introduce additional noise due to the feedback and the shared node between NM1 and PM1, which can degrade the noise performance.
+
+The proposed solution involves reconfiguring the current-reuse structure to isolate the noise-sensitive nodes from the shared DC path. This is achieved by introducing a new node (n6) and connecting the PMOS gate biasing network to it, while also adding a resistor Rrep1 from n6 to VDD. This change decouples the gate biasing of PM1 from the shared node n3, reducing noise coupling and improving the noise figure.
+
+By isolating the PMOS gate biasing from the shared DC path and using a dedicated resistor (Rrep1) to provide a stable bias, the noise contributions from the shared node are minimized, thereby lowering the overall noise figure of the LNA to meet the specification.

@@ -14,6 +14,9 @@ else waits for the refresh.
 |---|---|
 | `r1_prep.py tasks` | `gen/TASKS.json`: the 641 training-side tasks with a pilot-v0 prompt, seeded order (seed 20261008) |
 | `r1_gen.py` | in-kernel generation driver: pilot-v0's completion path (editcap `_LiveLLM`, CAP-1024, arm B k=1, no few-shot, T 0.7) on the training prompts; archives the think text + its token count |
+| `r1_verify.py` | step 2: `enumerate` (local round-trip, key, novelty/copy/anchor flags, trace-filter inputs) → `verify/<policy>/completions.jsonl`; `run` (rl-v1.2-rl seed 1, seed 2 for seed-1-feasible; ≤ 8 procs, 4 at load1 > 22, D32 disk robustness, resumable); `kick` (step-5 rl-v1.2-rl column for rl-v1.2-feasible score rows) |
+| `r1_build.py` | step 3: round-1 data (pool, dedupe, mix, fence) → `sft-data/` |
+| `r1_summarize.py` | `gen` (step-2 tables → `verify/gen-tables.md`), `heldout` (steps 5–6 → `score/r1-tables.md`, decision rule) |
 | `kernel_r1.py` | kernel body; kinds `gen` (pilot-v0 LoRA → pilot-v1 H1 GGUF path → `r1_gen.py`) and `sft` (pilot-v0 `KC.main_sft`, 8 held-out samples) |
 | `kaggle/kernels-editcap/exit-r1-*/` | thin launchers (clone at `REPO_SHA`, call `kernel_r1.main`) |
 
@@ -53,3 +56,5 @@ the other 36 have no pilot-v0 example and so no prompt to sample from (listed in
 
 | kernel | version | pinned commit | start (IST) | end | GPU-h | note |
 |---|---|---|---|---|---|---|
+| gen-sft1000 | 1 | `da29e4891` | 2026-10-08 23:04 | 10-09 02:05 | 3.05 | GGUF 29.9 min (sha `e3404d0d…` ≠ pilot-v0 `7f0c5921…`, D-V4); 1282 completions (641 tasks × 2, none cut) in 149.0 min at 4 slots = 7.0 s/completion (1.73× pilot-v1's 12.1 s); Kaggle quota 26.08 → 29.08 h |
+| **exit-r1 total** | | | | | **3.05** | of ≈ 20 |

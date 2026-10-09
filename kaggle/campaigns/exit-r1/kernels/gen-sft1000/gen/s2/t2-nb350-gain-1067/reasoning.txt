@@ -1,0 +1,5 @@
+The binding constraint is the stability factor `mu_min_wide_0.01-50GHz`, which measures the stability of the LNA across a wide frequency range. The failure indicates that the circuit is marginally stable at the center frequency and becomes unstable at off-band frequencies, likely due to the resonant LC loads and the feedback paths introduced by the interstage LC network. This causes a narrow stability band, which fails the wideband stability requirement.
+
+To address this, the structure must be modified to suppress unwanted feedback and improve stability across the band. A common solution is to add a feedback path from the output to the source of the second stage, which helps to dampen oscillations and broaden the stability band. This can be achieved by adding a resistor and a capacitor in parallel from the output to the source of the second stage, forming a low-pass filter that attenuates high-frequency feedback.
+
+This change introduces a controlled feedback path that improves stability without significantly degrading gain or noise performance.

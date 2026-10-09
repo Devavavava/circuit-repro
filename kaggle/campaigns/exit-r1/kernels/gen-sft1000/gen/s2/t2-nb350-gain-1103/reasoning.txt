@@ -1,0 +1,4 @@
+语句
+The failure is due to the poor stability margin (mu_min_wide_0.01-50GHz) caused by the interstage LC network and the lack of feedback in the topology. This leads to instability at frequencies beyond the narrowband center frequency, causing the mu_min_wide constraint to fail. The LC interstage network introduces resonances that interact poorly with the amplifier's feedback paths, reducing the stability margin across the band.
+
+To address this, I added a feedback path from the output to the second stage's source through a capacitor (ZC1) and a resistor (ZR1), and a capacitor (ZC2) from VDD to the interstage node (n4) to dampen resonances. These changes improve the stability margin by providing a controlled feedback path and reducing unwanted resonances.

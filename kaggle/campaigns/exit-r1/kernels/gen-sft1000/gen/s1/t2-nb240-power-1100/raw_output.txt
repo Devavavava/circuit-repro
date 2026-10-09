@@ -1,0 +1,20 @@
+
+
+The binding constraint, `mu_min_wide_0.01-50GHz`, measures the stability margin of the LNA across a wide frequency band. The failure indicates that the stability margin is insufficient at frequencies beyond the design band, likely due to poor phase and gain behavior in the feedback paths of the two-stage amplifier. In the anchor netlist, the LC interstage network (C2 and L2) introduces a resonant path that may cause unintended feedback or phase shifts at higher frequencies, degrading the stability margin.
+
+To address this, the LC interstage network must be restructured to suppress such feedback paths and ensure a more stable phase response over the wide band. The proposed change replaces the original LC interstage (C2 and L2) with a simple capacitor (C2) connecting the drain of the first stage (n2) to an internal node (n4). This eliminates the inductive component (L2) in the interstage path, removing a potential source of resonant feedback and phase distortion at higher frequencies. The capacitor C2 provides a high-impedance path for AC signals, ensuring a cleaner signal transfer between stages and improving the stability margin across the wide band.
+
+```netlist
+C C1 VIN1 n1
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n2
+C C2 n2 n4
+L L2 n4 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```

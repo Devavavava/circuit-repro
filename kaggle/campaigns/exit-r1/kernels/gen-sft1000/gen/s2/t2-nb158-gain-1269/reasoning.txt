@@ -1,0 +1,4 @@
+语句
+The binding constraint is the stability margin (mu_min_wide_0.01-50GHz), which is negative, indicating instability over a wide frequency range. The failure is due to the interstage LC network (L2 and C2), which introduces a resonant peak that causes phase shift and reduces the stability margin. The current topology's feedback path through the interstage LC network creates a low-frequency pole that interacts poorly with the amplifier's poles, leading to instability outside the narrowband operating frequency.
+
+To address this, I added a source-degeneration inductor (L2) in the second stage and a bypass capacitor (C2) across the interstage inductor (L1) to suppress unwanted resonances and improve stability. Additionally, I reconfigured the bias network to use a current mirror (NM3 and R1) that directly biases the second stage (NM2) without passing through the interstage LC network, reducing feedback-induced phase shifts.

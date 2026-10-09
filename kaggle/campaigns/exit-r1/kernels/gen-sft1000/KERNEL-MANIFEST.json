@@ -1,0 +1,140 @@
+{
+  "runs": [
+    {
+      "step": "gen",
+      "model_id": "qwen3-14b-sft1000-q4km",
+      "rc": 0,
+      "minutes": 149.0,
+      "out": "/kaggle/working/p1/gen",
+      "n_completions": 1282,
+      "n_valid": 1270,
+      "n_tasks_complete": 641,
+      "gpu_min_sum_requests": 584.24
+    }
+  ],
+  "events": [
+    {
+      "route": "A",
+      "rc": 0,
+      "versions": {
+        "unsloth": "2026.9.11",
+        "unsloth_zoo": "2026.9.7",
+        "torch": "2.11.0+cu128",
+        "transformers": "5.5.0",
+        "peft": "0.21.0",
+        "trl": "0.24.0",
+        "bitsandbytes": "0.50.2",
+        "accelerate": "1.15.0",
+        "datasets": "4.3.0"
+      },
+      "kind": "install",
+      "t_min": 2.09
+    },
+    {
+      "src": "/kaggle/input/notebooks/devavratpatni/circuit-repro-pilot-v0-sft1000/p1/lora-sft1000",
+      "files": [
+        "README.md",
+        "adapter_config.json",
+        "adapter_model.safetensors",
+        "chat_template.jinja",
+        "tokenizer.json",
+        "tokenizer_config.json"
+      ],
+      "adapter_sha256": "0ba0003769e3b33d160ec2e37fc7fbec366115eafbf818fdd3f898833d3047de",
+      "adapter_bytes": 256976504,
+      "kind": "lora",
+      "t_min": 2.24
+    },
+    {
+      "merged_bytes": 29548141883,
+      "merge_s": 512.3,
+      "convert_outtype": "f16",
+      "convert_s": 295.1,
+      "quantize_s": 815.9,
+      "q4_bytes": 9001753440,
+      "q4_sha256": "e3404d0d469207391aa9ad8607ca24a89307357873a6da389f495dd1fac09d98",
+      "kind": "gguf_ready",
+      "t_min": 29.89
+    },
+    {
+      "expect": "7f0c59211573434bdebf0ef87050ca1c5d28b943839e357675d123ab7cdeb38c",
+      "got": "e3404d0d469207391aa9ad8607ca24a89307357873a6da389f495dd1fac09d98",
+      "identical": false,
+      "kind": "gguf_vs_pilot_v0",
+      "t_min": 29.89
+    },
+    {
+      "step": "gen",
+      "model_id": "qwen3-14b-sft1000-q4km",
+      "rc": 0,
+      "minutes": 149.0,
+      "out": "/kaggle/working/p1/gen",
+      "n_completions": 1282,
+      "n_valid": 1270,
+      "n_tasks_complete": 641,
+      "gpu_min_sum_requests": 584.24,
+      "kind": "gen_done",
+      "t_min": 179.73
+    }
+  ],
+  "kernel": "gen-sft1000",
+  "clone_head": "da29e48915ab300105f9b7e30a6caaaac3d5ac3b",
+  "prereg": "kaggle/PREREG-EXIT-R1.md (573a21a89)",
+  "wall_minutes": 179.7,
+  "cfg": {
+    "tag": "gen-sft1000",
+    "kind": "gen",
+    "lora_tag": "sft1000",
+    "expect_q4_sha256": "7f0c59211573434bdebf0ef87050ca1c5d28b943839e357675d123ab7cdeb38c",
+    "model_id": "qwen3-14b-sft1000-q4km",
+    "samples": 2,
+    "parallel": 4,
+    "start_deadline_min": 198.0,
+    "hard_wall_min": 206.0,
+    "repo_slug": "Devavavava/circuit-repro",
+    "repo_branch": "worktree-externals-gf180"
+  },
+  "gguf": {
+    "merged_bytes": 29548141883,
+    "merge_s": 512.3,
+    "convert_outtype": "f16",
+    "convert_s": 295.1,
+    "quantize_s": 815.9,
+    "q4_bytes": 9001753440,
+    "q4_sha256": "e3404d0d469207391aa9ad8607ca24a89307357873a6da389f495dd1fac09d98",
+    "source": "sft-merge",
+    "lora": "../../tmp/p1/lora-sft1000"
+  },
+  "server_caps": {
+    "version": "version: 0.3.0-dev (build 1, commit 4d19b28)\nbuilt with GNU 11.4.0 for Linux x86_64"
+  },
+  "server": [
+    {
+      "tag": "gen",
+      "cmd": [
+        "-m",
+        "/tmp/p1/gen-sft1000-Q4_K_M.gguf",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8080",
+        "--n-gpu-layers",
+        "999",
+        "--split-mode",
+        "layer",
+        "-c",
+        "65536",
+        "--parallel",
+        "4"
+      ]
+    }
+  ],
+  "probe": {
+    "template_tail": " 17*23? Think step by step.<|im_end|>\n<|im_start|>assistant\n",
+    "p1_head": "<think>\nThe user is asking for the product of 17 and 23. I need to calculate this step by step. Let me think about the b",
+    "p1_tokens": 64,
+    "p1_stop": "limit",
+    "p2_head": "To find the product of 17 and 23, we can break it down step by step using the distributive property of multiplication:\n\n$$\n17 \\times 23 = 17 \\times (20 + 3)\n$$\n\nNow, distribute the multiplication:\n\n$$",
+    "p2_tokens": 128
+  }
+}

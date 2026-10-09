@@ -1,0 +1,5 @@
+The binding constraint is the stability margin (mu_min_wide_0.01-50GHz), which is negative, indicating instability in the wideband range. This is likely due to the current-reuse topology's feedback paths and the shared DC path, which can introduce parasitic feedback and degrade stability. The shared DC path between the NMOS and PMOS stages may be causing unwanted coupling, especially at high frequencies, leading to a reduced phase margin.
+
+To address this, I introduce a decoupling capacitor (C ZC1) between the internal nodes n2 and n6. This capacitor provides a high-impedance path at DC while shunting high-frequency noise, thereby reducing unwanted coupling between the NMOS and PMOS stages. This change helps isolate the feedback paths and improves the stability margin by reducing parasitic interactions at high frequencies.
+
+The addition of C ZC1 is a structural change that modifies the signal flow and decouples the stages, which is expected to improve the mu_min_wide_0.01-50GHz metric by at least 0.062, bringing it above the required threshold.

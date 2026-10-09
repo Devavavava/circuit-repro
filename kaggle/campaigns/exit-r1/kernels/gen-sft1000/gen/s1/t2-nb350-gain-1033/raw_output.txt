@@ -1,0 +1,18 @@
+
+
+The binding constraint `mu_min_wide_0.01-50GHz` is failing due to insufficient stability across the wide frequency range, likely caused by the LC resonant structures in the drain loads and the interstage network. These resonant elements, while effective at the center frequency (f0 = 3.5 GHz), create phase and magnitude variations across the band, which can lead to instability or oscillation at frequencies near the edges of the band. The current topology's resonant LC loads and interstage LC network may be contributing to a narrow stability band, which is insufficient for the required wideband stability margin.
+
+To address this, I propose a structural change that eliminates the LC resonant loads and replaces them with inductive peaking and capacitive feedback, which provide better stability across a wide frequency range. Instead of using LC resonant loads for tuning, I use a single inductor in the drain of the first stage and a capacitive feedback path from the output to the second stage. This configuration avoids resonant peaking at off-band frequencies and ensures a more stable and predictable gain and phase response over the entire 0.01–50 GHz range.
+
+```netlist
+C C1 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n3 VSS
+L L2 n3 VSS
+NMOS NM2 n4 VDD n2 VSS
+L L3 VDD n4
+C C2 n4 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+```

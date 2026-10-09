@@ -1,0 +1,5 @@
+生
+
+The failure is due to the insufficient phase margin and poor stability in the wideband range, as indicated by the negative margin on the mu_min_wide_0.01-50GHz constraint. This suggests that the amplifier is unstable or has a reduced stability margin at certain frequencies within the band, likely due to the feedback and load structure not providing enough phase compensation or bandwidth control.
+
+To address this, I introduce a second-stage NMOS transistor (ZN1) with a current source (ZN2) to provide additional phase compensation and improve stability. The NMOS transistor ZN1 is connected to the output node (n2) and a new internal node (n4), while the current source ZN2 is connected to VDD and n4, providing a controlled current to n2. This configuration adds a second feedback path, enhancing phase margin and improving stability over the wideband range. Additionally, the inductor L2 is connected between VOUT1 and VSS, helping to filter out high-frequency noise and further stabilize the output.

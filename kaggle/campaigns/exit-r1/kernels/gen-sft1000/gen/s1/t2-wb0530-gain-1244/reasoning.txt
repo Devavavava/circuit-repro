@@ -1,0 +1,4 @@
+语句
+The failure is primarily due to the noise figure (nf_max_db) being too high, exceeding the specification by approximately 0.1 dB. This is likely caused by the noise contributions from the biasing network and the current mirror (NM3), which are not sufficiently isolated from the signal path. The diode-connected NM3 and the resistor R2 create a noise source that couples into the signal path, increasing the overall noise figure.
+
+To address this, I propose a structural change that isolates the biasing network from the signal path. This is achieved by adding a capacitor (ZC1) between the bias node (n5) and the input node (n0), which blocks DC while allowing AC signals to pass. This change ensures that the noise from the bias network does not couple into the signal path. Additionally, I introduce a resistor (ZR1) between the internal node n2 and n6 to provide a more stable and decoupled biasing path, improving the noise performance.

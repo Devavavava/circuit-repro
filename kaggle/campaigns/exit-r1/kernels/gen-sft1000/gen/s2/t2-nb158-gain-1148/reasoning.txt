@@ -1,0 +1,4 @@
+语句
+The failure is due to poor stability and phase margin in the wideband frequency range, as evidenced by the negative margin for the mu_min_wide_0.01-50GHz constraint. This indicates that the circuit is unstable or has insufficient phase margin across a broad frequency range, likely caused by the feedback path through the load network (L2+C2) and the current-reuse configuration, which can introduce phase shifts and reduce stability.
+
+To address this, I propose adding a feedback capacitor (ZC1) between the output (VOUT1) and the internal node n5. This capacitor provides a low-impedance path for high-frequency signals, helping to stabilize the circuit by reducing phase shift at higher frequencies and improving the phase margin in the wideband range. This change should improve the mu_min_wide_0.01-50GHz metric by approximately 0.1–0.2, bringing it above the required threshold.

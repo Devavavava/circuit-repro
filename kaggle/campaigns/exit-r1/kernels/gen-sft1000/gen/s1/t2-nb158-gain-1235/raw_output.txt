@@ -1,0 +1,5 @@
+
+
+The binding constraint is the insufficient gain (s21_db), which is below the required minimum of 26.5021 dB. The failure stems from the second stage's inability to deliver sufficient amplification due to the limited impedance transformation and signal coupling between stages. The LC interstage network (L2 and C2) may be introducing phase and amplitude losses, and the second stage's drain load (L3) may not be effectively converting the current gain into voltage gain at the desired frequency.
+
+To address this, I restructured the circuit by moving the second stage's drain load to a direct connection from the second stage's drain to VDD, and by reconfiguring the LC network to better couple the signal from the first stage to the second stage. This change improves the impedance matching and signal transfer between stages, thereby enhancing the overall gain. Additionally, the first stage's drain is now connected to a resonant inductor (L1), which helps in boosting the voltage gain at the operating frequency. The biasing network remains unchanged to ensure stability and low noise.

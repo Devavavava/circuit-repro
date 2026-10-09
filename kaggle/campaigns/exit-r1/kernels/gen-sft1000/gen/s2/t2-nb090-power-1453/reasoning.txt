@@ -1,0 +1,5 @@
+The binding constraint is the input return loss (s11_max_db), which is failing by ~0.55 dB. This suggests that the input impedance is not sufficiently matched to the source, likely due to the lack of an explicit input impedance control mechanism in the anchor netlist. The absence of a dedicated input impedance tuning element (such as a shunt capacitor or series inductor) results in a mismatch at the input port, particularly at the center frequency, causing the return loss to be insufficiently negative.
+
+To address this, an input impedance tuning capacitor (ZC1) is added between the bias node (n7) and the input node (VIN1), providing a path for AC signals to ground while allowing DC bias to flow. This capacitor helps fine-tune the input impedance, improving the match at f0. Additionally, a new inductor (L4) is added between VDD and the interstage node (n4), which helps in stabilizing the interstage impedance and reducing unwanted resonances that could affect the input impedance.
+
+These changes enhance the input impedance match without introducing additional noise or power consumption, directly improving the s11_max_db metric.

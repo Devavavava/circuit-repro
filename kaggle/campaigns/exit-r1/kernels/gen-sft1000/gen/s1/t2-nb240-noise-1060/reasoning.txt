@@ -1,0 +1,3 @@
+The failure is due to the insufficient stability margin (mu_min_wide_0.01-50GHz) caused by the lack of a DC feedback path to the output of the second stage, leading to poor phase compensation across the band. This results in a reduced stability margin, especially at frequencies outside the narrowband center frequency (f0), causing the circuit to fail the mu_min_wide constraint.
+
+To address this, I added a DC feedback path from the output of the second stage (node n6) to the bias network (node n7) using an NMOS transistor (ZN1) and a resistor (ZR2) from VDD to node n5. This provides additional phase compensation and improves the stability margin across the band.

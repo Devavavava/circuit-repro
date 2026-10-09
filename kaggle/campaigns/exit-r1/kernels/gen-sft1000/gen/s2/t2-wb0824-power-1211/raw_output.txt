@@ -1,0 +1,23 @@
+
+
+The failure is primarily due to noise figure (nf_max_db) being too high, which is likely caused by the noise contribution from the biasing network and the lack of a dedicated noise-canceling or noise-shaping structure in the amplifier. The anchor netlist lacks a mechanism to isolate the noise contributions from the biasing network and the active devices, leading to a higher-than-allowed noise floor.
+
+To address this, I introduce a noise-canceling structure by adding a resistor (Rrep1) from the output of the diode-connected NMOS (NM3) to the output of the amplifier (VOUT1), which helps in shaping the noise contribution and reducing the overall noise figure. This resistor provides an additional feedback path that suppresses noise from the biasing network and improves the signal-to-noise ratio. Additionally, I add a capacitor (ZC1) between the bias node (n5) and the output of the NMOS (n2) to decouple the bias network from the signal path and reduce noise coupling. These changes are structural and do not involve device sizing or biasing networks.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+R Rrep1 n5 VOUT1
+C ZC1 n5 n2
+```

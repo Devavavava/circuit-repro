@@ -1,0 +1,4 @@
+语句
+The failure is due to poor input impedance matching, leading to a suboptimal return loss (S11_max_db). The anchor netlist uses a simple common-source configuration for the first stage with a DC-blocked input capacitor and a tuned inductor load, but lacks sufficient impedance transformation and tuning at the input. This results in a mismatch between the input signal source and the LNA, causing a higher-than-allowed reflection coefficient at the input port.
+
+To address this, I added an impedance-transforming network at the input stage using a series inductor (L1) and a shunt capacitor (C1), along with a shunt resistor (R1) to provide a controlled DC path and improve impedance matching. Additionally, I introduced a shunt NMOS transistor (NM3) and a current mirror configuration to better control the biasing and ensure stable operation. These changes enhance input impedance matching and reduce signal reflection, thereby improving the S11_max_db metric.

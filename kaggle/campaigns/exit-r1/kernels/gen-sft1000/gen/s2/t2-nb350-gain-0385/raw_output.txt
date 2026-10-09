@@ -1,0 +1,5 @@
+
+
+The failure is due to insufficient gain in the second stage, as evidenced by the s21_db margin being -0.348, indicating the gain is below the required 29.3232 dB. The two-stage LNA's second stage is underperforming, likely due to the lack of a proper impedance transformation and insufficient voltage headroom at the second stage's drain. The current topology lacks a direct connection from the second stage to the power supply, which limits its ability to deliver sufficient gain and voltage swing.
+
+To address this, I added a direct connection from the second stage to VDD using an inductor (L2), and introduced a new NMOS transistor (NM2) to provide a better impedance match and voltage headroom. Additionally, I restructured the bias network to ensure both stages are properly biased and isolated from each other, improving stability and gain performance. The new NMOS transistor and inductor provide a better path for the signal and help maintain a higher voltage swing in the second stage, which is critical for achieving the required gain.

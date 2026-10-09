@@ -1,0 +1,4 @@
+语句
+The failure is due to noise figure (nf_max_db) being too high, which is likely caused by the noise contributions from the biasing network and the current mirror. The current mirror NM3 and the biasing resistor R1 contribute significant noise, especially at the frequency of operation, which is not adequately suppressed in the original topology.
+
+To address this, I modified the biasing network by connecting the diode-connected NM3 to an internal node n4 instead of VSS, and added a capacitor ZC1 between n4 and n6. This change helps to decouple the noise from the biasing network and the main signal path, reducing the noise contribution from the current mirror and improving the noise figure.

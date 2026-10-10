@@ -88,7 +88,98 @@
     "recovered": 2,
     "llm_errors": 0
    }
+  },
+  "sft300": {
+   "all": {
+    "tasks": 641,
+    "completions": 1282,
+    "valid": 1265,
+    "unique_keys": 1264,
+    "seed1_feasible": 200,
+    "positives": 150,
+    "positive_tasks": 135,
+    "positive_unique": 150,
+    "novel_positives": 144,
+    "novel_positive_wls": 134,
+    "own_target_copies": 0,
+    "anchor_positives": 0,
+    "valid_novel": 1242,
+    "valid_own_copy": 0,
+    "valid_anchor": 2,
+    "seed2_confirm_rate": 0.75
+   },
+   "library-solvable": {
+    "tasks": 364,
+    "completions": 728,
+    "valid": 722,
+    "unique_keys": 722,
+    "seed1_feasible": 128,
+    "positives": 97,
+    "positive_tasks": 88,
+    "positive_unique": 97,
+    "novel_positives": 95,
+    "novel_positive_wls": 88,
+    "own_target_copies": 0,
+    "anchor_positives": 0,
+    "valid_novel": 714,
+    "valid_own_copy": 0,
+    "valid_anchor": 0,
+    "seed2_confirm_rate": 0.7578
+   },
+   "single-edit-solvable": {
+    "tasks": 9,
+    "completions": 18,
+    "valid": 18,
+    "unique_keys": 18,
+    "seed1_feasible": 8,
+    "positives": 7,
+    "positive_tasks": 4,
+    "positive_unique": 7,
+    "novel_positives": 6,
+    "novel_positive_wls": 6,
+    "own_target_copies": 0,
+    "anchor_positives": 0,
+    "valid_novel": 17,
+    "valid_own_copy": 0,
+    "valid_anchor": 0,
+    "seed2_confirm_rate": 0.875
+   },
+   "witness-only": {
+    "tasks": 268,
+    "completions": 536,
+    "valid": 525,
+    "unique_keys": 524,
+    "seed1_feasible": 64,
+    "positives": 46,
+    "positive_tasks": 43,
+    "positive_unique": 46,
+    "novel_positives": 43,
+    "novel_positive_wls": 43,
+    "own_target_copies": 0,
+    "anchor_positives": 0,
+    "valid_novel": 511,
+    "valid_own_copy": 0,
+    "valid_anchor": 2,
+    "seed2_confirm_rate": 0.7188
+   },
+   "think": {
+    "stop": {
+     "word": 1282
+    },
+    "think_tokens_median": 243,
+    "think_tokens_max": 446,
+    "reasoning_tokens_lt20": 0,
+    "reasoning_tokens_gt512": 0,
+    "recovered": 0,
+    "llm_errors": 0
+   }
   }
  },
- "missing_rows": {}
+ "missing_rows": {},
+ "positive_task_overlap": {
+  "both": 87,
+  "union": 357,
+  "only_first": 222,
+  "only_second": 48
+ }
 }

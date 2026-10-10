@@ -1,0 +1,5 @@
+The binding constraint failing is the minimum stability factor (mu_min), which is too low at 0.686081 (vs the required 1.0). This indicates the circuit is unstable or marginally stable at the operating frequency, likely due to poor feedback or improper impedance matching in the feedback path. The current topology uses a diode-connected NMOS (NM3) for biasing and a current mirror (R1, NM3, R2) that may not provide sufficient phase margin or feedback control to stabilize the amplifier at 2.4 GHz.
+
+To address this, I modified the feedback path to include an additional NMOS transistor (NM2) connected in a cascode configuration with PM1. This adds a controlled feedback path from the output (n2) to the bias node (n5), improving phase margin and stabilizing the amplifier. The addition of NM2 introduces a second stage of feedback that helps increase the stability factor (mu_min) by ensuring the amplifier remains in a stable operating region across the band.
+
+The change also ensures that the feedback path is more tightly controlled, reducing the likelihood of oscillation or instability at the operating frequency.

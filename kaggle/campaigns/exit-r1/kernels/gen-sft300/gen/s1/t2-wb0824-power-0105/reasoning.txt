@@ -1,0 +1,5 @@
+The binding constraint is the insufficient forward gain (s21_db), which is below the required minimum of 9.1283 dB. This is likely due to the resistive shunt feedback and the shunt-peaked inductive load limiting the gain bandwidth product. The resistive feedback (R1) and the inductive peaking (L1+R2) may be introducing excessive loss or impedance mismatch at the operating frequency, reducing the overall gain.
+
+To address this, I replaced the resistive shunt feedback with a series inductive feedback topology. This change allows for better impedance matching and reduces the loss at high frequencies. Additionally, I introduced a PMOS transistor (PM1) and a PMOS transistor (PM2) to provide a more stable and higher gain amplification path. The PMOS transistors help in boosting the gain by reducing the effective output impedance and improving the transconductance. The inductive feedback (L2) and the additional capacitors (C3, C4, C5) help in stabilizing the circuit and improving the frequency response.
+
+These changes should increase the forward gain (s21_db) by approximately 2.5 dB, bringing it above the required minimum.

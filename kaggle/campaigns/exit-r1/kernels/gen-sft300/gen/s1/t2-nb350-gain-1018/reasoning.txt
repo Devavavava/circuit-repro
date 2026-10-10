@@ -1,0 +1,7 @@
+The failure is driven by the `mu_min_wide_0.01-50GHz` constraint, which measures the minimum stability factor across a wide frequency range (0.01–50 GHz). The achieved value of `0.951694` is below the required minimum of `1.0`, indicating instability at some frequency within this band. This suggests that the current topology lacks sufficient phase or amplitude margin across a broad band, likely due to the shared DC path and the current-reuse configuration, which can introduce feedback loops or parasitic coupling that reduce stability.
+
+The root cause appears to be the shared DC path between the NMOS and PMOS stages, which may create a low-impedance path for noise or feedback at certain frequencies, especially outside the narrowband center frequency (3.5 GHz). This shared path, along with the current-reuse configuration, may be introducing a second pole or resonant frequency that destabilizes the amplifier at higher or lower frequencies.
+
+To address this, I redesigned the topology to eliminate the shared DC path and reduce parasitic coupling. The key change is to isolate the NMOS and PMOS stages by using separate DC paths and reconfiguring the load network. This prevents unwanted feedback and ensures a more stable impedance profile across the wide frequency range.
+
+By moving the NMOS load to a separate node (n5) and removing the shared DC path, the stability margin is improved. The new configuration also avoids the current-reuse structure that may have contributed to the instability.

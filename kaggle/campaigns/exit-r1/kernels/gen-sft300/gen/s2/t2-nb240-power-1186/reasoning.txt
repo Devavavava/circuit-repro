@@ -1,0 +1,7 @@
+The binding constraint `mu_min_wide_0.01-50GHz` failing with a margin of -0.216446 indicates that the stability factor μ is insufficient over the entire 0.01–50 GHz band. This is a stability issue, and it is likely due to the lack of a feedback path or a stabilizing element that suppresses unwanted oscillations or resonances outside the narrowband center frequency (f0 = 2.4 GHz). The anchor netlist does not include any explicit stabilization components, such as resistors or capacitors, that could dampen oscillations or provide negative feedback at off-band frequencies.
+
+The current structure relies on inductive peaking and LC resonances for tuning, which can enhance gain and matching at f0 but may also introduce resonances or phase shifts that reduce μ at other frequencies. Without a damping element, the circuit is vulnerable to instability at frequencies outside the narrowband.
+
+To address this, adding a resistor in parallel with the second-stage inductor (L2) would provide a low-impedance path for high-frequency signals, effectively damping unwanted resonances and increasing the stability factor μ over the wide band. This change adds a stabilizing element without altering the core functionality of the LNA at the target frequency.
+
+The proposed netlist includes an additional resistor `ZR1` connecting the internal node `n2` (the drain of NM1) to VDD, which helps to stabilize the circuit by introducing a controlled amount of damping.

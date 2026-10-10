@@ -1,0 +1,3 @@
+The failure is primarily due to the noise figure (nf_max_db) exceeding the specification limit. This is likely caused by the noise contribution from the NMOS transistor NM3 in the bias network, which is directly connected to the input node n0 through the capacitor C4. This connection introduces an unintended noise path from the bias network to the input, degrading the noise performance of the LNA.
+
+To address this, I replaced the NMOS transistor NM3 with a PMOS transistor ZP1 and reconnected it to a different node (n4) to isolate the bias network from the input signal path. This change breaks the direct noise coupling from the bias network to the input, thereby reducing the noise contribution from the bias network to the overall noise figure of the LNA.

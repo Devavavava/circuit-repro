@@ -1,0 +1,5 @@
+The binding constraint is the stability factor `mu_min_wide_0.01-50GHz`, which measures the stability of the LNA across a wide frequency range. The failure is due to insufficient phase margin and poor stability in the feedback path, especially at frequencies outside the narrowband center frequency (f0 = 1.575 GHz). This is likely caused by the lack of a direct feedback path from the output to the bias network, which limits the ability of the circuit to dampen oscillations at off-band frequencies.
+
+To address this, I added a direct feedback path from the output (VOUT1) to the bias reference node (n7) using a capacitor (ZC1) and a resistor (ZR1). This creates a low-frequency feedback loop that helps stabilize the circuit over a wider band. Additionally, I added a resistor (ZR2) between the interstage node (n4) and VDD to improve the phase margin and reduce instability at higher frequencies.
+
+These changes improve the stability factor `mu_min_wide_0.01-50GHz` by ensuring that the feedback loop is active over a broader range of frequencies, thus preventing oscillations and improving the stability margin.

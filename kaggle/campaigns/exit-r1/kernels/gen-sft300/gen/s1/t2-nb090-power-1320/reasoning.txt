@@ -1,0 +1,5 @@
+The failure is primarily due to the insufficient phase margin and stability in the wideband frequency range, as evidenced by the negative margin for the `mu_min_wide_0.01-50GHz` constraint. This indicates that the amplifier is unstable or exhibits poor phase margin across the band, likely due to the feedback topology and the single-stage nature of the current design. The resistive shunt feedback and the shunt-peaked inductor load may not provide sufficient phase compensation or stability across the wideband, especially at higher frequencies.
+
+To address this, the topology needs to be restructured to provide better phase compensation and stability across the band. Introducing a second stage with a cascode configuration and an additional inductor can help improve the phase margin and stability. Additionally, the use of a common-gate stage and a resonant inductor in the output can help shape the frequency response and improve stability.
+
+The proposed netlist introduces a two-stage topology with a common-gate stage and a resonant inductor, along with a cascode configuration, to improve stability and phase margin across the wideband.

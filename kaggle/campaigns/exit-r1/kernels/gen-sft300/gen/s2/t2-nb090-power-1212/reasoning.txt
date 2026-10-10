@@ -1,0 +1,5 @@
+The binding constraint is the stability factor `mu_min_wide_0.01-50GHz`, which is failing due to insufficient phase margin across the wide frequency band. This is likely caused by the single-stage common-source (CS) topology with shunt peaking, which introduces a second pole and reduces the phase margin at higher frequencies, especially when the inductor `L1` and resistor `R2` form a shunt-peaked load. The feedback resistor `R1` helps with input matching but does not sufficiently stabilize the amplifier over the wideband.
+
+To address this, the topology should be modified to introduce additional feedback paths or damping elements that improve phase margin and stability. A common solution is to add a second-stage cascode or a feedback path from the output to the input via a capacitor, which can help suppress oscillations and improve stability.
+
+The proposed netlist adds a PMOS transistor `PM1` in a cascode configuration and a capacitor `ZC1` from the output to the input. This introduces a second feedback path that enhances phase margin and stabilizes the amplifier over the wide frequency range.

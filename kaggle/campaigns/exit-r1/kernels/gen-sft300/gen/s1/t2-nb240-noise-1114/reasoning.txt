@@ -1,0 +1,3 @@
+The binding constraint is the stability factor `mu_min_wide_0.01-50GHz`, which is failing due to poor stability across a wide frequency range. This is likely caused by the resonant LC networks in the interstage and drain loads, which can create feedback paths that reduce stability at off-band frequencies. The current topology lacks sufficient damping or phase margin control at these frequencies, leading to instability.
+
+To address this, I added a series capacitor (`ZC1`) between the interstage inductor `L2` and the second stage's gate node `n4`, and a resistor (`ZR1`) from the output node `n6` to ground. These additions provide additional phase margin and damping at off-band frequencies, improving the stability factor across the wideband range.

@@ -1,0 +1,5 @@
+The failure is primarily due to poor input matching, as evidenced by the s11_max_db constraint being just -6.02645 dB, which is below the required -7.9048 dB. This indicates that the input impedance is not well-matched to the source, leading to signal reflection and reduced performance. The root cause is likely the lack of a direct connection between the first stage's gate and a low-impedance node, which is critical for achieving a good input match in a narrowband LNA.
+
+To address this, I added a capacitor (ZC1) between VDD and n4, which is the node connecting the LC interstage network to the second stage. This capacitor provides a low-impedance path for AC signals at the operating frequency, helping to improve the input impedance match by reducing the reactance seen at the input. Additionally, I added a resistor (ZR1) between VOUT1 and VDD, which helps in stabilizing the output and improving the return loss by providing a controlled impedance path for reflected signals.
+
+These changes enhance the input matching and reduce signal reflection, directly addressing the s11_max_db constraint failure.

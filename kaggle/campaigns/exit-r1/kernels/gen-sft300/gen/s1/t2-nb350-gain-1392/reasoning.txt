@@ -1,0 +1,7 @@
+The binding constraint is the stability margin (`mu_min_wide_0.01-50GHz`), which is failing by a small margin (-0.016274). This indicates that the circuit is marginally unstable at frequencies outside the narrowband center frequency (f0 = 3.5 GHz). The failure is likely due to the lack of a stabilizing element in the feedback path or the absence of a damping mechanism to suppress oscillations in the wider frequency range.
+
+In the original topology, the second stage (NM2) is driven by an LC interstage network (L2 and C2), and the output is DC-blocked by C3. However, there is no explicit feedback or damping mechanism to ensure stability across the entire 0.01–50 GHz band. The current mirror bias network (NM3, R1, R2, R3) does not contribute to stability in this context.
+
+To address this, I added a resistor (ZR1) from VDD to an internal node (n4), which is connected to the LC interstage network. This resistor introduces a small amount of damping, reducing the likelihood of oscillation at off-band frequencies. By doing so, it helps increase the stability margin (`mu_min_wide_0.01-50GHz`) without significantly affecting the gain or noise figure.
+
+The change is minimal in terms of component count and does not alter the core topology. It adds a single resistor in a strategic location to stabilize the circuit without compromising the narrowband performance.

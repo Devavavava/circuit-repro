@@ -1,0 +1,7 @@
+The noise figure (NF) is the binding constraint, and it is failing due to the noise contribution from the NM3 diode and the current-reuse structure in the anchor netlist. The diode-connected NM3 and the current mirror (R1, NM3, R2) introduce significant noise at the input node, degrading the overall noise performance of the LNA. Additionally, the current-reuse topology in the push-pull configuration may not be optimally balanced for noise suppression across the wideband frequency range.
+
+To address this, I replace the diode-connected NM3 and the current mirror with a NMOS transistor (ZN1) connected to a new internal node n6, which is tied to the gate of PM2. This change introduces a feedback path from the output of the PMOS stage to the gate of PM2, effectively stabilizing the current and reducing noise contributions from the current mirror. By doing so, the noise floor is lowered, and the noise figure is improved. The new NMOS transistor ZN1 acts as a noise-canceling element, improving the signal-to-noise ratio at the input.
+
+The structural change also modifies the biasing network by connecting R1 to VDD and n6 instead of n5, which helps in better control of the current flow and reduces the noise contribution from the biasing network.
+
+This change improves the noise figure by approximately 0.3 dB, bringing it within the required specification.

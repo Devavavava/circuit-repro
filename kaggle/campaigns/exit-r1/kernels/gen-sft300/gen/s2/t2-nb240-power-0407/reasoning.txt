@@ -1,0 +1,5 @@
+The binding constraint is the stability factor `mu_min_wide_0.01-50GHz`, which is negative by -0.239902, indicating instability over a wide frequency range. This is likely due to the second-stage NMOS (NM2) having insufficient impedance at the output, leading to a low stability margin. The LC interstage network (C2 and L2) introduces a resonant peak that may be causing phase shifts or feedback at certain frequencies, especially outside the narrowband center frequency (f0 = 2.4 GHz), thus reducing the stability margin.
+
+To address this, I added a capacitor (ZC1) from the output node (VOUT1) to ground (VSS). This provides a low-impedance path to ground at high frequencies, which helps dampen any resonant peaks or feedback paths that could reduce stability. This change increases the stability margin by stabilizing the output node at higher frequencies, especially where the LC interstage network might be causing phase shifts or feedback.
+
+The addition of the capacitor ZC1 is a structural change that improves the stability factor `mu_min_wide_0.01-50GHz` without altering the core topology or adding biasing components.

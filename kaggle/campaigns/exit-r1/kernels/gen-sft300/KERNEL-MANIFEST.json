@@ -1,0 +1,140 @@
+{
+  "runs": [
+    {
+      "step": "gen",
+      "model_id": "qwen3-14b-sft300-q4km",
+      "rc": 0,
+      "minutes": 204.8,
+      "out": "/kaggle/working/p1/gen",
+      "n_completions": 1282,
+      "n_valid": 1265,
+      "n_tasks_complete": 641,
+      "gpu_min_sum_requests": 806.49
+    }
+  ],
+  "events": [
+    {
+      "route": "A",
+      "rc": 0,
+      "versions": {
+        "unsloth": "2026.9.11",
+        "unsloth_zoo": "2026.9.7",
+        "torch": "2.11.0+cu128",
+        "transformers": "5.5.0",
+        "peft": "0.21.0",
+        "trl": "0.24.0",
+        "bitsandbytes": "0.50.2",
+        "accelerate": "1.15.0",
+        "datasets": "4.3.0"
+      },
+      "kind": "install",
+      "t_min": 1.92
+    },
+    {
+      "src": "/kaggle/input/notebooks/devavratpatni/circuit-repro-pilot-v0-sft300/p1/lora-sft300",
+      "files": [
+        "README.md",
+        "adapter_config.json",
+        "adapter_model.safetensors",
+        "chat_template.jinja",
+        "tokenizer.json",
+        "tokenizer_config.json"
+      ],
+      "adapter_sha256": "dc996c22b37c95efe5d18b779f778814e1df13917ada1b5b2632c45ee8502340",
+      "adapter_bytes": 256976504,
+      "kind": "lora",
+      "t_min": 2.05
+    },
+    {
+      "merged_bytes": 29548141883,
+      "merge_s": 534.6,
+      "convert_outtype": "f16",
+      "convert_s": 354.9,
+      "quantize_s": 826.9,
+      "q4_bytes": 9001753440,
+      "q4_sha256": "758be4de6977a430cd7518adf62ba47fef602340a2625fb8b26e59e302af2e4e",
+      "kind": "gguf_ready",
+      "t_min": 31.25
+    },
+    {
+      "expect": "ba756db74efddedcf823d8ce63e2dd62f544f434bc2b1da4fc8a644635f4a820",
+      "got": "758be4de6977a430cd7518adf62ba47fef602340a2625fb8b26e59e302af2e4e",
+      "identical": false,
+      "kind": "gguf_vs_pilot_v0",
+      "t_min": 31.25
+    },
+    {
+      "step": "gen",
+      "model_id": "qwen3-14b-sft300-q4km",
+      "rc": 0,
+      "minutes": 204.8,
+      "out": "/kaggle/working/p1/gen",
+      "n_completions": 1282,
+      "n_valid": 1265,
+      "n_tasks_complete": 641,
+      "gpu_min_sum_requests": 806.49,
+      "kind": "gen_done",
+      "t_min": 236.84
+    }
+  ],
+  "kernel": "gen-sft300",
+  "clone_head": "da29e48915ab300105f9b7e30a6caaaac3d5ac3b",
+  "prereg": "kaggle/PREREG-EXIT-R1.md (573a21a89)",
+  "wall_minutes": 236.9,
+  "cfg": {
+    "tag": "gen-sft300",
+    "kind": "gen",
+    "lora_tag": "sft300",
+    "expect_q4_sha256": "ba756db74efddedcf823d8ce63e2dd62f544f434bc2b1da4fc8a644635f4a820",
+    "model_id": "qwen3-14b-sft300-q4km",
+    "samples": 2,
+    "parallel": 4,
+    "start_deadline_min": 325.0,
+    "hard_wall_min": 335.0,
+    "repo_slug": "Devavavava/circuit-repro",
+    "repo_branch": "worktree-externals-gf180"
+  },
+  "gguf": {
+    "merged_bytes": 29548141883,
+    "merge_s": 534.6,
+    "convert_outtype": "f16",
+    "convert_s": 354.9,
+    "quantize_s": 826.9,
+    "q4_bytes": 9001753440,
+    "q4_sha256": "758be4de6977a430cd7518adf62ba47fef602340a2625fb8b26e59e302af2e4e",
+    "source": "sft-merge",
+    "lora": "../../tmp/p1/lora-sft300"
+  },
+  "server_caps": {
+    "version": "version: 0.3.0-dev (build 1, commit 4d19b28)\nbuilt with GNU 11.4.0 for Linux x86_64"
+  },
+  "server": [
+    {
+      "tag": "gen",
+      "cmd": [
+        "-m",
+        "/tmp/p1/gen-sft300-Q4_K_M.gguf",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8080",
+        "--n-gpu-layers",
+        "999",
+        "--split-mode",
+        "layer",
+        "-c",
+        "65536",
+        "--parallel",
+        "4"
+      ]
+    }
+  ],
+  "probe": {
+    "template_tail": " 17*23? Think step by step.<|im_end|>\n<|im_start|>assistant\n",
+    "p1_head": "<think>\nThe user is asking for the product of 17 and 23. Let me break this down step by step. First, I can use the stand",
+    "p1_tokens": 64,
+    "p1_stop": "limit",
+    "p2_head": "To calculate $ 17 \\times 23 $, we can use the distributive property of multiplication over addition:\n\n### Step-by-step breakdown:\n\n1. **Break down 23 into 20 + 3**:\n   $$\n   17 \\times 23 = 17 \\times (",
+    "p2_tokens": 128
+  }
+}

@@ -1,0 +1,5 @@
+The binding constraint is the noise figure (nf_db), which is failing by a margin of -0.763, indicating that the noise performance is too high. This is likely due to the current-reuse topology in the anchor netlist, which introduces additional noise contributors, particularly from the current mirror and the diode-connected transistors (NM3 and PM2). These components increase the noise floor, especially at the input stage, degrading the noise figure.
+
+To address this, the topology must be restructured to reduce noise contributions. One effective approach is to replace the current-reuse topology with a common-gate (CG) configuration at the input stage, which inherently has lower noise due to the absence of a gate resistor and the direct coupling of the signal to the drain. This change also eliminates the need for complex biasing networks that contribute to noise.
+
+The proposed netlist replaces the current-reuse NMOS and PMOS stages with a CG configuration, simplifies the load structure, and removes unnecessary components like the diode-connected NM3 and PM2. This results in a more noise-efficient topology.

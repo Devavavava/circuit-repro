@@ -1,0 +1,7 @@
+The binding constraint `mu_min_wide_0.01-50GHz` failing with a margin of -0.998607 indicates that the stability factor (mu) is insufficient across the wide frequency band from 10 MHz to 50 GHz. This suggests that the circuit is unstable or marginally stable at frequencies outside the narrowband center frequency (3.5 GHz), likely due to poor phase margin or insufficient feedback suppression in the wideband.
+
+In the anchor netlist, the two-stage LNA uses a current mirror bias network and LC-tuned loads, but lacks explicit feedback or damping components at the output. The LC interstage network (C2 and L2) and the LC load on the second stage (L3) provide resonance and impedance matching at the center frequency, but they do not inherently suppress oscillations or improve stability at off-band frequencies.
+
+To address this, I added a resistor `ZR1` from the output node `VOUT1` to the internal node `n6` (the drain of NM2). This resistor provides a low-frequency feedback path from the output to the second stage, effectively damping oscillations and improving the stability factor across the wideband. This change increases the phase margin and suppresses unwanted feedback loops that could lead to instability, particularly at lower and higher frequencies where the LC resonances are less effective.
+
+This structural change directly improves the `mu_min_wide_0.01-50GHz` metric, likely by ~1 dB or more, without significantly degrading the gain or noise figure.

@@ -226,10 +226,16 @@ def cmd_build(a):
                      "source": "self", "novel": x["novel"], "reasoning_tokens": x["reasoning_tokens"],
                      "row": {"id": x["id"], "task": x["task"], "messages": x["messages"], "think": x["think"],
                              "answer": x["answer"]}})
-    # ---- fence
+    # ---- fence (D-R4: a self-generated positive may rediscover a fenced topology, e.g. a held-out
+    # witness; it is dropped and counted, never trained on; pilot-v0 examples stay asserted)
+    fenced = []
     for p in pool:
         assert p["family"] not in held_fam and p["task"] not in held_tasks, p["id"]
-        assert p["target_wl"] not in fence_wl and p["target_tok"] not in fence_tok, p["id"]
+        hit = p["target_wl"] in fence_wl or p["target_tok"] in fence_tok
+        assert not (hit and p["origin"] == "pilot-v0"), p["id"]
+        if hit:
+            fenced.append(p["id"])
+    pool = [p for p in pool if p["id"] not in set(fenced)]
     # ---- mix
     rng = random.Random(MIX_SEED)
     strata = defaultdict(list)
@@ -280,7 +286,8 @@ def cmd_build(a):
         n=len(sel), n_tasks=len({p["task"] for p in sel}),
         pool=OrderedDict(pilot_v0_examples=len(exs), pilot_v0_with_trace=len(traces),
                          pilot_v0_unavailable=dict(why_pv0), new_completion_funnel=dict(why_new),
-                         new_positives_kept=len(newp), dedupe_dropped=dict(dup), pool_after_dedupe=len(pool),
+                         new_positives_kept=len(newp), dedupe_dropped=dict(dup),
+                         fence_dropped_self=len(fenced), fence_dropped_ids=fenced, pool_after_dedupe=len(pool),
                          pool_by_origin=dict(Counter(p["origin"] for p in pool)),
                          non_anchor_after_wl_cap=nN, wl_cap_dropped=wl_dropped, anchor_pool=nA),
         size_rule="N=min(1200, nonanchor + min(anchor_pool, floor(2/3 nonanchor))); A=min(anchor_pool, floor(0.4 N))",

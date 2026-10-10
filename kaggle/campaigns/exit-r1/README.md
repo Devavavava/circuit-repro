@@ -4,7 +4,8 @@ Pre-registered in `kaggle/PREREG-EXIT-R1.md` (frozen 2026-10-08, commit `573a21a
 **≈ 20 GPU-h** Kaggle budget for this round (separate from pilot-v0 + v1's 30 h); ledger below.
 Held-out eval = pilot-v0's (58 items, split sha `809d4bc7…`, tiers T1 23 / T2 32 / T3 3).
 
-Status (2026-10-08 23:30 IST): step 1 staged; Kaggle weekly GPU quota at start: **used 26.08 h, remaining 3.92 h
+Status (2026-10-10 05:40 IST): gen-sft1000 done + verified (ad9768edf); gen-sft300 pushed 05:39 IST after the quota refresh (30.00 h free, next refresh 10-17).
+Earlier status (2026-10-08 23:30 IST): step 1 staged; Kaggle weekly GPU quota at start: **used 26.08 h, remaining 3.92 h
 of 30.00 h, refresh 2026-10-10 00:00 UTC** (`kaggle quota`). gen-sft1000 fits in the remainder; everything
 else waits for the refresh.
 
@@ -51,6 +52,13 @@ the other 36 have no pilot-v0 example and so no prompt to sample from (listed in
   58 sample-major with pilot-v0's driver and flags, so samples 1 and 2 are produced exactly as pilot-v0's
   2-sample run (same order, same code) and samples 1–8 are pilot-v1's H1 run. One GGUF, one session; saves a
   second ~35-min held-out pass and the D-V4 rebuild.
+
+- **D-R4 fence hits among self-positives are dropped, not fatal.** The model can rediscover a fenced topology
+  (bench-v2 planted cell or held-out witness) on a training task. `r1_build.py` drops such positives and counts them
+  (`MIX.json` `pool.fence_dropped_self` + ids); pilot-v0 examples stay hard-asserted. Dry run on the sft1000 half
+  (2026-10-10): 3 dropped (`t2-nb090-power-1013` s1, `t2-nb240-noise-0327` s1, `t2-wb0530-gain-0284` s2); mix 1,066
+  (pilot-v0 950 + self 116; 104 examples / 92 WLs new vs pilot-v0; anchor share 0.345); self reasoning tokens
+  median 212, 41/116 < 20 (inside the pre-reg's 1..512 filter, recorded not changed).
 
 ## GPU-h ledger (round cap ≈ 20 GPU-h; Kaggle session wall time, rounded up to 0.05 h)
 

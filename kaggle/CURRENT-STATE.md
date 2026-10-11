@@ -5,6 +5,14 @@ Entry point for a fresh session/agent. Read this first, then
 `PLAN-topology-selfimprovement.md` (the direction). Everything else in `kaggle/*.md`
 is historical record (how we got here), not the live state.
 
+> **LATEST (2026-10-11) — supersedes "the live state" below where they conflict.** Verifier =
+> `rl-v1.2` (eval) / `rl-v1.2-rl` (+ kick, training data), `VERIFIER-RL-V1.md`. Benchmark = bench-v2
+> held-out 58 (`campaigns/pilot-v0/eval`, T1 23 / T2 32 / T3 3). Learner = Qwen3-14B QLoRA on Kaggle T4.
+> Chain of results: `PREREG-PILOT-V0.md` (zs 5 → sft1000 28/58) → `PREREG-PILOT-V1.md` (pass@8 headroom
+> 2.4–3.5×; mix fix failed) → `PREREG-EXIT-R1.md` + `campaigns/exit-r1/README.md` (**expert iteration
+> round 1 succeeds: sft-r1 pass@1 .353 vs .297, pass@8 .793 vs .707, 2-sample 37 vs 28**). Next: step
+> review with the user (round 2 = sft-r1 as sole policy, needs a new GPU approval), then online GRPO.
+
 ## The live state
 
 - **Process:** the benchmark runs on **native bptm45 (45 nm)**, NOT gf180. gf180

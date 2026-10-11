@@ -1,0 +1,137 @@
+{
+  "runs": [
+    {
+      "step": "eval",
+      "model_id": "qwen3-14b-sft-r1-q4km",
+      "rc": 0,
+      "minutes": 129.4,
+      "out": "/kaggle/working/p1/gen",
+      "n_completions": 464,
+      "n_valid": 461,
+      "gpu_min": 126.32
+    }
+  ],
+  "events": [
+    {
+      "route": "A",
+      "rc": 0,
+      "versions": {
+        "unsloth": "2026.9.11",
+        "unsloth_zoo": "2026.9.7",
+        "torch": "2.11.0+cu128",
+        "transformers": "5.5.0",
+        "peft": "0.21.0",
+        "trl": "0.24.0",
+        "bitsandbytes": "0.50.2",
+        "accelerate": "1.15.0",
+        "datasets": "4.3.0"
+      },
+      "kind": "install",
+      "t_min": 2.06
+    },
+    {
+      "path": "kaggle/campaigns/exit-r1/sft-data/sft-r1.jsonl",
+      "n": 1200,
+      "sha256": "6899be32cb9353935c44e2cf39077234363a50916aaff1fe0735c21278792e28",
+      "kind": "rows",
+      "t_min": 2.11
+    },
+    {
+      "rc": 0,
+      "minutes": 462.0,
+      "final": {
+        "phase": "done",
+        "steps": 600,
+        "micro": 2400,
+        "truncated": false,
+        "minutes": 459.94,
+        "s_per_micro": 11.5,
+        "t": 1791649720.8
+      },
+      "kind": "train_done",
+      "t_min": 464.13
+    },
+    {
+      "merged_bytes": 29548141883,
+      "merge_s": 402.7,
+      "convert_outtype": "f16",
+      "convert_s": 259.2,
+      "quantize_s": 791.0,
+      "q4_bytes": 9001753440,
+      "q4_sha256": "46a7bef6cef5b03e87ce73cf1eb17eb69fd05ddc56896f5863d68ac7d8a7dfd4",
+      "kind": "gguf_ready",
+      "t_min": 488.93
+    },
+    {
+      "step": "eval",
+      "model_id": "qwen3-14b-sft-r1-q4km",
+      "rc": 0,
+      "minutes": 129.4,
+      "out": "/kaggle/working/p1/gen",
+      "n_completions": 464,
+      "n_valid": 461,
+      "gpu_min": 126.32,
+      "kind": "eval_done",
+      "t_min": 619.28
+    }
+  ],
+  "kernel": "sft-r1",
+  "clone_head": "21b3635dd8426dd736cfefa6d4a540ca81c7aee8",
+  "prereg": "kaggle/PREREG-EXIT-R1.md (573a21a89)",
+  "wall_minutes": 619.3,
+  "cfg": {
+    "tag": "sft-r1",
+    "kind": "sft",
+    "rows": "kaggle/campaigns/exit-r1/sft-data/sft-r1.jsonl",
+    "model_id": "qwen3-14b-sft-r1-q4km",
+    "samples": 8,
+    "train_deadline_min": 480.0,
+    "start_deadline_min": 690.0,
+    "hard_wall_min": 700.0,
+    "repo_slug": "Devavavava/circuit-repro",
+    "repo_branch": "worktree-externals-gf180"
+  },
+  "gguf": {
+    "merged_bytes": 29548141883,
+    "merge_s": 402.7,
+    "convert_outtype": "f16",
+    "convert_s": 259.2,
+    "quantize_s": 791.0,
+    "q4_bytes": 9001753440,
+    "q4_sha256": "46a7bef6cef5b03e87ce73cf1eb17eb69fd05ddc56896f5863d68ac7d8a7dfd4",
+    "source": "sft-merge",
+    "lora": "p1/lora-sft-r1"
+  },
+  "server_caps": {
+    "version": "version: 0.3.0-dev (build 1, commit 4d19b28)\nbuilt with GNU 11.4.0 for Linux x86_64"
+  },
+  "server": [
+    {
+      "tag": "eval",
+      "cmd": [
+        "-m",
+        "/tmp/p1/sft-r1-Q4_K_M.gguf",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8080",
+        "--n-gpu-layers",
+        "999",
+        "--split-mode",
+        "layer",
+        "-c",
+        "16384",
+        "--parallel",
+        "1"
+      ]
+    }
+  ],
+  "probe": {
+    "template_tail": " 17*23? Think step by step.<|im_end|>\n<|im_start|>assistant\n",
+    "p1_head": "<think>\nThe user is asking for the product of 17 and 23. To solve this, I can use the standard multiplication method. Fi",
+    "p1_tokens": 64,
+    "p1_stop": "limit",
+    "p2_head": "To find $ 17 \\times 23 $, break it down step by step:\n\n1. **Multiply 17 by 3**:\n   $$\n   17 \\times 3 = 51\n   $$\n\n2. **Multiply 17 by 20** (since $ 23 = 20 + 3 $):\n   $$\n   17 \\times 20 = 340\n   $$\n\n3.",
+    "p2_tokens": 128
+  }
+}

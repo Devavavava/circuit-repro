@@ -1,0 +1,29 @@
+[p1 sft-r1    0.0m] preflight OK: ['gh token', 'ngspice cache', 'llamacpp cache']
+[p1 sft-r1    0.0m] $ nvidia-smi; free -g; nproc; df -h / /tmp /kaggle/working
+[p1 sft-r1    0.0m] $ /usr/bin/python3 -c import importlib.metadata as m
+for p in ('torch','torchvision','torchaudio'):
+  try: print(p+'=='+m.version(p))
+  except Exception: pass
+[p1 sft-r1    0.0m] $ /usr/bin/python3 -m pip install -q -c /tmp/p1/constraints.txt --only-binary=xformers unsloth==2026.9.11 unsloth_zoo==2026.9.7 transformers==5.5.0 trl==0.24.0 peft==0.21.0 bitsandbytes==0.50.2 accelerate==1.15.0 datasets==4.3.0
+[p1 sft-r1    0.8m] $ /usr/bin/python3 -c import torch, transformers, peft, trl, bitsandbytes, accelerate, unsloth, unsloth_zoo
+import importlib.metadata as m, json
+v={p:m.version(p) for p in ['unsloth','unsloth_zoo','torch','transformers','peft','trl','bitsandbytes','accelerate','datasets']}
+print('VERSIONS_JSON='+json.dumps(v))
+
+[p1 sft-r1    2.1m] EVENT {"route": "A", "rc": 0, "versions": {"unsloth": "2026.9.11", "unsloth_zoo": "2026.9.7", "torch": "2.11.0+cu128", "transformers": "5.5.0", "peft": "0.21.0", "trl": "0.24.0", "bitsandbytes": "0.50.2", "accelerate": "1.15.0", "datasets": "4.3.0"}, "kind": "install", "t_min": 2.06}
+[p1 sft-r1    2.1m] $ pip freeze
+[p1 sft-r1    2.1m] EVENT {"path": "kaggle/campaigns/exit-r1/sft-data/sft-r1.jsonl", "n": 1200, "sha256": "6899be32cb9353935c44e2cf39077234363a50916aaff1fe0735c21278792e28", "kind": "rows", "t_min": 2.11}
+[p1 sft-r1    2.1m] $ (stream) /usr/bin/python3 /tmp/circuit-repro/kaggle/campaigns/pilot-v0/P1/sft_train.py --rows /tmp/circuit-repro/kaggle/campaigns/exit-r1/sft-data/sft-r1.jsonl --out-lora /kaggle/working/p1/lora-sft-r1 --log /kaggle/working/p1/train.jsonl --model unsloth/Qwen3-14B-unsloth-bnb-4bit --deadline-epoch 1791650680
+[p1 sft-r1  464.1m] EVENT {"rc": 0, "minutes": 462.0, "final": {"phase": "done", "steps": 600, "micro": 2400, "truncated": false, "minutes": 459.94, "s_per_micro": 11.5, "t": 1791649720.8}, "kind": "train_done", "t_min": 464.13}
+[p1 sft-r1  464.1m] $ /usr/bin/python3 /tmp/circuit-repro/kaggle/campaigns/pilot-v0/P1/sft_merge.py /kaggle/working/p1/lora-sft-r1 /tmp/p1/merged-sft-r1
+[p1 sft-r1  470.8m] $ /usr/bin/python3 /tmp/llama.cpp/convert_hf_to_gguf.py /tmp/p1/merged-sft-r1 --outtype f16 --outfile /tmp/p1/sft-r1-f16.gguf
+[p1 sft-r1  475.2m] $ /tmp/llama.cpp/build/bin/llama-quantize /tmp/p1/sft-r1-f16.gguf /tmp/p1/sft-r1-Q4_K_M.gguf Q4_K_M 4
+[p1 sft-r1  488.9m] EVENT {"merged_bytes": 29548141883, "merge_s": 402.7, "convert_outtype": "f16", "convert_s": 259.2, "quantize_s": 791.0, "q4_bytes": 9001753440, "q4_sha256": "46a7bef6cef5b03e87ce73cf1eb17eb69fd05ddc56896f5863d68ac7d8a7dfd4", "kind": "gguf_ready", "t_min": 488.93}
+[p1 sft-r1  488.9m] $ (stream) bash /tmp/circuit-repro/kaggle/bootstrap.sh
+[p1 sft-r1  489.5m] $ cp -r /kaggle/input/datasets/devavratpatni/circuit-repro-llamacpp-cuda/llamacpp/llamacpp /kaggle/working
+[p1 sft-r1  489.6m] $ chmod +x /kaggle/working/llamacpp/bin/* || true
+[p1 sft-r1  489.7m] launching: /kaggle/working/llamacpp/bin/llama-server -m /tmp/p1/sft-r1-Q4_K_M.gguf --host 127.0.0.1 --port 8080 --n-gpu-layers 999 --split-mode layer -c 16384 --parallel 1
+[p1 sft-r1  489.8m] llama-server healthy after 6.1s
+[p1 sft-r1  489.9m] two-phase probe: {"template_tail": " 17*23? Think step by step.<|im_end|>\n<|im_start|>assistant\n", "p1_head": "<think>\nThe user is asking for the product of 17 and 23. To solve this, I can use the standard multiplication method. Fi", "p1_tokens": 64, "p1_stop": "limit", "p2_head": "To find $ 17 \\times 23 $, break it down step by step:\n\n1. **Multiply 17 by 3**:\n   $$\n   17 \\times 3 = 51\n   $$\n\n2. **Multiply 17 by 20** (since $ 23 = 20 + 3 $):\n   $$\n   17 \\times 20 = 340\n   $$\n\n3.", "p2_tokens": 128}
+[p1 sft-r1  489.9m] $ (stream) bash -c source /kaggle/working/env-kaggle.sh && exec /usr/bin/python3 /tmp/circuit-repro/kaggle/campaigns/pilot-v0/P1/p1_gen.py heldout --prompts /tmp/circuit-repro/kaggle/campaigns/pilot-v0/P1/prompts --out /kaggle/working/p1/gen --samples 8 --model-id qwen3-14b-sft-r1-q4km --llm-url http://127.0.0.1:8080/v1 --deadline-epoch 1791663280 --limit 0
+[p1 sft-r1  619.3m] EVENT {"step": "eval", "model_id": "qwen3-14b-sft-r1-q4km", "rc": 0, "minutes": 129.4, "out": "/kaggle/working/p1/gen", "n_completions": 464, "n_valid": 461, "gpu_min": 126.32, "kind": "eval_done", "t_min": 619.28}

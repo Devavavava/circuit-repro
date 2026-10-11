@@ -66,4 +66,26 @@ the other 36 have no pilot-v0 example and so no prompt to sample from (listed in
 |---|---|---|---|---|---|---|
 | gen-sft1000 | 1 | `da29e4891` | 2026-10-08 23:04 | 10-09 02:05 | 3.05 | GGUF 29.9 min (sha `e3404d0d…` ≠ pilot-v0 `7f0c5921…`, D-V4); 1282 completions (641 tasks × 2, none cut) in 149.0 min at 4 slots = 7.0 s/completion (1.73× pilot-v1's 12.1 s); Kaggle quota 26.08 → 29.08 h |
 | gen-sft300 | 1 | `da29e4891` | 2026-10-10 05:39 | 10-10 ~09:37 | 3.95 | session 237 min; 1282 completions (641 tasks × 2, none cut, 1265 valid) in 204.8 min at 4 slots = 9.6 s/completion; Kaggle quota (new week) 0 → 3.95 h |
-| **exit-r1 total** | | | | | **7.00** | of ≈ 20 |
+| sft-r1 | 1 | `21b3635dd` | 2026-10-10 14:14 | 10-11 ~00:30 | 10.33 | 1200 ex., 600 steps / 2 epochs in 460 min (not truncated); merge+f16+Q4_K_M 24.2 min (sha `46a7bef6…`); held-out 464 completions (8 × 58, 461 valid) in 129.4 min; quota 3.95 → 14.28 h |
+| **exit-r1 total** | | | | | **17.33** | of ≈ 20 (no further Kaggle work in this round) |
+
+## RESULT (2026-10-11) — round 1 SUCCEEDS by the pre-registered rule
+
+Scoring: `pv1_score.py` (PV1_SCORE_DIR = `exit-r1/score`) `enumerate r1-8` (all 8 samples) and `r1-2` (samples 1–2,
+D-R3), `run 8 all3 r1-2`, `run 8 h1 r1-8`; `r1_verify.py kick 8 score r1-8,r1-2`; `r1_summarize.py heldout r1-2 r1-8`
+→ `score/r1-tables.md`, `score/r1-summary.json`. No missing rows. sft300 / sft1000 rows reproduce pilot-v1 / pilot-v0.
+
+| model | pass@1 | pass@8 | coverage (any of 8) | 2-sample solved | T1 /23 | T2 /32 | T3 /3 |
+|---|---|---|---|---|---|---|---|
+| sft300 | 0.177 | 0.621 | 36 | 28 | 10 | 18 | 0 |
+| sft1000 | 0.297 | 0.707 | 41 | 28 | 19 | 8 | 1 |
+| **sft-r1** | **0.353** | **0.793** | **46** | **37** | **19** | **16** | **2** |
+
+- Decision: pass@1 0.353 > 0.297 ✔, pass@8 0.793 > 0.707 ✔, tier losses vs sft1000 T1 0 / T2 −8 / T3 −1 (all < 3) ✔.
+- Paired bootstrap over the 58 tasks (20k resamples, not pre-registered): pass@1 gain +0.056, 95% CI [+0.002, +0.112];
+  22 tasks better / 15 worse / 21 tied. Real but modest.
+- One model now covers 42 of the 49 tasks of the two-specialist union plus 4 new (`t2-nb090-noise-0254/0286/0363`,
+  `v2b-wb0824-gain-188`); union of all three = 53/58. T2 (single-edit) recovers to sft300's level while keeping
+  sft1000's T1.
+- Kick column (rl-v1.2-rl): changes one sft-r1 T1 sample (pass@1 0.353 → 0.351); no coverage change.
+- Copying: 196/461 valid held-out outputs (42.5%) equal one of its own training targets (277 distinct WLs).

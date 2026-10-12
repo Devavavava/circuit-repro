@@ -95,7 +95,7 @@ def main_gen(tok, clone, head):
 def main(cfg, tok, clone, head):
     KC.CFG.update(cfg)
     os.makedirs(KC.OUT, exist_ok=True)
-    KC.MAN.update(kernel=cfg["tag"], clone_head=head, prereg=PREREG)
+    KC.MAN.update(kernel=cfg["tag"], clone_head=head, prereg=cfg.get("prereg", PREREG))
     rc = 0
     try:
         {"gen": main_gen, "sft": KC.main_sft}[cfg["kind"]](tok, clone, head)

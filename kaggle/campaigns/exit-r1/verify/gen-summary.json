@@ -173,13 +173,92 @@
     "recovered": 0,
     "llm_errors": 0
    }
+  },
+  "sft-r1": {
+   "all": {
+    "tasks": 641,
+    "completions": 1282,
+    "valid": 1277,
+    "unique_keys": 1215,
+    "seed1_feasible": 511,
+    "positives": 415,
+    "positive_tasks": 313,
+    "positive_unique": 379,
+    "novel_positives": 190,
+    "novel_positive_wls": 123,
+    "own_target_copies": 200,
+    "anchor_positives": 200,
+    "valid_novel": 877,
+    "valid_own_copy": 217,
+    "valid_anchor": 332,
+    "seed2_confirm_rate": 0.8121
+   },
+   "library-solvable": {
+    "tasks": 364,
+    "completions": 728,
+    "valid": 727,
+    "unique_keys": 685,
+    "seed1_feasible": 398,
+    "positives": 341,
+    "positive_tasks": 250,
+    "positive_unique": 305,
+    "novel_positives": 130,
+    "novel_positive_wls": 75,
+    "own_target_copies": 200,
+    "anchor_positives": 200,
+    "valid_novel": 471,
+    "valid_own_copy": 217,
+    "valid_anchor": 229,
+    "seed2_confirm_rate": 0.8568
+   },
+   "single-edit-solvable": {
+    "tasks": 9,
+    "completions": 18,
+    "valid": 18,
+    "unique_keys": 18,
+    "seed1_feasible": 10,
+    "positives": 10,
+    "positive_tasks": 8,
+    "positive_unique": 10,
+    "novel_positives": 9,
+    "novel_positive_wls": 9,
+    "own_target_copies": 0,
+    "anchor_positives": 0,
+    "valid_novel": 16,
+    "valid_own_copy": 0,
+    "valid_anchor": 0,
+    "seed2_confirm_rate": 1.0
+   },
+   "witness-only": {
+    "tasks": 268,
+    "completions": 536,
+    "valid": 532,
+    "unique_keys": 512,
+    "seed1_feasible": 103,
+    "positives": 64,
+    "positive_tasks": 55,
+    "positive_unique": 64,
+    "novel_positives": 51,
+    "novel_positive_wls": 43,
+    "own_target_copies": 0,
+    "anchor_positives": 0,
+    "valid_novel": 390,
+    "valid_own_copy": 0,
+    "valid_anchor": 103,
+    "seed2_confirm_rate": 0.6214
+   },
+   "think": {
+    "stop": {
+     "word": 1282
+    },
+    "think_tokens_median": 234,
+    "think_tokens_max": 416,
+    "reasoning_tokens_lt20": 147,
+    "reasoning_tokens_gt512": 0,
+    "recovered": 0,
+    "llm_errors": 0
+   }
   }
  },
- "missing_rows": {},
- "positive_task_overlap": {
-  "both": 87,
-  "union": 357,
-  "only_first": 222,
-  "only_second": 48
- }
+ "missing_rows": {}
 }

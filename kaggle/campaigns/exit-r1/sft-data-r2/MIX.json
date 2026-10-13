@@ -1,0 +1,141 @@
+{
+ "prereg": "kaggle/PREREG-EXIT-R1.md (573a21a89) step 3",
+ "seed": 20261008,
+ "policies": [
+  "sft-r1",
+  "sft1000",
+  "sft300"
+ ],
+ "n": 1200,
+ "n_tasks": 591,
+ "pool": {
+  "pilot_v0_examples": 1013,
+  "pilot_v0_with_trace": 998,
+  "pilot_v0_unavailable": {
+   "not_rationalized": 9,
+   "no_kept_trace": 6
+  },
+  "new_completion_funnel": {
+   "infeasible_seed1": 2589,
+   "positive": 1015,
+   "pos_kept": 1014,
+   "infeasible_seed2": 208,
+   "invalid": 34,
+   "pos_filtered:recovered_or_error": 1
+  },
+  "new_positives_kept": 1014,
+  "dedupe_dropped": {
+   "new_dup": 23,
+   "pilot-v0_or_earlier": 458
+  },
+  "fence_dropped_self": 16,
+  "fence_dropped_ids": [
+   "t2-nb158-gain-1044:r1:sft-r1:s1",
+   "t2-nb240-noise-0327:r1:sft-r1:s1",
+   "t2-nb240-noise-0343:r1:sft-r1:s2",
+   "t2-nb240-noise-1250:r1:sft-r1:s1",
+   "t2-nb240-noise-1425:r1:sft-r1:s1",
+   "t2-nb240-power-0345:r1:sft-r1:s2",
+   "t2-nb240-power-1402:r1:sft-r1:s2",
+   "t2-nb350-gain-0361:r1:sft-r1:s1",
+   "t2-nb350-gain-1051:r1:sft-r1:s2",
+   "t2-nb350-gain-1310:r1:sft-r1:s1",
+   "t2-nb090-power-1013:r1:sft1000:s1",
+   "t2-nb240-noise-0327:r1:sft1000:s1",
+   "t2-wb0530-gain-0284:r1:sft1000:s2",
+   "t2-nb158-gain-1421:r1:sft300:s2",
+   "t2-nb158-gain-1422:r1:sft300:s2",
+   "t2-nb240-power-1222:r1:sft300:s2"
+  ],
+  "pool_after_dedupe": 1515,
+  "pool_by_origin": {
+   "pilot-v0": 998,
+   "self:sft-r1": 208,
+   "self:sft1000": 164,
+   "self:sft300": 145
+  },
+  "non_anchor_after_wl_cap": 974,
+  "wl_cap_dropped": 173,
+  "anchor_pool": 368
+ },
+ "size_rule": "N=min(1200, nonanchor + min(anchor_pool, floor(2/3 nonanchor))); A=min(anchor_pool, floor(0.4 N))",
+ "N": 1200,
+ "A": 368,
+ "anchor_share": 0.3067,
+ "by_origin": {
+  "pilot-v0": 859,
+  "self:sft300": 112,
+  "self:sft1000": 92,
+  "self:sft-r1": 137
+ },
+ "by_source": {
+  "witness": 487,
+  "self": 341,
+  "single-edit": 7,
+  "library": 365
+ },
+ "by_anchor": {
+  "-": 832,
+  "a1": 263,
+  "a4": 12,
+  "a2": 91,
+  "a5": 2
+ },
+ "by_stratum": {
+  "narrowband/library-solvable": 672,
+  "narrowband/witness-only": 99,
+  "wideband/library-solvable": 202,
+  "wideband/single-edit-solvable": 21,
+  "wideband/witness-only": 206
+ },
+ "by_band_type": {
+  "narrowband": 771,
+  "wideband": 429
+ },
+ "by_difficulty": {
+  "library-solvable": 874,
+  "witness-only": 305,
+  "single-edit-solvable": 21
+ },
+ "by_family": {
+  "nb240-noise": 163,
+  "nb240-power": 166,
+  "nb350-gain": 188,
+  "nb158-gain": 150,
+  "nb090-power": 104,
+  "wb0824-power": 140,
+  "wb0824-noise": 150,
+  "wb0530-gain": 139
+ },
+ "novel_target_examples": 325,
+ "novel_target_wls": 270,
+ "distinct_target_wl": 662,
+ "max_per_nonanchor_wl": 3,
+ "per_nonanchor_wl_hist": {
+  "1": 541,
+  "2": 60,
+  "3": 57
+ },
+ "new_reasoning_tokens": {
+  "n": 341,
+  "min": 1,
+  "median": 227,
+  "max": 413,
+  "lt20": 41
+ },
+ "alloc_nonanchor": {
+  "narrowband/library-solvable": 372,
+  "narrowband/witness-only": 99,
+  "wideband/library-solvable": 134,
+  "wideband/single-edit-solvable": 21,
+  "wideband/witness-only": 206
+ },
+ "alloc_anchor": {
+  "narrowband/library-solvable": 300,
+  "wideband/library-solvable": 68
+ },
+ "fence": "asserted: no held-out family/task/strict cell; target WL/token hash not in pv0's fence (bench-v2 planted cells any status + held-out witnesses); 436 WLs / 437 token hashes",
+ "sft_file": "kaggle/campaigns/exit-r1/sft-data-r2/sft-r2.jsonl",
+ "sft_sha256": "0f89397254b4cf04b7a9d3b32079888d2a6ad564f7b0fbd42ff1214f2545c327",
+ "train_all_sha256": "86b5cf02fdfe8d050982953557e844cfe181866b76420f4bdbf8acdf5a49f414"
+}

@@ -10,8 +10,12 @@ is historical record (how we got here), not the live state.
 > held-out 58 (`campaigns/pilot-v0/eval`, T1 23 / T2 32 / T3 3). Learner = Qwen3-14B QLoRA on Kaggle T4.
 > Chain of results: `PREREG-PILOT-V0.md` (zs 5 → sft1000 28/58) → `PREREG-PILOT-V1.md` (pass@8 headroom
 > 2.4–3.5×; mix fix failed) → `PREREG-EXIT-R1.md` + `campaigns/exit-r1/README.md` (**expert iteration
-> round 1 succeeds: sft-r1 pass@1 .353 vs .297, pass@8 .793 vs .707, 2-sample 37 vs 28**). Next: step
-> review with the user (round 2 = sft-r1 as sole policy, needs a new GPU approval), then online GRPO.
+> round 1 succeeds: sft-r1 pass@1 .353 vs .297, pass@8 .793 vs .707, 2-sample 37 vs 28**) →
+> `PREREG-EXIT-R2.md` (**round 2 FAILS: pass@1 .392 but pass@8 .741, coverage 43 vs 46; diversity collapse,
+> copies 42% → 62%** ⇒ expert iteration plateaued; best model = sft-r1). Critical caveat: the held-out bench
+> is inside brute-force reach (55/58 library or single edit; sft-r1 ≈ 2× a random prior over that space).
+> Next: review with the user — frontier-LLM reference + GA search baseline + a harder/realer bench before
+> any GRPO.
 
 ## The live state
 

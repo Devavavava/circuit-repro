@@ -2,7 +2,7 @@
 """exit-r1 step 3: round-1 SFT data (kaggle/PREREG-EXIT-R1.md step 3). Local, read-only on
 pilot-v0 / pilot-v1 / verify outputs.
 
-  r1_build.py build [--policies sft1000,sft300] [--out DIR]
+  r1_build.py build [--policies sft1000,sft300] [--out DIR] [--name sft-r1]
 
 Pool
   * pilot-v0's 1,013 verified examples (data/train-all.jsonl) with their existing rationale:
@@ -271,7 +271,7 @@ def cmd_build(a):
     tw = Counter(p["target_wl"] for p in sel if not p["anchor"])
     assert not tw or max(tw.values()) <= WL_CAP
     os.makedirs(a.out, exist_ok=True)
-    fn = os.path.join(a.out, "sft-r1.jsonl")
+    fn = os.path.join(a.out, a.name + ".jsonl")
     with open(fn, "w") as fh:
         for p in sel:
             fh.write(json.dumps(p["row"]) + "\n")
@@ -321,5 +321,6 @@ if __name__ == "__main__":
     ap.add_argument("cmd", choices=["build"])
     ap.add_argument("--policies", default="sft1000,sft300")
     ap.add_argument("--out", default=os.path.join(HERE, "sft-data"))
+    ap.add_argument("--name", default="sft-r1")          # output <out>/<name>.jsonl
     a = ap.parse_args()
     cmd_build(a)

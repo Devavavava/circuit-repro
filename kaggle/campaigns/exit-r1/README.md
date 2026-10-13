@@ -98,6 +98,26 @@ Round-2 GPU-h ledger (round cap ≈ 15 GPU-h; week of 2026-10-10 had 15.72 h lef
 |---|---|---|---|---|---|---|
 | gen-sft-r1 | 1 | `df320e994`+pin | 2026-10-12 11:38 | 10-13 06:20 | 0.00 | queued ~18.7 h on Kaggle, then ERROR at start with an empty log; no quota consumed; re-pushed unchanged |
 | gen-sft-r1 | 2 | same | 2026-10-13 06:33 | ~11:40 | 3.60 | 1282 completions (641 tasks × 2, 1277 valid) in 186.3 min at 4 slots; GGUF rebuilt sha `6df25b88…` ≠ sft-r1 eval GGUF `46a7bef6…` (D-V4 again: rebuilds are not bit-identical); quota 14.28 → 17.88 h |
-| **round-2 total** | | | | | **3.60** | |
+| sft-r2 | 1 | `b576a7acc` | 2026-10-13 16:33 | 10-14 ~02:20 | 9.88 | 1200 ex.; **training hit train_deadline 480 min at step 586/600 (97.7%, last 14 steps of the linear decay dropped, recorded per pre-reg)**, 12.18 s/micro vs 11.5; GGUF sha `d564538c…`; held-out 464 completions (462 valid) in 86.5 min; quota 17.88 → 27.76 h |
+| **round-2 total** | | | | | **13.48** | of ≈ 15 |
 
 Enumerate: 1277 valid, 877 of them novel vs pilot-v0 WLs (sft1000 653, sft300 1242 in round 1).
+
+## Round 2 RESULT (2026-10-14) — FAILS the pre-registered rule ⇒ expert iteration has plateaued
+
+`r1_summarize.py heldout-r2 r1-2 r1-8 r2-2 r2-8` → `score/r2-tables.md`, `score/r2-summary.json`; no missing rows.
+
+| model | pass@1 | pass@8 | coverage (any of 8) | 2-sample solved | T1 /23 | T2 /32 | T3 /3 | copies of own training targets | distinct WLs (8×58) |
+|---|---|---|---|---|---|---|---|---|---|
+| sft-r1 | 0.353 | **0.793** | **46** | **37** | 19 | 16 | 2 | 196/461 (42.5%) | 277 |
+| sft-r2 | **0.392** | 0.741 | 43 | 35 | 19 | 15 | 1 | 288/462 (62.3%) | 192 |
+
+- Primary: pass@1 ✔ (0.392 > 0.353), **pass@8 ✘ (0.741 < 0.793)**, tiers ✔ (T1 0 / T2 −1 / T3 −1) ⇒ round 2 does NOT succeed.
+- Secondary: paired bootstrap pass@1 +0.039, 95% CI [−0.022, +0.099] (23 better / 19 worse) ⇒ no clear gain.
+- Pattern = sharpening / diversity collapse: per-tier pass@1 T1 .554 → .636 (better retrieval of the 5 library
+  circuits), T2 pass@8 .719 → .625 and coverage 23 → 20 (fewer edit hypotheses); copy rate 42% → 62%, distinct
+  topologies 277 → 192. The one novel T3 solve of sft-r1 (`v2b-wb0824-gain-188`) is lost; sft-r2 gains
+  `v2b-wb1020-noise-217` (a topology sft1000 also produced).
+- Caveat: sft-r2's training was truncated at 97.7% of steps (tail of the LR decay); unlikely to explain a pass@8
+  drop of this size, but recorded.
+- Per PREREG-EXIT-R2: stop iterating; review with the user before any further RL (GRPO) or round 3.

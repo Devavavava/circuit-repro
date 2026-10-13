@@ -293,9 +293,84 @@ def eval_(label2, label8):
     print("\n".join(L))
 
 
+def boot_pass1(per_a, per_b, n=20000, seed=0):
+    """kaggle/PREREG-EXIT-R2.md secondary: paired bootstrap over items of pass@1(a) - pass@1(b)."""
+    import random
+    ts = sorted(set(per_a) & set(per_b))
+    d = [per_a[t]["c"] / per_a[t]["n"] - per_b[t]["c"] / per_b[t]["n"] for t in ts]
+    rng = random.Random(seed)
+    bs = sorted(sum(d[rng.randrange(len(d))] for _ in d) / len(d) for _ in range(n))
+    return OrderedDict(n_items=len(ts), diff=round(sum(d) / len(d), 4), ci95=[round(bs[int(0.025 * n)], 4),
+                       round(bs[int(0.975 * n)], 4)], p_le0=round(sum(1 for x in bs if x <= 0) / n, 4),
+                       better=sum(1 for x in d if x > 0), worse=sum(1 for x in d if x < 0))
+
+
+def eval_r2(r1_2, r1_8, r2_2, r2_8):
+    """kaggle/PREREG-EXIT-R2.md steps 5-6: sft-r2 vs sft-r1 (both scored in exit-r1/score)."""
+    S = _pv1()
+    it = S.items()
+    sm = S.score_map(os.path.join(SCR, "score.jsonl"))
+    km = kmap(os.path.join(SCR, "kick.jsonl"))
+    res = OrderedDict(prereg="kaggle/PREREG-EXIT-R2.md steps 5-6", h1=OrderedDict(), two_sample=OrderedDict(),
+                      missing=OrderedDict())
+    per_h1, per_2 = {}, {}
+    for lab, l8, l2 in (("sft-r1", r1_8, r1_2), ("sft-r2", r2_8, r2_2)):
+        g, per, miss = h1_model(S, rj(os.path.join(SCR, l8, "completions.jsonl")), sm, km, it)
+        res["h1"][lab], res["missing"]["h1:" + lab], per_h1[lab] = g, miss, per
+        g, per, miss = two_model(rj(os.path.join(SCR, l2, "completions.jsonl")), sm, km, it)
+        res["two_sample"][lab], res["missing"]["2s:" + lab], per_2[lab] = g, miss, per
+    H, T = res["h1"], res["two_sample"]
+    loss = {t: T["sft-r1"][t]["solved"] - T["sft-r2"][t]["solved"] for t in TIERS}
+    dec = OrderedDict(
+        pass1_r2=H["sft-r2"]["all"]["rl-v1.2"]["pass@1"], pass1_r1=H["sft-r1"]["all"]["rl-v1.2"]["pass@1"],
+        pass8_r2=H["sft-r2"]["all"]["rl-v1.2"]["pass@8"], pass8_r1=H["sft-r1"]["all"]["rl-v1.2"]["pass@8"],
+        tier_loss_vs_sft_r1=loss)
+    dec["cond_pass1"] = dec["pass1_r2"] is not None and dec["pass1_r2"] > dec["pass1_r1"]
+    dec["cond_pass8"] = dec["pass8_r2"] is not None and dec["pass8_r2"] > dec["pass8_r1"]
+    dec["cond_tiers"] = all(v < 3 for v in loss.values())
+    dec["round2_succeeds"] = dec["cond_pass1"] and dec["cond_pass8"] and dec["cond_tiers"]
+    dec["bootstrap_pass1_r2_minus_r1"] = boot_pass1(per_h1["sft-r2"], per_h1["sft-r1"])
+    dec["clear_gain"] = dec["round2_succeeds"] and dec["bootstrap_pass1_r2_minus_r1"]["ci95"][0] > 0
+    cov = {lab: {t for t, r in per.items() if r["c"]} for lab, per in per_h1.items()}
+    dec["coverage_any_of_8"] = {lab: len(v) for lab, v in cov.items()}
+    dec["r2_only"] = sorted(cov["sft-r2"] - cov["sft-r1"])
+    dec["r1_only"] = sorted(cov["sft-r1"] - cov["sft-r2"])
+    res["decision"] = dec
+    ip = os.path.join(HERE, "sft-data-r2", "ids.json")
+    own = {x["target_wl"] for x in json.load(open(ip))} if os.path.exists(ip) else set()
+    v = [c for c in rj(os.path.join(SCR, r2_8, "completions.jsonl")) if c.get("valid")]
+    res["copy_h1_r2"] = OrderedDict(valid=len(v), own_target_copies=sum(1 for c in v if c.get("wl") in own),
+                                    distinct_wl=len({c.get("wl") for c in v}))
+    res["per_item_h1"], res["per_item_2s"] = per_h1, per_2
+    json.dump(res, open(os.path.join(SCR, "r2-summary.json"), "w"), indent=1)
+    L = ["### H1 protocol (8 samples; pass = valid & feasible at seed 1); [kick column: rl-v1.2-rl]", "",
+         "| model | group | pass@1 | pass@2 | pass@4 | pass@8 | coverage | kick pass@1 | kick pass@8 | kick coverage |",
+         "|---|---|---|---|---|---|---|---|---|---|"]
+    for lab in ("sft-r1", "sft-r2"):
+        for grp in ("all",) + TIERS:
+            a, k = H[lab][grp]["rl-v1.2"], H[lab][grp]["rl-v1.2-rl"]
+            L.append("| %s | %s (%d) | %s | %s | %s | %s | %d | %s | %s | %d |" % (
+                lab, grp, H[lab][grp]["n_items"], a["pass@1"], a["pass@2"], a["pass@4"], a["pass@8"],
+                a["coverage"], k["pass@1"], k["pass@8"], k["coverage"]))
+    L += ["", "### 2-sample protocol (pilot-v0: solved = some sample feasible at >= 1 of seeds 1-3)", "",
+          "| model | solved | >= 2/3 seeds | T1 /23 | T2 /32 | T3 /3 | validity | solved under kick |",
+          "|---|---|---|---|---|---|---|---|"]
+    for lab in ("sft-r1", "sft-r2"):
+        x = T[lab]
+        L.append("| %s | %d | %d | %d | %d | %d | %s | %d |" % (
+            lab, x["all"]["solved"], x["all"]["solved_2of3"], x["T1"]["solved"], x["T2"]["solved"],
+            x["T3"]["solved"], x["all"]["validity"], x["all"]["solved_kick"]))
+    L += ["", "Decision: " + json.dumps(dec), "", "Copy: " + json.dumps(res["copy_h1_r2"]),
+          "", "Missing rows: " + json.dumps(res["missing"])]
+    open(os.path.join(SCR, "r2-tables.md"), "w").write("\n".join(L) + "\n")
+    print("\n".join(L))
+
+
 if __name__ == "__main__":
     a = sys.argv[1:]
     if a[0] == "gen":
         gen(a[1].split(",") if len(a) > 1 else ["sft1000", "sft300"])
     elif a[0] == "heldout":
         eval_(a[1], a[2])
+    elif a[0] == "heldout-r2":
+        eval_r2(a[1], a[2], a[3], a[4])

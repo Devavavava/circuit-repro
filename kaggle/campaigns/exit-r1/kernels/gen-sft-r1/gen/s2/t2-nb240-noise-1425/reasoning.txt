@@ -1,0 +1,5 @@
+The binding constraint is the stability factor `mu_min_wide_0.01-50GHz`, which is negative, indicating instability over a wide frequency range. This is likely due to the LC interstage network (L2 and C2) creating a resonant feedback path that destabilizes the second stage (NM2) at off-band frequencies. The current topology lacks sufficient damping or phase margin control in the interstage network, leading to a low stability factor.
+
+To address this, I propose adding a small capacitor (ZC1) between VDD and the interstage node (n4), which introduces a damping effect at higher frequencies, reducing the feedback loop's gain and improving the stability factor. Additionally, I add a resistor (ZR2) between the first stage's drain (n2) and the second stage's source (n5), which helps to decouple the stages and reduce unwanted feedback paths. Finally, I replace the interstage inductor (L2) with a resistor (ZR3) to suppress resonant peaks and improve phase margin at off-band frequencies.
+
+These changes modify the interstage network to suppress resonant feedback and improve stability without compromising gain or noise performance.

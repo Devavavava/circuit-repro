@@ -1,0 +1,5 @@
+The binding constraint, `mu_min_wide_0.01-50GHz`, measures the stability of the LNA over a wide frequency range. The failure indicates that the circuit is unstable outside the narrowband design frequency, likely due to the lack of a feedback mechanism to dampen oscillations. This is particularly problematic in the second stage, where the absence of a stabilizing component allows for potential phase shifts that reduce stability margins across the band.
+
+To address this, I added a feedback path from the output to the gate of the second stage transistor (NM2) using a capacitor (ZC1) and a resistor (ZR1) to ground. This creates a low-frequency feedback loop that helps stabilize the circuit over a wider range of frequencies. Additionally, I added a capacitor (ZC2) from the output of the first stage to the input of the second stage, which helps reduce phase shifts and improve the stability margin by providing a controlled path for signal feedback.
+
+These changes enhance the stability of the LNA without significantly affecting the gain or noise figure, as they are designed to operate primarily at lower frequencies where stability is most critical.

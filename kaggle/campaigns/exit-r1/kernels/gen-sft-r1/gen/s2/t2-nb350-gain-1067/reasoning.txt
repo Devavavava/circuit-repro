@@ -1,0 +1,5 @@
+The binding constraint `mu_min_wide_0.01-50GHz` measures the stability of the LNA across a wide frequency range. The failure indicates that the circuit is unstable at frequencies outside the narrowband center frequency (f0=3.5 GHz), likely due to the lack of a feedback mechanism or impedance mismatch in the interstage network. The original topology uses an LC interstage network (L2 and C2), which may resonate poorly or introduce phase shifts that destabilize the system at off-band frequencies.
+
+To address this, I added a feedback path from the output of the second stage (n6) to the bias network (n7) using a resistor (Rrep1). This introduces a low-frequency feedback path that helps maintain stability across the wideband range. The resistor Rrep1 provides a controlled impedance path from the second-stage output to the bias node, which helps dampen unwanted oscillations and improve the stability margin (mu_min) at off-band frequencies.
+
+This structural change directly addresses the instability by adding a feedback element that was absent in the original topology, ensuring the LNA remains stable across the entire 0.01–50 GHz range.

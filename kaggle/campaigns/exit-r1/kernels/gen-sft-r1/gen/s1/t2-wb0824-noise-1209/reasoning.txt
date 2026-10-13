@@ -1,0 +1,5 @@
+The binding constraint failing is `mu_min_wide_0.01-50GHz`, which measures the minimum stability factor across a wideband range. The failure indicates that the circuit is unstable at some frequencies within this range, likely due to poor feedback or impedance mismatch in the feedback path. In the original netlist, the feedback path from the output to the input is through the shared DC path, which may introduce parasitic feedback and degrade stability, especially at higher frequencies.
+
+To address this, I redesigned the feedback path to be independent of the DC path. This is achieved by introducing a new internal node `n6` and connecting it to the output through a capacitor `C2`, ensuring that the feedback path is AC-coupled and does not interfere with the DC biasing. Additionally, the feedback network is restructured to use a separate current mirror (`NM3`) and resistor (`R2`) to provide a more controlled and stable feedback path.
+
+These changes improve the stability factor across the wideband range by isolating the feedback from DC components and ensuring a more predictable and stable AC response.

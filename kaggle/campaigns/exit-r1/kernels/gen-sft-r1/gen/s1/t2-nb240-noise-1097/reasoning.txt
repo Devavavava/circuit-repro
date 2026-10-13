@@ -1,0 +1,5 @@
+The binding constraint is the stability factor `mu_min_wide_0.01-50GHz`, which is negative, indicating instability over a wide frequency range. This is caused by the interstage LC network (L2 and C2) and the lack of sufficient feedback or damping in the second stage. The current topology allows for excessive phase shift and resonance at off-band frequencies, leading to potential oscillation.
+
+To address this, the interstage LC network is replaced with a series inductor (L2) and a capacitor (C2) connected to a new internal node (n4). This change alters the feedback path and introduces a more controlled impedance at the second stage's input, reducing the risk of instability. Additionally, the second stage's gate is now connected to a new internal node (n5) instead of the original node (n4), which helps in isolating the second stage from the interstage LC resonance and improves the stability margin.
+
+The output capacitor (C3) is reconnected from the second stage's drain (n6) to the output (VOUT1), ensuring a clean signal path without introducing additional resonances. The bias network remains unchanged, as it is not the source of instability.

@@ -1,0 +1,3 @@
+The binding constraint is the stability factor `mu_min_wide_0.01-50GHz`, which is below the required minimum of 1.0. This indicates that the circuit is unstable over a wide frequency range, likely due to the feedback path between the second stage and the first stage, or between the output and the input. The interstage LC network may be creating a resonant feedback path that reduces the stability margin at off-band frequencies.
+
+To address this, I added a capacitor `ZC1` between VDD and the interstage node `n4`, which helps to suppress high-frequency oscillations and improve the stability margin. This capacitor provides a low-impedance path to ground at high frequencies, reducing the feedback effect that is destabilizing the circuit.

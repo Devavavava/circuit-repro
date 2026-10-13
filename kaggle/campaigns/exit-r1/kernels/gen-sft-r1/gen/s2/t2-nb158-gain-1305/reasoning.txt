@@ -1,0 +1,5 @@
+The failure is due to the poor stability margin (mu_min_wide_0.01-50GHz) caused by the lack of a feedback mechanism to suppress oscillations in the wideband range. The original topology lacks a direct connection between the output and the bias network, which limits the ability to stabilize the circuit across a wide frequency range. The current mirror biasing and the LC tank loads are insufficient to ensure stability at off-band frequencies.
+
+To address this, I added a feedback path from the output (VOUT1) to the bias network by introducing a capacitor (ZC2) between VOUT1 and the bias node (n7), and a resistor (ZR1) from n2 (the drain of NM1) to VDD. This provides a low-frequency feedback path that helps stabilize the circuit over a wider bandwidth. Additionally, I added a capacitor (ZC1) between n7 and n5 to decouple the bias network from the second stage, reducing potential instability sources.
+
+These changes improve the stability margin (mu_min_wide_0.01-50GHz) by providing additional feedback and decoupling, which helps suppress oscillations at off-band frequencies.

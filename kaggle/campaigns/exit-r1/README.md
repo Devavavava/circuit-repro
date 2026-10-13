@@ -89,3 +89,15 @@ D-R3), `run 8 all3 r1-2`, `run 8 h1 r1-8`; `r1_verify.py kick 8 score r1-8,r1-2`
   sft1000's T1.
 - Kick column (rl-v1.2-rl): changes one sft-r1 T1 sample (pass@1 0.353 → 0.351); no coverage change.
 - Copying: 196/461 valid held-out outputs (42.5%) equal one of its own training targets (277 distinct WLs).
+
+## Round 2 (exit-r2, `kaggle/PREREG-EXIT-R2.md`) — same code, policy `sft-r1`, data `sft-data-r2/`, eval labels `r2-*`
+
+Round-2 GPU-h ledger (round cap ≈ 15 GPU-h; week of 2026-10-10 had 15.72 h left at the start):
+
+| kernel | version | pinned commit | start (IST) | end | GPU-h | note |
+|---|---|---|---|---|---|---|
+| gen-sft-r1 | 1 | `df320e994`+pin | 2026-10-12 11:38 | 10-13 06:20 | 0.00 | queued ~18.7 h on Kaggle, then ERROR at start with an empty log; no quota consumed; re-pushed unchanged |
+| gen-sft-r1 | 2 | same | 2026-10-13 06:33 | ~11:40 | 3.60 | 1282 completions (641 tasks × 2, 1277 valid) in 186.3 min at 4 slots; GGUF rebuilt sha `6df25b88…` ≠ sft-r1 eval GGUF `46a7bef6…` (D-V4 again: rebuilds are not bit-identical); quota 14.28 → 17.88 h |
+| **round-2 total** | | | | | **3.60** | |
+
+Enumerate: 1277 valid, 877 of them novel vs pilot-v0 WLs (sft1000 653, sft300 1242 in round 1).

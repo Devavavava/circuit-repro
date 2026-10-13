@@ -1,0 +1,3 @@
+The failure is due to insufficient gain in the second stage, which is likely caused by the lack of a direct connection between the output of the first stage and the input of the second stage. This results in a weaker signal transfer and reduced overall gain. Additionally, the absence of a direct feedback path from the output to the bias network may contribute to instability and poor gain performance.
+
+To address this, I added a direct coupling between the output of the first stage and the input of the second stage using an inductor (L2), and introduced a feedback path from the output to the bias network using a capacitor (C2) and a resistor (R2). These changes improve signal transfer and stabilize the biasing, leading to better gain performance.

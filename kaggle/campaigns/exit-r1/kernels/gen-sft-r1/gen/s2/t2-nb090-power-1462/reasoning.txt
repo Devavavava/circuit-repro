@@ -1,0 +1,7 @@
+The binding constraint is the input matching, as reflected by the s11_max_db metric failing by ~0.79 dB. The original topology uses a simple DC-blocked capacitor (C1) at the input, which may not be sufficient to achieve the required impedance match at 900 MHz. The LC interstage network and the biasing structure may also be contributing to parasitic effects that degrade the input match.
+
+To address this, I restructured the input network to improve impedance matching. I replaced the simple DC-blocked capacitor (C1) with a series inductor (L1) and a capacitor (C1) in parallel with the input node, forming an LC tank that better matches the input impedance at the target frequency. This change enhances the input matching by providing a more controlled impedance transformation at f0.
+
+Additionally, I modified the biasing structure to use a direct current mirror configuration (NM3 and R1) without the series resistors (R2 and R3) that previously fed the gates of NM1 and NM2. This reduces the impact of parasitic capacitances and resistances on the input match and improves the overall stability of the biasing network.
+
+These changes improve the input matching and help meet the s11_max_db constraint.

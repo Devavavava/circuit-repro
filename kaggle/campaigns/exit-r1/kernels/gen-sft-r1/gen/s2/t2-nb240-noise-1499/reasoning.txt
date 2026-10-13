@@ -1,0 +1,3 @@
+The failure is due to the poor stability margin (mu_min_wide_0.01-50GHz) caused by the second-stage transistor (NM2) and its load network (L3). The current topology lacks sufficient feedback or damping mechanisms to prevent oscillations outside the design band, especially in the wideband stability check. This is exacerbated by the LC tank at the second stage, which can resonate and cause instability if not properly damped.
+
+To address this, I added a resistor (ZR2) from the output (VOUT1) to ground (VSS), which introduces a damping effect and improves the stability margin by suppressing unwanted resonances. This change does not affect the gain or noise figure significantly but enhances the stability of the circuit across a broader frequency range.

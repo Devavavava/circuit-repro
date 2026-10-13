@@ -1,0 +1,3 @@
+The failure is due to the poor stability margin (mu_min_wide_0.01-50GHz) caused by the lack of a feedback path between the two stages. This results in a high noise figure and poor stability, especially at off-band frequencies. The current structure lacks a direct connection between the second stage and the bias network, which limits the feedback and stability.
+
+To address this, I added a direct connection from the bias network (node n7) to the second stage's source (node n5) via an NMOS transistor (ZN1). This provides a feedback path that improves the stability margin by allowing the bias network to influence the second stage's operation, thereby reducing instability at off-band frequencies.

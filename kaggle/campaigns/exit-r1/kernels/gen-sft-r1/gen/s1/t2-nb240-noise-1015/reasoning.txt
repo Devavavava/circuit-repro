@@ -1,0 +1,3 @@
+The failure is due to the poor stability margin (mu_min_wide_0.01-50GHz) caused by the lack of a proper feedback mechanism to suppress oscillations over a wide frequency range. The original topology lacks a direct connection between the output and the feedback path, leading to insufficient phase margin and instability at higher frequencies.
+
+To address this, I added a resistor (ZR2) between the output (VOUT1) and the DC bias network (n6), creating a feedback path that helps stabilize the amplifier over a wider frequency range. This resistor provides a controlled impedance path for high-frequency signals, improving the phase margin and ensuring the stability metric meets the requirement.

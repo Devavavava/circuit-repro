@@ -1,0 +1,20 @@
+1. DIAGNOSIS
+The binding constraint is s11 (-4.1 dB against a -7.9 dB target). The first stage's input is C1 straight onto NM1's gate. Its impedance is just Cgs in parallel with the bias feed R2, so there is no mechanism that makes a 50-ohm real part at 900 MHz: no source degeneration and no gate inductor. The sizer can only trade R2 (which hurts NF, and NF is pinned at its limit) against a capacitive mismatch, so s11 stalls around -4 dB. The interstage inductor L2 adds gain but does nothing for the input port.
+
+2. EDIT: convert stage 1 to the textbook inductively degenerated input. Add a source inductor LS on NM1, which gives Re{Zin} = wT*LS, a noiseless 50-ohm real part. Add a series gate inductor LG, which resonates out Cgs + LS at f0. To stay within the 4-inductor limit, remove the interstage inductor L2: C2 now couples stage 1's tuned drain (L1) directly to NM2's gate, and L1 absorbs NM2's Cgs into its resonance. Bias still reaches the gate n1 through R2.
+```netlist
+C C1 VIN1 n0
+L LG n0 n1
+NMOS NM1 n2 n1 n8 VSS
+L LS n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+3. PREDICTION: s11_max_db improves from -4.1 dB to about -12 dB (around 8 dB better), which clears -7.9 dB comfortably. NF should hold or improve slightly (noise and power match coincide better, and R2 can be made large). s21 is roughly unchanged (within 1 dB): the Q-boost at the input offsets losing L2.

@@ -1,0 +1,22 @@
+1. DIAGNOSIS
+The binding constraint is NF: 2.54 dB against 2.29 dB. Stability is marginal (mu about 1.01) and everything else is pinned. The input is a series L1 into the purely capacitive inverter gate, which has no noiseless real input resistance. Most of the real part needed for S11 of about -8 dB has to come from lossy elements at the high-Q gate node: the bias-feed resistors R2 (NMOS gate) and R5 (PMOS gate, coupled via C1) and the gate resistance. The resonant input network multiplies their thermal noise by its Q. The same high-Q, lightly damped input together with the inductive output tank is why mu sits right at 1. With no inductive degeneration, the optimizer cannot obtain a 50-ohm real part from gm, so NF is held about 0.25 dB above the gate.
+
+2. EDIT: inductive source degeneration on the NMOS. Ls goes from the NM1 source to VSS (a DC short, so the bias is unchanged). Re{Zin} = gm_n*Ls/C_in then supplies a noiseless 50-ohm real part, so the bias resistors can be made large and the match no longer relies on lossy resistance. Ls also gives series feedback that raises input-port stability margin.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 ns VSS
+L Ls ns VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: NF improves from 2.54 dB to about 2.15-2.25 dB (-0.3 to -0.4 dB). S11 is maintained at about -9 dB. S21 falls by about 0.3 dB at fixed sizing, which the optimizer recovers through the gate-L Q. mu rises to about 1.05.

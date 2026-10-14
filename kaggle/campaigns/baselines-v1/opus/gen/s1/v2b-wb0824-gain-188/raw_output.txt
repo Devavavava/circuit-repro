@@ -1,0 +1,21 @@
+1. DIAGNOSIS
+The binding metric is nf_max_db, the worst-case NF across the 0.8-2.4 GHz band. The input match here is purely reactive and narrowband: a series gate inductor L1 resonates with the combined Cgs of NM1 and PM1 (PM1's gate is AC-tied through C1). That gives a good noise/power match only near f0 (nf_db 2.35 at f0). At the band edges the gate network detunes, so NF climbs to 2.50 dB and s11_max reaches -8.9 dB. The ripple numbers point the same way. A high-Q series resonance cannot cover a 3:1 band. The shunt bias resistor R2 (from the NM3 mirror) also adds noise directly at the gate. The out-of-band stability shortfall (mu_wide 0.90) comes from the same lossless, high-Q input network.
+
+2. EDIT: turn it into a resistive-shunt-feedback, current-reuse inverter LNA. RF goes from the shared drain n2 to the NMOS gate n1. It gives a broadband real input resistance of about (RF+RL)/(1+gm_tot*RL), with gm_tot = gmn + gmp, and it self-biases the NMOS gate. That makes the NMOS mirror (R1/NM3/R2) and its gate-noise resistor unnecessary, so they are removed. L1 stays as a small series gate inductor to cancel Cgs at the top of the band (bandwidth extension). The PMOS gate keeps its published bias (PM2/R4/R5) and its AC coupling C1.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+R RF n2 n1
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+3. PREDICTION: nf_max_db improves (goes down) by about 0.4-0.5 dB, from 2.50 to about 2.0-2.1 dB. The flat, broadband match removes the band-edge NF peaking, and the R2 noise source is gone. s11_max improves by about 2-4 dB (to about -11 to -13 dB). The feedback loading also helps wideband stability: mu_wide rises to about 1.0-1.1.

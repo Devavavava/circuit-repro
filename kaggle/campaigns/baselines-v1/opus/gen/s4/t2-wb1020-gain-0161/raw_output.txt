@@ -1,0 +1,25 @@
+1. DIAGNOSIS
+The binding constraint is broadband stability (mu_min over 0.01-50 GHz = 0.90; in-band mu = 1.06; S12 = -24 dB), and S21 is 0.08 dB short. In the un-cascoded current-reuse stage, output n2 feeds back to the input through the Cgd of NM1 and PM1 (PM1's gate is AC-coupled to the input by C1).
+
+The shunt load L2 (AC-grounded by C2) is inductive below its resonance, where the Miller term gives the gate a negative conductance. The input (series L1 into Cgs) has no noiseless resistance to absorb it, because there is no degeneration. Out of band mu therefore drops below 1, and in band the sizer is held at mu of about 1, which is what caps S21.
+
+2. EDIT: cascode NM1 (cascode gate to VDD) to break the inductive-load -> gate feedback, and add a source-degeneration inductor L3 on NM1 for a noiseless real input resistance (inductively-degenerated cascode current-reuse stage).
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n7 n1 n8 VSS
+L L3 n8 VSS
+NMOS NM4 n2 VDD n7 VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: mu_min_wide (binding) improves from 0.90 to ~1.1 (+0.2). S12 improves by ~10 dB, and S21 gains ~1-2 dB, which clears 12.98 dB.

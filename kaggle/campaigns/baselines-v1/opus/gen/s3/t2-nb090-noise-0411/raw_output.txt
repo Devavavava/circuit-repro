@@ -1,0 +1,20 @@
+1. DIAGNOSIS
+The binding failure is the input match: S11 is -1.85 dB, nearly total reflection. The input of stage 1 is a DC-block (C1) straight onto the NM1 gate, with only a high-value bias feed resistor (R2) at that node. The input impedance is therefore essentially 1/(jw*Cgs) in parallel with the large R2. It is almost purely reactive (several hundred ohms at 0.9 GHz) and has no 50-ohm real part, so no sizing can match it. The mismatch also wastes the input signal, which is why S21 is 7 dB short (14.8 vs 21.8 dB). NF only passes because of the "series_rs" noise-matched evaluation, not because of a power match. The two inductors used in the original published form, a gate inductor Lg and a source-degeneration inductor Ls, were trimmed out. Their job is to create Re{Zin} = wT*Ls = 50 ohm noiselessly and to resonate out Cgs.
+
+2. EDIT: convert stage 1 to an inductively degenerated CS. Add Lg in series with the gate after C1 and Ls from the NM1 source to ground. To stay within the 4-inductor screen, the interstage series inductor L2 is removed: the stage-2 gate is driven by DC-block C2 directly from the L1-tuned drain, which is still a tuned interstage. Bias is kept: R2 feeds the NM1 gate and R3 feeds the NM2 gate.
+```netlist
+C C1 VIN1 n0
+L Lg n0 n1
+NMOS NM1 n2 n1 ns VSS
+L Ls ns VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+3. PREDICTION: S11_max improves from -1.85 dB to about -10 to -12 dB (an improvement of about 9 dB). The Lg-Ls series resonance also gives Q-boosted gain, so S21 rises by about 5-7 dB (toward 20-22 dB). Ls degeneration also adds margin to wideband mu. NF stays at about 1.0-1.2 dB.

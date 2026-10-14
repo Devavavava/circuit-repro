@@ -1,0 +1,12 @@
+1. DIAGNOSIS
+The binding failure is wideband stability (mu over 0.01-50 GHz = 0.68), with gain also slightly short (9.34 vs 9.99 dB). The drain load is L1 in series with R2. Above the shunt-peaking corner, L1 makes the load inductive. With an inductive load Z_L = jwL, the Miller admittance through Cgd (and through the feedback path R1) is Y_in = jwCgd(1 + gm*Z_L), which contains a NEGATIVE real term -w^2*gm*L*Cgd. The gate/input port therefore shows negative resistance at multi-GHz frequencies, where the 45 nm device still has plenty of gain, and mu drops below 1 out of band. At the same time the gain is capped: with a single NMOS at a fixed Idd, the only transconductance is gm_n, and the DC-dropping resistor R2 (part of the load) sits in parallel with the 50-ohm port. The optimizer therefore can't raise gain without making the load more inductive, which is the very thing that hurts stability.
+
+2. EDIT: replace the inductively loaded NMOS CS with a self-biased current-reuse CMOS inverter under the same resistive shunt feedback (the inverter-based resistive-feedback LNA). PM1 is the active load and also adds its gm (gm_n + gm_p at the same current). The inductor is removed, so no element can make the drain load inductive. R1 still sets the self-bias (Vg = Vd, inverter trip point) and the broadband real input match.
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n1 VDD VDD
+C C2 n2 VOUT1
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.68 to about 1.2 (+0.5 or more; it should pass). With no inductive load, Re(Y_in) stays positive, and the loop is single-pole and RC-only up to fT. Side effect: s21 should rise by about 2-4 dB from the doubled gm at the same Idd, which also clears the gain gate. NF stays below about 2 dB.

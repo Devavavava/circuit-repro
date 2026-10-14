@@ -1,0 +1,9 @@
+* lna-a2-current-reuse edit: self-biased resistive-feedback inverter (R6 out->common gate), mirror refs removed
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n1 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R6 n2 n1

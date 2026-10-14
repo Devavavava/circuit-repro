@@ -1,0 +1,22 @@
+1. DIAGNOSIS
+The binding constraint is out-of-band stability, failing by a hair: mu over 0.01-50 GHz is 0.988, while in-band mu is 1.13. The ripple (0.710 vs 0.711) and S21 limits are pinned. The output of the current-reuse inverter is a high-Q inductive tank (L2 via C2 to ground) in parallel with only ro_n||ro_p. That loss is small, so S22_max is just -3.7 dB. Where the tank is inductive, the two Cgd's turn it into a negative conductance at the gate (about -w^2*gm*Cgd*L2). That negative conductance then interacts with the series-resonant L1-Cgs input. The same high Q of the tank also causes the gain ripple across 1-2 GHz.
+
+2. EDIT: a de-Q resistor R6 across the output tank inductor L2, AC-coupled through C2. The output impedance out of band becomes bounded and resistive, the inductive Miller drive is damped, and the tank Q falls. The lower Q also flattens the in-band response, easing ripple. The DC path is unchanged, and R6's noise is negligible at the output.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+R R6 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.988 to about 1.1 (+0.1). Ripple improves by about 0.2 dB, and S21 at f0 falls by 0.2 dB or less.

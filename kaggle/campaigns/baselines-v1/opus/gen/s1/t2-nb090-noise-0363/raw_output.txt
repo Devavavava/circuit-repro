@@ -1,0 +1,22 @@
+1. DIAGNOSIS
+The binding metric is s11_max_db at -4.1 dB. Stage 1 is a bare CS gate fed through the DC block C1, so the input impedance at 900 MHz is Cgs in parallel with R2. It is highly capacitive, with no structural mechanism that creates a 50-ohm resistance. The sizer can only trade NF (pinned at 1.67 dB) against this mismatch, and S21 and Idd are pinned too. The interstage L2 tunes the inter-stage node, not the input port.
+
+2. EDIT: use the classic inductively source-degenerated input. Add a series gate inductor LG and a source inductor LS on NM1, giving Re(Zin) = wT*LS = 50 ohm with LG+LS resonating Cgs at 900 MHz. The interstage series L2 is removed, with C2 coupling straight to the NM2 gate and L1 as the tuned load, so the total stays at 4 inductors (LG, LS, L1, L3).
+
+```netlist
+C C1 VIN1 n0
+L LG n0 n1
+NMOS NM1 n2 n1 n8 VSS
+L LS n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+3. PREDICTION: s11_max_db improves by about 7-9 dB, from -4.1 to about -11 to -13 dB. S21 improves by about 3-5 dB, giving margin over 13.1 dB. NF stays at about 1.4-1.6 dB, inside the 1.67 dB cap.

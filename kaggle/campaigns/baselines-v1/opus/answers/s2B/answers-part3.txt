@@ -1,0 +1,177 @@
+==== ANSWER t2-nb090-noise-0387 ====
+1. DIAGNOSIS
+The binding constraint is s11 (-5.0 dB against -7.85 dB). Stage 1's input is C1 directly onto NM1's bare gate, so Zin is just Cgs in parallel with the bias feed R2: capacitive and high-impedance. Nothing in the topology synthesizes a 50-ohm real part at 900 MHz. The only real part available is R2, and lowering it far enough to match would add noise, while NF is already pinned at 2.18 dB. So s11 stalls near -5 dB. The interstage inductor L2 does nothing for the input port.
+
+2. EDIT: inductively degenerated input on stage 1. A source inductor LS on NM1 gives Re{Zin} = wT*LS, about 50 ohms, without adding noise. A series gate inductor LG between the DC block and the gate resonates out Cgs + LS at f0. To stay within the 4-inductor limit, the interstage L2 is removed: C2 couples stage 1's L1 tank straight to NM2's gate, and L1 absorbs NM2's Cgs. Gate bias still arrives through R2 at n1.
+```netlist
+C C1 VIN1 n0
+L LG n0 n1
+NMOS NM1 n2 n1 n8 VSS
+L LS n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+3. PREDICTION: s11_max_db improves from -5.0 dB to about -12 dB (around 7 dB better). The input Q boost should keep s21 at or above about 14 dB, and NF holds near 2.0-2.2 dB.
+
+==== ANSWER t2-wb1020-gain-0182 ====
+1. DIAGNOSIS
+The binding constraint is broadband stability (mu over 0.01-50 GHz = 0.71; in-band mu is 1.14). The single common-source device NM1 has a shunt-peaked load (L1 + R2) that becomes inductive above the band. Through Cgd, an inductive drain impedance appears at the gate as negative conductance, the Miller-inductive mechanism. At those frequencies Cgd shunts the feedback resistor R1, so the resistive feedback no longer damps the loop. In-band gain is also about 0.4 dB short at the current cap.
+
+2. EDIT: add a cascode NM2 (gate at VDD = AC ground) between NM1's drain and the shunt-peaked load. R1 still feeds back from the output (the cascode drain) to the gate. NM1's Cgd now terminates in 1/gm2, which is resistive and low, so the negative-resistance loop is broken. The Miller capacitance shrinks and the higher output resistance adds gain.
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n8 n1 VSS VSS
+NMOS NM2 n2 VDD n8 VSS
+L L1 VDD n3
+R R2 n3 n2
+C C2 n2 VOUT1
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.71 to about 1.0-1.15 (+0.3 to +0.4). s21 improves by about 1 dB, clearing 9.9 dB.
+
+==== ANSWER t2-wb1020-gain-0043 ====
+1. DIAGNOSIS
+The binding constraint is broadband stability (mu over 0.01-50 GHz = 0.64; in-band mu is 1.11). At 11 mA, NM1 is a wide device with large Cgd. Its shunt-peaked load (L1 + R2) is inductive above the band, and Cgd reflects that inductive drain impedance to the gate as negative conductance. At high frequency Cgd bypasses R1, so the feedback provides no damping, and the large Cgd makes this the worst case of the shunt-feedback family. s21 is also 0.47 dB short because of Miller loading.
+
+2. EDIT: insert a cascode NM2 (gate at VDD) between NM1's drain and the load, keeping R1 from the output node to the gate. The cascode isolates NM1's large Cgd from the inductive load, presenting 1/gm2 instead. This removes the Miller-inductive negative resistance and the input Miller capacitance, and it raises output resistance, which adds gain.
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n8 n1 VSS VSS
+NMOS NM2 n2 VDD n8 VSS
+L L1 VDD n3
+R R2 n3 n2
+C C2 n2 VOUT1
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.64 to about 1.0-1.1 (+0.35 to +0.45). s21 rises by about 1 dB, to roughly 12 dB.
+
+==== ANSWER t2-nb090-noise-0349 ====
+1. DIAGNOSIS
+The binding constraint is s11 (-2.8 dB against -7.84 dB), and s21 is also 4 dB short (14.9 against 18.9 dB). Stage 1's input is C1 onto a bare gate: Cgs in parallel with the bias R2, almost purely capacitive, with nothing that produces a 50-ohm real part. The input therefore reflects most of the power. That same mismatch removes the resonant voltage gain an LC-matched input would give at the gate. Stage 1's Cgd also adds Miller capacitance and limits the impedance seen at the L1 tank. With NF (1.27 dB) and Idd both pinned, resizing cannot fix either problem.
+
+2. EDIT (input-stage rework):
+(a) Inductive degeneration LS plus series gate inductor LG on NM1. This gives a noiseless real part wT*LS of about 50 ohms, resonance at f0, and a Q voltage boost at the gate.
+(b) Cascode NM4 (gate at VDD) on stage 1. It removes Cgd Miller loading from the input match and raises the impedance at the L1 tank for more stage-1 gain, at no extra current.
+(c) The interstage L2 is removed to respect the 4-inductor limit: C2 couples the L1 tank directly to NM2's gate.
+```netlist
+C C1 VIN1 n0
+L LG n0 n1
+NMOS NM1 n9 n1 n8 VSS
+L LS n8 VSS
+NMOS NM4 n2 VDD n9 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+3. PREDICTION: s11_max_db improves from -2.8 dB to about -12 to -15 dB (around 10 dB better). s21 rises by about 4-5 dB, to roughly 19-20 dB. NF stays around 1.2-1.3 dB.
+
+==== ANSWER t2-wb1020-gain-0159 ====
+1. DIAGNOSIS
+The binding constraint is broadband stability (mu over 0.01-50 GHz = 0.93; in-band mu is only 1.06). The series gate inductor L1 drives the large combined inverter gate capacitance (NM1, plus PM1 through C1), forming an undamped series resonance. Above the band, the output node turns inductive: L2 to AC ground through C2, in parallel with drain capacitance, lightly loaded, with poor s22 (-3.8 dB). The combined Cgd turns that inductive load into negative gate conductance, so the input loop's reflection exceeds 1 out of band. The in-band margins for s21 and NF are near zero, so the fix must not cost in-band performance.
+
+2. EDIT: put a damping resistor RD in parallel with the gate inductor L1. In band, the small reactance of L1 carries the signal, so RD (large) barely matters for NF or gain. Out of band, where w*L1 exceeds RD, the input loop is resistively damped and the negative-resistance resonance cannot build up.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+R RD n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.93 to about 1.05-1.1 (+0.12 to +0.17). In-band s21 and NF should change by less than 0.15 dB.
+
+==== ANSWER t2-nb090-noise-0322 ====
+1. DIAGNOSIS
+The binding constraint is s11 (-3.1 dB against -7.88 dB), and s21 is also 4 dB short (14.8 against 18.8 dB). Stage 1's input is C1 straight onto NM1's gate, whose impedance is Cgs in parallel with the bias R2. That is reactive and high-impedance, with no element that produces 50 ohms of real part. The mismatch reflects most of the incident power and gives up the resonant gate-voltage gain, which costs both s11 and s21. NF at 1.34 dB and Idd are pinned, so R2 cannot be lowered and current cannot be raised.
+
+2. EDIT (input-stage rework):
+(a) Source-degeneration inductor LS plus series gate inductor LG on NM1. This gives a real input impedance of wT*LS, about 50 ohms, with no added noise, resonance at 900 MHz, and a Q gain boost at the gate.
+(b) Cascode NM4 (gate at VDD) on stage 1. It eliminates Cgd Miller loading, so the match is clean, and raises the impedance at the L1 tank for more stage-1 gain at the same current.
+(c) The interstage L2 is removed to stay within 4 inductors: C2 couples the L1 tank directly to NM2's gate.
+```netlist
+C C1 VIN1 n0
+L LG n0 n1
+NMOS NM1 n9 n1 n8 VSS
+L LS n8 VSS
+NMOS NM4 n2 VDD n9 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+3. PREDICTION: s11_max_db improves from -3.1 dB to about -12 to -15 dB (around 9-11 dB better). s21 rises by about 4-5 dB, to roughly 19 dB. NF stays near 1.3 dB.
+
+==== ANSWER t2-nb090-noise-0068 ====
+1. DIAGNOSIS
+The binding constraint is broadband stability (mu over 0.01-50 GHz = 0.87). Even at 900 MHz, mu is only 1.009 and k is 1.02, so the circuit sits right on the stability edge. The inverter's combined Cgd (NM1 and PM1) couples a weakly loaded, reactive output node back to the input. The output node is the L2 tank to AC ground through C2, and s22 of -4.2 dB shows it is weakly loaded and reactive. The input is a high-Q series resonance of L1 with the large gate capacitance. Away from 900 MHz, the output impedance turns inductive, Cgd turns it into negative gate conductance, and the undamped L1 loop lets the input reflection exceed 1. Gain is also 0.6 dB short, so lossy fixes in the signal path are expensive.
+
+2. EDIT: put a damping resistor RD in parallel with the gate inductor L1. Near 900 MHz, RD is sized well above w*L1, so most of the signal still goes through L1. Out of band, especially at multi-GHz, w*L1 is far above RD, so RD sets a resistive source impedance at the gate and the negative-resistance input resonance is damped.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+R RD n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.87 to about 1.02-1.1 (+0.15 to +0.2), and in-band mu also rises to about 1.1. The in-band cost is about 0.1-0.3 dB of NF and s21.
+
+==== ANSWER t2-wb1020-gain-0027 ====
+1. DIAGNOSIS
+The binding constraint is broadband stability (mu over 0.01-50 GHz = 0.88; in-band mu is 1.09). The series gate inductor L1 resonates with the large combined gate capacitance of the inverter (NM1, plus PM1 through C1), with almost no resistive damping. Above the band, the output network (L2 to AC ground through C2, in parallel with drain capacitance) turns inductive. Coupled back through the combined Cgd, it presents negative conductance at the gate, so the input-port reflection exceeds 1 at some multi-GHz frequency. All in-band margins (s21, NF, s11, Idd) are essentially zero, so the fix has to be nearly free in band.
+
+2. EDIT: put a damping resistor RD in parallel with the gate inductor L1. In band, the low reactance of L1 carries the signal and RD (large) barely affects NF or gain. Out of band, w*L1 is much larger than RD, so RD dominates and damps the input resonance that the negative resistance would otherwise drive.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+R RD n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.88 to about 1.03-1.1 (+0.15 to +0.2). In-band s21 and NF should change by less than 0.15 dB.

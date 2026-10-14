@@ -1,0 +1,22 @@
+1. DIAGNOSIS
+The binding metric is s11_max_db at -4.2 dB. Stage 1 has no input-matching network: VIN1 reaches the NM1 gate only through the DC block C1. At 900 MHz the input therefore looks like the gate capacitance Cgs in parallel with the bias-feed resistor R2. That impedance is mostly reactive, and its small real part comes only from R2 and the gate resistance. No sizing of NM1 can make it look like 50 ohm, and widening NM1 only makes the input more capacitive. The sizer is also pinned on NF and Idd. The interstage series L2 cannot help the input port.
+
+2. EDIT: convert stage 1 to the classic inductively source-degenerated CS input. Add a series gate inductor LG and a source inductor LS on NM1. The real part is then Re(Zin) = wT*LS, set to 50 ohm, and LG+LS series-resonate Cgs at 900 MHz. This also gives simultaneous noise and power match. To stay within the 4-inductor screen, the interstage series L2 is dropped: C2 now couples straight to the NM2 gate, and L1 stays as the tuned load. Inductors are LG, LS, L1, L3.
+
+```netlist
+C C1 VIN1 n0
+L LG n0 n1
+NMOS NM1 n2 n1 n8 VSS
+L LS n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+3. PREDICTION: s11_max_db improves by about 7-9 dB, from -4.2 to about -11 to -13 dB across 882-918 MHz. S21 also rises by about 3-5 dB from the gate-voltage Q boost. NF stays at about 1.6-1.8 dB, inside the 1.85 dB cap.

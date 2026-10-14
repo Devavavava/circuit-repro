@@ -1,0 +1,14 @@
+1. DIAGNOSIS
+The worst failure is mu_min_wide (0.641) out of band. In-band k and mu are only about 1.1-1.2, delta is large (0.34-0.38), and S21 is about 0.5 dB short at the Idd cap. The load is the series L1+R2 shunt-peaking branch, which becomes strongly inductive above the band. An inductive load seen through Cgd gives the gate a negative real input admittance, jwCgd*gm*jwL, a negative conductance. So out of band the device is potentially unstable, and only R1 feedback stands against it. With 11 mA, a large high-gm NMOS makes this worse because Cgd*gm*L grows. Gain per mA is limited because only one device provides gm.
+
+2. EDIT: convert to a resistive-feedback current-reuse (CMOS inverter) LNA. A PMOS sharing the bias current and driven from the same input gate replaces the L1/R2 shunt-peaked load. The inductive drain load is gone, so the negative-conductance mechanism goes with it. Transconductance becomes gmn+gmp at the same Idd, which fixes the gain shortfall. R1 still self-biases both gates and sets the broadband match.
+
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n1 VDD VDD
+C C2 n2 VOUT1
+```
+
+3. PREDICTION: mu_min_wide improves by about +0.4, from 0.64 to about 1.05-1.2. S21 improves by about +2-3 dB, to about 13 dB, at an Idd of 11 mA or less. NF stays about 1.5-2.0 dB, well inside the 3.9 dB cap.

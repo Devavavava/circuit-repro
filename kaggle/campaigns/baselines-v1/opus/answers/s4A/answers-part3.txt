@@ -1,0 +1,179 @@
+==== ANSWER t2-wb1020-gain-0223 ====
+1. DIAGNOSIS
+The binding constraint is broadband stability (mu_min over 0.01-50 GHz = 0.65; in-band mu = 1.14), and S21 is 0.6 dB short (9.56 against 10.15 dB). The CS stage's load is shunt-peaked: L1 in series with R2. Above omega = R2/L1 the drain impedance turns inductive. Through Cgd and the shunt-feedback resistor R1, the inductive drain gives negative real parts at both ports out of band, so mu falls to 0.65.
+
+Gain is limited because S21 is about 1 - gm*Z0 with one NMOS at the 6.7 mA cap. NF has a large margin (1.61 against 3.33 dB), so noise is not the constraint.
+
+2. EDIT: replace the shunt-peaked L1+R2 load with a PMOS whose gate is the same input node, giving a resistive-feedback CMOS inverter (current reuse). This edit:
+- leaves no inductive load, so the network is RC-only and the port admittances stay positive-real;
+- gives gm_n + gm_p at the same current, for about +60-80% gm and more gain;
+- keeps R1 setting the 50-ohm match and the self-bias.
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n1 VDD VDD
+C C2 n2 VOUT1
+```
+3. PREDICTION: mu_min_wide (binding) improves from 0.65 to ~1.2+ (+0.55). S21 rises by ~2-3 dB to ~11.5-12 dB, and NF_max stays ~1.6-1.9 dB.
+
+==== ANSWER t2-wb1020-gain-0126 ====
+1. DIAGNOSIS
+The binding constraint is broadband stability (mu_min over 0.01-50 GHz = 0.70), and S21 is 3.2 dB short (9.74 against 12.99 dB). The shunt-peaked load (L1 in series with R2) makes the drain impedance inductive above R2/L1. Cgd and the feedback resistor R1 then map that inductive load to negative input and output conductance out of band, so mu falls to 0.70.
+
+Gain is fundamentally limited: a matched shunt-feedback stage gives S21 of about 1 - gm*Z0, and a single NMOS at 10 mA cannot reach 13 dB while R1 holds S11. NF has 3 dB of slack.
+
+2. EDIT: replace the L1+R2 load with a PMOS sharing the input gate, making a resistive-feedback CMOS inverter LNA. This edit:
+- removes the inductor, so the circuit is RC-only and unconditionally stable;
+- makes the effective gm = gm_n + gm_p at the same 10 mA, for about +70%;
+- keeps R1 setting the broadband match and the self-bias.
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n1 VDD VDD
+C C2 n2 VOUT1
+```
+3. PREDICTION: mu_min_wide (binding) improves from 0.70 to ~1.2+ (+0.5). S21 rises by ~3 dB to ~12.5-13 dB, and NF_max stays ~1.5-2 dB.
+
+==== ANSWER t2-nb090-noise-0012 ====
+1. DIAGNOSIS
+The binding constraint is broadband stability (mu_min over 0.01-50 GHz = 0.63; in-band mu = 1.29). S21 sits exactly at its gate (9.80 dB), and NF has 0.28 dB of slack. The shunt-feedback CS stage's load is L1 in series with R2, which becomes inductive above R2/L1. Cgd and R1 couple that inductive drain impedance back to the input and give negative port conductance out of band.
+
+The sizer cannot shrink L1's effect without losing the peaking it is using to reach 9.8 dB of S21. A single NMOS at 6.1 mA gives S21 of about 1 - gm*Z0, roughly 9.8 dB at most.
+
+2. EDIT: replace the L1+R2 load with a PMOS driven from the same gate, giving a resistive-feedback CMOS inverter (current reuse). The load becomes ro || port (RC-only), so no inductive load can produce negative resistance, and gm_n + gm_p from the same current gives more gain and lower NF. R1 still provides the self-bias and the match.
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n1 VDD VDD
+C C2 n2 VOUT1
+```
+3. PREDICTION: mu_min_wide (binding) improves from 0.63 to ~1.2+ (+0.55). S21 rises by ~2-3 dB to ~12 dB, and NF stays ~1.4-1.6 dB.
+
+==== ANSWER t2-wb1020-gain-0161 ====
+1. DIAGNOSIS
+The binding constraint is broadband stability (mu_min over 0.01-50 GHz = 0.90; in-band mu = 1.06; S12 = -24 dB), and S21 is 0.08 dB short. In the un-cascoded current-reuse stage, output n2 feeds back to the input through the Cgd of NM1 and PM1 (PM1's gate is AC-coupled to the input by C1).
+
+The shunt load L2 (AC-grounded by C2) is inductive below its resonance, where the Miller term gives the gate a negative conductance. The input (series L1 into Cgs) has no noiseless resistance to absorb it, because there is no degeneration. Out of band mu therefore drops below 1, and in band the sizer is held at mu of about 1, which is what caps S21.
+
+2. EDIT: cascode NM1 (cascode gate to VDD) to break the inductive-load -> gate feedback, and add a source-degeneration inductor L3 on NM1 for a noiseless real input resistance (inductively-degenerated cascode current-reuse stage).
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n7 n1 n8 VSS
+L L3 n8 VSS
+NMOS NM4 n2 VDD n7 VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: mu_min_wide (binding) improves from 0.90 to ~1.1 (+0.2). S12 improves by ~10 dB, and S21 gains ~1-2 dB, which clears 12.98 dB.
+
+==== ANSWER t2-nb090-noise-0240 ====
+1. DIAGNOSIS
+The binding constraint is broadband stability (mu_min over 0.01-50 GHz = 0.79). In-band mu is pinned at 1.005 and S21 is 0.45 dB short. The un-cascoded current-reuse stage has Cgd feedback from n2 to the input through both NM1 and PM1 (PM1's gate is AC-tied to the input via C1), so S12 is only -26 dB and k_f0 = 1.03.
+
+L2, AC-grounded by C2, is an inductive load below its resonance, where Miller feedback presents a negative conductance at the gate. The lossless input (series L1, no degeneration) does not damp it, so off-resonance mu collapses to 0.79. In band the same mechanism caps gain at the mu = 1 boundary, which is why S21 is short.
+
+2. EDIT: build an inductively-degenerated cascode current-reuse stage. The NMOS cascode NM4 (gate to VDD) isolates the inductive load from the gate, and the source inductor L3 provides a noiseless real input resistance in place of the Miller-derived one.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n7 n1 n8 VSS
+L L3 n8 VSS
+NMOS NM4 n2 VDD n7 VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: mu_min_wide (binding) improves from 0.79 to ~1.05-1.1 (+0.3). In-band mu rises to ~1.3, S21 gains ~1-2 dB (clearing 14.9 dB), and NF stays ~2.1-2.2 dB.
+
+==== ANSWER t2-wb1020-gain-0001 ====
+1. DIAGNOSIS
+The binding constraint is broadband stability (mu_min over 0.01-50 GHz = 0.64; in-band mu = 1.11), and S21 is 0.34 dB short (10.76 against 11.11 dB). The shunt-peaked load of the CS stage (L1 in series with R2) becomes inductive above R2/L1. Via Cgd and the feedback resistor R1, this inductive drain impedance appears as negative conductance at both ports out of band, so mu drops to 0.64.
+
+Gain is limited to about 1 - gm*Z0 with a single NMOS even at 9.8 mA. NF has 2.2 dB of slack.
+
+2. EDIT: replace the L1+R2 load with a PMOS sharing the input gate, making a resistive-feedback CMOS inverter LNA (current reuse). With no inductor the circuit is RC-only, so out-of-band negative resistance disappears; gm_n + gm_p gives more gain at the same current; R1 keeps the match and the self-bias.
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n1 VDD VDD
+C C2 n2 VOUT1
+```
+3. PREDICTION: mu_min_wide (binding) improves from 0.64 to ~1.2+ (+0.55). S21 rises by ~2-3 dB to ~13 dB, and NF_max stays ~1.4-1.8 dB.
+
+==== ANSWER t2-wb1020-gain-0109 ====
+1. DIAGNOSIS
+The binding constraint is broadband stability (mu_min over 0.01-50 GHz = 0.92). In-band mu = 1.0006 and k_min = 1.002, so the circuit is on the stability boundary even in band. In the un-cascoded current-reuse stage, the output n2 feeds back to the input through the Cgd of NM1 and PM1 (PM1's gate is AC-coupled by C1), so S12 = -26 dB and S22 rises to -2.6 dB at the band edge.
+
+The L2 tank (AC-grounded by C2) is inductive below resonance, where Miller feedback gives the gate a negative conductance. The input (series L1, no degeneration) has no resistance to damp it, so mu falls below 1 out of band. With NF_max, S21 and Idd all at zero margin, the sizer cannot back off the gain.
+
+2. EDIT: cascode NM1 (cascode gate to VDD) to cut the inductive-load -> gate Miller path, and add a source-degeneration inductor L3 on NM1 for a noiseless real input resistance (inductively-degenerated cascode current-reuse stage).
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n7 n1 n8 VSS
+L L3 n8 VSS
+NMOS NM4 n2 VDD n7 VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: mu_min_wide (binding) improves from 0.92 to ~1.1 (+0.2). In-band mu rises to ~1.2-1.3, S12 improves by ~10 dB, and S21 gains ~1 dB.
+
+==== ANSWER t2-nb090-noise-0411 ====
+1. DIAGNOSIS
+The binding constraint is input match (S11 = -1.8 dB against -7.92 dB), with S21 7 dB short (14.8 against 21.8 dB). Stage 1 has no matching network: C1 drives the gate of NM1 directly, and R2 is the only shunt element. The port sees C1 in series with Cgs, an almost lossless capacitive impedance, so nearly all power is reflected.
+
+Lowering R2 to create a real part puts thermal noise at the input, and NF is at its very tight limit (1.131 against 1.131). The 4-5 dB of mismatch loss accounts for most of the gain deficit. Stage 2's series gate L2 plus the L1 tank, its drain tank L3 and Cgd form a tuned-gate/tuned-drain loop, so mu over 0.01-50 GHz is 0.78.
+
+2. EDIT: build an inductively-degenerated cascode input stage.
+- Add a series gate inductor Lg and a source inductor Ls, giving a noiseless resonant 50-ohm real part, gm*Ls/Cgs.
+- Delete the interstage L2 to stay at 4 inductors and remove stage 2's tuned gate.
+- Cascode both stages, with their cascode gates tied to VDD, for gain and stability.
+```netlist
+C C1 VIN1 n0
+L Lg n0 n1
+NMOS NM1 n8 n1 n3 VSS
+L Ls n3 VSS
+NMOS NM4 n2 VDD n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n9 n5 VSS VSS
+NMOS NM5 n6 VDD n9 VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+3. PREDICTION: s11_max_db (binding) improves from -1.8 dB to ~-11 dB (about 9 dB better). S21 rises by ~6-8 dB to ~21-22 dB, NF stays ~1.1-1.2 dB, and mu_min_wide rises above 1.

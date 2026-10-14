@@ -1,0 +1,36 @@
+1. DIAGNOSIS
+The binding metric is nf_max_db = 2.50 dB vs the 2.04 dB gate. NF is already 2.35 dB at band center and gets worse toward the 0.8 / 2.4 GHz edges.
+The input real part of this current-reuse stage is not noiseless:
+- With series L1 resonating Cgs_n + Cgs_p, the 50-ohm resistive part has to come from the bias feed resistors R2 (NMOS gate) and R5 (PMOS gate, through C1), plus the lossy Miller term.
+- Those resistors sit at a high-Q gate node, so their thermal noise is magnified roughly by (1+Q^2)*Rs/R.
+- Away from f0 the noise match degrades further.
+Pushing R2/R5 up to cut noise destroys the match (s11_max is already failing at -8.88 dB), so the sizer cannot reach both gates.
+
+2. EDIT: add inductive source degeneration L3 to NM1.
+- L3 provides a noiseless real input term, gm*Ls/Cgs = wT*Ls.
+- Match and noise optimum then coincide, and R2/R5 can be made large (negligible noise).
+- Degeneration also lowers the input Q, which broadens the match across 0.8-2.4 GHz and reduces the band-edge NF rise.
+- Inductor count is 3 (L1, L2, L3).
+```netlist
+* lna-a2-current-reuse edit: inductive source degeneration L3 on NM1 (noiseless Re{Zin})
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n7 VSS
+L L3 n7 VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION
+- Binding metric: nf_max_db improves by about 0.4-0.6 dB (2.50 dB to ~1.9-2.1 dB), at or under the 2.04 dB gate.
+- s11_max: improves by ~1 dB (broader, lower-Q match).
+- s21: down ~0.5 dB from degeneration.
+- mu_wide: roughly unchanged to slightly better.

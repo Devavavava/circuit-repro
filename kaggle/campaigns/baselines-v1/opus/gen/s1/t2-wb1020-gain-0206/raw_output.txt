@@ -1,0 +1,14 @@
+1. DIAGNOSIS
+The worst failure is mu_min_wide (0.663), and in-band k and mu are only about 1.12-1.14 with large delta (0.30-0.33). The drain load is the series L1+R2 shunt-peaking branch, inductive above the band. An inductive load reflected through Cgd gives the gate a negative real input admittance (the Miller term jwCgd*gm*jwL is a negative conductance), so the CS stage is potentially unstable well above the band. The feedback resistor R1 is the only damping. S21 is pinned exactly at its 9.49 dB floor at the Idd cap, so the sizer cannot add gm to fix things without losing stability or exceeding the current budget.
+
+2. EDIT: convert the shunt-peaked CS into a resistive-feedback current-reuse CMOS inverter LNA. A PMOS driven from the same gate replaces L1/R2 and shares the bias current. There is no inductive load left to create negative input conductance. Total gm is gmn+gmp at the same current. R1 still self-biases the gates and sets the broadband 50-ohm match.
+
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n1 VDD VDD
+C C2 n2 VOUT1
+```
+
+3. PREDICTION: mu_min_wide improves by about +0.4, from 0.66 to about 1.05-1.2. S21 gains about +2-3 dB of headroom, to about 11.5-12.5 dB at 6.8 mA or less. NF stays about 1.6-2.2 dB, inside the 3.5 dB cap.

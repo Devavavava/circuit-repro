@@ -1,0 +1,271 @@
+==== ANSWER t2-nb090-noise-0397 ====
+1. DIAGNOSIS
+s11_max_db is stuck at -2.7 dB because stage 1 has no input matching network: VIN1 goes through a DC block straight to the gate of NM1. At 900 MHz that port is almost purely capacitive (Cgs plus the Miller-multiplied Cgd). The only real part comes from the large bias feed resistor R2 and the small gate resistance, so nearly all the power reflects. No sizing can turn a capacitor into a 50-ohm real impedance, and NF is already pinned at its limit, so the sizer cannot lower R2 to buy a real part.
+The mismatch also wastes input voltage gain, which is why s21 is short (14.7 vs 16.5 dB).
+The out-of-band mu failure (0.74) comes from the tuned-input/tuned-output (TITO) structure of stage 2. Its gate sits behind the series inductor L2, which gives it an inductive gate impedance, and its drain has the L3 tank, coupled through Cgd. That combination gives a negative output resistance at some frequency.
+
+2. EDIT: inductively degenerated, cascoded front end
+- Add a series gate inductor LG and a source-degeneration inductor LS on NM1. This gives a noiseless real input resistance (gm*LS/Cgs) that resonates with Cgs at f0.
+- Cascode both stages with common-gate devices (gates to VDD) to remove the Cgd feedback paths.
+- Drop the interstage series inductor L2 (direct C2 coupling). This removes the inductive gate termination of stage 2 and keeps the inductor count at 4.
+
+```netlist
+C C1 VIN1 n0
+L LG n0 n1
+NMOS NM1 n8 n1 n9 VSS
+L LS n9 VSS
+NMOS NM4 n2 VDD n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n10 n5 VSS VSS
+NMOS NM5 n6 VDD n10 VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+3. PREDICTION
+s11_max_db improves from -2.7 dB to about -10 dB (roughly 7 to 8 dB better), because the input becomes resonant and real at f0.
+Secondary effects:
+- s21 rises by about 3 to 5 dB from the Q-boost at the gate and the cascode output resistance.
+- mu_min_wide rises from 0.74 to above 1 because of the cascode isolation.
+- NF stays roughly flat (within about ±0.1 dB).
+
+==== ANSWER t2-wb1020-gain-0207 ====
+1. DIAGNOSIS
+The binding metric is out-of-band stability: mu_min_wide = 0.988, a hair below 1, while every other spec is on its edge.
+The push-pull pair feeds back through the sum of the two Cgd's (NMOS plus PMOS), so isolation is poor (S12 is only -25 dB). Both device terminations are reactive:
+- The gate sits behind the series input inductor L1, so its source impedance is inductive.
+- Above its series resonance, the L2+C2 drain branch is inductive.
+An inductive gate termination plus an inductive drain load, coupled through Cgd, is a TITO configuration. It produces a negative real part at one port somewhere outside 1-2 GHz.
+There is no broadband resistive loss anywhere in the core (s22_max is only -3.7 dB), so mu cannot be raised by sizing without giving up gain, NF or the match, which are all at zero margin.
+
+2. EDIT: RC shunt feedback from drain to NMOS gate
+Add RF in series with a DC-block CF from n2 to n1. This adds a frequency-independent resistive feedback conductance at both the gate and the drain. It damps the Cgd/inductor resonances at all frequencies, gives a resistive part to s11 and s22, and leaves the DC bias untouched.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R RF n2 n8
+C CF n8 n1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+3. PREDICTION
+mu_min_wide improves from 0.988 to about 1.10 (+0.1 or more).
+Secondary effects:
+- s22_max improves by about 3 to 5 dB and s11_max stays below -8 dB.
+- s21 loses less than about 0.5 dB, which the sizer can win back with a large RF.
+
+==== ANSWER t2-nb090-noise-0411 ====
+1. DIAGNOSIS
+s11_max_db is -1.85 dB, far from the -7.9 dB gate. The first stage is a bare common-source gate driven through a DC block, so the input impedance at 900 MHz is essentially Cgs plus the Miller-multiplied Cgd, with almost no real part.
+The only resistance available is the bias feed R2 and parasitic gate resistance. Making R2 small enough to match would destroy NF, which is already at its 1.13 dB cap, so the sizer is stuck.
+The lack of match also costs the voltage gain at the gate, which is why s21 is 7 dB short (14.8 vs 21.8).
+mu_min_wide is 0.78 because stage 2 is a TITO configuration: the series inductor L2 on its gate and the L3 tank on its drain, coupled through Cgd.
+
+2. EDIT: inductively degenerated input plus cascoded stages
+- Add a series gate inductor LG and a source-degeneration inductor LS on NM1. This gives a noiseless real part (gm*LS/Cgs) that resonates with Cgs at f0.
+- Add common-gate cascodes (gates to VDD) on both stages.
+- Remove the interstage series L2 (direct C2 coupling), keeping 4 inductors.
+
+```netlist
+C C1 VIN1 n0
+L LG n0 n1
+NMOS NM1 n8 n1 n9 VSS
+L LS n9 VSS
+NMOS NM4 n2 VDD n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n10 n5 VSS VSS
+NMOS NM5 n6 VDD n10 VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+3. PREDICTION
+s11_max_db improves from -1.85 dB to about -10 dB (roughly 8 dB better).
+Secondary effects:
+- s21 rises by about 4 to 6 dB from the gate Q-boost and the higher cascode load resistance.
+- mu_min_wide rises above 1.
+- NF stays roughly flat to slightly better.
+
+==== ANSWER t2-nb090-noise-0254 ====
+1. DIAGNOSIS
+s11_max_db is -3.0 dB because NM1's gate is connected to the port through only a DC block. The input is a capacitor (Cgs plus the Miller Cgd) with no controllable real part. The only real part is the noisy bias feed R2, and NF (1.349 vs a 1.349 cap) will not allow lowering it.
+The poor match also wastes the gate voltage gain, so s21 is 5.5 dB short.
+mu_min_wide is 0.80 because stage 2 is a TITO configuration: the series inductor L2 on its gate and the L3 tank on its drain, coupled through Cgd.
+
+2. EDIT: inductive source degeneration plus gate inductor on NM1, cascodes on both stages, interstage series L removed
+This keeps 4 inductors. The edit provides a noiseless 50-ohm real input at resonance and kills the Cgd feedback.
+
+```netlist
+C C1 VIN1 n0
+L LG n0 n1
+NMOS NM1 n8 n1 n9 VSS
+L LS n9 VSS
+NMOS NM4 n2 VDD n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n10 n5 VSS VSS
+NMOS NM5 n6 VDD n10 VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+3. PREDICTION
+s11_max_db improves from -3.0 dB to about -10 dB (about 7 dB better).
+Secondary effects:
+- s21 rises by about 4 to 5 dB.
+- mu_min_wide rises from 0.80 to above 1.
+- NF stays roughly flat.
+
+==== ANSWER t2-wb1020-gain-0089 ====
+1. DIAGNOSIS
+mu_min_wide is 0.954. In band the amplifier is only marginally stable (mu_min 1.08, k_min 1.2), and out of band it becomes potentially unstable.
+The cause is the reactive terminations of a poorly isolated push-pull core. The NMOS and PMOS Cgd's add up (S12 is only -26 dB). The gate is fed through the series inductor L1, which gives an inductive source impedance. The drain sees the L2+C2 branch, which is inductive above its series resonance. Together these form a TITO negative-resistance mechanism.
+The output is nearly reflective (s22_max -3.3 dB) and the core has no resistive damping. NF, gain and Idd are all at zero margin, so the sizer cannot lower Q any further.
+
+2. EDIT: RC shunt feedback from drain to NMOS gate
+Add RF in series with a DC-block CF from n2 to n1. This provides broadband resistive damping of both ports and does not change the bias.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R RF n2 n8
+C CF n8 n1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+3. PREDICTION
+mu_min_wide improves from 0.954 to about 1.10 (+0.15).
+Secondary effects:
+- s22_max improves by about 3 to 5 dB.
+- s21 drops by less than about 0.5 dB, which the sizer can recover with a large RF.
+- NF rises by less than 0.1 dB.
+
+==== ANSWER t2-wb1020-gain-0126 ====
+1. DIAGNOSIS
+mu_min_wide is 0.70 and s21 is 3.2 dB short.
+The shunt-peaked load (L1 in series with R2) makes the drain impedance inductive at high frequency. Reflected through Cgd (Miller), an inductive drain load gives the gate a negative input resistance, so the input reflection goes above 1 out of band and mu falls below 1.
+The single NMOS transconductor at a 10 mA cap also cannot provide enough gm*R_load for 13 dB while the feedback resistor R1 sets a 50-ohm match. The gain limit is gm per mA.
+
+2. EDIT: current-reuse inverter with resistive feedback
+Replace the inductive shunt-peaked load (L1+R2) with a PMOS whose gate is tied to the NMOS gate, giving a self-biased CMOS inverter. R1 sets both the match and the DC point at mid-supply.
+- The drain load becomes purely resistive (the ro's, R1 and 50 ohm), so there is no inductive Miller reflection.
+- gm doubles at the same current.
+
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n1 VDD VDD
+C C2 n2 VOUT1
+```
+
+3. PREDICTION
+mu_min_wide improves from 0.70 to about 1.1 (+0.4), because there is no inductive load left to cause the negative resistance.
+Secondary effects:
+- s21 rises by about 3 to 4 dB (gm_n + gm_p from the same current), reaching 13 dB or more.
+- NF stays around 2 dB, well under the cap.
+
+==== ANSWER t2-wb1020-gain-0066 ====
+1. DIAGNOSIS
+mu_min_wide is 0.982. The push-pull core has double Cgd feedback (S12 -26 dB) and reactive terminations at both ports:
+- the series input inductor L1 makes the gate termination inductive;
+- the L2+C2 drain branch is inductive above its series resonance.
+This TITO-type coupling gives a negative-resistance region out of band. There is no broadband resistive damping (s22_max -5.2 dB). Gain, NF, s11 and Idd are all at zero margin, so the sizer cannot reduce the reactive Q.
+
+2. EDIT: RC shunt feedback from drain to NMOS gate
+Add RF plus a DC-block CF from n2 to n1. This gives broadband resistive damping and a better s22, and leaves the bias unchanged.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R RF n2 n8
+C CF n8 n1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+3. PREDICTION
+mu_min_wide improves from 0.982 to about 1.10 (+0.1).
+Secondary effects:
+- s22_max improves by about 3 dB.
+- s21 drops by less than about 0.4 dB, which the sizer can recover.
+
+==== ANSWER t2-nb090-noise-0287 ====
+1. DIAGNOSIS
+s11_max_db is -4.9 dB. NM1's gate goes straight to the port through a DC block, so the input is mainly capacitive (Cgs plus the Miller Cgd). Its only real part is the bias feed R2, which NF (at its 2.02 dB cap) will not let the sizer reduce. A capacitive input cannot be resonated to 50 ohms without an inductor and a noiseless real part.
+mu_min_wide is 0.85 because stage 2 is a TITO configuration (series inductor L2 on its gate, L3 tank on its drain, coupled through Cgd).
+
+2. EDIT: inductively degenerated input stage plus cascodes
+Add a gate inductor LG and a source-degeneration inductor LS on NM1, cascode both stages (gates to VDD), and remove the interstage series L2 to keep 4 inductors.
+
+```netlist
+C C1 VIN1 n0
+L LG n0 n1
+NMOS NM1 n8 n1 n9 VSS
+L LS n9 VSS
+NMOS NM4 n2 VDD n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n10 n5 VSS VSS
+NMOS NM5 n6 VDD n10 VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+3. PREDICTION
+s11_max_db improves from -4.9 dB to about -11 dB (about 6 dB better).
+Secondary effects:
+- s21 gains about 3 dB of headroom.
+- mu_min_wide rises above 1.
+- NF stays roughly flat or improves slightly.

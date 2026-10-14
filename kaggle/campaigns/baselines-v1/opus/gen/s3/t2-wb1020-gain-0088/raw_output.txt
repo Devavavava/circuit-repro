@@ -1,0 +1,21 @@
+1. DIAGNOSIS
+The binding metric is mu_min_wide (0.01-50 GHz) = 0.716, with in-band mu 1.15. NM1 is a single common-source device whose Cgd couples the gate to a shunt-peaked drain (R2+L1) that is inductive at multi-GHz. The Miller term through Cgd then has a negative real part at both ports.
+The R1 feedback gives a strong reverse path (s12 -19.5 dB), so mu falls below 1 out of band. To keep in-band stability the sizer had to give up gain: s21 is 9.26 vs >=11.64 dB, at the Idd cap.
+
+2. EDIT: cascode NM2 (gate at VDD) between NM1's drain and the output/peaking node, with R1 still from the output to NM1's gate.
+- The cascode isolates Cgd1 from the inductive load, which removes the negative conductance.
+- It also raises the output resistance, so the loop gives more gain at the same match and Idd.
+```netlist
+* lna-a3-shunt-feedback edit: cascode NM2 (gate at VDD) inside the R1 feedback loop
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n4 n1 VSS VSS
+NMOS NM2 n2 VDD n4 VSS
+L L1 VDD n3
+R R2 n3 n2
+C C2 n2 VOUT1
+```
+3. PREDICTION
+- Binding metric: mu_min_wide improves from 0.72 to ~1.05-1.15 (about +0.35-0.4).
+- s21: rises ~+1.5 to +2 dB.
+- NF: rises by at most 0.2 dB.

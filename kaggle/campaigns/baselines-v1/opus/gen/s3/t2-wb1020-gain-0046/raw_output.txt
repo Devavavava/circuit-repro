@@ -1,0 +1,32 @@
+1. DIAGNOSIS
+The binding metric is mu_min_wide = 0.885, and in-band mu is also below 1 (mu_min 0.888, k 0.29). The current-reuse inverter is a single gain node with no resistive damping anywhere:
+- The gate is driven through the series inductor L1, an inductive source termination.
+- The output n2 is loaded by the L2-C2 branch (inductive above its series resonance) and by the high ro_n||ro_p.
+- So the output port is almost lossless: s22 = -0.24 dB, s22_max = -0.04 dB.
+Inductive gate plus inductive drain, coupled through Cgd_n + Cgd_p (s12 = -28.8 dB), is the tuned-gate/tuned-drain oscillator configuration. With |s22| near 1, any feedback gives mu < 1, both in band and out of band. No sizing can damp it without losing the s21 and ripple gates, which already sit at their limits.
+
+2. EDIT: add broadband resistive shunt feedback R6 from the output n2 to the NMOS gate n1, and let it self-bias NM1.
+- NM1's gate DC equals its drain DC, so NM1 acts as a diode at DC and sinks exactly the PMOS-mirror current.
+- The now-redundant NMOS mirror reference (R1/NM3/R2) is removed. Its reference current returns to the core within the Idd cap.
+- R6 is a resistive loss path linking both ports at all frequencies. It pulls |s22| well below 1 and kills the out-of-band negative conductance.
+- L1 still resonates Cgs for the in-band match.
+```netlist
+* lna-a2-current-reuse edit: resistive shunt feedback R6 (out->NMOS gate), NM1 self-biased via R6
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R6 n2 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION
+- Binding metric: mu_min_wide improves from 0.885 to ~1.1-1.2 (about +0.25). In-band mu_min also rises above 1.
+- s22: improves from ~0 dB to about -6 to -8 dB.
+- s21: changes by roughly -0.5 to +0.5 dB (feedback loss offset by the reclaimed bias current).
+- NF: rises ~+0.1 to +0.2 dB.

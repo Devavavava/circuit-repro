@@ -1,0 +1,28 @@
+1. DIAGNOSIS
+The binding metric is s21_db = 10.38 vs the 12.61 dB gate, and mu_min_wide (0.868) is also failing.
+The output already drives 50 ohm almost directly (s22 -9.5 dB). So gain is set by the total transconductance, gm_n + gm_p, times about 50 ohm || ro, and the 0.377 dB ripple gate forbids a high-Q input or load to add voltage gain.
+That gm is starved in two ways:
+- Part of the 6.8 mA budget is burnt in the two bias-reference branches (R1/NM3 and R4/PM2).
+- The sizer had to detune and shave gm to fight the out-of-band tuned-gate/tuned-drain instability (inductive L1 gate source plus an L2-C2 load that is inductive above resonance, coupled through Cgd).
+Gain and wideband stability are therefore traded against each other on a fixed current budget.
+
+2. EDIT: convert to the classic self-biased resistive-feedback inverter.
+- Both gates are tied at n1 (C1 removed), so the full NMOS+PMOS gm acts on one node.
+- R6 from output to gate sets the DC at the inverter trip point and provides broadband resistive damping.
+- Both mirror reference branches are deleted, so 100% of Idd flows in the gm devices.
+```netlist
+* lna-a2-current-reuse edit: self-biased resistive-feedback inverter (R6 out->common gate), mirror refs removed
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n1 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R6 n2 n1
+```
+3. PREDICTION
+- Binding metric: s21_db improves by about +1.5 to +2 dB (10.4 to ~12.0-12.5 dB), driven by the reclaimed reference current and by no longer having to trade gain for stability.
+- mu_min_wide: rises from 0.87 to above 1.1.
+- s11: stays near -8 to -10 dB.
+- NF: rises ~+0.1 to +0.2 dB.

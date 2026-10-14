@@ -1,0 +1,30 @@
+1. DIAGNOSIS
+The binding s11_max_db (-3.58 dB vs -7.90 dB) is a missing input-matching structure. The NM1 gate is reached only through the DC block C1, with R2 as the sole shunt element. Zin is roughly R2 || 1/(jwCgs): capacitive, with no 50-ohm real part and no inductor to resonate Cgs at 900 MHz.
+Matching with R2 would add resistor noise, and NF is already at its gate (1.476 vs 1.4763 dB). So the sizer leaves |Gamma| high.
+The gain miss (14.02 vs >=18.62 dB) has the same source: mismatch loss plus no input Q gain. Stability is fine in band (mu 2.3).
+
+2. EDIT: an inductively degenerated stage-1 input.
+- Series gate inductor L4 resonates Cgs.
+- Source inductor L5 gives the noiseless real part wT*Ls = 50 ohm.
+- The interstage series L2 is removed (4-inductor limit). C2 couples directly to NM2, and L1 tunes the interstage node.
+```netlist
+* lna-a4-twostage edit: inductively degenerated stage-1 input (Lg=L4, Ls=L5), C-coupled interstage
+C C1 VIN1 n0
+L L4 n0 n1
+NMOS NM1 n2 n1 n8 VSS
+L L5 n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+3. PREDICTION
+- Binding metric: s11_max_db improves from -3.58 dB to about -12 dB (~8 dB better), clearing the gate.
+- s21: rises ~+3 to +5 dB.
+- NF: moves by about +/-0.2 dB.
+- mu: stays >1.

@@ -1,0 +1,21 @@
+1. DIAGNOSIS
+The binding metric is mu_min_wide (0.01-50 GHz) = 0.663, and in-band mu is 1.14. In this single common-source shunt-feedback stage, NM1's Cgd connects the gate to a drain whose load (R2 + L1 shunt peaking) becomes inductive at multi-GHz frequencies. Miller feedback of an inductive drain load through Cgd gives a negative real part at the input, and correspondingly at the output.
+On top of that, R1 sets a strong reverse path (s12 = -18.4 dB). The sizer can only keep in-band mu > 1 by holding gain exactly at its floor (s21 = 9.4876 = gate), with Idd and s11 also pinned. The out-of-band region stays potentially unstable for every sizing.
+
+2. EDIT: cascode NM2 (gate at VDD) between NM1's drain and the output/peaking node, keeping R1 from the output to NM1's gate.
+- The inductive load is moved off NM1's Cgd, which now sees the low impedance at the cascode source. This removes the negative-conductance mechanism.
+- The extra output resistance raises loop gain, so match and gain are easier to reach together.
+```netlist
+* lna-a3-shunt-feedback edit: cascode NM2 (gate at VDD) inside the R1 feedback loop
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n4 n1 VSS VSS
+NMOS NM2 n2 VDD n4 VSS
+L L1 VDD n3
+R R2 n3 n2
+C C2 n2 VOUT1
+```
+3. PREDICTION
+- Binding metric: mu_min_wide improves from 0.66 to ~1.05-1.15 (about +0.4).
+- s21: rises ~+1 to +2 dB at equal Idd.
+- NF: rises by at most 0.2 dB (it has more than 1.9 dB of margin).

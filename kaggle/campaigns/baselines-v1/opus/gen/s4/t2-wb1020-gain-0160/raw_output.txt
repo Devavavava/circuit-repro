@@ -1,0 +1,27 @@
+1. DIAGNOSIS
+The binding constraint is mu_min_wide (0.945). s21 is also marginally short (12.52 vs 12.58 dB).
+- The current-reuse inverter has the summed Cgd of NM1 and PM1 coupling output n2 back to the AC-tied gates (S12 about -26.6 dB).
+- Out of band, the input (series L1 into the gate capacitance) and the output (L2-C2 tank, drain capacitance, C3; s22_max about -4 dB) are nearly reactive, so S12*S21 drives mu below 1.
+- The low output resistance (ro_n || ro_p in 45 nm) also limits gain at the 7.2 mA cap.
+
+2. EDIT: NMOS cascode in the current-reuse stack
+Add NM2 (gate to VDD) between n2 and the NM1 drain. This cuts the NMOS Cgd reverse path and raises the output resistance, so it addresses both mu_wide and the small gain shortfall at zero extra current.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n7 n1 VSS VSS
+NMOS NM2 n2 VDD n7 VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION
+mu_min_wide should improve by about 0.1-0.15, from 0.945 to about 1.05-1.1, and pass. s21 should improve by about 1 dB, to about 13.5 dB.

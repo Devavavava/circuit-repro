@@ -1,0 +1,22 @@
+1. DIAGNOSIS
+The binding constraint is broadband stability (mu over 0.01-50 GHz = 0.945; in-band mu is 1.14). The series gate inductor L1 feeds the large combined gate capacitance of the inverter (NM1, plus PM1 through C1). Nothing resistive damps it, so out of band it forms a high-Q series resonance. Above the band, the output network (L2 to AC ground through C2, in parallel with drain capacitance) turns inductive and reflects through the combined Cgd as negative gate conductance. That makes the input reflection exceed 1 at some multi-GHz frequency. The poor s22 (-4 dB) confirms the output is lightly loaded and reactive. All in-band margins (s21, NF, Idd) are near zero, so the fix must be almost free in band.
+
+2. EDIT: put a damping resistor RD in parallel with the gate inductor L1. In band, w*L1 is much smaller than RD, so the inductor carries the signal and RD barely affects NF or gain. Out of band, where w*L1 exceeds RD, the gate is fed resistively and the Q of the input loop collapses.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+R RD n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.945 to about 1.05-1.1 (+0.1 to +0.15). In-band s21 and NF should change by less than 0.15 dB.

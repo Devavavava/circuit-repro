@@ -1,0 +1,22 @@
+1. DIAGNOSIS
+The binding constraint is the band-edge noise figure: NF_max is 2.16 dB against 1.97 dB, while NF at f0 is 2.07 dB. Worst-case S11 also fails (-7.26 dB), and wideband mu is just below 1 (0.97). The input network is a single series resonance: L1 with the capacitive inverter gate (Cgs_n + Cgs_p via C1). It is inherently narrowband, so across 1-2 GHz both the match and the noise match move off at the band edges. Its real part does not come from a noiseless mechanism. It comes from the bias-feed resistors R2/R5 and the gate resistance, whose noise is amplified by the input Q. The circuit therefore has no frequency-flat, noiseless 50-ohm input resistance, and NF and S11 both degrade at the band edges.
+
+2. EDIT: inductive source degeneration on the NMOS, with Ls from the NM1 source to VSS (a DC short, so bias is unchanged). Ls synthesizes a noiseless real input resistance, Re{Zin} = gm_n*Ls/C_in, that is roughly constant with frequency. This lowers the Q needed from the series L1 resonance, broadens the match and noise match across the octave, and lets the noisy bias resistors be sized large. Ls also adds series feedback that improves stability.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 ns VSS
+L Ls ns VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: NF_max improves from 2.16 dB to about 1.85-1.95 dB (-0.2 to -0.3 dB). S11_max improves by about 1.5 dB, to about -8.8 dB. Wideband mu rises above 1 (about 1.05). S21 falls by about 0.3 dB at fixed sizing.

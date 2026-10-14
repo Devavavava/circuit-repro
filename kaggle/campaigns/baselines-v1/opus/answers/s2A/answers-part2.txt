@@ -1,0 +1,238 @@
+==== ANSWER t2-wb1020-gain-0161 ====
+1. DIAGNOSIS
+mu_min_wide is 0.895, and in band mu_min is only 1.06 and k_min 1.11.
+In the push-pull core the NMOS and PMOS Cgd's add up, so reverse isolation is poor (S12 -24 dB). Both terminations are reactive:
+- the gate is fed through the series inductor L1, so its source impedance is inductive;
+- the drain sees L2+C2, which is inductive above its series resonance.
+This tuned-input/tuned-output coupling through Cgd gives a negative real part out of band. The core has no resistive damping (s22_max is -3.7 dB, nearly reflective). Gain, NF and Idd are all at zero margin, so sizing cannot de-Q it.
+
+2. EDIT: RC shunt feedback from drain to NMOS gate
+Add RF plus a DC-block CF from n2 to n1. This gives broadband resistive damping at both ports, and the bias is unchanged.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R RF n2 n8
+C CF n8 n1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+3. PREDICTION
+mu_min_wide improves from 0.895 to about 1.05-1.10 (about +0.15).
+Secondary effects:
+- s22_max improves by about 3 to 5 dB.
+- s21 drops by about 0.3 to 0.5 dB, which the sizer recovers through RF.
+
+==== ANSWER t2-nb090-noise-0012 ====
+1. DIAGNOSIS
+mu_min_wide is 0.63, the worst margin by far.
+The shunt-peaking inductor L1 makes the drain load inductive at high frequency. Through Cgd, an inductive drain load reflects a negative resistance onto the gate (the Miller effect with a phase-inverted inductive load), so the input becomes active out of band.
+Gain is exactly at its 9.8 dB floor at the 6.1 mA cap. A single NMOS transconductor with a resistive feedback match has no gm headroom to trade for damping.
+
+2. EDIT: current-reuse CMOS inverter with resistive feedback
+Replace the shunt-peaked load L1+R2 with a PMOS whose gate is shared with the NMOS. R1 self-biases the inverter at mid-supply and sets the match.
+- The drain load is now purely resistive (the ro's, R1 and 50 ohm), so the inductive Miller negative resistance is gone.
+- gm doubles at the same current.
+
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n1 VDD VDD
+C C2 n2 VOUT1
+```
+
+3. PREDICTION
+mu_min_wide improves from 0.63 to about 1.1 (+0.45).
+Secondary effects:
+- s21 gains about 3 dB of headroom.
+- NF stays around 1.5 dB.
+
+==== ANSWER t2-wb1020-gain-0183 ====
+1. DIAGNOSIS
+mu_min_wide is 0.71 and s21 is 2.4 dB short.
+The shunt-peaked load (L1 in series with R2) becomes inductive at high frequency. Through Cgd it reflects a negative resistance into the gate, so the input reflection exceeds 1 out of band.
+A single NMOS at the 9.3 mA cap cannot reach 12 dB while R1 holds the 50-ohm match. The limit is gm per mA.
+
+2. EDIT: CMOS inverter (current-reuse) resistive-feedback LNA
+Remove the inductive load and add a PMOS sharing the input gate, self-biased through R1. This doubles gm at the same Idd and makes the load purely resistive.
+
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n1 VDD VDD
+C C2 n2 VOUT1
+```
+
+3. PREDICTION
+mu_min_wide improves from 0.71 to about 1.1 (+0.4).
+Secondary effects:
+- s21 rises by about 3 dB, to 12.5 dB or more.
+- NF stays around 2 dB.
+
+==== ANSWER t2-nb090-noise-0312 ====
+1. DIAGNOSIS
+s11_max_db is -3.1 dB. The input is a bare common-source gate behind a DC block, so it is capacitive (Cgs plus the Miller Cgd) with no controllable real part. The only resistive part is the bias feed R2, and the NF cap (1.357 dB, already spent) prevents using it to match.
+The unmatched gate also loses voltage gain, so s21 is 4 dB short.
+mu_min_wide is 0.82 because stage 2 is a TITO configuration (series inductor L2 on its gate, L3 tank on its drain).
+
+2. EDIT: series gate inductor plus source degeneration on NM1, cascodes on both stages, interstage series L removed
+This keeps 4 inductors.
+
+```netlist
+C C1 VIN1 n0
+L LG n0 n1
+NMOS NM1 n8 n1 n9 VSS
+L LS n9 VSS
+NMOS NM4 n2 VDD n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n10 n5 VSS VSS
+NMOS NM5 n6 VDD n10 VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+3. PREDICTION
+s11_max_db improves from -3.1 dB to about -10 dB (about 7 dB better).
+Secondary effects:
+- s21 rises by about 4 dB.
+- mu_min_wide rises above 1.
+- NF stays roughly flat.
+
+==== ANSWER t2-nb090-noise-0143 ====
+1. DIAGNOSIS
+NF is 2.54 dB against a 2.29 dB cap. The current-reuse input resonates the series L1 with Cgs, but the circuit has no noiseless source of input resistance. The real part needed for the -8 dB match comes from the bias feed resistors (R2 on the NMOS gate, and R5 coupled in through C1) and other lossy elements. In effect, that termination noise is added straight onto the input.
+k and mu are about 1.01, so the sizer cannot raise gain or Q to dilute that noise.
+
+2. EDIT: inductive source degeneration on NM1
+Add LS from the NM1 source to VSS. This creates a noiseless real input resistance of about gm*LS/Cgs, resonated by L1 and LS at 900 MHz. The bias resistors can then be made large, so they no longer set the match. The series feedback also adds stability margin.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n8 VSS
+L LS n8 VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+3. PREDICTION
+NF improves from 2.54 dB to about 2.0-2.1 dB (about 0.4 to 0.5 dB better).
+Secondary effects:
+- s11 stays at -8 dB or better.
+- mu improves slightly (by about +0.05).
+
+==== ANSWER t2-nb090-noise-0129 ====
+1. DIAGNOSIS
+NF is 2.46 dB against a 2.29 dB cap. With no source degeneration, the real part of the input impedance has to come from lossy elements, mainly the gate bias feed resistors R2/R5 and parasitic resistance. That resistive termination adds its noise directly to the input.
+mu and k are about 1.00, so there is no room to buy NF with more gain or a higher-Q match.
+
+2. EDIT: inductive source degeneration on NM1
+Add LS from the NM1 source to VSS. This gives a noiseless real input resistance (gm*LS/Cgs) that resonates with L1 and Cgs at 900 MHz. The bias resistors can then become large and stop setting the match. The series feedback also improves the stability margin.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n8 VSS
+L LS n8 VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+3. PREDICTION
+NF improves from 2.46 dB to about 2.0-2.1 dB (about 0.4 dB better).
+Secondary effects:
+- s11 holds at -8 dB or better.
+- mu rises a little above 1.
+
+==== ANSWER t2-wb1020-gain-0010 ====
+1. DIAGNOSIS
+mu_min_wide is 0.82. In the push-pull core the summed NMOS and PMOS Cgd give poor isolation (S12 -25 dB). The gate termination is inductive through the series L1, and the drain load is inductive through L2+C2 above its series resonance. This tuned-input/tuned-output coupling makes a negative-resistance region out of band.
+The core has no broadband resistive loss. NF, s11, gain and Idd are all at zero margin, so the sizer cannot de-Q it.
+
+2. EDIT: RC shunt feedback from drain to NMOS gate
+Add RF plus a DC-block CF from n2 to n1. This adds broadband resistive damping at both ports and leaves the bias unchanged.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R RF n2 n8
+C CF n8 n1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+3. PREDICTION
+mu_min_wide improves from 0.82 to about 1.05 (+0.2).
+Secondary effects:
+- s22 improves by about 3 dB.
+- s21 drops by about 0.5 dB.
+- NF rises by about 0.1 dB.
+The last two are recoverable through RF sizing.
+
+==== ANSWER t2-nb090-noise-0047 ====
+1. DIAGNOSIS
+mu_min_wide is 0.68. The shunt-peaking inductor L1 makes the drain load inductive at high frequency. Through Cgd that reflects a negative input resistance onto the gate, so the circuit is potentially unstable out of band.
+Gain is also 0.65 dB short (9.34 vs 9.99 dB) at the 5.9 mA cap. One NMOS cannot provide enough gm per mA while R1 holds the 50-ohm match.
+
+2. EDIT: CMOS inverter (current-reuse) resistive-feedback LNA
+Replace L1+R2 with a PMOS whose gate is shared with the input. R1 self-biases the inverter and sets the match. The load becomes purely resistive, and gm doubles at the same current.
+
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n1 VDD VDD
+C C2 n2 VOUT1
+```
+
+3. PREDICTION
+mu_min_wide improves from 0.68 to about 1.1 (+0.4).
+Secondary effects:
+- s21 rises by about 3 dB, to about 12 dB.
+- NF stays around 1.6 to 1.8 dB.

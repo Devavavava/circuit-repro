@@ -1,0 +1,30 @@
+1. DIAGNOSIS
+NF is 2.54 dB against a 2.29 dB cap. The current-reuse input resonates the series L1 with Cgs, but the circuit has no noiseless source of input resistance. The real part needed for the -8 dB match comes from the bias feed resistors (R2 on the NMOS gate, and R5 coupled in through C1) and other lossy elements. In effect, that termination noise is added straight onto the input.
+k and mu are about 1.01, so the sizer cannot raise gain or Q to dilute that noise.
+
+2. EDIT: inductive source degeneration on NM1
+Add LS from the NM1 source to VSS. This creates a noiseless real input resistance of about gm*LS/Cgs, resonated by L1 and LS at 900 MHz. The bias resistors can then be made large, so they no longer set the match. The series feedback also adds stability margin.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n8 VSS
+L LS n8 VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+3. PREDICTION
+NF improves from 2.54 dB to about 2.0-2.1 dB (about 0.4 to 0.5 dB better).
+Secondary effects:
+- s11 stays at -8 dB or better.
+- mu improves slightly (by about +0.05).

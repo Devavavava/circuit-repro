@@ -1,0 +1,27 @@
+1. DIAGNOSIS
+The binding constraint is input match (S11 = -2.3 dB against -7.85 dB), with S21 8 dB short (15.0 against 22.8 dB). The input is C1 straight onto the gate of NM1 with only the bias feed R2 in shunt. The port therefore sees C1 in series with Cgs, nearly lossless, with no 50-ohm real part.
+
+A small R2 would supply resistance but add input thermal noise, and NF is pinned at its limit (1.148 against 1.146). The mismatch loss (~4 dB) is most of the gain shortfall. Stage 2 (series gate L2 plus the L1 tank, drain tank L3, Cgd) is a tuned-gate/tuned-drain loop that sets mu over 0.01-50 GHz to 0.83.
+
+2. EDIT: build an inductively-degenerated cascode input stage.
+- Add a series gate inductor Lg and a source inductor Ls, giving a noiseless resonant real input of gm*Ls/Cgs = 50 ohm.
+- Remove the interstage L2 to stay at 4 inductors and break stage 2's tuned gate.
+- Cascode both stages, with their cascode gates tied to VDD.
+```netlist
+C C1 VIN1 n0
+L Lg n0 n1
+NMOS NM1 n8 n1 n3 VSS
+L Ls n3 VSS
+NMOS NM4 n2 VDD n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n9 n5 VSS VSS
+NMOS NM5 n6 VDD n9 VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+3. PREDICTION: s11_max_db (binding) improves from -2.3 dB to ~-11 dB (about 9 dB better). S21 rises by ~7 dB to ~22 dB, NF stays ~1.1-1.2 dB, and mu_min_wide rises above 1.

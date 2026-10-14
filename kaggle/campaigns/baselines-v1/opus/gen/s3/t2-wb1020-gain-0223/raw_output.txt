@@ -1,0 +1,14 @@
+1. DIAGNOSIS
+The binding constraint is out-of-band stability: mu over 0.01-50 GHz is 0.65, while in-band mu is 1.14. S21 is also 0.6 dB short (9.56 vs 10.15 dB) with Idd pinned at its cap. The two failures are coupled. The single common-source device drives an inductive shunt-peaked load (L1 in series with R2) directly, so its Cgd couples that inductive drain back to the gate. This gives a negative input conductance of about -w^2*gm*Cgd*L1 above the band, which grows with frequency and with gm*Z_L. Every attempt by the optimizer to raise gain (more gm*Z_L) makes mu worse, so the sizer is stuck between gain and wideband stability. Low intrinsic gain (gm*ro) in a short-channel device at this current also caps the gain.
+
+2. EDIT: cascode the gain device. NM2 is a common-gate device with its gate on VDD (AC ground). The input device's Cgd now sees only the low, resistive 1/gm2 impedance at the cascode node instead of the inductive load. NM2's own Cgd goes to an AC-grounded gate, so the inductive-load-to-gate Miller path is removed. The loop through R1 feeds back only a resistive conductance. The cascode also raises output resistance, which helps S21. The self-bias (gate DC = output DC through R1) is kept.
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 nc n1 VSS VSS
+NMOS NM2 n2 VDD nc VSS
+L L1 VDD n3
+R R2 n3 n2
+C C2 n2 VOUT1
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.65 to about 1.1 (+0.45). With the stability constraint released, S21 rises by about 0.5-1 dB, which reaches the 10.15 dB gate.

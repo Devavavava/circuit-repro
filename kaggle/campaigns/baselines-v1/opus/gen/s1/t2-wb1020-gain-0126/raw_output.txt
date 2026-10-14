@@ -1,0 +1,12 @@
+1. DIAGNOSIS
+The binding failure is wideband stability (mu over 0.01-50 GHz = 0.70), and s21 is short (9.74 vs 12.99 dB). The shunt-peaked load (L1 in series with R2) becomes inductive above the peaking zero. Fed back through Cgd and the feedback resistor R1, the input admittance jwCgd(1 + gm*jwL) gets a negative real part (-w^2*gm*L*Cgd) at multi-GHz frequencies, where the 45 nm NMOS still has gain, so mu < 1. Gain is capped at the 10.1 mA cap: one NMOS supplies all the gm, and the DC-drop resistor R2 loads the 50-ohm output, so the only lever left (more peaking) would make stability worse.
+
+2. EDIT: replace the shunt-peaked NMOS CS with a self-biased CMOS inverter (NM1 + PM1, common gate and drain) inside the same R1 shunt feedback (the inverter resistive-feedback broadband LNA). The current is reused (gm = gm_n + gm_p), the PMOS is the active load, and there is no inductor, so the drain load stays RC and can't go inductive. R1 sets Vg = Vd self-bias and the broadband real input match.
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n1 VDD VDD
+C C2 n2 VOUT1
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.70 to about 1.2 (about +0.5; it passes). Side effect: s21 rises by about 3-4 dB (gm roughly doubled at 10 mA), close to the 13 dB gate. Ripple stays below 0.5 dB and NF stays below 2.5 dB, well under the 4.55 dB cap.

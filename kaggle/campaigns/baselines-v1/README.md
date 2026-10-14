@@ -137,3 +137,30 @@ decision from the user. Options:
 - (c) Run the 37 GA-needing tasks for GA seed 1 first (≈ 40–70 CPU-h projected), then decide on seeds 2–3.
 
 `ga.py` is resumable, so the smoke rows are reused by exact key (`--extra-cache ga/smoke/results.jsonl`).
+
+## Part O — Opus frontier reference (RESULT 2026-10-15)
+
+8 Claude Code Opus subagents (user's subscription, no API charges), one per (sample 1–4, task half A/B), 29 tasks
+each, exact pilot-v0 held-out prompts. Converted with `opus/opus_convert.py` (live-LLM parse path), scored with
+`pv1_score.py` (`opus-2` all3, `opus-4` h1; score dir `opus/score`), summarized by `opus/opus_summarize.py` →
+`opus/opus-tables.md`, `opus/opus-summary.json`. Raw answers + plan in `opus/answers/`. No missing rows.
+
+Deviations: **D-O1** prompts were not inlined in the agent call (≈ 900k characters); each agent could Read only
+its own prompt files (+ SYSTEM.txt) and Write only its own answer files — the transcript audit confirms this for
+all 8 (tools used: Read, Write, the hand-back; s1A also used Edit once on its own answers file). **D-O2** three
+answers were skipped in the first pass (s2B 2, s1A 1); the same agent was resumed and asked for exactly those,
+written to `answers-part5.txt`. **D-O3** the system prompt was given as a file (SYSTEM.txt) the agent read as its
+role instruction, inside Claude Code's own agent system prompt (not a bare API system prompt).
+
+| model | pass@1 | pass@2 | pass@4 | coverage@4 | T1 p@1 / p@4 | T2 p@1 / p@4 | T3 p@4 | 2-sample solved (T1/T2/T3) | validity |
+|---|---|---|---|---|---|---|---|---|---|
+| Opus (zero-shot) | 0.315 | 0.422 | 0.517 | 30 | 0.326 / 0.435 | **0.336 / 0.625** | 0 | 27 (7/20/0) | 232/232 |
+| sft-r1 (samples 1–4) | 0.341 | 0.506 | **0.690** | **40** | **0.500 / 0.957** | 0.258 / 0.563 | 0 | 37 (19/16/2) | 0.98 |
+
+- Paired bootstrap pass@1 (Opus − sft-r1): −0.026, 95% CI [−0.147, +0.095] — no difference at pass@1.
+- **Opus never answers with a library anchor (0/232)**; it edits the shown circuit as the prompt literally asks.
+  sft-r1's entire lead is T1, i.e. knowledge of this bench's 5-circuit library learned in SFT. On the edit tier
+  (T2) zero-shot Opus is better per sample (p@1 .336 vs .258; 2-sample 20 vs 16).
+- Reading (pre-declared): Opus pass@4 (.517) < sft-r1 (.690), so not "a cost/size story only"; the gap is the
+  bench-specific library (T1) — the second reading applies to T1, while on T2 general design skill (Opus) is
+  at least as good as our fine-tuned 14B.

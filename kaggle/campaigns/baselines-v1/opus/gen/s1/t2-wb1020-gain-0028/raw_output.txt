@@ -1,0 +1,22 @@
+1. DIAGNOSIS
+The binding failure is nf_max (2.16 vs 1.97 dB), and the s11 band edge is also failing (-7.26 dB). NM1's source is grounded directly, so the input has no noiseless real part. The 50-ohm match relies on the series gate inductor L1 resonating Cgs, with the real part supplied by the bias-feed resistor R2 (to the low-impedance mirror node). R2's thermal noise is injected straight at the gate. The device also can't sit at its optimum noise impedance, and the single high-Q series resonance mismatches at the 1 and 2 GHz edges, which raises NF where it is measured as nf_max. Gain and Idd are pinned, so the sizer has no slack.
+
+2. EDIT: add an inductive source-degeneration inductor (L3) from NM1's source to ground. It produces a noiseless real input term wT*Ls, so the sizer can make R2 a pure high-value bias feed and bring the input close to simultaneous noise/power match. Using Ls instead of R2 for the real part also lowers the input-network Q (more of the reactance is cancelled by Ls), which widens the matched band and improves the band-edge NF and s11.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 n7 VSS
+L L3 n7 VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: nf_max_db improves from 2.16 dB to about 1.8-1.9 dB (about 0.3 dB better; it passes 1.97). s11_max improves by about 1-2 dB, to about -8.5 dB. s21 drops by about 0.3 dB from degeneration, recovered by L2 retuning. mu_wide rises slightly from the series feedback.

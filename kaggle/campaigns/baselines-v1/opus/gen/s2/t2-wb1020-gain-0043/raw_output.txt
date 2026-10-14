@@ -1,0 +1,14 @@
+1. DIAGNOSIS
+The binding constraint is broadband stability (mu over 0.01-50 GHz = 0.64; in-band mu is 1.11). At 11 mA, NM1 is a wide device with large Cgd. Its shunt-peaked load (L1 + R2) is inductive above the band, and Cgd reflects that inductive drain impedance to the gate as negative conductance. At high frequency Cgd bypasses R1, so the feedback provides no damping, and the large Cgd makes this the worst case of the shunt-feedback family. s21 is also 0.47 dB short because of Miller loading.
+
+2. EDIT: insert a cascode NM2 (gate at VDD) between NM1's drain and the load, keeping R1 from the output node to the gate. The cascode isolates NM1's large Cgd from the inductive load, presenting 1/gm2 instead. This removes the Miller-inductive negative resistance and the input Miller capacitance, and it raises output resistance, which adds gain.
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n8 n1 VSS VSS
+NMOS NM2 n2 VDD n8 VSS
+L L1 VDD n3
+R R2 n3 n2
+C C2 n2 VOUT1
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.64 to about 1.0-1.1 (+0.35 to +0.45). s21 rises by about 1 dB, to roughly 12 dB.

@@ -1,0 +1,27 @@
+1. DIAGNOSIS
+The binding constraint is mu_min_wide (0.917).
+- The current-reuse inverter has the Cgd of both NM1 and PM1 between the shared output n2 and the AC-tied gates, so reverse transmission is significant (S12 about -25.5 dB).
+- Out of band, the input (series L1 into the gate capacitance) and the output (L2-C2 tank, drain capacitance, C3; s22_max about -3.7 dB) are nearly lossless. With |S11| and |S22| near 1 and S12*S21 non-zero, mu drops below 1.
+- NF, gain and Idd are all at their edges, so lossy damping is not affordable.
+
+2. EDIT: NMOS cascode in the current-reuse stack
+Add NM2 (gate to VDD) between n2 and the NM1 drain. This shields the NMOS Cgd from the output, which reduces S12, and raises the output resistance, which adds gain. It costs no current and adds negligible noise.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n7 n1 VSS VSS
+NMOS NM2 n2 VDD n7 VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION
+mu_min_wide should improve by about 0.15, from 0.92 to about 1.05-1.1, and pass. S12 should improve by about 6-10 dB, and s21 by about 1 dB.

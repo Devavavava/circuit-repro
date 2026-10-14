@@ -1,0 +1,14 @@
+1. DIAGNOSIS
+The binding constraint is broadband stability (mu over 0.01-50 GHz = 0.71). s21 also misses by 1.5 dB. This is a single common-source stage. Its load is shunt peaking (L1 + R2), which is inductive at high frequency. That inductive drain load reflects through NM1's Cgd as a negative input conductance, the classic Miller-inductive-load instability. Feedback R1 does not stop it, because above several GHz Cgd shunts R1 and the internal reverse path is purely reactive. The Cgd Miller capacitance also loads the input. So the sizer cannot raise gm or R2 for gain without making stability worse, and s21 is stuck at 9.2 dB at the current cap.
+
+2. EDIT: insert a common-gate cascode device (NM2, gate at VDD = AC ground) between NM1's drain and the shunt-peaked load. Keep feedback R1 from the output node back to the gate. The cascode isolates NM1's Cgd from the inductive load: NM1's drain now sees a low, resistive 1/gm2. This removes the internal negative-resistance mechanism and the Miller multiplication, and it raises output resistance, so the gain the feedback sets goes up.
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n8 n1 VSS VSS
+NMOS NM2 n2 VDD n8 VSS
+L L1 VDD n3
+R R2 n3 n2
+C C2 n2 VOUT1
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.71 to about 1.0-1.2 (+0.3 to +0.45). Secondary effects: s12 improves by about 10 dB on the internal path, and s21 rises by about 1-2 dB to roughly 10.5-11 dB.

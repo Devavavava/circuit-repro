@@ -1,0 +1,23 @@
+1. DIAGNOSIS
+The binding constraint is broadband stability (mu over 0.01-50 GHz = 0.885), but this design is unstable even in band: mu_min is 0.89, k is 0.29, and mu_src_min is 0.03. The decisive symptom is s22 of about -0.04 to -0.24 dB: the output port is almost lossless and reflects everything. The sizer has made the inverter's output node (n2) a high-Q, nearly lossless resonance with L2 to AC ground, with very high rds for both NM1 and PM1, to buy gain and its 1.25 dB ripple. The large combined Cgd then couples that reactive, high-impedance node back to the series-L1-tuned gate. The result is a potentially unstable two-port, with |s22| close to 1 and a source-side stability circle that cuts into the Smith chart. Gain is not the limit (s21 has margin). Missing output loss is.
+
+2. EDIT: add resistive shunt feedback from the output node n2 to the NMOS gate n1 (RF in series with a DC-block CF). This gives a real, frequency-flat output conductance, about (1 + A)/RF, which pulls s22 into the chart and damps the output tank. It also adds input conductance and strongly lowers |s22|, giving broadband damping from 10 MHz to 50 GHz. It also flattens the gain peak, which helps the ripple.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+R RF n2 n7
+C CF n7 n1
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.885 to about 1.1-1.2 (+0.2 to +0.3), and in-band mu_min goes from 0.89 to about 1.2. s22_max improves from -0.04 dB to about -7 to -10 dB. s21 drops by about 0.5-1 dB, which the sizer can recover through the margin freed on NF and ripple.

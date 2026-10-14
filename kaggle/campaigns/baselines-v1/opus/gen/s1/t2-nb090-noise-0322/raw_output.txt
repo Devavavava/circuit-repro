@@ -1,0 +1,22 @@
+1. DIAGNOSIS
+The binding metric is s11_max_db at -3.1 dB. NM1's gate is driven straight through the DC block C1 with no matching network, so the 900 MHz input is Cgs in parallel with the R2 bias feed. That is mostly capacitive, and the circuit cannot produce a 50-ohm real part. With NF pinned at its 1.34 dB cap, the sizer used a large R2 and a wide NM1, which makes the input even more reactive. With no input resonance there is no gate-voltage Q boost, so S21 is also 4 dB short.
+
+2. EDIT: use an inductively source-degenerated input stage. Add a series gate inductor LG and a source-degeneration inductor LS on NM1, giving Re(Zin) = wT*LS = 50 ohm, with LG+LS resonating Cgs at 900 MHz. This gives simultaneous noise and power match plus a Q voltage gain at the gate. The interstage series L2 is removed, with C2 coupling straight to the NM2 gate, keeping 4 inductors (LG, LS, L1, L3).
+
+```netlist
+C C1 VIN1 n0
+L LG n0 n1
+NMOS NM1 n2 n1 n8 VSS
+L LS n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+3. PREDICTION: s11_max_db improves by about 8-10 dB, from -3.1 to about -11 to -13 dB. S21 improves by about 4 dB, to about 18.5-19 dB. NF stays at about 1.2-1.4 dB.

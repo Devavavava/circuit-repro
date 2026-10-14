@@ -1,0 +1,27 @@
+1. DIAGNOSIS
+The binding metric is mu_min_wide = 0.998, a hair below 1, with in-band mu 1.28. The current-reuse inverter has no broadband resistive damping. Out of band, the series gate inductor L1 and the L2-C2 drain branch (inductive above its series resonance) both look inductive, and through Cgd_n + Cgd_p (s12 -27 dB) they produce a slight negative port resistance.
+The output is only lightly loaded (s22_max -4.6 dB). The sizer cannot buy margin because s21, s11 and NF all sit at their gates.
+
+2. EDIT: add resistive shunt feedback R6 from the output n2 to the NMOS gate n1, and self-bias NM1 through it.
+- This removes the NMOS mirror reference R1/NM3/R2, which frees bias current for the core.
+- R6 damps both ports at all frequencies.
+```netlist
+* lna-a2-current-reuse edit: resistive shunt feedback R6 (out->NMOS gate), NM1 self-biased via R6
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R6 n2 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION
+- Binding metric: mu_min_wide improves from 0.998 to ~1.2-1.3 (about +0.2).
+- s22_max: improves by ~3 dB.
+- s21: changes by roughly -0.3 to +0.5 dB.
+- NF: rises ~+0.1 dB.

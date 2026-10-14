@@ -1,0 +1,20 @@
+1. DIAGNOSIS
+The binding constraint is the input match: S11 is -3.9 dB. The NM1 gate is driven only through DC-block C1, with a large bias-feed resistor R2 in shunt. The input impedance is therefore essentially the gate capacitance (1/(jw*Cgs) in parallel with R2), with no 50-ohm real part, and no sizing can match it. NF and S21 meet their gates only marginally, under the noise-matched (series_rs) evaluation. Wideband mu also fails (0.83). The gate inductor and source-degeneration inductor that would give a noiseless 50-ohm real part (wT*Ls) and cancel Cgs are missing.
+
+2. EDIT: an inductively degenerated first stage, with Lg in series with the NM1 gate after C1 and Ls from the NM1 source to VSS. To keep the 4-inductor limit, the series interstage inductor L2 is removed and C2 couples the L1 tank directly to the NM2 gate. Bias feeds are unchanged.
+```netlist
+C C1 VIN1 n0
+L Lg n0 n1
+NMOS NM1 n2 n1 ns VSS
+L Ls ns VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+3. PREDICTION: S11_max improves from -3.9 dB to about -12 dB (+8 dB). S21 rises by about 3-4 dB, and NF improves by about 0.1-0.2 dB. Wideband mu improves by about 0.1-0.2 from the Ls degeneration.

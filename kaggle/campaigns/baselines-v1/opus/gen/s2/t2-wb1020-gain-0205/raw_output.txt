@@ -1,0 +1,14 @@
+1. DIAGNOSIS
+The binding constraint is broadband stability (mu over 0.01-50 GHz = 0.73). In-band, mu is 1.20, so the problem is out of band. NM1 is a single common-source device whose drain load is shunt peaking (L1 + R2). Above a few GHz, w*L1 dominates R2 and the load becomes inductive. An inductive drain load seen through Cgd makes a negative real part at the gate, the Miller-inductive mechanism. At those frequencies Cgd bypasses the resistive feedback R1, so R1 no longer damps the reverse path, and mu drops well below 1 in the multi-GHz to tens-of-GHz range. In-band gain is pinned exactly at the s21 limit at the current cap, so the sizer cannot trade gain for damping.
+
+2. EDIT: insert a cascode device NM2 (gate at VDD, which is AC ground) between NM1's drain and the shunt-peaked load. Keep R1 feeding back from the output (cascode drain) to the gate. NM1's Cgd now sees the low resistive impedance 1/gm2 instead of the inductive load. This removes the internal negative-resistance path and the Miller multiplication, and the higher output resistance gives back some gain.
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n8 n1 VSS VSS
+NMOS NM2 n2 VDD n8 VSS
+L L1 VDD n3
+R R2 n3 n2
+C C2 n2 VOUT1
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.73 to about 1.0-1.15 (+0.3 to +0.4). s21 gains about +1 dB of margin at the same current.

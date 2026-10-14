@@ -1,0 +1,17 @@
+1. DIAGNOSIS
+The binding constraint is broadband stability (mu_min over 0.01-50 GHz = 0.65; in-band mu = 1.14), and S21 is 0.6 dB short (9.56 against 10.15 dB). The CS stage's load is shunt-peaked: L1 in series with R2. Above omega = R2/L1 the drain impedance turns inductive. Through Cgd and the shunt-feedback resistor R1, the inductive drain gives negative real parts at both ports out of band, so mu falls to 0.65.
+
+Gain is limited because S21 is about 1 - gm*Z0 with one NMOS at the 6.7 mA cap. NF has a large margin (1.61 against 3.33 dB), so noise is not the constraint.
+
+2. EDIT: replace the shunt-peaked L1+R2 load with a PMOS whose gate is the same input node, giving a resistive-feedback CMOS inverter (current reuse). This edit:
+- leaves no inductive load, so the network is RC-only and the port admittances stay positive-real;
+- gives gm_n + gm_p at the same current, for about +60-80% gm and more gain;
+- keeps R1 setting the 50-ohm match and the self-bias.
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n1 VDD VDD
+C C2 n2 VOUT1
+```
+3. PREDICTION: mu_min_wide (binding) improves from 0.65 to ~1.2+ (+0.55). S21 rises by ~2-3 dB to ~11.5-12 dB, and NF_max stays ~1.6-1.9 dB.

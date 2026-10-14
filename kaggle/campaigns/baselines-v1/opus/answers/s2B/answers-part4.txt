@@ -1,0 +1,130 @@
+==== ANSWER t2-nb090-noise-0351 ====
+1. DIAGNOSIS
+The binding constraint is s11 (-3.5 dB against -7.9 dB), and s21 is also 5 dB short (14.2 against 19.2 dB). Stage 1's input is C1 straight onto NM1's bare gate. The impedance there is Cgs in parallel with the bias feed R2, essentially capacitive, and no element produces a 50-ohm real part at 900 MHz. The mismatch reflects most of the incident power. Because the gate is not resonated, there is no Q voltage boost, so a large part of the available gain is also lost. Stage 1's Cgd adds Miller capacitance to the input and loads the L1 tank. With NF (1.43 dB) and Idd pinned, the sizer cannot lower R2 or add current.
+
+2. EDIT (input-stage rework):
+(a) A source-degeneration inductor LS and a series gate inductor LG on NM1. LS gives the real part wT*LS of about 50 ohms without adding noise, LG resonates the input at 900 MHz, and the gate sees a Q voltage boost.
+(b) A cascode NM4 (gate at VDD) on stage 1. It removes the Miller-Cgd term from the match and raises the impedance at the L1 tank for more stage-1 gain, at the same current.
+(c) The interstage L2 is removed to respect the 4-inductor limit: C2 couples the L1 tank directly to NM2's gate, and L1 absorbs NM2's Cgs.
+```netlist
+C C1 VIN1 n0
+L LG n0 n1
+NMOS NM1 n9 n1 n8 VSS
+L LS n8 VSS
+NMOS NM4 n2 VDD n9 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+3. PREDICTION: s11_max_db improves from -3.5 dB to about -12 to -15 dB (around 9-11 dB better). s21 rises by about 5 dB, to roughly 19 dB. NF stays near 1.4 dB.
+
+==== ANSWER t2-nb090-noise-0291 ====
+1. DIAGNOSIS
+The binding constraint is s11 (-3.6 dB against -7.9 dB), and s21 is also 4.6 dB short (14.0 against 18.6 dB). Stage 1's input is C1 directly onto NM1's gate: Cgs in parallel with the bias R2, reactive and high-impedance. Nothing in the topology creates a 50-ohm real part at 900 MHz, so most of the incident power reflects. With no gate resonance, the Q voltage gain an LC-matched input would provide is missing, which accounts for most of the s21 shortfall. NF (1.48 dB) and Idd are at their limits, so neither R2 nor the bias current can be traded.
+
+2. EDIT (input-stage rework):
+(a) Inductively degenerated input. LS on NM1's source gives a noiseless real part wT*LS of about 50 ohms, and a series gate inductor LG resonates out Cgs at f0.
+(b) A cascode NM4 (gate at VDD) on stage 1. It removes Cgd Miller loading from the input and raises the impedance at the L1 tank, adding stage-1 gain at the same current.
+(c) The interstage L2 is removed to stay within 4 inductors: C2 couples the L1 tank directly to NM2's gate.
+```netlist
+C C1 VIN1 n0
+L LG n0 n1
+NMOS NM1 n9 n1 n8 VSS
+L LS n8 VSS
+NMOS NM4 n2 VDD n9 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+3. PREDICTION: s11_max_db improves from -3.6 dB to about -12 to -15 dB (around 9-11 dB better). s21 rises by about 4.5-5 dB, to roughly 18.5-19 dB. NF stays near 1.4-1.5 dB.
+
+==== ANSWER t2-wb1020-gain-0127 ====
+1. DIAGNOSIS
+The binding constraint is broadband stability, missed by a hair (mu over 0.01-50 GHz = 0.998; in-band mu is 1.28). The out-of-band dip comes from the series gate inductor L1 resonating with the large combined inverter gate capacitance (NM1, plus PM1 through C1) with almost no resistive damping. Above the band, the output node (L2 to AC ground through C2, in parallel with drain capacitance, lightly loaded with s22 of -4.6 dB) turns inductive, and the combined Cgd reflects it to the gate as negative conductance. Only a small amount of out-of-band loss is needed, but every in-band margin is near zero, so the fix must be free in band.
+
+2. EDIT: put a damping resistor RD in parallel with the gate inductor L1. In band, the low reactance of L1 carries the signal and RD (large) barely affects NF or gain. Out of band, w*L1 is much larger than RD, so the gate is fed resistively and the input resonance is damped.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+R RD n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.998 to about 1.05-1.1 (+0.05 to +0.1), which passes. In-band s21 and NF should change by less than 0.1 dB.
+
+==== ANSWER v2b-wb0824-gain-188 ====
+1. DIAGNOSIS
+The binding constraint is nf_max (2.50 dB against 2.04 dB) across a 3:1 band (0.8-2.4 GHz). s11_max also misses slightly (-8.88 dB). At f0, NF is 2.35 dB; the worst case is at the band edges.
+- The input match is a single series-resonant L1 into the inverter gate capacitance. That is inherently narrowband, so over 0.8-2.4 GHz the source impedance seen by the devices moves far from the noise-optimal value at both edges. The edge mismatch (s11_max -8.9 dB) is the same symptom.
+- The match has no clean resistive term, so its real part partly comes from the gate bias feeds. R2 couples the noisy diode NM3 and R2's own thermal noise straight onto the NMOS gate, and R5 does the same with PM2 onto the PMOS gate. Both noise sources appear at the input node unattenuated.
+- The large Cgd feedback in this weakly loaded design (s22 -3.8 dB) also gives an in-band mu of only 1.02 and a wideband mu of 0.90.
+
+2. EDIT: add resistive shunt feedback from the inverter output n2 back to the NMOS gate n1 (RF in series with a DC-block CF). This is the classic wideband resistive-feedback inverter LNA. RF provides an active, frequency-flat input real part of about RF/(1 + gm*Rout), and RF's own noise is suppressed by the loop gain. With the match no longer depending on L1's resonance or on the bias resistors, the sizer can:
+- make R2 and R5 very large, removing their noise and the bias-diode noise from the input;
+- use L1 only as mild gate peaking to absorb Cgs at the top band edge.
+NF then flattens across 0.8-2.4 GHz, s11 becomes broadband, and the feedback also damps s22 and wideband stability.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+R RF n2 n7
+C CF n7 n1
+```
+3. PREDICTION: nf_max_db improves from 2.50 dB to about 2.0-2.1 dB (around 0.4-0.5 dB better), mainly by flattening the band-edge NF. s11_max improves to about -10 dB or better. Wideband mu rises above 1 (about +0.15). s21 changes by about -0.5 dB.
+
+==== ANSWER t2-wb1020-gain-0045 ====
+1. DIAGNOSIS
+The binding constraint is broadband stability (mu over 0.01-50 GHz = 0.974; in-band mu is 1.10). The series gate inductor L1 into the large combined inverter gate capacitance (NM1, plus PM1 through C1) forms an undamped out-of-band series resonance. The output node is weakly loaded and reactive (s22_max -3.0 dB): L2 to AC ground through C2, in parallel with drain capacitance. Above the band it turns inductive, and the combined Cgd reflects that to the gate as negative conductance, so the input reflection exceeds 1 at some multi-GHz frequency. The ripple (1.78 against 1.79 dB), NF, and s21 margins are all at zero, so the fix must be essentially free in band.
+
+2. EDIT: put a damping resistor RD in parallel with the gate inductor L1. In the 1-2 GHz band, w*L1 is much smaller than RD, so the signal passes through L1 and in-band NF and gain are almost unchanged. Out of band, w*L1 is much larger than RD, so RD sets a resistive drive at the gate and damps the input resonance that the Cgd-coupled negative resistance would otherwise excite.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+R RD n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.974 to about 1.05-1.1 (+0.08 to +0.13). In-band s21 and NF should change by less than 0.15 dB, and the ripple is roughly unchanged or slightly flatter.

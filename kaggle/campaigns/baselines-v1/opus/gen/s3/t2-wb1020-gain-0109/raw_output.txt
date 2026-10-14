@@ -1,0 +1,22 @@
+1. DIAGNOSIS
+The binding constraint is out-of-band stability: mu over 0.01-50 GHz is 0.92. Even in band the circuit is at the edge (mu_min 1.0006, k_min 1.0015). NF and S21 are pinned at their gates. The shared output of the current-reuse inverter is a high-Q inductive tank (L2 to ground via C2) with only ro_n||ro_p as loss, so S22_max is -2.6 dB, meaning the output is nearly lossless. Where the tank is inductive, the Cgd's of both devices reflect it to the gate as a negative conductance (about -w^2*gm*Cgd*L2). That negative conductance sits against a high-Q series-resonant input (L1 with Cgs_n + Cgs_p). With no resistive damping element anywhere in the signal path, mu crosses below 1 off band.
+
+2. EDIT: a de-Q resistor R6 in parallel with the output tank inductor L2, kept off the DC path by C2. Out of band, the output impedance becomes bounded and resistive, which damps the inductive Miller drive and the L2 resonance. In band, R6 can be large, so S21 suffers little, and its noise is referred through the stage gain, so NF is almost unaffected.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+R R6 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.92 to about 1.05-1.1 (+0.15). In-band mu_min rises to about 1.1. S22_max improves by about 3 dB. S21 falls by about 0.3 dB at fixed sizing, and NF rises by about 0.03 dB or less.

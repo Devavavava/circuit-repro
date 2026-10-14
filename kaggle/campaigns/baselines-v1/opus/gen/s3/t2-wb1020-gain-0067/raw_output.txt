@@ -1,0 +1,22 @@
+1. DIAGNOSIS
+The binding constraint is out-of-band stability: mu over 0.01-50 GHz is 0.95, while in-band mu is 1.21. NF, S21 and Idd are all pinned. The current-reuse output node drives a nearly lossless inductive tank (L2 via C2 to ground) in parallel with ro_n||ro_p, so S22_max is -4.2 dB. Where the tank is inductive, the Cgd's of both devices reflect a negative conductance onto the gate (about -w^2*gm*Cgd*L2). That conductance meets the series-resonant L1/Cgs input, and the margin goes slightly below 1 off band. The circuit has no resistive damping element in the signal path.
+
+2. EDIT: a de-Q resistor R6 across the output tank inductor L2, AC-coupled by C2 and off the DC path. The output impedance out of band is bounded and resistive, which damps the inductive Miller feedback and the tank resonance. With R6 large in band, the cost to S21 and NF is small.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+R R6 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.95 to about 1.1 (+0.1 to +0.15). S22_max improves by about 2 dB. S21 falls by about 0.2 dB, and NF rises by about 0.03 dB or less.

@@ -1,0 +1,26 @@
+1. DIAGNOSIS
+The binding constraint is mu_min_wide (0.895). In-band mu (1.00002) and k_min (1.00005) are exactly at the edge, which shows the sizer was stability-limited. s21 is also 0.2 dB short.
+- The current-reuse inverter's combined Cgd (NMOS plus PMOS) from n2 to the AC-tied gates gives S12 of about -25.2 dB.
+- The output is poorly loaded (s22_max about -3.2 dB), and the input is a reactive series-L1 network. With both ports near-lossless out of band, S12*S21 forces mu below 1. Inside the band, the sizer had to give up gain to keep mu at 1.
+
+2. EDIT: NMOS cascode in the current-reuse stack
+Add NM2 (gate to VDD) between n2 and the NM1 drain. This cuts the NMOS Cgd reverse path, which lowers S12 and frees the stability constraint, and raises the output resistance (more gain at the same current).
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n7 n1 VSS VSS
+NMOS NM2 n2 VDD n7 VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION
+mu_min_wide should improve by about 0.15-0.2, from 0.89 to about 1.05-1.1. In-band mu_min should rise to about 1.2. s21 should improve by about 1 dB, to about 14.4 dB.

@@ -1,0 +1,23 @@
+1. DIAGNOSIS
+The binding metric is wideband stability: mu_min_wide (0.01-50 GHz) = 0.641, and in-band mu is only 1.11. NM1 is a single common-source device. Its Cgd ties the gate directly to a drain loaded by the shunt-peaking branch R2+L1. Above the band (multi-GHz up to tens of GHz), L1 dominates and the drain load is inductive. Miller feedback of an inductive load through Cgd adds -w*Cgd*gm*Im(ZL) to the input conductance, which goes negative. By reciprocity, the output shows negative conductance for reactive source terminations.
+The resistive feedback R1 also sets a large reverse path (s12 = -19.9 dB), so |s12*s21| is big and k/mu collapse as soon as gain is pushed. The sizer is trapped: more gm or peaking for s21 (10.98 vs >=11.45 dB) pushes mu_wide further below 1. That is why s21 also misses while Idd and s11 are pinned at their gates.
+
+2. EDIT: insert a cascode NM2 (gate to VDD = AC ground) between NM1's drain and the output/peaking node.
+- The R1 feedback stays, taken from the cascode drain (the output) to NM1's gate.
+- Cgd1 now sees the low 1/gm2 impedance of the cascode source instead of the inductive load. This removes the Miller negative-conductance mechanism.
+- R1 alone gives a strictly positive input conductance, (1 + gm*Re ZL)/R1.
+- The higher output resistance of the cascode also raises loop gain, so the same 50-ohm match is reached with more s21.
+```netlist
+* lna-a3-shunt-feedback edit: cascode NM2 (gate at VDD) inside the R1 feedback loop
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n4 n1 VSS VSS
+NMOS NM2 n2 VDD n4 VSS
+L L1 VDD n3
+R R2 n3 n2
+C C2 n2 VOUT1
+```
+3. PREDICTION
+- Binding metric: mu_min_wide improves from 0.64 to ~1.05-1.15 (about +0.4), crossing the 1.0 gate.
+- s21: rises ~+1 to +2 dB at the same Idd (clears 11.45 dB).
+- NF: rises by at most ~0.2 dB (large NF margin available).

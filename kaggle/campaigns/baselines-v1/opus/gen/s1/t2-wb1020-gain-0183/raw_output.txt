@@ -1,0 +1,12 @@
+1. DIAGNOSIS
+The binding failure is wideband stability (mu over 0.01-50 GHz = 0.71), and s21 is also short (9.6 vs 12.0 dB). The drain load is L1 (shunt peaking) in series with R2. Above the peaking corner the load goes inductive. The Miller admittance through Cgd and the feedback path, Y_in = jwCgd(1 + gm*jwL), then has a negative real part (-w^2*gm*L*Cgd), so the device shows negative input resistance at several GHz while it still has gain, and mu < 1. Gain is capped because one NMOS supplies all the gm at the Idd cap, and the load-side R2 (needed to drop the DC) shunts the 50-ohm output. Raising gain would mean more inductive peaking, which destabilizes the circuit further.
+
+2. EDIT: replace the shunt-peaked NMOS CS with a self-biased CMOS inverter under the same resistive shunt feedback (the inverter resistive-feedback broadband LNA). The PMOS reuses the same current (gm_n + gm_p) and acts as the active load. There is no inductor, so the load can never turn inductive. R1 keeps the broadband real input match and sets Vg = Vd (self-bias at the trip point).
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n1 VDD VDD
+C C2 n2 VOUT1
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.71 to about 1.2 (about +0.5; it passes). The only feedback poles left are RC, so Re(Y_in) > 0 up to fT. Side effect: s21 should gain about 2-4 dB (roughly doubled gm at the same 9.3 mA), which closes the 12 dB gain gap. Ripple stays well below 1.6 dB across 1-2 GHz, and NF stays around 2 dB, inside the 3.7 dB cap.

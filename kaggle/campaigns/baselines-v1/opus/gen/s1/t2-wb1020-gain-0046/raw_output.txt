@@ -1,0 +1,25 @@
+1. DIAGNOSIS
+Both stability metrics fail. In-band mu is 0.888, k is only 0.29, and the out-of-band mu_wide is 0.885. The decisive clue is s22 of -0.24 dB (max -0.04 dB): the output port is almost lossless and fully reflective. The current-reuse stage drives VOUT1 from the shared drain n2, where the output resistance is just ro_n||ro_p, very high, with the series L2-C2 trap and C3 making it a high-Q reactive node. Add the reverse path through Cgd of NM1 and PM1, and a nearly lossless output combined with a nearly lossless series-L1 input gives mu < 1 (mu_src_min 0.03). Nothing in the circuit dissipates power at the output.
+
+2. EDIT: add a resistive shunt-feedback path (RF, DC-blocked by CF) from the shared drain n2 to the NMOS gate n1. The feedback lowers the output resistance to about (RF+Rs)/(1+gm*Rs), roughly a few tens of ohms, and makes both ports broadband-lossy. That pulls |S22| well inside the unit circle and raises k and mu everywhere. The published gate bias networks are untouched.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+R RF n2 n7
+C CF n7 n1
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+3. PREDICTION: mu_min_wide improves by about +0.2 to +0.3, from 0.885 to about 1.1-1.2, and in-band mu_min rises from 0.89 to about 1.2. s22 improves from -0.2 dB to about -8 to -12 dB. S21 drops by 0.5 dB at most at fixed gm, which the 9.1 mA budget can recover. S21 ripple also improves (flatter response).

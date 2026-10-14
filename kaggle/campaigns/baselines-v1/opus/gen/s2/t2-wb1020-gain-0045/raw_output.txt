@@ -1,0 +1,22 @@
+1. DIAGNOSIS
+The binding constraint is broadband stability (mu over 0.01-50 GHz = 0.974; in-band mu is 1.10). The series gate inductor L1 into the large combined inverter gate capacitance (NM1, plus PM1 through C1) forms an undamped out-of-band series resonance. The output node is weakly loaded and reactive (s22_max -3.0 dB): L2 to AC ground through C2, in parallel with drain capacitance. Above the band it turns inductive, and the combined Cgd reflects that to the gate as negative conductance, so the input reflection exceeds 1 at some multi-GHz frequency. The ripple (1.78 against 1.79 dB), NF, and s21 margins are all at zero, so the fix must be essentially free in band.
+
+2. EDIT: put a damping resistor RD in parallel with the gate inductor L1. In the 1-2 GHz band, w*L1 is much smaller than RD, so the signal passes through L1 and in-band NF and gain are almost unchanged. Out of band, w*L1 is much larger than RD, so RD sets a resistive drive at the gate and damps the input resonance that the Cgd-coupled negative resistance would otherwise excite.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+R RD n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.974 to about 1.05-1.1 (+0.08 to +0.13). In-band s21 and NF should change by less than 0.15 dB, and the ripple is roughly unchanged or slightly flatter.

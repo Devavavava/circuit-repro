@@ -1,0 +1,28 @@
+1. DIAGNOSIS
+The binding constraint is s11_max_db (-2.8 dB against a -7.84 dB gate). s21 is also 4 dB short.
+- Stage 1 is a bare CS whose gate is reached through DC-block C1, so at 900 MHz Zin is a high-Q capacitive Cgs1 in parallel with bias R2.
+- The topology has no mechanism for a noiseless 50-ohm real part and no inductor to resonate Cgs. A low R2 would make a real part but break the 1.27 dB NF limit, so the optimizer leaves the input almost fully reflective.
+- The mismatch loss plus the missing input-network voltage gain are why S21 stalls at about 14.9 dB.
+
+2. EDIT: inductive source degeneration plus a series gate inductor on NM1, and a cascode on stage 1
+- L4 (Lg) and L5 (Ls) set Re{Zin} = wT*Ls = 50 ohm and resonate Cgs1 at f0. This is the classic noiseless narrowband match, and the input Q gives voltage gain.
+- L2 is removed (4-inductor limit). C2 couples directly and L1 tunes the stage-1 drain plus the NM2 gate.
+- Cascode NM4 boosts stage-1 gain and isolation.
+```netlist
+C C1 VIN1 n0
+L L4 n0 n1
+NMOS NM1 n8 n1 n9 VSS
+L L5 n9 VSS
+NMOS NM4 n2 VDD n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+3. PREDICTION
+s11_max_db should improve by about 8 dB, from -2.8 to about -11 dB. s21 should rise by about 4 dB, to about 19 dB. NF should stay at about 1.2-1.3 dB.

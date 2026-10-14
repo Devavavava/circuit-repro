@@ -1,0 +1,31 @@
+1. DIAGNOSIS
+The binding s11_max_db (-3.46 dB vs the -7.92 dB gate) is a structural input-match failure, not a sizing problem. C1 drives the bare gate of NM1, and the only other thing on n1 is the bias feed R2. So Zin is roughly R2 || 1/(jwCgs): a large capacitive reactance at 900 MHz, with no physical 50-ohm real part and no element to resonate Cgs out. The sizer can only trade a small Cgs (|Zin| very high, Gamma near 1) against using R2 as a lossy shunt termination. That termination is not available because R2's thermal noise would break the NF cap, and NF already sits on its gate (1.431 vs 1.4335 dB). So |S11| stalls near -3.5 dB.
+The gain miss (s21 14.24 vs >=19.18 dB) has the same root cause: most of the source power is reflected, and the gate gets no series-resonant (Q) voltage boost. Stability is not the problem in band (mu_min 2.32, s12 -59 dB).
+
+2. EDIT: make stage 1 a canonical inductively degenerated input.
+- Series gate inductor L4 resonates Cgs (with Ls) at f0.
+- Source inductor L5 on NM1 gives a noiseless real input part, Re{Zin} = gm*Ls/Cgs = wT*Ls, set to 50 ohm.
+- To respect the 4-inductor screen, I removed the interstage series inductor L2. C2 now couples n2 directly to NM2's gate, and L1 resonates the drain node (Cdb1 + Cgs2) by itself.
+- The bias network is unchanged.
+```netlist
+* lna-a4-twostage edit: inductively degenerated stage-1 input (Lg=L4, Ls=L5), C-coupled interstage
+C C1 VIN1 n0
+L L4 n0 n1
+NMOS NM1 n2 n1 n8 VSS
+L L5 n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+3. PREDICTION
+- Binding metric: s11_max_db improves from -3.46 dB to about -12 dB (~8-9 dB better), clearing the -7.92 dB gate.
+- s21: rises ~+3 to +5 dB (no mismatch loss, plus the input Q boost).
+- NF: moves by less than +/-0.2 dB (Lg loss offsets a better noise match).
+- mu: stays >1 (degeneration adds damping).
+- Idd: unchanged.

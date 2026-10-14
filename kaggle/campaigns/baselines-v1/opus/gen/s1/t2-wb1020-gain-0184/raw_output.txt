@@ -1,0 +1,22 @@
+1. DIAGNOSIS
+The binding metric is s21_db: 10.4 dB against a 12.6 dB minimum. The single current-reuse stage gets its gain as (gmn+gmp) times the drain node impedance, but that node is the low intrinsic ro_n||ro_p of short-channel 45 nm devices in parallel with the 50-ohm load (s22 is already -9.5 dB, so the drain impedance is close to 50 ohm). At 6.8 mA total, gm is fixed by the Idd cap. In a 1-2 GHz band, the input L1-Cgs network cannot add much passive voltage gain without breaking ripple and match. NF and s11 are also at their limits, so the sizer has no slack left. One gain stage driving 50 ohm directly cannot reach 12.6 dB inside this current.
+
+2. EDIT: build a two-stage stacked current-reuse amplifier, so the same DC current is used twice for gain. Stage 1 (NM1, published mirror bias, L1 input) drives inductor LD. LD runs to the source node n8 of a stacked second NMOS stage, NM2, and n8 is AC-grounded by CB. NM2's gate is AC-coupled from n2 through CC and self-biased by RF2 from its drain. RF2 is also a resistive shunt feedback around stage 2, which gives a broadband, low output impedance. The stage-2 load is LO to VDD, and the output is DC-blocked by C3. The PMOS path and the L2-C2 trap are removed. Inductors are L1, LD, LO: 3 in total.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+L LD n8 n2
+C CB n8 VSS
+C CC n2 n10
+NMOS NM2 n9 n10 n8 VSS
+R RF2 n9 n10
+L LO VDD n9
+C C3 n9 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+```
+
+3. PREDICTION: s21_db improves by about 3-5 dB, from 10.4 to about 13.5-15 dB at the same 6.8 mA, because two cascaded gm stages share one current. The RF2 feedback keeps ripple within about 0.4 dB. NF changes by +0.2 dB at most, because stage 1 now uses only NMOS gm and stage 2's noise is suppressed by stage-1 gain. mu_wide improves because RF2 makes the output port lossy.

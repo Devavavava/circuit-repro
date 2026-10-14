@@ -1,0 +1,20 @@
+1. DIAGNOSIS
+The binding constraint is the input match: S11 is -3.0 dB, so most of the incident power is reflected. Stage 1 is a bare CS device whose gate is reached through the DC-block C1. The only other element at the gate is the high-value bias-feed resistor R2, so Zin is about 1/(jw*Cgs) in parallel with R2. That is strongly capacitive, with a real part far from 50 ohm, so no sizing can match it. The reflection also wastes input power and the input-network voltage gain, so S21 is 4.8 dB short (14.0 vs 18.8 dB). NF passes only because the noise evaluation is noise-matched (series_rs). The missing elements are the gate inductor, which resonates out Cgs, and the source-degeneration inductor, which gives a noiseless Re{Zin} = wT*Ls.
+
+2. EDIT: make stage 1 an inductively degenerated CS. Lg goes in series with the gate after C1, and Ls goes from the NM1 source to VSS. To stay at 4 inductors, the interstage series inductor L2 is removed: C2 couples the L1-tuned drain directly to the NM2 gate. The bias feeds R2 and R3 are kept.
+```netlist
+C C1 VIN1 n0
+L Lg n0 n1
+NMOS NM1 n2 n1 ns VSS
+L Ls ns VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+3. PREDICTION: S11_max improves from -3.0 dB to about -11 dB (+8 dB). S21 rises by about 4-6 dB from the input-network Q gain. NF stays at about 1.2-1.4 dB, and wideband mu improves by about 0.1-0.2 thanks to the degeneration.

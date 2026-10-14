@@ -1,0 +1,39 @@
+==== ANSWER t2-wb1020-gain-0026 ====
+1. DIAGNOSIS
+The binding constraint is broadband stability (mu over 0.01-50 GHz = 0.71; in-band mu is 1.14). The single common-source device NM1 drives a shunt-peaked load (L1 + R2). Above the band, w*L1 dominates and the drain load becomes inductive. Through Cgd, an inductive drain impedance appears at the gate as negative conductance, the Miller-inductive mechanism. At those frequencies Cgd bypasses the feedback resistor R1, so the resistive feedback no longer damps the reverse path, and mu drops below 1 in the multi-GHz to tens-of-GHz range. s21 is also about 0.4 dB short at the current cap, because Cgd Miller loading limits gain-bandwidth.
+
+2. EDIT: insert a common-gate cascode NM2 (gate at VDD = AC ground) between NM1's drain and the shunt-peaked load. R1 still feeds back from the output node (the cascode drain) to the gate. NM1's Cgd now terminates in 1/gm2, which is low and resistive, so the internal negative-resistance loop is broken and the Miller capacitance shrinks. The higher output resistance also lifts the gain set by the feedback.
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n8 n1 VSS VSS
+NMOS NM2 n2 VDD n8 VSS
+L L1 VDD n3
+R R2 n3 n2
+C C2 n2 VOUT1
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.71 to about 1.0-1.15 (+0.3 to +0.4). s21 improves by about 1 dB, clearing 9.9 dB.
+
+==== ANSWER t2-wb1020-gain-0128 ====
+1. DIAGNOSIS
+The binding constraint is broadband stability (mu over 0.01-50 GHz = 0.917). In-band mu is only 1.03 and k_min is 1.08, so the circuit sits at the stability edge even in band. The series gate inductor L1 resonates with the large combined inverter gate capacitance (NM1, plus PM1 through C1) with almost no resistive damping. The output node is weakly loaded and reactive (s22_max -3.7 dB): L2 to AC ground through C2, in parallel with drain capacitance. Above the band it turns inductive, and the combined Cgd reflects that as negative conductance at the gate, so the input-loop reflection exceeds 1 at some multi-GHz frequency. NF, s21, s11 and Idd margins are all essentially zero, so the fix must be nearly free in band.
+
+2. EDIT: put a damping resistor RD in parallel with the gate inductor L1. In the 1-2 GHz band, w*L1 is much smaller than RD, so the signal goes through L1 and in-band NF and gain are almost unchanged. Out of band, w*L1 is much larger than RD, so RD sets a resistive gate drive and kills the Q of the input resonance that the Cgd-coupled negative resistance would otherwise excite.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+R RD n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.917 to about 1.03-1.1 (+0.1 to +0.18), and in-band mu also rises to about 1.1. In-band s21 and NF should change by less than 0.15 dB.

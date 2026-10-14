@@ -1,0 +1,20 @@
+1. DIAGNOSIS
+mu_min_wide is 0.68. The shunt-peaking inductor L1 makes the drain load inductive at high frequency. Through Cgd that reflects a negative input resistance onto the gate, so the circuit is potentially unstable out of band.
+Gain is also 0.65 dB short (9.34 vs 9.99 dB) at the 5.9 mA cap. One NMOS cannot provide enough gm per mA while R1 holds the 50-ohm match.
+
+2. EDIT: CMOS inverter (current-reuse) resistive-feedback LNA
+Replace L1+R2 with a PMOS whose gate is shared with the input. R1 self-biases the inverter and sets the match. The load becomes purely resistive, and gm doubles at the same current.
+
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n1 VDD VDD
+C C2 n2 VOUT1
+```
+
+3. PREDICTION
+mu_min_wide improves from 0.68 to about 1.1 (+0.4).
+Secondary effects:
+- s21 rises by about 3 dB, to about 12 dB.
+- NF stays around 1.6 to 1.8 dB.

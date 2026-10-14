@@ -1,0 +1,26 @@
+1. DIAGNOSIS
+The binding constraint is s21 (10.4 dB against 12.6 dB). The current-reuse inverter is a single gain stage whose drain drives the 50-ohm load directly, through only the shunt-L2 / series-C3 network. Voltage gain is roughly (gmn + gmp) times a low effective load of tens to around 100 ohms. With Idd at its 6.8 mA cap, gm cannot grow. The single-stage output transformation also cannot push the drain load higher without breaking the octave-wide ripple and s22, so about 10.4 dB is the ceiling. Wideband mu is also below 1 (0.87), from the inverter's large Cgd feeding back through the inductive input and output networks.
+
+2. EDIT: add a second gain stage. The inverter stage now drives the high-impedance gate of NM4 through C3, not 50 ohms, so its voltage gain rises to about gm*(rds || Z_L2). NM4 is a resistive shunt-feedback CS stage with a shunt-peaked load (L3 + R6). It self-biases through RF and drives 50 ohms through C5. RF also sets a broadband real output impedance, giving good s22 and damping. Total current is split between the two stages. The cascade also greatly improves reverse isolation, which helps wideband mu.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 n9
+NMOS NM4 n7 n9 VSS VSS
+R RF n7 n9
+L L3 VDD n8
+R R6 n8 n7
+C C5 n7 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: s21 improves by about 4-6 dB, from 10.4 dB to roughly 14.5-16 dB, which clears 12.6 dB. Wideband mu should also rise above 1 (about +0.2) because of the improved reverse isolation (s12 around -40 dB).

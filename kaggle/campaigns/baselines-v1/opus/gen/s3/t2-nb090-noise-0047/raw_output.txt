@@ -1,0 +1,14 @@
+1. DIAGNOSIS
+In band the circuit is nearly feasible: NF has margin, S11 is at its limit, S21 is 0.65 dB short, and in-band mu is 1.27. The binding failure is wideband: mu over 0.01-50 GHz is 0.68. The shunt-peaking inductor L1 makes the drain load inductive above the band, and through Cgd of the single CS device this creates a negative gate conductance of about -w^2*gm*Cgd*L1. The feedback R1 contributes only a fixed 1/R1 to offset it. Nothing bounds the high-frequency impedance of L1 or damps its resonance with the drain capacitance. That rising inductive impedance sets the out-of-band mu minimum, and it also stops the optimizer from raising gm*Z_L to recover the missing 0.65 dB of gain.
+
+2. EDIT: a de-Q resistor R3 across the load inductor L1. The high-frequency drain impedance becomes bounded and resistive (about R3+R2), the L1-Cdb resonance is damped, and in-band loading stays light when R3 is large. DC bias is unchanged.
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n3
+R R3 VDD n3
+R R2 n3 n2
+C C2 n2 VOUT1
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.68 to about 1.05 (+0.35). S21 at f0 changes by about -0.2 dB at fixed sizing. Once stability no longer binds, the optimizer should recover about +0.5 dB, and NF rises by less than 0.1 dB.

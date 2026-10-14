@@ -1,0 +1,28 @@
+1. DIAGNOSIS
+The binding constraint is mu_min_wide (0.93). The current-reuse inverter puts the Cgd of both NM1 and PM1 between the shared drain n2 and the AC-tied gates, which gives a strong reverse path (S12 about -25.5 dB).
+- On the input, L1 in series with the combined Cgs forms a high-Q reactive network.
+- On the output, L2-C2 plus the drain capacitance is a reactive tank, and the output resistance is low (s22 about -4 to -5.6 dB).
+- Out of band, both port reflections approach 1 while S12*S21 is still large, so mu drops below 1.
+- In band, s21 is at its edge because the output resistance (ro_n || ro_p, low in 45 nm) loads the gain.
+
+2. EDIT: NMOS cascode inside the current-reuse stack
+Add NM2 (gate to VDD) between the shared output n2 and the NM1 drain. This isolates the NMOS Cgd from the output, which cuts S12, and raises the output resistance, which adds gain.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n7 n1 VSS VSS
+NMOS NM2 n2 VDD n7 VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION
+mu_min_wide should rise from 0.93 to about 1.1 (+0.15) and pass. S12 should improve by about 6-10 dB. s21 should improve by about 1-1.5 dB.

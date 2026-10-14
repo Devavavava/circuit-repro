@@ -1,0 +1,14 @@
+1. DIAGNOSIS
+The worst failure is mu_min_wide over 0.01-50 GHz (0.716), and s21 is also about 2.4 dB short (9.26 vs 11.64 dB) at the Idd cap. The load is a series L1+R2 shunt-peaking branch, so at high frequency the drain load becomes inductive. With an inductive drain load, the Miller admittance through Cgd, jwCgd(1+gm*ZL), has a negative real part, so the gate sees negative input conductance well above the band. This is the classic instability of a CS stage with an inductive load. The sizer had to keep gm*R small to hold this down, which is why S21 is short. A single NMOS also gives only gm_n of transconductance per mA within the 7.6 mA budget.
+
+2. EDIT: replace the inductive shunt-peaked load with a PMOS current-reuse device driven by the same gate. This is the resistive-feedback CMOS inverter LNA. RF still self-biases both gates and sets a broadband 50-ohm match. Transconductance becomes gmn+gmp at the same current, about 1.7-2x, so gain rises. There is no inductor in the drain load, so the negative-conductance mechanism is removed at every frequency.
+
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n1 VDD VDD
+C C2 n2 VOUT1
+```
+
+3. PREDICTION: mu_min_wide improves by about +0.3 to +0.4, from 0.72 to about 1.05-1.2 (a resistive-feedback inverter is unconditionally stable or close to it). S21 improves by about +2.5-3.5 dB, to about 12 dB, at the same 7.6 mA. NF stays well inside its 3.48 dB cap (about 1.5-2.0 dB).

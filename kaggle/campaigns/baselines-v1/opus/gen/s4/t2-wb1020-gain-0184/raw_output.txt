@@ -1,0 +1,26 @@
+1. DIAGNOSIS
+The binding constraint is s21 (10.4 vs 12.6 dB). mu_min_wide (0.87) also fails.
+- With Idd capped at 6.8 mA, gain is roughly (gm_n + gm_p) * (Rout || 50 ohm). In 45 nm, Rout = ro_n || ro_p is only a few hundred ohms or less (s22 is about -9.5 dB, so the output is near 50-100 ohm). The output resistance, not gm, is wasting gain, and more current is not available.
+- The same single-node inverter has both Cgd's feeding back from n2 to the gates (S12 about -26.6 dB). Together with reactive out-of-band terminations, this keeps mu_wide below 1.
+
+2. EDIT: NMOS cascode in the current-reuse stack
+Add NM2 (gate to VDD) between the output n2 and the NM1 drain. This raises the output resistance on the NMOS side, so more of gm*Rout reaches the 50-ohm load. It also cuts the NMOS Cgd reverse path, which improves S12 and mu_wide at zero extra current.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n7 n1 VSS VSS
+NMOS NM2 n2 VDD n7 VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION
+s21 should improve by about 1.5-2.5 dB, from 10.4 to about 12-12.8 dB. mu_min_wide should improve by about 0.15, to about 1.0.

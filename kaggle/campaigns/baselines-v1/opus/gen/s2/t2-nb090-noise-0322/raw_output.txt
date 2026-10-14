@@ -1,0 +1,24 @@
+1. DIAGNOSIS
+The binding constraint is s11 (-3.1 dB against -7.88 dB), and s21 is also 4 dB short (14.8 against 18.8 dB). Stage 1's input is C1 straight onto NM1's gate, whose impedance is Cgs in parallel with the bias R2. That is reactive and high-impedance, with no element that produces 50 ohms of real part. The mismatch reflects most of the incident power and gives up the resonant gate-voltage gain, which costs both s11 and s21. NF at 1.34 dB and Idd are pinned, so R2 cannot be lowered and current cannot be raised.
+
+2. EDIT (input-stage rework):
+(a) Source-degeneration inductor LS plus series gate inductor LG on NM1. This gives a real input impedance of wT*LS, about 50 ohms, with no added noise, resonance at 900 MHz, and a Q gain boost at the gate.
+(b) Cascode NM4 (gate at VDD) on stage 1. It eliminates Cgd Miller loading, so the match is clean, and raises the impedance at the L1 tank for more stage-1 gain at the same current.
+(c) The interstage L2 is removed to stay within 4 inductors: C2 couples the L1 tank directly to NM2's gate.
+```netlist
+C C1 VIN1 n0
+L LG n0 n1
+NMOS NM1 n9 n1 n8 VSS
+L LS n8 VSS
+NMOS NM4 n2 VDD n9 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+3. PREDICTION: s11_max_db improves from -3.1 dB to about -12 to -15 dB (around 9-11 dB better). s21 rises by about 4-5 dB, to roughly 19 dB. NF stays near 1.3 dB.

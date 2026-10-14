@@ -1,0 +1,29 @@
+1. DIAGNOSIS
+The binding s11_max_db (-4.25 dB vs -7.86 dB) is structural. The input is C1 straight onto NM1's gate, with only the bias feed R2 in shunt. Zin is roughly R2 || 1/(jwCgs), a capacitive reactance at 900 MHz with no noiseless 50-ohm real part and no inductor to resonate Cgs.
+A resistive (R2) termination would cost noise, and NF is already at its gate (1.854 vs 1.8517 dB). So the sizer settles for a highly reflective input. Gain is barely met (11.02 dB) only because two stages are present. Stability is fine in band (mu 2.2).
+
+2. EDIT: an inductively degenerated stage-1 input.
+- Series gate inductor L4 resonates Cgs.
+- Source inductor L5 gives Re{Zin} = wT*Ls = 50 ohm without noise.
+- Interstage L2 is removed to stay at 4 inductors. C2 couples directly to NM2's gate, and L1 tunes the interstage node.
+```netlist
+* lna-a4-twostage edit: inductively degenerated stage-1 input (Lg=L4, Ls=L5), C-coupled interstage
+C C1 VIN1 n0
+L L4 n0 n1
+NMOS NM1 n2 n1 n8 VSS
+L L5 n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+3. PREDICTION
+- Binding metric: s11_max_db improves from -4.25 dB to about -12 dB (~7-8 dB better), clearing the gate.
+- s21: rises ~+3 dB (the extra gain can be traded back into NF).
+- NF: moves by roughly +/-0.2 dB.
+- mu: stays >1.

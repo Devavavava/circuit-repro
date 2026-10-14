@@ -1,0 +1,21 @@
+1. DIAGNOSIS
+The binding constraint is the wideband stability factor mu_min_wide (0.72 over 0.01-50 GHz). s21 also falls short (9.3 vs 11.6 dB).
+- The single shunt-feedback CS has a large direct reverse path. S12 is only about -19.5 dB, through the feedback resistor R1 in parallel with Cgd of NM1. The shunt-peaking inductor makes the drain impedance rise and turn reactive above the band.
+- Out of band, |S11| and |S22| approach 1 (reactive terminations: DC blocks, Cgs, L1), so the residual S12*S21 product drives mu below 1.
+- Gain is capped because the output resistance is ro(NM1) in parallel with R2/L1 in parallel with R1 into a 50-ohm load, at the fixed current budget.
+
+2. EDIT: cascode the shunt-feedback CS
+Add NM2 (gate to VDD) between NM1 and the shunt-peaked load. The feedback R1 is taken from the cascode drain (the output) back to the gate, so self-bias is kept.
+- The cascode removes the Cgd Miller/reverse path from the output, so S12 drops by about 10+ dB.
+- It also raises the output resistance, so gm*Rload and s21 go up.
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n4 n1 VSS VSS
+NMOS NM2 n2 VDD n4 VSS
+L L1 VDD n3
+R R2 n3 n2
+C C2 n2 VOUT1
+```
+3. PREDICTION
+mu_min_wide should rise from 0.72 to about 1.05-1.15 (+0.35) and pass. s21 should improve by about 2-3 dB, to about 11.5-12 dB.

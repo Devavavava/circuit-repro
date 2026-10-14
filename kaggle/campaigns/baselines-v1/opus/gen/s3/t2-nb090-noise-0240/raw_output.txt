@@ -1,0 +1,22 @@
+1. DIAGNOSIS
+The binding constraint is wideband stability (mu over 0.01-50 GHz is 0.79), and even in band the circuit is marginal (mu_min 1.005, k about 1.01). The output of the current-reuse inverter is loaded only by ro_n||ro_p and an inductive shunt tank (L2 to ground via DC-block C2). That tank is high-Q and lossless, which the poor S22 of -4.4 dB confirms. Below and around its resonance the drain impedance is inductive. Through both Cgd's, this makes a negative conductance at the gate (about -w^2*(gm_n+gm_p)*Cgd*L2). The series gate inductor L1 resonating with Cgs then presents a high-Q, low-loss input that this negative conductance can overcome. Nothing resistive limits the Q of the output tank, so mu falls below 1 off band.
+
+2. EDIT: add a de-Q resistor R6 in parallel with the output tank inductor L2. Through DC-block C2 it becomes a lossy shunt at the output. In band, R6 can be chosen large so the tank still provides gain. Out of band the output impedance is bounded and resistive, which removes the large inductive impedance that drives the negative Miller conductance. It also improves S22. DC bias paths are unchanged, because C2 still blocks DC.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+R R6 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.79 to about 1.05-1.1 (+0.25 to +0.3), and in-band mu rises to about 1.1. S22 improves by about 3 dB. S21 falls by about 0.3 dB at fixed sizing, which the optimizer can largely recover. NF rises by less than 0.05 dB.

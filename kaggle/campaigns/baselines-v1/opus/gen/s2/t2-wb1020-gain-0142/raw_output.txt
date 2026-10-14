@@ -1,0 +1,23 @@
+1. DIAGNOSIS
+The binding constraint is broadband stability (mu over 0.01-50 GHz = 0.89). In-band, mu_min is exactly 1.00 and k_min is 1.00005, so the sizer has pushed the circuit right to the edge. The inverter (NM1 and PM1 sharing drain n2) has a large combined Cgd from the output back to the gate (NM1, and PM1 through C1). The input is a series gate inductor L1 into Cgs, which is a high-Q series resonance with almost no resistive loss; the only real input conductance comes from the bias feed R2/R5. The output node is the L2/C2 shunt-inductor tank in parallel with the drain capacitances. Above in-band, between the L2-C2 series resonance and the L2-Cdb parallel resonance, that load turns inductive. An inductive load reflected through Cgd gives a negative real part at the gate. With the lightly damped L1-Cgs input loop, mu falls below 1 out of band, in the multi-GHz region. The poor output match (s22_max -3.2 dB) shows the output is lightly loaded and highly reactive, which supports this.
+
+2. EDIT: add a resistive shunt-feedback path (Rf in series with a DC-block Cf) from the inverter output n2 back to the NMOS gate n1. It adds real conductance at both ports at every frequency above the Cf corner. This damps the L1-Cgs and L2 resonances and gives the reverse path through Cgd a dominant resistive part. It also improves s22, and the bias of n1 stays set by the existing mirror.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+R RF n2 n7
+C CF n7 n1
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.89 to about 1.05-1.15 (+0.15 to +0.25). s22_max should improve by about 3-5 dB. s21 costs about 0.3-0.8 dB, which the sizer can recover partly through the better output match.

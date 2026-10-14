@@ -1,0 +1,20 @@
+1. DIAGNOSIS
+The binding constraint is the input match: S11 is -2.3 dB, nearly total reflection. The NM1 gate is fed only through DC-block C1, with a large bias-feed resistor R2 in shunt. Zin is therefore dominated by Cgs (1/(jw*Cgs) in parallel with R2) and has essentially no 50-ohm real part, so no sizing can match it. The reflection also costs most of the available gain: S21 is 14.97 dB against a 22.8 dB gate. NF is met only under the noise-matched (series_rs) evaluation, and Idd is slightly over its cap as the optimizer pushes gm. The missing elements are Lg, to cancel Cgs, and Ls, for a noiseless real part wT*Ls.
+
+2. EDIT: an inductively degenerated stage 1, with Lg in series with the NM1 gate and Ls from its source to VSS. To keep the 4-inductor limit, the interstage series L2 is removed and C2 couples the L1 tank directly into the NM2 gate. The bias network is unchanged.
+```netlist
+C C1 VIN1 n0
+L Lg n0 n1
+NMOS NM1 n2 n1 ns VSS
+L Ls ns VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+3. PREDICTION: S11_max improves from -2.3 dB to about -10 to -12 dB (an improvement of about 8-9 dB). S21 rises by about 5-7 dB (toward 20-22 dB). NF stays at about 1.1-1.2 dB, and wideband mu improves by about 0.1-0.2.

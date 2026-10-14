@@ -1,0 +1,30 @@
+1. DIAGNOSIS
+The binding metric is mu_min_wide = 0.880, with in-band mu 1.09. The current-reuse inverter is a single undamped gain node:
+- The gate is driven through the series inductor L1, an inductive source termination.
+- The output n2 sees only ro_n||ro_p and the L2-C2 branch, which is inductive above its series resonance (s22_max -4.7 dB).
+Through Cgd_n + Cgd_p (s12 -24.7 dB), these terminations form a tuned-gate/tuned-drain negative-resistance mechanism out of band. With s21, NF, s11 and Idd all pinned at their gates, the sizer has no damping knob.
+
+2. EDIT: add resistive shunt feedback R6 from the output n2 to the NMOS gate n1, and self-bias NM1 through it.
+- This removes the NMOS mirror reference R1/NM3/R2 and returns its current to the core.
+- It gives broadband resistive coupling and loss between the ports, so the negative conductance disappears and |s22| drops.
+- L1 keeps the in-band match.
+```netlist
+* lna-a2-current-reuse edit: resistive shunt feedback R6 (out->NMOS gate), NM1 self-biased via R6
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R6 n2 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION
+- Binding metric: mu_min_wide improves from 0.880 to ~1.15-1.3 (about +0.3).
+- s22_max: improves by ~4 dB.
+- s21: changes by roughly -0.5 to +0.5 dB.
+- NF: rises ~+0.1 dB.

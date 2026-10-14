@@ -1,0 +1,14 @@
+1. DIAGNOSIS
+The worst failure is mu_min_wide over 0.01-50 GHz (0.714), and S21 is also about 1.5 dB short at the Idd cap. The CS device drives a shunt-peaked load, L1 in series with R2, which becomes inductive above the band. Through Cgd, an inductive drain load produces a negative real part in the gate admittance: Re{jwCgd*gm*ZL} < 0 when ZL is inductive. The input therefore has negative conductance well above the band, damped only by the feedback resistor R1. With one NMOS supplying all the transconductance, gm*R_load cannot rise without worsening this, so gain and stability are traded against each other.
+
+2. EDIT: convert the circuit to a resistive-feedback CMOS inverter (current-reuse) LNA. A PMOS driven from the same gate node replaces L1/R2 and carries the same DC current. Removing the inductive load removes the negative-conductance mechanism. The transconductance becomes gmn+gmp at unchanged Idd, about 1.7-2x, which also closes the gain gap. R1 continues to self-bias both gates and set the broadband input match.
+
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n1 VDD VDD
+C C2 n2 VOUT1
+```
+
+3. PREDICTION: mu_min_wide improves by about +0.3 to +0.4, from 0.71 to about 1.05-1.2. S21 improves by about +2-3 dB, to about 11.5-12 dB. NF stays at about 1.5-2.0 dB, well inside the 3.46 dB cap.

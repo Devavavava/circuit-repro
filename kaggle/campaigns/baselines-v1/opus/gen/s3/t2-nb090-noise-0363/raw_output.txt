@@ -1,0 +1,29 @@
+1. DIAGNOSIS
+The binding s11_max_db (-4.07 dB vs -7.91 dB) comes from an unmatched gate. C1 drives NM1's gate directly, and only the bias resistor R2 is in shunt. Zin is roughly R2 || 1/(jwCgs): capacitive at 900 MHz, with no noiseless real part near 50 ohm.
+Using R2 as the termination would cost noise, and NF is already at its gate (1.672 vs 1.6719 dB). So the sizer cannot get |Gamma| below about 0.63. s21 is only marginally met (13.08 vs 13.09 dB) and also suffers the mismatch loss. Stability is fine in band (mu 2.3).
+
+2. EDIT: an inductively degenerated stage-1 input.
+- Series gate inductor L4 resonates Cgs.
+- Source inductor L5 provides Re{Zin} = wT*Ls = 50 ohm without noise.
+- Interstage L2 is removed (4-inductor screen). C2 couples directly to NM2, and L1 tunes the interstage node.
+```netlist
+* lna-a4-twostage edit: inductively degenerated stage-1 input (Lg=L4, Ls=L5), C-coupled interstage
+C C1 VIN1 n0
+L L4 n0 n1
+NMOS NM1 n2 n1 n8 VSS
+L L5 n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+3. PREDICTION
+- Binding metric: s11_max_db improves from -4.07 dB to about -12 dB (~8 dB better), clearing the gate.
+- s21: rises ~+3 dB.
+- NF: moves by roughly +/-0.2 dB.
+- mu: stays >1.

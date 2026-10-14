@@ -1,0 +1,19 @@
+1. DIAGNOSIS
+The binding constraint is mu_min_wide (0.71). s21 is also 0.4 dB short.
+- In the shunt-feedback CS, R1 in parallel with Cgd(NM1) bridges output to input (S12 about -20 dB).
+- The shunt-peaked load (L1+R2) gives a rising, inductive drain impedance above the band. With reactive out-of-band terminations (C1/C2, Cgs, drain capacitance), |S11| and |S22| approach 1 while the loop S12*S21 remains, so mu is about 0.71.
+- One device at 8.4 mA, with low ro in 45 nm, also caps the gain.
+
+2. EDIT: cascode the shunt-feedback CS
+Add NM2 (gate to VDD) stacked on NM1. Feedback R1 stays from the output (cascode drain) to the gate, so self-bias is unchanged. This removes the Cgd/Miller reverse coupling and raises the output resistance, which adds gain at the same current.
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n4 n1 VSS VSS
+NMOS NM2 n2 VDD n4 VSS
+L L1 VDD n3
+R R2 n3 n2
+C C2 n2 VOUT1
+```
+3. PREDICTION
+mu_min_wide should improve by about 0.3-0.35, from 0.71 to about 1.0-1.05. s21 should improve by about 1.5-2 dB.

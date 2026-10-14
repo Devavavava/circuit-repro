@@ -1,0 +1,20 @@
+1. DIAGNOSIS
+The binding failure is the input match (s11 = -1.85 dB). The input DC block C1 connects straight to NM1's gate, so Zin at 900 MHz is essentially 1/(jwCgs) in parallel with the large bias-feed resistor R2: a high-Q capacitive impedance with almost no real part near 50 ohm, so |Gamma| is about 0.8. Nothing in the circuit synthesizes a resistive input. Lowering R2 to supply a real part would destroy the very tight 1.13 dB NF budget, so the sizer is stuck. The same mismatch costs about 5 dB of transducer gain, and stage 1 gets no input-resonance voltage gain. That is the main reason s21 is 14.8 dB against the 21.8 dB required.
+
+2. EDIT: convert stage 1 to the classic inductively degenerated CS input: a series gate inductor Lg (L4) between the DC block and the gate, and a source-degeneration inductor Ls (L5) from NM1's source to ground. Ls synthesizes a NOISELESS real input part Re(Zin) = wT*Ls = 50 ohm, and Lg + Ls resonate Cgs at 900 MHz, which is also the noise-optimal match. To stay within the 4-inductor limit, the interstage series inductor L2 is removed: C2 couples the L1-tuned stage-1 drain directly into NM2's gate, and L1 absorbs Cgs2 into its resonance. The mirror bias (R1/NM3 through R2, R3) is unchanged.
+```netlist
+C C1 VIN1 n0
+L L4 n0 n1
+NMOS NM1 n2 n1 n8 VSS
+L L5 n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+3. PREDICTION: s11_max_db improves from -1.85 dB to about -10 to -12 dB (about 9 dB better; it passes the -7.92 dB gate). Side effects: s21 rises by about 5-7 dB (mismatch loss recovered, plus the input-resonance Q boost at the gate), and NF stays about 1.1 dB. mu_wide also improves because the high-Q series L2/Cgs2 interstage resonance is gone and Ls adds a positive input real part.

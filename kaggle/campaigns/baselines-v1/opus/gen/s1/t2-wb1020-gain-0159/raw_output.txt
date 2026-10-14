@@ -1,0 +1,25 @@
+1. DIAGNOSIS
+The worst failure is mu_min_wide at 0.932; in-band mu is only 1.06. The current-reuse stage has a high-Q series L1-Cgs input resonance and a high-impedance shared drain loaded only reactively by the L2-C2 trap (s22_max -3.8 dB). Out of band both port terminations become nearly lossless while Cgd still couples drain to gate, so mu drops below 1. No element in the circuit supplies broadband loss.
+
+2. EDIT: add a DC-blocked resistive shunt-feedback branch (RF in series with CF) from the shared drain n2 to the NMOS gate n1. It provides broadband loss at both ports, reduces the output impedance and the input Q, and also flattens gain. The published bias networks stay intact.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+R RF n2 n7
+C CF n7 n1
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+3. PREDICTION: mu_min_wide improves by about +0.12 to +0.18, from 0.93 to about 1.05-1.1. In-band mu_min rises to about 1.2. s22_max improves by about 3-5 dB. S21 drops about 0.3-0.5 dB, recoverable within the 7.39 mA cap. NF rises about 0.1 dB.

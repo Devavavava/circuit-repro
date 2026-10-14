@@ -1,0 +1,20 @@
+1. DIAGNOSIS
+The binding constraint is s11 (-2.4 dB against -7.8 dB). s21 is also 2.75 dB short. Stage 1's input is C1 straight onto the gate, which is almost purely capacitive (Cgs in parallel with the bias R2). There is no element that makes a 50-ohm real part, so the input is badly mismatched and most of the incident power reflects. The same mismatch costs gain: the gate sees only about the open-circuit source voltage, with no resonant voltage boost. With NF pinned at its limit, the sizer cannot lower R2 to fake a match.
+
+2. EDIT: inductively degenerated input for stage 1. Source inductor LS gives the real part wT*LS of about 50 ohms without adding noise. Series gate inductor LG resonates Cgs at 900 MHz and gives a voltage gain of Q = 1/(2*w0*Rs*Cgs) at the gate. The interstage L2 is dropped to respect the 4-inductor limit: C2 couples the L1-tuned drain straight to NM2's gate, and L1 resonates with NM2's Cgs.
+```netlist
+C C1 VIN1 n0
+L LG n0 n1
+NMOS NM1 n2 n1 n8 VSS
+L LS n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+3. PREDICTION: s11_max_db improves from -2.4 dB to about -11 to -14 dB (around 9-11 dB better). The input-match Q boost should also raise s21 by about 3-4 dB, to roughly 18 dB, closing the s21 shortfall too.

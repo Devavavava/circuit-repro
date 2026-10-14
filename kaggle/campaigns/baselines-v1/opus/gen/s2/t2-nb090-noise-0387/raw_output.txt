@@ -1,0 +1,20 @@
+1. DIAGNOSIS
+The binding constraint is s11 (-5.0 dB against -7.85 dB). Stage 1's input is C1 directly onto NM1's bare gate, so Zin is just Cgs in parallel with the bias feed R2: capacitive and high-impedance. Nothing in the topology synthesizes a 50-ohm real part at 900 MHz. The only real part available is R2, and lowering it far enough to match would add noise, while NF is already pinned at 2.18 dB. So s11 stalls near -5 dB. The interstage inductor L2 does nothing for the input port.
+
+2. EDIT: inductively degenerated input on stage 1. A source inductor LS on NM1 gives Re{Zin} = wT*LS, about 50 ohms, without adding noise. A series gate inductor LG between the DC block and the gate resonates out Cgs + LS at f0. To stay within the 4-inductor limit, the interstage L2 is removed: C2 couples stage 1's L1 tank straight to NM2's gate, and L1 absorbs NM2's Cgs. Gate bias still arrives through R2 at n1.
+```netlist
+C C1 VIN1 n0
+L LG n0 n1
+NMOS NM1 n2 n1 n8 VSS
+L LS n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+3. PREDICTION: s11_max_db improves from -5.0 dB to about -12 dB (around 7 dB better). The input Q boost should keep s21 at or above about 14 dB, and NF holds near 2.0-2.2 dB.

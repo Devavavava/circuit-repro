@@ -1,0 +1,192 @@
+==== ANSWER t2-wb1020-gain-0108 ====
+1. DIAGNOSIS
+The worst failure is mu_min_wide at 0.997, a marginal out-of-band stability shortfall; in-band mu is 1.21. The current-reuse stage uses a narrowband series L1-Cgs input resonance (s11 is -13.5 dB at f0 but -8.2 dB at the band edges). Its output is the high-impedance shared drain ro_n||ro_p with the reactive L2-C2 trap (s22_max -4.1 dB). Away from 1-2 GHz both ports are high-Q and nearly lossless, and the Cgd reverse path of NM1 and PM1 closes a loop, so mu falls just below 1. The topology has no broadband resistive loss element.
+
+2. EDIT: add DC-blocked resistive shunt feedback RF-CF from the shared drain n2 to the NMOS gate n1. It provides frequency-independent loss at both ports, lowers the output impedance, and de-Qs the input. The published gate bias networks stay unchanged.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+R RF n2 n7
+C CF n7 n1
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+3. PREDICTION: mu_min_wide improves by about +0.1 to +0.15, from 0.997 to about 1.1, which would pass. s22_max improves by about 3-5 dB. S21 drops about 0.3-0.5 dB at fixed gm, recoverable within the 8.55 mA cap. NF rises by about 0.1 dB at most.
+
+==== ANSWER t2-nb090-noise-0375 ====
+1. DIAGNOSIS
+The binding metric is s11_max_db at -2.4 dB, an almost total mismatch. The first stage has no matching network: C1 feeds the NM1 gate directly, so the 900 MHz input is the gate capacitance Cgs in parallel with the bias-feed resistor R2. That is an almost purely capacitive, high-Q impedance with very little real part. With NF pushed to 1.24 dB, the sizer kept R2 large and NM1 wide, which makes the input even more reactive. Missing the gate-voltage Q boost also leaves S21 2.7 dB short.
+
+2. EDIT: use the inductively source-degenerated CS input. Add a series gate inductor LG and a source-degeneration inductor LS on NM1. This gives a noiseless real input resistance of wT*LS = 50 ohm and series resonance (LG+LS with Cgs) at 900 MHz, i.e. simultaneous noise and power match. The interstage series L2 is removed, with C2 coupling straight to the NM2 gate, so the inductor count stays at 4 (LG, LS, L1, L3).
+
+```netlist
+C C1 VIN1 n0
+L LG n0 n1
+NMOS NM1 n2 n1 n8 VSS
+L LS n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+3. PREDICTION: s11_max_db improves by about 9-11 dB, from -2.4 to about -11 to -13 dB. S21 improves by about 3-5 dB, to about 18-19 dB. NF stays at about 1.1-1.3 dB, at or near the 1.24 dB cap.
+
+==== ANSWER t2-wb1020-gain-0027 ====
+1. DIAGNOSIS
+The worst failure is mu_min_wide at 0.880 out of band; in-band mu is 1.09. The current-reuse stage is all reactive outside the band. The input is the high-Q series L1-Cgs resonance, and the output is the high-impedance shared drain with the series L2-C2 trap (s22_max -4.7 dB). The only reverse path, Cgd of NM1 and PM1, sees nearly lossless terminations at both ends, so the device is potentially unstable somewhere in 0.01-50 GHz. Every in-band gate is at the edge, so sizing alone has no room left.
+
+2. EDIT: add DC-blocked resistive shunt feedback RF-CF from the shared drain n2 to the NMOS gate n1. It adds broadband dissipation at both ports, lowers both |S11| and |S22| out of band, and broadens the match. The bias networks are unchanged.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+R RF n2 n7
+C CF n7 n1
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+3. PREDICTION: mu_min_wide improves by about +0.15 to +0.2, from 0.88 to about 1.03-1.08. In-band mu_min rises to about 1.2. S21 drops about 0.5 dB at fixed gm. s11_max at the band edges improves by about 1-2 dB. NF moves by about +0.1 dB.
+
+==== ANSWER t2-nb090-noise-0349 ====
+1. DIAGNOSIS
+The binding metric is s11_max_db at -2.8 dB. The input is just the DC block C1 to the NM1 gate, so the 900 MHz port sees Cgs in parallel with the R2 bias feed: strongly capacitive, essentially no 50-ohm real part, and nothing in the topology to transform it. The tight NF target (1.27 dB) pushed R2 high and NM1 large, which worsens the reactance. With no input series resonance, the gate voltage gets no Q multiplication, so S21 is also 4 dB short.
+
+2. EDIT: inductively degenerate the first stage. Add a series gate inductor LG and a source-degeneration inductor LS on NM1, so that Re(Zin) = wT*LS = 50 ohm and Cgs resonates out at 900 MHz. This is a simultaneous noise and power match. The interstage series L2 is dropped, with C2 coupling straight to the NM2 gate, keeping 4 inductors (LG, LS, L1, L3).
+
+```netlist
+C C1 VIN1 n0
+L LG n0 n1
+NMOS NM1 n2 n1 n8 VSS
+L LS n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+3. PREDICTION: s11_max_db improves by about 8-10 dB, from -2.8 to about -11 to -13 dB. S21 improves by about 4 dB, to about 19 dB. NF stays at about 1.1-1.3 dB.
+
+==== ANSWER t2-wb1020-gain-0159 ====
+1. DIAGNOSIS
+The worst failure is mu_min_wide at 0.932; in-band mu is only 1.06. The current-reuse stage has a high-Q series L1-Cgs input resonance and a high-impedance shared drain loaded only reactively by the L2-C2 trap (s22_max -3.8 dB). Out of band both port terminations become nearly lossless while Cgd still couples drain to gate, so mu drops below 1. No element in the circuit supplies broadband loss.
+
+2. EDIT: add a DC-blocked resistive shunt-feedback branch (RF in series with CF) from the shared drain n2 to the NMOS gate n1. It provides broadband loss at both ports, reduces the output impedance and the input Q, and also flattens gain. The published bias networks stay intact.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+R RF n2 n7
+C CF n7 n1
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+3. PREDICTION: mu_min_wide improves by about +0.12 to +0.18, from 0.93 to about 1.05-1.1. In-band mu_min rises to about 1.2. s22_max improves by about 3-5 dB. S21 drops about 0.3-0.5 dB, recoverable within the 7.39 mA cap. NF rises about 0.1 dB.
+
+==== ANSWER t2-nb090-noise-0363 ====
+1. DIAGNOSIS
+The binding metric is s11_max_db at -4.1 dB. Stage 1 is a bare CS gate fed through the DC block C1, so the input impedance at 900 MHz is Cgs in parallel with R2. It is highly capacitive, with no structural mechanism that creates a 50-ohm resistance. The sizer can only trade NF (pinned at 1.67 dB) against this mismatch, and S21 and Idd are pinned too. The interstage L2 tunes the inter-stage node, not the input port.
+
+2. EDIT: use the classic inductively source-degenerated input. Add a series gate inductor LG and a source inductor LS on NM1, giving Re(Zin) = wT*LS = 50 ohm with LG+LS resonating Cgs at 900 MHz. The interstage series L2 is removed, with C2 coupling straight to the NM2 gate and L1 as the tuned load, so the total stays at 4 inductors (LG, LS, L1, L3).
+
+```netlist
+C C1 VIN1 n0
+L LG n0 n1
+NMOS NM1 n2 n1 n8 VSS
+L LS n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+3. PREDICTION: s11_max_db improves by about 7-9 dB, from -4.1 to about -11 to -13 dB. S21 improves by about 3-5 dB, giving margin over 13.1 dB. NF stays at about 1.4-1.6 dB, inside the 1.67 dB cap.
+
+==== ANSWER t2-nb090-noise-0291 ====
+1. DIAGNOSIS
+The binding metric is s11_max_db at -3.6 dB. The input port reaches only the NM1 gate through C1, so at 900 MHz the source sees Cgs in parallel with the R2 bias feed. That is nearly pure capacitance, with no real part near 50 ohm, and no element is available to transform it. The lack of gate-voltage Q gain also leaves S21 4.6 dB short at the Idd cap. NF is pinned at 1.48 dB.
+
+2. EDIT: replace the bare CS input with an inductively degenerated input. Add a series gate inductor LG and a source inductor LS on NM1, giving Re(Zin) = wT*LS = 50 ohm and series resonance with Cgs at 900 MHz, which also provides voltage gain at the gate. The interstage series L2 is removed, with C2 coupling directly to the NM2 gate, so the circuit keeps 4 inductors (LG, LS, L1, L3).
+
+```netlist
+C C1 VIN1 n0
+L LG n0 n1
+NMOS NM1 n2 n1 n8 VSS
+L LS n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+3. PREDICTION: s11_max_db improves by about 8-10 dB, from -3.6 to about -11 to -13 dB. S21 improves by about 4-5 dB, to about 18.5-19 dB. NF stays at about 1.3-1.5 dB.
+
+==== ANSWER t2-wb1020-gain-0205 ====
+1. DIAGNOSIS
+The worst failure is mu_min_wide at 0.730, and in-band k and mu are only about 1.2. S21 sits exactly on its 9.06 dB floor at the Idd cap. The NMOS CS drives a shunt-peaked load, series L1+R2, which turns inductive above the band. An inductive drain impedance reflected through Cgd gives a negative real gate admittance (the Miller term jwCgd*gm*jwL), and only the feedback resistor R1 damps it. Out of band, the input therefore shows negative conductance. At 9.2 mA a large-gm NMOS makes this mechanism stronger.
+
+2. EDIT: convert the circuit to a resistive-feedback current-reuse CMOS inverter LNA. A PMOS sharing the bias current and driven from the same gate replaces L1/R2. With no inductive load the negative-conductance mechanism is gone, and transconductance becomes gmn+gmp at the same Idd. R1 still self-biases both gates and sets the broadband match.
+
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n1 VDD VDD
+C C2 n2 VOUT1
+```
+
+3. PREDICTION: mu_min_wide improves by about +0.3 to +0.4, from 0.73 to about 1.05-1.2. S21 improves by about +2-3 dB, to about 11-12 dB at 9.2 mA or less. NF stays at about 1.5-2.0 dB, inside the 4.49 dB cap.

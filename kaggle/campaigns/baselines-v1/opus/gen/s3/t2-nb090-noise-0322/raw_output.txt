@@ -1,0 +1,29 @@
+1. DIAGNOSIS
+The binding s11_max_db (-3.14 dB vs -7.88 dB) comes from an input with no matching network. NM1's gate is reached only through C1, and only R2 hangs in shunt. Zin is roughly R2 || 1/(jwCgs): reactive and high-impedance at 900 MHz.
+Using R2 as the termination would raise NF, which already sits on its gate (1.343 vs 1.3425 dB). So |Gamma| stays near 0.7.
+The s21 shortfall (14.78 vs >=18.82 dB) is the same mismatch loss, plus the missing series-resonant gate voltage gain. Stability is not limiting in band (mu 2.29).
+
+2. EDIT: an inductively degenerated stage-1 input.
+- Series gate inductor L4 cancels Cgs.
+- Source inductor L5 sets a noiseless 50-ohm real part.
+- Interstage L2 is removed (4-inductor screen). C2 couples directly to NM2, and L1 resonates the interstage node.
+```netlist
+* lna-a4-twostage edit: inductively degenerated stage-1 input (Lg=L4, Ls=L5), C-coupled interstage
+C C1 VIN1 n0
+L L4 n0 n1
+NMOS NM1 n2 n1 n8 VSS
+L L5 n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+3. PREDICTION
+- Binding metric: s11_max_db improves from -3.14 dB to about -12 dB (~9 dB better).
+- s21: rises ~+3 to +5 dB.
+- NF: moves by roughly +/-0.2 dB.

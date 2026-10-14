@@ -1,0 +1,23 @@
+1. DIAGNOSIS
+mu_min_wide is 0.63, the worst margin by far.
+The shunt-peaking inductor L1 makes the drain load inductive at high frequency. Through Cgd, an inductive drain load reflects a negative resistance onto the gate (the Miller effect with a phase-inverted inductive load), so the input becomes active out of band.
+Gain is exactly at its 9.8 dB floor at the 6.1 mA cap. A single NMOS transconductor with a resistive feedback match has no gm headroom to trade for damping.
+
+2. EDIT: current-reuse CMOS inverter with resistive feedback
+Replace the shunt-peaked load L1+R2 with a PMOS whose gate is shared with the NMOS. R1 self-biases the inverter at mid-supply and sets the match.
+- The drain load is now purely resistive (the ro's, R1 and 50 ohm), so the inductive Miller negative resistance is gone.
+- gm doubles at the same current.
+
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n1 VDD VDD
+C C2 n2 VOUT1
+```
+
+3. PREDICTION
+mu_min_wide improves from 0.63 to about 1.1 (+0.45).
+Secondary effects:
+- s21 gains about 3 dB of headroom.
+- NF stays around 1.5 dB.

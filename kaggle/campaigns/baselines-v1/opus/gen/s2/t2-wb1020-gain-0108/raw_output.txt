@@ -1,0 +1,22 @@
+1. DIAGNOSIS
+The binding constraint is broadband stability, missed by a hair (mu over 0.01-50 GHz = 0.997). In-band, mu is 1.21, so the dip is out of band. It comes from the lightly damped series gate inductor L1 resonating with the large inverter gate capacitance (NM1, plus PM1 through C1). Above band, the L2 output tank turns inductive and couples back through Cgd as negative gate conductance. Only a tiny amount of out-of-band damping is needed. s21 and NF have almost no margin, so the fix must be essentially free in band.
+
+2. EDIT: put a damping resistor RD in parallel with the gate inductor L1. In band, the low-reactance L1 carries the signal and RD (large) is almost inactive, so NF and gain hold. Out of band, the input loop is resistively damped.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+R RD n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.997 to about 1.05-1.1 (+0.05 to +0.1), which passes. s21 and NF should change by less than 0.1 dB.

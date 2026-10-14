@@ -1,0 +1,22 @@
+1. DIAGNOSIS
+The binding failure is wideband stability (mu_wide = 0.82). In-band mu is 1.21, so the problem is out of band. The shared drain of the NMOS/PMOS current-reuse pair has a series L2-C2 branch to ground. Above its series resonance the branch is inductive, so at multi-GHz frequencies the drain impedance is inductive and almost lossless. The combined Cgd of NM1 + PM1 (gates AC-tied via C1) couples this back to the input: Y_in = jwCgd(1 + gm*Z_L) gets a negative real part. The series gate inductor L1 resonating with Cgs adds voltage boost at the gate, so |S12*S21| exceeds the available loss margin and mu < 1. Nothing resistive damps the drain where L2 dominates.
+
+2. EDIT: put a damping resistor R6 across L2 (n2 to n4). It is DC-isolated by C2, so the bias is unchanged. At high frequency the L2-C2 branch tends to R6 to ground, a resistive HF termination. That bounds the drain impedance, removes the inductive-load negative conductance, and lowers the output Q, which also helps s22 and ripple across 1-2 GHz.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+R R6 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.82 to about 1.05-1.1 (+0.25; it passes). s22_max improves by about 2 dB. Peak s21 costs about 0.3 dB, which the sizer recovers by retuning L2/C2 within the Idd budget.

@@ -1,0 +1,105 @@
+==== ANSWER t2-nb090-noise-0013 ====
+1. DIAGNOSIS
+The binding failure is out-of-band stability (mu_wide = 0.92). In-band mu is only 1.03, and s22 is -4.7 dB, so the output is high-Q. The shared drain n2 of the NMOS/PMOS current-reuse pair is loaded by a series L2-C2 branch to ground. Above that branch's series resonance it is inductive and almost lossless, so the drain impedance turns inductive at multi-GHz frequencies. Through the combined Cgd of NM1 + PM1 (gates AC-tied via C1), the Miller admittance jwCgd(1 + gm*Z_L) at the input then has a negative real part. The series gate inductor L1 resonating with Cgs adds gate-voltage gain, so out of band mu < 1. No resistive element bounds the drain impedance where L2 dominates.
+
+2. EDIT: add a damping resistor R6 in parallel with L2 (n2 to n4). It is DC-isolated by C2, so the bias is unchanged. At high frequency the L2-C2 branch tends to R6 to ground, a resistive HF termination that caps the drain impedance, removes the inductive-load negative conductance, and lowers the output Q. In-band, R6 can stay large, so the 900 MHz gain is largely preserved.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+R R6 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.92 to about 1.1 (+0.2; it passes). In-band mu_min rises to about 1.15, and s22 improves by about 2-3 dB. s21 costs about 0.3 dB, which the sizer recovers by retuning L2/C2 (s11 has 1.4 dB of margin to trade).
+
+==== ANSWER t2-nb090-noise-0307 ====
+1. DIAGNOSIS
+The binding failure is the input match (s11 = -4.9 dB). The input DC block C1 feeds NM1's gate directly, so Zin at 900 MHz is Cgs in parallel with the large bias-feed R2: strongly capacitive, with no real part near 50 ohm. No element synthesizes a resistive input, and dropping R2 low enough to terminate the source would exceed the 2.02 dB NF limit. The mismatch also costs transducer gain, so s21, NF and Idd all sit at their gates.
+
+2. EDIT: make stage 1 an inductively degenerated CS: a series gate inductor L4 after C1, plus a source inductor L5 from NM1's source to ground. This gives a noiseless Re(Zin) = wT*Ls (about 50 ohm), with Lg + Ls resonating Cgs at 900 MHz. To stay within the 4-inductor screen, the interstage series L2 is removed: C2 couples the L1-tuned stage-1 drain straight into NM2's gate, and L1 absorbs Cgs2. The mirror bias is unchanged.
+```netlist
+C C1 VIN1 n0
+L L4 n0 n1
+NMOS NM1 n2 n1 n8 VSS
+L L5 n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+3. PREDICTION: s11_max_db improves from -4.9 dB to about -12 dB (about 7 dB better; it passes -7.85). Side effects: s21 rises by about 3-5 dB, NF drops by about 0.2-0.4 dB, and mu_wide improves (no series L2/Cgs2 resonance; Ls adds a positive input real part).
+
+==== ANSWER t2-wb1020-gain-0109 ====
+1. DIAGNOSIS
+The binding failure is wideband stability (mu_wide = 0.92). In-band mu_min is only 1.0006, and s22_max is -2.6 dB, so the output is very high-Q and nearly reflective at the band edge. The current-reuse drain sees a series L2-C2 branch to ground, which is inductive and almost lossless above its series resonance. That makes the drain load inductive at multi-GHz frequencies. Through the NM1 + PM1 Cgd (gates AC-tied via C1), it produces a negative-real Miller admittance jwCgd(1 + gm*Z_L) at the input, while L1 resonating with Cgs boosts the gate voltage. mu therefore falls below 1 out of band and only barely clears 1 in band. Nothing resistive damps the drain where L2 dominates.
+
+2. EDIT: put a damping resistor R6 across L2 (n2 to n4). The bias is unchanged (C2 blocks DC). At high frequency the branch tends to R6 to ground, a resistive HF termination that bounds the drain impedance, removes the negative input conductance, and lowers the output Q. That improves s22 and flattens the 1-2 GHz response (ripple currently 0.93 dB).
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+R R6 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.92 to about 1.1 (+0.2; it passes). In-band mu_min rises to about 1.15, s22_max improves by about 3 dB, and ripple drops by about 0.3 dB. Peak s21 costs about 0.3 dB, which the flatter band offsets for s21_min.
+
+==== ANSWER t2-nb090-noise-0397 ====
+1. DIAGNOSIS
+The binding failure is the input match (s11 = -2.7 dB). C1 connects straight to NM1's gate, so the input impedance is Cgs in parallel with a large bias resistor R2: almost purely reactive at 900 MHz, with |Gamma| close to 1 and no real part near 50 ohm. The tight NF limit (1.30 dB) forbids using a small R2 as the termination, so the sizer can't create a real part. The mismatch (about 3.5 dB of lost transducer gain), plus the lack of input-resonance gate gain, also holds s21 at 14.7 vs 16.5 dB.
+
+2. EDIT: use an inductively degenerated stage-1 input: series gate inductor L4 after C1, and source inductor L5 from NM1's source to ground. This gives a noiseless Re(Zin) = wT*Ls = 50 ohm, with Lg + Ls tuning out Cgs at 900 MHz. The interstage series L2 is removed to respect the 4-inductor limit; C2 feeds NM2's gate directly and L1 resonates the stage-1 drain plus Cgs2. The mirror bias is unchanged.
+```netlist
+C C1 VIN1 n0
+L L4 n0 n1
+NMOS NM1 n2 n1 n8 VSS
+L L5 n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+3. PREDICTION: s11_max_db improves from -2.7 dB to about -11 dB (about 8 dB better; it passes -7.87). Side effects: s21 rises by about 4-6 dB (which clears 16.5 dB), NF stays about 1.2-1.3 dB, and mu_wide improves because the series L2/Cgs2 interstage resonance is gone.
+
+==== ANSWER t2-wb1020-gain-0126 ====
+1. DIAGNOSIS
+The binding failure is wideband stability (mu over 0.01-50 GHz = 0.70), and s21 is short (9.74 vs 12.99 dB). The shunt-peaked load (L1 in series with R2) becomes inductive above the peaking zero. Fed back through Cgd and the feedback resistor R1, the input admittance jwCgd(1 + gm*jwL) gets a negative real part (-w^2*gm*L*Cgd) at multi-GHz frequencies, where the 45 nm NMOS still has gain, so mu < 1. Gain is capped at the 10.1 mA cap: one NMOS supplies all the gm, and the DC-drop resistor R2 loads the 50-ohm output, so the only lever left (more peaking) would make stability worse.
+
+2. EDIT: replace the shunt-peaked NMOS CS with a self-biased CMOS inverter (NM1 + PM1, common gate and drain) inside the same R1 shunt feedback (the inverter resistive-feedback broadband LNA). The current is reused (gm = gm_n + gm_p), the PMOS is the active load, and there is no inductor, so the drain load stays RC and can't go inductive. R1 sets Vg = Vd self-bias and the broadband real input match.
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n1 VDD VDD
+C C2 n2 VOUT1
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.70 to about 1.2 (about +0.5; it passes). Side effect: s21 rises by about 3-4 dB (gm roughly doubled at 10 mA), close to the 13 dB gate. Ripple stays below 0.5 dB and NF stays below 2.5 dB, well under the 4.55 dB cap.

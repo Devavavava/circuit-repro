@@ -1,0 +1,20 @@
+1. DIAGNOSIS
+The binding constraint is the input match: S11 is -4.9 dB. Stage 1 has no input matching network. C1 is only a DC block onto the NM1 gate, and the bias resistor R2 is the only real element there. The resulting Zin is about 1/(jw*Cgs) in parallel with R2, which is reactive and far from 50 ohm, so the optimizer can only trade a lossy partial match against NF and gain, both of which sit at their gates. Wideband mu is also below 1 (0.77). The standard noiseless match, Lg resonating Cgs plus Ls giving Re{Zin} = wT*Ls, is absent.
+
+2. EDIT: an inductively degenerated stage 1, with Lg in series with the gate and Ls from the NM1 source to ground. The interstage series inductor L2 is removed to keep 4 inductors, so C2 couples the L1-tuned drain directly to the NM2 gate. Biasing through R2 and R3 is unchanged.
+```netlist
+C C1 VIN1 n0
+L Lg n0 n1
+NMOS NM1 n2 n1 ns VSS
+L Ls ns VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+3. PREDICTION: S11_max improves from -4.9 dB to about -12 dB (+7 dB). S21 rises by about 3 dB, and NF improves by about 0.2-0.3 dB. Wideband mu rises by about 0.1-0.2 from the degeneration.

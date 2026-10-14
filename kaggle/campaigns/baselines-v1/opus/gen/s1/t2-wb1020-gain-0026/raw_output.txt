@@ -1,0 +1,14 @@
+1. DIAGNOSIS
+The worst failure is mu_min_wide at 0.709. In-band k and mu are only about 1.14-1.19. The CS NMOS drives the shunt-peaked load, series L1 plus R2, which becomes inductive above the band. Feedback through Cgd onto an inductive drain load gives the gate a negative input conductance (the Miller term jwCgd*gm*jwL has a negative real part). The feedback resistor R1 is the only damping, so the circuit is potentially unstable at multi-GHz. S21 is also about 0.4 dB short at the Idd cap, because a single NMOS provides only gm_n per mA.
+
+2. EDIT: convert the circuit to a resistive-feedback current-reuse CMOS inverter LNA. A PMOS sharing the bias current and driven by the same gate replaces the inductive L1/R2 load. That removes the inductive-load negative-conductance mechanism and roughly doubles gm per mA. R1 keeps self-biasing both gates and setting the broadband match.
+
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n1 VDD VDD
+C C2 n2 VOUT1
+```
+
+3. PREDICTION: mu_min_wide improves by about +0.35, from 0.71 to about 1.05-1.2. S21 improves by about +2-3 dB, to about 12 dB. NF stays at about 1.5-2.0 dB, inside the 4.58 dB cap.

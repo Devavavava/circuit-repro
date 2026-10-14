@@ -1,0 +1,22 @@
+1. DIAGNOSIS
+The binding metric is s11_max_db at -5.0 dB. The first stage's input is only the DC block C1 into the NM1 gate. At 900 MHz the port sees Cgs in parallel with the R2 bias feed: strongly capacitive, with almost no real part. The topology has no element that produces a 50-ohm real input resistance, so the sizer can only trade NF against a poor match. The out-of-band stability margin (mu_wide 0.78) is also weak, because the gate is a nearly lossless high-impedance node.
+
+2. EDIT: use an inductively degenerated first stage. Add a series gate inductor LG and a source-degeneration inductor LS on NM1, giving Re(Zin) = wT*LS = 50 ohm and resonance at 900 MHz. The interstage series inductor L2 is removed, with C2 coupling directly to the NM2 gate, so the inductor count stays at 4 (LG, LS, L1, L3). LS also adds series feedback that raises the input real part over a broad range, which helps the out-of-band mu.
+
+```netlist
+C C1 VIN1 n0
+L LG n0 n1
+NMOS NM1 n2 n1 n8 VSS
+L LS n8 VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+
+3. PREDICTION: s11_max_db improves by about 6-8 dB, from -5.0 to about -11 to -13 dB. S21 improves by about 3-4 dB, to about 17 dB. NF stays at about 1.7-2.1 dB, inside 2.18 dB. mu_wide improves by about +0.1-0.2.

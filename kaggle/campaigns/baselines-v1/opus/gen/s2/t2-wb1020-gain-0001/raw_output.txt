@@ -1,0 +1,20 @@
+1. DIAGNOSIS
+mu_min_wide is 0.64. The shunt-peaking inductor L1 makes the drain load inductive at high frequency, and through Cgd (Miller) that reflects a negative resistance onto the gate. The input is therefore active out of band.
+Gain is also 0.35 dB short at the 9.8 mA cap. A single NMOS with a feedback match is limited by gm per mA.
+
+2. EDIT: CMOS inverter (current-reuse) resistive-feedback LNA
+Replace L1+R2 with a PMOS whose gate is shared with the NMOS gate, self-biased through R1. The load becomes purely resistive, and gm doubles at the same Idd.
+
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n1 VDD VDD
+C C2 n2 VOUT1
+```
+
+3. PREDICTION
+mu_min_wide improves from 0.64 to about 1.1 (+0.45).
+Secondary effects:
+- s21 rises by about 3 dB.
+- NF stays around 2 dB.

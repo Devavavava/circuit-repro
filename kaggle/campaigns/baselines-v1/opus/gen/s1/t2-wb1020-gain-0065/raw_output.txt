@@ -1,0 +1,29 @@
+1. DIAGNOSIS
+Every in-band gate (NF, S11, S21, Idd) sits at the edge with near-zero margin. The worst failure is mu_min_wide over 0.01-50 GHz (0.886), while in-band mu (1.47) is fine. So the problem is potential instability out of band. The circuit is almost lossless away from f0:
+- the series gate inductor L1 plus the Cgs of NM1/PM1 form a high-Q input resonance;
+- the series L2-C2 trap at the shared drain adds a second high-Q resonance;
+- the drain-gate capacitances of both devices give a reverse path through Cgd.
+Far from f0 the input reflection gets close to 1 with nothing resistive to load it, so mu drops below 1. Nothing in the topology adds broadband loss at either port.
+
+2. EDIT: add a broadband resistive shunt-feedback path from the shared drain to the NMOS gate, DC-blocked by CF so the published gate bias networks keep working unchanged. The feedback resistor makes both ports lossy at every frequency, lowers the out-of-band |S11| and |S22| peaks and the loop gain, and also broadens the in-band match.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+R RF n2 n7
+C CF n7 n1
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+3. PREDICTION: mu_min_wide_0.01-50GHz improves by about +0.15 to +0.25, from 0.886 to about 1.05-1.1, which would pass. Expected side effects: S21 drops about 0.5 dB at fixed current, which the sizer can win back with gm; s11_max improves by 1-3 dB; NF stays roughly flat (+/-0.1 dB).

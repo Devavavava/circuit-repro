@@ -1,0 +1,23 @@
+1. DIAGNOSIS
+The circuit is very close: wideband mu is 0.954 (margin -0.046), and NF, S21 and Idd are all pinned at their limits. This is a current-reuse inverter with no resistive damping in the signal path. The input is a series gate inductor L1 into a purely capacitive gate (Cgs,n + Cgs,p via C1). The output is a high-Q inductive tank (L2 to ground through DC-block C2) in parallel with ro_n||ro_p. Both Cgd's couple that inductive output back to the gate, giving a negative gate conductance of about -w^2*(gm_n+gm_p)*Cgd*L2. The gate inductor L1 and Cgs form a high-Q series resonance that can resonate against that negative conductance. With no lossy element bridging input and output, mu dips just below 1 out of band (and the poor S22 of -3.3 dB worst-case shows the output is almost lossless/reactive).
+
+2. EDIT: a shunt-shunt RC feedback network from output to the gate node: Rf in series with DC-block Cf. Because the feedback is resistive, it adds a positive real conductance to both ports and gives a lossy reverse path in place of the purely capacitive Cgd one. That damps both the L1-Cgs resonance and the output tank. It also gives broadband real input and output matching (S22 improves). Cf keeps the existing gate bias networks untouched. With a large Rf, the gain and NF penalties are small.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R Rf n2 nf
+C Cf nf n1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.954 to about 1.1-1.2 (+0.15 to +0.25). S11 and S22 improve by about 2-3 dB. S21 falls by about 0.5 dB at fixed sizing (with Rf of several hundred ohms), which the optimizer has to win back through device sizing. NF rises by about 0.1 dB.

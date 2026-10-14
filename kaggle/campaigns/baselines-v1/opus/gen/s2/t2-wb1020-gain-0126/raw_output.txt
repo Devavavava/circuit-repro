@@ -1,0 +1,23 @@
+1. DIAGNOSIS
+mu_min_wide is 0.70 and s21 is 3.2 dB short.
+The shunt-peaked load (L1 in series with R2) makes the drain impedance inductive at high frequency. Reflected through Cgd (Miller), an inductive drain load gives the gate a negative input resistance, so the input reflection goes above 1 out of band and mu falls below 1.
+The single NMOS transconductor at a 10 mA cap also cannot provide enough gm*R_load for 13 dB while the feedback resistor R1 sets a 50-ohm match. The gain limit is gm per mA.
+
+2. EDIT: current-reuse inverter with resistive feedback
+Replace the inductive shunt-peaked load (L1+R2) with a PMOS whose gate is tied to the NMOS gate, giving a self-biased CMOS inverter. R1 sets both the match and the DC point at mid-supply.
+- The drain load becomes purely resistive (the ro's, R1 and 50 ohm), so there is no inductive Miller reflection.
+- gm doubles at the same current.
+
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n1 VDD VDD
+C C2 n2 VOUT1
+```
+
+3. PREDICTION
+mu_min_wide improves from 0.70 to about 1.1 (+0.4), because there is no inductive load left to cause the negative resistance.
+Secondary effects:
+- s21 rises by about 3 to 4 dB (gm_n + gm_p from the same current), reaching 13 dB or more.
+- NF stays around 2 dB, well under the cap.

@@ -1,0 +1,14 @@
+1. DIAGNOSIS
+Every in-band spec passes (NF, S11, S21, Idd, in-band mu = 1.29). The failure is wideband: mu over 0.01-50 GHz drops to 0.63, so somewhere out of band, well above f0, the circuit is potentially unstable. The cause is the shunt-peaked drain load. L1 is in series with R2, so above the peaking frequency the drain impedance becomes strongly inductive (Z_L ~ jwL1) and stays that way until L1 self-resonates with the drain capacitance. When a common-source stage has an inductive load, its Cgd turns into a negative conductance at the gate: Y_in,Cgd = jwCgd(1 + gm*jwL1) = jwCgd - w^2*gm*Cgd*L1. The resistive feedback R1 only adds a fixed 1/R1 of positive conductance. At high frequency the w^2 term outgrows it, so some passive source or load termination can make the input or output port reflection exceed 1. The load inductor has nothing in parallel to bound its high-frequency impedance (no de-Q). That missing damping is what limits mu out of band.
+
+2. EDIT: put a de-Q resistor R3 in parallel with L1. In band, R3 can be large enough that the peaking at 0.9 GHz is kept. At high frequency the drain impedance is then capped near R3+R2 (resistive) instead of rising inductively. This removes the w^2*gm*Cgd*L term that produces the negative gate conductance, and it also damps the L1/Cdb self-resonance. The DC path is unchanged.
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+L L1 VDD n3
+R R3 VDD n3
+R R2 n3 n2
+C C2 n2 VOUT1
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.63 to about 1.05 (+0.4). In-band mu_min stays above 1.2. S21 at 0.9 GHz drops by 0.3 dB or less, and NF rises by less than 0.1 dB.

@@ -1,0 +1,107 @@
+==== ANSWER t2-wb1020-gain-0010 ====
+1. DIAGNOSIS
+The binding constraint is out-of-band stability: mu over 0.01-50 GHz is 0.82, while in-band mu is 1.21. NF, S11, S21 and Idd are all pinned at their gates. The shared output of the current-reuse inverter is an inductive shunt tank (L2 to ground through DC-block C2) with only ro_n||ro_p as loss. Where that load is inductive, the Cgd's of NM1 and PM1 turn it into a negative conductance at the gate (about -w^2*(gm_n+gm_p)*Cgd*L2). That conductance faces the high-Q series resonance of L1 with the gate capacitance. Because nothing resistively damps the output tank or bridges output to input, mu falls below 1 off band.
+
+2. EDIT: a de-Q resistor R6 across the output tank inductor L2, kept off the DC path by C2. Out of band, the output impedance becomes bounded and resistive, which suppresses the inductive Miller drive and damps the L2 resonance. In band, R6 can be large. Its noise is referred through the stage gain, which matters because NF is pinned.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+R R6 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.82 to about 1.05 (+0.2 to +0.25). S22 improves by about 2 dB. S21 falls by about 0.2-0.3 dB at fixed sizing, and NF rises by about 0.03 dB or less.
+
+==== ANSWER t2-nb090-noise-0312 ====
+1. DIAGNOSIS
+The binding constraint is the input match: S11 is -3.1 dB. Stage 1 is a CS device reached only through DC-block C1, with a large bias-feed resistor R2 in shunt at the gate. Zin is about 1/(jw*Cgs) in parallel with R2, which is mostly reactive and has no controllable 50-ohm real part, so the port is nearly totally reflective whatever the sizing. The reflection also wastes the input-network gain: S21 is 4 dB short (14.7 vs 18.65 dB), and Idd is slightly over budget as the optimizer pushes gm to compensate. The noiseless matching pair is missing: a gate inductor to resonate out Cgs, and a source-degeneration inductor to give Re{Zin} = wT*Ls.
+
+2. EDIT: make stage 1 an inductively degenerated CS, with Lg in series with the gate after C1 and Ls from the NM1 source to VSS. To stay at 4 inductors, the series interstage inductor L2 is removed and C2 couples the L1-tuned drain directly to the NM2 gate. Bias is unchanged.
+```netlist
+C C1 VIN1 n0
+L Lg n0 n1
+NMOS NM1 n2 n1 ns VSS
+L Ls ns VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+3. PREDICTION: S11_max improves from -3.1 dB to about -11 dB (+8 dB). S21 rises by about 4-5 dB from the input-network Q gain. NF stays at about 1.2-1.4 dB, and wideband mu improves by about 0.1-0.2.
+
+==== ANSWER t2-wb1020-gain-0067 ====
+1. DIAGNOSIS
+The binding constraint is out-of-band stability: mu over 0.01-50 GHz is 0.95, while in-band mu is 1.21. NF, S21 and Idd are all pinned. The current-reuse output node drives a nearly lossless inductive tank (L2 via C2 to ground) in parallel with ro_n||ro_p, so S22_max is -4.2 dB. Where the tank is inductive, the Cgd's of both devices reflect a negative conductance onto the gate (about -w^2*gm*Cgd*L2). That conductance meets the series-resonant L1/Cgs input, and the margin goes slightly below 1 off band. The circuit has no resistive damping element in the signal path.
+
+2. EDIT: a de-Q resistor R6 across the output tank inductor L2, AC-coupled by C2 and off the DC path. The output impedance out of band is bounded and resistive, which damps the inductive Miller feedback and the tank resonance. With R6 large in band, the cost to S21 and NF is small.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+R R6 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.95 to about 1.1 (+0.1 to +0.15). S22_max improves by about 2 dB. S21 falls by about 0.2 dB, and NF rises by about 0.03 dB or less.
+
+==== ANSWER t2-wb1020-gain-0001 ====
+1. DIAGNOSIS
+The binding constraint is out-of-band stability: mu over 0.01-50 GHz is 0.64, while in-band mu is 1.11. S21 is also 0.34 dB short at the Idd cap, and NF has a large margin. The single CS device drives a shunt-peaked load (L1 in series with R2) that becomes strongly inductive above the band. Through Cgd, that inductive drain reflects a negative conductance onto the gate (about -w^2*gm*Cgd*L1), which the feedback resistor R1 offsets only by a fixed 1/R1. The term grows with gm*Z_L, so the optimizer cannot raise gain further without losing wideband stability. It is trapped at about 10.8 dB and mu_wide 0.64.
+
+2. EDIT: cascode the input device with NM2, a common-gate device whose gate is on VDD (AC ground), between NM1's drain and the load/output node. NM1's Cgd then sees only about 1/gm2 instead of the inductive load, and NM2's Cgd goes to AC ground. That removes the Miller path from the inductive load to the input gate and raises output resistance and reverse isolation. The resistive shunt feedback R1 and its self-bias are kept.
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 nc n1 VSS VSS
+NMOS NM2 n2 VDD nc VSS
+L L1 VDD n3
+R R2 n3 n2
+C C2 n2 VOUT1
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.64 to about 1.1 (+0.45). S21 improves by about 0.5-1 dB, which clears the 11.1 dB gate.
+
+==== ANSWER t2-nb090-noise-0269 ====
+1. DIAGNOSIS
+The binding constraint is the input match: S11 is -3.9 dB. The NM1 gate is driven only through DC-block C1, with a large bias-feed resistor R2 in shunt. The input impedance is therefore essentially the gate capacitance (1/(jw*Cgs) in parallel with R2), with no 50-ohm real part, and no sizing can match it. NF and S21 meet their gates only marginally, under the noise-matched (series_rs) evaluation. Wideband mu also fails (0.83). The gate inductor and source-degeneration inductor that would give a noiseless 50-ohm real part (wT*Ls) and cancel Cgs are missing.
+
+2. EDIT: an inductively degenerated first stage, with Lg in series with the NM1 gate after C1 and Ls from the NM1 source to VSS. To keep the 4-inductor limit, the series interstage inductor L2 is removed and C2 couples the L1 tank directly to the NM2 gate. Bias feeds are unchanged.
+```netlist
+C C1 VIN1 n0
+L Lg n0 n1
+NMOS NM1 n2 n1 ns VSS
+L Ls ns VSS
+L L1 VDD n2
+C C2 n2 n5
+NMOS NM2 n6 n5 VSS VSS
+L L3 VDD n6
+C C3 n6 VOUT1
+R R1 VDD n7
+NMOS NM3 n7 n7 VSS VSS
+R R2 n7 n1
+R R3 n7 n5
+```
+3. PREDICTION: S11_max improves from -3.9 dB to about -12 dB (+8 dB). S21 rises by about 3-4 dB, and NF improves by about 0.1-0.2 dB. Wideband mu improves by about 0.1-0.2 from the Ls degeneration.

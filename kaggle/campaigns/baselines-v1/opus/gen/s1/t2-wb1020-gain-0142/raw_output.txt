@@ -1,0 +1,25 @@
+1. DIAGNOSIS
+The worst failure is mu_min_wide at 0.895. In-band mu and k sit exactly at 1.000 and S21 is 0.2 dB short, so the sizer is pressing gain directly against the stability boundary. The current-reuse stage has a narrowband, high-Q series L1-Cgs input (s11 is -12.6 dB at f0 but -7.9 dB at the edges). Its output is a high-impedance shared drain with only the reactive L2-C2 trap (s22_max -3.2 dB). Cgd of both devices provides reverse transmission into these nearly lossless terminations. Any increase in gm (for S21) therefore pushes mu further below 1, both out of band and at the band edges. The topology has no broadband dissipative element to decouple gain from stability.
+
+2. EDIT: add DC-blocked resistive shunt feedback RF-CF from the shared drain n2 to the NMOS gate n1. It provides broadband loss at both ports, lowers the output impedance, and de-Qs the input, so k and mu rise at every frequency. The sizer can then raise gm toward the S21 target without hitting the stability wall. The published bias networks are unchanged.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+R RF n2 n7
+C CF n7 n1
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+3. PREDICTION: mu_min_wide improves by about +0.15 to +0.2, from 0.895 to about 1.05-1.1, and in-band mu_min rises to about 1.15-1.2. At fixed bias S21 falls about 0.3-0.5 dB, but the new stability headroom lets the sizer recover it toward 13.6 dB. s22_max improves by about 4 dB.

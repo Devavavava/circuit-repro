@@ -1,0 +1,27 @@
+1. DIAGNOSIS
+The binding constraint is broadband noise (NF_max 2.16 dB against 1.97 dB), with S11 also failing at the band edges (-7.26 dB against -7.91 dB). The current-reuse stage has no noiseless real input resistance. The 50-ohm real part across 1-2 GHz comes from Cgd Miller feedback of NM1 and PM1 into the L2 tank, and from the bias feeds R2/R5.
+
+The bias resistors add thermal noise directly at the gate. The Miller-derived resistance depends on frequency, so the match collapses at the band edges, and the edge NF degrades with it. Raising gm to lower NF increases the Miller feedback and the S12 = -27 dB reverse coupling, so the sizer is stuck.
+
+2. EDIT: build an inductively-degenerated cascode current-reuse stage.
+- Add a source inductor L3 on NM1, which gives a broadband, noiseless real input resistance (gm*Ls/Cgs); with the large total gate capacitance (Cgs,n + Cgs,p via C1), the series input Q is low enough for 1-2 GHz.
+- Add an NMOS cascode NM4 (gate to VDD) to cut the Miller path and raise the gain.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n7 n1 n8 VSS
+L L3 n8 VSS
+NMOS NM4 n2 VDD n7 VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: nf_max_db (binding) improves by ~0.25 dB, from 2.16 to ~1.9 dB. S11_max improves by ~1.5 dB to ~-8.8 dB, and mu_min_wide rises above 1.

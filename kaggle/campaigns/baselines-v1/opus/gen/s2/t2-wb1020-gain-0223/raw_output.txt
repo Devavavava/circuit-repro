@@ -1,0 +1,20 @@
+1. DIAGNOSIS
+mu_min_wide is 0.65. The shunt-peaked load (L1 in series with R2) is inductive at high frequency. Through Cgd it produces a negative input resistance at the gate, so there is potential instability out of band.
+s21 is 0.6 dB short at the 6.7 mA cap, a gm-per-mA limit of the single-NMOS feedback stage.
+
+2. EDIT: CMOS inverter (current-reuse) resistive-feedback LNA
+Replace the inductive load with a PMOS sharing the input gate, self-biased through R1. The load is resistive and gm doubles at the same current.
+
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n2 n1 VSS VSS
+PMOS PM1 n2 n1 VDD VDD
+C C2 n2 VOUT1
+```
+
+3. PREDICTION
+mu_min_wide improves from 0.65 to about 1.1 (+0.45).
+Secondary effects:
+- s21 rises by about 3 dB.
+- NF stays around 2 dB, under the 3.3 dB cap.

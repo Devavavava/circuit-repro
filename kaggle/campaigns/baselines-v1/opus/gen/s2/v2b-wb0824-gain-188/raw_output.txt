@@ -1,0 +1,29 @@
+1. DIAGNOSIS
+The binding constraint is nf_max (2.50 dB against 2.04 dB) across a 3:1 band (0.8-2.4 GHz). s11_max also misses slightly (-8.88 dB). At f0, NF is 2.35 dB; the worst case is at the band edges.
+- The input match is a single series-resonant L1 into the inverter gate capacitance. That is inherently narrowband, so over 0.8-2.4 GHz the source impedance seen by the devices moves far from the noise-optimal value at both edges. The edge mismatch (s11_max -8.9 dB) is the same symptom.
+- The match has no clean resistive term, so its real part partly comes from the gate bias feeds. R2 couples the noisy diode NM3 and R2's own thermal noise straight onto the NMOS gate, and R5 does the same with PM2 onto the PMOS gate. Both noise sources appear at the input node unattenuated.
+- The large Cgd feedback in this weakly loaded design (s22 -3.8 dB) also gives an in-band mu of only 1.02 and a wideband mu of 0.90.
+
+2. EDIT: add resistive shunt feedback from the inverter output n2 back to the NMOS gate n1 (RF in series with a DC-block CF). This is the classic wideband resistive-feedback inverter LNA. RF provides an active, frequency-flat input real part of about RF/(1 + gm*Rout), and RF's own noise is suppressed by the loop gain. With the match no longer depending on L1's resonance or on the bias resistors, the sizer can:
+- make R2 and R5 very large, removing their noise and the bias-diode noise from the input;
+- use L1 only as mild gate peaking to absorb Cgs at the top band edge.
+NF then flattens across 0.8-2.4 GHz, s11 becomes broadband, and the feedback also damps s22 and wideband stability.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+R RF n2 n7
+C CF n7 n1
+```
+3. PREDICTION: nf_max_db improves from 2.50 dB to about 2.0-2.1 dB (around 0.4-0.5 dB better), mainly by flattening the band-edge NF. s11_max improves to about -10 dB or better. Wideband mu rises above 1 (about +0.15). s21 changes by about -0.5 dB.

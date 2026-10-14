@@ -1,0 +1,25 @@
+1. DIAGNOSIS
+The worst failure is mu_min_wide at 0.874. In-band k and mu are only about 1.01, and S21 is 0.6 dB short. The current-reuse stage's input is a high-Q series L1-Cgs resonance, and its output is a high-impedance shared drain (ro_n||ro_p) carrying only the reactive L2-C2 trap. s22 is -4.2 dB, so the output is barely loaded. Cgd of NM1 and PM1 provides strong reverse coupling (s12 -25.9 dB), much worse than a cascode. With lossless terminations, any attempt to raise gm for gain pushes mu below 1, in band and especially out of band. The circuit has no dissipative or isolating element to stop this.
+
+2. EDIT: add DC-blocked resistive shunt feedback RF-CF from the shared drain n2 to the NMOS gate n1. It provides broadband loss at both ports, lowers the output impedance (improving S22 and loading the output), and de-Qs the input. Stability then no longer limits the sizer. The bias networks are unchanged.
+
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+R RF n2 n7
+C CF n7 n1
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+
+3. PREDICTION: mu_min_wide improves by about +0.15 to +0.2, from 0.87 to about 1.03-1.08. In-band mu_min rises from 1.01 to about 1.2. s22 improves by about 4-6 dB, to about -9 dB. At fixed gm, S21 drops about 0.5 dB and NF rises about 0.1-0.2 dB. Stability no longer binds, so the sizer can trade some of that back.

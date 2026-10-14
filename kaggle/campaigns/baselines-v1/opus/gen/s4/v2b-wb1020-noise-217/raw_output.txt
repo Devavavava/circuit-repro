@@ -1,0 +1,31 @@
+1. DIAGNOSIS
+The binding constraint is wideband input match (S11 is -10.3 dB at f0 but -6.8 dB at the band edges). The circuit is also not even stable in band: k_f0 = 0.27, mu_min = 0.79, and S22 = -1 dB.
+
+The current-reuse stage has no noiseless real input resistance. The only "resistance" the input sees comes from Cgd Miller feedback of NM1 and PM1 into the inductive L2 tank (PM1's gate is AC-tied to the input via C1), plus the noisy bias feeds R2/R5. That Miller-derived resistance depends strongly on frequency and on the output phase, so it matches only near the centre: the 1-2 GHz edges fall to -6.8 dB. The same feedback is what makes the device almost oscillate (S22 near 1, k < 1).
+
+The sizer cannot widen the match without making the stage more unstable, and NF is already 0.04 dB over its limit.
+
+2. EDIT: build the inductively-degenerated cascode current-reuse stage.
+- Add a source inductor L3 on NM1, which gives a broadband, noiseless real input resistance gm*Ls/Cgs.
+- Insert an NMOS cascode NM4 (gate to VDD) between n2 and NM1, which removes the inductive-load -> gate Miller path that is causing k < 1 and S22 ~ 0 dB.
+
+The large total gate capacitance (Cgs,n + Cgs,p through C1) keeps the series input Q low enough for an octave match.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n7 n1 n8 VSS
+L L3 n8 VSS
+NMOS NM4 n2 VDD n7 VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: s11_max_db (binding) improves from -6.8 dB to ~-10 dB (+3 to +4 dB). mu_min and mu_min_wide rise above 1 (~1.1). NF_max moves down ~0.05-0.1 dB, to just under 1.70 dB.

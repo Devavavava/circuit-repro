@@ -1,0 +1,14 @@
+1. DIAGNOSIS
+The binding constraint is broadband stability (mu over 0.01-50 GHz = 0.71; in-band mu is 1.14). The single common-source device NM1 has a shunt-peaked load (L1 + R2) that becomes inductive above the band. Through Cgd, an inductive drain impedance appears at the gate as negative conductance, the Miller-inductive mechanism. At those frequencies Cgd shunts the feedback resistor R1, so the resistive feedback no longer damps the loop. In-band gain is also about 0.4 dB short at the current cap.
+
+2. EDIT: add a cascode NM2 (gate at VDD = AC ground) between NM1's drain and the shunt-peaked load. R1 still feeds back from the output (the cascode drain) to the gate. NM1's Cgd now terminates in 1/gm2, which is resistive and low, so the negative-resistance loop is broken. The Miller capacitance shrinks and the higher output resistance adds gain.
+```netlist
+C C1 VIN1 n1
+R R1 n1 n2
+NMOS NM1 n8 n1 VSS VSS
+NMOS NM2 n2 VDD n8 VSS
+L L1 VDD n3
+R R2 n3 n2
+C C2 n2 VOUT1
+```
+3. PREDICTION: mu_min_wide_0.01-50GHz improves from 0.71 to about 1.0-1.15 (+0.3 to +0.4). s21 improves by about 1 dB, clearing 9.9 dB.

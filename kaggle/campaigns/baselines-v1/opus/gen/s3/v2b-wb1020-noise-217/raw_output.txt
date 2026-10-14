@@ -1,0 +1,23 @@
+1. DIAGNOSIS
+The binding constraint is the broadband input match: worst-case S11 is -6.8 dB against a -9.0 dB gate, although S11 at f0 is -10.3 dB. The circuit is also unstable in band: mu_min is 0.79 and k is about 0.27. The input network is a narrowband series resonance, L1 in series with the capacitive inverter gate (Cgs,n plus Cgs,p via C1). Its real part comes only from the bias-feed resistors and the Cgd/Miller terms. It can therefore be matched near one frequency, but S11 degrades quickly toward 1 and 2 GHz, the edges of the octave band. The output is an almost lossless inductive tank (L2 to ground via C2) in parallel with ro_n||ro_p; S22 is about -0.7 dB, meaning almost total reflection. Feeding this high-Q inductive output back through both Cgd's produces a negative input conductance, which shows up as mu < 1 and also distorts the input reflection. Nothing in the topology gives a broadband, resistive, real input impedance.
+
+2. EDIT: resistive shunt-shunt feedback from output to input. Rf in series with DC-block Cf goes from the shared drain n2 to the gate node n1. It sets a broadband real input resistance of about (Rf + Z_L)/(1 + gm_total*Z_L), largely independent of frequency, so the input match flattens across 1-2 GHz. It also adds positive real conductance at both ports (stabilizing and improving S22) and flattens the gain. Cf leaves the published gate bias networks unchanged.
+```netlist
+C C4 VIN1 n0
+L L1 n0 n1
+NMOS NM1 n2 n1 VSS VSS
+C C1 n1 n3
+PMOS PM1 n2 n3 VDD VDD
+L L2 n2 n4
+C C2 n4 VSS
+C C3 n2 VOUT1
+R Rf n2 nf
+C Cf nf n1
+R R1 VDD n5
+NMOS NM3 n5 n5 VSS VSS
+R R2 n5 n1
+PMOS PM2 n6 n6 VDD VDD
+R R4 n6 VSS
+R R5 n6 n3
+```
+3. PREDICTION: S11_max improves from -6.8 dB to about -10 dB (+3 dB). mu_min rises above 1 (to about 1.1). S21 falls by about 0.5 dB at fixed sizing. NF rises by about 0.1-0.2 dB, so NF stays marginal.

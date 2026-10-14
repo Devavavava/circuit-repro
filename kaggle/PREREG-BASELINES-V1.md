@@ -62,3 +62,17 @@ model learned them in training). No witnesses, tiers, or training data.
 ## Order
 
 G first (CPU), O in parallel (no CPU until scoring); O's scoring runs after G or shares the 8-process cap.
+
+## Amendment 1 (2026-10-15, after the 2-task GA smoke only — no full-run result seen)
+
+The smoke (`baselines-v1/README.md`, commit 1dead3a7d) projects the full G run at ~120 CPU-h (range 19–220;
+~122 CPU-s per sized call under rl-v1.2 with in-loop stability), 3× the parent's own 40 CPU-h guard. Staged:
+1. **G-seed-1:** GA seed 1 on all 58 tasks, B_max 64, everything else as section G (deviations D-G1..D-G11
+   as recorded in the README). This is the primary G result.
+2. **Seeds 2, 3 only if** the seed-1 solve@8 lies within ±0.10 of sft-r1 pass@8 (.793), i.e. where a tighter
+   estimate could change the reading; otherwise not run, and recorded.
+3. No change to the GA's operators or fitness after the smoke (no tuning on smoke results). Known limitation
+   recorded instead: margin fitness can steer the budget away from the shown anchor, whose single edits hold
+   the T2 fixes (smoke task t2-nb090-noise-0291) — so this GA is a **lower bound** on simple-search strength;
+   the blind random-order bar (`searchbar.json`) is reported beside it.
+Process cap unchanged (8 total incl. other sizing workers, 4 under load1 > 22).

@@ -1,0 +1,252 @@
+{
+ "prereg": "kaggle/PREREG-BASELINES-V1.md (b8fbcf20a) G",
+ "run_dir": "kaggle/campaigns/baselines-v1/ga/smoke",
+ "n_tasks": 2,
+ "ga_seeds": [
+  1
+ ],
+ "n_runs": 2,
+ "complete_58x3": false,
+ "ga": {
+  "all": {
+   "n_tasks": 2,
+   "n_runs": 2,
+   "solve@1": 0.0,
+   "solve@2": 0.0,
+   "solve@4": 0.0,
+   "solve@8": 0.0,
+   "solve@16": 0.5,
+   "solve@32": 0.5,
+   "solve@64": 0.5,
+   "coverage@1": 0,
+   "coverage@2": 0,
+   "coverage@4": 0,
+   "coverage@8": 0,
+   "coverage@16": 1,
+   "coverage@32": 1,
+   "coverage@64": 1,
+   "n_solved_runs": 1,
+   "median_calls_to_first": 11,
+   "median_spice_min_to_first": 19.2,
+   "mean_spice_min_to_first": 19.2,
+   "median_calls_censored": ">64",
+   "confirmed_runs": 1,
+   "confirmed_both_runs": 0,
+   "confirmation_rate": 1.0,
+   "confirm_rows_missing": 0,
+   "confirmed_solve@64": 0.5,
+   "spice_min_total_mean": 72.92
+  },
+  "T1": {
+   "n_tasks": 0,
+   "n_runs": 0,
+   "solve@1": null,
+   "solve@2": null,
+   "solve@4": null,
+   "solve@8": null,
+   "solve@16": null,
+   "solve@32": null,
+   "solve@64": null,
+   "coverage@1": 0,
+   "coverage@2": 0,
+   "coverage@4": 0,
+   "coverage@8": 0,
+   "coverage@16": 0,
+   "coverage@32": 0,
+   "coverage@64": 0,
+   "n_solved_runs": 0,
+   "median_calls_to_first": null,
+   "median_spice_min_to_first": null,
+   "mean_spice_min_to_first": null,
+   "median_calls_censored": null,
+   "confirmed_runs": 0,
+   "confirmed_both_runs": 0,
+   "confirmation_rate": null,
+   "confirm_rows_missing": 0,
+   "confirmed_solve@64": null,
+   "spice_min_total_mean": null
+  },
+  "T2": {
+   "n_tasks": 2,
+   "n_runs": 2,
+   "solve@1": 0.0,
+   "solve@2": 0.0,
+   "solve@4": 0.0,
+   "solve@8": 0.0,
+   "solve@16": 0.5,
+   "solve@32": 0.5,
+   "solve@64": 0.5,
+   "coverage@1": 0,
+   "coverage@2": 0,
+   "coverage@4": 0,
+   "coverage@8": 0,
+   "coverage@16": 1,
+   "coverage@32": 1,
+   "coverage@64": 1,
+   "n_solved_runs": 1,
+   "median_calls_to_first": 11,
+   "median_spice_min_to_first": 19.2,
+   "mean_spice_min_to_first": 19.2,
+   "median_calls_censored": ">64",
+   "confirmed_runs": 1,
+   "confirmed_both_runs": 0,
+   "confirmation_rate": 1.0,
+   "confirm_rows_missing": 0,
+   "confirmed_solve@64": 0.5,
+   "spice_min_total_mean": 72.92
+  },
+  "T3": {
+   "n_tasks": 0,
+   "n_runs": 0,
+   "solve@1": null,
+   "solve@2": null,
+   "solve@4": null,
+   "solve@8": null,
+   "solve@16": null,
+   "solve@32": null,
+   "solve@64": null,
+   "coverage@1": 0,
+   "coverage@2": 0,
+   "coverage@4": 0,
+   "coverage@8": 0,
+   "coverage@16": 0,
+   "coverage@32": 0,
+   "coverage@64": 0,
+   "n_solved_runs": 0,
+   "median_calls_to_first": null,
+   "median_spice_min_to_first": null,
+   "mean_spice_min_to_first": null,
+   "median_calls_censored": null,
+   "confirmed_runs": 0,
+   "confirmed_both_runs": 0,
+   "confirmation_rate": null,
+   "confirm_rows_missing": 0,
+   "confirmed_solve@64": null,
+   "spice_min_total_mean": null
+  }
+ },
+ "sft_r1": {
+  "all": {
+   "n_items": 58,
+   "pass@1": 0.3534,
+   "pass@2": 0.5111,
+   "pass@4": 0.6562,
+   "pass@8": 0.7931,
+   "coverage@8": 46
+  },
+  "T1": {
+   "n_items": 23,
+   "pass@1": 0.5543,
+   "pass@2": 0.7562,
+   "pass@4": 0.8894,
+   "pass@8": 0.9565,
+   "coverage@8": 22
+  },
+  "T2": {
+   "n_items": 32,
+   "pass@1": 0.2383,
+   "pass@2": 0.375,
+   "pass@4": 0.5344,
+   "pass@8": 0.7188,
+   "coverage@8": 23
+  },
+  "T3": {
+   "n_items": 3,
+   "pass@1": 0.0417,
+   "pass@2": 0.0833,
+   "pass@4": 0.1667,
+   "pass@8": 0.3333,
+   "coverage@8": 1
+  }
+ },
+ "blind_bar": {
+  "aggregate": {
+   "T1": {
+    "n": 23,
+    "median_calls": 2.0,
+    "median_spice_min": 2.8,
+    "mean_spice_min": 3.48
+   },
+   "T2": {
+    "n": 32,
+    "median_calls": 19.585,
+    "median_spice_min": 27.174999999999997,
+    "mean_spice_min": 37.43
+   }
+  },
+  "method": "E-c (kaggle/campaigns/bench-v12-audit/E-c): expected cost to the first feasible design for blind search in uniformly random order over SIZED calls (in-process pre-rejects cost 0 and are excluded); calls = (N-K)/(K+1)+1, SPICE-min = (sum_infeasible secs/(K+1) + mean_feasible secs)/60, stage-wise (a stage without a feasible call is paid in full). Seconds are smoke_run wall seconds under the shared load at run time (cached rows reused)."
+ },
+ "per_item": {
+  "t2-nb090-noise-0291": {
+   "tier": "T2",
+   "first_feasible": [
+    null
+   ],
+   "spice_min": [
+    null
+   ],
+   "status": [
+    "budget"
+   ],
+   "found_origin": [
+    null
+   ],
+   "confirm": [
+    null
+   ],
+   "bar_calls": 25.4,
+   "bar_spice_min": 34.94,
+   "sft_r1_c_of_n": "0/8"
+  },
+  "t2-wb1020-gain-0128": {
+   "tier": "T2",
+   "first_feasible": [
+    11
+   ],
+   "spice_min": [
+    19.2
+   ],
+   "status": [
+    "found"
+   ],
+   "found_origin": [
+    {
+     "parent": "62b654be793405bf",
+     "parent_i": 6,
+     "edits": [
+      "add R VDD-n4"
+     ]
+    }
+   ],
+   "confirm": [
+    {
+     "seed2": true,
+     "seed3": false
+    }
+   ],
+   "bar_calls": 21.6,
+   "bar_spice_min": 38.09,
+   "sft_r1_c_of_n": "0/8"
+  }
+ },
+ "cost": {
+  "new_sized_cpu_h": 2.17,
+  "sized_calls_total": 75,
+  "sized_calls_cache": 11,
+  "stats": {
+   "gen0_prereject": 2,
+   "draws": 317,
+   "redraw_prereject": 241,
+   "redraw_roundtrip": 1,
+   "redraw_seen": 8
+  },
+  "status": {
+   "found": 1,
+   "budget": 1
+  }
+ },
+ "reading": [
+  "GA solve@8 0.000 < .793 and solve@64 0.5 < .95: neither of the first two pre-declared readings applies.",
+  "GA T2 solve@64 0.500 is well below 1 => the bench is harder for search than the blind bar suggests (re-examine)."
+ ]
+}

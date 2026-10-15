@@ -164,3 +164,26 @@ role instruction, inside Claude Code's own agent system prompt (not a bare API s
 - Reading (pre-declared): Opus pass@4 (.517) < sft-r1 (.690), so not "a cost/size story only"; the gap is the
   bench-specific library (T1) — the second reading applies to T1, while on T2 general design skill (Opus) is
   at least as good as our fine-tuned 14B.
+
+## Part G — GA seed 1 (Amendment 1) RESULT (2026-10-15)
+
+Run: `ga.py run 8 --seeds 1 --extra-cache ga/smoke/results.jsonl` (2026-10-15 00:47–05:38 IST, 922 new sized calls,
+31.9 CPU-h, 318 cache hits); `ga.py summarize` → `ga-tables.md`, `ga-summary.json`. Status: 46 found, 12 budget-out.
+Seeds 2–3 NOT run: solve@8 0.586 is 0.207 below sft-r1 pass@8 .793 (Amendment 1 band ±0.10).
+Add-on (not pre-registered, no new sims): `blind_curve.py` → `blind-curve.md`, the blind random-order bar's
+solve rate at B (it is told where to search: library for T1, single edits of the shown anchor for T2).
+
+| solve rate at B sims | all @4 | all @8 | all @64 | T1 @8 | T2 @4 | T2 @8 | T2 @64 | T3 @8 | T3 @32 |
+|---|---|---|---|---|---|---|---|---|---|
+| **sft-r1** (pass@k, k = B) | 0.656 | **0.793** | – | 0.957 | 0.534 | **0.719** | – | 0.333 | – |
+| Opus zero-shot (pass@k, k ≤ 4) | 0.517 | – | – | – | **0.625** | – | – | – | – |
+| blind random order (told where to search) | 0.516 | 0.624 | 0.869 | 1.0 | 0.287 | 0.412 | 0.856 | 0 | 0 |
+| GA seed 1 | 0.414 | 0.586 | 0.793 | 1.0 | 0.156 | 0.313 | 0.625 | 0.333 | 1.0 |
+
+- Pre-declared reading: GA solve@8 (.586) < .793 and solve@64 (.793) < .95 ⇒ neither of the first two readings;
+  GA T2 solve@64 .625 ≪ 1 ⇒ this GA is weaker than blind enumeration of the shown anchor's single edits (it
+  spends budget on other anchors — the limitation recorded in Amendment 1). It is a lower bound on search.
+- sft-r1 at 8 sims ≈ GA at 64 and blind at ~32 ⇒ the fine-tuned LLM is a **4–8× SPICE-budget saver** on this bench.
+- On the edit tier the LLMs beat search clearly at small budgets: T2 @4 — Opus .625, sft-r1 .534, blind .287, GA .156.
+- T3 (3 tasks): GA finds a seed-1-feasible design for all 3 within 32 calls (median 24, 41 SPICE-min), but only
+  1/3 is confirmed at seed 2 or 3 (0/3 at both) — fragile; sft-r1's one T3 solve is feasible at all 3 seeds.

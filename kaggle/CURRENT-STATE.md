@@ -14,8 +14,10 @@ is historical record (how we got here), not the live state.
 > `PREREG-EXIT-R2.md` (**round 2 FAILS: pass@1 .392 but pass@8 .741, coverage 43 vs 46; diversity collapse,
 > copies 42% → 62%** ⇒ expert iteration plateaued; best model = sft-r1). Critical caveat: the held-out bench
 > is inside brute-force reach (55/58 library or single edit; sft-r1 ≈ 2× a random prior over that space).
-> Next: review with the user — frontier-LLM reference + GA search baseline + a harder/realer bench before
-> any GRPO.
+> `PREREG-BASELINES-V1.md` + `campaigns/baselines-v1/README.md` (2026-10-15): at 8 sims sft-r1 .793 vs GA
+> .586 vs blind random-order .624 (sft-r1@8 ≈ GA@64 ⇒ 4–8× SPICE saver); Opus zero-shot pass@1 .315 ≈ sft-r1
+> .341 but never uses the library (T1) and is better on edits (T2 p@4 .625 vs .534; blind .287). Next:
+> review with the user (bench-v3 beyond single edits; LLM-as-mutation-operator hybrid) before any GRPO.
 
 ## The live state
 

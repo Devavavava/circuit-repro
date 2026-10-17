@@ -1,7 +1,8 @@
-# DRAFT (not frozen) — bench-v3 + LLM-as-mutation-operator hybrid
+# PRE-REG — bench-v3 + LLM-as-mutation-operator hybrid
 
-**Status:** DRAFT for user review, 2026-10-17. Nothing here runs until the user rules on the open decisions
-(§7) and the file is frozen as `PREREG-BENCH-V3.md`. Branch `worktree-externals-gf180`.
+**Frozen:** 2026-10-18, before any bench-v3 result (drafted 2026-10-17 as `PREREG-BENCH-V3-DRAFT.md`, ba43681d4).
+**GO:** user ("looks good, launch"). Decisions taken as the draft's recommendations/defaults — see §7.
+Branch `worktree-externals-gf180`. Outputs: `kaggle/campaigns/bench-v3/`.
 
 ## 1. Why (facts this design rests on)
 
@@ -90,10 +91,28 @@ seed 1 (pilot-v0 P0 tiering, no early kill) ⇒ R and the witness's flavor value
 | D 4b sft-r1 hybrid (optional) | 0 local | ~6.5 GPU-h | 0 |
 | **total** | **~150–250 CPU-h (≈ 1–1.5 weeks of the box at 8 procs)** | **3–10 GPU-h** | **~3–5M tokens** |
 
-## 7. Open decisions for the user
+## 7. Decisions (user GO 2026-10-18, "looks good, launch")
 
-1. **Task form:** stretch-spec continuous score (recommended) vs keeping binary feasibility tasks.
-2. **OOD band:** nb500 (5.0 GHz) or ism58 (5.8 GHz).
-3. **Opus hybrid on the subscription:** ~3–5M tokens over ~320 agent turns, spread over days — acceptable?
-4. **sft-r1-as-operator on Kaggle (4b, ~6.5 GPU-h):** now, or only if 4a shows the hybrid is worth it.
-5. **Start A0 now** (≈ 2 CPU-h, decides whether the task form is viable before anything else).
+1. **Task form:** stretch-spec continuous score (§2).
+2. **OOD band:** **nb580 = 5.8 GHz ±2% narrowband** (a real ISM band; the repo already has 5.8 GHz LNA specs in
+   `lna/specs/`). Added as a bench-v3-local `BANDS` entry (bv2.py itself is not modified).
+3. **Opus hybrid (4a):** approved on the user's subscription (~3–5M tokens over days).
+4. **sft-r1-as-operator on Kaggle (4b):** deferred; proposed only if 4a's reading favours the hybrid.
+5. **A0:** starts now.
+
+## 8. A0 precise rule (frozen with this file)
+
+Per held-out task with a full single-edit enumeration at seed 1 (pilot-v0 P0 tiering: the T2/T3 tasks), from
+cached rl-v1.2 rows at the original spec: for every sized design d in library ∪ single edits of the shown
+anchor, a(d) = min normalized margin over the non-flavor constraints (incl. µ_wide − 1), b(d) = the flavor
+metric's normalized margin (`bv2.worst_margin` / `MS._margins` definitions). Under a stretch of δ (margin units,
+flavor metric only): w_δ(d) = min(a(d), b(d) − δ).
+- δ_min = 0.05 + max{ b(d) : a(d) > −0.05 } (every library/single-edit design then has w_δ ≤ −0.05).
+- Witness (planted, verified): headroom iff a_w ≥ 0.02 and b_w − 0.02 > δ_min. Stretch δ* = (δ_min + b_w − 0.02)/2.
+- The stretched spec moves only the flavor limit by δ* × that metric's normalization scale; written as a new
+  spec file (sha recorded).
+- **Confirmation (new sims, seed 1, rl-v1.2, stretched spec):** the witness and the top 3 library/single-edit
+  designs by w_δ*. Accepted iff witness worst margin ≥ 0 and all 3 references < 0. (Re-sizing can re-trade
+  margins; the cached computation only nominates.)
+- **Go/no-go:** ≥ 15 accepted of the eligible tasks ⇒ build bench-v3 H from them; 8–14 ⇒ report and propose
+  adding T1 tasks (needs their single-edit enumeration); < 8 ⇒ the stretch form fails here — stop and report.

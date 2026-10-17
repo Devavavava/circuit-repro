@@ -18,6 +18,11 @@ is historical record (how we got here), not the live state.
 > .586 vs blind random-order .624 (sft-r1@8 ≈ GA@64 ⇒ 4–8× SPICE saver); Opus zero-shot pass@1 .315 ≈ sft-r1
 > .341 but never uses the library (T1) and is better on edits (T2 p@4 .625 vs .534; blind .287). Next:
 > review with the user (bench-v3 beyond single edits; LLM-as-mutation-operator hybrid) before any GRPO.
+> `PREREG-BENCH-V3.md` A0 (b7c0cc7c, 2026-10-18): **STOP** — stretch-spec form yields 0/35 (rule flaw: the
+> sizer leaves ~0 slack on non-flavor constraints, median 0.0003; and substantively 29/35 tasks have a single
+> edit that already matches the witness on the flavor metric). Library + one edit covers this LNA design space
+> even on the objective. Next: user review of a different source of depth (linearity, corners margin, wider
+> topology limits, or another circuit class).
 
 ## The live state
 

@@ -1,0 +1,3639 @@
+{
+ "prereg": "kaggle/PREREG-BENCH-V3.md (f56d45e11) sections 2 + 8",
+ "built": "2026-10-18T00:56:25",
+ "verifier": "rl-v1.2",
+ "budget": 2500,
+ "pdk": "bptm45",
+ "seed": 1,
+ "n_eligible": 35,
+ "n_nominated": 0,
+ "tasks": {
+  "t2-nb090-noise-0012": {
+   "task": "t2-nb090-noise-0012",
+   "tier": "T3",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "shown_anchor": "a3",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-nb090-noise-0012.yaml",
+   "spec_sha": "151afbf7c2783533",
+   "flavor": "noise",
+   "flavor_metric": "nf_db",
+   "flavor_side": "max",
+   "flavor_limit": 1.7879,
+   "flavor_scale": 1.7879,
+   "n_designs": 72,
+   "counts": {
+    "sized": 61,
+    "prereject": 11
+   },
+   "n_sized": 61,
+   "n_near": 1,
+   "R": {
+    "id": "lib:a1",
+    "a": -0.000263902700221805,
+    "b": -0.07356451703115388,
+    "flavor_value": 1.919426,
+    "feasible": false
+   },
+   "delta_min": -0.023564517031153878,
+   "witness": {
+    "tok": "1974f59296fbce5d",
+    "jid": "7fb2b2284467b414db30",
+    "recorded_seed1_jid": "7fb2b2284467b414db30",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 0.00017083556439479548,
+    "b": 0.32019016723530397,
+    "flavor_value": 1.215432,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_db": 0.32019016723530397,
+     "s11_max_db": 0.00017083556439479548,
+     "s21_db": 0.11446784639706248,
+     "idd_ma": 0.031112999983654126,
+     "mu_min": 1.23942,
+     "mu_wide-1": 0.07240000000000002
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0002 < 0.02",
+   "designs_top10_by_b_near": [
+    {
+     "id": "lib:a1",
+     "a": -0.000263902700221805,
+     "b": -0.07356451703115388,
+     "flavor_value": 1.919426
+    }
+   ]
+  },
+  "t2-nb090-noise-0254": {
+   "task": "t2-nb090-noise-0254",
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "shown_anchor": "a4",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-nb090-noise-0254.yaml",
+   "spec_sha": "958aa5d544ae3a5e",
+   "flavor": "noise",
+   "flavor_metric": "nf_db",
+   "flavor_side": "max",
+   "flavor_limit": 1.3486,
+   "flavor_scale": 1.3486,
+   "n_designs": 152,
+   "counts": {
+    "sized": 131,
+    "prereject": 21
+   },
+   "n_sized": 131,
+   "n_near": 3,
+   "R": {
+    "id": "edit:a4:69:add R VOUT1-n7",
+    "a": -0.004768120852183134,
+    "b": 0.18971303574076814,
+    "flavor_value": 1.092753,
+    "feasible": false
+   },
+   "delta_min": 0.23971303574076813,
+   "witness": {
+    "tok": "2bceabc3dd44dc10",
+    "jid": "2c411786f895967e3e33",
+    "recorded_seed1_jid": "2c411786f895967e3e33",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 1.999999999990898e-05,
+    "b": 0.00405679964407534,
+    "flavor_value": 1.343129,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_db": 0.00405679964407534,
+     "s11_max_db": 0.00018223989396952162,
+     "s21_db": 0.0005580245929411045,
+     "idd_ma": 0.00014723906329152333,
+     "mu_min": 1.63376,
+     "mu_wide-1": 1.999999999990898e-05
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0000 < 0.02; b_w - 0.02 = -0.0159 <= delta_min 0.2397",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a4:69:add R VOUT1-n7",
+     "a": -0.004768120852183134,
+     "b": 0.18971303574076814,
+     "flavor_value": 1.092753
+    },
+    {
+     "id": "edit:a4:16:add C VDD-n4",
+     "a": 1.999999999990898e-05,
+     "b": 0.17189604033812841,
+     "flavor_value": 1.116781
+    },
+    {
+     "id": "edit:a4:79:add C VSS-n4",
+     "a": 1.999999999990898e-05,
+     "b": 0.17189604033812841,
+     "flavor_value": 1.116781
+    }
+   ]
+  },
+  "t2-nb090-noise-0269": {
+   "task": "t2-nb090-noise-0269",
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "shown_anchor": "a4",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-nb090-noise-0269.yaml",
+   "spec_sha": "2b3f833f903bcbd2",
+   "flavor": "noise",
+   "flavor_metric": "nf_db",
+   "flavor_side": "max",
+   "flavor_limit": 1.7183,
+   "flavor_scale": 1.7183,
+   "n_designs": 152,
+   "counts": {
+    "sized": 131,
+    "prereject": 21
+   },
+   "n_sized": 131,
+   "n_near": 8,
+   "R": {
+    "id": "edit:a4:13:add C VDD-n2",
+    "a": 1.999999999990898e-05,
+    "b": 0.4088069603678054,
+    "flavor_value": 1.015847,
+    "feasible": true
+   },
+   "delta_min": 0.4588069603678054,
+   "witness": {
+    "tok": "54fdc8a1e49b54c8",
+    "jid": "59b0be500fb5f3d59171",
+    "recorded_seed1_jid": "59b0be500fb5f3d59171",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      false
+     ],
+     [
+      2,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": -0.04106900000000002,
+    "b": 0.022730023860792585,
+    "flavor_value": 1.679243,
+    "feasible": false,
+    "port_dc_pass": null,
+    "margins": {
+     "nf_db": 0.022730023860792585,
+     "s11_max_db": 0.014003841897032179,
+     "s21_db": 0.0006280213196711194,
+     "idd_ma": 0.005277750547331775,
+     "mu_min": 1.21903,
+     "mu_wide-1": -0.04106900000000002
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w -0.0411 < 0.02; b_w - 0.02 = 0.0027 <= delta_min 0.4588",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a4:13:add C VDD-n2",
+     "a": 1.999999999990898e-05,
+     "b": 0.4088069603678054,
+     "flavor_value": 1.015847
+    },
+    {
+     "id": "edit:a4:76:add C VSS-n2",
+     "a": 1.999999999990898e-05,
+     "b": 0.4088069603678054,
+     "flavor_value": 1.015847
+    },
+    {
+     "id": "edit:a4:69:add R VOUT1-n7",
+     "a": 7.352220370563795e-06,
+     "b": 0.2420013967293254,
+     "flavor_value": 1.302469
+    },
+    {
+     "id": "edit:a4:25:add C VDD-n7",
+     "a": -0.018032000000000048,
+     "b": 0.14348833149042658,
+     "flavor_value": 1.471744
+    },
+    {
+     "id": "edit:a4:88:add C VSS-n7",
+     "a": -0.018032000000000048,
+     "b": 0.14348833149042658,
+     "flavor_value": 1.471744
+    },
+    {
+     "id": "lib:a1",
+     "a": -0.0013293981452033058,
+     "b": -0.12302624687190837,
+     "flavor_value": 1.929696
+    },
+    {
+     "id": "edit:a4:94:add C n1-n4",
+     "a": -0.00047069599399536565,
+     "b": -0.5547430600011639,
+     "flavor_value": 2.671515
+    },
+    {
+     "id": "edit:a4:30:add R VIN1-VSS",
+     "a": 9.70493088912099e-05,
+     "b": -0.5695763254379329,
+     "flavor_value": 2.697003
+    }
+   ]
+  },
+  "t2-nb090-noise-0286": {
+   "task": "t2-nb090-noise-0286",
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "shown_anchor": "a4",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-nb090-noise-0286.yaml",
+   "spec_sha": "8a4e238f62b54cf4",
+   "flavor": "noise",
+   "flavor_metric": "nf_db",
+   "flavor_side": "max",
+   "flavor_limit": 1.5001,
+   "flavor_scale": 1.5001,
+   "n_designs": 152,
+   "counts": {
+    "sized": 131,
+    "prereject": 21
+   },
+   "n_sized": 131,
+   "n_near": 1,
+   "R": {
+    "id": "edit:a4:69:add R VOUT1-n7",
+    "a": 0.00011999999999989797,
+    "b": 0.2456549563362442,
+    "flavor_value": 1.131593,
+    "feasible": true
+   },
+   "delta_min": 0.2956549563362442,
+   "witness": {
+    "tok": "f912f7c64077d8df",
+    "jid": "1074074c24aa3932f925",
+    "recorded_seed1_jid": "1074074c24aa3932f925",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 0.0006914387048045435,
+    "b": 0.254962335844277,
+    "flavor_value": 1.117631,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_db": 0.254962335844277,
+     "s11_max_db": 0.06931166347992354,
+     "s21_db": 0.3068094125878443,
+     "idd_ma": 0.0006914387048045435,
+     "mu_min": 2.01743,
+     "mu_wide-1": 0.006829999999999892
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0007 < 0.02; b_w - 0.02 = 0.2350 <= delta_min 0.2957",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a4:69:add R VOUT1-n7",
+     "a": 0.00011999999999989797,
+     "b": 0.2456549563362442,
+     "flavor_value": 1.131593
+    }
+   ]
+  },
+  "t2-nb090-noise-0291": {
+   "task": "t2-nb090-noise-0291",
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "shown_anchor": "a4",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-nb090-noise-0291.yaml",
+   "spec_sha": "9df148f26fb28d3c",
+   "flavor": "noise",
+   "flavor_metric": "nf_db",
+   "flavor_side": "max",
+   "flavor_limit": 1.4763,
+   "flavor_scale": 1.4763,
+   "n_designs": 152,
+   "counts": {
+    "sized": 131,
+    "prereject": 21
+   },
+   "n_sized": 131,
+   "n_near": 6,
+   "R": {
+    "id": "edit:a4:16:add C VDD-n4",
+    "a": 2.999999999997449e-05,
+    "b": 0.2783858294384611,
+    "flavor_value": 1.065319,
+    "feasible": true
+   },
+   "delta_min": 0.32838582943846106,
+   "witness": {
+    "tok": "c83c0d64454bdeb2",
+    "jid": "1e96c7b03b1a58193437",
+    "recorded_seed1_jid": "1e96c7b03b1a58193437",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      false
+     ],
+     [
+      2,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": -0.023792000000000035,
+    "b": 0.0012599065230643994,
+    "flavor_value": 1.47444,
+    "feasible": false,
+    "port_dc_pass": null,
+    "margins": {
+     "nf_db": 0.0012599065230643994,
+     "s11_max_db": 0.004043280182232364,
+     "s21_db": -0.00017189237388738084,
+     "idd_ma": -0.0003706064927439932,
+     "mu_min": 1.4307500000000002,
+     "mu_wide-1": -0.023792000000000035
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w -0.0238 < 0.02; b_w - 0.02 = -0.0187 <= delta_min 0.3284",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a4:16:add C VDD-n4",
+     "a": 2.999999999997449e-05,
+     "b": 0.2783858294384611,
+     "flavor_value": 1.065319
+    },
+    {
+     "id": "edit:a4:79:add C VSS-n4",
+     "a": 2.999999999997449e-05,
+     "b": 0.2783858294384611,
+     "flavor_value": 1.065319
+    },
+    {
+     "id": "edit:a4:13:add C VDD-n2",
+     "a": 1.999999999990898e-05,
+     "b": 0.22980965928334343,
+     "flavor_value": 1.137032
+    },
+    {
+     "id": "edit:a4:76:add C VSS-n2",
+     "a": 1.999999999990898e-05,
+     "b": 0.22980965928334343,
+     "flavor_value": 1.137032
+    },
+    {
+     "id": "edit:a4:69:add R VOUT1-n7",
+     "a": -0.008347523406906861,
+     "b": 0.06965115491431272,
+     "flavor_value": 1.373474
+    },
+    {
+     "id": "edit:a4:124:add C n4-n7",
+     "a": -0.023934904789866755,
+     "b": -0.00021811284969190238,
+     "flavor_value": 1.476622
+    }
+   ]
+  },
+  "t2-nb090-noise-0300": {
+   "task": "t2-nb090-noise-0300",
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "shown_anchor": "a4",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-nb090-noise-0300.yaml",
+   "spec_sha": "5514debd7d43a614",
+   "flavor": "noise",
+   "flavor_metric": "nf_db",
+   "flavor_side": "max",
+   "flavor_limit": 1.3717,
+   "flavor_scale": 1.3717,
+   "n_designs": 152,
+   "counts": {
+    "sized": 131,
+    "prereject": 21
+   },
+   "n_sized": 131,
+   "n_near": 1,
+   "R": {
+    "id": "edit:a4:69:add R VOUT1-n7",
+    "a": 2.5441408436311745e-05,
+    "b": 0.20270831814536702,
+    "flavor_value": 1.093645,
+    "feasible": true
+   },
+   "delta_min": 0.25270831814536704,
+   "witness": {
+    "tok": "15eae345c7510612",
+    "jid": "2b1b930710567515ee59",
+    "recorded_seed1_jid": "2b1b930710567515ee59",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 2.999999999997449e-05,
+    "b": 0.26102573449004873,
+    "flavor_value": 1.013651,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_db": 0.26102573449004873,
+     "s11_max_db": 0.006769958784918282,
+     "s21_db": 0.07337033154727371,
+     "idd_ma": 0.007159404662713077,
+     "mu_min": 1.6010499999999999,
+     "mu_wide-1": 2.999999999997449e-05
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0000 < 0.02; b_w - 0.02 = 0.2410 <= delta_min 0.2527",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a4:69:add R VOUT1-n7",
+     "a": 2.5441408436311745e-05,
+     "b": 0.20270831814536702,
+     "flavor_value": 1.093645
+    }
+   ]
+  },
+  "t2-nb090-noise-0312": {
+   "task": "t2-nb090-noise-0312",
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "shown_anchor": "a4",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-nb090-noise-0312.yaml",
+   "spec_sha": "6bc990aebc6c6548",
+   "flavor": "noise",
+   "flavor_metric": "nf_db",
+   "flavor_side": "max",
+   "flavor_limit": 1.357,
+   "flavor_scale": 1.357,
+   "n_designs": 152,
+   "counts": {
+    "sized": 131,
+    "prereject": 21
+   },
+   "n_sized": 131,
+   "n_near": 2,
+   "R": {
+    "id": "edit:a4:69:add R VOUT1-n7",
+    "a": 0.00022416384339098554,
+    "b": 0.17628371407516583,
+    "flavor_value": 1.117783,
+    "feasible": true
+   },
+   "delta_min": 0.22628371407516584,
+   "witness": {
+    "tok": "dc034f10a13643c3",
+    "jid": "ea2d2599e3a07bf642f8",
+    "recorded_seed1_jid": "ea2d2599e3a07bf642f8",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 5.0000000000105516e-05,
+    "b": 0.2470744288872513,
+    "flavor_value": 1.02172,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_db": 0.2470744288872513,
+     "s11_max_db": 0.003245281096364973,
+     "s21_db": 0.004080341440398076,
+     "idd_ma": 0.002899739647295766,
+     "mu_min": 0.9942,
+     "mu_wide-1": 5.0000000000105516e-05
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0001 < 0.02",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a4:69:add R VOUT1-n7",
+     "a": 0.00022416384339098554,
+     "b": 0.17628371407516583,
+     "flavor_value": 1.117783
+    },
+    {
+     "id": "edit:a4:30:add R VIN1-VSS",
+     "a": -0.0006865017703849285,
+     "b": -0.9879167280766397,
+     "flavor_value": 2.697603
+    }
+   ]
+  },
+  "t2-nb090-noise-0322": {
+   "task": "t2-nb090-noise-0322",
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "shown_anchor": "a4",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-nb090-noise-0322.yaml",
+   "spec_sha": "2a07f4f64a7b8e01",
+   "flavor": "noise",
+   "flavor_metric": "nf_db",
+   "flavor_side": "max",
+   "flavor_limit": 1.3425,
+   "flavor_scale": 1.3425,
+   "n_designs": 152,
+   "counts": {
+    "sized": 131,
+    "prereject": 21
+   },
+   "n_sized": 131,
+   "n_near": 1,
+   "R": {
+    "id": "edit:a4:115:add C n2-n7",
+    "a": 0.0,
+    "b": 0.15440446927374296,
+    "flavor_value": 1.135212,
+    "feasible": true
+   },
+   "delta_min": 0.20440446927374295,
+   "witness": {
+    "tok": "fc570011d604a839",
+    "jid": "ee816e394844274d38a6",
+    "recorded_seed1_jid": "ee816e394844274d38a6",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 0.001712391553445781,
+    "b": 0.11669273743016761,
+    "flavor_value": 1.18584,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_db": 0.11669273743016761,
+     "s11_max_db": 0.07783856513626383,
+     "s21_db": 0.0659479048216202,
+     "idd_ma": 0.001712391553445781,
+     "mu_min": 1.36118,
+     "mu_wide-1": 0.0233000000000001
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0017 < 0.02; b_w - 0.02 = 0.0967 <= delta_min 0.2044",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a4:115:add C n2-n7",
+     "a": 0.0,
+     "b": 0.15440446927374296,
+     "flavor_value": 1.135212
+    }
+   ]
+  },
+  "t2-nb090-noise-0323": {
+   "task": "t2-nb090-noise-0323",
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "shown_anchor": "a4",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-nb090-noise-0323.yaml",
+   "spec_sha": "5d25ec32e8918e53",
+   "flavor": "noise",
+   "flavor_metric": "nf_db",
+   "flavor_side": "max",
+   "flavor_limit": 1.8517,
+   "flavor_scale": 1.8517,
+   "n_designs": 152,
+   "counts": {
+    "sized": 131,
+    "prereject": 21
+   },
+   "n_sized": 131,
+   "n_near": 13,
+   "R": {
+    "id": "edit:a4:16:add C VDD-n4",
+    "a": 1.999999999990898e-05,
+    "b": 0.45338391748123336,
+    "flavor_value": 1.012169,
+    "feasible": true
+   },
+   "delta_min": 0.5033839174812333,
+   "witness": {
+    "tok": "fa86f6476857dba8",
+    "jid": "608e2b760da1626d625c",
+    "recorded_seed1_jid": "608e2b760da1626d625c",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 0.04129736029942867,
+    "b": 0.3823853756007992,
+    "flavor_value": 1.143637,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_db": 0.3823853756007992,
+     "s11_max_db": 0.04222029863665872,
+     "s21_db": 0.5477474043418282,
+     "idd_ma": 0.04129736029942867,
+     "mu_min": 1.02259,
+     "mu_wide-1": 0.06020000000000003
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "b_w - 0.02 = 0.3624 <= delta_min 0.5034",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a4:16:add C VDD-n4",
+     "a": 1.999999999990898e-05,
+     "b": 0.45338391748123336,
+     "flavor_value": 1.012169
+    },
+    {
+     "id": "edit:a4:79:add C VSS-n4",
+     "a": 1.999999999990898e-05,
+     "b": 0.45338391748123336,
+     "flavor_value": 1.012169
+    },
+    {
+     "id": "edit:a4:69:add R VOUT1-n7",
+     "a": 0.00022999999999995246,
+     "b": 0.3993956904466166,
+     "flavor_value": 1.112139
+    },
+    {
+     "id": "edit:a4:13:add C VDD-n2",
+     "a": 2.999999999997449e-05,
+     "b": 0.39224226386563693,
+     "flavor_value": 1.125385
+    },
+    {
+     "id": "edit:a4:76:add C VSS-n2",
+     "a": 2.999999999997449e-05,
+     "b": 0.39224226386563693,
+     "flavor_value": 1.125385
+    },
+    {
+     "id": "edit:a4:115:add C n2-n7",
+     "a": 0.0,
+     "b": 0.3745185505211427,
+     "flavor_value": 1.158204
+    },
+    {
+     "id": "edit:a4:63:add R VOUT1-n5",
+     "a": 0.00045317412833996076,
+     "b": 0.10027650267321915,
+     "flavor_value": 1.666018
+    },
+    {
+     "id": "edit:a4:25:add C VDD-n7",
+     "a": -0.014901000000000053,
+     "b": 0.06893719284981367,
+     "flavor_value": 1.724049
+    },
+    {
+     "id": "edit:a4:88:add C VSS-n7",
+     "a": -0.014901000000000053,
+     "b": 0.06893719284981367,
+     "flavor_value": 1.724049
+    },
+    {
+     "id": "lib:a1",
+     "a": -0.005282788293850337,
+     "b": -0.025284333315331947,
+     "flavor_value": 1.898519
+    }
+   ]
+  },
+  "t2-nb090-noise-0349": {
+   "task": "t2-nb090-noise-0349",
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "shown_anchor": "a4",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-nb090-noise-0349.yaml",
+   "spec_sha": "8ecda8022422bee6",
+   "flavor": "noise",
+   "flavor_metric": "nf_db",
+   "flavor_side": "max",
+   "flavor_limit": 1.2682,
+   "flavor_scale": 1.2682,
+   "n_designs": 152,
+   "counts": {
+    "sized": 131,
+    "prereject": 21
+   },
+   "n_sized": 131,
+   "n_near": 5,
+   "R": {
+    "id": "edit:a4:16:add C VDD-n4",
+    "a": 1.999999999990898e-05,
+    "b": 0.2211982337170793,
+    "flavor_value": 0.9876764,
+    "feasible": true
+   },
+   "delta_min": 0.2711982337170793,
+   "witness": {
+    "tok": "3d322338287dbb38",
+    "jid": "c4eb48236d80ad98e491",
+    "recorded_seed1_jid": "c4eb48236d80ad98e491",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 0.01889469643761333,
+    "b": 0.26097374231193815,
+    "flavor_value": 0.9372331,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_db": 0.26097374231193815,
+     "s11_max_db": 0.06573777806106185,
+     "s21_db": 0.26187595432955224,
+     "idd_ma": 0.01889469643761333,
+     "mu_min": 0.8992899999999999,
+     "mu_wide-1": 0.5203199999999999
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0189 < 0.02; b_w - 0.02 = 0.2410 <= delta_min 0.2712",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a4:16:add C VDD-n4",
+     "a": 1.999999999990898e-05,
+     "b": 0.2211982337170793,
+     "flavor_value": 0.9876764
+    },
+    {
+     "id": "edit:a4:79:add C VSS-n4",
+     "a": 1.999999999990898e-05,
+     "b": 0.2211982337170793,
+     "flavor_value": 0.9876764
+    },
+    {
+     "id": "edit:a4:69:add R VOUT1-n7",
+     "a": 0.00043999999999999595,
+     "b": 0.13611023497870994,
+     "flavor_value": 1.095585
+    },
+    {
+     "id": "edit:a4:13:add C VDD-n2",
+     "a": 1.657212059409874e-05,
+     "b": 0.13536744992903324,
+     "flavor_value": 1.096527
+    },
+    {
+     "id": "edit:a4:76:add C VSS-n2",
+     "a": 1.657212059409874e-05,
+     "b": 0.13536744992903324,
+     "flavor_value": 1.096527
+    }
+   ]
+  },
+  "t2-nb090-noise-0350": {
+   "task": "t2-nb090-noise-0350",
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "shown_anchor": "a4",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-nb090-noise-0350.yaml",
+   "spec_sha": "9d5c00ac16437315",
+   "flavor": "noise",
+   "flavor_metric": "nf_db",
+   "flavor_side": "max",
+   "flavor_limit": 1.1457,
+   "flavor_scale": 1.1457,
+   "n_designs": 152,
+   "counts": {
+    "sized": 131,
+    "prereject": 21
+   },
+   "n_sized": 131,
+   "n_near": 2,
+   "R": {
+    "id": "edit:a4:133:add C n6-n7",
+    "a": 0.0,
+    "b": 0.41129929300864093,
+    "flavor_value": 0.6744744,
+    "feasible": true
+   },
+   "delta_min": 0.4612992930086409,
+   "witness": {
+    "tok": "99d1091a10e60f5a",
+    "jid": "5f51247314134aef1ae7",
+    "recorded_seed1_jid": "5f51247314134aef1ae7",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      false
+     ],
+     [
+      2,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": -0.37544,
+    "b": 0.01209740769835034,
+    "flavor_value": 1.13184,
+    "feasible": false,
+    "port_dc_pass": null,
+    "margins": {
+     "nf_db": 0.01209740769835034,
+     "s11_max_db": 0.003676517439563581,
+     "s21_db": -0.004388577435178738,
+     "idd_ma": 0.006578610783156204,
+     "mu_min": 0.51258,
+     "mu_wide-1": -0.37544
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w -0.3754 < 0.02; b_w - 0.02 = -0.0079 <= delta_min 0.4613",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a4:133:add C n6-n7",
+     "a": 0.0,
+     "b": 0.41129929300864093,
+     "flavor_value": 0.6744744
+    },
+    {
+     "id": "edit:a4:124:add C n4-n7",
+     "a": -0.03874754033844938,
+     "b": 0.005054551802391446,
+     "flavor_value": 1.139909
+    }
+   ]
+  },
+  "t2-nb090-noise-0351": {
+   "task": "t2-nb090-noise-0351",
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "shown_anchor": "a4",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-nb090-noise-0351.yaml",
+   "spec_sha": "868b3c82d52dc067",
+   "flavor": "noise",
+   "flavor_metric": "nf_db",
+   "flavor_side": "max",
+   "flavor_limit": 1.4335,
+   "flavor_scale": 1.4335,
+   "n_designs": 152,
+   "counts": {
+    "sized": 131,
+    "prereject": 21
+   },
+   "n_sized": 131,
+   "n_near": 1,
+   "R": {
+    "id": "edit:a4:69:add R VOUT1-n7",
+    "a": 0.0006999999999999229,
+    "b": 0.2155974886641088,
+    "flavor_value": 1.124441,
+    "feasible": true
+   },
+   "delta_min": 0.2655974886641088,
+   "witness": {
+    "tok": "2f6f9f75c69c85ac",
+    "jid": "6f5ac9f51f03106589d3",
+    "recorded_seed1_jid": "6f5ac9f51f03106589d3",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 0.0055470635050973785,
+    "b": 0.4281038018835019,
+    "flavor_value": 0.8198132,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_db": 0.4281038018835019,
+     "s11_max_db": 0.0055470635050973785,
+     "s21_db": 0.14022438403870408,
+     "idd_ma": 0.026763738071734173,
+     "mu_min": 1.2505700000000002,
+     "mu_wide-1": 0.02583000000000002
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0055 < 0.02",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a4:69:add R VOUT1-n7",
+     "a": 0.0006999999999999229,
+     "b": 0.2155974886641088,
+     "flavor_value": 1.124441
+    }
+   ]
+  },
+  "t2-nb090-noise-0363": {
+   "task": "t2-nb090-noise-0363",
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "shown_anchor": "a4",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-nb090-noise-0363.yaml",
+   "spec_sha": "e3ebe2286ae0aa0b",
+   "flavor": "noise",
+   "flavor_metric": "nf_db",
+   "flavor_side": "max",
+   "flavor_limit": 1.6719,
+   "flavor_scale": 1.6719,
+   "n_designs": 152,
+   "counts": {
+    "sized": 131,
+    "prereject": 21
+   },
+   "n_sized": 131,
+   "n_near": 9,
+   "R": {
+    "id": "edit:a4:16:add C VDD-n4",
+    "a": 1.999999999990898e-05,
+    "b": 0.3239176984269394,
+    "flavor_value": 1.130342,
+    "feasible": true
+   },
+   "delta_min": 0.3739176984269394,
+   "witness": {
+    "tok": "c67a81c6d65f7261",
+    "jid": "759a1a92b694a7d8e509",
+    "recorded_seed1_jid": "759a1a92b694a7d8e509",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 0.0025630979614018213,
+    "b": 0.5120150128596207,
+    "flavor_value": 0.8158621,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_db": 0.5120150128596207,
+     "s11_max_db": 0.0025630979614018213,
+     "s21_db": 0.8578381558538805,
+     "idd_ma": 0.019413590030196562,
+     "mu_min": 1.13633,
+     "mu_wide-1": 0.2707299999999999
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0026 < 0.02",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a4:16:add C VDD-n4",
+     "a": 1.999999999990898e-05,
+     "b": 0.3239176984269394,
+     "flavor_value": 1.130342
+    },
+    {
+     "id": "edit:a4:79:add C VSS-n4",
+     "a": 1.999999999990898e-05,
+     "b": 0.3239176984269394,
+     "flavor_value": 1.130342
+    },
+    {
+     "id": "edit:a4:69:add R VOUT1-n7",
+     "a": 8.720599572812398e-05,
+     "b": 0.30134397990310424,
+     "flavor_value": 1.168083
+    },
+    {
+     "id": "edit:a4:25:add C VDD-n7",
+     "a": -0.03892399999999996,
+     "b": 0.12950475506908302,
+     "flavor_value": 1.455381
+    },
+    {
+     "id": "edit:a4:88:add C VSS-n7",
+     "a": -0.03892399999999996,
+     "b": 0.12950475506908302,
+     "flavor_value": 1.455381
+    },
+    {
+     "id": "edit:a4:13:add C VDD-n2",
+     "a": -0.017722000000000016,
+     "b": 0.001314671930139316,
+     "flavor_value": 1.669702
+    },
+    {
+     "id": "edit:a4:76:add C VSS-n2",
+     "a": -0.017722000000000016,
+     "b": 0.001314671930139316,
+     "flavor_value": 1.669702
+    },
+    {
+     "id": "lib:a1",
+     "a": -0.009968024468233031,
+     "b": -0.13666786291046124,
+     "flavor_value": 1.900395
+    },
+    {
+     "id": "edit:a4:94:add C n1-n4",
+     "a": -0.023055000000000048,
+     "b": -0.6028781625695316,
+     "flavor_value": 2.679852
+    }
+   ]
+  },
+  "t2-nb090-noise-0375": {
+   "task": "t2-nb090-noise-0375",
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "shown_anchor": "a4",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-nb090-noise-0375.yaml",
+   "spec_sha": "93ba493c5625c756",
+   "flavor": "noise",
+   "flavor_metric": "nf_db",
+   "flavor_side": "max",
+   "flavor_limit": 1.2427,
+   "flavor_scale": 1.2427,
+   "n_designs": 152,
+   "counts": {
+    "sized": 131,
+    "prereject": 21
+   },
+   "n_sized": 131,
+   "n_near": 5,
+   "R": {
+    "id": "edit:a4:133:add C n6-n7",
+    "a": 1.0000000000065512e-05,
+    "b": 0.4657672809205761,
+    "flavor_value": 0.663891,
+    "feasible": true
+   },
+   "delta_min": 0.5157672809205761,
+   "witness": {
+    "tok": "665115910319e4f5",
+    "jid": "f8dc07cb69853dbaf1b2",
+    "recorded_seed1_jid": "f8dc07cb69853dbaf1b2",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      false
+     ],
+     [
+      2,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": -0.34824900000000003,
+    "b": 0.10601351895067189,
+    "flavor_value": 1.110957,
+    "feasible": false,
+    "port_dc_pass": null,
+    "margins": {
+     "nf_db": 0.10601351895067189,
+     "s11_max_db": 0.03972847217795911,
+     "s21_db": -0.008500424736178807,
+     "idd_ma": 0.19082384088643387,
+     "mu_min": 1.4998999999999998,
+     "mu_wide-1": -0.34824900000000003
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w -0.3482 < 0.02; b_w - 0.02 = 0.0860 <= delta_min 0.5158",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a4:133:add C n6-n7",
+     "a": 1.0000000000065512e-05,
+     "b": 0.4657672809205761,
+     "flavor_value": 0.663891
+    },
+    {
+     "id": "edit:a4:13:add C VDD-n2",
+     "a": 4.0000000000040004e-05,
+     "b": 0.1932614468496016,
+     "flavor_value": 1.002534
+    },
+    {
+     "id": "edit:a4:76:add C VSS-n2",
+     "a": 4.0000000000040004e-05,
+     "b": 0.1932614468496016,
+     "flavor_value": 1.002534
+    },
+    {
+     "id": "edit:a4:69:add R VOUT1-n7",
+     "a": 0.00017650231250714507,
+     "b": 0.10030739518789732,
+     "flavor_value": 1.118048
+    },
+    {
+     "id": "edit:a4:115:add C n2-n7",
+     "a": 1.0000000000065512e-05,
+     "b": 0.046994447573831186,
+     "flavor_value": 1.1843
+    }
+   ]
+  },
+  "t2-nb090-noise-0397": {
+   "task": "t2-nb090-noise-0397",
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "shown_anchor": "a4",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-nb090-noise-0397.yaml",
+   "spec_sha": "a07c94e9cbe1ada6",
+   "flavor": "noise",
+   "flavor_metric": "nf_db",
+   "flavor_side": "max",
+   "flavor_limit": 1.2984,
+   "flavor_scale": 1.2984,
+   "n_designs": 152,
+   "counts": {
+    "sized": 131,
+    "prereject": 21
+   },
+   "n_sized": 131,
+   "n_near": 4,
+   "R": {
+    "id": "edit:a4:133:add C n6-n7",
+    "a": 1.0000000000065512e-05,
+    "b": 0.4914986136783734,
+    "flavor_value": 0.6602382,
+    "feasible": true
+   },
+   "delta_min": 0.5414986136783734,
+   "witness": {
+    "tok": "ceec313555211e72",
+    "jid": "6df0f024263a9fb54989",
+    "recorded_seed1_jid": "6df0f024263a9fb54989",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 0.003109999999999946,
+    "b": 0.4730578404189772,
+    "flavor_value": 0.6841817,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_db": 0.4730578404189772,
+     "s11_max_db": 0.007410466919147056,
+     "s21_db": 0.31934135882703074,
+     "idd_ma": 0.00829401298230581,
+     "mu_min": 1.25196,
+     "mu_wide-1": 0.003109999999999946
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0031 < 0.02; b_w - 0.02 = 0.4531 <= delta_min 0.5415",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a4:133:add C n6-n7",
+     "a": 1.0000000000065512e-05,
+     "b": 0.4914986136783734,
+     "flavor_value": 0.6602382
+    },
+    {
+     "id": "edit:a4:69:add R VOUT1-n7",
+     "a": 0.0011699999999998933,
+     "b": 0.14745532963647573,
+     "flavor_value": 1.106944
+    },
+    {
+     "id": "edit:a4:13:add C VDD-n2",
+     "a": 9.999999999998899e-05,
+     "b": 0.07848890942698702,
+     "flavor_value": 1.19649
+    },
+    {
+     "id": "edit:a4:76:add C VSS-n2",
+     "a": 9.999999999998899e-05,
+     "b": 0.07848890942698702,
+     "flavor_value": 1.19649
+    }
+   ]
+  },
+  "t2-nb090-noise-0411": {
+   "task": "t2-nb090-noise-0411",
+   "tier": "T2",
+   "family": "nb090-noise",
+   "band_type": "narrowband",
+   "shown_anchor": "a4",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-nb090-noise-0411.yaml",
+   "spec_sha": "9058e3695a3eb24e",
+   "flavor": "noise",
+   "flavor_metric": "nf_db",
+   "flavor_side": "max",
+   "flavor_limit": 1.1308,
+   "flavor_scale": 1.1308,
+   "n_designs": 152,
+   "counts": {
+    "sized": 131,
+    "prereject": 21
+   },
+   "n_sized": 131,
+   "n_near": 2,
+   "R": {
+    "id": "edit:a4:133:add C n6-n7",
+    "a": 0.0,
+    "b": 0.4330668553236647,
+    "flavor_value": 0.641088,
+    "feasible": true
+   },
+   "delta_min": 0.48306685532366467,
+   "witness": {
+    "tok": "affa416ed73cda57",
+    "jid": "f4ff377232e5d15633c5",
+    "recorded_seed1_jid": "f4ff377232e5d15633c5",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 0.002347234535123618,
+    "b": 0.18428510788822078,
+    "flavor_value": 0.9224104,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_db": 0.18428510788822078,
+     "s11_max_db": 0.003749494847443871,
+     "s21_db": 0.002347234535123618,
+     "idd_ma": 0.006688740639000735,
+     "mu_min": 1.35038,
+     "mu_wide-1": 0.010529999999999928
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0023 < 0.02; b_w - 0.02 = 0.1643 <= delta_min 0.4831",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a4:133:add C n6-n7",
+     "a": 0.0,
+     "b": 0.4330668553236647,
+     "flavor_value": 0.641088
+    },
+    {
+     "id": "edit:a4:30:add R VIN1-VSS",
+     "a": -0.007567185289957564,
+     "b": -1.310272373540856,
+     "flavor_value": 2.612456
+    }
+   ]
+  },
+  "t2-wb1020-gain-0010": {
+   "task": "t2-wb1020-gain-0010",
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "shown_anchor": "a2",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-wb1020-gain-0010.yaml",
+   "spec_sha": "7689fd3953ad69b1",
+   "flavor": "gain",
+   "flavor_metric": "s21_db",
+   "flavor_side": "min",
+   "flavor_limit": 11.0472,
+   "flavor_scale": 11.0472,
+   "n_designs": 183,
+   "counts": {
+    "prereject": 73,
+    "sized": 110
+   },
+   "n_sized": 110,
+   "n_near": 81,
+   "R": {
+    "id": "edit:a2:52:add C VIN1-n5",
+    "a": 0.00024000000000001798,
+    "b": 0.08930769787819531,
+    "flavor_value": 12.0338,
+    "feasible": true
+   },
+   "delta_min": 0.1393076978781953,
+   "witness": {
+    "tok": "a8728e0a1b2ad740",
+    "jid": "5993b1b66bcb9d9e4383",
+    "recorded_seed1_jid": "5993b1b66bcb9d9e4383",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 0.00042000000000008697,
+    "b": 0.00027156202476646697,
+    "flavor_value": 11.0502,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_max_db": 0.08659497144552405,
+     "s11_max_db": 0.203793806550274,
+     "s21_db": 0.00027156202476646697,
+     "s21_ripple_db": 0.2585999999999997,
+     "idd_ma": 0.280605251514273,
+     "mu_min": 0.17586999999999997,
+     "mu_wide-1": 0.00042000000000008697
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0004 < 0.02; b_w - 0.02 = -0.0197 <= delta_min 0.1393",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a2:52:add C VIN1-n5",
+     "a": 0.00024000000000001798,
+     "b": 0.08930769787819531,
+     "flavor_value": 12.0338
+    },
+    {
+     "id": "edit:a2:102:add R n0-n1",
+     "a": 6.626736332354453e-05,
+     "b": 0.08581359982620033,
+     "flavor_value": 11.9952
+    },
+    {
+     "id": "edit:a2:108:add R n0-n3",
+     "a": 0.00028418503886835147,
+     "b": 0.08390361358534287,
+     "flavor_value": 11.9741
+    },
+    {
+     "id": "edit:a2:118:add C n0-n6",
+     "a": 0.00029999999999996696,
+     "b": 0.07827322760518494,
+     "flavor_value": 11.9119
+    },
+    {
+     "id": "edit:a2:117:add R n0-n6",
+     "a": 0.0023800000000000487,
+     "b": 0.0709772612064596,
+     "flavor_value": 11.8313
+    },
+    {
+     "id": "edit:a2:130:add C n1-n5",
+     "a": 4.2054288263023e-05,
+     "b": 0.05916431312911861,
+     "flavor_value": 11.7008
+    },
+    {
+     "id": "edit:a2:25:add C VDD-n5",
+     "a": 0.0005999999999999339,
+     "b": 0.0451788688536462,
+     "flavor_value": 11.5463
+    },
+    {
+     "id": "edit:a2:97:add C VSS-n5",
+     "a": 0.0005999999999999339,
+     "b": 0.0451788688536462,
+     "flavor_value": 11.5463
+    },
+    {
+     "id": "edit:a2:151:add C n3-n5",
+     "a": 0.0006900000000000794,
+     "b": 0.030867550148453844,
+     "flavor_value": 11.3882
+    },
+    {
+     "id": "edit:a2:138:add R n2-n4",
+     "a": 1.999999999990898e-05,
+     "b": 0.02512853935838942,
+     "flavor_value": 11.3248
+    }
+   ]
+  },
+  "t2-wb1020-gain-0027": {
+   "task": "t2-wb1020-gain-0027",
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "shown_anchor": "a2",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-wb1020-gain-0027.yaml",
+   "spec_sha": "4af75d5e53d9174d",
+   "flavor": "gain",
+   "flavor_metric": "s21_db",
+   "flavor_side": "min",
+   "flavor_limit": 11.3954,
+   "flavor_scale": 11.3954,
+   "n_designs": 183,
+   "counts": {
+    "prereject": 73,
+    "sized": 110
+   },
+   "n_sized": 110,
+   "n_near": 78,
+   "R": {
+    "id": "edit:a2:52:add C VIN1-n5",
+    "a": 0.0009825286255936707,
+    "b": 0.05640872632816745,
+    "flavor_value": 12.0382,
+    "feasible": true
+   },
+   "delta_min": 0.10640872632816745,
+   "witness": {
+    "tok": "0d7c9d0c397deea4",
+    "jid": "5d69a33c45ed95df19a4",
+    "recorded_seed1_jid": "5d69a33c45ed95df19a4",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 0.00022999999999995246,
+    "b": 0.0814012671779841,
+    "flavor_value": 12.323,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_max_db": 0.44402381686449827,
+     "s11_max_db": 0.008820083892828854,
+     "s21_db": 0.0814012671779841,
+     "s21_ripple_db": 0.15869999999999884,
+     "idd_ma": 0.29126639146987165,
+     "mu_min": 0.024929999999999897,
+     "mu_wide-1": 0.00022999999999995246
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0002 < 0.02; b_w - 0.02 = 0.0614 <= delta_min 0.1064",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a2:52:add C VIN1-n5",
+     "a": 0.0009825286255936707,
+     "b": 0.05640872632816745,
+     "flavor_value": 12.0382
+    },
+    {
+     "id": "edit:a2:108:add R n0-n3",
+     "a": 0.0007399999999999629,
+     "b": 0.05291608894817205,
+     "flavor_value": 11.9984
+    },
+    {
+     "id": "edit:a2:118:add C n0-n6",
+     "a": 0.0012004484361419145,
+     "b": 0.04350878424627473,
+     "flavor_value": 11.8912
+    },
+    {
+     "id": "edit:a2:117:add R n0-n6",
+     "a": 0.00036999999999998145,
+     "b": 0.03246924197483188,
+     "flavor_value": 11.7654
+    },
+    {
+     "id": "edit:a2:157:add C n4-n5",
+     "a": 5.999999999994898e-05,
+     "b": 0.019674605542587334,
+     "flavor_value": 11.6196
+    },
+    {
+     "id": "edit:a2:159:add R n4-n6",
+     "a": 0.00038000000000004697,
+     "b": 0.009784649946469583,
+     "flavor_value": 11.5069
+    },
+    {
+     "id": "edit:a2:25:add C VDD-n5",
+     "a": 0.0007699999999999374,
+     "b": 0.005370588132053239,
+     "flavor_value": 11.4566
+    },
+    {
+     "id": "edit:a2:97:add C VSS-n5",
+     "a": 0.0007699999999999374,
+     "b": 0.005370588132053239,
+     "flavor_value": 11.4566
+    },
+    {
+     "id": "edit:a2:75:add R VOUT1-n5",
+     "a": 0.00015999999999993797,
+     "b": 0.005159976832757054,
+     "flavor_value": 11.4542
+    },
+    {
+     "id": "edit:a2:147:add R n3-n4",
+     "a": 0.00022999999999995246,
+     "b": 0.003404882671955365,
+     "flavor_value": 11.4342
+    }
+   ]
+  },
+  "t2-wb1020-gain-0028": {
+   "task": "t2-wb1020-gain-0028",
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "shown_anchor": "a2",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-wb1020-gain-0028.yaml",
+   "spec_sha": "ed898d7c186900ac",
+   "flavor": "gain",
+   "flavor_metric": "s21_db",
+   "flavor_side": "min",
+   "flavor_limit": 10.2985,
+   "flavor_scale": 10.2985,
+   "n_designs": 183,
+   "counts": {
+    "prereject": 73,
+    "sized": 110
+   },
+   "n_sized": 110,
+   "n_near": 24,
+   "R": {
+    "id": "edit:a2:159:add R n4-n6",
+    "a": 0.0003500000000000725,
+    "b": 0.04234597271447295,
+    "flavor_value": 10.7346,
+    "feasible": true
+   },
+   "delta_min": 0.09234597271447295,
+   "witness": {
+    "tok": "7c9f1e0bd3a18a3d",
+    "jid": "35c58ff6d09dfdf8c2a7",
+    "recorded_seed1_jid": "35c58ff6d09dfdf8c2a7",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 0.0005999999999999339,
+    "b": 0.15170170413166953,
+    "flavor_value": 11.8608,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_max_db": 0.18251409989329806,
+     "s11_max_db": 0.005260496979195631,
+     "s21_db": 0.15170170413166953,
+     "s21_ripple_db": 0.1373000000000007,
+     "idd_ma": 0.11590553730305285,
+     "mu_min": 0.14667000000000008,
+     "mu_wide-1": 0.0005999999999999339
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0006 < 0.02",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a2:159:add R n4-n6",
+     "a": 0.0003500000000000725,
+     "b": 0.04234597271447295,
+     "flavor_value": 10.7346
+    },
+    {
+     "id": "edit:a2:156:add R n4-n5",
+     "a": 0.0006399999999999739,
+     "b": 0.03991843472350336,
+     "flavor_value": 10.7096
+    },
+    {
+     "id": "edit:a2:79:add C VOUT1-n6",
+     "a": -0.001322999999999963,
+     "b": 0.019565956207214578,
+     "flavor_value": 10.5
+    },
+    {
+     "id": "edit:a2:40:add C VIN1-n1",
+     "a": -0.04424876784716224,
+     "b": 0.011011312327037783,
+     "flavor_value": 10.4119
+    },
+    {
+     "id": "edit:a2:157:add C n4-n5",
+     "a": -0.00012000000000000899,
+     "b": 0.01094334126329062,
+     "flavor_value": 10.4112
+    },
+    {
+     "id": "edit:a2:24:add R VDD-n5",
+     "a": -0.04433311315481942,
+     "b": 0.010117978346360997,
+     "flavor_value": 10.4027
+    },
+    {
+     "id": "edit:a2:147:add R n3-n4",
+     "a": 0.00045000000000006146,
+     "b": 0.004272466864106298,
+     "flavor_value": 10.3425
+    },
+    {
+     "id": "edit:a2:21:add R VDD-n4",
+     "a": -0.043090798231797095,
+     "b": 0.003816089721804049,
+     "flavor_value": 10.3378
+    },
+    {
+     "id": "edit:a2:160:add C n4-n6",
+     "a": 0.000180000000000069,
+     "b": 0.003524785162887691,
+     "flavor_value": 10.3348
+    },
+    {
+     "id": "edit:a2:135:add R n2-n3",
+     "a": -0.015828999999999982,
+     "b": 0.0032431907559351885,
+     "flavor_value": 10.3319
+    }
+   ]
+  },
+  "t2-wb1020-gain-0045": {
+   "task": "t2-wb1020-gain-0045",
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "shown_anchor": "a2",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-wb1020-gain-0045.yaml",
+   "spec_sha": "7097141e6dbf586d",
+   "flavor": "gain",
+   "flavor_metric": "s21_db",
+   "flavor_side": "min",
+   "flavor_limit": 13.0745,
+   "flavor_scale": 13.0745,
+   "n_designs": 183,
+   "counts": {
+    "prereject": 73,
+    "sized": 110
+   },
+   "n_sized": 110,
+   "n_near": 94,
+   "R": {
+    "id": "edit:a2:151:add C n3-n5",
+    "a": 0.0003500000000000725,
+    "b": 0.020452024934031917,
+    "flavor_value": 13.3419,
+    "feasible": true
+   },
+   "delta_min": 0.07045202493403192,
+   "witness": {
+    "tok": "c2da1823e15ad1ed",
+    "jid": "3454f8f4e491eb57434f",
+    "recorded_seed1_jid": "3454f8f4e491eb57434f",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 0.00036999999999998145,
+    "b": 0.015656430456231517,
+    "flavor_value": 13.2792,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_max_db": 0.07972630251512099,
+     "s11_max_db": 0.00297665813417135,
+     "s21_db": 0.015656430456231517,
+     "s21_ripple_db": 0.12209562109025936,
+     "idd_ma": 0.1715676020829433,
+     "mu_min": 0.04959000000000002,
+     "mu_wide-1": 0.00036999999999998145
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0004 < 0.02; b_w - 0.02 = -0.0043 <= delta_min 0.0705",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a2:151:add C n3-n5",
+     "a": 0.0003500000000000725,
+     "b": 0.020452024934031917,
+     "flavor_value": 13.3419
+    },
+    {
+     "id": "edit:a2:13:add C VDD-n1",
+     "a": 0.001545986770408291,
+     "b": 0.013568396496997872,
+     "flavor_value": 13.2519
+    },
+    {
+     "id": "edit:a2:85:add C VSS-n1",
+     "a": 0.001545986770408291,
+     "b": 0.013568396496997872,
+     "flavor_value": 13.2519
+    },
+    {
+     "id": "edit:a2:133:add C n1-n6",
+     "a": 0.00045999999999990493,
+     "b": 0.012619985467895457,
+     "flavor_value": 13.2395
+    },
+    {
+     "id": "edit:a2:52:add C VIN1-n5",
+     "a": 0.002569999999999961,
+     "b": 0.01096026616696623,
+     "flavor_value": 13.2178
+    },
+    {
+     "id": "edit:a2:28:add C VDD-n6",
+     "a": 0.0006099999999999994,
+     "b": 0.007832039466136325,
+     "flavor_value": 13.1769
+    },
+    {
+     "id": "edit:a2:100:add C VSS-n6",
+     "a": 0.0006099999999999994,
+     "b": 0.007832039466136325,
+     "flavor_value": 13.1769
+    },
+    {
+     "id": "edit:a2:19:add C VDD-n3",
+     "a": 0.0019000000000000128,
+     "b": 0.005782247887108468,
+     "flavor_value": 13.1501
+    },
+    {
+     "id": "edit:a2:91:add C VSS-n3",
+     "a": 0.0019000000000000128,
+     "b": 0.005782247887108468,
+     "flavor_value": 13.1501
+    },
+    {
+     "id": "edit:a2:46:add C VIN1-n3",
+     "a": 0.000220000000000109,
+     "b": 0.005399824085050968,
+     "flavor_value": 13.1451
+    }
+   ]
+  },
+  "t2-wb1020-gain-0046": {
+   "task": "t2-wb1020-gain-0046",
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "shown_anchor": "a2",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-wb1020-gain-0046.yaml",
+   "spec_sha": "593c43975054f47d",
+   "flavor": "gain",
+   "flavor_metric": "s21_db",
+   "flavor_side": "min",
+   "flavor_limit": 11.1855,
+   "flavor_scale": 11.1855,
+   "n_designs": 183,
+   "counts": {
+    "prereject": 73,
+    "sized": 110
+   },
+   "n_sized": 110,
+   "n_near": 87,
+   "R": {
+    "id": "edit:a2:73:add C VOUT1-n4",
+    "a": 0.0010263144474475865,
+    "b": 0.22983326628224043,
+    "flavor_value": 13.7563,
+    "feasible": true
+   },
+   "delta_min": 0.2798332662822404,
+   "witness": {
+    "tok": "1488a976895ec48c",
+    "jid": "ea6d4a7c26ff0030229b",
+    "recorded_seed1_jid": "ea6d4a7c26ff0030229b",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 0.0005500000000000504,
+    "b": 0.1733315453041885,
+    "flavor_value": 13.1243,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_max_db": 0.347356305455582,
+     "s11_max_db": 0.00794405630067827,
+     "s21_db": 0.1733315453041885,
+     "s21_ripple_db": 0.5179270142936997,
+     "idd_ma": 0.35149938096438077,
+     "mu_min": 0.06892999999999994,
+     "mu_wide-1": 0.0005500000000000504
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0006 < 0.02; b_w - 0.02 = 0.1533 <= delta_min 0.2798",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a2:73:add C VOUT1-n4",
+     "a": 0.0010263144474475865,
+     "b": 0.22983326628224043,
+     "flavor_value": 13.7563
+    },
+    {
+     "id": "edit:a2:13:add C VDD-n1",
+     "a": 3.05981947064863e-05,
+     "b": 0.1445621563631488,
+     "flavor_value": 12.8025
+    },
+    {
+     "id": "edit:a2:85:add C VSS-n1",
+     "a": 3.05981947064863e-05,
+     "b": 0.1445621563631488,
+     "flavor_value": 12.8025
+    },
+    {
+     "id": "edit:a2:108:add R n0-n3",
+     "a": 0.000320000000000098,
+     "b": 0.12466139198068937,
+     "flavor_value": 12.5799
+    },
+    {
+     "id": "edit:a2:117:add R n0-n6",
+     "a": 0.0006399999999999739,
+     "b": 0.1092128201689688,
+     "flavor_value": 12.4071
+    },
+    {
+     "id": "edit:a2:114:add R n0-n5",
+     "a": 0.00028999999999990145,
+     "b": 0.10258817218720673,
+     "flavor_value": 12.333
+    },
+    {
+     "id": "edit:a2:102:add R n0-n1",
+     "a": 0.0001100000000000545,
+     "b": 0.10104152697688976,
+     "flavor_value": 12.3157
+    },
+    {
+     "id": "edit:a2:25:add C VDD-n5",
+     "a": 0.00045000000000006146,
+     "b": 0.1010147065397167,
+     "flavor_value": 12.3154
+    },
+    {
+     "id": "edit:a2:97:add C VSS-n5",
+     "a": 0.00045000000000006146,
+     "b": 0.1010147065397167,
+     "flavor_value": 12.3154
+    },
+    {
+     "id": "edit:a2:52:add C VIN1-n5",
+     "a": 0.00022999999999995246,
+     "b": 0.0827589289705423,
+     "flavor_value": 12.1112
+    }
+   ]
+  },
+  "t2-wb1020-gain-0065": {
+   "task": "t2-wb1020-gain-0065",
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "shown_anchor": "a2",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-wb1020-gain-0065.yaml",
+   "spec_sha": "835f0dbe4036c201",
+   "flavor": "gain",
+   "flavor_metric": "s21_db",
+   "flavor_side": "min",
+   "flavor_limit": 10.5476,
+   "flavor_scale": 10.5476,
+   "n_designs": 183,
+   "counts": {
+    "prereject": 73,
+    "sized": 110
+   },
+   "n_sized": 110,
+   "n_near": 81,
+   "R": {
+    "id": "edit:a2:102:add R n0-n1",
+    "a": 1.999999999990898e-05,
+    "b": 0.16029238878986704,
+    "flavor_value": 12.2383,
+    "feasible": true
+   },
+   "delta_min": 0.21029238878986706,
+   "witness": {
+    "tok": "75cabbcf1d5953a9",
+    "jid": "7bf1d7840920908cedb5",
+    "recorded_seed1_jid": "7bf1d7840920908cedb5",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 0.00019999999999997797,
+    "b": 0.09254237930903719,
+    "flavor_value": 11.5237,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_max_db": 0.25050059465888214,
+     "s11_max_db": 0.02739511224997126,
+     "s21_db": 0.09254237930903719,
+     "s21_ripple_db": 0.1455000000000003,
+     "idd_ma": 0.36420040500162854,
+     "mu_min": 0.11833000000000005,
+     "mu_wide-1": 0.00019999999999997797
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0002 < 0.02; b_w - 0.02 = 0.0725 <= delta_min 0.2103",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a2:102:add R n0-n1",
+     "a": 1.999999999990898e-05,
+     "b": 0.16029238878986704,
+     "flavor_value": 12.2383
+    },
+    {
+     "id": "edit:a2:118:add C n0-n6",
+     "a": 0.0013799999999999368,
+     "b": 0.14845083241685325,
+     "flavor_value": 12.1134
+    },
+    {
+     "id": "edit:a2:108:add R n0-n3",
+     "a": 0.0006999999999999229,
+     "b": 0.1424968713261785,
+     "flavor_value": 12.0506
+    },
+    {
+     "id": "edit:a2:151:add C n3-n5",
+     "a": 0.0010887163600668008,
+     "b": 0.13933027418559688,
+     "flavor_value": 12.0172
+    },
+    {
+     "id": "edit:a2:72:add R VOUT1-n4",
+     "a": 0.00019999999999997797,
+     "b": 0.12054875042663749,
+     "flavor_value": 11.8191
+    },
+    {
+     "id": "edit:a2:19:add C VDD-n3",
+     "a": 0.0022800000000000598,
+     "b": 0.11650043611816921,
+     "flavor_value": 11.7764
+    },
+    {
+     "id": "edit:a2:91:add C VSS-n3",
+     "a": 0.0022800000000000598,
+     "b": 0.11650043611816921,
+     "flavor_value": 11.7764
+    },
+    {
+     "id": "edit:a2:114:add R n0-n5",
+     "a": 1.0000000000065512e-05,
+     "b": 0.09737760248776982,
+     "flavor_value": 11.5747
+    },
+    {
+     "id": "edit:a2:156:add R n4-n5",
+     "a": 0.000320000000000098,
+     "b": 0.09021009518753093,
+     "flavor_value": 11.4991
+    },
+    {
+     "id": "edit:a2:154:add C n3-n6",
+     "a": 0.0007304853329253568,
+     "b": 0.07902271606811036,
+     "flavor_value": 11.3811
+    }
+   ]
+  },
+  "t2-wb1020-gain-0067": {
+   "task": "t2-wb1020-gain-0067",
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "shown_anchor": "a2",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-wb1020-gain-0067.yaml",
+   "spec_sha": "33afa8b2b2856479",
+   "flavor": "gain",
+   "flavor_metric": "s21_db",
+   "flavor_side": "min",
+   "flavor_limit": 12.2162,
+   "flavor_scale": 12.2162,
+   "n_designs": 183,
+   "counts": {
+    "prereject": 73,
+    "sized": 110
+   },
+   "n_sized": 110,
+   "n_near": 98,
+   "R": {
+    "id": "edit:a2:19:add C VDD-n3",
+    "a": 0.0009776625093760641,
+    "b": 0.09571716245641032,
+    "flavor_value": 13.3855,
+    "feasible": true
+   },
+   "delta_min": 0.1457171624564103,
+   "witness": {
+    "tok": "ec4bda31840cdf17",
+    "jid": "12ec55c92f08bb5fe0f1",
+    "recorded_seed1_jid": "12ec55c92f08bb5fe0f1",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 0.0002885947849523028,
+    "b": 0.05804587351222142,
+    "flavor_value": 12.9253,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_max_db": 0.25272088706035833,
+     "s11_max_db": 0.0002885947849523028,
+     "s21_db": 0.05804587351222142,
+     "s21_ripple_db": 0.4684664117344899,
+     "idd_ma": 0.32339272158450466,
+     "mu_min": 0.0121,
+     "mu_wide-1": 0.0011200000000000099
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0003 < 0.02; b_w - 0.02 = 0.0380 <= delta_min 0.1457",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a2:19:add C VDD-n3",
+     "a": 0.0009776625093760641,
+     "b": 0.09571716245641032,
+     "flavor_value": 13.3855
+    },
+    {
+     "id": "edit:a2:91:add C VSS-n3",
+     "a": 0.0009776625093760641,
+     "b": 0.09571716245641032,
+     "flavor_value": 13.3855
+    },
+    {
+     "id": "edit:a2:130:add C n1-n5",
+     "a": 0.0016499999999999293,
+     "b": 0.08284081793028918,
+     "flavor_value": 13.2282
+    },
+    {
+     "id": "edit:a2:13:add C VDD-n1",
+     "a": 0.0009090100054666875,
+     "b": 0.0713151389139012,
+     "flavor_value": 13.0874
+    },
+    {
+     "id": "edit:a2:85:add C VSS-n1",
+     "a": 0.0009090100054666875,
+     "b": 0.0713151389139012,
+     "flavor_value": 13.0874
+    },
+    {
+     "id": "edit:a2:117:add R n0-n6",
+     "a": 8.000000000008001e-05,
+     "b": 0.050081039930583875,
+     "flavor_value": 12.828
+    },
+    {
+     "id": "edit:a2:108:add R n0-n3",
+     "a": 0.0005399999999999849,
+     "b": 0.04938524254678206,
+     "flavor_value": 12.8195
+    },
+    {
+     "id": "edit:a2:25:add C VDD-n5",
+     "a": 1.999999999990898e-05,
+     "b": 0.03960314991568562,
+     "flavor_value": 12.7
+    },
+    {
+     "id": "edit:a2:97:add C VSS-n5",
+     "a": 1.999999999990898e-05,
+     "b": 0.03960314991568562,
+     "flavor_value": 12.7
+    },
+    {
+     "id": "edit:a2:163:add C n5-n6",
+     "a": 4.0000000000040004e-05,
+     "b": 0.03314451302368982,
+     "flavor_value": 12.6211
+    }
+   ]
+  },
+  "t2-wb1020-gain-0089": {
+   "task": "t2-wb1020-gain-0089",
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "shown_anchor": "a2",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-wb1020-gain-0089.yaml",
+   "spec_sha": "a507238c24435f33",
+   "flavor": "gain",
+   "flavor_metric": "s21_db",
+   "flavor_side": "min",
+   "flavor_limit": 12.1881,
+   "flavor_scale": 12.1881,
+   "n_designs": 183,
+   "counts": {
+    "prereject": 73,
+    "sized": 110
+   },
+   "n_sized": 110,
+   "n_near": 77,
+   "R": {
+    "id": "edit:a2:73:add C VOUT1-n4",
+    "a": 5.999999999994898e-05,
+    "b": 0.077321321616987,
+    "flavor_value": 13.1305,
+    "feasible": true
+   },
+   "delta_min": 0.127321321616987,
+   "witness": {
+    "tok": "1850309b78569ba8",
+    "jid": "c2dbe24e2a940742fbc6",
+    "recorded_seed1_jid": "c2dbe24e2a940742fbc6",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 0.000180000000000069,
+    "b": 0.020889228017492465,
+    "flavor_value": 12.4427,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_max_db": 0.3464959232613909,
+     "s11_max_db": 0.007492105531221351,
+     "s21_db": 0.020889228017492465,
+     "s21_ripple_db": 0.5438786565547136,
+     "idd_ma": 0.400894542991406,
+     "mu_min": 0.040999999999999925,
+     "mu_wide-1": 0.000180000000000069
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0002 < 0.02; b_w - 0.02 = 0.0009 <= delta_min 0.1273",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a2:73:add C VOUT1-n4",
+     "a": 5.999999999994898e-05,
+     "b": 0.077321321616987,
+     "flavor_value": 13.1305
+    },
+    {
+     "id": "edit:a2:46:add C VIN1-n3",
+     "a": 0.0021400000000000308,
+     "b": 0.010337952593103062,
+     "flavor_value": 12.3141
+    },
+    {
+     "id": "edit:a2:19:add C VDD-n3",
+     "a": 1.999999999990898e-05,
+     "b": 0.009993354173333033,
+     "flavor_value": 12.3099
+    },
+    {
+     "id": "edit:a2:91:add C VSS-n3",
+     "a": 1.999999999990898e-05,
+     "b": 0.009993354173333033,
+     "flavor_value": 12.3099
+    },
+    {
+     "id": "edit:a2:118:add C n0-n6",
+     "a": 0.0009799999999999809,
+     "b": 0.008631369942813069,
+     "flavor_value": 12.2933
+    },
+    {
+     "id": "edit:a2:102:add R n0-n1",
+     "a": 0.0010399999999999299,
+     "b": 0.007901149481871612,
+     "flavor_value": 12.2844
+    },
+    {
+     "id": "edit:a2:156:add R n4-n5",
+     "a": 0.0008600000000000829,
+     "b": 0.004873606222462904,
+     "flavor_value": 12.2475
+    },
+    {
+     "id": "edit:a2:157:add C n4-n5",
+     "a": -0.00030200000000002447,
+     "b": 0.004742330633979069,
+     "flavor_value": 12.2459
+    },
+    {
+     "id": "edit:a2:147:add R n3-n4",
+     "a": 0.00048000000000003595,
+     "b": 0.0028880629466446514,
+     "flavor_value": 12.2233
+    },
+    {
+     "id": "edit:a2:78:add R VOUT1-n6",
+     "a": 0.00018999999999991246,
+     "b": 0.002207070831384669,
+     "flavor_value": 12.215
+    }
+   ]
+  },
+  "t2-wb1020-gain-0108": {
+   "task": "t2-wb1020-gain-0108",
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "shown_anchor": "a2",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-wb1020-gain-0108.yaml",
+   "spec_sha": "df84b18f506e90bd",
+   "flavor": "gain",
+   "flavor_metric": "s21_db",
+   "flavor_side": "min",
+   "flavor_limit": 12.1891,
+   "flavor_scale": 12.1891,
+   "n_designs": 183,
+   "counts": {
+    "prereject": 73,
+    "sized": 110
+   },
+   "n_sized": 110,
+   "n_near": 91,
+   "R": {
+    "id": "edit:a2:13:add C VDD-n1",
+    "a": 0.00021000000000004349,
+    "b": 0.03805859333338808,
+    "flavor_value": 12.653,
+    "feasible": true
+   },
+   "delta_min": 0.08805859333338809,
+   "witness": {
+    "tok": "0f2d04e4a1ff1e25",
+    "jid": "edd1060a1f33e588f8aa",
+    "recorded_seed1_jid": "edd1060a1f33e588f8aa",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 8.000000000008001e-05,
+    "b": 0.0017638709994995225,
+    "flavor_value": 12.2106,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_max_db": 0.03465677954311476,
+     "s11_max_db": 0.21707844973799467,
+     "s21_db": 0.0017638709994995225,
+     "s21_ripple_db": 0.03100000000000014,
+     "idd_ma": 0.0572501549653229,
+     "mu_min": 0.131,
+     "mu_wide-1": 8.000000000008001e-05
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0001 < 0.02; b_w - 0.02 = -0.0182 <= delta_min 0.0881",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a2:13:add C VDD-n1",
+     "a": 0.00021000000000004349,
+     "b": 0.03805859333338808,
+     "flavor_value": 12.653
+    },
+    {
+     "id": "edit:a2:85:add C VSS-n1",
+     "a": 0.00021000000000004349,
+     "b": 0.03805859333338808,
+     "flavor_value": 12.653
+    },
+    {
+     "id": "edit:a2:118:add C n0-n6",
+     "a": 0.00024000000000001798,
+     "b": 0.037410473291711405,
+     "flavor_value": 12.6451
+    },
+    {
+     "id": "edit:a2:28:add C VDD-n6",
+     "a": 0.00018999999999991246,
+     "b": 0.03341510037656589,
+     "flavor_value": 12.5964
+    },
+    {
+     "id": "edit:a2:100:add C VSS-n6",
+     "a": 0.00018999999999991246,
+     "b": 0.03341510037656589,
+     "flavor_value": 12.5964
+    },
+    {
+     "id": "edit:a2:102:add R n0-n1",
+     "a": 0.001048021669240319,
+     "b": 0.030658539186650326,
+     "flavor_value": 12.5628
+    },
+    {
+     "id": "edit:a2:55:add C VIN1-n6",
+     "a": 0.0001100000000000545,
+     "b": 0.02451370486746355,
+     "flavor_value": 12.4879
+    },
+    {
+     "id": "edit:a2:133:add C n1-n6",
+     "a": 0.0006200000000000649,
+     "b": 0.023397953909640553,
+     "flavor_value": 12.4743
+    },
+    {
+     "id": "edit:a2:138:add R n2-n4",
+     "a": 0.0004999999999999449,
+     "b": 0.018024300399537257,
+     "flavor_value": 12.4088
+    },
+    {
+     "id": "edit:a2:52:add C VIN1-n5",
+     "a": 0.0008300000000001084,
+     "b": 0.01591585925129836,
+     "flavor_value": 12.3831
+    }
+   ]
+  },
+  "t2-wb1020-gain-0109": {
+   "task": "t2-wb1020-gain-0109",
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "shown_anchor": "a2",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-wb1020-gain-0109.yaml",
+   "spec_sha": "23dbddd1e2c2b735",
+   "flavor": "gain",
+   "flavor_metric": "s21_db",
+   "flavor_side": "min",
+   "flavor_limit": 12.8023,
+   "flavor_scale": 12.8023,
+   "n_designs": 183,
+   "counts": {
+    "prereject": 73,
+    "sized": 110
+   },
+   "n_sized": 110,
+   "n_near": 30,
+   "R": {
+    "id": "edit:a2:25:add C VDD-n5",
+    "a": 0.0009699999999999154,
+    "b": 0.006030166454465173,
+    "flavor_value": 12.8795,
+    "feasible": true
+   },
+   "delta_min": 0.05603016645446517,
+   "witness": {
+    "tok": "c7c7213716385e74",
+    "jid": "39be1ee08f2ccca96df6",
+    "recorded_seed1_jid": "39be1ee08f2ccca96df6",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      false
+     ],
+     [
+      2,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 2.589523527540019e-06,
+    "b": -0.003015083227232656,
+    "flavor_value": 12.7637,
+    "feasible": false,
+    "port_dc_pass": null,
+    "margins": {
+     "nf_max_db": 2.589523527540019e-06,
+     "s11_max_db": 0.00045350318471340506,
+     "s21_db": -0.003015083227232656,
+     "s21_ripple_db": 0.2871782790505918,
+     "idd_ma": 0.001927774827403092,
+     "mu_min": 0.056640000000000024,
+     "mu_wide-1": 0.0009699999999999154
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0000 < 0.02; b_w - 0.02 = -0.0230 <= delta_min 0.0560",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a2:25:add C VDD-n5",
+     "a": 0.0009699999999999154,
+     "b": 0.006030166454465173,
+     "flavor_value": 12.8795
+    },
+    {
+     "id": "edit:a2:97:add C VSS-n5",
+     "a": 0.0009699999999999154,
+     "b": 0.006030166454465173,
+     "flavor_value": 12.8795
+    },
+    {
+     "id": "edit:a2:19:add C VDD-n3",
+     "a": 0.00010445859872612012,
+     "b": 0.003694648617826476,
+     "flavor_value": 12.8496
+    },
+    {
+     "id": "edit:a2:91:add C VSS-n3",
+     "a": 0.00010445859872612012,
+     "b": 0.003694648617826476,
+     "flavor_value": 12.8496
+    },
+    {
+     "id": "edit:a2:102:add R n0-n1",
+     "a": 0.00029999999999996696,
+     "b": 0.002390195511743963,
+     "flavor_value": 12.8329
+    },
+    {
+     "id": "edit:a2:133:add C n1-n6",
+     "a": 0.00021000000000004349,
+     "b": 0.0021480515219921307,
+     "flavor_value": 12.8298
+    },
+    {
+     "id": "edit:a2:157:add C n4-n5",
+     "a": 0.00039999999999995595,
+     "b": 0.0015153527100598481,
+     "flavor_value": 12.8217
+    },
+    {
+     "id": "edit:a2:147:add R n3-n4",
+     "a": 0.000140000000000029,
+     "b": 0.0010388758269997734,
+     "flavor_value": 12.8156
+    },
+    {
+     "id": "edit:a2:118:add C n0-n6",
+     "a": 0.00019999999999997797,
+     "b": 0.0008982760910148835,
+     "flavor_value": 12.8138
+    },
+    {
+     "id": "edit:a2:115:add C n0-n5",
+     "a": 0.000180000000000069,
+     "b": 0.0005545878474961093,
+     "flavor_value": 12.8094
+    }
+   ]
+  },
+  "t2-wb1020-gain-0128": {
+   "task": "t2-wb1020-gain-0128",
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "shown_anchor": "a2",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-wb1020-gain-0128.yaml",
+   "spec_sha": "09ffb2a041548466",
+   "flavor": "gain",
+   "flavor_metric": "s21_db",
+   "flavor_side": "min",
+   "flavor_limit": 12.6523,
+   "flavor_scale": 12.6523,
+   "n_designs": 183,
+   "counts": {
+    "prereject": 73,
+    "sized": 110
+   },
+   "n_sized": 110,
+   "n_near": 32,
+   "R": {
+    "id": "edit:a2:75:add R VOUT1-n5",
+    "a": 0.0001500000000000945,
+    "b": 0.0036673174047406575,
+    "flavor_value": 12.6987,
+    "feasible": true
+   },
+   "delta_min": 0.053667317404740664,
+   "witness": {
+    "tok": "70501bc64b6f7524",
+    "jid": "3ad5e32478fee59b7245",
+    "recorded_seed1_jid": "3ad5e32478fee59b7245",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 0.00032999999999994145,
+    "b": 0.003691028508650563,
+    "flavor_value": 12.699,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_max_db": 0.26942441931665106,
+     "s11_max_db": 0.0017308540813110367,
+     "s21_db": 0.003691028508650563,
+     "s21_ripple_db": 0.6380828838670028,
+     "idd_ma": 0.3061769211130967,
+     "mu_min": 0.03147999999999995,
+     "mu_wide-1": 0.00032999999999994145
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0003 < 0.02; b_w - 0.02 = -0.0163 <= delta_min 0.0537",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a2:75:add R VOUT1-n5",
+     "a": 0.0001500000000000945,
+     "b": 0.0036673174047406575,
+     "flavor_value": 12.6987
+    },
+    {
+     "id": "edit:a2:108:add R n0-n3",
+     "a": 0.00012999999999996348,
+     "b": 0.003619895196920705,
+     "flavor_value": 12.6981
+    },
+    {
+     "id": "edit:a2:118:add C n0-n6",
+     "a": 0.00038000000000004697,
+     "b": 0.0017783327932470046,
+     "flavor_value": 12.6748
+    },
+    {
+     "id": "edit:a2:117:add R n0-n6",
+     "a": 0.0005699999999999594,
+     "b": 0.0007982738316353196,
+     "flavor_value": 12.6624
+    },
+    {
+     "id": "edit:a2:78:add R VOUT1-n6",
+     "a": -0.03284799999999999,
+     "b": 0.0006481035068723022,
+     "flavor_value": 12.6605
+    },
+    {
+     "id": "edit:a2:147:add R n3-n4",
+     "a": -0.02393999999999996,
+     "b": 0.0006401998055688598,
+     "flavor_value": 12.6604
+    },
+    {
+     "id": "edit:a2:142:add C n2-n5",
+     "a": -0.049236999999999975,
+     "b": 0.0006006812990523502,
+     "flavor_value": 12.6599
+    },
+    {
+     "id": "edit:a2:9:add R VDD-n0",
+     "a": -0.039536000000000016,
+     "b": 0.000355666558649429,
+     "flavor_value": 12.6568
+    },
+    {
+     "id": "edit:a2:69:add R VOUT1-n3",
+     "a": -0.044308000000000014,
+     "b": 0.000316148052132779,
+     "flavor_value": 12.6563
+    },
+    {
+     "id": "edit:a2:156:add R n4-n5",
+     "a": -0.02614700000000003,
+     "b": 0.0002608221430095251,
+     "flavor_value": 12.6556
+    }
+   ]
+  },
+  "t2-wb1020-gain-0142": {
+   "task": "t2-wb1020-gain-0142",
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "shown_anchor": "a2",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-wb1020-gain-0142.yaml",
+   "spec_sha": "cdc046c3ab3c3654",
+   "flavor": "gain",
+   "flavor_metric": "s21_db",
+   "flavor_side": "min",
+   "flavor_limit": 13.6274,
+   "flavor_scale": 13.6274,
+   "n_designs": 183,
+   "counts": {
+    "prereject": 73,
+    "sized": 110
+   },
+   "n_sized": 110,
+   "n_near": 23,
+   "R": {
+    "id": "edit:a2:19:add C VDD-n3",
+    "a": 0.001347859842940556,
+    "b": 0.0013648971924212292,
+    "flavor_value": 13.646,
+    "feasible": true
+   },
+   "delta_min": 0.05136489719242123,
+   "witness": {
+    "tok": "d5877e84dcc1236b",
+    "jid": "290b50a30c8438eed5f8",
+    "recorded_seed1_jid": "290b50a30c8438eed5f8",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 0.00035999999999991594,
+    "b": 6.604341253648377e-05,
+    "flavor_value": 13.6283,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_max_db": 0.03248259537733213,
+     "s11_max_db": 0.0013084040779442075,
+     "s21_db": 6.604341253648377e-05,
+     "s21_ripple_db": 0.45239059967585193,
+     "idd_ma": 0.020338571696747024,
+     "mu_min": 0.04031000000000007,
+     "mu_wide-1": 0.00035999999999991594
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0004 < 0.02; b_w - 0.02 = -0.0199 <= delta_min 0.0514",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a2:19:add C VDD-n3",
+     "a": 0.001347859842940556,
+     "b": 0.0013648971924212292,
+     "flavor_value": 13.646
+    },
+    {
+     "id": "edit:a2:91:add C VSS-n3",
+     "a": 0.001347859842940556,
+     "b": 0.0013648971924212292,
+     "flavor_value": 13.646
+    },
+    {
+     "id": "edit:a2:55:add C VIN1-n6",
+     "a": 9.999999999998899e-05,
+     "b": 7.338156948483712e-06,
+     "flavor_value": 13.6275
+    },
+    {
+     "id": "edit:a2:156:add R n4-n5",
+     "a": -0.03468400000000005,
+     "b": -0.0005650380850345494,
+     "flavor_value": 13.6197
+    },
+    {
+     "id": "edit:a2:115:add C n0-n5",
+     "a": 0.00021000000000004349,
+     "b": -0.016430133407693354,
+     "flavor_value": 13.4035
+    },
+    {
+     "id": "edit:a2:117:add R n0-n6",
+     "a": -1.2000000000012001e-05,
+     "b": -0.018125247662797005,
+     "flavor_value": 13.3804
+    },
+    {
+     "id": "edit:a2:13:add C VDD-n1",
+     "a": -0.016849000000000003,
+     "b": -0.018895754142389618,
+     "flavor_value": 13.3699
+    },
+    {
+     "id": "edit:a2:85:add C VSS-n1",
+     "a": -0.016849000000000003,
+     "b": -0.018895754142389618,
+     "flavor_value": 13.3699
+    },
+    {
+     "id": "edit:a2:138:add R n2-n4",
+     "a": -9.700000000001374e-05,
+     "b": -0.019174604106432652,
+     "flavor_value": 13.3661
+    },
+    {
+     "id": "edit:a2:111:add R n0-n4",
+     "a": -0.03456300000000001,
+     "b": -0.03265479842082865,
+     "flavor_value": 13.1824
+    }
+   ]
+  },
+  "t2-wb1020-gain-0159": {
+   "task": "t2-wb1020-gain-0159",
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "shown_anchor": "a2",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-wb1020-gain-0159.yaml",
+   "spec_sha": "d5832ec7b4ea406c",
+   "flavor": "gain",
+   "flavor_metric": "s21_db",
+   "flavor_side": "min",
+   "flavor_limit": 12.38,
+   "flavor_scale": 12.38,
+   "n_designs": 183,
+   "counts": {
+    "prereject": 73,
+    "sized": 110
+   },
+   "n_sized": 110,
+   "n_near": 43,
+   "R": {
+    "id": "edit:a2:118:add C n0-n6",
+    "a": 0.0014400000000001079,
+    "b": 0.006324717285944968,
+    "flavor_value": 12.4583,
+    "feasible": true
+   },
+   "delta_min": 0.05632471728594497,
+   "witness": {
+    "tok": "737f51f7fdeb4f86",
+    "jid": "74243d9637bba8ce302a",
+    "recorded_seed1_jid": "74243d9637bba8ce302a",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 0.00012999999999996348,
+    "b": 0.0001696284329562729,
+    "flavor_value": 12.3821,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_max_db": 0.235573449150588,
+     "s11_max_db": 0.00013641869063560255,
+     "s21_db": 0.0001696284329562729,
+     "s21_ripple_db": 0.4927638545711262,
+     "idd_ma": 0.21040081218274112,
+     "mu_min": 0.06360999999999994,
+     "mu_wide-1": 0.00012999999999996348
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0001 < 0.02; b_w - 0.02 = -0.0198 <= delta_min 0.0563",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a2:118:add C n0-n6",
+     "a": 0.0014400000000001079,
+     "b": 0.006324717285944968,
+     "flavor_value": 12.4583
+    },
+    {
+     "id": "edit:a2:117:add R n0-n6",
+     "a": 4.0000000000040004e-05,
+     "b": 0.004313408723747972,
+     "flavor_value": 12.4334
+    },
+    {
+     "id": "edit:a2:19:add C VDD-n3",
+     "a": 0.0010378020016574279,
+     "b": 0.003190630048465148,
+     "flavor_value": 12.4195
+    },
+    {
+     "id": "edit:a2:91:add C VSS-n3",
+     "a": 0.0010378020016574279,
+     "b": 0.003190630048465148,
+     "flavor_value": 12.4195
+    },
+    {
+     "id": "edit:a2:46:add C VIN1-n3",
+     "a": 0.000140000000000029,
+     "b": 0.0021243941841679404,
+     "flavor_value": 12.4063
+    },
+    {
+     "id": "edit:a2:13:add C VDD-n1",
+     "a": 0.0001500000000000945,
+     "b": 0.001817447495961153,
+     "flavor_value": 12.4025
+    },
+    {
+     "id": "edit:a2:85:add C VSS-n1",
+     "a": 0.0001500000000000945,
+     "b": 0.001817447495961153,
+     "flavor_value": 12.4025
+    },
+    {
+     "id": "edit:a2:55:add C VIN1-n6",
+     "a": 5.999999999994898e-05,
+     "b": 0.0015993537964458836,
+     "flavor_value": 12.3998
+    },
+    {
+     "id": "edit:a2:63:add R VOUT1-n1",
+     "a": -0.04201699999999997,
+     "b": 0.0015347334410337925,
+     "flavor_value": 12.399
+    },
+    {
+     "id": "edit:a2:151:add C n3-n5",
+     "a": 5.999999999994898e-05,
+     "b": 0.0014943457189014147,
+     "flavor_value": 12.3985
+    }
+   ]
+  },
+  "t2-wb1020-gain-0160": {
+   "task": "t2-wb1020-gain-0160",
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "shown_anchor": "a2",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-wb1020-gain-0160.yaml",
+   "spec_sha": "acd0db1e2216eb8f",
+   "flavor": "gain",
+   "flavor_metric": "s21_db",
+   "flavor_side": "min",
+   "flavor_limit": 12.5845,
+   "flavor_scale": 12.5845,
+   "n_designs": 183,
+   "counts": {
+    "prereject": 73,
+    "sized": 110
+   },
+   "n_sized": 110,
+   "n_near": 39,
+   "R": {
+    "id": "edit:a2:117:add R n0-n6",
+    "a": 0.0008099999999999774,
+    "b": 0.007517183837260105,
+    "flavor_value": 12.6791,
+    "feasible": true
+   },
+   "delta_min": 0.05751718383726011,
+   "witness": {
+    "tok": "4ff75166a51f9dd6",
+    "jid": "6a1f1dfdb42739c99297",
+    "recorded_seed1_jid": "6a1f1dfdb42739c99297",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      false
+     ],
+     [
+      2,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": -0.0009770000000000056,
+    "b": -0.04350590011522106,
+    "flavor_value": 12.037,
+    "feasible": false,
+    "port_dc_pass": null,
+    "margins": {
+     "nf_max_db": 0.0010269855480240415,
+     "s11_max_db": 0.0007136036986783139,
+     "s21_db": -0.04350590011522106,
+     "s21_ripple_db": 0.15259999999999924,
+     "idd_ma": 0.00029517130724647744,
+     "mu_min": 0.07957999999999998,
+     "mu_wide-1": -0.0009770000000000056
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w -0.0010 < 0.02; b_w - 0.02 = -0.0635 <= delta_min 0.0575",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a2:117:add R n0-n6",
+     "a": 0.0008099999999999774,
+     "b": 0.007517183837260105,
+     "flavor_value": 12.6791
+    },
+    {
+     "id": "edit:a2:46:add C VIN1-n3",
+     "a": 0.0014999999999996683,
+     "b": 0.0057133775676426884,
+     "flavor_value": 12.6564
+    },
+    {
+     "id": "edit:a2:108:add R n0-n3",
+     "a": 0.0014099999999999113,
+     "b": 0.004410187134967645,
+     "flavor_value": 12.64
+    },
+    {
+     "id": "edit:a2:156:add R n4-n5",
+     "a": 0.0011699999999998933,
+     "b": 0.004259207755572285,
+     "flavor_value": 12.6381
+    },
+    {
+     "id": "edit:a2:118:add C n0-n6",
+     "a": 0.0007200000000000539,
+     "b": 0.002876554491636467,
+     "flavor_value": 12.6207
+    },
+    {
+     "id": "edit:a2:55:add C VIN1-n6",
+     "a": 0.0004900000000001015,
+     "b": 0.002336207239063847,
+     "flavor_value": 12.6139
+    },
+    {
+     "id": "edit:a2:25:add C VDD-n5",
+     "a": 0.00017463189104977388,
+     "b": 0.0013826532639358183,
+     "flavor_value": 12.6019
+    },
+    {
+     "id": "edit:a2:97:add C VSS-n5",
+     "a": 0.00017463189104977388,
+     "b": 0.0013826532639358183,
+     "flavor_value": 12.6019
+    },
+    {
+     "id": "edit:a2:115:add C n0-n5",
+     "a": 0.00017000000000000348,
+     "b": 0.001128372203901536,
+     "flavor_value": 12.5987
+    },
+    {
+     "id": "edit:a2:109:add C n0-n3",
+     "a": 0.00025999999999992696,
+     "b": 0.0010568556557669516,
+     "flavor_value": 12.5978
+    }
+   ]
+  },
+  "t2-wb1020-gain-0161": {
+   "task": "t2-wb1020-gain-0161",
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "shown_anchor": "a2",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-wb1020-gain-0161.yaml",
+   "spec_sha": "91d35cf79aaa7afe",
+   "flavor": "gain",
+   "flavor_metric": "s21_db",
+   "flavor_side": "min",
+   "flavor_limit": 12.978,
+   "flavor_scale": 12.978,
+   "n_designs": 183,
+   "counts": {
+    "prereject": 73,
+    "sized": 110
+   },
+   "n_sized": 110,
+   "n_near": 92,
+   "R": {
+    "id": "edit:a2:73:add C VOUT1-n4",
+    "a": 6.105161405210756e-05,
+    "b": 0.06360764370473107,
+    "flavor_value": 13.8035,
+    "feasible": true
+   },
+   "delta_min": 0.11360764370473107,
+   "witness": {
+    "tok": "b4ab60f95cd3c7d7",
+    "jid": "a8bdc4a05b7155b6c76c",
+    "recorded_seed1_jid": "a8bdc4a05b7155b6c76c",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 2.999999999997449e-05,
+    "b": 0.0002850978579134118,
+    "flavor_value": 12.9817,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_max_db": 0.10205322020825304,
+     "s11_max_db": 0.0002721884459821293,
+     "s21_db": 0.0002850978579134118,
+     "s21_ripple_db": 0.30742935278030986,
+     "idd_ma": 0.3514054811160554,
+     "mu_min": 0.06383000000000005,
+     "mu_wide-1": 2.999999999997449e-05
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0000 < 0.02; b_w - 0.02 = -0.0197 <= delta_min 0.1136",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a2:73:add C VOUT1-n4",
+     "a": 6.105161405210756e-05,
+     "b": 0.06360764370473107,
+     "flavor_value": 13.8035
+    },
+    {
+     "id": "edit:a2:102:add R n0-n1",
+     "a": 0.0002500000000000835,
+     "b": 0.010602558175373774,
+     "flavor_value": 13.1156
+    },
+    {
+     "id": "edit:a2:19:add C VDD-n3",
+     "a": 0.002610000000000001,
+     "b": 0.00823701648944364,
+     "flavor_value": 13.0849
+    },
+    {
+     "id": "edit:a2:91:add C VSS-n3",
+     "a": 0.002610000000000001,
+     "b": 0.00823701648944364,
+     "flavor_value": 13.0849
+    },
+    {
+     "id": "edit:a2:133:add C n1-n6",
+     "a": 0.000140000000000029,
+     "b": 0.007905686546463299,
+     "flavor_value": 13.0806
+    },
+    {
+     "id": "edit:a2:3:add R VDD-VOUT1",
+     "a": 5.999999999994898e-05,
+     "b": 0.007520419170904601,
+     "flavor_value": 13.0756
+    },
+    {
+     "id": "edit:a2:57:add R VOUT1-VSS",
+     "a": 5.999999999994898e-05,
+     "b": 0.007520419170904601,
+     "flavor_value": 13.0756
+    },
+    {
+     "id": "edit:a2:114:add R n0-n5",
+     "a": 0.0013700000000000934,
+     "b": 0.007196794575435415,
+     "flavor_value": 13.0714
+    },
+    {
+     "id": "edit:a2:55:add C VIN1-n6",
+     "a": 0.0023999999999999577,
+     "b": 0.006202804746494119,
+     "flavor_value": 13.0585
+    },
+    {
+     "id": "edit:a2:109:add C n0-n3",
+     "a": 0.0008399999999999519,
+     "b": 0.005439975342888015,
+     "flavor_value": 13.0486
+    }
+   ]
+  },
+  "t2-wb1020-gain-0184": {
+   "task": "t2-wb1020-gain-0184",
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "shown_anchor": "a2",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-wb1020-gain-0184.yaml",
+   "spec_sha": "dd470ec808aee970",
+   "flavor": "gain",
+   "flavor_metric": "s21_db",
+   "flavor_side": "min",
+   "flavor_limit": 12.6056,
+   "flavor_scale": 12.6056,
+   "n_designs": 183,
+   "counts": {
+    "prereject": 73,
+    "sized": 110
+   },
+   "n_sized": 110,
+   "n_near": 31,
+   "R": {
+    "id": "edit:a2:73:add C VOUT1-n4",
+    "a": 0.0012600000000000389,
+    "b": 0.009313321063654244,
+    "flavor_value": 12.723,
+    "feasible": true
+   },
+   "delta_min": 0.05931332106365425,
+   "witness": {
+    "tok": "75538c0733ddad9a",
+    "jid": "195a21e49cad702fbd59",
+    "recorded_seed1_jid": "195a21e49cad702fbd59",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 0.0010300000000000864,
+    "b": 0.0016738592371643385,
+    "flavor_value": 12.6267,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_max_db": 0.1287799336410848,
+     "s11_max_db": 0.1119239191322504,
+     "s21_db": 0.0016738592371643385,
+     "s21_ripple_db": 0.15990000000000065,
+     "idd_ma": 0.1635499007133926,
+     "mu_min": 0.0704800000000001,
+     "mu_wide-1": 0.0010300000000000864
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0010 < 0.02; b_w - 0.02 = -0.0183 <= delta_min 0.0593",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a2:73:add C VOUT1-n4",
+     "a": 0.0012600000000000389,
+     "b": 0.009313321063654244,
+     "flavor_value": 12.723
+    },
+    {
+     "id": "edit:a2:114:add R n0-n5",
+     "a": 9.999999999998899e-05,
+     "b": 0.0020149774703306007,
+     "flavor_value": 12.631
+    },
+    {
+     "id": "edit:a2:138:add R n2-n4",
+     "a": 0.0002500000000000835,
+     "b": 0.0013565399504981298,
+     "flavor_value": 12.6227
+    },
+    {
+     "id": "edit:a2:46:add C VIN1-n3",
+     "a": 0.00024698273667060584,
+     "b": 0.001237545217998284,
+     "flavor_value": 12.6212
+    },
+    {
+     "id": "edit:a2:13:add C VDD-n1",
+     "a": 0.0008746244334674535,
+     "b": 0.0009836897886653171,
+     "flavor_value": 12.618
+    },
+    {
+     "id": "edit:a2:85:add C VSS-n1",
+     "a": 0.0008746244334674535,
+     "b": 0.0009836897886653171,
+     "flavor_value": 12.618
+    },
+    {
+     "id": "edit:a2:108:add R n0-n3",
+     "a": 0.00010694097876459922,
+     "b": 0.0009043599669988002,
+     "flavor_value": 12.617
+    },
+    {
+     "id": "edit:a2:69:add R VOUT1-n3",
+     "a": -0.047482000000000024,
+     "b": 0.0008170971631655048,
+     "flavor_value": 12.6159
+    },
+    {
+     "id": "edit:a2:117:add R n0-n6",
+     "a": 0.000180000000000069,
+     "b": 0.0007377673414989879,
+     "flavor_value": 12.6149
+    },
+    {
+     "id": "edit:a2:109:add C n0-n3",
+     "a": -0.04949899999999996,
+     "b": 0.00044424700133269203,
+     "flavor_value": 12.6112
+    }
+   ]
+  },
+  "t2-wb1020-gain-0207": {
+   "task": "t2-wb1020-gain-0207",
+   "tier": "T2",
+   "family": "wb1020-gain",
+   "band_type": "wideband",
+   "shown_anchor": "a2",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/t2-wb1020-gain-0207.yaml",
+   "spec_sha": "7e8002f4ce966f4f",
+   "flavor": "gain",
+   "flavor_metric": "s21_db",
+   "flavor_side": "min",
+   "flavor_limit": 11.1542,
+   "flavor_scale": 11.1542,
+   "n_designs": 183,
+   "counts": {
+    "prereject": 73,
+    "sized": 110
+   },
+   "n_sized": 110,
+   "n_near": 78,
+   "R": {
+    "id": "edit:a2:102:add R n0-n1",
+    "a": 0.000180000000000069,
+    "b": 0.07837406537447779,
+    "flavor_value": 12.0284,
+    "feasible": true
+   },
+   "delta_min": 0.1283740653744778,
+   "witness": {
+    "tok": "46fe7cbc2552d025",
+    "jid": "74816416c2f11820271d",
+    "recorded_seed1_jid": "74816416c2f11820271d",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 0.00032999999999994145,
+    "b": 0.0025999175198579833,
+    "flavor_value": 11.1832,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_max_db": 0.2547199173372578,
+     "s11_max_db": 0.00035838649823346244,
+     "s21_db": 0.0025999175198579833,
+     "s21_ripple_db": 0.44660000000000033,
+     "idd_ma": 0.22358513921389078,
+     "mu_min": 0.1457900000000001,
+     "mu_wide-1": 0.00032999999999994145
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0003 < 0.02; b_w - 0.02 = -0.0174 <= delta_min 0.1284",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a2:102:add R n0-n1",
+     "a": 0.000180000000000069,
+     "b": 0.07837406537447779,
+     "flavor_value": 12.0284
+    },
+    {
+     "id": "edit:a2:13:add C VDD-n1",
+     "a": 0.0006621254098568915,
+     "b": 0.06528482544691695,
+     "flavor_value": 11.8824
+    },
+    {
+     "id": "edit:a2:85:add C VSS-n1",
+     "a": 0.0006621254098568915,
+     "b": 0.06528482544691695,
+     "flavor_value": 11.8824
+    },
+    {
+     "id": "edit:a2:108:add R n0-n3",
+     "a": 5.999999999994898e-05,
+     "b": 0.05790643883021652,
+     "flavor_value": 11.8001
+    },
+    {
+     "id": "edit:a2:52:add C VIN1-n5",
+     "a": 0.00024000000000001798,
+     "b": 0.05009772103781533,
+     "flavor_value": 11.713
+    },
+    {
+     "id": "edit:a2:109:add C n0-n3",
+     "a": 0.00038999999999989043,
+     "b": 0.04287174337917565,
+     "flavor_value": 11.6324
+    },
+    {
+     "id": "edit:a2:133:add C n1-n6",
+     "a": 0.0006299999999999084,
+     "b": 0.03392444101773332,
+     "flavor_value": 11.5326
+    },
+    {
+     "id": "edit:a2:115:add C n0-n5",
+     "a": 0.000772691457184234,
+     "b": 0.03310860483046753,
+     "flavor_value": 11.5235
+    },
+    {
+     "id": "edit:a2:19:add C VDD-n3",
+     "a": 0.0011799999999999589,
+     "b": 0.02796256118771417,
+     "flavor_value": 11.4661
+    },
+    {
+     "id": "edit:a2:91:add C VSS-n3",
+     "a": 0.0011799999999999589,
+     "b": 0.02796256118771417,
+     "flavor_value": 11.4661
+    }
+   ]
+  },
+  "v2b-wb0824-gain-188": {
+   "task": "v2b-wb0824-gain-188",
+   "tier": "T3",
+   "family": "wb0824-gain",
+   "band_type": "wideband",
+   "shown_anchor": "a2",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/v2b-wb0824-gain-188.yaml",
+   "spec_sha": "a04ca59b13897c68",
+   "flavor": "gain",
+   "flavor_metric": "s21_db",
+   "flavor_side": "min",
+   "flavor_limit": 11.3706,
+   "flavor_scale": 11.3706,
+   "n_designs": 183,
+   "counts": {
+    "prereject": 73,
+    "sized": 110
+   },
+   "n_sized": 110,
+   "n_near": 8,
+   "R": {
+    "id": "edit:a2:78:add R VOUT1-n6",
+    "a": -0.03199300000000005,
+    "b": 0.0015830299192655343,
+    "flavor_value": 11.3886,
+    "feasible": false
+   },
+   "delta_min": 0.051583029919265534,
+   "witness": {
+    "tok": "643274f4ddabb6aa",
+    "jid": "f3ee7a1b23cf71e32dfa",
+    "recorded_seed1_jid": "f3ee7a1b23cf71e32dfa",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ],
+     [
+      2,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 3.4393999911318804e-05,
+    "b": 0.03006877385538149,
+    "flavor_value": 11.7125,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_max_db": 0.13373864807815036,
+     "s11_max_db": 3.4393999911318804e-05,
+     "s21_db": 0.03006877385538149,
+     "s21_ripple_db": 0.05060201757240502,
+     "idd_ma": 0.24863522235619553,
+     "mu_min": 0.0581799999999999,
+     "mu_wide-1": 0.0003500000000000725
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0000 < 0.02; b_w - 0.02 = 0.0101 <= delta_min 0.0516",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a2:78:add R VOUT1-n6",
+     "a": -0.03199300000000005,
+     "b": 0.0015830299192655343,
+     "flavor_value": 11.3886
+    },
+    {
+     "id": "edit:a2:135:add R n2-n3",
+     "a": -0.04870200000000002,
+     "b": 0.00028142754120271996,
+     "flavor_value": 11.3738
+    },
+    {
+     "id": "edit:a2:156:add R n4-n5",
+     "a": -0.026460999999999957,
+     "b": 0.00011432993861366357,
+     "flavor_value": 11.3719
+    },
+    {
+     "id": "edit:a2:75:add R VOUT1-n5",
+     "a": -0.04550900000000002,
+     "b": 8.794610662596716e-05,
+     "flavor_value": 11.3716
+    },
+    {
+     "id": "edit:a2:157:add C n4-n5",
+     "a": -0.0071510000000000185,
+     "b": 6.156227463811453e-05,
+     "flavor_value": 11.3713
+    },
+    {
+     "id": "edit:a2:69:add R VOUT1-n3",
+     "a": -0.041045,
+     "b": 0.0,
+     "flavor_value": 11.3706
+    },
+    {
+     "id": "edit:a2:126:add R n1-n4",
+     "a": -0.03132100000000004,
+     "b": 0.0,
+     "flavor_value": 11.3706
+    },
+    {
+     "id": "edit:a2:147:add R n3-n4",
+     "a": -0.037883,
+     "b": -5.2767663975549053e-05,
+     "flavor_value": 11.37
+    }
+   ]
+  },
+  "v2b-wb1020-noise-217": {
+   "task": "v2b-wb1020-noise-217",
+   "tier": "T3",
+   "family": "wb1020-noise",
+   "band_type": "wideband",
+   "shown_anchor": "a2",
+   "spec": "kaggle/campaigns/pilot-v0/eval/specs/v2b-wb1020-noise-217.yaml",
+   "spec_sha": "66245de956ccab2e",
+   "flavor": "noise",
+   "flavor_metric": "nf_max_db",
+   "flavor_side": "max",
+   "flavor_limit": 1.7022,
+   "flavor_scale": 1.7022,
+   "n_designs": 183,
+   "counts": {
+    "prereject": 73,
+    "sized": 110
+   },
+   "n_sized": 110,
+   "n_near": 7,
+   "R": {
+    "id": "edit:a2:156:add R n4-n5",
+    "a": -0.038853000000000026,
+    "b": 0.000915873575372968,
+    "flavor_value": 1.700641,
+    "feasible": false
+   },
+   "delta_min": 0.05091587357537297,
+   "witness": {
+    "tok": "643274f4ddabb6aa",
+    "jid": "252bebb45d88f265eb45",
+    "recorded_seed1_jid": "252bebb45d88f265eb45",
+    "jid_matches_record": true,
+    "recorded_runs": [
+     [
+      1,
+      true
+     ],
+     [
+      2,
+      true
+     ]
+    ],
+    "status": "sized",
+    "a": 0.00025999999999992696,
+    "b": 0.1085465867700623,
+    "flavor_value": 1.517432,
+    "feasible": true,
+    "port_dc_pass": true,
+    "margins": {
+     "nf_max_db": 0.1085465867700623,
+     "s11_max_db": 0.0017649533848573323,
+     "s21_db": 0.0015407085478154477,
+     "s21_ripple_db": 0.026999999999999746,
+     "idd_ma": 0.05956440065215844,
+     "mu_min": 0.0990899999999999,
+     "mu_wide-1": 0.00025999999999992696
+    },
+    "src": "kaggle/campaigns/bench-v2/amend3/run/results.jsonl"
+   },
+   "headroom": false,
+   "no_headroom_why": "a_w 0.0003 < 0.02",
+   "designs_top10_by_b_near": [
+    {
+     "id": "edit:a2:156:add R n4-n5",
+     "a": -0.038853000000000026,
+     "b": 0.000915873575372968,
+     "flavor_value": 1.700641
+    },
+    {
+     "id": "edit:a2:157:add C n4-n5",
+     "a": -0.028757000000000033,
+     "b": 0.0005052285277874874,
+     "flavor_value": 1.70134
+    },
+    {
+     "id": "edit:a2:160:add C n4-n6",
+     "a": -0.04763099999999998,
+     "b": 0.0004329690988132932,
+     "flavor_value": 1.701463
+    },
+    {
+     "id": "edit:a2:159:add R n4-n6",
+     "a": -0.03874599999999995,
+     "b": -7.637175420042503e-05,
+     "flavor_value": 1.70233
+    },
+    {
+     "id": "edit:a2:52:add C VIN1-n5",
+     "a": -0.035679000000000016,
+     "b": -0.34239278580660326,
+     "flavor_value": 2.285021
+    },
+    {
+     "id": "edit:a2:117:add R n0-n6",
+     "a": -0.002475000000000005,
+     "b": -0.3651445188579485,
+     "flavor_value": 2.323749
+    },
+    {
+     "id": "edit:a2:108:add R n0-n3",
+     "a": -0.015927000000000024,
+     "b": -0.37394371989190467,
+     "flavor_value": 2.338727
+    }
+   ]
+  }
+ }
+}

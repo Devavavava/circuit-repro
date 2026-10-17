@@ -1,0 +1,59 @@
+{
+ "prereg": "kaggle/PREREG-BENCH-V3.md (f56d45e11) sections 2 + 8",
+ "diagnostic_not_preregistered": true,
+ "built": "2026-10-18T01:03:56",
+ "verifier": "rl-v1.2",
+ "seed": 1,
+ "budget": 2500,
+ "pdk": "bptm45",
+ "n_eligible": 35,
+ "eligible_by_tier": {
+  "T2": 32,
+  "T3": 3
+ },
+ "eligible_by_family": {
+  "nb090-noise": 16,
+  "wb0824-gain": 1,
+  "wb1020-gain": 17,
+  "wb1020-noise": 1
+ },
+ "n_nominated": 6,
+ "nominated_by_tier": {
+  "T2": 4,
+  "T3": 2
+ },
+ "nominated_by_family": {
+  "nb090-noise": 4,
+  "wb1020-gain": 1,
+  "wb1020-noise": 1
+ },
+ "n_accepted": 3,
+ "accepted_by_tier": {
+  "T2": 1,
+  "T3": 2
+ },
+ "accepted_by_family": {
+  "nb090-noise": 1,
+  "wb1020-gain": 1,
+  "wb1020-noise": 1
+ },
+ "accepted_tasks": [
+  "t2-nb090-noise-0012",
+  "t2-wb1020-gain-0028",
+  "v2b-wb1020-noise-217"
+ ],
+ "unconfirmed": [],
+ "go_no_go_rule": ">= 15 accepted => build; 8-14 => report (propose T1 tasks); < 8 => stop",
+ "verdict": "DIAGNOSTIC ONLY (not pre-registered, README D-A8): 3 of 6 would-be-nominated tasks confirmed",
+ "confirmation_calls": {
+  "rows": 24,
+  "new_sized": 24,
+  "reused": 0,
+  "new_cpu_s": 2811.0,
+  "new_cpu_h": 0.781
+ },
+ "no_headroom_reasons": {
+  "a_w < 0.02 & b_w - 0.02 <= delta_min": 28,
+  "b_w - 0.02 <= delta_min": 1
+ }
+}

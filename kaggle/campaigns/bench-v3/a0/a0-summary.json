@@ -1,0 +1,42 @@
+{
+ "prereg": "kaggle/PREREG-BENCH-V3.md (f56d45e11) sections 2 + 8",
+ "diagnostic_not_preregistered": false,
+ "built": "2026-10-18T00:57:28",
+ "verifier": "rl-v1.2",
+ "seed": 1,
+ "budget": 2500,
+ "pdk": "bptm45",
+ "n_eligible": 35,
+ "eligible_by_tier": {
+  "T2": 32,
+  "T3": 3
+ },
+ "eligible_by_family": {
+  "nb090-noise": 16,
+  "wb0824-gain": 1,
+  "wb1020-gain": 17,
+  "wb1020-noise": 1
+ },
+ "n_nominated": 0,
+ "nominated_by_tier": {},
+ "nominated_by_family": {},
+ "n_accepted": 0,
+ "accepted_by_tier": {},
+ "accepted_by_family": {},
+ "accepted_tasks": [],
+ "unconfirmed": [],
+ "go_no_go_rule": ">= 15 accepted => build; 8-14 => report (propose T1 tasks); < 8 => stop",
+ "verdict": "STOP (< 8 accepted: the stretch form fails here; stop and report)",
+ "confirmation_calls": {
+  "rows": 0,
+  "new_sized": 0,
+  "reused": 0,
+  "new_cpu_s": 0,
+  "new_cpu_h": 0.0
+ },
+ "no_headroom_reasons": {
+  "a_w < 0.02": 6,
+  "a_w < 0.02 & b_w - 0.02 <= delta_min": 28,
+  "b_w - 0.02 <= delta_min": 1
+ }
+}

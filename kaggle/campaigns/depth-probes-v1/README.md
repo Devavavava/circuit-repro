@@ -140,3 +140,27 @@ run_cr.sh kaggle/campaigns/depth-probes-v1/depth.py summarize
   - CPU per job = getrusage (self + children) of the worker.
 - **D-P13: IIP3 sanity check** (pre-reg: 3 designs first). It was run on the top-ranked B design of the first 3
   ordered tasks, before the smoke; results below.
+
+## RESULT (2026-10-18 03:53 IST; written by the parent session — the runner's agent died on a network error mid-run, the run itself completed)
+
+Run complete before the pause window: 296/296 designs re-sized (all reproduce the cached feasibility and worst margin
+within 1e-4), corners 296/296, IIP3 293/296 ok (292 with two-tone slope 3 ± 0.3). CPU 8.59 h. 32/35 tasks have
+non-empty A and B (the 3 T3 tasks have no feasible A by construction).
+
+| metric | eligible | B beats A | A beats B (control) | pre-declared verdict |
+|---|---|---|---|---|
+| corner worst margin (+0.10, or B passes all corners and no A does) | 32 | 4 | 2 | **no depth** (< 5) |
+| IIP3 (+3 dB) | 32 | 5 | 8 | **no depth** (weak count, and the control fails: A > B more often) |
+
+Readings and caveats:
+- No design in either pool passes all four corners (every corner worst margin < 0; W3 again). The probe evaluates
+  corners **on the nominal sizing without re-sizing**; the sizer has driven some nominal constraint to ~0 slack (the
+  A0 lesson), so corner margin here mostly measures how far a nominal-optimal sizing falls off, not what a topology
+  could reach if sized for corners. Same for IIP3: measured on small-signal-optimal sizings, not linearity-aware ones.
+  So the result is "no depth in **as-sized** corner/linearity behaviour", not a proof that robustness- or
+  linearity-aware sizing would show no depth (that would need multi-corner / IIP3-in-the-loop sizing, ~5x the cost
+  per call).
+- nb090-noise designs have very poor IIP3 (-15 to -40 dBm) vs wb1020-gain (about 0 dBm); the large B > A gaps (0322
+  +22.9 dB, 0411 +15.0 dB) are tasks where pool A has only one feasible design.
+- With the bench-v1.2 audit, bench-v2, exit-r1/r2, baselines-v1 and bench-v3 A0, this is the fourth independent sign
+  that the LNA space under this verifier (bptm45, <= 2 L on wideband, ideal biasing, small-signal spec) is shallow.

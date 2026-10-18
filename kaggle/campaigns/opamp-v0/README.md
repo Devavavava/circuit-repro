@@ -297,3 +297,167 @@ Stage 1 total ≈ 0.4 CPU-h (gates incl. re-runs ≈ 1,300 CPU-s, prototypes ≈
 load. The upper end exceeds the pre-reg's 20–25 CPU-h estimate and could approach the 40 CPU-h ask-first line;
 cheap levers (not taken, would change the measurement): AC at 10 pts/dec, 50 mV swing grid, or a persistent
 libngspice instead of one subprocess per eval.
+
+## Stage 2 — library, anchors, witnesses, F2′, goldens
+
+Commits on `worktree-externals-gf180` (see `git log -- kaggle/campaigns/opamp-v0`). Everything was sized with
+the Stage 1 sizer (seed 1 unless stated, 2,500 evals) **with the small-step stability gate on** (D-O16); the
+first, pre-gate pass is archived in `stage2/results/pre_stability/`. Reproduce: `stage2/run_stage2.py` (all
+sizing jobs, resumable), `stage2/f2_space.py`, `stage2/accuracy.py`, `stage2/stability_gate_check.py`,
+`stage2/report.py` (prints the tables below).
+
+**Built.** F1 library `circuits/lib/` (5T OTA, two-stage Miller + Rz, telescopic cascode, folded cascode,
+three-stage NMC); anchors = `circuits/lib/ota5t.net`, `circuits/lib/two_stage_rz.net` (the Stage 1 files,
+unchanged); EVAL-ONLY witnesses `witnesses/` (W-R1 folded cascode + CS with Miller + Rz; W-R23 AFFC three-stage
+transcribed from AnalogGym `HoiLee_AFFC_Pin_3`; W-R4 complementary N+P pairs + folded-cascode summing + CS with
+Miller + Rz). All pass the pre-filter; one IREF, every other bias in-netlist; matched groups per D-O4.
+
+### Goldens (margin mode at a demonstration spec, D-O19)
+
+| circuit | devices / params | demo spec (margin mode, + stability gate) | feasible | worst margin | gain dB | UGF MHz | PM ° | Idd µA | swing Vpp | ICMR V | FOM MHz·pF/mA | CPU s |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| ota5t | 6 / 9 | CL 2 pF; gain_db ≥ 25, idd_ua ≤ 200, pm_deg ≥ 60, ugf_mhz ≥ 10 | yes | 0.170 | 29.26 | 20.41 | 79.8 | 42.0 | 0.476 | 0.701 | 971 | 35 |
+| two_stage_rz | 10 / 15 | CL 2 pF; gain_db ≥ 55, idd_ua ≤ 200, pm_deg ≥ 60, swing_vpp ≥ 0.6, ugf_mhz ≥ 10 | yes | 0.184 | 65.11 | 13.12 | 71.3 | 90.4 | 0.806 | 0.535 | 290 | 37 |
+| telescopic | 14 / 19 | CL 2 pF; gain_db ≥ 45, idd_ua ≤ 200, pm_deg ≥ 60, ugf_mhz ≥ 10 | yes | 0.236 | 55.62 | 21.88 | 76.2 | 78.5 | 0.307 | 0.203 | 558 | 78 |
+| folded_cascode | 16 / 21 | CL 2 pF; gain_db ≥ 45, idd_ua ≤ 200, pm_deg ≥ 60, ugf_mhz ≥ 10 | yes | 0.276 | 57.41 | 15.41 | 77.0 | 116.6 | 0.362 | 0.316 | 264 | 51 |
+| three_stage_nmc | 16 / 25 | CL 2 pF; gain_db ≥ 75, idd_ua ≤ 200, pm_deg ≥ 55, ugf_mhz ≥ 5 | yes | 0.198 | 89.83 | 6.19 | 70.4 | 101.7 | 0.625 | 0.570 | 122 | 136 |
+| W-R1 | 20 / 27 | CL 2 pF; gain_db ≥ 70, idd_ua ≤ 200, pm_deg ≥ 60, swing_vpp ≥ 0.6, ugf_mhz ≥ 10 | yes | 0.156 | 80.95 | 11.68 | 75.6 | 137.5 | 0.761 | 0.558 | 170 | 138 |
+| W-R23 | 31 / 31 | CL 200 pF; gain_db ≥ 80, idd_ua ≤ 300, pm_deg ≥ 55, ugf_mhz ≥ 1 | yes | 0.065 | 85.17 | 2.37 | 60.8 | 180.6 | 0.756 | 0.589 | 2624 | 150 |
+| W-R4 | 23 / 31 | CL 2 pF; gain_db ≥ 40, icmr_v ≥ 0.8, idd_ua ≤ 200, pm_deg ≥ 60, ugf_mhz ≥ 5 | yes | 0.079 | 44.93 | 6.21 | 70.0 | 41.9 | 0.916 | 0.879 | 296 | 151 |
+
+All 8 feasible. FOM = UGF·CL/Idd. `tran_oscillation` (large-signal ±0.1 V step, report-only) is set on the
+W-R23 golden only; it is small-signal stable (gate passed).
+
+### Witness `max:M` under its regime's hard constraints — and a PREVIEW against F1
+
+**PREVIEW, not D0** (D-O22): one to three seeds, F1 only (no F2′, no top-20, no confirmation, no two-edit
+check, no analytic backstop). Hard constraints = pre-reg Stage 3 + the stability gate. Values are M of
+feasible runs.
+
+**R1** (max:gain_db; CL 2 pF; swing_vpp ≥ 0.6, ugf_mhz ≥ 10, pm_deg ≥ 60, idd_ua ≤ 200)
+
+| design | seed 1 | seed 2 | seed 3 | median (infeasible = −∞) | seed-1 gain / UGF / PM / Idd |
+|---|---|---|---|---|---|
+| W-R1 | 61.02 | 82.27 | 86.99 | 82.27 | 61.02 / 16.39 / 62.1 / 169.2 |
+| ota5t | 28.55 |  |  |  | 28.55 / 34.79 / 70.7 / 102.2 |
+| two_stage_rz | 63.50 |  |  |  | 63.50 / 14.30 / 83.6 / 155.6 |
+| telescopic | 32.66 |  |  |  | 32.66 / 27.93 / 76.9 / 90.2 |
+| folded_cascode | 58.80 |  |  |  | 58.80 / 22.20 / 60.9 / 131.7 |
+| three_stage_nmc | 58.51 | 89.73 | infeasible (ss_unstable) | 58.51 | 58.51 / 13.18 / 72.4 / 109.6 |
+
+**R23** (max:fom_mhzpf_ma; CL 200 pF; gain_db ≥ 80, pm_deg ≥ 55, idd_ua ≤ 300)
+
+| design | seed 1 | seed 2 | seed 3 | median (infeasible = −∞) | seed-1 gain / UGF / PM / Idd |
+|---|---|---|---|---|---|
+| W-R23 | 14502 | 15272 | 19953 | 15271.52 | 82.43 / 4.56 / 62.6 / 62.9 |
+| ota5t | infeasible |  |  |  | 29.26 / 0.03 / 92.0 / 16.6 |
+| two_stage_rz | infeasible |  |  |  | 66.25 / 1.53 / 72.3 / 90.7 |
+| telescopic | infeasible |  |  |  | 55.64 / 0.09 / 90.0 / 56.1 |
+| folded_cascode | infeasible |  |  |  | 64.88 / 0.25 / 89.3 / 260.3 |
+| three_stage_nmc | 18146 | 20101 | 18997 | 18996.96 | 80.16 / 2.82 / 55.4 / 31.1 |
+
+**R4** (max:icmr_v; CL 2 pF; gain_db ≥ 40, ugf_mhz ≥ 5, pm_deg ≥ 60, idd_ua ≤ 200)
+
+| design | seed 1 | seed 2 | seed 3 | median (infeasible = −∞) | seed-1 gain / UGF / PM / Idd |
+|---|---|---|---|---|---|
+| W-R4 | 0.970 | 0.913 | 0.963 | 0.963 | 46.08 / 21.90 / 91.8 / 199.0 |
+| ota5t | infeasible |  |  |  | 29.27 / 20.19 / 81.2 / 137.7 |
+| two_stage_rz | 0.834 | 0.861 | 0.831 | 0.834 | 40.73 / 14.93 / 87.8 / 19.3 |
+| telescopic | 0.366 |  |  |  | 40.31 / 9.72 / 87.9 / 47.9 |
+| folded_cascode | 0.766 |  |  |  | 40.04 / 5.85 / 66.8 / 27.3 |
+| three_stage_nmc | 0.873 |  |  |  | 44.45 / 6.87 / 67.9 / 48.7 |
+
+Witness feasibility under the regime's hard constraints: **W-R1 3/3, W-R23 3/3, W-R4 3/3** — no relaxation
+ladder step would be needed. Preview gaps (witness median − best F1 median/seed-1 value):
+- **R1:** W-R1 82.27 dB vs best F1 at seed 1 = two-stage 63.50 dB (+18.8 dB); but the three-stage NMC reached
+  89.73 dB at seed 2 (seed 1 58.51, seed 3 infeasible/unstable): sizer spread on the 25–27-parameter circuits is
+  ±15 dB, and W-R1 itself read 61.02 dB at seed 1. The 3-seed medians favour W-R1 (82.27 vs NMC 58.51), but the
+  sign of R1's gap rests on CMA-ES luck at seeds 1–3, not on a physical bound (both are (gm·ro)³-class).
+- **R23:** W-R23 median 15,272 vs three-stage NMC median 18,997 MHz·pF/mA — **the witness loses (−20 %)**; all
+  1–2-stage F1 circuits are infeasible (gain < 80 dB). R23 is likely not accepted unless F2′ adds nothing above NMC
+  AND the witness sizes better in Stage 3 — it would need +25 %.
+- **R4:** W-R4 median 0.963 V vs two-stage median 0.834 V (+0.129 V), NMC 0.873 V (seed 1): **below the 0.15 V
+  minimum gap** at this preview. The ICMR definition (D-O7: gain within 6 dB of mid + tracking ≤ 50 mV) lets a
+  single NMOS pair read ~0.83–0.86 V (down to ~0.17 V input CM) because in weak inversion the DC gain of the
+  pair barely falls with its tail current; it is UGF, not DC gain, that collapses, and UGF is only checked at Vcm.
+
+### F2′ single-edit space per anchor (D-O17) and two-edit sample (D-O18)
+
+Kinds given as raw / unique / after pre-filter.
+
+| anchor | nets / devices | raw edits | unique (canonical) | after pre-filter | addRC | addMOS | del | rewire | pre-filter rejects (first rule) | two-edit kept / tries |
+|---|---|---|---|---|---|---|---|---|---|---|
+| ota5t | 8 / 6 | 1664 | 1016 | **476** | 56/56/43 | 1458/810/348 | 6/6/3 | 144/144/82 | R1 18, R2 343, R3 138, R5 41 | 500 / 1894 |
+| two_stage_rz | 10 / 10 | 3042 | 1831 | **995** | 90/90/73 | 2662/1452/736 | 10/10/6 | 280/279/180 | R1 22, R2 515, R3 218, R5 81 | 500 / 1487 |
+
+Stage 3 screens the **after pre-filter** lists (`stage2/results/f2_<anchor>.jsonl`): 476 (5T) and 995
+(two-stage) designs per task. Most pre-filter rejects are R2 (an input on a drain/source/resistor) and R3
+(shorted device).
+
+### Measurement accuracy of the DC gain (D-O20)
+
+| design | verifier | AC@VINN tight | AC@VINP tight | AC@VINP gmin 1e-15 | DC FD tight | max diff | flag |
+|---|---|---|---|---|---|---|---|
+| golden-W-R1 | 80.948 | 80.948 | 80.946 | 80.946 | 80.948 | 0.003 | ok |
+| golden-W-R23 | 85.166 | 85.166 | 85.192 | 85.192 | 85.167 | 0.026 | ok |
+| golden-three_stage_nmc | 89.826 | 89.826 | 89.835 | 89.836 | 89.825 | 0.010 | ok |
+| max-R1-W-R1-s2 | 82.269 | 82.269 | 82.277 | 82.277 | 82.269 | 0.008 | ok |
+| max-R1-W-R1-s3 | 86.988 | 86.988 | 87.010 | 87.010 | 86.989 | 0.021 | ok |
+| max-R1-three_stage_nmc-s2 | 89.734 | 89.734 | 89.757 | 89.757 | 89.733 | 0.023 | ok |
+| max-R1-three_stage_nmc-s3 | 80.419 | 80.419 | 80.430 | 80.430 | 80.419 | 0.010 | ok |
+| max-R23-W-R23-s2 | 80.387 | 80.387 | 80.397 | 80.397 | 80.387 | 0.010 | ok |
+| max-R23-W-R23-s3 | 82.692 | 82.692 | 82.693 | 82.693 | 82.692 | 0.002 | ok |
+| max-R23-W-R23 | 82.433 | 82.433 | 82.433 | 82.433 | 82.435 | 0.002 | ok |
+| max-R23-three_stage_nmc-s2 | 80.498 | 80.498 | 80.506 | 80.506 | 80.498 | 0.009 | ok |
+| max-R23-three_stage_nmc-s3 | 81.020 | 81.020 | 81.023 | 81.023 | 81.020 | 0.003 | ok |
+| max-R23-three_stage_nmc | 80.162 | 80.162 | 80.199 | 80.199 | 80.163 | 0.036 | ok |
+
+13 designs between 80 and 90 dB (all Stage-2 cascode/multi-stage designs ≥ 75 dB): every independent reading
+agrees with the verifier within **0.036 dB**; none is flagged (> 1 dB). gmin (1e-12 → 1e-15) moves the gain by
+≤ 1e-4 dB. No Stage-2 design exceeds ~90 dB, so the > 100 dB numerics caution of the scoping doc is not
+exercised here.
+
+### Stability gate evidence (D-O16)
+
+`stage2/results/stability_gate_check.json`: the 38 pre-gate designs re-measured with the gate agree 38/38 with
+the independent 1,000-point, two-edge diagnostic; 4 designs that read feasible were small-signal unstable
+(golden NMC PM 155.6°; R1 NMC seeds 2/3 at PM 174.2°/137.3° and "89–90 dB"; R23 W-R23 seed 3 PM 93.8°). With the
+gate, the golden NMC re-sized to a stable 89.83 dB / PM 70.4°, and R1 NMC seed 3 ended infeasible (its best
+point was unstable). Loop-eval cost when the gate runs: 17.5 → 34 ms median (the gate runs only on otherwise-
+feasible points).
+
+### V1 re-check after the Stage-2 changes
+
+**PASS.** `gates/v1_determinism.py` re-run at the end of Stage 2 (3 processes, 2 cases × 2,500 evals): digests identical across processes AND identical to the Stage 1 digest `178ad097a49a…` (`gates/results/v1.json` unchanged) — the Stage-2 changes (D-O15, opt-in D-O16) leave specs without `stability` bit-for-bit unchanged. The gated path is deterministic too: `stage2/gated_determinism.py` (three-stage NMC, R1 + gate, seed 3, a run where the gate fires) gives one digest in 3 processes (`f406fff14623…`) and the same parameters as the stored Stage-2 result (`stage2/results/gated_determinism.json`).
+
+### Cost (Stage 2)
+
+Stage 2 CPU: gated sizing runs 3,734 s; pre-gate pass 2,764 s; plus pilots/checks/V1 ≈ 0.2 CPU-h → **≈ 2.0 CPU-h total**. Per-run CPU with the gate (2,500 evals): 5T ≈ 25 s, two-stage ≈ 36 s, telescopic/folded ≈ 55 s,
+three-stage NMC ≈ 80–340 s (median ≈ 140 s), witnesses 95–250 s.
+
+**Stage 3 projection with these F2′ sizes** (gate on; per-eval CPU from the runs above):
+F2′ screens 3 × (476 + 995) × 300 = 1.32 M evals ≈ 5.0 CPU-h; two-edit screens 6 × 500 × 300 = 0.9 M ≈ 3.3 CPU-h;
+frontier (F1 + W + top-20) × 3 seeds × 2,500 per task ≈ 3,500 CPU-s × 6 ≈ 5.9 CPU-h (≈ 1 CPU-h less if F1 and W
+runs are shared between the two anchors of a regime, which the protocol allows since they do not depend on the
+anchor); confirmation ≈ 1.8 CPU-h; two-edit hit re-runs small. **Total ≈ 16–20 CPU-h** (inside the pre-reg's
+20–25 CPU-h; wall ≈ 1.7× CPU per process at the box's load).
+
+### Risks for Stage 3
+
+1. **D-O16 needs a ruling.** The stability gate changes the verifier's stability criterion (D-O10) from PM-only to
+   PM + small-step follower; without it, `max:` runs on three-stage designs exploit RHP-pole designs (the
+   pre-gate R1 preview had NMC "winning" with unstable designs). Recommended: Stage 3 uses the gated specs in
+   `stage2/s2common.py` (`REGIMES`).
+2. **Sizer variance on 25–31-parameter circuits** (R1 NMC 58.5 / 89.7 / infeasible; W-R1 61.0 / 82.3 / 87.0;
+   W-R23 14.5k–20.0k). The 3-seed median at 2,500 evals may decide gaps by luck. The analytic backstop (step 6)
+   should be reported beside every M*; consider asking for a larger witness budget only if pre-registered.
+3. **R1 depth is doubtful by construction:** F1 contains the three-stage NMC, which is in the same (gm·ro)³ gain
+   class as W-R1 and swings ≥ 0.6 Vpp; R1's gap then rests on sizer luck.
+4. **R23 witness currently loses to F1's NMC** (−20 % at the 3-seed median). A different R23 witness (e.g.
+   DFCFC1) or more sizer budget could change this; neither is in the pre-registration.
+5. **R4's ICMR metric is lenient** (see above): the preview gap 0.13 V < 0.15 V.
+6. Taken together the preview points toward **few accepted tasks** (R1 uncertain, R23 and R4 likely not
+   accepted) — i.e. toward STOP or "discuss" — before F2′ and the two-edit check are even run. This is a
+   preview, not the D0 verdict.
+7. F2′ two-edit designs are ≈ 70 % add-MOS + add-MOS (uniform over descriptors, D-O18); rewires/deletes are
+   rare in the sample.

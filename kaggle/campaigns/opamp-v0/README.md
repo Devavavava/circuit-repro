@@ -1,10 +1,10 @@
-# opamp-v0 — campaign-local op-amp verifier (Stage 1 of PREREG-OPAMP-V0-D0)
-
-STATUS: Stage 2 DONE (pending the user's ruling on D-O16) — F1 library + anchors + EVAL-ONLY witnesses built,
-goldens for all 8 circuits feasible, F2′ enumerated (5T 476, two-stage 995 after pre-filter), DC-gain accuracy
-checked (≤ 0.04 dB), V1 re-check PASS. Stage 2 found and closed a stability loophole (multi-stage designs reading
-PM 94–174° while oscillating; small-step gate D-O16, opt-in, on in every Stage-2 spec). NEXT: Stage 3 (D0) —
-not started; see "Stage 2" below for the preview and the risks.
+STATUS: Stage 3 (D0) RUNNING (agent, 2026-10-18). Runner `stage3/d0.py` (results appended per job to
+`stage3/results/jobs.jsonl`, exact-key resumable). Phases in order — re-running a phase skips every cached job:
+`frontier` (witness + F1, seeds 1–3) → `screen R1`, `screen R23`, `screen R4` (F2′ + two-edit, 300 evals) → `top`
+(top-20 F2′ × 3 seeds, top-20 two-edit × seed 1) → `confirm` → `stage3/report.py`. Resume command (from the worktree
+root): `~/.claude/jobs/7cd7ffc3/tmp/run_cr.sh kaggle/campaigns/opamp-v0/stage3/d0.py <phase> 8`; check with
+`... d0.py status`. Done so far: runner committed; `frontier` launched.
+(Stage 2 DONE; D-O16 adopted by Amendment 1.)
 
 Pre-registration: `kaggle/PREREG-OPAMP-V0-D0.md` (frozen at commit `d17423349`). Background:
 `kaggle/SCOPING-CIRCUIT-CLASS.md`. Branch `worktree-externals-gf180`. All code and outputs live in this

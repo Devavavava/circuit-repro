@@ -1,0 +1,221 @@
+"""opamp-v0 sizer: seeded deterministic CMA-ES over W/L/R/C/IREF with matched groups.
+
+The optimizer is REUSED BY IMPORT, unmodified: `lna/null_sizer.py::run_cmaes`
+(Hansen purecmaes defaults, [0,1]^n box by clipping, restart on stagnation, numpy
+PCG64 seeded) driven through `null_sizer._Budget` (the repo's one-tick-per-eval
+counter that hard-stops on the budget). This is the same CMA-ES the LNA path's
+`kaggle/bench_anchor_prep.smoke_run` calls; `smoke_run` itself cannot be driven for
+an op-amp (its measurement is the LNA S-parameter path), so only the optimizer and
+the counter are reused (README D-O1).
+
+Objective modes (minimised; CMA-ES is rank-based, so only the order matters):
+  margin   feasible iff every hard constraint is met (and the design is valid);
+           infeasible  f = 1 + sum of normalized violations,
+           feasible    f = -1 - worst normalized margin  (maximise the worst margin)
+  max:M    maximise metric M subject to the hard constraints;
+           infeasible  f = 1 + sum of normalized violations (as above),
+           feasible    f = -1 - (pi/2 + atan(M))           (monotone in M, < -1)
+  invalid designs (testbench flags, testbench.INVALID_FLAGS) rank below every valid
+  design: f = 100 + 10 * n_flags + sum_viol / 10; a failed simulation is 1e3
+  (lna/size.SIM_FAIL_PENALTY, which _Budget counts as a failure).
+Normalized margin of a constraint (repo convention, lna/datastore.margins_for):
+  min bound (val - min)/scale, max bound (max - val)/scale, scale = max(|limit|, 1).
+"""
+import math
+import os
+import resource
+import sys
+import time
+
+from . import dialect as DL
+from . import testbench as TB
+
+sys.path.insert(0, os.path.join(TB.REPO, "lna"))
+import null_sizer as NS   # noqa: E402  (read-only reuse: run_cmaes, _Budget, _BudgetOut)
+
+PROFILE = "opamp-v0"
+SIM_FAIL = NS.S.SIM_FAIL_PENALTY      # 1e3
+RANGES = {                             # (lo, hi) SI, log-scaled
+    "W": (0.5e-6, 50e-6),
+    "L": (45e-9, 1e-6),
+    "R": (10.0, 100e3),
+    "C": (0.05e-12, 20e-12),
+    "IREF": (1e-6, 100e-6),
+}
+DEFAULT_EVALS = 2500
+VIOL_CAP = 98.0
+
+
+def tb_from_spec(spec):
+    vdd = float(spec.get("vdd", TB.VDD_DEFAULT))
+    return {"vdd": vdd, "vcm": float(spec.get("vcm", vdd / 2.0)),
+            "cl_pf": float(spec.get("cl_pf", 2.0)), "temp_c": float(spec.get("temp_c", 27.0))}
+
+
+def decode(x, names, space):
+    """x in [0,1]^n -> {param: float}; values are rounded to the 6 significant digits
+    the deck writes, so the reported parameters ARE the simulated ones."""
+    p = {}
+    for xi, name in zip(x, names):
+        lo, hi = RANGES[space[name]]
+        xi = min(max(float(xi), 0.0), 1.0)
+        v = 10 ** (math.log10(lo) + xi * (math.log10(hi) - math.log10(lo)))
+        p[name] = float(TB.fmt(v))
+    return p
+
+
+def encode(params, names, space):
+    x = []
+    for name in names:
+        lo, hi = RANGES[space[name]]
+        v = min(max(float(params[name]), lo), hi)
+        x.append((math.log10(v) - math.log10(lo)) / (math.log10(hi) - math.log10(lo)))
+    return x
+
+
+def _scale(c):
+    vals = [abs(c[k]) for k in ("min", "max") if k in c]
+    return max(max(vals) if vals else 1.0, 1.0)
+
+
+def margins(spec, m):
+    """{constraint metric: signed normalized margin (>= 0 iff met), None if missing}."""
+    out = {}
+    for name, c in spec.get("constraints", {}).items():
+        val = m.get(name) if m else None
+        if val is None:
+            out[name] = None
+            continue
+        s = _scale(c)
+        sl = []
+        if "min" in c:
+            sl.append((val - c["min"]) / s)
+        if "max" in c:
+            sl.append((c["max"] - val) / s)
+        out[name] = min(sl)
+    return out
+
+
+def violation(spec, m):
+    tot = 0.0
+    for name, mg in margins(spec, m).items():
+        if mg is None:
+            tot += 1.0
+        elif mg < 0:
+            tot += min(-mg, 100.0)
+    return tot
+
+
+def feasible(spec, m):
+    if not m or not m.get("valid"):
+        return False
+    mg = margins(spec, m)
+    return all(v is not None and v >= 0 for v in mg.values())
+
+
+def objective_value(spec, m, objective):
+    if m is None or "sim_fail" in m.get("flags", []):
+        return SIM_FAIL
+    viol = violation(spec, m)
+    if not m.get("valid"):
+        nf = sum(1 for f in m["flags"] if f in TB.INVALID_FLAGS)
+        return 100.0 + 10.0 * nf + min(viol, VIOL_CAP) / 10.0
+    if viol > 0:
+        return 1.0 + min(viol, VIOL_CAP)
+    if objective == "margin":
+        mg = [v for v in margins(spec, m).values() if v is not None]
+        worst = min(mg) if mg else 0.0
+        return -1.0 - min(worst, 1e6)
+    metric = objective.split(":", 1)[1]
+    val = m.get(metric)
+    if val is None or not math.isfinite(val):
+        return 1.0 + 1.0
+    return -1.0 - (math.pi / 2 + math.atan(val))
+
+
+def _needs(spec, objective):
+    keys = set(spec.get("constraints", {}))
+    if objective.startswith("max:"):
+        keys.add(objective.split(":", 1)[1])
+    icmr = bool(keys & {"icmr_v", "icmr_lo", "icmr_hi"})
+    full = bool(keys & {"cmrr_db", "psrr_db"})
+    slew = bool(keys & {"slew_vus", "slew_rise_vus", "slew_fall_vus"})
+    return icmr, full, slew
+
+
+def _cpu():
+    ch = resource.getrusage(resource.RUSAGE_CHILDREN)
+    return time.process_time() + ch.ru_utime + ch.ru_stime
+
+
+def evaluate(netlist_text, params, spec, full=True):
+    """Measure one sized design. params: {param: float} (missing IREF etc. -> KeyError)."""
+    devs = DL.parse(netlist_text)
+    ok, why = DL.prefilter(devs)
+    if not ok:
+        return {"valid": False, "flags": ["prefilter"], "prefilter": why}
+    icmr, fl, slew = _needs(spec, "margin")
+    return TB.measure(devs, params, tb_from_spec(spec), icmr=True if full else icmr,
+                      full=full or fl, slew=slew)
+
+
+def size(netlist_text, spec, seed=1, evals=DEFAULT_EVALS, objective="margin", x0=None,
+         keep_points=False):
+    """Size `netlist_text` (opamp-v0 dialect) against `spec`.
+
+    spec: {"vdd", "vcm", "cl_pf", "temp_c" (testbench; defaults 1.1, vdd/2, 2.0, 27),
+           "constraints": {metric: {"min": a} | {"max": b} | both}}
+    objective: "margin" or "max:<metric>".
+    Returns a dict: feasible, valid, metrics (full re-measure of the best point),
+    margins, worst_margin, target (max mode), params, secs, cpu_s, evals, n_fail,
+    best_eval, profile, prefilter, netlist (canonical), objective, seed, trace."""
+    t0, c0 = time.time(), _cpu()
+    if not (objective == "margin" or objective.startswith("max:")):
+        raise ValueError("objective must be 'margin' or 'max:<metric>'")
+    devs = DL.parse(netlist_text)
+    canon = DL.format_netlist(devs)
+    ok, why = DL.prefilter(devs)
+    base = {"profile": PROFILE, "objective": objective, "seed": seed, "budget": evals,
+            "netlist": canon, "prefilter": {"ok": ok, "why": why}}
+    if not ok:
+        base.update(feasible=False, valid=False, metrics=None, margins=None, worst_margin=None,
+                    target=None, params=None, evals=0, n_fail=0, best_eval=None,
+                    secs=time.time() - t0, cpu_s=_cpu() - c0, infeasible_reason="prefilter")
+        return base
+    tb = tb_from_spec(spec)
+    space = DL.param_space(devs)
+    names = list(space)
+    icmr, fl, slew = _needs(spec, objective)
+    points = []
+
+    def obj(x):
+        p = decode(x, names, space)
+        m = TB.measure(devs, p, tb, icmr=icmr, full=fl, slew=slew)
+        points.append(([float(v) for v in x], m))
+        return objective_value(spec, m, objective)
+
+    bud = NS._Budget(obj, evals, points)
+    diag = {}
+    try:
+        NS.run_cmaes(bud, len(names), seed, diag=diag, x0=x0)
+    except NS._BudgetOut:
+        pass
+    bx, _bm = bud.best()
+    params = decode(bx, names, space) if bx is not None else None
+    full_m = TB.measure(devs, params, tb, icmr=True, full=True, slew=True) if params else None
+    mg = margins(spec, full_m) if full_m else None
+    vals = [v for v in (mg or {}).values() if v is not None]
+    feas = feasible(spec, full_m)
+    target = None
+    if objective.startswith("max:") and full_m:
+        target = full_m.get(objective.split(":", 1)[1])
+    base.update(
+        feasible=feas, valid=bool(full_m and full_m.get("valid")), metrics=full_m, margins=mg,
+        worst_margin=(min(vals) if vals and len(vals) == len(mg) else None),
+        target=target if feas else None, target_raw=target,
+        params=params, evals=bud.n, n_fail=bud.n_fail, best_eval=bud.best_i,
+        best_obj=bud.best_f, cmaes=diag, trace=bud.trace,
+        secs=time.time() - t0, cpu_s=_cpu() - c0)
+    if keep_points:
+        base["points"] = points
+    return base

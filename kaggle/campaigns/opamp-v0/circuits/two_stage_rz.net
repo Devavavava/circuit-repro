@@ -1,0 +1,11 @@
+# Two-stage Miller OTA + nulling resistor (Stage-2 anchor): AutoCkt's two-stage with Rz in series with Cc.
+PMOS M1a n4 n4 VDD VDD
+PMOS M1b n5 n4 VDD VDD
+NMOS M2a n4 VINN n3 VSS
+NMOS M2b n5 VINP n3 VSS
+NMOS M3 n3 IREF VSS VSS
+NMOS M4 IREF IREF VSS VSS
+PMOS M5 VOUT n5 VDD VDD
+NMOS M6 VOUT IREF VSS VSS
+C Cc n5 nz
+R Rz nz VOUT

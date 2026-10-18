@@ -1,0 +1,13 @@
+# AutoCkt's two-stage Miller op-amp (eval_engines two_stage_opamp deck), transcribed:
+# mp1/mp2 -> M1a/M1b (mirror load), mn1/mn2 -> M2a/M2b (input pair; mn2 gate = in+),
+# mn3 -> M3 (tail), mn4 -> M4 (bias diode fed by ibias = IREF), mp3 -> M5 (CS second stage),
+# mn5 -> M6 (second-stage sink), cc -> Cc. No nulling resistor.
+PMOS M1a n4 n4 VDD VDD
+PMOS M1b n5 n4 VDD VDD
+NMOS M2a n4 VINN n3 VSS
+NMOS M2b n5 VINP n3 VSS
+NMOS M3 n3 IREF VSS VSS
+NMOS M4 IREF IREF VSS VSS
+PMOS M5 VOUT n5 VDD VDD
+NMOS M6 VOUT IREF VSS VSS
+C Cc n5 VOUT

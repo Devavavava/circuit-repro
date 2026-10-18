@@ -63,6 +63,26 @@ slack is read from a run that optimised something else)
 6. **Verdict:** **GO** iff ≥ 3 of 4 tasks accepted AND ≥ 2 of them not "≤ 2 edits"; **STOP** iff ≤ 1 accepted;
    else discuss. Also report the analytic ceilings and per-seed spreads beside every number.
 
+## 5b. Additions from the D0 result (D0 = STOP, 0/6; `opamp-v0` README "Stage 3 — D0 RESULT", 20955be83)
+
+These are the D0-dependent changes §7 anticipated, plus two verifier issues D0 exposed. Each needs the user's
+ruling before freeze.
+
+1. **Robustness gate (closes the single-transistor bias-feedback designs).** In D0 one added transistor on the
+   two-stage anchor (mostly feeding back through the IREF/bias network, apparently positive feedback) matched or
+   beat every witness: 80–87 dB on R1, beat W-R23 on FOM and W-R4 on ICMR. Such designs are typically fragile and
+   the verifier never tests that. Proposed gate on every final result (and in-loop on otherwise-feasible points,
+   like D-O16): the design must stay feasible at VDD ±10 %, −40/+125 °C, and ±10 mV `delvto` mismatch on each
+   matched pair (5–7 corner evaluations). **Pre-D1 diagnostic (no verdict, ~0.5 CPU-h):** run this gate on D0's
+   top single-edit designs and on the witnesses, to see whether it separates them before the gate is frozen.
+2. **Determinism under load.** D0 found a 60 s wall-clock ngspice timeout that fires under box load and changes the
+   CMA-ES path (R23 NMC seed 1: 6,802 in D0 vs 18,146 alone; 41/7,965 jobs had a simulation failure). Fix before
+   D1: a CPU-time (not wall-clock) limit, or retry-once-on-timeout with the same inputs; re-run gate V1 under an
+   artificially loaded box.
+3. **Seeds:** §7(b) is triggered — sizer spread decided D0's only passing gap (NMC R1 max:gain 58.5 / 89.7 /
+   infeasible). Use **5 seeds** for every frontier and confirmation run, and the 10,000-eval budget-robustness step
+   of §5.3 for the top references.
+
 ## 6. If GO: what comes next (not part of D1)
 
 bench-op-v1 = many specs around C1–C4 (spec grid × anchors), tiered like bench-v2 (library / single-edit / deep),

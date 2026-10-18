@@ -1,9 +1,7 @@
-STATUS: Stage 3 (D0) RUNNING (agent, 2026-10-18). Runner `stage3/d0.py` (results appended per job to
-`stage3/results/jobs.jsonl`, exact-key resumable). Phases in order — re-running a phase skips every cached job:
-`frontier` (witness + F1, seeds 1–3) → `screen R1`, `screen R23`, `screen R4` (F2′ + two-edit, 300 evals) → `top`
-(top-20 F2′ × 3 seeds, top-20 two-edit × seed 1) → `confirm` → `stage3/report.py`. Resume command (from the worktree
-root): `~/.claude/jobs/7cd7ffc3/tmp/run_cr.sh kaggle/campaigns/opamp-v0/stage3/d0.py <phase> 8`; check with
-`... d0.py status`. Done so far: `frontier` (1.80 CPU-h, calibration step 0 in all regimes), all screens, `top` (17.53 CPU-h total; gap passes the minimum only for ota5t/R1). Running: `confirm` (18 jobs, ota5t/R1 only).
+STATUS: Stage 3 (D0) DONE (2026-10-19). **Verdict STOP: 0/6 tasks accepted.** 5 of 6 tasks fail the minimum
+gap. The sixth (5T/R1) fails confirmation: F1's three-stage NMC is feasible 3/3 at the confirmation spec. 17.87
+CPU-h. See "Stage 3 — D0 RESULT" at the end, `stage3/d0-tables.md` and `stage3/d0-summary.json`. Runner
+`stage3/d0.py` (all phases cached in `stage3/results/jobs.jsonl`; re-running any phase launches nothing).
 (Stage 2 DONE; D-O16 adopted by Amendment 1.)
 
 Pre-registration: `kaggle/PREREG-OPAMP-V0-D0.md` (frozen at commit `d17423349`). Background:
@@ -25,6 +23,7 @@ card and VDD, `lna/null_sizer.py` for CMA-ES and the eval counter).
 | `witnesses/` | **EVAL-ONLY** witnesses W-R1, W-R23 (AFFC from AnalogGym), W-R4 + `README.md` (mapping table) |
 | `stage2/*.py` | Stage 2 drivers: `s2common` (circuits, regime specs, golden specs, job runner), `run_stage2` (all sizing jobs), `goldens`, `preview_seeds`, `f2_space`, `accuracy`, `stability_check`, `stability_gate_check`, `report` (README tables) |
 | `stage2/results/` | one JSON per sizing job (`golden-*`, `max-<R>-*`), `f2_<anchor>.jsonl` (pre-filtered F2′ candidates), `f2_<anchor>_counts.json`, `two_edit_<anchor>_s1.jsonl`, `accuracy.json`, `stability_gate_check.json`, `table_all.json`; `pre_stability/` = the first (pre-gate) pass, kept as evidence for D-O16 |
+| `stage3/` | Stage 3 (D0): `d0common.py` (tasks, calibrated specs, job keys, disk-robust store, throttled pool), `d0.py` (phases frontier/screen/top/confirm/analyse/status), `ceiling.py` (step-6 analytic ceiling), `report.py` (→ `d0-tables.md`, `d0-summary.json`); `results/jobs.jsonl` (every D0 sizing run), `results/ceiling.json` |
 | `_scratch/` | gitignored default work dir (set `OPAMP_V0_TMP` to put ngspice temp files elsewhere) |
 
 Run (from the worktree root, through the env wrapper so ngspice-47 and numpy are on the path):
@@ -225,6 +224,44 @@ s = max(|limit|, 1).
   DC sweep aborted part-way, the CM and supply AC analyses then did not run, and `wrdata` wrote the previous
   real-valued plot into `cm.txt`/`ps.txt`. CMRR/PSRR (report-only) are now left unset unless the file holds the
   one complex row. The path could never complete before, so no completed result changes; the job is re-run.
+
+- **D-O24 Shared frontier runs.** F1 and witness `max:M` runs depend only on the regime, so each (circuit,
+  regime spec, seed) is run once and used by both anchors of the regime (exact-key cache in
+  `stage3/results/jobs.jsonl`; the key hashes canonical netlist, constraints, CL, stability, objective, seed,
+  evals). The same key sharing applies to any identical confirmation job.
+- **D-O25 Top-20 ranking of a screen** (F2′ and two-edit alike): feasible designs first by M (desc), then
+  infeasible ones by the sizer's best loop objective (closest to feasibility), ties by enumeration index.
+- **D-O26 Reference set and gap.** max_d M*(d) is taken over the designs that have a 3-seed M*: F1 (5) ∪ top-20
+  F2′ of the task's anchor; the other F2′ designs only have the 300-eval screen. Top-5 references = the top 5 of
+  that set by M* (ties: mean of feasible seeds, then name). R23's minimum gap = 25 % of max_d M*(d). (Unused
+  edge rule: all references infeasible ⇒ G = +∞, flagged; did not occur.)
+- **D-O27 Analytic ceiling.** gm/gds of one device, W 10 µm, L 1 µm, bptm45, 27 °C, grid |Vgs| 0–1.1 V (10 mV)
+  × |Vds| 0.05–1.1 V (50 mV), |id| ≥ 1 nA (`stage3/ceiling.py`): best PMOS 119.8 (41.57 dB, Vsg 0.26 V,
+  Vsd 1.05 V); NMOS 57.9 (35.26 dB). Ceiling = k·41.57 dB, with k = number of gm·ro factors in the ideal gain
+  (a cascoded stage counts 2, not 1 — the literal "stages" would undercount cascodes and would not be a
+  ceiling): 5T 1, two-stage 2, telescopic 2, folded 2, NMC 3, W-R1 3, W-R23 4, W-R4 3; an F2′ / two-edit design
+  gets its anchor's k plus one per added MOS (an upper bound). For R23/R4 (M is not a gain) the ceiling is
+  reported as a gain ceiling against the regime's gain floor.
+- **D-O28 Confirmation details.** 2,500 evals, margin objective, spec = hard constraints + `M ≥ max_d M*(d) +
+  G/2`. "Worst normalized margin ≤ −G/4 in M's normalized units" = the run's worst margin (min over all
+  constraints at the full re-measure of its best point) ≤ −(G/4)/max(|limit|, 1), required at each of the 3
+  seeds. Confirmation runs only for tasks that pass the minimum gap (step 2: below it ⇒ not accepted).
+- **D-O29 Two-edit check.** The Stage-2 seed-1 sample (500 per anchor) is screened under each regime of the
+  anchor; the top 20 of each screen (D-O25) are re-run at 2,500 evals × seed 1 — mirroring step 1's top-20 rule
+  (the pre-reg does not say which screened designs get the 2,500-eval run). This is G-independent and was run for
+  all 6 tasks; the label exists only where a threshold exists (gap passed).
+- **D-O30 Conduct and a determinism caveat.** ≤ 8 worker processes (a worker above rank 4 waits while
+  load1 > 22; load stayed ≈ 11–14), D32-style append (fsync, torn-line repair, ENOSPC back-off, no launch below
+  5 GB free), CPU guard at 38 CPU-h. **Caveat:** of the 30 D0 jobs identical to Stage-2 preview jobs, 29 are
+  bit-identical; R23 three-stage NMC seed 1 is not (D0 6,802 vs Stage 2 18,146 MHz·pF/mA). Re-run alone on a
+  quiet box it reproduces Stage 2 exactly (18,146, 0 sim failures); the D0 run had 1 simulation failure, most
+  likely the 60 s wall-clock ngspice timeout firing under load, which changes the CMA-ES trajectory. So results
+  are deterministic only when no simulation hits the wall-clock timeout. 41 of 7,965 D0 jobs had ≥ 1 sim failure
+  (most are two-stage F2′/two-edit screens). The affected median (R23 NMC M* 18,997) is the same either way, and
+  the verdict does not depend on it (see the Stage 3 result).
+- **D-O31 Incident.** A duplicate `screen R1,R23` run was started by mistake without a log and killed after about
+  1 min; killed workers leave no record (results are appended by the parent only), and the exact-key resume
+  re-ran everything that was missing. No result is affected.
 
 ## Validation gates (all PASS)
 
@@ -467,3 +504,47 @@ anchor); confirmation ≈ 1.8 CPU-h; two-edit hit re-runs small. **Total ≈ 16�
    preview, not the D0 verdict.
 7. F2′ two-edit designs are ≈ 70 % add-MOS + add-MOS (uniform over descriptors, D-O18); rewires/deletes are
    rare in the sample.
+
+## Stage 3 — D0 RESULT
+
+**Verdict: STOP** — 0 of 6 tasks accepted (pre-reg step 5: STOP iff ≤ 1 accepted). Run exactly as frozen
+(PREREG Stage 3 + Amendment 1: stability gate on in every spec); interpretations D-O24…D-O31; one verifier crash
+guard D-O23. Calibration ladder not needed: every witness was feasible at the hard constraints at 3/3 seeds
+(step 0). Full tables: `stage3/d0-tables.md`; machine-readable: `stage3/d0-summary.json`; every sizing run:
+`stage3/results/jobs.jsonl` (7,965 jobs). `python lna/ref/check_ref.py`: GREEN at the end.
+
+| task | witness M* (seeds 1/2/3) | best reference (M*, seeds) | G vs minimum | confirmation | two-edit | ceilings W / ref (dB) | accepted |
+|---|---|---|---|---|---|---|---|
+| 5T / R1 (dB) | 82.27 (61.02 / 82.27 / 86.99) | F1 two-stage 63.50 (63.50 / 59.48 / 64.37) | +18.77 ≥ 6 ✓ | **fails**: W 3/3 feasible at gain ≥ 72.89, but F1 three-stage NMC feasible 3/3 (77.6 / 87.4 / 78.4 dB); other 4 refs meet the rule | not "≤ 2 edits" (best 41.3 dB) | 124.7 / 83.1 | no |
+| two-stage / R1 (dB) | 82.27 | F2′ `addMOS NMOS IREF n5 n4` 79.86 (79.86 / 86.92 / 79.63) | +2.41 < 6 ✗ | not run | — | 124.7 / 124.7 | no |
+| 5T / R23 (MHz·pF/mA) | 15,272 (14,502 / 15,272 / 19,953) | F1 three-stage NMC 18,997 (6,802 / 20,101 / 18,997) | −3,725 (−19.6 %) < +25 % ✗ | not run | — | 166.3 / 124.7 | no |
+| two-stage / R23 | 15,272 | F2′ `addMOS NMOS VOUT n4 IREF` 19,205 (11,291 / 19,205 / 28,961) | −3,934 (−20.5 %) ✗ | not run | — | 166.3 / 124.7 | no |
+| 5T / R4 (V) | 0.963 (0.970 / 0.913 / 0.963) | F1 three-stage NMC 0.873 (0.873 / 0.899 / 0.823) | +0.090 < 0.15 ✗ | not run | — | 124.7 / 124.7 | no |
+| two-stage / R4 (V) | 0.963 | F2′ `addMOS PMOS VDD VOUT IREF` 0.969 (0.964 / 0.969 / 0.969) | −0.006 ✗ | not run | — | 124.7 / 124.7 | no |
+
+**Reading.**
+- The verdict does not depend on F2′, the two-edit check or the one non-reproducible run (D-O30). With F1 alone
+  as references: R23's witness loses to F1's NMC (−20 %), R4's gap is 0.09 V vs NMC (< 0.15 V), and both R1 tasks
+  fail confirmation because F1's NMC is feasible 3/3 at the R1 confirmation spec.
+- **Sizer spread decided the one gap that passed.** In R1 the NMC's `max:gain` M* is 58.51 dB (seed 1 stuck at
+  58.5, seed 2 89.7, seed 3 infeasible), yet the margin objective at "gain ≥ 72.89 dB" finds it feasible at all 3
+  seeds. The frontier step (median of 3 `max:` runs at 2,500 evals) underestimated a 25-parameter reference;
+  confirmation caught it. W-R1 itself spans 61.0–87.0 dB across seeds.
+- **Single edits to the two-stage anchor reach the witnesses.** One added NMOS from the bias/diode net
+  (`IREF n5 n4`) gives 79.9–86.9 dB under R1 (the anchor reaches 63.5); one added NMOS (`VOUT n4 IREF`) meets
+  80 dB at 200 pF and beats W-R23 on R23's FOM; one added PMOS beats W-R4 on ICMR. Most look like positive
+  feedback through the IREF/bias network. They were not checked for robustness (corners, mismatch), which this
+  verifier does not measure.
+- **Backstop (step 6):** in R1 every reference's analytic ceiling (two-stage 83.1 dB, NMC 124.7 dB) is at or above
+  the witness M* (82.3 dB), so no R1 gap would have been forced by the ceiling. Share of the dB ceiling reached by M*:
+  W-R1 66 %, two-stage 76 %, NMC 47 % (its best seed, 89.7 dB, 72 %). R23/R4 gain floors (80 / 40 dB) are below every relevant ceiling.
+- Two-edit screens (for the record): best 2,500-eval results 41.3 dB (5T/R1), 73.1 dB (two-stage/R1), 1,265
+  (5T/R23), 14,960 (two-stage/R23), 0.894 V (5T/R4), 0.972 V (two-stage/R4).
+
+**CPU:** 17.87 CPU-h (frontier 1.80, F2′ screens 5.66, two-edit screens 4.10, top-20 F2′ 4.22, top-20 two-edit
+1.75, confirmation 0.34), plus ≈ 0.1 CPU-h diagnostics. That is inside the 16–20 CPU-h projection and the 40 CPU-h
+line. Wall time ≈ 4.5 h at 8 processes. Determinism: 29 of 30 runs that coincide with Stage-2 preview runs are
+bit-identical; the exception and its cause are in D-O30.
+
+Reproduce (from the worktree root): `run_cr.sh kaggle/campaigns/opamp-v0/stage3/d0.py frontier|screen <R>|top|confirm`
+(all cached → no runs), `stage3/ceiling.py`, `stage3/report.py`.

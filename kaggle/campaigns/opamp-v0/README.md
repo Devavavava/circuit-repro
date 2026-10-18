@@ -1,7 +1,10 @@
 # opamp-v0 — campaign-local op-amp verifier (Stage 1 of PREREG-OPAMP-V0-D0)
 
-STATUS: Stage 1 DONE — verifier built, gates V1–V5 all PASS (results below). NEXT: Stage 2 (library, anchors,
-witnesses [EVAL-ONLY], widened F2′ space, goldens) — not started.
+STATUS: Stage 2 DONE (pending the user's ruling on D-O16) — F1 library + anchors + EVAL-ONLY witnesses built,
+goldens for all 8 circuits feasible, F2′ enumerated (5T 476, two-stage 995 after pre-filter), DC-gain accuracy
+checked (≤ 0.04 dB), V1 re-check PASS. Stage 2 found and closed a stability loophole (multi-stage designs reading
+PM 94–174° while oscillating; small-step gate D-O16, opt-in, on in every Stage-2 spec). NEXT: Stage 3 (D0) —
+not started; see "Stage 2" below for the preview and the risks.
 
 Pre-registration: `kaggle/PREREG-OPAMP-V0-D0.md` (frozen at commit `d17423349`). Background:
 `kaggle/SCOPING-CIRCUIT-CLASS.md`. Branch `worktree-externals-gf180`. All code and outputs live in this
@@ -17,6 +20,11 @@ card and VDD, `lna/null_sizer.py` for CMA-ES and the eval counter).
 | `opamp_v0/sizer.py` | `size()` / `evaluate()`: seeded CMA-ES over W/L/R/C/IREF, objective modes `margin` and `max:M` |
 | `circuits/*.net` | `ota5t.net` (5T OTA), `two_stage_autockt.net` (AutoCkt's two-stage, no Rz), `two_stage_rz.net` (two-stage Miller + Rz anchor) |
 | `gates/v1..v5_*.py`, `gates/common.py` | the validation gates; results in `gates/results/v{1..5}.json` |
+| `opamp_v0/edits.py` | Stage 2: F2′ single-edit enumerator, canonical form (dedupe), two-edit composer |
+| `circuits/lib/*.net` | Stage 2 F1 library: `ota5t`, `two_stage_rz` (the anchors; identical to `circuits/*.net`), `telescopic`, `folded_cascode`, `three_stage_nmc` |
+| `witnesses/` | **EVAL-ONLY** witnesses W-R1, W-R23 (AFFC from AnalogGym), W-R4 + `README.md` (mapping table) |
+| `stage2/*.py` | Stage 2 drivers: `s2common` (circuits, regime specs, golden specs, job runner), `run_stage2` (all sizing jobs), `goldens`, `preview_seeds`, `f2_space`, `accuracy`, `stability_check`, `stability_gate_check`, `report` (README tables) |
+| `stage2/results/` | one JSON per sizing job (`golden-*`, `max-<R>-*`), `f2_<anchor>.jsonl` (pre-filtered F2′ candidates), `f2_<anchor>_counts.json`, `two_edit_<anchor>_s1.jsonl`, `accuracy.json`, `stability_gate_check.json`, `table_all.json`; `pre_stability/` = the first (pre-gate) pass, kept as evidence for D-O16 |
 | `_scratch/` | gitignored default work dir (set `OPAMP_V0_TMP` to put ngspice temp files elsewhere) |
 
 Run (from the worktree root, through the env wrapper so ngspice-47 and numpy are on the path):
@@ -141,6 +149,76 @@ s = max(|limit|, 1).
 - **D-O13 V1** checks two cases (swing path in-loop and ICMR path in-loop) rather than one.
 - **D-O14 Invalid ranking / violation cap.** Per-constraint violation capped at 100 normalized units in the
   objective; invalid designs rank below every valid one (graded by flag count).
+- **D-O15 Swing crash guard (bug fix).** `swing_metrics` raised `math domain error` when no
+  point of the Vsw sweep had positive finite-difference gain (a 300-eval pilot hit it). Now
+  such a design is flagged `swing_empty` + `outcm_outside_swing_window` (invalid). The path
+  could never complete before, so no Stage 1 result changes (V1 re-run identical, below).
+- **D-O16 Small-step stability gate (verifier extension, closes a V4(b) gap).** Stage 2 found
+  multi-stage designs that read a healthy PM at the true unity crossing (94°–174°) yet
+  oscillate as followers even for a 1 mV step (ripple 1.6–57× the step): right-half-plane poles
+  inside the amplifier (local loops of NMC/AFFC) are invisible to an open-loop Bode PM. The
+  sizer exploited it in `max:` mode (R1: NMC seeds 2 and 3 at "88+ dB"; R23: W-R23 seed 3;
+  the golden NMC). Fix, opt-in per spec (`"stability": "ss_tran"`; absent ⇒ Stage 1
+  behaviour bit-for-bit): a true follower (VINN tied to VOUT), one 2 mV input step at 2τ,
+  window 60τ (τ = 1/(2π·UGF), ≥ 100 ns), max step τ/4; flag `ss_unstable` (invalid) iff the
+  peak-to-peak ripple over the last 30 % of the window > 5 % of the step, or the settled
+  change is off the step by > 20 %, or the transient does not complete. In the loop it runs
+  only on points that are otherwise valid AND meet every constraint (lazy; infeasible points
+  cost nothing extra); the final full re-measure always runs it. Validation
+  (`stage2/stability_gate_check.py`, `results/stability_gate_check.json`): on all 38
+  pre-gate Stage-2 designs it agrees 38/38 with the independent diagnostic
+  (`stage2/stability_check.py`: 1 mV two-edge step, 1,000 points); stable designs show
+  ripple ≤ 0.019, unstable ones ≥ 1.6. **Every Stage-2 spec (goldens, regimes) carries it;
+  Stage 3 should too** — this is the pre-reg's V4(b) intent ("a deliberately unstable
+  design reads … 'unstable'"), but it is a change to the verifier's stability criterion
+  (D-O10) and so is flagged for the user. Pre-gate results are archived in
+  `stage2/results/pre_stability/`. The large-signal ±0.1 V transient stays report-only.
+- **D-O17 F2′ enumeration (interpretation).** Nets offered: every net of the anchor plus VDD and VSS, in a
+  fixed order (VINP VINN VOUT VDD VSS IREF, then internal nets sorted). *Add R/C*: every unordered pair of
+  existing nets (no new net). *Add MOS*: NMOS then PMOS, D/G/S each on an existing net or on the one new net
+  `nx1` (the new net may sit on 1–3 terminals; on the gate only it is floating and the pre-filter drops it);
+  bulk = default rail; name `MX1` (own matched group, so +2 sizing parameters). *Delete*: any one element
+  (deleting one member of a matched pair leaves the other in its group). *Re-wire*: one of D/G/S (MOS) or P/N
+  (R/C) of one element to any other existing net or to `nx1`; bulk is not a re-wire target (a MOS with bulk on
+  its source keeps bulk = source). The raw count includes D = S additions and D/S mirror images; **dedupe** is
+  by a canonical form = the circuit up to renaming of internal nets and devices, keeping the matched-group
+  partition (it changes the sizing problem), with MOS D/S unordered when bulk is the rail (BSIM4 is S/D
+  symmetric) and R/C terminals unordered; the canonical labeling is the minimum over all internal-net
+  permutations inside colour-refinement classes (exact for these sizes; a > 40,320-permutation fallback to the
+  refined order is never reached: the largest permutation count over all F2′ candidates and two-edit designs is 2). The first descriptor in
+  enumeration order represents each unique design; designs equal to the anchor are dropped (none occur). The
+  pre-filter is the Stage 1 one, unchanged. Checks (all pass): enumeration deterministic, canonical key
+  invariant under random renaming of nets/devices and line order (anchor + every 50th candidate).
+- **D-O18 Two-edit composer.** `edits.two_edit_sample(text, n, seed)`: `random.Random(seed)`; edit 1 uniform
+  over the anchor's raw descriptors, edit 2 uniform over the raw descriptors of the intermediate (new names
+  `MX2/RX2/CX2`, new net `nx2`); the intermediate need not pass the pre-filter (deep changes go through broken
+  states), the result must; designs equal to the anchor or to any single-edit design (canonical form) and
+  repeats are rejected and redrawn. Uniform-over-descriptors weights edit kinds by their descriptor counts (≈ 70 %
+  of kept designs are add-MOS + add-MOS). `stage2/results/two_edit_<anchor>_s1.jsonl` holds the 500 designs of
+  seed 1 (deterministic; checked by re-drawing).
+- **D-O19 Library/witness design choices and golden specs.** In-netlist bias for the cascode circuits is one
+  "R-shifted diode" cell: `IREF → Rb → n1` with the NMOS diode at `n1` (tail/sink mirror gate) and the NMOS
+  cascode gate on the `IREF` net (= Vgs + IREF·Rb); an NMOS copy of the reference into a PMOS diode `pa` (PMOS
+  source gate) with `Rp` dropping the PMOS cascode gate `vbp` below `pa`. The telescopic uses a high-swing
+  PMOS cascode mirror (top gates on the diode-side cascode drain). The NMC has a non-inverting second stage
+  (PMOS CS → NMOS diode → mirror) so both Miller loops are negative. The anchors are the Stage 1 files copied
+  unchanged into `circuits/lib/`. The golden **demonstration specs** were chosen by the Stage-2 builder after a
+  300-eval max-gain pilot of every circuit (not D0 specs): the base UGF/PM/Idd constraints at CL 2 pF plus one
+  circuit-appropriate requirement (table below).
+- **D-O20 Measurement-accuracy check (added by the parent).** `stage2/accuracy.py`: for every sized Stage-2
+  design of a cascode/multi-stage circuit with verifier gain ≥ 75 dB, four independent low-frequency readings —
+  same fixture with tight tolerances (reltol 1e-6, abstol 1e-15, vntol 1e-12); AC injected at VINP instead of
+  VINN; the latter with gmin 1e-15; and a DC finite difference (Vsw ± 2 mV in 0.25 mV steps, least-squares slope
+  of ΔVOUT vs Vid computed inside ngspice). Flag if any differs from the verifier by > 1 dB.
+- **D-O21 W-R23 transcription.** AnalogGym `HoiLee_AFFC_Pin_3`; one matched group per (AnalogGym W/L variable,
+  multiplier); the ideal sink I0 out of the PMOS bias diode becomes IREF + a 1:1 NMOS mirror (+2 devices);
+  AnalogGym's dummy branch (xm2/xm14/xm19) dropped; no ideal bias voltages to replace. Full table in
+  `witnesses/README.md`. AFFC was taken as the first of the two R3-type candidates named in the scoping doc (AFFC, DFCFC);
+  DFCFC1 (also on disk) was not tried.
+- **D-O22 Preview runs beyond the brief.** Besides the requested seed-1 `max:` run per witness, the witnesses and
+  the best F1 circuit(s) of each regime were also sized at seeds 2 and 3, and all of F1 at seed 1 under every
+  regime, to preview Stage 3's calibration (witness feasibility at 3 seeds) and the gap. **These are not D0
+  numbers** (no F2′, no top-20, no confirmation, no two-edit check).
 
 ## Validation gates (all PASS)
 

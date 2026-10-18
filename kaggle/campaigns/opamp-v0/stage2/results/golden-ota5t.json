@@ -1,0 +1,137 @@
+{
+ "job": {
+  "circuit": "ota5t",
+  "evals": 2500,
+  "objective": "margin",
+  "seed": 1,
+  "spec": {
+   "cl_pf": 2.0,
+   "constraints": {
+    "gain_db": {
+     "min": 25.0
+    },
+    "idd_ua": {
+     "max": 200.0
+    },
+    "pm_deg": {
+     "min": 60.0
+    },
+    "ugf_mhz": {
+     "min": 10.0
+    }
+   },
+   "name": "g-ota5t",
+   "stability": "ss_tran"
+  },
+  "tag": "golden-ota5t"
+ },
+ "margins": {
+  "gain_db": 0.17021763549524407,
+  "idd_ua": 0.7898835,
+  "pm_deg": 0.3306267034567055,
+  "ugf_mhz": 1.0411271773487325
+ },
+ "netlist": "NMOS M1a d1 VINP tail VSS\nNMOS M1b VOUT VINN tail VSS\nPMOS M3a d1 d1 VDD VDD\nPMOS M3b VOUT d1 VDD VDD\nNMOS M5 tail IREF VSS VSS\nNMOS M6 IREF IREF VSS VSS\n",
+ "op": {
+  "M1a": {
+   "gds": 8.546613e-06,
+   "gm": 0.0003193009,
+   "id": 2.064938e-05,
+   "vds": 0.3586424,
+   "vdsat": 0.07974149,
+   "vgs": 0.3303916,
+   "vth": 0.2908636
+  },
+  "M1b": {
+   "gds": 8.267522e-06,
+   "gm": 0.0003040726,
+   "id": 1.932586e-05,
+   "vds": 0.3269985,
+   "vdsat": 0.07816367,
+   "vgs": 0.3269985,
+   "vth": 0.2908691
+  },
+  "M3a": {
+   "gds": 1.914825e-06,
+   "gm": 9.728482e-05,
+   "id": 1.996586e-05,
+   "vds": 0.5217494,
+   "vdsat": 0.2632794,
+   "vgs": 0.5217494,
+   "vth": 0.2310715
+  },
+  "M3b": {
+   "gds": 1.82525e-06,
+   "gm": 9.757228e-05,
+   "id": 2.002496e-05,
+   "vds": 0.5533932,
+   "vdsat": 0.2632797,
+   "vgs": 0.5217494,
+   "vth": 0.2310712
+  },
+  "M5": {
+   "gds": 3.766377e-05,
+   "gm": 0.0008958048,
+   "id": 4.148146e-05,
+   "vds": 0.2196083,
+   "vdsat": 0.04636346,
+   "vgs": 0.2865295,
+   "vth": 0.3753063
+  },
+  "M6": {
+   "gds": 9.37392e-07,
+   "gm": 3.036654e-05,
+   "id": 1.787455e-06,
+   "vds": 0.2865296,
+   "vdsat": 0.06842628,
+   "vgs": 0.2865295,
+   "vth": 0.27393
+  }
+ },
+ "params": {
+  "IREF": 2.02162e-06,
+  "M1.L": 7.13875e-07,
+  "M1.W": 1.74625e-05,
+  "M3.L": 1e-06,
+  "M3.W": 6.0052e-06,
+  "M5.L": 8.82767e-08,
+  "M5.W": 4.97203e-05,
+  "M6.L": 2.7935e-07,
+  "M6.W": 8.19724e-07
+ },
+ "prefilter": {
+  "ok": true,
+  "why": []
+ },
+ "profile": "opamp-v0",
+ "summary": {
+  "best_eval": 2495,
+  "cmrr_db": 54.824485478492846,
+  "cpu_s": 35.3430190900001,
+  "evals": 2500,
+  "feasible": true,
+  "flags": [],
+  "fom_mhzpf_ma": 971.4264121802584,
+  "gain_db": 29.255440887381102,
+  "icmr_hi": 0.8145010973996887,
+  "icmr_lo": 0.11350315212375926,
+  "icmr_v": 0.7009979452759294,
+  "idd_ua": 42.0233,
+  "n_devices": 6,
+  "n_params": 9,
+  "pm_deg": 79.83760220740233,
+  "psrr_db": 29.393776868178854,
+  "secs": 72.00420689582825,
+  "slew_vus": 9.451346283282897,
+  "swing_hi": 0.8217752682499315,
+  "swing_lo": 0.34614086903989477,
+  "swing_vpp": 0.47563439921003675,
+  "target": null,
+  "target_raw": null,
+  "tran_settled": true,
+  "ugf_mhz": 20.411271773487325,
+  "valid": true,
+  "vout_dc": 0.5466068,
+  "worst_margin": 0.17021763549524407
+ }
+}

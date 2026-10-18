@@ -95,3 +95,14 @@ the spec tested — never read slack from a run that optimised something else):
 - Each stage ends with a commit, a README section, and a short report to the user; Stage 3 does not start until
   Stage 1's gates pass and Stage 2's goldens exist.
 - `python lna/ref/check_ref.py` stays GREEN (no shared-core change is planned; re-checked at the end).
+
+## Amendment 1 (2026-10-18, user ruling, before any D0 run)
+
+- **Stability gate adopted (user: "approve the gate").** Stage 2 found three-stage designs with PM 94–174° that
+  oscillate as followers. The verifier's opt-in small-step stability gate (README **D-O16**: 2 mV step on a true
+  follower; invalid if residual ringing > 5% of the step, settling error > 20%, or the transient fails; evaluated in
+  the loop on otherwise-feasible points and always on the final result) is **on in every Stage 3 spec**
+  (`"stability": "ss_tran"`; `stage2/s2common.REGIMES`).
+- **Disclosure:** a Stage 2 preview (README "Stage 2", D-O22: witness and F1 max:M at the regime hard constraints,
+  seeds 1–3 for witness and best reference only) was seen before D0. It is NOT D0 and changes **no** D0 rule,
+  threshold, task, library, witness or budget. D0 runs exactly as frozen above (+ this gate).

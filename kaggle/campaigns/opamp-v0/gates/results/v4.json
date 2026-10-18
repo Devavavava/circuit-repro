@@ -1,0 +1,240 @@
+{
+ "a": [
+  {
+   "case": "floating_gate",
+   "feasible": false,
+   "pass": true,
+   "rejected": true,
+   "why": [
+    "R5 net nb has no DC path to a rail",
+    "R7 M5 gate net nb floating"
+   ]
+  },
+  {
+   "case": "undriven_bias_cap_only",
+   "feasible": false,
+   "pass": true,
+   "rejected": true,
+   "why": [
+    "R5 net nb has no DC path to a rail",
+    "R7 M6 gate net nb floating"
+   ]
+  },
+  {
+   "case": "bias_from_input_source",
+   "feasible": false,
+   "pass": true,
+   "rejected": true,
+   "why": [
+    "R2 Rb pin P on input VINP",
+    "R5 net nb has no DC path to a rail",
+    "R7 M5 gate net nb floating"
+   ]
+  },
+  {
+   "case": "shorted_device",
+   "feasible": false,
+   "pass": true,
+   "rejected": true,
+   "why": [
+    "R3 Rx shorted (P == N)"
+   ]
+  },
+  {
+   "case": "no_iref",
+   "feasible": false,
+   "pass": true,
+   "rejected": true,
+   "why": [
+    "R1 net IREF absent"
+   ]
+  },
+  {
+   "case": "vout_undriven",
+   "feasible": false,
+   "pass": true,
+   "rejected": true,
+   "why": [
+    "R5 net VOUT has no DC path to a rail",
+    "R6 VOUT is not a MOS drain/source"
+   ]
+  },
+  {
+   "case": "tail_off_resistor_bias",
+   "evals": 300,
+   "feasible": false,
+   "flags": [],
+   "gain_db": 22.2870735388047,
+   "gated": false,
+   "idd_ua": 4.90392,
+   "pass": true,
+   "rejected": false
+  }
+ ],
+ "b": [
+  {
+   "case": "two_stage_v3_stable",
+   "d_pm": 0.003589156045791242,
+   "d_ugf_rel": 8.503113218229035e-06,
+   "feasible_under_base_spec": true,
+   "n_unity_crossings": 1,
+   "pass": true,
+   "pm_deg": 60.063899742529955,
+   "pm_deg_dense": 60.067488898575746,
+   "tran_ripple_v": 9.999999717180685e-10,
+   "tran_settled": true,
+   "ugf_mhz": 10.025109469194692,
+   "ugf_mhz_dense": 10.025024225278688
+  },
+  {
+   "case": "two_stage_cc_0p05pF_UNSTABLE",
+   "d_pm": 0.02438322983206831,
+   "d_ugf_rel": 7.060961358124533e-06,
+   "feasible_under_base_spec": false,
+   "n_unity_crossings": 1,
+   "pass": true,
+   "pm_deg": -12.337282058098168,
+   "pm_deg_dense": -12.361665287930236,
+   "tran_ripple_v": 0.3587281219999999,
+   "tran_settled": false,
+   "ugf_mhz": 110.4539724604706,
+   "ugf_mhz_dense": 110.4531925547461
+  },
+  {
+   "case": "ota5t_v3",
+   "d_pm": 0.01286594519756079,
+   "d_ugf_rel": 0.0003427271562722272,
+   "feasible_under_base_spec": true,
+   "n_unity_crossings": 1,
+   "pass": true,
+   "pm_deg": 71.97395399366619,
+   "pm_deg_dense": 71.96108804846862,
+   "tran_ripple_v": 2.7000000013543968e-08,
+   "tran_settled": true,
+   "ugf_mhz": 32.995568086641555,
+   "ugf_mhz_dense": 33.00688044091249
+  },
+  {
+   "case": "two_stage_rz_v3",
+   "d_pm": 0.003127714035784379,
+   "d_ugf_rel": 0.0008651696602413911,
+   "feasible_under_base_spec": true,
+   "n_unity_crossings": 1,
+   "pass": true,
+   "pm_deg": 67.8015102638842,
+   "pm_deg_dense": 67.80463797791998,
+   "tran_ripple_v": 1.842700000009856e-05,
+   "tran_settled": true,
+   "ugf_mhz": 10.881919482730115,
+   "ugf_mhz_dense": 10.891342341683442
+  }
+ ],
+ "c": [
+  {
+   "expect_flag": false,
+   "feasible": true,
+   "flags": [],
+   "gain_vv": 29.022055900012823,
+   "metrics": {
+    "cmrr_db": 60.087574818826255,
+    "dc_phase_deg": 5.385524170365274e-05,
+    "flags": [],
+    "fom_mhzpf_ma": 871.6361377803727,
+    "gain_db": 29.254563485538956,
+    "gain_vv": 29.022055900012823,
+    "icmr_gain_mid_vv": 30.788012104879975,
+    "icmr_hi": 0.8265695121219863,
+    "icmr_lo": 0.11498507230281521,
+    "icmr_v": 0.7115844398191711,
+    "idd_ua": 75.70949999999999,
+    "max_phase_step_deg": 3.4131104837330852,
+    "n_unity_crossings": 1,
+    "offset_mv": -3.304400000000096,
+    "outcm_window": [
+     0.3500532238125247,
+     0.8167964848884203
+    ],
+    "pm_at_first_crossing": 71.97395399366619,
+    "pm_deg": 71.97395399366619,
+    "psrr_db": 29.3922974759338,
+    "slew_fall_vus": 17.180062025316047,
+    "slew_rise_vus": 17.815629635287213,
+    "slew_vus": 17.180062025316047,
+    "swing_gain_peak_vv": 30.865359931987957,
+    "swing_hi": 0.8230206781079874,
+    "swing_lo": 0.3462335198634831,
+    "swing_vout_at_peak": 0.5830184725,
+    "swing_vpp": 0.4767871582445043,
+    "tran_ripple_v": 2.7000000013543968e-08,
+    "tran_settled": true,
+    "ugf_hz": 32995568.086641558,
+    "ugf_mhz": 32.995568086641555,
+    "valid": true,
+    "vout_dc": 0.5466956
+   },
+   "outcm_window": [
+    0.3500532238125247,
+    0.8167964848884203
+   ],
+   "pass": true,
+   "swing_gain_peak_vv": 30.865359931987957,
+   "swing_vpp": 0.4767871582445043,
+   "valid": true,
+   "vcm": 0.55,
+   "vout_dc": 0.5466956
+  },
+  {
+   "expect_flag": true,
+   "feasible": false,
+   "flags": [
+    "outcm_outside_swing_window"
+   ],
+   "gain_vv": 5.373920260000272,
+   "metrics": {
+    "cmrr_db": 11.92141723266743,
+    "dc_phase_deg": 1.8223960616410373e-05,
+    "flags": [
+     "outcm_outside_swing_window"
+    ],
+    "fom_mhzpf_ma": 567.1255331162251,
+    "gain_db": 14.60582435880642,
+    "gain_vv": 5.373920260000272,
+    "icmr_gain_mid_vv": 6.278179290668348,
+    "icmr_hi": 0.9282290421678382,
+    "icmr_lo": 0.11498507230281521,
+    "icmr_v": 0.813243969865023,
+    "idd_ua": 80.89620000000001,
+    "max_phase_step_deg": 3.447576284777739,
+    "n_unity_crossings": 1,
+    "offset_mv": -37.184200000000004,
+    "outcm_window": null,
+    "pm_at_first_crossing": 94.6715701054738,
+    "pm_deg": 94.6715701054738,
+    "psrr_db": 6.2698929111116115,
+    "slew_fall_vus": 11.326119088115846,
+    "slew_rise_vus": 7.2100790325222786,
+    "slew_vus": 7.2100790325222786,
+    "swing_gain_peak_vv": 23.026148137542013,
+    "swing_hi": 0.9204931941758664,
+    "swing_lo": 0.557054477602662,
+    "swing_vout_at_peak": 0.6883477665,
+    "swing_vpp": 0.36343871657320437,
+    "tran_ripple_v": 1.8000000046036746e-08,
+    "tran_settled": false,
+    "ugf_hz": 22939150.276038386,
+    "ugf_mhz": 22.939150276038387,
+    "valid": false,
+    "vout_dc": 0.8628158
+   },
+   "outcm_window": null,
+   "pass": true,
+   "swing_gain_peak_vv": 23.026148137542013,
+   "swing_vpp": 0.36343871657320437,
+   "valid": false,
+   "vcm": 0.9,
+   "vout_dc": 0.8628158
+  }
+ ],
+ "gate": "V4",
+ "pass": true
+}

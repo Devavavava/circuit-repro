@@ -1,0 +1,23 @@
+# Three-stage nested-Miller (NMC) op-amp, single-ended.
+# Stage 1: NMOS pair M1a/M1b + PMOS mirror M2a/M2b -> o1 (VINP on the output side, inverting).
+# Stage 2 (non-inverting): PMOS CS M5 (gate o1) into the NMOS diode M6a, mirrored by M6b
+#   onto o2 against the PMOS current source M7.
+# Stage 3 (inverting): NMOS CS M8 (gate o2) against the PMOS current source M11.
+# Compensation: outer Miller Cm1 (VOUT -> o1), inner Miller Cm2 (VOUT -> o2).
+# Bias: IREF diode M4; tail M3; M9 copies the reference into the PMOS diode M10 (gate pb).
+NMOS M1a d1 VINN tail
+NMOS M1b o1 VINP tail
+PMOS M2a d1 d1 VDD
+PMOS M2b o1 d1 VDD
+NMOS M3 tail IREF VSS
+NMOS M4 IREF IREF VSS
+PMOS M5 d5 o1 VDD
+NMOS M6a d5 d5 VSS
+NMOS M6b o2 d5 VSS
+PMOS M7 o2 pb VDD
+NMOS M8 VOUT o2 VSS
+PMOS M11 VOUT pb VDD
+NMOS M9 pb IREF VSS
+PMOS M10 pb pb VDD
+C Cm1 o1 VOUT
+C Cm2 o2 VOUT

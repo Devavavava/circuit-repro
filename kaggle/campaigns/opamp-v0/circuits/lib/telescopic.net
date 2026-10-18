@@ -1,0 +1,21 @@
+# Telescopic cascode OTA (one stage), single-ended.
+# NMOS input pair M1a/M1b, NMOS cascodes M2a/M2b, PMOS high-swing cascode mirror load
+# (top devices M3a/M3b gated by the diode-side cascode drain c1, cascodes M4a/M4b gated by vbp).
+# VINN drives the output-side half (inverting); VINP the diode side.
+# Bias (all from the one IREF): Rb lifts the NMOS cascode gate (= IREF net) to
+# Vgs(M6) + IREF*Rb above the tail mirror gate n1; M7 copies the reference into the
+# PMOS diode M8 and Rp drops vbp below its gate pa.
+NMOS M1a d1 VINP tail
+NMOS M1b d2 VINN tail
+NMOS M2a c1 IREF d1
+NMOS M2b VOUT IREF d2
+PMOS M4a c1 vbp p1
+PMOS M4b VOUT vbp p2
+PMOS M3a p1 c1 VDD
+PMOS M3b p2 c1 VDD
+NMOS M5 tail n1 VSS
+NMOS M6 n1 n1 VSS
+R Rb IREF n1
+NMOS M7 vbp n1 VSS
+R Rp pa vbp
+PMOS M8 pa pa VDD

@@ -1,0 +1,35 @@
+# EVAL-ONLY witness W-R4 (never in a prompt or training file).
+# Complementary N+P input pairs + folded-cascode summing stage + common-source output
+# with Miller Cc + nulling Rz.
+# NMOS pair M1a/M1b (tail M9) drains into the top folding nodes f1/f2 (PMOS sources M3a/M3b);
+# PMOS pair M2a/M2b (tail M10) drains into the bottom folding nodes g1/g2 (NMOS mirror
+# M6a/M6b, gated by the diode-side cascode drain c1). Cascodes M4a/M4b (PMOS, gate vbp)
+# and M5a/M5b (NMOS, gate = IREF net) sum both pairs' signal currents into o1.
+# VINP is on the output side of both pairs (o1 inverting from VINP); the PMOS CS M14
+# (gate o1, sink M15) inverts back.
+# Bias (all from the one IREF): Rb lifts the NMOS cascode gate (= IREF net) above the
+# mirror gate n1; M13 copies the reference into the PMOS diode M12 (gate pa = PMOS
+# current-source and PMOS-tail gate); Rp drops the PMOS cascode gate vbp below pa.
+NMOS M1a f1 VINN tn
+NMOS M1b f2 VINP tn
+PMOS M2a g1 VINN tp
+PMOS M2b g2 VINP tp
+NMOS M9 tn n1 VSS
+PMOS M10 tp pa VDD
+PMOS M3a f1 pa VDD
+PMOS M3b f2 pa VDD
+PMOS M4a c1 vbp f1
+PMOS M4b o1 vbp f2
+NMOS M5a c1 IREF g1
+NMOS M5b o1 IREF g2
+NMOS M6a g1 c1 VSS
+NMOS M6b g2 c1 VSS
+NMOS M11 n1 n1 VSS
+R Rb IREF n1
+NMOS M13 vbp n1 VSS
+R Rp pa vbp
+PMOS M12 pa pa VDD
+PMOS M14 VOUT o1 VDD
+NMOS M15 VOUT n1 VSS
+C Cc o1 nz
+R Rz nz VOUT

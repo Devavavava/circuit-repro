@@ -1,0 +1,24 @@
+# Folded-cascode OTA (one stage), single-ended, NMOS input pair.
+# PMOS current sources M3a/M3b (gate pa) feed the folding nodes f1/f2; PMOS cascodes
+# M4a/M4b (gate vbp) fold down into an NMOS high-swing cascode mirror (bottom M6a/M6b
+# gated by the diode-side cascode drain c1, cascodes M5a/M5b gated by the IREF net).
+# VINN drives the output-side half (inverting); VINP the diode side.
+# Bias (all from the one IREF): Rb lifts the NMOS cascode gate (= IREF net) above the
+# mirror gate n1; M11 copies the reference into the PMOS diode M12 (gate pa = current-
+# source gate) and Rp drops the PMOS cascode gate vbp below pa.
+NMOS M1a f1 VINP tail
+NMOS M1b f2 VINN tail
+PMOS M3a f1 pa VDD
+PMOS M3b f2 pa VDD
+PMOS M4a c1 vbp f1
+PMOS M4b VOUT vbp f2
+NMOS M5a c1 IREF b1
+NMOS M5b VOUT IREF b2
+NMOS M6a b1 c1 VSS
+NMOS M6b b2 c1 VSS
+NMOS M9 tail n1 VSS
+NMOS M10 n1 n1 VSS
+R Rb IREF n1
+NMOS M11 vbp n1 VSS
+R Rp pa vbp
+PMOS M12 pa pa VDD

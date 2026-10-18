@@ -316,6 +316,10 @@ def swing_metrics(rows, vcm, gain_ref, vout_dc):
     gpk = max(gs)
     out["swing_gain_peak_vv"] = gpk
     out["swing_vout_at_peak"] = xs[gs.index(gpk)]
+    if gpk <= 0:   # Stage 2 fix (D-O15): no positive-gain point at all (used to raise)
+        out["flags"] += ["swing_empty", "outcm_outside_swing_window"]
+        out["outcm_window"] = None
+        return out
     if w is None:
         out["flags"].append("swing_empty")
     else:

@@ -1,0 +1,8 @@
+# 5-transistor OTA (one stage): NMOS input pair, PMOS mirror load, NMOS tail mirrored from IREF.
+# Output at the mirror's output branch; VINN drives the output-side input device (inverting).
+NMOS M1a d1 VINP tail VSS
+NMOS M1b VOUT VINN tail VSS
+PMOS M3a d1 d1 VDD VDD
+PMOS M3b VOUT d1 VDD VDD
+NMOS M5 tail IREF VSS VSS
+NMOS M6 IREF IREF VSS VSS

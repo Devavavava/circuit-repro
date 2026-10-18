@@ -1,0 +1,25 @@
+# EVAL-ONLY witness W-R1 (never in a prompt or training file).
+# Folded-cascode first stage + common-source second stage, Miller Cc + nulling Rz.
+# Stage 1 = circuits/lib/folded_cascode.net with the inputs swapped (VINP on the output
+# side, so o1 is inverting from VINP) and its output renamed o1.
+# Stage 2: PMOS CS M13 (gate o1) against the NMOS sink M14 (mirror of n1).
+NMOS M1a f1 VINN tail
+NMOS M1b f2 VINP tail
+PMOS M3a f1 pa VDD
+PMOS M3b f2 pa VDD
+PMOS M4a c1 vbp f1
+PMOS M4b o1 vbp f2
+NMOS M5a c1 IREF b1
+NMOS M5b o1 IREF b2
+NMOS M6a b1 c1 VSS
+NMOS M6b b2 c1 VSS
+NMOS M9 tail n1 VSS
+NMOS M10 n1 n1 VSS
+R Rb IREF n1
+NMOS M11 vbp n1 VSS
+R Rp pa vbp
+PMOS M12 pa pa VDD
+PMOS M13 VOUT o1 VDD
+NMOS M14 VOUT n1 VSS
+C Cc o1 nz
+R Rz nz VOUT

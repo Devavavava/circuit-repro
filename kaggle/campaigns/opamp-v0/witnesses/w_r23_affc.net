@@ -1,0 +1,47 @@
+# EVAL-ONLY witness W-R23 (never in a prompt or training file).
+# Three-stage op-amp with active-feedback frequency compensation (AFFC, Lee & Mok),
+# transcribed from AnalogGym Amplifier/spice_netlist/HoiLee_AFFC_Pin_3 (mapping table in
+# witnesses/README.md). AnalogGym device xmK -> name below; nets kept (lower-cased).
+# Stage 1: PMOS-input folded cascode (pair M9a/M9b, tail M4, NMOS sinks M20a/M20b,
+#   NMOS cascodes M16a/M16b, PMOS mirror load M0d/M0e) -> net050.
+# Stage 2 (non-inverting): PMOS M11 (gate net050) into the NMOS diode M22a, mirrored by
+#   M22b onto net049 against the PMOS source M0f.
+# Stage 3: NMOS M25 (gate net049) + feedforward PMOS M12 (gate net050) -> VOUT.
+# Compensation: Miller C0 (net049 -> VOUT); active feedback: C1 (VOUT -> net1) into the
+#   common-gate NMOS M60b (gate vb3) that feeds net050; M59a/M59b + M60a + M18c return
+#   M60b's DC current to net050.
+# Bias: AnalogGym's ideal sink I0 out of the PMOS diode net013 is replaced by our one
+#   IREF: NMOS diode MB1a + 1:1 mirror MB1b pulling IREF out of net013 (I0 == IREF).
+#   PMOS mirrors M0b -> vb4, M0c -> vb3; vb3 diode M15; vb4 = cascoded diode M18b/M18a.
+#   AnalogGym's dummy branch dm_1 (xm2, xm14, xm19) is dropped.
+NMOS MB1a IREF IREF VSS
+NMOS MB1b net013 IREF VSS
+PMOS M0a net013 net013 VDD
+PMOS M0b vb4 net013 VDD
+PMOS M0c vb3 net013 VDD
+PMOS M0d voutn voutn VDD
+PMOS M0e net050 voutn VDD
+PMOS M0f net049 net013 VDD
+PMOS M4 net31 net013 VDD
+PMOS M9a dm_2 VINN net31 net31
+PMOS M9b net063 VINP net31 net31
+NMOS M20a dm_2 vb4 VSS
+NMOS M20b net063 vb4 VSS
+NMOS M16a voutn vb3 dm_2
+NMOS M16b net050 vb3 net063
+NMOS M15 vb3 vb3 VSS
+NMOS M18b vb4 vb3 net54
+NMOS M18a net54 vb4 VSS
+PMOS M11 net043 net050 VDD
+NMOS M22a net043 net043 VSS
+NMOS M22b net049 net043 VSS
+NMOS M25 VOUT net049 VSS
+PMOS M12 VOUT net050 VDD
+PMOS M59a net2 net2 VDD
+PMOS M59b net050 net2 VDD
+NMOS M60a net2 vb3 net3
+NMOS M60b net050 vb3 net1
+NMOS M18c net3 vb4 VSS
+NMOS M18d net1 vb4 VSS
+C C0 net049 VOUT
+C C1 VOUT net1

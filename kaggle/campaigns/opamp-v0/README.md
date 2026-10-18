@@ -3,7 +3,7 @@ STATUS: Stage 3 (D0) RUNNING (agent, 2026-10-18). Runner `stage3/d0.py` (results
 `frontier` (witness + F1, seeds 1–3) → `screen R1`, `screen R23`, `screen R4` (F2′ + two-edit, 300 evals) → `top`
 (top-20 F2′ × 3 seeds, top-20 two-edit × seed 1) → `confirm` → `stage3/report.py`. Resume command (from the worktree
 root): `~/.claude/jobs/7cd7ffc3/tmp/run_cr.sh kaggle/campaigns/opamp-v0/stage3/d0.py <phase> 8`; check with
-`... d0.py status`. Done so far: `frontier` (1.80 CPU-h, calibration step 0 in all regimes), `screen R1`, `screen R23` (7.22 CPU-h total). Running: `screen R4`.
+`... d0.py status`. Done so far: `frontier` (1.80 CPU-h, calibration step 0 in all regimes), all screens R1, R23, R4 (11.56 CPU-h total). Running: `top`.
 (Stage 2 DONE; D-O16 adopted by Amendment 1.)
 
 Pre-registration: `kaggle/PREREG-OPAMP-V0-D0.md` (frozen at commit `d17423349`). Background:

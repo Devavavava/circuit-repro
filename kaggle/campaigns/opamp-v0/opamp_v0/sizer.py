@@ -143,6 +143,14 @@ def _needs(spec, objective):
     return icmr, full, slew
 
 
+def _stab(spec):
+    """Opt-in small-step stability gate (README D-O16): spec["stability"] == "ss_tran"."""
+    st = spec.get("stability")
+    if st not in (None, "ss_tran"):
+        raise ValueError("spec stability must be absent or 'ss_tran'")
+    return st == "ss_tran"
+
+
 def _cpu():
     ch = resource.getrusage(resource.RUSAGE_CHILDREN)
     return time.process_time() + ch.ru_utime + ch.ru_stime
@@ -156,7 +164,7 @@ def evaluate(netlist_text, params, spec, full=True):
         return {"valid": False, "flags": ["prefilter"], "prefilter": why}
     icmr, fl, slew = _needs(spec, "margin")
     return TB.measure(devs, params, tb_from_spec(spec), icmr=True if full else icmr,
-                      full=full or fl, slew=slew)
+                      full=full or fl, slew=slew, stab=_stab(spec))
 
 
 def size(netlist_text, spec, seed=1, evals=DEFAULT_EVALS, objective="margin", x0=None,
@@ -186,11 +194,14 @@ def size(netlist_text, spec, seed=1, evals=DEFAULT_EVALS, objective="margin", x0
     space = DL.param_space(devs)
     names = list(space)
     icmr, fl, slew = _needs(spec, objective)
+    stab = _stab(spec)
     points = []
 
     def obj(x):
         p = decode(x, names, space)
         m = TB.measure(devs, p, tb, icmr=icmr, full=fl, slew=slew)
+        if stab and m.get("valid") and violation(spec, m) == 0:
+            TB.apply_ss(devs, p, tb, m)      # lazy gate: only on otherwise-feasible points
         points.append(([float(v) for v in x], m))
         return objective_value(spec, m, objective)
 
@@ -202,7 +213,8 @@ def size(netlist_text, spec, seed=1, evals=DEFAULT_EVALS, objective="margin", x0
         pass
     bx, _bm = bud.best()
     params = decode(bx, names, space) if bx is not None else None
-    full_m = TB.measure(devs, params, tb, icmr=True, full=True, slew=True) if params else None
+    full_m = (TB.measure(devs, params, tb, icmr=True, full=True, slew=True, stab=stab)
+              if params else None)
     mg = margins(spec, full_m) if full_m else None
     vals = [v for v in (mg or {}).values() if v is not None]
     feas = feasible(spec, full_m)

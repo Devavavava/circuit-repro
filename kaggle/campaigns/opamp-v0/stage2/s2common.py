@@ -31,14 +31,18 @@ WITNESSES = {   # EVAL-ONLY
 }
 CIRCUITS = dict(LIB, **WITNESSES)
 
-# Regime hard constraints, verbatim from PREREG-OPAMP-V0-D0.md Stage 3; M = the max: target.
+# Every Stage-2 spec turns on the small-step stability gate (README D-O16).
+STABILITY = "ss_tran"
+
+# Regime hard constraints, verbatim from PREREG-OPAMP-V0-D0.md Stage 3 (+ the stability gate);
+# M = the max: target.
 REGIMES = {
-    "R1": {"M": "gain_db", "spec": {"name": "R1-hard", "cl_pf": 2.0, "constraints": {
+    "R1": {"M": "gain_db", "spec": {"name": "R1-hard", "cl_pf": 2.0, "stability": "ss_tran", "constraints": {
         "swing_vpp": {"min": 0.6}, "ugf_mhz": {"min": 10.0}, "pm_deg": {"min": 60.0},
         "idd_ua": {"max": 200.0}}}},
-    "R23": {"M": "fom_mhzpf_ma", "spec": {"name": "R23-hard", "cl_pf": 200.0, "constraints": {
+    "R23": {"M": "fom_mhzpf_ma", "spec": {"name": "R23-hard", "cl_pf": 200.0, "stability": "ss_tran", "constraints": {
         "gain_db": {"min": 80.0}, "pm_deg": {"min": 55.0}, "idd_ua": {"max": 300.0}}}},
-    "R4": {"M": "icmr_v", "spec": {"name": "R4-hard", "cl_pf": 2.0, "constraints": {
+    "R4": {"M": "icmr_v", "spec": {"name": "R4-hard", "cl_pf": 2.0, "stability": "ss_tran", "constraints": {
         "gain_db": {"min": 40.0}, "ugf_mhz": {"min": 5.0}, "pm_deg": {"min": 60.0},
         "idd_ua": {"max": 200.0}}}},
 }
@@ -50,7 +54,7 @@ def _spec(name, cl, **c):
     for k, v in c.items():
         kind, metric = k.split("_", 1)
         cons.setdefault(metric, {})[kind] = v
-    return {"name": name, "cl_pf": cl, "constraints": cons}
+    return {"name": name, "cl_pf": cl, "stability": STABILITY, "constraints": cons}
 
 
 # Golden demonstration specs (margin mode). Chosen by the Stage-2 builder (README, D-O19):

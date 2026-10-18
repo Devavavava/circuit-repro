@@ -165,6 +165,68 @@ def tran_deck(devs, params, tb, wd, ugf_hz):
     return "\n".join(L), dict(a=a, td=td, pw=pw, tr=tr, vlo=vcm - a, vhi=vcm + a)
 
 
+# Small-signal stability gate (Stage 2, README D-O16; opt-in per spec: "stability": "ss_tran").
+# The open-loop PM cannot see right-half-plane poles INSIDE the amplifier (local loops of
+# multi-stage designs); a true follower given a small input step can. One rising 2 mV step
+# (Vcm - 1 mV -> Vcm + 1 mV) at td = 2 tau, observed for SS_WIN_TAU tau (tau = 1/(2 pi UGF),
+# window >= 100 ns), max time step tau/4. Invalid ('ss_unstable') iff the output ripple
+# (peak-to-peak) over the last 30 % of the window exceeds 5 % of the step, or the settled
+# change is off the step by > 20 %, or the transient does not complete.
+SS_STEP = 0.001
+SS_RIPPLE_TOL = 0.05
+SS_SETTLE_TOL = 0.2
+SS_WIN_TAU = 60.0
+SS_DT_TAU = 0.25
+
+
+def ss_deck(devs, params, tb, wd, ugf_hz):
+    vcm, cl, a = tb["vcm"], tb["cl_pf"] * 1e-12, SS_STEP
+    tau = 1.0 / (2 * math.pi * max(ugf_hz or 1e6, 1e4))
+    win = min(max(100e-9, SS_WIN_TAU * tau), 200e-6)
+    td, tr = 2 * tau, tau / 100
+    dt = min(SS_DT_TAU * tau, win / 200)
+    tstop = td + win
+    L = ["* opamp-v0 small-step stability deck",
+         '.include "%s"' % MODEL_PATH,
+         ".temp %s" % fmt(tb["temp_c"]),
+         "Vdd vdd 0 dc %s" % fmt(tb["vdd"]),
+         "Iref vdd iref dc %s" % fmt(params["IREF"]),
+         "Vp vinp 0 dc %s pulse(%s %s %s %s %s %s %s)" % (
+             fmt(vcm - a), fmt(vcm - a), fmt(vcm + a), fmt(td), fmt(tr), fmt(tr),
+             fmt(10 * tstop), fmt(20 * tstop)),
+         "Vfb vinn vout dc 0",
+         "CL vout 0 %s" % fmt(cl)]
+    L += dut_lines(devs, params)
+    L += [".control", "set wr_singlescale",
+          "tran %s %s 0 %s" % (fmt(dt), fmt(tstop), fmt(dt)),
+          "let dvo = v(vout) - %s" % fmt(vcm),
+          "wrdata %s/sst.txt dvo" % wd, ".endc", ".end", ""]
+    return "\n".join(L), dict(a=a, td=td, win=win, tstop=tstop)
+
+
+def ss_metrics(rows, p):
+    out = {"flags": [], "ss_ripple_rel": None, "ss_settle_err_rel": None}
+    td, win, tstop, step = p["td"], p["win"], p["tstop"], 2 * p["a"]
+    if not rows or rows[-1][0] < float(fmt(tstop)) * (1 - 1e-4):
+        out["flags"].append("ss_unstable")
+        out["ss_fail"] = "tran_incomplete"
+        return out
+    t = [r[0] for r in rows]
+    v = [r[1] for r in rows]
+    pre = [vv for tt, vv in zip(t, v) if tt <= td * 0.99]
+    seg = [vv for tt, vv in zip(t, v) if tt >= td + 0.7 * win]
+    if not pre or not seg:
+        out["flags"].append("ss_unstable")
+        out["ss_fail"] = "no_samples"
+        return out
+    rip = (max(seg) - min(seg)) / step
+    err = abs((v[-1] - pre[-1]) - step) / step
+    out["ss_ripple_rel"], out["ss_settle_err_rel"] = rip, err
+    if rip > SS_RIPPLE_TOL or not (err <= SS_SETTLE_TOL):
+        out["flags"].append("ss_unstable")
+    return out
+
+
 # ------------------------------------------------------------------ running
 def run_ngspice(deck, wd, outputs):
     for f in outputs:
@@ -433,11 +495,12 @@ def tran_metrics(rows, p):
 # ------------------------------------------------------------------ evaluate
 INVALID_FLAGS = ("sim_fail", "polarity", "no_gain", "no_unity_crossing", "ugf_out_of_range",
                  "pm_unphysical", "phase_jump_below_ugf", "vout_not_tracking",
-                 "outcm_outside_swing_window", "idd_nonpositive")
+                 "outcm_outside_swing_window", "idd_nonpositive", "ss_unstable")
 
 
-def measure(devs, params, tb, icmr=True, full=False, slew=None):
-    """One evaluation. Returns metrics dict (always), with 'valid' and 'flags'."""
+def measure(devs, params, tb, icmr=True, full=False, slew=None, stab=False):
+    """One evaluation. Returns metrics dict (always), with 'valid' and 'flags'.
+    stab=True adds the small-step stability gate (run only if the design is otherwise valid)."""
     wd = work_dir()
     deck, _sw, _ic = main_deck(devs, params, tb, wd, icmr=icmr, full=full)
     outs = ["ac.txt", "sw.txt", "ic.txt", "cm.txt", "ps.txt"]
@@ -500,5 +563,24 @@ def measure(devs, params, tb, icmr=True, full=False, slew=None):
         tr = tran_metrics(read_rows(os.path.join(wd, "tran.txt")) if ttext else [], tp)
         m["flags"] += tr.pop("flags")
         m.update(tr)
+    m["valid"] = not any(f in INVALID_FLAGS for f in m["flags"])
+    if stab:
+        apply_ss(devs, params, tb, m)
+    return m
+
+
+def apply_ss(devs, params, tb, m):
+    """Run the small-step stability gate on an already measured design (in place); skipped
+    (ss_checked False) if the design is already invalid."""
+    if not m.get("valid"):
+        m["ss_checked"] = False
+        return m
+    wd = work_dir()
+    sdeck, sp = ss_deck(devs, params, tb, wd, m.get("ugf_hz"))
+    stext, _ = run_ngspice(sdeck, wd, ["sst.txt"])
+    ss = ss_metrics(read_rows(os.path.join(wd, "sst.txt")) if stext else [], sp)
+    m["flags"] += ss.pop("flags")
+    m.update(ss)
+    m["ss_checked"] = True
     m["valid"] = not any(f in INVALID_FLAGS for f in m["flags"])
     return m

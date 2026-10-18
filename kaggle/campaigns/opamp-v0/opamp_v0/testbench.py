@@ -544,10 +544,13 @@ def measure(devs, params, tb, icmr=True, full=False, slew=None, stab=False):
     if full:
         cm = read_rows(os.path.join(wd, "cm.txt"))
         ps = read_rows(os.path.join(wd, "ps.txt"))
-        if cm:
+        # D-O23 crash guard: if the CM/supply AC did not run (e.g. an aborted ICMR sweep left
+        # ngspice without an operating point), wrdata writes the previous real-valued plot;
+        # CMRR/PSRR (report-only) are then left unset instead of raising.
+        if cm and len(cm) == 1 and len(cm[0]) >= 3:
             acm = abs(complex(cm[0][1], cm[0][2]))
             m["cmrr_db"] = m["gain_db"] - 20 * math.log10(max(acm, 1e-30))
-        if ps:
+        if ps and len(ps) == 1 and len(ps[0]) >= 3:
             aps = abs(complex(ps[0][1], ps[0][2]))
             m["psrr_db"] = m["gain_db"] - 20 * math.log10(max(aps, 1e-30))
         ops = {}

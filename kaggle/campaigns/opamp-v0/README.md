@@ -3,7 +3,7 @@ STATUS: Stage 3 (D0) RUNNING (agent, 2026-10-18). Runner `stage3/d0.py` (results
 `frontier` (witness + F1, seeds 1–3) → `screen R1`, `screen R23`, `screen R4` (F2′ + two-edit, 300 evals) → `top`
 (top-20 F2′ × 3 seeds, top-20 two-edit × seed 1) → `confirm` → `stage3/report.py`. Resume command (from the worktree
 root): `~/.claude/jobs/7cd7ffc3/tmp/run_cr.sh kaggle/campaigns/opamp-v0/stage3/d0.py <phase> 8`; check with
-`... d0.py status`. Done so far: runner committed; `frontier` launched.
+`... d0.py status`. Done so far: `frontier` (1.80 CPU-h, calibration step 0 in all regimes), `screen R1`. Running: `screen R1,R23`.
 (Stage 2 DONE; D-O16 adopted by Amendment 1.)
 
 Pre-registration: `kaggle/PREREG-OPAMP-V0-D0.md` (frozen at commit `d17423349`). Background:
@@ -219,6 +219,12 @@ s = max(|limit|, 1).
   the best F1 circuit(s) of each regime were also sized at seeds 2 and 3, and all of F1 at seed 1 under every
   regime, to preview Stage 3's calibration (witness feasibility at 3 seeds) and the gap. **These are not D0
   numbers** (no F2′, no top-20, no confirmation, no two-edit check).
+
+- **D-O23 CMRR/PSRR crash guard (Stage 3 bug fix, `opamp_v0/testbench.py`).** In the R1 screen, the full
+  re-measure of one F2′ winner (`F2:two_stage_rz:371`, an NMOS added VOUT/IREF/n4) raised `IndexError`: its ICMR
+  DC sweep aborted part-way, the CM and supply AC analyses then did not run, and `wrdata` wrote the previous
+  real-valued plot into `cm.txt`/`ps.txt`. CMRR/PSRR (report-only) are now left unset unless the file holds the
+  one complex row. The path could never complete before, so no completed result changes; the job is re-run.
 
 ## Validation gates (all PASS)
 

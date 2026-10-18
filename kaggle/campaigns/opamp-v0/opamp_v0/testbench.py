@@ -415,6 +415,12 @@ def tran_metrics(rows, p):
     out["slew_vus"] = min(vals) if len(vals) == 2 else None
     out["tran_settled"] = (abs(v1 - p["vhi"]) < 0.02 * step + TRACK_TOL
                            and abs(v2 - p["vlo"]) < 0.02 * step + TRACK_TOL)
+    # ripple: peak-to-peak over the last 30 % of the high pulse (oscillation detector)
+    seg = [vv for tt, vv in zip(t, v) if td + 0.7 * pw <= tt <= td + 0.99 * pw]
+    out["tran_ripple_v"] = (max(seg) - min(seg)) if seg else None
+    if out["tran_ripple_v"] is not None and out["tran_ripple_v"] > 0.05 * step:
+        out["flags"].append("tran_oscillation")
+        out["tran_settled"] = False
     if out["slew_vus"] is None:
         out["flags"].append("slew_unmeasured")
     return out

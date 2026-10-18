@@ -185,8 +185,37 @@ The 5T max-gain result (29.25 dB) reproduces the scoping ceiling (29.2 dB) found
 
 | run | circuit | spec | seed | feasible | worst margin | first feasible by eval | gain | UGF | PM | Idd |
 |---|---|---|---|---|---|---|---|---|---|---|
-V5_ROWS
+| gate | two_stage_autockt | autockt-smoke | 1 | **yes** | 0.162 | 190 | 57.56 dB | 11.64 MHz | 69.7° | 423.2 µA |
+| gate | two_stage_autockt | autockt-smoke | 2 | **yes** | 0.166 | 200 | 57.76 dB | 12.19 MHz | 70.0° | 442.5 µA |
+| gate | two_stage_autockt | autockt-smoke | 3 | **yes** | 0.161 | 150 | 57.51 dB | 11.73 MHz | 69.7° | 410.9 µA |
+| info | two_stage_rz | autockt-smoke | 1 | **yes** | 0.204 | 70 | 59.65 dB | 15.72 MHz | 72.2° | 317.2 µA |
+| info | two_stage_rz | autockt-smoke | 2 | **yes** | 0.238 | 70 | 61.31 dB | 12.52 MHz | 75.6° | 121.2 µA |
+| info | two_stage_rz | autockt-smoke | 3 | **yes** | 0.238 | 50 | 61.31 dB | 12.47 MHz | 74.7° | 204.5 µA |
+| info | two_stage_autockt | autockt-stretch | 1 | no | -0.345 | — | 51.91 dB | 25.00 MHz | 39.3° | 99.7 µA |
+| info | two_stage_autockt | autockt-stretch | 2 | **yes** | 0.029 | 1070 | 53.56 dB | 25.78 MHz | 61.9° | 96.6 µA |
+| info | two_stage_autockt | autockt-stretch | 3 | **yes** | 0.048 | 600 | 54.56 dB | 26.22 MHz | 62.9° | 95.0 µA |
+| info | two_stage_rz | autockt-stretch | 1 | **yes** | 0.136 | 460 | 59.15 dB | 28.40 MHz | 68.9° | 81.7 µA |
+| info | two_stage_rz | autockt-stretch | 2 | **yes** | 0.142 | 200 | 59.41 dB | 28.61 MHz | 68.9° | 83.4 µA |
+| info | two_stage_rz | autockt-stretch | 3 | **yes** | 0.147 | 180 | 59.68 dB | 28.73 MHz | 69.0° | 83.1 µA |
+
+Gate: 3/3 feasible (first feasible point within 150–200 evals; "first feasible" is read from the
+budget trace sampled every 10 evals). Informational: the anchor with Rz is feasible 3/3 on the same spec, and
+the stretch spec is met 2/3 (AutoCkt topology) and 3/3 (with Rz).
 
 ## Cost
 
-COST_BLOCK
+Per evaluation (loop mode: op + AC 241 pts + 45-pt swing sweep; ngspice-47 subprocess per eval): ngspice
+≈ 14 ms of which ~2.6 ms start-up, ~2 ms op, ~4 ms AC, ~5 ms swing sweep; Python/spawn overhead ≈ 4 ms. The
+ICMR sweep adds ~3–5 ms when constrained; the full re-measure of the winner (CMRR/PSRR + transient) ≈ 60–70 ms.
+
+Per 2,500-eval sizing (18 sizings of V3 + V5, box load average ≈ 14 on 28 cores, ≤ 4 own processes):
+**CPU 34 s median (20–64 s)**, wall 58 s median (43–84 s), i.e. ≈ 74 evals per CPU-second and ≈ 43 evals/s
+wall per process (13.5 ms CPU, 23 ms wall per eval). The two-stage costs ~1.5× the 5T.
+
+Stage 1 total ≈ 0.4 CPU-h (gates incl. re-runs ≈ 1,300 CPU-s, prototypes ≈ 100 CPU-s).
+
+**Stage 3 projection.** The pre-reg's eval count (6 tasks × (F2′ 1–3k × 300 + 26 × 3 × 2,500 + confirmation +
+500 × 300 two-edit)) ≈ 4–8 M evals → **15–30 CPU-h by CPU time, 26–51 process-hours by wall** at the observed
+load. The upper end exceeds the pre-reg's 20–25 CPU-h estimate and could approach the 40 CPU-h ask-first line;
+cheap levers (not taken, would change the measurement): AC at 10 pts/dec, 50 mV swing grid, or a persistent
+libngspice instead of one subprocess per eval.

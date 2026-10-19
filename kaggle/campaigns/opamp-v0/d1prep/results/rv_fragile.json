@@ -1,0 +1,204 @@
+{
+ "fragile_fails_gate": true,
+ "gate_off": {
+  "cpu_s": 42.05344873400001,
+  "feasible": true,
+  "feasible_nominal": null,
+  "flags": [
+   "swing_empty",
+   "icmr_empty"
+  ],
+  "gain_db": 60.28938106812059,
+  "idd_ua": 83.9937,
+  "n_fail": 0,
+  "params": {
+   "IREF": 4.06593e-05,
+   "M1.L": 1.43644e-07,
+   "M1.W": 5.69235e-07,
+   "M3.L": 7.05682e-07,
+   "M3.W": 1.23244e-06,
+   "M4.L": 7.25892e-07,
+   "M4.W": 1.66513e-06,
+   "M5.L": 3.78521e-07,
+   "M5.W": 2.56866e-05,
+   "M6.L": 1e-06,
+   "M6.W": 1.58398e-06
+  },
+  "pm_deg": 90.08855794221643,
+  "ugf_mhz": 10.13669737255273,
+  "worst_margin": 0.5014759657036071,
+  "worst_margin_robust": null
+ },
+ "gate_off_corner_gain_db": {
+  "mm1": 33.09978258149029,
+  "mm2": 25.73530926791683,
+  "mm3": 36.55046299112198,
+  "mm4": 31.4309875143398,
+  "t_cold": 23.630350951653565,
+  "t_hot": 11.748401958855293,
+  "vdd_hi": 25.010403132698166,
+  "vdd_lo": 28.36518759764461
+ },
+ "gate_off_robust": {
+  "failing": [
+   "vdd_lo",
+   "vdd_hi",
+   "t_cold",
+   "t_hot",
+   "mm1",
+   "mm2",
+   "mm3",
+   "mm4"
+  ],
+  "n_corners": 8,
+  "pass": false,
+  "per_corner": {
+   "mm1": [
+    "invalid",
+    "polarity",
+    "pm_unphysical",
+    "outcm_outside_swing_window"
+   ],
+   "mm2": [
+    "invalid",
+    "outcm_outside_swing_window"
+   ],
+   "mm3": [
+    "invalid",
+    "polarity",
+    "pm_unphysical",
+    "outcm_outside_swing_window"
+   ],
+   "mm4": [
+    "invalid",
+    "outcm_outside_swing_window"
+   ],
+   "t_cold": [
+    "invalid",
+    "polarity",
+    "pm_unphysical",
+    "outcm_outside_swing_window"
+   ],
+   "t_hot": [
+    "gain_db",
+    -0.7062899510286177
+   ],
+   "vdd_hi": [
+    "invalid",
+    "outcm_outside_swing_window"
+   ],
+   "vdd_lo": [
+    "invalid",
+    "polarity",
+    "pm_unphysical",
+    "outcm_outside_swing_window"
+   ]
+  },
+  "worst_corner": "vdd_lo",
+  "worst_invalid": true,
+  "worst_margin": null
+ },
+ "gate_on": {
+  "cpu_s": 59.764469184000006,
+  "feasible": false,
+  "feasible_nominal": true,
+  "flags": [],
+  "gain_db": 44.07812628476397,
+  "idd_ua": 110.98,
+  "n_fail": 0,
+  "params": {
+   "IREF": 6.15052e-05,
+   "M1.L": 1.87685e-07,
+   "M1.W": 2.24176e-06,
+   "M3.L": 8.93668e-07,
+   "M3.W": 2.73318e-06,
+   "M4.L": 8.16165e-07,
+   "M4.W": 3.01283e-06,
+   "M5.L": 2.22546e-07,
+   "M5.W": 3.64135e-06,
+   "M6.L": 1.71726e-07,
+   "M6.W": 3.40516e-06
+  },
+  "pm_deg": 83.8251462290117,
+  "ugf_mhz": 17.803692053681317,
+  "worst_margin": 0.1019531571190992,
+  "worst_margin_robust": null
+ },
+ "gate_on_corner_gain_db": {
+  "mm1": 41.64469598181479,
+  "mm2": 41.29515292735002,
+  "mm3": 43.66776270203015,
+  "mm4": 43.01767317561715,
+  "t_cold": 39.1234384711828,
+  "t_hot": 26.59133641230319,
+  "vdd_hi": 40.06128106340769,
+  "vdd_lo": 55.75018802830793
+ },
+ "gate_on_robust": {
+  "failing": [
+   "t_cold",
+   "t_hot",
+   "mm1"
+  ],
+  "n_corners": 8,
+  "pass": false,
+  "per_corner": {
+   "mm1": [
+    "invalid",
+    "outcm_outside_swing_window"
+   ],
+   "mm2": [
+    "gain_db",
+    0.032378823183750426
+   ],
+   "mm3": [
+    "gain_db",
+    0.09169406755075382
+   ],
+   "mm4": [
+    "gain_db",
+    0.07544182939042869
+   ],
+   "t_cold": [
+    "invalid",
+    "polarity",
+    "pm_unphysical",
+    "outcm_outside_swing_window"
+   ],
+   "t_hot": [
+    "invalid",
+    "outcm_outside_swing_window"
+   ],
+   "vdd_hi": [
+    "gain_db",
+    0.0015320265851922698
+   ],
+   "vdd_lo": [
+    "gain_db",
+    0.3937547007076983
+   ]
+  },
+  "worst_corner": "t_cold",
+  "worst_invalid": true,
+  "worst_margin": null
+ },
+ "spec": {
+  "cl_pf": 2.0,
+  "constraints": {
+   "gain_db": {
+    "min": 40.0
+   },
+   "idd_ua": {
+    "max": 200.0
+   },
+   "pm_deg": {
+    "min": 60.0
+   },
+   "ugf_mhz": {
+    "min": 5.0
+   }
+  },
+  "name": "fragile-pf",
+  "stability": "ss_tran"
+ }
+}

@@ -48,7 +48,7 @@ SWEEP_STEP = 0.025
 ICMR_DELTA = 0.01
 GAIN_WIN = 10 ** (-6.0 / 20)                 # 6 dB
 TRACK_TOL = 0.05                             # V
-SIM_TIMEOUT = 60
+SIM_TIMEOUT = 60                             # pre-D1-prep wall-clock limit; unused (D-O32)
 
 
 def work_dir():
@@ -72,8 +72,10 @@ def fmt(v):
     return "%.6g" % v
 
 
-def dut_lines(devs, params):
-    """DUT device cards. params: {param_name: float} for every name in param_space."""
+def dut_lines(devs, params, dvt=None):
+    """DUT device cards. params: {param_name: float} for every name in param_space.
+    dvt: optional {device name: delvto in V} (robustness gate mismatch corners, D-O33); a
+    device absent from dvt (or dvt None) is written exactly as before."""
     out = []
     for d in devs:
         g = DL.group_of(d.name)
@@ -82,8 +84,11 @@ def dut_lines(devs, params):
             w, l = params[g + ".W"], params[g + ".L"]
             nf = max(1, int(math.ceil(w / W_FINGER - 1e-9)))
             model = "nmos" if d.type == "NMOS" else "pmos"
-            out.append("%s %s %s W=%s L=%s NF=%d" % (spice_name(d), " ".join(nets), model,
-                                                       fmt(w), fmt(l), nf))
+            card = "%s %s %s W=%s L=%s NF=%d" % (spice_name(d), " ".join(nets), model,
+                                                 fmt(w), fmt(l), nf)
+            if dvt and dvt.get(d.name):
+                card += " delvto=%s" % fmt(dvt[d.name])
+            out.append(card)
         else:
             out.append("%s %s %s" % (spice_name(d), " ".join(nets), fmt(params[g + "." + d.type])))
     return out
@@ -111,7 +116,7 @@ def main_deck(devs, params, tb, wd, icmr=True, full=False):
          "Cin vinn tb_sig 1T",
          "Vsig tb_sig 0 dc 0 ac 1",
          "CL vout 0 %s" % fmt(cl)]
-    L += dut_lines(devs, params)
+    L += dut_lines(devs, params, tb.get("dvt"))
     L += [".control", "set wr_singlescale", "op"]
     probes = ["v(vout)", "i(vdd)"]
     if full:
@@ -158,7 +163,7 @@ def tran_deck(devs, params, tb, wd, ugf_hz):
              fmt(pw), fmt(2 * pw + td)),
          "Vfb vinn vout dc 0",
          "CL vout 0 %s" % fmt(cl)]
-    L += dut_lines(devs, params)
+    L += dut_lines(devs, params, tb.get("dvt"))
     L += [".control", "set wr_singlescale",
           "tran %s %s 0 %s" % (fmt(pw / 500), fmt(tstop), fmt(pw / 500)),
           "wrdata %s/tran.txt v(vout)" % wd, ".endc", ".end", ""]
@@ -196,7 +201,7 @@ def ss_deck(devs, params, tb, wd, ugf_hz):
              fmt(10 * tstop), fmt(20 * tstop)),
          "Vfb vinn vout dc 0",
          "CL vout 0 %s" % fmt(cl)]
-    L += dut_lines(devs, params)
+    L += dut_lines(devs, params, tb.get("dvt"))
     L += [".control", "set wr_singlescale",
           "tran %s %s 0 %s" % (fmt(dt), fmt(tstop), fmt(dt)),
           "let dvo = v(vout) - %s" % fmt(vcm),
@@ -228,7 +233,48 @@ def ss_metrics(rows, p):
 
 
 # ------------------------------------------------------------------ running
+# Determinism fix (README D-O32, D1-prep). Until D1-prep every ngspice run had a 60 s
+# WALL-CLOCK timeout (SIM_TIMEOUT above, kept only for reference): under box load a slow
+# but legitimate simulation could cross it in one run and not in another, so the same
+# (netlist, spec, seed) could take a different CMA-ES path (D-O30). Now:
+#   * the ngspice child gets a CPU-TIME limit, RLIMIT_CPU = SIM_CPU_LIMIT s (soft; the kernel
+#     sends SIGXCPU) / + SIM_CPU_HARD_EXTRA s (hard; SIGKILL). CPU time does not grow with the
+#     number of other runnable processes, so the limit fires (or not) for the same deck
+#     regardless of load. A run killed by it is a deterministic simulation failure
+#     ("cpu_limit").
+#   * a WALL-clock backstop (SIM_WALL_BACKSTOP s) only guards against a child that hangs without
+#     using CPU; if it fires the identical deck is re-run once; a second firing is a failure
+#     ("wall_backstop"). Neither path is reached by any run recorded so far.
+# Runs that finish inside both limits return exactly what they returned before (same deck,
+# same output, same parsing), so quiet-box results are bit-identical to the pre-fix verifier.
+SIM_CPU_LIMIT = 120
+SIM_CPU_HARD_EXTRA = 10
+SIM_WALL_BACKSTOP = 3600
+SIM_LOG_MIN_S = 2.0          # OPAMP_V0_SIMLOG=<path>: log every run with cpu or wall >= this
+
+
+def _child_limits():
+    import resource
+    resource.setrlimit(resource.RLIMIT_CPU, (SIM_CPU_LIMIT, SIM_CPU_LIMIT + SIM_CPU_HARD_EXTRA))
+    try:
+        resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
+    except (ValueError, OSError):
+        pass
+
+
+def _simlog(rec):
+    path = os.environ.get("OPAMP_V0_SIMLOG")
+    if not path:
+        return
+    import json
+    with open(path, "a") as fh:
+        fh.write(json.dumps(rec, sort_keys=True) + "\n")
+
+
 def run_ngspice(deck, wd, outputs):
+    import resource
+    import signal
+    import time
     for f in outputs:
         p = os.path.join(wd, f)
         if os.path.exists(p):
@@ -236,13 +282,31 @@ def run_ngspice(deck, wd, outputs):
     path = os.path.join(wd, "deck.cir")
     with open(path, "w") as fh:
         fh.write(deck)
-    try:
-        r = subprocess.run([NGSPICE, "-b", path], cwd=wd, stdout=subprocess.PIPE,
-                           stderr=subprocess.STDOUT, timeout=SIM_TIMEOUT)
-        text = r.stdout.decode(errors="replace")
-    except subprocess.TimeoutExpired:
-        return None, "timeout"
-    return text, None
+    for attempt in (1, 2):
+        ru0, t0 = resource.getrusage(resource.RUSAGE_CHILDREN), time.time()
+        try:
+            r = subprocess.run([NGSPICE, "-b", path], cwd=wd, stdout=subprocess.PIPE,
+                               stderr=subprocess.STDOUT, timeout=SIM_WALL_BACKSTOP,
+                               preexec_fn=_child_limits)
+        except subprocess.TimeoutExpired:
+            _simlog({"event": "wall_backstop", "attempt": attempt, "wall": time.time() - t0,
+                     "deck": deck.splitlines()[0]})
+            for f in outputs:                      # retry from the same clean state
+                p = os.path.join(wd, f)
+                if os.path.exists(p):
+                    os.remove(p)
+            continue
+        ru1 = resource.getrusage(resource.RUSAGE_CHILDREN)
+        cpu = (ru1.ru_utime - ru0.ru_utime) + (ru1.ru_stime - ru0.ru_stime)
+        wall = time.time() - t0
+        killed = r.returncode in (-signal.SIGXCPU, -signal.SIGKILL)
+        if killed or cpu >= SIM_LOG_MIN_S or wall >= SIM_LOG_MIN_S:
+            _simlog({"event": "cpu_limit" if killed else "slow", "rc": r.returncode, "cpu": cpu,
+                     "wall": wall, "deck": deck.splitlines()[0], "pid": os.getpid()})
+        if killed:
+            return None, "cpu_limit"
+        return r.stdout.decode(errors="replace"), None
+    return None, "wall_backstop"
 
 
 def read_rows(path):

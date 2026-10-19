@@ -9,4 +9,5 @@ testbench, metrics, objective modes and the deviations D-O*.
 from .dialect import (parse, format_netlist, canonical, prefilter, param_space,  # noqa: F401
                       groups, DialectError)
 from .sizer import size, evaluate, margins, feasible, PROFILE, RANGES  # noqa: F401
+from .sizer import robust_evaluate, robust_check, corners, mm_vectors, mm_groups  # noqa: F401
 from .testbench import measure  # noqa: F401

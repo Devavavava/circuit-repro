@@ -281,23 +281,28 @@ def ph_report():
         rz.sort(key=lambda r: (C.REGIME_ORDER.index(r["regime"]), r["category"] != "witness",
                                r["design"]))
         lines.append("\n**Re-sized with the gate ON** (max:M, seed 1, 2,500 evals)\n")
-        lines.append("| regime | design | robust-feasible | M (gate on) | D0 M* (gate off) | "
-                     "nominal feasible | worst corner: constraint margin | CPU s |")
-        lines.append("|---|---|---|---|---|---|---|---|")
+        lines.append("| regime | design | robust-feasible | M (gate on) | M at worst-M corner | "
+                     "D0 M* (gate off) | nominal feasible | worst corner: constraint margin | CPU s |")
+        lines.append("|---|---|---|---|---|---|---|---|---|")
         mstar = {}
         for r in recs:
             mstar.setdefault((r["regime"], r["design"]), []).append(
                 r["d0_M"] if r["d0_feasible"] else None)
         for r in rz:
             v = mstar.get((r["regime"], r["design"]))
-            lines.append("| %s | %s | **%s** | %s | %s | %s | %s | %.0f |" % (
+            M = C.regime_M(r["regime"])
+            cs = (r["robust"] or {}).get("corners") or []
+            mc = [c["metrics"].get(M) if c["valid"] else None for c in cs]
+            mw = min(mc) if cs and all(x is not None for x in mc) else None
+            r["M_worst_corner"] = mw
+            lines.append("| %s | %s | **%s** | %s | %s | %s | %s | %s | %.0f |" % (
                 r["regime"], r["design"], "yes" if r["feasible"] else "no", _fmt(r["target"]),
-                _fmt(C.median_inf(v)) if v else "—", r["feasible_nominal"],
+                _fmt(mw), _fmt(C.median_inf(v)) if v else "—", r["feasible_nominal"],
                 _worst(r["robust"]) if r["robust"] else "—", r["cpu_s"]))
     out = {"assized_summary": summ, "n_assized": len(recs),
            "nominal_reproduces_d0": sum(1 for r in recs if r["nominal_M_matches_d0"]),
-           "resize": [{k: r[k] for k in ("regime", "design", "feasible", "feasible_nominal", "target",
-                                         "cpu_s")} for r in rz],
+           "resize": [{k: r.get(k) for k in ("regime", "design", "feasible", "feasible_nominal",
+                                             "target", "M_worst_corner", "cpu_s")} for r in rz],
            "cpu_s_resize": sum(r["cpu_s"] for r in rz)}
     with open(os.path.join(RESULTS, "diagnostic.json"), "w") as fh:
         json.dump(out, fh, indent=1, sort_keys=True)

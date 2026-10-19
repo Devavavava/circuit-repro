@@ -1,7 +1,10 @@
-STATUS: Stage 3 (D0) DONE (2026-10-19). **Verdict STOP: 0/6 tasks accepted.** 5 of 6 tasks fail the minimum
-gap. The sixth (5T/R1) fails confirmation: F1's three-stage NMC is feasible 3/3 at the confirmation spec. 17.87
-CPU-h. See "Stage 3 — D0 RESULT" at the end, `stage3/d0-tables.md` and `stage3/d0-summary.json`. Runner
-`stage3/d0.py` (all phases cached in `stage3/results/jobs.jsonl`; re-running any phase launches nothing).
+STATUS: **D1-prep DONE (2026-10-19)** — determinism fix (D-O32) and opt-in robustness gate `robust: "pvt_mm"`
+(D-O33) built and validated, pre-D1 diagnostic run (no verdict); see "D1-prep: robustness gate + determinism
+fix" at the end. V1 digest `178ad097…` and the gated digest `f406fff1…` are unchanged; the R23 NMC case that
+diverged in D0 now gives 18,146 quiet and under 8 CPU burners. Diagnostic: as sized, 0/79 D0 designs pass the gate;
+re-sized with it, the gate separates witness from single-edit designs in R23 only (not in R1 or R4). ≈ 4.2 CPU-h.
+Before that: Stage 3 (D0) DONE, **verdict STOP: 0/6 tasks accepted** (17.87 CPU-h; "Stage 3 — D0 RESULT",
+`stage3/d0-tables.md`, `stage3/d0-summary.json`; D0's results and verdict are untouched by D1-prep).
 (Stage 2 DONE; D-O16 adopted by Amendment 1.)
 
 Pre-registration: `kaggle/PREREG-OPAMP-V0-D0.md` (frozen at commit `d17423349`). Background:
@@ -25,6 +28,7 @@ card and VDD, `lna/null_sizer.py` for CMA-ES and the eval counter).
 | `stage2/results/` | one JSON per sizing job (`golden-*`, `max-<R>-*`), `f2_<anchor>.jsonl` (pre-filtered F2′ candidates), `f2_<anchor>_counts.json`, `two_edit_<anchor>_s1.jsonl`, `accuracy.json`, `stability_gate_check.json`, `table_all.json`; `pre_stability/` = the first (pre-gate) pass, kept as evidence for D-O16 |
 | `stage3/` | Stage 3 (D0): `d0common.py` (tasks, calibrated specs, job keys, disk-robust store, throttled pool), `d0.py` (phases frontier/screen/top/confirm/analyse/status), `ceiling.py` (step-6 analytic ceiling), `report.py` (→ `d0-tables.md`, `d0-summary.json`); `results/jobs.jsonl` (every D0 sizing run), `results/ceiling.json` |
 | `_scratch/` | gitignored default work dir (set `OPAMP_V0_TMP` to put ngspice temp files elsewhere) |
+| `d1prep/` | D1-prep (determinism fix + robustness gate, D-O32…D-O36): `determinism.py` (quiet/loaded V1 + the R23 NMC case), `robust_validate.py` (goldens, fragile design, gate-on 3-process determinism), `diagnostic.py` (pre-D1 diagnostic: as-sized + re-size), `circuits/pf_ota.net` (VALIDATION-ONLY fragile OTA), `results/` (`loaded.json`, `nmc_*.json`, `rv_*.json`, `assized.jsonl`, `resize.jsonl`, `diagnostic.json`, `diagnostic-tables.md`, `simlog_*.jsonl`) |
 
 Run (from the worktree root, through the env wrapper so ngspice-47 and numpy are on the path):
 `~/.claude/jobs/7cd7ffc3/tmp/run_cr.sh kaggle/campaigns/opamp-v0/gates/v1_determinism.py` (likewise v2…v5).
@@ -40,6 +44,8 @@ r = O.size(netlist_text, spec, seed=1, evals=2500, objective="margin")   # or "m
 #    params {"M1.W": .., "M1.L": .., "Cc.C": .., "IREF": ..} (SI, exactly the simulated values),
 #    secs, cpu_s, evals, n_fail, best_eval, trace, prefilter {ok, why}, netlist (canonical), profile "opamp-v0"
 m = O.evaluate(netlist_text, params, spec, full=True)    # one measurement
+rb = O.robust_evaluate(netlist_text, params, spec, objective="margin")  # D-O33 corners of a sized design
+# spec["robust"] = "pvt_mm" turns the robustness gate on in size()/evaluate() (absent => bit-identical to before)
 spec = {"cl_pf": 2.0, "vcm": 0.55, "vdd": 1.1, "temp_c": 27,          # testbench (these are the defaults, CL 2 pF)
         "constraints": {"gain_db": {"min": 60}, "ugf_mhz": {"min": 10}, "pm_deg": {"min": 60},
                         "idd_ua": {"max": 200}, "swing_vpp": {"min": 0.6}}}
@@ -262,6 +268,70 @@ s = max(|limit|, 1).
 - **D-O31 Incident.** A duplicate `screen R1,R23` run was started by mistake without a log and killed after about
   1 min; killed workers leave no record (results are appended by the parent only), and the exact-key resume
   re-ran everything that was missing. No result is affected.
+- **D-O32 Determinism fix (D1-prep; PREREG-OPAMP-D1-DRAFT §5b.2, user ruling 2026-10-19).** The 60 s
+  WALL-clock ngspice timeout is replaced (`opamp_v0/testbench.run_ngspice`): (i) each ngspice child runs under
+  `RLIMIT_CPU` = 300 s (soft, SIGXCPU; hard 330 s, SIGKILL); a run killed by it is a deterministic simulation
+  failure (`sim_error: cpu_limit`); (ii) a 3,600 s wall backstop only for a child that hangs without using CPU:
+  the identical deck is re-run once, a second firing is a failure (`wall_backstop`; never reached); (iii) the
+  child runs with `OMP_WAIT_POLICY=PASSIVE`. Why (iii): this ngspice-47 is an OpenMP build that evaluates BSIM4
+  on 2 threads by its own default (it overrides `OMP_NUM_THREADS=1`), so a run's CPU time is the work of two
+  threads (plus any spin-waiting). The thread count is deliberately NOT changed: outputs are deterministic run to
+  run at any fixed thread count (15 repeats × 5 settings × 3 golden decks), 1 and 2 threads gave identical bytes
+  on every deck tried, but 4 and 8 threads change bytes on some decks, and every recorded result used 2. The
+  passive wait policy leaves computation untouched (identical bytes on all decks tried) and removes spin-waiting
+  from the CPU count; on the decks measured it made no measurable difference (it is a guard for oversubscribed
+  boxes). **Limit choice:** the slowest simulation seen in any opamp-v0 run so far is the loop-mode main deck of
+  the R23 NMC seed-1 case (the D0 run that diverged, D-O30; IREF = 1 µA): 105 s CPU / 92 s wall (quiet run),
+  109 s / 71 s (8 burners), 113 s / 74 s and 112 s / 73 s (stand-alone, default/passive). CPU time stays within
+  105–113 s across these load conditions while wall ranges 71–92 s; 300 s leaves ≈ 2.7× headroom (a first draft used 120 s, which this sim would have come
+  within 6 % of). Because every pre-fix run that completed did so inside 60 s wall (hence < 120 s CPU on 2
+  threads), every such run is reproduced bit-for-bit; only runs that hit the old wall timeout can change (D0: ≤ 41
+  of 7,965 jobs had any simulation failure; not re-run here, D0's results and verdict are untouched).
+  Instrumentation: `OPAMP_V0_SIMLOG=<file>` logs every ngspice run with ≥ 2 s CPU or wall (results unaffected).
+- **D-O33 Robustness gate (opt-in `spec["robust"] = "pvt_mm"`; §5b.1).** Absent ⇒ no corner is simulated and every
+  result is bit-identical (V1 digest unchanged). Corners, in evaluation order: `vdd_lo` VDD × 0.9, `vdd_hi`
+  VDD × 1.1 (Vcm = the spec's `vcm` if given, else the corner's VDD/2 — mid-supply biasing), `t_cold` −40 °C,
+  `t_hot` +125 °C (nominal VDD), and up to 4 mismatch vectors `mm1..mm4` at nominal VDD/27 °C: every matched MOS
+  group with ≥ 2 members (D-O4) gets a 10 mV Vth difference between its first member (sorted names, e.g.
+  `M1a`) and the other member(s), as BSIM4 instance `delvto` = +s·5 mV / −s·5 mV (pure mismatch, no common
+  shift; checked: `delvto` moves `@m[vth]` by exactly ±10 mV on this card for NMOS and PMOS). Signs per group k
+  (groups sorted by name): mm1 all +, mm2 all −, mm3 + for even k / − for odd k, mm4 = −mm3; duplicate vectors
+  are dropped (1 group ⇒ mm1, mm2; 0 groups ⇒ none). So ≤ 8 corner evaluations; for ≤ 2 groups this covers
+  every sign combination, for more it is a fixed deterministic sample. IREF stays ideal and CL unchanged at every
+  corner. A corner passes iff the design is valid and meets every hard constraint (and the small-step stability
+  gate, D-O16, if the spec has it), measured with exactly the in-loop analyses (plus M in `max:M` mode). **In the
+  loop** the gate runs only on otherwise-feasible points (as D-O16), stops at the first failing corner, and
+  ranks a failing point between every robust-feasible point (< −1) and every nominally infeasible one (> 1):
+  f = r/(1+r), r = (K − i) + s (i = failing corner index, K = number of corners, s = its capped violation, 0.99
+  if invalid). In `margin` mode a robust point's objective uses the worst margin over nominal AND all corners.
+  **Final result:** all corners always (no early exit); `feasible` = nominal feasible AND robust pass; extra
+  keys `feasible_nominal`, `robust` (per-corner rows: feasible, valid, invalid flags, margins, worst constraint,
+  key metrics), `worst_margin_robust`. API: `O.robust_evaluate(netlist, params, spec, objective)` evaluates the
+  corners of an already-sized design; `O.evaluate` attaches `m["robust"]` when the spec has the flag.
+- **D-O34 Gate validation choices.** "Known fragile": no D0 design can serve (that is the hypothesis under
+  test), so a deliberately fragile circuit was built for validation only (`d1prep/circuits/pf_ota.net`: NMOS
+  pair, diode loads in parallel with a cross-coupled PMOS pair, i.e. gain by near-cancellation of gm3 − gm4).
+  Its spec (`FRAGILE_SPEC`) asks for a one-stage gain no plain one-stage design reaches (5T ceiling ≈ 29 dB):
+  first gain ≥ 45 dB / UGF ≥ 10 MHz, which the sizer did not meet nominally (52.8 dB but 9.6 MHz), so the gate
+  never ran; changed to gain ≥ 40 dB / UGF ≥ 5 MHz (R4's floor) before the recorded run. "Known good": the 8
+  Stage-2 goldens as sized at their golden specs (they were sized at nominal only, so failing a corner is not a
+  verifier error), plus the anchor two-stage re-sized with the gate on (shows the gate is satisfiable).
+- **D-O35 Pre-D1 diagnostic selection (no verdict; D0 untouched).** Per regime, from D0's 2,500-eval runs in
+  `stage3/results/jobs.jsonl` (calibration step 0 everywhere): (a) the witness frontier runs (3 seeds);
+  (b) every top-F2′ / top-two-edit run with M ≥ the witness M* (median of its 3 seeds), plus every seed of the 3
+  best F2′ designs by D0 M* and the best two-edit run (so each regime has ≥ 3 single-edit designs and a two-edit
+  design); (c) every feasible F1 frontier run. Each is evaluated AS SIZED (D0's stored parameters; the nominal
+  re-measure reproduces D0's M in 79/79) under the gate at the regime's hard constraints + stability gate, with
+  M also measured at each corner. Re-size: the witness + the 3 best F2′ designs per regime, gate on, `max:M`,
+  seed 1, 2,500 evals.
+- **D-O36 D1-prep conduct.** (i) To stay at ≤ 12 own processes during the loaded test, the running re-size
+  process group was suspended with SIGSTOP; the harness then terminated the stopped group. The one finished job
+  was kept and the 11 others were re-run from scratch by the per-job resume (≈ 0.25 CPU-h of partial work lost; no
+  result affected — every re-size is a fresh seeded run). (ii) During part of D1-prep another job of the same user
+  (`xmsim`) drove the box load to 140–190 on 28 cores; the gate-on 3-process determinism run (bit-identical) and
+  parts of the as-sized and re-size runs ran through it. (iii) The diagnostic's re-size cost 2.43 CPU-h, above
+  the ~0.5–2 CPU-h estimate: gate-on sizing costs 10–25× an ungated run once the sizer spends its budget on
+  robust-feasible points (8 corners + 8 stability transients each).
 
 ## Validation gates (all PASS)
 
@@ -548,3 +618,124 @@ bit-identical; the exception and its cause are in D-O30.
 
 Reproduce (from the worktree root): `run_cr.sh kaggle/campaigns/opamp-v0/stage3/d0.py frontier|screen <R>|top|confirm`
 (all cached → no runs), `stage3/ceiling.py`, `stage3/report.py`.
+
+## D1-prep: robustness gate + determinism fix
+
+User ruling 2026-10-19 on `kaggle/PREREG-OPAMP-D1-DRAFT.md` §5b ("approved both"). Code: `opamp_v0/testbench.py`
+(`run_ngspice`, `dut_lines(dvt)`), `opamp_v0/sizer.py` (`corners`, `mm_vectors`, `robust_check`, `robust_evaluate`,
+gate in `size()`/`evaluate()`); drivers and results in `d1prep/`. Definitions: D-O32 (determinism), D-O33 (gate),
+D-O34 (validation choices), D-O35 (diagnostic selection), D-O36 (conduct). Nothing in D0 was re-run or changed.
+
+### Determinism (D-O32) — PASS
+
+| check | result |
+|---|---|
+| V1 gate, quiet (`gates/v1_determinism.py`, 3 processes) | **PASS**: digest `178ad097a49a…` in all 3 = the Stage-1 digest (`gates/results/v1.json` unchanged) |
+| gated path, quiet (`stage2/gated_determinism.py`, 3 processes, final code) | **PASS**: `f406fff14623…` in all 3 = Stage 2; parameters equal the stored result |
+| R23 three-stage NMC, `max:fom`, seed 1, 2,500 evals, quiet (`determinism.py nmc quiet`) | **18,146.405** (Stage-2 value; D0 had 6,802), 0 sim failures, digest `9ddb7db7…` |
+| **loaded** (`determinism.py loaded`): 8 `yes > /dev/null` burners + 3 V1 processes + the NMC case concurrently (12 own busy processes; load1 median 17.4, max 18.9) | **PASS**: V1 `178ad097…` ×3; NMC **18,146.405**, digest `9ddb7db7…` = quiet run; burners killed, 0 `yes` left in `ps` (`results/loaded.json`) |
+| gate-on sizing, 3 processes (`robust_validate.py det`; ran while another job held the box at load 140–190) | **PASS**: one digest `5a541282…` |
+
+The one slow simulation in the NMC case (loop-mode main deck, IREF 1 µA): 105 s CPU / 92 s wall (quiet), 109 / 71
+(loaded), 113 / 74 and 112 / 73 (stand-alone, default / passive wait). CPU time stays within 105–113 s while wall
+ranges 71–92 s, so a CPU limit set well above it (300 s) is load-independent where the old 60 s wall limit was not. In D0 this
+sim most likely crossed 60 s wall under load (D-O30); in Stage 2 / quiet it did not.
+
+### Robustness gate validation (D-O33/D-O34)
+
+- **Deterministic:** as-sized reports of the 8 goldens identical in two in-process runs and a child process;
+  gate-on sizing bit-identical in 3 processes (above).
+- **Known-fragile design fails:** `d1prep/circuits/pf_ota.net` (cross-coupled positive-feedback load), sized with the
+  gate OFF at gain ≥ 40 dB / UGF ≥ 5 MHz / PM ≥ 60° / Idd ≤ 200 µA (+ stability): nominally feasible at **60.3 dB**
+  (one stage; plain 5T ceiling ≈ 29 dB), and it **fails all 8 corners** (gain 11.7–36.6 dB; invalid at several).
+  With the gate ON, same spec/seed/budget: **no robust point found** (best: nominal 44.1 dB, fails t_cold, t_hot, mm1).
+- **Known-good goldens (as sized at their golden specs, never sized for corners):** **3/8 pass** — `ota5t` (worst
+  t_hot +0.127), `telescopic` (t_hot +0.014), `folded_cascode` (t_cold +0.233). Fail: `two_stage_rz` (vdd_lo, t_hot,
+  mm2; t_hot UGF 13.1 → 0.93 MHz: a weak-inversion 54:1 tail mirror with unequal L, Vth −120 mV at 125 °C via
+  kt1 = −0.37 V puts the load in triode — physics, not a card artifact), `three_stage_nmc` (vdd_lo, mm2, mm4),
+  `W-R1` (t_cold, t_hot, mm1, mm3), `W-R23` (t_cold PM 13°, t_hot, mm2, mm4), `W-R4` (7 of 8). `results/rv_goldens.json`.
+- **The gate is satisfiable by a textbook design:** the anchor two-stage re-sized with the gate on at its golden
+  spec (margin, seed 1): robust-feasible, 58.8 dB, worst robust margin +0.037 (t_hot); 598 CPU-s vs ≈ 37 s ungated.
+
+### Pre-D1 diagnostic (no verdict; D-O35)
+
+Full per-design table (79 rows: design, regime, seed, nominal M, robust pass/fail, failing corners, worst corner and
+margin, M at the worst corner): `d1prep/results/diagnostic-tables.md`; records `results/assized.jsonl`,
+`results/resize.jsonl`, `results/diagnostic.json`.
+
+**As sized (D0's own parameters): 0 of 79 designs pass** — witnesses 0/9, single-edit 0/34, two-edit 0/7, F1 0/29.
+None of them was sized for corners, so this alone does not separate anything. The failure *kind* differs:
+
+| regime/category | n | robust pass | mean failing corners (of 8) | mean invalid corners | designs with a polarity flip | median M(worst corner)/M(nominal) |
+|---|---|---|---|---|---|---|
+| R1/witness | 3 | 0 | 3.3 | 0.3 | 0 | 0.803 (2 of 3 valid at all corners) |
+| R1/single-edit | 9 | 0 | 6.0 | 1.9 | 3 | 0.891 (5 of 9) |
+| R1/two-edit | 1 | 0 | 3.0 | 1.0 | 1 | — |
+| R1/F1 | 14 | 0 | 4.4 | 0.4 | 0 | 0.898 (11 of 14) |
+| R23/witness | 3 | 0 | 6.0 | 1.0 | 0 | 0.344 (2 of 3) |
+| R23/single-edit | 16 | 0 | 7.7 | 4.4 | **16** | — (0 of 16 valid at all corners) |
+| R23/two-edit | 1 | 0 | 8.0 | 6.0 | 1 | — |
+| R23/F1 | 3 | 0 | 5.0 | 0.0 | 0 | 0.792 |
+| R4/witness | 3 | 0 | 5.0 | 2.3 | 0 | 0 (1 of 3) |
+| R4/single-edit | 9 | 0 | 5.3 | 3.4 | 0 | 0.788 (1 of 9) |
+| R4/two-edit | 5 | 0 | 5.0 | 2.4 | 0 | 0.718 (1 of 5) |
+| R4/F1 | 12 | 0 | 3.5 | 1.0 | 0 | 0.856 (4 of 12) |
+
+Representative rows (all "fail"; worst corner: constraint margin, or the invalid flags):
+
+| regime | design | seed | nominal M | worst corner | M at worst corner |
+|---|---|---|---|---|---|
+| R1 | W-R1 | 2 / 3 | 82.27 / 86.99 dB | t_hot: UGF −0.94 / t_cold: UGF −0.77 | 31.2 / 69.8 dB |
+| R1 | F2 `addMOS NMOS IREF n5 n4` (#635) | 1 / 2 / 3 | 79.86 / 86.92 / 79.63 | vdd_hi: invalid (polarity flip) at all 3 | — |
+| R1 | F1 three-stage NMC | 2 | 89.73 | vdd_hi: invalid (outcm) | — |
+| R23 | W-R23 | 2 / 3 | 15,272 / 19,953 | t_cold: PM −0.97 / −1.47 | 3,860 / 6,868 |
+| R23 | F2 #387 / #640 / #1165 / #1221 (every run with M ≥ W*) | — | 15,879–28,961 | invalid (polarity flip / outcm) at 7–8 corners | — |
+| R23 | F1 three-stage NMC | 2 / 3 | 20,101 / 18,997 | mm3: PM −0.29 / −0.19 | 15,912 / 15,407 |
+| R4 | W-R4 | 1 / 3 | 0.970 / 0.963 V | vdd_hi: invalid (outcm) | — |
+| R4 | F2 #1164 | 1–3 | 0.964–0.969 V | mm1 / vdd_hi: invalid (outcm) | — |
+
+**Re-sized with the gate ON** (`max:M`, seed 1, 2,500 evals, regime hard constraints + stability + gate):
+
+| regime | design | robust-feasible | M (gate on) | M at worst-M corner | D0 M* (gate off) | binding corner: constraint margin | CPU s |
+|---|---|---|---|---|---|---|---|
+| R1 | W-R1 | **yes** | 56.33 dB | 43.64 | 82.27 | t_hot: UGF +0.010 | 907 |
+| R1 | F2 #1786 | **yes** | 60.27 | 52.17 | 68.09 | t_cold: PM +0.001 | 436 |
+| R1 | F2 #517 | **yes** | 65.03 | 59.59 | 67.57 | vdd_hi: PM +0.007 | 663 |
+| R1 | F2 #635 (bias feedback) | **yes** | **76.83** | **45.14** | 79.86 | vdd_lo: swing +0.111 | 532 |
+| R23 | W-R23 | **yes** | 11,628 | 7,295 | 15,272 | t_hot: gain +0.025 | 1,628 |
+| R23 | F2 #1165 | **no** | — | — | 16,614 | t_cold: invalid (polarity, outcm) | 57 |
+| R23 | F2 #387 | **no** | — | — | 19,205 | vdd_hi: invalid (polarity, outcm) | 44 |
+| R23 | F2 #640 | **no** | — | — | 18,532 | vdd_hi: invalid (polarity) | 50 |
+| R4 | W-R4 | **yes** | 0.886 V | **0.776** | 0.963 | t_hot: gain +0.033 | 2,336 |
+| R4 | F2 #1164 | **yes** | **0.907** | 0.642 | 0.969 | t_hot: gain +0.002 | 660 |
+| R4 | F2 #1443 | **yes** | 0.835 | 0.727 | 0.948 | t_hot: gain +0.018 | 664 |
+| R4 | F2 #407 | **yes** | 0.893 | 0.761 | 0.957 | t_hot: gain +0.005 | 782 |
+
+(The R23 single-edit runs are cheap because no point ever passes the first failing corner; "M at worst-M corner" is
+the regime's M measured at each corner — M is the objective, not a hard constraint, so the gate does not test it.)
+
+**Does the gate separate the witnesses from the single-transistor bias-feedback designs? Only in R23.**
+- **R23 — yes.** The witness can be sized robust (11,628 MHz·pF/mA, −24 % vs its ungated M*); none of the 3 best
+  single-edit designs yields even one robust point (every candidate flips polarity or loses its operating point at a
+  supply or temperature corner). As sized, all 16 single-edit R23 runs flip polarity at some corner; no witness does.
+- **R1 — no.** All four are robust after re-sizing, and the bias-feedback design #635 keeps the highest nominal gain
+  (76.8 dB vs the witness's 56.3 dB at this seed; the witness's seed 1 was also its weakest in D0, 61.0 dB). Its gain is
+  fragile — it falls 31.7 dB to 45.1 dB at its worst corner (witness −12.7 dB to 43.6 dB) — but R1's gain is the
+  objective, not a hard constraint, so the gate does not see it. Even on worst-corner gain the witness does not win
+  at this seed (#517 59.6, #1786 52.2, #635 45.1 vs 43.6 dB).
+- **R4 — no.** All four are robust; #1164 has the highest nominal ICMR (0.907 V vs 0.886 V). On worst-corner ICMR the
+  witness is best (0.776 V vs 0.761 / 0.727 / 0.642 V), but by 0.015 V over #407 — far below D0's 0.15 V minimum gap.
+- **Implication for D1 (for the freeze; not acted on here):** in D1 the combined requirements (gain, strict ICMR, slew
+  efficiency) are hard constraints, so the gate would check them at every corner. That would capture the
+  corner-fragility of #635's gain and #1164's ICMR. R1/R4 show that the gate as specified (hard constraints only) does
+  not by itself remove these designs; the decisive number is the worst-corner value of the requirement. All of this is
+  one seed per design.
+
+### Cost (D1-prep)
+
+≈ **4.2 CPU-h** in all: re-size 2.43 CPU-h (+ ≈ 0.25 lost, D-O36), gate-on determinism 0.50, gated-path re-runs ≈ 0.33,
+NMC case ×3 (quiet, deck capture, loaded) ≈ 0.29, V1 quiet + loaded ≈ 0.13, as-sized evaluations (79 designs, twice)
+≈ 0.15, fragile/goldens/thread-and-wait-policy probes ≈ 0.15; plus the 8 `yes` burners for ≈ 5 min (≈ 0.65
+CPU-h of `yes`, not counted). Gate-on sizing costs 10–25× an ungated run (two-stage 436–782 s vs ≈ 36 s;
+W-R4 2,336 s; W-R23 1,628 s): D1's §7 budget (25–40 CPU-h) assumed ~2–3× per gated evaluation and must be redone
+if the gate is on in every D1 sizing run.

@@ -279,10 +279,12 @@ def robust_check(devs, params, spec, early_exit=False, objective="margin"):
             "worst_invalid": bool(worst and not worst["valid"]), "shortfall": short}
 
 
-def robust_evaluate(netlist_text, params, spec):
-    """Robustness corners of one sized design (no sizing): the D-O33 report."""
+def robust_evaluate(netlist_text, params, spec, objective="margin"):
+    """Robustness corners of one sized design (no sizing): the D-O33 report. objective
+    "max:M" also measures M at every corner (as the in-loop gate of a max:M run does)."""
     devs = DL.parse(netlist_text)
-    return robust_check(devs, params, dict(spec, robust=spec.get("robust") or "pvt_mm"))
+    return robust_check(devs, params, dict(spec, robust=spec.get("robust") or "pvt_mm"),
+                        objective=objective)
 
 
 def _cpu():

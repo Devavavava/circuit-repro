@@ -238,18 +238,26 @@ def ss_metrics(rows, p):
 # but legitimate simulation could cross it in one run and not in another, so the same
 # (netlist, spec, seed) could take a different CMA-ES path (D-O30). Now:
 #   * the ngspice child gets a CPU-TIME limit, RLIMIT_CPU = SIM_CPU_LIMIT s (soft; the kernel
-#     sends SIGXCPU) / + SIM_CPU_HARD_EXTRA s (hard; SIGKILL). CPU time does not grow with the
-#     number of other runnable processes, so the limit fires (or not) for the same deck
-#     regardless of load. A run killed by it is a deterministic simulation failure
-#     ("cpu_limit").
+#     sends SIGXCPU) / + SIM_CPU_HARD_EXTRA s (hard; SIGKILL). A run killed by it is a
+#     deterministic simulation failure ("cpu_limit").
+#   * ngspice-47 here is an OpenMP build that runs BSIM4 device evaluation on 2 threads (its
+#     own default; OMP_NUM_THREADS is overridden by ngspice). With libgomp's default ACTIVE
+#     wait policy an idle thread spin-waits, so a 2-thread run's CPU time grows with box load
+#     (the slowest observed deck: 105 s CPU / 92 s wall quiet, ~1.55 CPU-s per wall-s loaded).
+#     The child therefore runs with OMP_WAIT_POLICY=PASSIVE (idle threads sleep): same thread
+#     count, same work partition, byte-identical output (checked), CPU time ~= the work done,
+#     so the CPU limit fires (or not) for the same deck regardless of load. The thread count is
+#     NOT changed (4 or 8 threads give different bytes on some decks; 1 and 2 agreed on every
+#     deck tried, but every recorded result used 2).
 #   * a WALL-clock backstop (SIM_WALL_BACKSTOP s) only guards against a child that hangs without
 #     using CPU; if it fires the identical deck is re-run once; a second firing is a failure
 #     ("wall_backstop"). Neither path is reached by any run recorded so far.
 # Runs that finish inside both limits return exactly what they returned before (same deck,
 # same output, same parsing), so quiet-box results are bit-identical to the pre-fix verifier.
-SIM_CPU_LIMIT = 120
-SIM_CPU_HARD_EXTRA = 10
+SIM_CPU_LIMIT = 300
+SIM_CPU_HARD_EXTRA = 30
 SIM_WALL_BACKSTOP = 3600
+SIM_OMP_WAIT = "PASSIVE"         # OMP_WAIT_POLICY of the ngspice child
 SIM_LOG_MIN_S = 2.0          # OPAMP_V0_SIMLOG=<path>: log every run with cpu or wall >= this
 
 
@@ -287,7 +295,8 @@ def run_ngspice(deck, wd, outputs):
         try:
             r = subprocess.run([NGSPICE, "-b", path], cwd=wd, stdout=subprocess.PIPE,
                                stderr=subprocess.STDOUT, timeout=SIM_WALL_BACKSTOP,
-                               preexec_fn=_child_limits)
+                               preexec_fn=_child_limits,
+                               env=dict(os.environ, OMP_WAIT_POLICY=SIM_OMP_WAIT))
         except subprocess.TimeoutExpired:
             _simlog({"event": "wall_backstop", "attempt": attempt, "wall": time.time() - t0,
                      "deck": deck.splitlines()[0]})

@@ -1,0 +1,13 @@
+# VALIDATION ONLY (D1-prep robustness gate, D-O34): a deliberately fragile one-stage OTA.
+# NMOS pair with diode loads M3a/M3b in parallel with a cross-coupled PMOS pair M4a/M4b
+# (positive feedback). Differential gain ~ gm1 / (gm3 - gm4): it can exceed the plain 5T's
+# ~29 dB only by near-cancellation of gm3 and gm4, which drifts with temperature, supply and
+# mismatch (and latches if gm4 > gm3). Output = the VINN-side drain (inverting for VINN).
+NMOS M1a x VINP tail VSS
+NMOS M1b VOUT VINN tail VSS
+PMOS M3a x x VDD VDD
+PMOS M3b VOUT VOUT VDD VDD
+PMOS M4a x VOUT VDD VDD
+PMOS M4b VOUT x VDD VDD
+NMOS M5 tail IREF VSS VSS
+NMOS M6 IREF IREF VSS VSS

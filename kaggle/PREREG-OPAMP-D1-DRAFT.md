@@ -65,8 +65,11 @@ slack is read from a run that optimised something else)
 
 ## 5b. Additions from the D0 result (D0 = STOP, 0/6; `opamp-v0` README "Stage 3 — D0 RESULT", 20955be83)
 
-These are the D0-dependent changes §7 anticipated, plus two verifier issues D0 exposed. Each needs the user's
-ruling before freeze.
+These are the D0-dependent changes §7 anticipated, plus two verifier issues D0 exposed.
+**User ruling 2026-10-19 ("approved both"): the robustness gate (1) and the determinism fix (2) are adopted.**
+They are built and validated (and the pre-D1 diagnostic run) before D1 is frozen; their parameters may be
+calibrated in that step only against D0's existing designs, never against D1 results, and any calibration is
+disclosed in the freeze.
 
 1. **Robustness gate (closes the single-transistor bias-feedback designs).** In D0 one added transistor on the
    two-stage anchor (mostly feeding back through the IREF/bias network, apparently positive feedback) matched or
